@@ -39,7 +39,7 @@ Just run `mvn clean jbake:inline` and the site will be accesible through http://
 
 ## Publishing changes<a name="publishing-changes"></a>
 
-Run `mvn clean generate-resources` to generate the site under `./content/`: changes to the website are published using Apache's [gitpubsub](https://blogs.apache.org/infra/entry/git_based_websites_available) which relies on a special branch called "asf-site" containing *all website content* within a directory called `content/`.
+Changes to the website are published using Apache's [gitpubsub](https://blogs.apache.org/infra/entry/git_based_websites_available) which relies on a special branch called "asf-site" containing *all website content* within a directory called `./content/`.
 
 In the Apache JSPWiki website repository, the "asf-site" branch is an "orphan" branch. Updating the website thus involves:
 
@@ -47,6 +47,10 @@ In the Apache JSPWiki website repository, the "asf-site" branch is an "orphan" b
 2. Replacing the entire contents of the `content/` directory within "asf-site"
    with the newly-generated `content/` directory.
 
-Keep in mind that the new content must be *staged* for and committed. Once you have verified that the staged content is as expected, commit your changes (along with a useful commit message describing the changes at a high level) using `git commit` and publish the update using `git push origin`.
+On the `jbake` branch, run `mvn clean generate-resources` to generate the site under `./target/content/`. Move the site to the `./content/` directory on the `asf-site` branch and push the generated site there.
+
+Keep in mind that the new content must be *staged* for and committed in this branch. Once you have verified that the staged content is as expected, commit your changes (along with a useful commit message describing the changes at a high level) using `git commit` and publish the update using `git push origin`.
 
 If you wish to unstage your changes, use `git reset --hard HEAD` to return to the original state of "asf-site", wiping out any local modifications. You can then return to whichever branch you were working on with `git checkout`.
+
+Use `ci.sh` on the `jbake` branch after executing `mvn clean generate-resources` to automate all this procedure.
