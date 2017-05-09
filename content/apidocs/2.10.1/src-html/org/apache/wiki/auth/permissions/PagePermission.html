@@ -1,0 +1,547 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /* <a name="line.1"></a>
+<FONT color="green">002</FONT>        Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
+<FONT color="green">003</FONT>        or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
+<FONT color="green">004</FONT>        distributed with this work for additional information<a name="line.4"></a>
+<FONT color="green">005</FONT>        regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
+<FONT color="green">006</FONT>        to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
+<FONT color="green">007</FONT>        "License"); you may not use this file except in compliance<a name="line.7"></a>
+<FONT color="green">008</FONT>        with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>           http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>        Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
+<FONT color="green">013</FONT>        software distributed under the License is distributed on an<a name="line.13"></a>
+<FONT color="green">014</FONT>        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
+<FONT color="green">015</FONT>        KIND, either express or implied.  See the License for the<a name="line.15"></a>
+<FONT color="green">016</FONT>        specific language governing permissions and limitations<a name="line.16"></a>
+<FONT color="green">017</FONT>        under the License.  <a name="line.17"></a>
+<FONT color="green">018</FONT>     */<a name="line.18"></a>
+<FONT color="green">019</FONT>    package org.apache.wiki.auth.permissions;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.io.Serializable;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.security.Permission;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.security.PermissionCollection;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.util.Arrays;<a name="line.24"></a>
+<FONT color="green">025</FONT>    <a name="line.25"></a>
+<FONT color="green">026</FONT>    import org.apache.commons.lang.StringUtils;<a name="line.26"></a>
+<FONT color="green">027</FONT>    <a name="line.27"></a>
+<FONT color="green">028</FONT>    import org.apache.wiki.WikiPage;<a name="line.28"></a>
+<FONT color="green">029</FONT>    <a name="line.29"></a>
+<FONT color="green">030</FONT>    /**<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;p&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     * Permission to perform an operation on a single page or collection of pages in<a name="line.32"></a>
+<FONT color="green">033</FONT>     * a given wiki. Permission actions include: &lt;code&gt;view&lt;/code&gt;,&amp;nbsp;<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;code&gt;edit&lt;/code&gt; (edit the text of a wiki page),&amp;nbsp;&lt;code&gt;comment&lt;/code&gt;,&amp;nbsp;<a name="line.34"></a>
+<FONT color="green">035</FONT>     * &lt;code&gt;upload&lt;/code&gt;,&amp;nbsp;&lt;code&gt;modify&lt;/code&gt;&amp;nbsp;(edit text and upload<a name="line.35"></a>
+<FONT color="green">036</FONT>     * attachments),&amp;nbsp;&lt;code&gt;delete&lt;/code&gt;&amp;nbsp;<a name="line.36"></a>
+<FONT color="green">037</FONT>     * and&amp;nbsp;&lt;code&gt;rename&lt;/code&gt;.<a name="line.37"></a>
+<FONT color="green">038</FONT>     * &lt;/p&gt;<a name="line.38"></a>
+<FONT color="green">039</FONT>     * &lt;p&gt;<a name="line.39"></a>
+<FONT color="green">040</FONT>     * The target of a permission is a single page or collection in a given wiki.<a name="line.40"></a>
+<FONT color="green">041</FONT>     * The syntax for the target is the wiki name, followed by a colon (:) and the<a name="line.41"></a>
+<FONT color="green">042</FONT>     * name of the page. "All wikis" can be specified using a wildcard (*). Page<a name="line.42"></a>
+<FONT color="green">043</FONT>     * collections may also be specified using a wildcard. For pages, the wildcard<a name="line.43"></a>
+<FONT color="green">044</FONT>     * may be a prefix, suffix, or all by itself. Examples of targets include:<a name="line.44"></a>
+<FONT color="green">045</FONT>     * &lt;/p&gt;<a name="line.45"></a>
+<FONT color="green">046</FONT>     * &lt;blockquote&gt;&lt;code&gt;*:*&lt;br/&gt;<a name="line.46"></a>
+<FONT color="green">047</FONT>     * *:JanneJalkanen&lt;br/&gt;<a name="line.47"></a>
+<FONT color="green">048</FONT>     * *:Jalkanen&lt;br/&gt;<a name="line.48"></a>
+<FONT color="green">049</FONT>     * *:Janne*&lt;br/&gt;<a name="line.49"></a>
+<FONT color="green">050</FONT>     * mywiki:JanneJalkanen&lt;br/&gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     * mywiki:*Jalkanen&lt;br/&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     * mywiki:Janne*&lt;/code&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     * &lt;/blockquote&gt;<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;p&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     * For a given target, certain permissions imply others:<a name="line.55"></a>
+<FONT color="green">056</FONT>     * &lt;/p&gt;<a name="line.56"></a>
+<FONT color="green">057</FONT>     * &lt;ul&gt;<a name="line.57"></a>
+<FONT color="green">058</FONT>     * &lt;li&gt;&lt;code&gt;delete&lt;/code&gt;&amp;nbsp;and&amp;nbsp;&lt;code&gt;rename&lt;/code&gt;&amp;nbsp;imply&amp;nbsp;&lt;code&gt;edit&lt;/code&gt;&lt;/li&gt;<a name="line.58"></a>
+<FONT color="green">059</FONT>     * &lt;li&gt;&lt;code&gt;modify&lt;/code&gt;&amp;nbsp;implies&amp;nbsp;&lt;code&gt;edit&lt;/code&gt;&amp;nbsp;and&amp;nbsp;&lt;code&gt;upload&lt;/code&gt;&lt;/li&gt;<a name="line.59"></a>
+<FONT color="green">060</FONT>     * &lt;li&gt;&lt;code&gt;edit&lt;/code&gt;&amp;nbsp;implies&amp;nbsp;&lt;code&gt;comment&lt;/code&gt;&amp;nbsp;and&amp;nbsp;&lt;code&gt;view&lt;/code&gt;&lt;/li&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     * &lt;li&gt;&lt;code&gt;comment&lt;/code&gt;&amp;nbsp;and&amp;nbsp;&lt;code&gt;upload&lt;/code&gt;&amp;nbsp;imply&amp;nbsp;&lt;code&gt;view&lt;/code&gt;&lt;/li&gt;<a name="line.61"></a>
+<FONT color="green">062</FONT>     * Targets that do not include a wiki prefix &lt;i&gt;never &lt;/i&gt; imply others.<a name="line.62"></a>
+<FONT color="green">063</FONT>     * &lt;/ul&gt;<a name="line.63"></a>
+<FONT color="green">064</FONT>     * @since 2.3<a name="line.64"></a>
+<FONT color="green">065</FONT>     */<a name="line.65"></a>
+<FONT color="green">066</FONT>    public final class PagePermission extends Permission implements Serializable<a name="line.66"></a>
+<FONT color="green">067</FONT>    {<a name="line.67"></a>
+<FONT color="green">068</FONT>        private static final long          serialVersionUID = 2L;<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>        /** Action name for the comment permission. */<a name="line.70"></a>
+<FONT color="green">071</FONT>        public static final String         COMMENT_ACTION = "comment";<a name="line.71"></a>
+<FONT color="green">072</FONT>    <a name="line.72"></a>
+<FONT color="green">073</FONT>        /** Action name for the delete permission. */<a name="line.73"></a>
+<FONT color="green">074</FONT>        public static final String         DELETE_ACTION  = "delete";<a name="line.74"></a>
+<FONT color="green">075</FONT>    <a name="line.75"></a>
+<FONT color="green">076</FONT>        /** Action name for the edit permission. */<a name="line.76"></a>
+<FONT color="green">077</FONT>        public static final String         EDIT_ACTION    = "edit";<a name="line.77"></a>
+<FONT color="green">078</FONT>    <a name="line.78"></a>
+<FONT color="green">079</FONT>        /** Action name for the modify permission. */<a name="line.79"></a>
+<FONT color="green">080</FONT>        public static final String         MODIFY_ACTION  = "modify";<a name="line.80"></a>
+<FONT color="green">081</FONT>    <a name="line.81"></a>
+<FONT color="green">082</FONT>        /** Action name for the rename permission. */<a name="line.82"></a>
+<FONT color="green">083</FONT>        public static final String         RENAME_ACTION  = "rename";<a name="line.83"></a>
+<FONT color="green">084</FONT>    <a name="line.84"></a>
+<FONT color="green">085</FONT>        /** Action name for the upload permission. */<a name="line.85"></a>
+<FONT color="green">086</FONT>        public static final String         UPLOAD_ACTION  = "upload";<a name="line.86"></a>
+<FONT color="green">087</FONT>    <a name="line.87"></a>
+<FONT color="green">088</FONT>        /** Action name for the view permission. */<a name="line.88"></a>
+<FONT color="green">089</FONT>        public static final String         VIEW_ACTION    = "view";<a name="line.89"></a>
+<FONT color="green">090</FONT>    <a name="line.90"></a>
+<FONT color="green">091</FONT>        protected static final int         COMMENT_MASK   = 0x4;<a name="line.91"></a>
+<FONT color="green">092</FONT>    <a name="line.92"></a>
+<FONT color="green">093</FONT>        protected static final int         DELETE_MASK    = 0x10;<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        protected static final int         EDIT_MASK      = 0x2;<a name="line.95"></a>
+<FONT color="green">096</FONT>    <a name="line.96"></a>
+<FONT color="green">097</FONT>        protected static final int         MODIFY_MASK    = 0x40;<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>        protected static final int         RENAME_MASK    = 0x20;<a name="line.99"></a>
+<FONT color="green">100</FONT>    <a name="line.100"></a>
+<FONT color="green">101</FONT>        protected static final int         UPLOAD_MASK    = 0x8;<a name="line.101"></a>
+<FONT color="green">102</FONT>    <a name="line.102"></a>
+<FONT color="green">103</FONT>        protected static final int         VIEW_MASK      = 0x1;<a name="line.103"></a>
+<FONT color="green">104</FONT>    <a name="line.104"></a>
+<FONT color="green">105</FONT>        /** A static instance of the comment permission. */<a name="line.105"></a>
+<FONT color="green">106</FONT>        public static final PagePermission COMMENT        = new PagePermission( COMMENT_ACTION );<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>        /** A static instance of the delete permission. */<a name="line.108"></a>
+<FONT color="green">109</FONT>        public static final PagePermission DELETE         = new PagePermission( DELETE_ACTION );<a name="line.109"></a>
+<FONT color="green">110</FONT>    <a name="line.110"></a>
+<FONT color="green">111</FONT>        /** A static instance of the edit permission. */<a name="line.111"></a>
+<FONT color="green">112</FONT>        public static final PagePermission EDIT           = new PagePermission( EDIT_ACTION );<a name="line.112"></a>
+<FONT color="green">113</FONT>    <a name="line.113"></a>
+<FONT color="green">114</FONT>        /** A static instance of the rename permission. */<a name="line.114"></a>
+<FONT color="green">115</FONT>        public static final PagePermission RENAME         = new PagePermission( RENAME_ACTION );<a name="line.115"></a>
+<FONT color="green">116</FONT>    <a name="line.116"></a>
+<FONT color="green">117</FONT>        /** A static instance of the modify permission. */<a name="line.117"></a>
+<FONT color="green">118</FONT>        public static final PagePermission MODIFY         = new PagePermission( MODIFY_ACTION );<a name="line.118"></a>
+<FONT color="green">119</FONT>    <a name="line.119"></a>
+<FONT color="green">120</FONT>        /** A static instance of the upload permission. */<a name="line.120"></a>
+<FONT color="green">121</FONT>        public static final PagePermission UPLOAD         = new PagePermission( UPLOAD_ACTION );<a name="line.121"></a>
+<FONT color="green">122</FONT>    <a name="line.122"></a>
+<FONT color="green">123</FONT>        /** A static instance of the view permission. */<a name="line.123"></a>
+<FONT color="green">124</FONT>        public static final PagePermission VIEW           = new PagePermission( VIEW_ACTION );<a name="line.124"></a>
+<FONT color="green">125</FONT>    <a name="line.125"></a>
+<FONT color="green">126</FONT>        private static final String        ACTION_SEPARATOR = ",";<a name="line.126"></a>
+<FONT color="green">127</FONT>    <a name="line.127"></a>
+<FONT color="green">128</FONT>        private static final String        WILDCARD       = "*";<a name="line.128"></a>
+<FONT color="green">129</FONT>    <a name="line.129"></a>
+<FONT color="green">130</FONT>        private static final String        WIKI_SEPARATOR = ":";<a name="line.130"></a>
+<FONT color="green">131</FONT>    <a name="line.131"></a>
+<FONT color="green">132</FONT>        private static final String        ATTACHMENT_SEPARATOR = "/";<a name="line.132"></a>
+<FONT color="green">133</FONT>    <a name="line.133"></a>
+<FONT color="green">134</FONT>        private final String               m_actionString;<a name="line.134"></a>
+<FONT color="green">135</FONT>    <a name="line.135"></a>
+<FONT color="green">136</FONT>        private final int                  m_mask;<a name="line.136"></a>
+<FONT color="green">137</FONT>    <a name="line.137"></a>
+<FONT color="green">138</FONT>        private final String               m_page;<a name="line.138"></a>
+<FONT color="green">139</FONT>    <a name="line.139"></a>
+<FONT color="green">140</FONT>        private final String               m_wiki;<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>        /** For serialization purposes. */<a name="line.142"></a>
+<FONT color="green">143</FONT>        protected PagePermission()<a name="line.143"></a>
+<FONT color="green">144</FONT>        {<a name="line.144"></a>
+<FONT color="green">145</FONT>            this("");<a name="line.145"></a>
+<FONT color="green">146</FONT>        }<a name="line.146"></a>
+<FONT color="green">147</FONT>        <a name="line.147"></a>
+<FONT color="green">148</FONT>        /**<a name="line.148"></a>
+<FONT color="green">149</FONT>         * Private convenience constructor that creates a new PagePermission for all wikis and pages<a name="line.149"></a>
+<FONT color="green">150</FONT>         * (*:*) and set of actions.<a name="line.150"></a>
+<FONT color="green">151</FONT>         * @param actions<a name="line.151"></a>
+<FONT color="green">152</FONT>         */<a name="line.152"></a>
+<FONT color="green">153</FONT>        private PagePermission( String actions )<a name="line.153"></a>
+<FONT color="green">154</FONT>        {<a name="line.154"></a>
+<FONT color="green">155</FONT>            this( WILDCARD + WIKI_SEPARATOR + WILDCARD, actions );<a name="line.155"></a>
+<FONT color="green">156</FONT>        }<a name="line.156"></a>
+<FONT color="green">157</FONT>    <a name="line.157"></a>
+<FONT color="green">158</FONT>        /**<a name="line.158"></a>
+<FONT color="green">159</FONT>         * Creates a new PagePermission for a specified page name and set of<a name="line.159"></a>
+<FONT color="green">160</FONT>         * actions. Page should include a prepended wiki name followed by a colon (:).<a name="line.160"></a>
+<FONT color="green">161</FONT>         * If the wiki name is not supplied or starts with a colon, the page<a name="line.161"></a>
+<FONT color="green">162</FONT>         * refers to no wiki in particular, and will never imply any other<a name="line.162"></a>
+<FONT color="green">163</FONT>         * PagePermission.<a name="line.163"></a>
+<FONT color="green">164</FONT>         * @param page the wiki page<a name="line.164"></a>
+<FONT color="green">165</FONT>         * @param actions the allowed actions for this page<a name="line.165"></a>
+<FONT color="green">166</FONT>         */<a name="line.166"></a>
+<FONT color="green">167</FONT>        public PagePermission( String page, String actions )<a name="line.167"></a>
+<FONT color="green">168</FONT>        {<a name="line.168"></a>
+<FONT color="green">169</FONT>            super( page );<a name="line.169"></a>
+<FONT color="green">170</FONT>    <a name="line.170"></a>
+<FONT color="green">171</FONT>            // Parse wiki and page (which may include wiki name and page)<a name="line.171"></a>
+<FONT color="green">172</FONT>            // Strip out attachment separator; it is irrelevant.<a name="line.172"></a>
+<FONT color="green">173</FONT>            <a name="line.173"></a>
+<FONT color="green">174</FONT>            // FIXME3.0: Assumes attachment separator is "/".<a name="line.174"></a>
+<FONT color="green">175</FONT>            String[] pathParams = StringUtils.split( page, WIKI_SEPARATOR );<a name="line.175"></a>
+<FONT color="green">176</FONT>            String pageName;<a name="line.176"></a>
+<FONT color="green">177</FONT>            if ( pathParams.length &gt;= 2 )<a name="line.177"></a>
+<FONT color="green">178</FONT>            {<a name="line.178"></a>
+<FONT color="green">179</FONT>                m_wiki = pathParams[0].length() &gt; 0 ? pathParams[0] : null;<a name="line.179"></a>
+<FONT color="green">180</FONT>                pageName = pathParams[1];<a name="line.180"></a>
+<FONT color="green">181</FONT>            }<a name="line.181"></a>
+<FONT color="green">182</FONT>            else<a name="line.182"></a>
+<FONT color="green">183</FONT>            {<a name="line.183"></a>
+<FONT color="green">184</FONT>                m_wiki = null;<a name="line.184"></a>
+<FONT color="green">185</FONT>                pageName = pathParams[0];<a name="line.185"></a>
+<FONT color="green">186</FONT>            }<a name="line.186"></a>
+<FONT color="green">187</FONT>            int pos = pageName.indexOf( ATTACHMENT_SEPARATOR );<a name="line.187"></a>
+<FONT color="green">188</FONT>            m_page = ( pos == -1 ) ? pageName : pageName.substring( 0, pos );<a name="line.188"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>            // Parse actions<a name="line.190"></a>
+<FONT color="green">191</FONT>            String[] pageActions = StringUtils.split( actions.toLowerCase(), ACTION_SEPARATOR );<a name="line.191"></a>
+<FONT color="green">192</FONT>            Arrays.sort( pageActions, String.CASE_INSENSITIVE_ORDER );<a name="line.192"></a>
+<FONT color="green">193</FONT>            m_mask = createMask( actions );<a name="line.193"></a>
+<FONT color="green">194</FONT>            StringBuffer buffer = new StringBuffer();<a name="line.194"></a>
+<FONT color="green">195</FONT>            for( int i = 0; i &lt; pageActions.length; i++ )<a name="line.195"></a>
+<FONT color="green">196</FONT>            {<a name="line.196"></a>
+<FONT color="green">197</FONT>                buffer.append( pageActions[i] );<a name="line.197"></a>
+<FONT color="green">198</FONT>                if ( i &lt; ( pageActions.length - 1 ) )<a name="line.198"></a>
+<FONT color="green">199</FONT>                {<a name="line.199"></a>
+<FONT color="green">200</FONT>                    buffer.append( ACTION_SEPARATOR );<a name="line.200"></a>
+<FONT color="green">201</FONT>                }<a name="line.201"></a>
+<FONT color="green">202</FONT>            }<a name="line.202"></a>
+<FONT color="green">203</FONT>            m_actionString = buffer.toString();<a name="line.203"></a>
+<FONT color="green">204</FONT>        }<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>        /**<a name="line.206"></a>
+<FONT color="green">207</FONT>         * Creates a new PagePermission for a specified page and set of actions.<a name="line.207"></a>
+<FONT color="green">208</FONT>         * @param page The wikipage.<a name="line.208"></a>
+<FONT color="green">209</FONT>         * @param actions A set of actions; a comma-separated list of actions.<a name="line.209"></a>
+<FONT color="green">210</FONT>         */<a name="line.210"></a>
+<FONT color="green">211</FONT>        public PagePermission( WikiPage page, String actions )<a name="line.211"></a>
+<FONT color="green">212</FONT>        {<a name="line.212"></a>
+<FONT color="green">213</FONT>            this( page.getWiki() + WIKI_SEPARATOR + page.getName(), actions );<a name="line.213"></a>
+<FONT color="green">214</FONT>        }<a name="line.214"></a>
+<FONT color="green">215</FONT>    <a name="line.215"></a>
+<FONT color="green">216</FONT>        /**<a name="line.216"></a>
+<FONT color="green">217</FONT>         * Two PagePermission objects are considered equal if their actions (after<a name="line.217"></a>
+<FONT color="green">218</FONT>         * normalization), wiki and target are equal.<a name="line.218"></a>
+<FONT color="green">219</FONT>         * @param obj {@inheritDoc}<a name="line.219"></a>
+<FONT color="green">220</FONT>         * @return {@inheritDoc}<a name="line.220"></a>
+<FONT color="green">221</FONT>         */<a name="line.221"></a>
+<FONT color="green">222</FONT>        public boolean equals( Object obj )<a name="line.222"></a>
+<FONT color="green">223</FONT>        {<a name="line.223"></a>
+<FONT color="green">224</FONT>            if ( !( obj instanceof PagePermission ) )<a name="line.224"></a>
+<FONT color="green">225</FONT>            {<a name="line.225"></a>
+<FONT color="green">226</FONT>                return false;<a name="line.226"></a>
+<FONT color="green">227</FONT>            }<a name="line.227"></a>
+<FONT color="green">228</FONT>            PagePermission p = (PagePermission) obj;<a name="line.228"></a>
+<FONT color="green">229</FONT>            return  p.m_mask == m_mask &amp;&amp; p.m_page.equals( m_page )<a name="line.229"></a>
+<FONT color="green">230</FONT>                    &amp;&amp; p.m_wiki != null &amp;&amp; p.m_wiki.equals( m_wiki );<a name="line.230"></a>
+<FONT color="green">231</FONT>        }<a name="line.231"></a>
+<FONT color="green">232</FONT>    <a name="line.232"></a>
+<FONT color="green">233</FONT>        /**<a name="line.233"></a>
+<FONT color="green">234</FONT>         * Returns the actions for this permission: "view", "edit", "comment",<a name="line.234"></a>
+<FONT color="green">235</FONT>         * "modify", "upload" or "delete". The actions will always be sorted in alphabetic<a name="line.235"></a>
+<FONT color="green">236</FONT>         * order, and will always appear in lower case.<a name="line.236"></a>
+<FONT color="green">237</FONT>         *<a name="line.237"></a>
+<FONT color="green">238</FONT>         * @return {@inheritDoc}<a name="line.238"></a>
+<FONT color="green">239</FONT>         */<a name="line.239"></a>
+<FONT color="green">240</FONT>        public String getActions()<a name="line.240"></a>
+<FONT color="green">241</FONT>        {<a name="line.241"></a>
+<FONT color="green">242</FONT>            return m_actionString;<a name="line.242"></a>
+<FONT color="green">243</FONT>        }<a name="line.243"></a>
+<FONT color="green">244</FONT>    <a name="line.244"></a>
+<FONT color="green">245</FONT>        /**<a name="line.245"></a>
+<FONT color="green">246</FONT>         * Returns the name of the wiki page represented by this permission.<a name="line.246"></a>
+<FONT color="green">247</FONT>         * @return the page name<a name="line.247"></a>
+<FONT color="green">248</FONT>         */<a name="line.248"></a>
+<FONT color="green">249</FONT>        public String getPage()<a name="line.249"></a>
+<FONT color="green">250</FONT>        {<a name="line.250"></a>
+<FONT color="green">251</FONT>            return m_page;<a name="line.251"></a>
+<FONT color="green">252</FONT>        }<a name="line.252"></a>
+<FONT color="green">253</FONT>    <a name="line.253"></a>
+<FONT color="green">254</FONT>        /**<a name="line.254"></a>
+<FONT color="green">255</FONT>         * Returns the name of the wiki containing the page represented by<a name="line.255"></a>
+<FONT color="green">256</FONT>         * this permission; may return the wildcard string.<a name="line.256"></a>
+<FONT color="green">257</FONT>         * @return the wiki<a name="line.257"></a>
+<FONT color="green">258</FONT>         */<a name="line.258"></a>
+<FONT color="green">259</FONT>        public String getWiki()<a name="line.259"></a>
+<FONT color="green">260</FONT>        {<a name="line.260"></a>
+<FONT color="green">261</FONT>            return m_wiki;<a name="line.261"></a>
+<FONT color="green">262</FONT>        }<a name="line.262"></a>
+<FONT color="green">263</FONT>    <a name="line.263"></a>
+<FONT color="green">264</FONT>        /**<a name="line.264"></a>
+<FONT color="green">265</FONT>         * Returns the hash code for this PagePermission.<a name="line.265"></a>
+<FONT color="green">266</FONT>         * @return {@inheritDoc}<a name="line.266"></a>
+<FONT color="green">267</FONT>         */<a name="line.267"></a>
+<FONT color="green">268</FONT>        public int hashCode()<a name="line.268"></a>
+<FONT color="green">269</FONT>        {<a name="line.269"></a>
+<FONT color="green">270</FONT>            //  If the wiki has not been set, uses a dummy value for the hashcode<a name="line.270"></a>
+<FONT color="green">271</FONT>            //  calculation.  This may occur if the page given does not refer<a name="line.271"></a>
+<FONT color="green">272</FONT>            //  to any particular wiki<a name="line.272"></a>
+<FONT color="green">273</FONT>            String wiki = m_wiki != null ? m_wiki : "dummy_value";<a name="line.273"></a>
+<FONT color="green">274</FONT>            return m_mask + ( ( 13 * m_actionString.hashCode() ) * 23 * wiki.hashCode() );<a name="line.274"></a>
+<FONT color="green">275</FONT>        }<a name="line.275"></a>
+<FONT color="green">276</FONT>    <a name="line.276"></a>
+<FONT color="green">277</FONT>        /**<a name="line.277"></a>
+<FONT color="green">278</FONT>         * &lt;p&gt;<a name="line.278"></a>
+<FONT color="green">279</FONT>         * PagePermission can only imply other PagePermissions; no other permission<a name="line.279"></a>
+<FONT color="green">280</FONT>         * types are implied. One PagePermission implies another if its actions if<a name="line.280"></a>
+<FONT color="green">281</FONT>         * three conditions are met:<a name="line.281"></a>
+<FONT color="green">282</FONT>         * &lt;/p&gt;<a name="line.282"></a>
+<FONT color="green">283</FONT>         * &lt;ol&gt;<a name="line.283"></a>
+<FONT color="green">284</FONT>         * &lt;li&gt;The other PagePermission's wiki is equal to, or a subset of, that of<a name="line.284"></a>
+<FONT color="green">285</FONT>         * this permission. This permission's wiki is considered a superset of the<a name="line.285"></a>
+<FONT color="green">286</FONT>         * other if it contains a matching prefix plus a wildcard, or a wildcard<a name="line.286"></a>
+<FONT color="green">287</FONT>         * followed by a matching suffix.&lt;/li&gt;<a name="line.287"></a>
+<FONT color="green">288</FONT>         * &lt;li&gt;The other PagePermission's target is equal to, or a subset of, the<a name="line.288"></a>
+<FONT color="green">289</FONT>         * target specified by this permission. This permission's target is<a name="line.289"></a>
+<FONT color="green">290</FONT>         * considered a superset of the other if it contains a matching prefix plus<a name="line.290"></a>
+<FONT color="green">291</FONT>         * a wildcard, or a wildcard followed by a matching suffix.&lt;/li&gt;<a name="line.291"></a>
+<FONT color="green">292</FONT>         * &lt;li&gt;All of other PagePermission's actions are equal to, or a subset of,<a name="line.292"></a>
+<FONT color="green">293</FONT>         * those of this permission&lt;/li&gt;<a name="line.293"></a>
+<FONT color="green">294</FONT>         * &lt;/ol&gt;<a name="line.294"></a>
+<FONT color="green">295</FONT>         * @see java.security.Permission#implies(java.security.Permission)<a name="line.295"></a>
+<FONT color="green">296</FONT>         * <a name="line.296"></a>
+<FONT color="green">297</FONT>         * @param permission {@inheritDoc}<a name="line.297"></a>
+<FONT color="green">298</FONT>         * @return {@inheritDoc}<a name="line.298"></a>
+<FONT color="green">299</FONT>         */<a name="line.299"></a>
+<FONT color="green">300</FONT>        public boolean implies( Permission permission )<a name="line.300"></a>
+<FONT color="green">301</FONT>        {<a name="line.301"></a>
+<FONT color="green">302</FONT>            // Permission must be a PagePermission<a name="line.302"></a>
+<FONT color="green">303</FONT>            if ( !( permission instanceof PagePermission ) )<a name="line.303"></a>
+<FONT color="green">304</FONT>            {<a name="line.304"></a>
+<FONT color="green">305</FONT>                return false;<a name="line.305"></a>
+<FONT color="green">306</FONT>            }<a name="line.306"></a>
+<FONT color="green">307</FONT>    <a name="line.307"></a>
+<FONT color="green">308</FONT>            // Build up an "implied mask"<a name="line.308"></a>
+<FONT color="green">309</FONT>            PagePermission p = (PagePermission) permission;<a name="line.309"></a>
+<FONT color="green">310</FONT>            int impliedMask = impliedMask( m_mask );<a name="line.310"></a>
+<FONT color="green">311</FONT>    <a name="line.311"></a>
+<FONT color="green">312</FONT>            // If actions aren't a proper subset, return false<a name="line.312"></a>
+<FONT color="green">313</FONT>            if ( ( impliedMask &amp; p.m_mask ) != p.m_mask )<a name="line.313"></a>
+<FONT color="green">314</FONT>            {<a name="line.314"></a>
+<FONT color="green">315</FONT>                return false;<a name="line.315"></a>
+<FONT color="green">316</FONT>            }<a name="line.316"></a>
+<FONT color="green">317</FONT>    <a name="line.317"></a>
+<FONT color="green">318</FONT>            // See if the tested permission's wiki is implied<a name="line.318"></a>
+<FONT color="green">319</FONT>            boolean impliedWiki = isSubset( m_wiki, p.m_wiki );<a name="line.319"></a>
+<FONT color="green">320</FONT>    <a name="line.320"></a>
+<FONT color="green">321</FONT>            // If this page is "*", the tested permission's<a name="line.321"></a>
+<FONT color="green">322</FONT>            // page is implied<a name="line.322"></a>
+<FONT color="green">323</FONT>            boolean impliedPage = isSubset( m_page, p.m_page );<a name="line.323"></a>
+<FONT color="green">324</FONT>    <a name="line.324"></a>
+<FONT color="green">325</FONT>            return  impliedWiki &amp;&amp; impliedPage;<a name="line.325"></a>
+<FONT color="green">326</FONT>        }<a name="line.326"></a>
+<FONT color="green">327</FONT>    <a name="line.327"></a>
+<FONT color="green">328</FONT>        /**<a name="line.328"></a>
+<FONT color="green">329</FONT>         * Returns a new {@link AllPermissionCollection}.<a name="line.329"></a>
+<FONT color="green">330</FONT>         * @see java.security.Permission#newPermissionCollection()<a name="line.330"></a>
+<FONT color="green">331</FONT>         * @return {@inheritDoc}<a name="line.331"></a>
+<FONT color="green">332</FONT>         */<a name="line.332"></a>
+<FONT color="green">333</FONT>        @Override<a name="line.333"></a>
+<FONT color="green">334</FONT>        public PermissionCollection newPermissionCollection()<a name="line.334"></a>
+<FONT color="green">335</FONT>        {<a name="line.335"></a>
+<FONT color="green">336</FONT>            return new AllPermissionCollection();<a name="line.336"></a>
+<FONT color="green">337</FONT>        }<a name="line.337"></a>
+<FONT color="green">338</FONT>    <a name="line.338"></a>
+<FONT color="green">339</FONT>        /**<a name="line.339"></a>
+<FONT color="green">340</FONT>         * Prints a human-readable representation of this permission.<a name="line.340"></a>
+<FONT color="green">341</FONT>         * @see java.lang.Object#toString()<a name="line.341"></a>
+<FONT color="green">342</FONT>         * <a name="line.342"></a>
+<FONT color="green">343</FONT>         * @return Something human-readable<a name="line.343"></a>
+<FONT color="green">344</FONT>         */<a name="line.344"></a>
+<FONT color="green">345</FONT>        public String toString()<a name="line.345"></a>
+<FONT color="green">346</FONT>        {<a name="line.346"></a>
+<FONT color="green">347</FONT>            String wiki = ( m_wiki == null ) ? "" : m_wiki;<a name="line.347"></a>
+<FONT color="green">348</FONT>            return "(\"" + this.getClass().getName() + "\",\"" + wiki + WIKI_SEPARATOR + m_page + "\",\"" + getActions() + "\")";<a name="line.348"></a>
+<FONT color="green">349</FONT>        }<a name="line.349"></a>
+<FONT color="green">350</FONT>    <a name="line.350"></a>
+<FONT color="green">351</FONT>        /**<a name="line.351"></a>
+<FONT color="green">352</FONT>         * Creates an "implied mask" based on the actions originally assigned: for<a name="line.352"></a>
+<FONT color="green">353</FONT>         * example, delete implies modify, comment, upload and view.<a name="line.353"></a>
+<FONT color="green">354</FONT>         * @param mask binary mask for actions<a name="line.354"></a>
+<FONT color="green">355</FONT>         * @return binary mask for implied actions<a name="line.355"></a>
+<FONT color="green">356</FONT>         */<a name="line.356"></a>
+<FONT color="green">357</FONT>        protected static int impliedMask( int mask )<a name="line.357"></a>
+<FONT color="green">358</FONT>        {<a name="line.358"></a>
+<FONT color="green">359</FONT>            if ( ( mask &amp; DELETE_MASK ) &gt; 0 )<a name="line.359"></a>
+<FONT color="green">360</FONT>            {<a name="line.360"></a>
+<FONT color="green">361</FONT>                mask |= MODIFY_MASK;<a name="line.361"></a>
+<FONT color="green">362</FONT>            }<a name="line.362"></a>
+<FONT color="green">363</FONT>            if ( ( mask &amp; RENAME_MASK ) &gt; 0 )<a name="line.363"></a>
+<FONT color="green">364</FONT>            {<a name="line.364"></a>
+<FONT color="green">365</FONT>                mask |= EDIT_MASK;<a name="line.365"></a>
+<FONT color="green">366</FONT>            }<a name="line.366"></a>
+<FONT color="green">367</FONT>            if ( ( mask &amp; MODIFY_MASK ) &gt; 0 )<a name="line.367"></a>
+<FONT color="green">368</FONT>            {<a name="line.368"></a>
+<FONT color="green">369</FONT>                mask |= EDIT_MASK | UPLOAD_MASK;<a name="line.369"></a>
+<FONT color="green">370</FONT>            }<a name="line.370"></a>
+<FONT color="green">371</FONT>            if ( ( mask &amp; EDIT_MASK ) &gt; 0 )<a name="line.371"></a>
+<FONT color="green">372</FONT>            {<a name="line.372"></a>
+<FONT color="green">373</FONT>                mask |= COMMENT_MASK;<a name="line.373"></a>
+<FONT color="green">374</FONT>            }<a name="line.374"></a>
+<FONT color="green">375</FONT>            if ( ( mask &amp; COMMENT_MASK ) &gt; 0 )<a name="line.375"></a>
+<FONT color="green">376</FONT>            {<a name="line.376"></a>
+<FONT color="green">377</FONT>                mask |= VIEW_MASK;<a name="line.377"></a>
+<FONT color="green">378</FONT>            }<a name="line.378"></a>
+<FONT color="green">379</FONT>            if ( ( mask &amp; UPLOAD_MASK ) &gt; 0 )<a name="line.379"></a>
+<FONT color="green">380</FONT>            {<a name="line.380"></a>
+<FONT color="green">381</FONT>                mask |= VIEW_MASK;<a name="line.381"></a>
+<FONT color="green">382</FONT>            }<a name="line.382"></a>
+<FONT color="green">383</FONT>            return mask;<a name="line.383"></a>
+<FONT color="green">384</FONT>        }<a name="line.384"></a>
+<FONT color="green">385</FONT>    <a name="line.385"></a>
+<FONT color="green">386</FONT>        /**<a name="line.386"></a>
+<FONT color="green">387</FONT>         * Determines whether one target string is a logical subset of the other.<a name="line.387"></a>
+<FONT color="green">388</FONT>         * @param superSet the prospective superset<a name="line.388"></a>
+<FONT color="green">389</FONT>         * @param subSet the prospective subset<a name="line.389"></a>
+<FONT color="green">390</FONT>         * @return the results of the test, where &lt;code&gt;true&lt;/code&gt; indicates that<a name="line.390"></a>
+<FONT color="green">391</FONT>         *         &lt;code&gt;subSet&lt;/code&gt; is a subset of &lt;code&gt;superSet&lt;/code&gt;<a name="line.391"></a>
+<FONT color="green">392</FONT>         */<a name="line.392"></a>
+<FONT color="green">393</FONT>        protected static boolean isSubset( String superSet, String subSet )<a name="line.393"></a>
+<FONT color="green">394</FONT>        {<a name="line.394"></a>
+<FONT color="green">395</FONT>            // If either is null, return false<a name="line.395"></a>
+<FONT color="green">396</FONT>            if ( superSet == null || subSet == null )<a name="line.396"></a>
+<FONT color="green">397</FONT>            {<a name="line.397"></a>
+<FONT color="green">398</FONT>                return false;<a name="line.398"></a>
+<FONT color="green">399</FONT>            }<a name="line.399"></a>
+<FONT color="green">400</FONT>    <a name="line.400"></a>
+<FONT color="green">401</FONT>            // If targets are identical, it's a subset<a name="line.401"></a>
+<FONT color="green">402</FONT>            if ( superSet.equals( subSet ) )<a name="line.402"></a>
+<FONT color="green">403</FONT>            {<a name="line.403"></a>
+<FONT color="green">404</FONT>                return true;<a name="line.404"></a>
+<FONT color="green">405</FONT>            }<a name="line.405"></a>
+<FONT color="green">406</FONT>    <a name="line.406"></a>
+<FONT color="green">407</FONT>            // If super is "*", it's a subset<a name="line.407"></a>
+<FONT color="green">408</FONT>            if ( superSet.equals( WILDCARD ) )<a name="line.408"></a>
+<FONT color="green">409</FONT>            {<a name="line.409"></a>
+<FONT color="green">410</FONT>                return true;<a name="line.410"></a>
+<FONT color="green">411</FONT>            }<a name="line.411"></a>
+<FONT color="green">412</FONT>    <a name="line.412"></a>
+<FONT color="green">413</FONT>            // If super starts with "*", sub must end with everything after the *<a name="line.413"></a>
+<FONT color="green">414</FONT>            if ( superSet.startsWith( WILDCARD ) )<a name="line.414"></a>
+<FONT color="green">415</FONT>            {<a name="line.415"></a>
+<FONT color="green">416</FONT>                String suffix = superSet.substring( 1 );<a name="line.416"></a>
+<FONT color="green">417</FONT>                return subSet.endsWith( suffix );<a name="line.417"></a>
+<FONT color="green">418</FONT>            }<a name="line.418"></a>
+<FONT color="green">419</FONT>    <a name="line.419"></a>
+<FONT color="green">420</FONT>            // If super ends with "*", sub must start with everything before *<a name="line.420"></a>
+<FONT color="green">421</FONT>            if ( superSet.endsWith( WILDCARD ) )<a name="line.421"></a>
+<FONT color="green">422</FONT>            {<a name="line.422"></a>
+<FONT color="green">423</FONT>                String prefix = superSet.substring( 0, superSet.length() - 1 );<a name="line.423"></a>
+<FONT color="green">424</FONT>                return subSet.startsWith( prefix );<a name="line.424"></a>
+<FONT color="green">425</FONT>            }<a name="line.425"></a>
+<FONT color="green">426</FONT>    <a name="line.426"></a>
+<FONT color="green">427</FONT>            return false;<a name="line.427"></a>
+<FONT color="green">428</FONT>        }<a name="line.428"></a>
+<FONT color="green">429</FONT>    <a name="line.429"></a>
+<FONT color="green">430</FONT>        /**<a name="line.430"></a>
+<FONT color="green">431</FONT>         * Private method that creates a binary mask based on the actions specified.<a name="line.431"></a>
+<FONT color="green">432</FONT>         * This is used by {@link #implies(Permission)}.<a name="line.432"></a>
+<FONT color="green">433</FONT>         * @param actions the actions for this permission, separated by commas<a name="line.433"></a>
+<FONT color="green">434</FONT>         * @return the binary actions mask<a name="line.434"></a>
+<FONT color="green">435</FONT>         */<a name="line.435"></a>
+<FONT color="green">436</FONT>        protected static int createMask( String actions )<a name="line.436"></a>
+<FONT color="green">437</FONT>        {<a name="line.437"></a>
+<FONT color="green">438</FONT>            if ( actions == null || actions.length() == 0 )<a name="line.438"></a>
+<FONT color="green">439</FONT>            {<a name="line.439"></a>
+<FONT color="green">440</FONT>                throw new IllegalArgumentException( "Actions cannot be blank or null" );<a name="line.440"></a>
+<FONT color="green">441</FONT>            }<a name="line.441"></a>
+<FONT color="green">442</FONT>            int mask = 0;<a name="line.442"></a>
+<FONT color="green">443</FONT>            String[] actionList = StringUtils.split( actions, ACTION_SEPARATOR );<a name="line.443"></a>
+<FONT color="green">444</FONT>            for( String action : actionList )<a name="line.444"></a>
+<FONT color="green">445</FONT>            {<a name="line.445"></a>
+<FONT color="green">446</FONT>                if ( action.equalsIgnoreCase( VIEW_ACTION ) )<a name="line.446"></a>
+<FONT color="green">447</FONT>                {<a name="line.447"></a>
+<FONT color="green">448</FONT>                    mask |= VIEW_MASK;<a name="line.448"></a>
+<FONT color="green">449</FONT>                }<a name="line.449"></a>
+<FONT color="green">450</FONT>                else if ( action.equalsIgnoreCase( EDIT_ACTION ) )<a name="line.450"></a>
+<FONT color="green">451</FONT>                {<a name="line.451"></a>
+<FONT color="green">452</FONT>                    mask |= EDIT_MASK;<a name="line.452"></a>
+<FONT color="green">453</FONT>                }<a name="line.453"></a>
+<FONT color="green">454</FONT>                else if ( action.equalsIgnoreCase( COMMENT_ACTION ) )<a name="line.454"></a>
+<FONT color="green">455</FONT>                {<a name="line.455"></a>
+<FONT color="green">456</FONT>                    mask |= COMMENT_MASK;<a name="line.456"></a>
+<FONT color="green">457</FONT>                }<a name="line.457"></a>
+<FONT color="green">458</FONT>                else if ( action.equalsIgnoreCase( MODIFY_ACTION ) )<a name="line.458"></a>
+<FONT color="green">459</FONT>                {<a name="line.459"></a>
+<FONT color="green">460</FONT>                    mask |= MODIFY_MASK;<a name="line.460"></a>
+<FONT color="green">461</FONT>                }<a name="line.461"></a>
+<FONT color="green">462</FONT>                else if ( action.equalsIgnoreCase( UPLOAD_ACTION ) )<a name="line.462"></a>
+<FONT color="green">463</FONT>                {<a name="line.463"></a>
+<FONT color="green">464</FONT>                    mask |= UPLOAD_MASK;<a name="line.464"></a>
+<FONT color="green">465</FONT>                }<a name="line.465"></a>
+<FONT color="green">466</FONT>                else if ( action.equalsIgnoreCase( DELETE_ACTION ) )<a name="line.466"></a>
+<FONT color="green">467</FONT>                {<a name="line.467"></a>
+<FONT color="green">468</FONT>                    mask |= DELETE_MASK;<a name="line.468"></a>
+<FONT color="green">469</FONT>                }<a name="line.469"></a>
+<FONT color="green">470</FONT>                else if ( action.equalsIgnoreCase( RENAME_ACTION ) )<a name="line.470"></a>
+<FONT color="green">471</FONT>                {<a name="line.471"></a>
+<FONT color="green">472</FONT>                    mask |= RENAME_MASK;<a name="line.472"></a>
+<FONT color="green">473</FONT>                }<a name="line.473"></a>
+<FONT color="green">474</FONT>                else<a name="line.474"></a>
+<FONT color="green">475</FONT>                {<a name="line.475"></a>
+<FONT color="green">476</FONT>                    throw new IllegalArgumentException( "Unrecognized action: " + action );<a name="line.476"></a>
+<FONT color="green">477</FONT>                }<a name="line.477"></a>
+<FONT color="green">478</FONT>            }<a name="line.478"></a>
+<FONT color="green">479</FONT>            return mask;<a name="line.479"></a>
+<FONT color="green">480</FONT>        }<a name="line.480"></a>
+<FONT color="green">481</FONT>    }<a name="line.481"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
