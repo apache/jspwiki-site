@@ -1,6 +1,7 @@
 [#ftl]
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html id="top" xmlns="http://www.w3.org/1999/xhtml" xmlns:jspwiki="http://www.jspwiki.org"><head>
+  <base href="${config.site_host}"></base>
   <title>${(content.title)!"Apache JSPWiki"}</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" type="text/css" media="screen, projection, print" href="/css/jspwiki.css">
