@@ -1,0 +1,565 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /* <a name="line.1"></a>
+<FONT color="green">002</FONT>        Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
+<FONT color="green">003</FONT>        or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
+<FONT color="green">004</FONT>        distributed with this work for additional information<a name="line.4"></a>
+<FONT color="green">005</FONT>        regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
+<FONT color="green">006</FONT>        to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
+<FONT color="green">007</FONT>        "License"); you may not use this file except in compliance<a name="line.7"></a>
+<FONT color="green">008</FONT>        with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>           http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>        Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
+<FONT color="green">013</FONT>        software distributed under the License is distributed on an<a name="line.13"></a>
+<FONT color="green">014</FONT>        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
+<FONT color="green">015</FONT>        KIND, either express or implied.  See the License for the<a name="line.15"></a>
+<FONT color="green">016</FONT>        specific language governing permissions and limitations<a name="line.16"></a>
+<FONT color="green">017</FONT>        under the License.  <a name="line.17"></a>
+<FONT color="green">018</FONT>     */<a name="line.18"></a>
+<FONT color="green">019</FONT>    package org.apache.wiki.util;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.Date;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.util.Properties;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>    import javax.mail.Authenticator;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import javax.mail.Message;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import javax.mail.MessagingException;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import javax.mail.PasswordAuthentication;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import javax.mail.Session;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import javax.mail.Transport;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import javax.mail.internet.AddressException;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import javax.mail.internet.InternetAddress;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import javax.mail.internet.MimeMessage;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import javax.naming.Context;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import javax.naming.InitialContext;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import javax.naming.NamingException;<a name="line.35"></a>
+<FONT color="green">036</FONT>    <a name="line.36"></a>
+<FONT color="green">037</FONT>    import org.apache.log4j.Logger;<a name="line.37"></a>
+<FONT color="green">038</FONT>    <a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>    /**<a name="line.40"></a>
+<FONT color="green">041</FONT>     * &lt;p&gt;Contains static methods for sending e-mails to recipients using JNDI-supplied<a name="line.41"></a>
+<FONT color="green">042</FONT>     * &lt;a href="http://java.sun.com/products/javamail/"&gt;JavaMail&lt;/a&gt;<a name="line.42"></a>
+<FONT color="green">043</FONT>     * Sessions supplied by a web container (preferred) or configured via<a name="line.43"></a>
+<FONT color="green">044</FONT>     * &lt;code&gt;jspwiki.properties&lt;/code&gt;; both methods are described below.<a name="line.44"></a>
+<FONT color="green">045</FONT>     * Because most e-mail servers require authentication,<a name="line.45"></a>
+<FONT color="green">046</FONT>     * for security reasons implementors are &lt;em&gt;strongly&lt;/em&gt; encouraged to use<a name="line.46"></a>
+<FONT color="green">047</FONT>     * container-managed JavaMail Sessions so that passwords are not exposed in<a name="line.47"></a>
+<FONT color="green">048</FONT>     * &lt;code&gt;jspwiki.properties&lt;/code&gt;.&lt;/p&gt;<a name="line.48"></a>
+<FONT color="green">049</FONT>     * &lt;p&gt;To enable e-mail functions within JSPWiki, administrators must do three things:<a name="line.49"></a>
+<FONT color="green">050</FONT>     * ensure that the required JavaMail JARs are on the runtime classpath, configure<a name="line.50"></a>
+<FONT color="green">051</FONT>     * JavaMail appropriately, and (recommdended) configure the JNDI JavaMail session factory.&lt;/p&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     * &lt;strong&gt;JavaMail runtime JARs&lt;/strong&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     * &lt;p&gt;The first step is easy: JSPWiki bundles<a name="line.53"></a>
+<FONT color="green">054</FONT>     * recent versions of the required JavaMail &lt;code&gt;mail.jar&lt;/code&gt; and<a name="line.54"></a>
+<FONT color="green">055</FONT>     * &lt;code&gt;activation.jar&lt;/code&gt; into the JSPWiki WAR file; so, out of the box<a name="line.55"></a>
+<FONT color="green">056</FONT>     * this is already taken care of. However, when using JNDI-supplied<a name="line.56"></a>
+<FONT color="green">057</FONT>     * Session factories, these should be moved, &lt;em&gt;not copied&lt;/em&gt;, to a classpath location<a name="line.57"></a>
+<FONT color="green">058</FONT>     * where the JARs can be shared by both the JSPWiki webapp and the container. For example,<a name="line.58"></a>
+<FONT color="green">059</FONT>     * Tomcat 5 provides the directory &lt;code&gt;&lt;var&gt;$CATALINA_HOME&lt;/var&gt;/common/lib&lt;/code&gt;<a name="line.59"></a>
+<FONT color="green">060</FONT>     * for storage of shared JARs; move &lt;code&gt;mail.jar&lt;/code&gt; and &lt;code&gt;activation.jar&lt;/code&gt;<a name="line.60"></a>
+<FONT color="green">061</FONT>     * there instead of keeping them in &lt;code&gt;/WEB-INF/lib&lt;/code&gt;.&lt;/p&gt;<a name="line.61"></a>
+<FONT color="green">062</FONT>     * &lt;strong&gt;JavaMail configuration&lt;/strong&gt;<a name="line.62"></a>
+<FONT color="green">063</FONT>     * &lt;p&gt;Regardless of the method used for supplying JavaMail sessions (JNDI container-managed<a name="line.63"></a>
+<FONT color="green">064</FONT>     * or via &lt;code&gt;jspwiki.properties&lt;/code&gt;, JavaMail needs certain properties<a name="line.64"></a>
+<FONT color="green">065</FONT>     * set in order to work correctly. Configurable properties are these:&lt;/p&gt;<a name="line.65"></a>
+<FONT color="green">066</FONT>     * &lt;table border="1"&gt;<a name="line.66"></a>
+<FONT color="green">067</FONT>     *   &lt;tr&gt;<a name="line.67"></a>
+<FONT color="green">068</FONT>     *   &lt;thead&gt;<a name="line.68"></a>
+<FONT color="green">069</FONT>     *     &lt;th&gt;Property&lt;/th&gt;<a name="line.69"></a>
+<FONT color="green">070</FONT>     *     &lt;th&gt;Default&lt;/th&gt;<a name="line.70"></a>
+<FONT color="green">071</FONT>     *     &lt;th&gt;Definition&lt;/th&gt;<a name="line.71"></a>
+<FONT color="green">072</FONT>     *   &lt;thead&gt;<a name="line.72"></a>
+<FONT color="green">073</FONT>     *   &lt;/tr&gt;<a name="line.73"></a>
+<FONT color="green">074</FONT>     *   &lt;tr&gt;<a name="line.74"></a>
+<FONT color="green">075</FONT>     *     &lt;td&gt;&lt;code&gt;jspwiki.mail.jndiname&lt;/code&gt;&lt;/td&gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>     *     &lt;td&gt;&lt;code&gt;mail/Session&lt;/code&gt;&lt;/td&gt;<a name="line.76"></a>
+<FONT color="green">077</FONT>     *     &lt;td&gt;The JNDI name of the JavaMail session factory&lt;/td&gt;<a name="line.77"></a>
+<FONT color="green">078</FONT>     *   &lt;/tr&gt;<a name="line.78"></a>
+<FONT color="green">079</FONT>     *   &lt;tr&gt;<a name="line.79"></a>
+<FONT color="green">080</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.host&lt;/code&gt;&lt;/td&gt;<a name="line.80"></a>
+<FONT color="green">081</FONT>     *     &lt;td&gt;&lt;code&gt;127.0.0.1&lt;/code&gt;&lt;/td&gt;<a name="line.81"></a>
+<FONT color="green">082</FONT>     *     &lt;td&gt;The SMTP mail server from which messages will be sent.&lt;/td&gt;<a name="line.82"></a>
+<FONT color="green">083</FONT>     *   &lt;/tr&gt;<a name="line.83"></a>
+<FONT color="green">084</FONT>     *   &lt;tr&gt;<a name="line.84"></a>
+<FONT color="green">085</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.port&lt;/code&gt;&lt;/td&gt;<a name="line.85"></a>
+<FONT color="green">086</FONT>     *     &lt;td&gt;&lt;code&gt;25&lt;/code&gt;&lt;/td&gt;<a name="line.86"></a>
+<FONT color="green">087</FONT>     *     &lt;td&gt;The port number of the SMTP mail service.&lt;/td&gt;<a name="line.87"></a>
+<FONT color="green">088</FONT>     *   &lt;/tr&gt;<a name="line.88"></a>
+<FONT color="green">089</FONT>     *   &lt;tr&gt;<a name="line.89"></a>
+<FONT color="green">090</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.account&lt;/code&gt;&lt;/td&gt;<a name="line.90"></a>
+<FONT color="green">091</FONT>     *     &lt;td&gt;(not set)&lt;/td&gt;<a name="line.91"></a>
+<FONT color="green">092</FONT>     *     &lt;td&gt;The user name of the sender. If this value is supplied, the JavaMail<a name="line.92"></a>
+<FONT color="green">093</FONT>     *     session will attempt to authenticate to the mail server before sending<a name="line.93"></a>
+<FONT color="green">094</FONT>     *     the message. If not supplied, JavaMail will attempt to send the message<a name="line.94"></a>
+<FONT color="green">095</FONT>     *     without authenticating (i.e., it will use the server as an open relay).<a name="line.95"></a>
+<FONT color="green">096</FONT>     *     In real-world scenarios, you should set this value.&lt;/td&gt;<a name="line.96"></a>
+<FONT color="green">097</FONT>     *   &lt;/tr&gt;<a name="line.97"></a>
+<FONT color="green">098</FONT>     *   &lt;tr&gt;<a name="line.98"></a>
+<FONT color="green">099</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.password&lt;/code&gt;&lt;/td&gt;<a name="line.99"></a>
+<FONT color="green">100</FONT>     *     &lt;td&gt;(not set)&lt;/td&gt;<a name="line.100"></a>
+<FONT color="green">101</FONT>     *     &lt;td&gt;The password of the sender. In real-world scenarios, you<a name="line.101"></a>
+<FONT color="green">102</FONT>     *     should set this value.&lt;/td&gt;<a name="line.102"></a>
+<FONT color="green">103</FONT>     *   &lt;/tr&gt;<a name="line.103"></a>
+<FONT color="green">104</FONT>     *   &lt;tr&gt;<a name="line.104"></a>
+<FONT color="green">105</FONT>     *     &lt;td&gt;&lt;code&gt;mail.from&lt;/code&gt;&lt;/td&gt;<a name="line.105"></a>
+<FONT color="green">106</FONT>     *     &lt;td&gt;&lt;code&gt;&lt;var&gt;${user.name}&lt;/var&gt;@&lt;var&gt;${mail.smtp.host}&lt;/var&gt;*&lt;/code&gt;&lt;/td&gt;<a name="line.106"></a>
+<FONT color="green">107</FONT>     *     &lt;td&gt;The e-mail address of the sender.&lt;/td&gt;<a name="line.107"></a>
+<FONT color="green">108</FONT>     *   &lt;/tr&gt;<a name="line.108"></a>
+<FONT color="green">109</FONT>     *   &lt;tr&gt;<a name="line.109"></a>
+<FONT color="green">110</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.timeout&lt;/code&gt;&lt;/td&gt;<a name="line.110"></a>
+<FONT color="green">111</FONT>     *     &lt;td&gt;&lt;code&gt;5000*&lt;/code&gt;&lt;/td&gt;<a name="line.111"></a>
+<FONT color="green">112</FONT>     *     &lt;td&gt;Socket I/O timeout value, in milliseconds. The default is 5 seconds.&lt;/td&gt;<a name="line.112"></a>
+<FONT color="green">113</FONT>     *   &lt;/tr&gt;<a name="line.113"></a>
+<FONT color="green">114</FONT>     *   &lt;tr&gt;<a name="line.114"></a>
+<FONT color="green">115</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.connectiontimeout&lt;/code&gt;&lt;/td&gt;<a name="line.115"></a>
+<FONT color="green">116</FONT>     *     &lt;td&gt;&lt;code&gt;5000*&lt;/code&gt;&lt;/td&gt;<a name="line.116"></a>
+<FONT color="green">117</FONT>     *     &lt;td&gt;Socket connection timeout value, in milliseconds. The default is 5 seconds.&lt;/td&gt;<a name="line.117"></a>
+<FONT color="green">118</FONT>     *   &lt;/tr&gt;<a name="line.118"></a>
+<FONT color="green">119</FONT>     *   &lt;tr&gt;<a name="line.119"></a>
+<FONT color="green">120</FONT>     *     &lt;td&gt;&lt;code&gt;mail.smtp.starttls.enable&lt;/code&gt;&lt;/td&gt;<a name="line.120"></a>
+<FONT color="green">121</FONT>     *     &lt;td&gt;&lt;code&gt;true*&lt;/code&gt;&lt;/td&gt;<a name="line.121"></a>
+<FONT color="green">122</FONT>     *     &lt;td&gt;If true, enables the use of the STARTTLS command (if<a name="line.122"></a>
+<FONT color="green">123</FONT>     *     supported by the server) to switch the connection to a<a name="line.123"></a>
+<FONT color="green">124</FONT>     *     TLS-protected connection before issuing any login commands.<a name="line.124"></a>
+<FONT color="green">125</FONT>     *     Note that an appropriate trust store must configured so that<a name="line.125"></a>
+<FONT color="green">126</FONT>     *     the client will trust the server's certificate. By default,<a name="line.126"></a>
+<FONT color="green">127</FONT>     *     the JRE trust store contains root CAs for most public certificate<a name="line.127"></a>
+<FONT color="green">128</FONT>     *     authorities.&lt;/td&gt;<a name="line.128"></a>
+<FONT color="green">129</FONT>     *   &lt;/tr&gt;<a name="line.129"></a>
+<FONT color="green">130</FONT>     * &lt;/table&gt;<a name="line.130"></a>
+<FONT color="green">131</FONT>     * &lt;p&gt;*These defaults apply only if the stand-alone Session factory is used<a name="line.131"></a>
+<FONT color="green">132</FONT>     * (that is, these values are obtained from &lt;code&gt;jspwiki.properties&lt;/code&gt;).<a name="line.132"></a>
+<FONT color="green">133</FONT>     * If using a container-managed JNDI Session factory, the container will<a name="line.133"></a>
+<FONT color="green">134</FONT>     * likely supply its own default values, and you should probably override<a name="line.134"></a>
+<FONT color="green">135</FONT>     * them (see the next section).&lt;/p&gt;<a name="line.135"></a>
+<FONT color="green">136</FONT>     * &lt;strong&gt;Container JNDI Session factory configuration&lt;/strong&gt;<a name="line.136"></a>
+<FONT color="green">137</FONT>     * &lt;p&gt;You are strongly encouraged to use a container-managed JNDI factory for<a name="line.137"></a>
+<FONT color="green">138</FONT>     * JavaMail sessions, rather than configuring JavaMail through &lt;code&gt;jspwiki.properties&lt;/code&gt;.<a name="line.138"></a>
+<FONT color="green">139</FONT>     * To do this, you need to two things: uncomment the &lt;code&gt;&amp;lt;resource-ref&amp;gt;&lt;/code&gt; block<a name="line.139"></a>
+<FONT color="green">140</FONT>     * in &lt;code&gt;/WEB-INF/web.xml&lt;/code&gt; that enables container-managed JavaMail, and<a name="line.140"></a>
+<FONT color="green">141</FONT>     * configure your container's JavaMail resource factory. The &lt;code&gt;web.xml&lt;/code&gt;<a name="line.141"></a>
+<FONT color="green">142</FONT>     * part is easy: just uncomment the section that looks like this:&lt;/p&gt;<a name="line.142"></a>
+<FONT color="green">143</FONT>     * &lt;pre&gt;&amp;lt;resource-ref&amp;gt;<a name="line.143"></a>
+<FONT color="green">144</FONT>     *   &amp;lt;description&gt;Resource reference to a container-managed JNDI JavaMail factory for sending e-mails.&amp;lt;/description&amp;gt;<a name="line.144"></a>
+<FONT color="green">145</FONT>     *   &amp;lt;res-ref-name&gt;mail/Session&amp;lt;/res-ref-name&amp;gt;<a name="line.145"></a>
+<FONT color="green">146</FONT>     *   &amp;lt;res-type&gt;javax.mail.Session&amp;lt;/res-type&amp;gt;<a name="line.146"></a>
+<FONT color="green">147</FONT>     *   &amp;lt;res-auth&gt;Container&amp;lt;/res-auth&amp;gt;<a name="line.147"></a>
+<FONT color="green">148</FONT>     * &amp;lt;/resource-ref&amp;gt;&lt;/pre&gt;<a name="line.148"></a>
+<FONT color="green">149</FONT>     * &lt;p&gt;To configure your container's resource factory, follow the directions supplied by<a name="line.149"></a>
+<FONT color="green">150</FONT>     * your container's documentation. For example, the<a name="line.150"></a>
+<FONT color="green">151</FONT>     * &lt;a href="http://tomcat.apache.org/tomcat-5.5-doc/jndi-resources-howto.html#JavaMail%20Sessions"&gt;Tomcat<a name="line.151"></a>
+<FONT color="green">152</FONT>     * 5.5 docs&lt;/a&gt; state that you need a properly configured &lt;code&gt;&amp;lt;Resource&amp;gt;&lt;/code&gt;<a name="line.152"></a>
+<FONT color="green">153</FONT>     * element inside the JSPWiki webapp's &lt;code&gt;&amp;lt;Context&amp;gt;&lt;/code&gt; declaration. Here's an example shows<a name="line.153"></a>
+<FONT color="green">154</FONT>     * how to do it:&lt;/p&gt;<a name="line.154"></a>
+<FONT color="green">155</FONT>     * &lt;pre&gt;&amp;lt;Context ...&amp;gt;<a name="line.155"></a>
+<FONT color="green">156</FONT>     * ...<a name="line.156"></a>
+<FONT color="green">157</FONT>     * &amp;lt;Resource name="mail/Session" auth="Container"<a name="line.157"></a>
+<FONT color="green">158</FONT>     *           type="javax.mail.Session"<a name="line.158"></a>
+<FONT color="green">159</FONT>     *           mail.smtp.host="127.0.0.1"/&amp;gt;<a name="line.159"></a>
+<FONT color="green">160</FONT>     *           mail.smtp.port="25"/&amp;gt;<a name="line.160"></a>
+<FONT color="green">161</FONT>     *           mail.smtp.account="your-account-name"/&amp;gt;<a name="line.161"></a>
+<FONT color="green">162</FONT>     *           mail.smtp.password="your-password"/&amp;gt;<a name="line.162"></a>
+<FONT color="green">163</FONT>     *           mail.from="Snoop Dogg &amp;lt;snoop@dogg.org&amp;gt;"/&amp;gt;<a name="line.163"></a>
+<FONT color="green">164</FONT>     *           mail.smtp.timeout="5000"/&amp;gt;<a name="line.164"></a>
+<FONT color="green">165</FONT>     *           mail.smtp.connectiontimeout="5000"/&amp;gt;<a name="line.165"></a>
+<FONT color="green">166</FONT>     *           mail.smtp.starttls.enable="true"/&amp;gt;<a name="line.166"></a>
+<FONT color="green">167</FONT>     * ...<a name="line.167"></a>
+<FONT color="green">168</FONT>     * &amp;lt;/Context&amp;gt;&lt;/pre&gt;<a name="line.168"></a>
+<FONT color="green">169</FONT>     * &lt;p&gt;Note that with Tomcat (and most other application containers) you can also declare the JavaMail<a name="line.169"></a>
+<FONT color="green">170</FONT>     * JNDI factory as a global resource, shared by all applications, instead of as a local JSPWiki<a name="line.170"></a>
+<FONT color="green">171</FONT>     * resource as we have done here. For example, the following entry in<a name="line.171"></a>
+<FONT color="green">172</FONT>     * &lt;code&gt;&lt;var&gt;$CATALINA_HOME&lt;/var&gt;/conf/server.xml&lt;/code&gt; creates a global resource:&lt;/p&gt;<a name="line.172"></a>
+<FONT color="green">173</FONT>     * &lt;pre&gt;&amp;lt;GlobalNamingResources&amp;gt;<a name="line.173"></a>
+<FONT color="green">174</FONT>     *   &amp;lt;Resource name="mail/Session" auth="Container"<a name="line.174"></a>
+<FONT color="green">175</FONT>     *             type="javax.mail.Session"<a name="line.175"></a>
+<FONT color="green">176</FONT>     *             ...<a name="line.176"></a>
+<FONT color="green">177</FONT>     *             mail.smtp.starttls.enable="true"/&amp;gt;<a name="line.177"></a>
+<FONT color="green">178</FONT>     * &amp;lt;/GlobalNamingResources&amp;gt;&lt;/pre&gt;<a name="line.178"></a>
+<FONT color="green">179</FONT>     * &lt;p&gt;This approach &amp;#8212; creating a global JNDI resource &amp;#8212; yields somewhat decreased<a name="line.179"></a>
+<FONT color="green">180</FONT>     * deployment complexity because the JSPWiki webapp no longer needs its own JavaMail resource<a name="line.180"></a>
+<FONT color="green">181</FONT>     * declaration. However, it is slightly less secure because it means that all other applications<a name="line.181"></a>
+<FONT color="green">182</FONT>     * can now obtain a JavaMail session if they want to. In many cases, this &lt;em&gt;is&lt;/em&gt; what<a name="line.182"></a>
+<FONT color="green">183</FONT>     * you want.&lt;/p&gt;<a name="line.183"></a>
+<FONT color="green">184</FONT>     * &lt;p&gt;NOTE: Versions of Tomcat 5.5 later than 5.5.17, and up to and including 5.5.23 have a<a name="line.184"></a>
+<FONT color="green">185</FONT>     * b0rked version of &lt;code&gt;&lt;var&gt;$CATALINA_HOME&lt;/var&gt;/common/lib/naming-factory.jar&lt;/code&gt;<a name="line.185"></a>
+<FONT color="green">186</FONT>     * that prevents usage of JNDI. To avoid this problem, you should patch your 5.5.23 version<a name="line.186"></a>
+<FONT color="green">187</FONT>     * of &lt;code&gt;naming-factory.jar&lt;/code&gt; with the one from 5.5.17. This is a known issue<a name="line.187"></a>
+<FONT color="green">188</FONT>     * and the bug report (#40668) is<a name="line.188"></a>
+<FONT color="green">189</FONT>     * &lt;a href="http://issues.apache.org/bugzilla/show_bug.cgi?id=40668"&gt;here&lt;/a&gt;.<a name="line.189"></a>
+<FONT color="green">190</FONT>     *<a name="line.190"></a>
+<FONT color="green">191</FONT>     */<a name="line.191"></a>
+<FONT color="green">192</FONT>    public final class MailUtil {<a name="line.192"></a>
+<FONT color="green">193</FONT>    <a name="line.193"></a>
+<FONT color="green">194</FONT>        private static final String JAVA_COMP_ENV = "java:comp/env";<a name="line.194"></a>
+<FONT color="green">195</FONT>    <a name="line.195"></a>
+<FONT color="green">196</FONT>        private static final String FALSE = "false";<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
+<FONT color="green">198</FONT>        private static final String TRUE = "true";<a name="line.198"></a>
+<FONT color="green">199</FONT>    <a name="line.199"></a>
+<FONT color="green">200</FONT>        private static boolean c_useJndi = true;<a name="line.200"></a>
+<FONT color="green">201</FONT>    <a name="line.201"></a>
+<FONT color="green">202</FONT>        private static final String PROP_MAIL_AUTH = "mail.smtp.auth";<a name="line.202"></a>
+<FONT color="green">203</FONT>    <a name="line.203"></a>
+<FONT color="green">204</FONT>        protected static final Logger log = Logger.getLogger(MailUtil.class);<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>        protected static final String DEFAULT_MAIL_JNDI_NAME       = "mail/Session";<a name="line.206"></a>
+<FONT color="green">207</FONT>    <a name="line.207"></a>
+<FONT color="green">208</FONT>        protected static final String DEFAULT_MAIL_HOST            = "localhost";<a name="line.208"></a>
+<FONT color="green">209</FONT>    <a name="line.209"></a>
+<FONT color="green">210</FONT>        protected static final String DEFAULT_MAIL_PORT            = "25";<a name="line.210"></a>
+<FONT color="green">211</FONT>    <a name="line.211"></a>
+<FONT color="green">212</FONT>        protected static final String DEFAULT_MAIL_TIMEOUT         = "5000";<a name="line.212"></a>
+<FONT color="green">213</FONT>    <a name="line.213"></a>
+<FONT color="green">214</FONT>        protected static final String DEFAULT_MAIL_CONN_TIMEOUT    = "5000";<a name="line.214"></a>
+<FONT color="green">215</FONT>    <a name="line.215"></a>
+<FONT color="green">216</FONT>        protected static final String DEFAULT_SENDER               = "jspwiki@localhost";<a name="line.216"></a>
+<FONT color="green">217</FONT>    <a name="line.217"></a>
+<FONT color="green">218</FONT>        protected static final String PROP_MAIL_JNDI_NAME          = "jspwiki.mail.jndiname";<a name="line.218"></a>
+<FONT color="green">219</FONT>    <a name="line.219"></a>
+<FONT color="green">220</FONT>        protected static final String PROP_MAIL_HOST               = "mail.smtp.host";<a name="line.220"></a>
+<FONT color="green">221</FONT>    <a name="line.221"></a>
+<FONT color="green">222</FONT>        protected static final String PROP_MAIL_PORT               = "mail.smtp.port";<a name="line.222"></a>
+<FONT color="green">223</FONT>    <a name="line.223"></a>
+<FONT color="green">224</FONT>        protected static final String PROP_MAIL_ACCOUNT            = "mail.smtp.account";<a name="line.224"></a>
+<FONT color="green">225</FONT>    <a name="line.225"></a>
+<FONT color="green">226</FONT>        protected static final String PROP_MAIL_PASSWORD           = "mail.smtp.password";<a name="line.226"></a>
+<FONT color="green">227</FONT>    <a name="line.227"></a>
+<FONT color="green">228</FONT>        protected static final String PROP_MAIL_TIMEOUT            = "mail.smtp.timeout";<a name="line.228"></a>
+<FONT color="green">229</FONT>    <a name="line.229"></a>
+<FONT color="green">230</FONT>        protected static final String PROP_MAIL_CONNECTION_TIMEOUT = "mail.smtp.connectiontimeout";<a name="line.230"></a>
+<FONT color="green">231</FONT>    <a name="line.231"></a>
+<FONT color="green">232</FONT>        protected static final String PROP_MAIL_TRANSPORT          = "smtp";<a name="line.232"></a>
+<FONT color="green">233</FONT>    <a name="line.233"></a>
+<FONT color="green">234</FONT>        protected static final String PROP_MAIL_SENDER             = "mail.from";<a name="line.234"></a>
+<FONT color="green">235</FONT>    <a name="line.235"></a>
+<FONT color="green">236</FONT>        protected static final String PROP_MAIL_STARTTLS           = "mail.smtp.starttls.enable";<a name="line.236"></a>
+<FONT color="green">237</FONT>    <a name="line.237"></a>
+<FONT color="green">238</FONT>        private static String c_fromAddress = null;<a name="line.238"></a>
+<FONT color="green">239</FONT>        <a name="line.239"></a>
+<FONT color="green">240</FONT>        /**<a name="line.240"></a>
+<FONT color="green">241</FONT>         *  Private constructor prevents instantiation.<a name="line.241"></a>
+<FONT color="green">242</FONT>         */<a name="line.242"></a>
+<FONT color="green">243</FONT>        private MailUtil()<a name="line.243"></a>
+<FONT color="green">244</FONT>        {<a name="line.244"></a>
+<FONT color="green">245</FONT>        }<a name="line.245"></a>
+<FONT color="green">246</FONT>    <a name="line.246"></a>
+<FONT color="green">247</FONT>        /**<a name="line.247"></a>
+<FONT color="green">248</FONT>         * &lt;p&gt;Sends an e-mail to a specified receiver using a JavaMail Session supplied<a name="line.248"></a>
+<FONT color="green">249</FONT>         * by a JNDI mail session factory (preferred) or a locally initialized<a name="line.249"></a>
+<FONT color="green">250</FONT>         * session based on properties in &lt;code&gt;jspwiki.properties&lt;/code&gt;.<a name="line.250"></a>
+<FONT color="green">251</FONT>         * See the top-level JavaDoc for this class for a description of<a name="line.251"></a>
+<FONT color="green">252</FONT>         * required properties and their default values.&lt;/p&gt;<a name="line.252"></a>
+<FONT color="green">253</FONT>         * &lt;p&gt;The e-mail address used for the &lt;code&gt;to&lt;/code&gt; parameter must be in<a name="line.253"></a>
+<FONT color="green">254</FONT>         * RFC822 format, as described in the JavaDoc for {@link javax.mail.internet.InternetAddress}<a name="line.254"></a>
+<FONT color="green">255</FONT>         * and more fully at<a name="line.255"></a>
+<FONT color="green">256</FONT>         * &lt;a href="http://www.freesoft.org/CIE/RFC/822/index.htm"&gt;http://www.freesoft.org/CIE/RFC/822/index.htm&lt;/a&gt;.<a name="line.256"></a>
+<FONT color="green">257</FONT>         * In other words, e-mail addresses should look like this:&lt;/p&gt;<a name="line.257"></a>
+<FONT color="green">258</FONT>         * &lt;blockquote&gt;&lt;code&gt;Snoop Dog &amp;lt;snoop.dog@shizzle.net&amp;gt;&lt;br/&gt;<a name="line.258"></a>
+<FONT color="green">259</FONT>         * snoop.dog@shizzle.net&lt;/code&gt;&lt;/blockquote&gt;<a name="line.259"></a>
+<FONT color="green">260</FONT>         * &lt;p&gt;Note that the first form allows a "friendly" user name to be supplied<a name="line.260"></a>
+<FONT color="green">261</FONT>         * in addition to the actual e-mail address.&lt;/p&gt;<a name="line.261"></a>
+<FONT color="green">262</FONT>         *<a name="line.262"></a>
+<FONT color="green">263</FONT>         * @param props the properties that contain mail session properties<a name="line.263"></a>
+<FONT color="green">264</FONT>         * @param to the receiver<a name="line.264"></a>
+<FONT color="green">265</FONT>         * @param subject the subject line of the message<a name="line.265"></a>
+<FONT color="green">266</FONT>         * @param content the contents of the mail message, as plain text<a name="line.266"></a>
+<FONT color="green">267</FONT>         * @throws AddressException If the address is invalid<a name="line.267"></a>
+<FONT color="green">268</FONT>         * @throws MessagingException If the message cannot be sent.<a name="line.268"></a>
+<FONT color="green">269</FONT>         */<a name="line.269"></a>
+<FONT color="green">270</FONT>        public static void sendMessage( Properties props, String to, String subject, String content)<a name="line.270"></a>
+<FONT color="green">271</FONT>            throws AddressException, MessagingException<a name="line.271"></a>
+<FONT color="green">272</FONT>        {<a name="line.272"></a>
+<FONT color="green">273</FONT>            Session session = getMailSession( props );<a name="line.273"></a>
+<FONT color="green">274</FONT>            getSenderEmailAddress(session, props);<a name="line.274"></a>
+<FONT color="green">275</FONT>    <a name="line.275"></a>
+<FONT color="green">276</FONT>            try<a name="line.276"></a>
+<FONT color="green">277</FONT>            {<a name="line.277"></a>
+<FONT color="green">278</FONT>                // Create and address the message<a name="line.278"></a>
+<FONT color="green">279</FONT>                MimeMessage msg = new MimeMessage(session);<a name="line.279"></a>
+<FONT color="green">280</FONT>                msg.setFrom(new InternetAddress(c_fromAddress));<a name="line.280"></a>
+<FONT color="green">281</FONT>                msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));<a name="line.281"></a>
+<FONT color="green">282</FONT>                msg.setSubject(subject);<a name="line.282"></a>
+<FONT color="green">283</FONT>                msg.setText(content, "UTF-8");<a name="line.283"></a>
+<FONT color="green">284</FONT>                msg.setSentDate(new Date());<a name="line.284"></a>
+<FONT color="green">285</FONT>    <a name="line.285"></a>
+<FONT color="green">286</FONT>                // Send and log it<a name="line.286"></a>
+<FONT color="green">287</FONT>                Transport.send(msg);<a name="line.287"></a>
+<FONT color="green">288</FONT>                if (log.isInfoEnabled())<a name="line.288"></a>
+<FONT color="green">289</FONT>                {<a name="line.289"></a>
+<FONT color="green">290</FONT>                    log.info("Sent e-mail to=" + to + ", subject=\"" + subject + "\", used "<a name="line.290"></a>
+<FONT color="green">291</FONT>                             + (c_useJndi ? "JNDI" : "standalone") + " mail session.");<a name="line.291"></a>
+<FONT color="green">292</FONT>                }<a name="line.292"></a>
+<FONT color="green">293</FONT>            }<a name="line.293"></a>
+<FONT color="green">294</FONT>            catch (MessagingException e)<a name="line.294"></a>
+<FONT color="green">295</FONT>            {<a name="line.295"></a>
+<FONT color="green">296</FONT>                log.error(e);<a name="line.296"></a>
+<FONT color="green">297</FONT>                throw e;<a name="line.297"></a>
+<FONT color="green">298</FONT>            }<a name="line.298"></a>
+<FONT color="green">299</FONT>        }<a name="line.299"></a>
+<FONT color="green">300</FONT>        <a name="line.300"></a>
+<FONT color="green">301</FONT>        // --------- JavaMail Session Helper methods  --------------------------------<a name="line.301"></a>
+<FONT color="green">302</FONT>    <a name="line.302"></a>
+<FONT color="green">303</FONT>        /**<a name="line.303"></a>
+<FONT color="green">304</FONT>         * Gets the Sender's email address from JNDI Session if available, otherwise<a name="line.304"></a>
+<FONT color="green">305</FONT>         * from the jspwiki.properties or lastly the default value.<a name="line.305"></a>
+<FONT color="green">306</FONT>         * @param pSession &lt;code&gt;Session&lt;/code&gt;<a name="line.306"></a>
+<FONT color="green">307</FONT>         * @param pProperties &lt;code&gt;Properties&lt;/code&gt;<a name="line.307"></a>
+<FONT color="green">308</FONT>         * @return &lt;code&gt;String&lt;/code&gt;<a name="line.308"></a>
+<FONT color="green">309</FONT>         */<a name="line.309"></a>
+<FONT color="green">310</FONT>        protected static String getSenderEmailAddress(Session pSession, Properties pProperties)<a name="line.310"></a>
+<FONT color="green">311</FONT>        {<a name="line.311"></a>
+<FONT color="green">312</FONT>            if( c_fromAddress == null )<a name="line.312"></a>
+<FONT color="green">313</FONT>            {<a name="line.313"></a>
+<FONT color="green">314</FONT>                // First, attempt to get the email address from the JNDI Mail<a name="line.314"></a>
+<FONT color="green">315</FONT>                // Session.<a name="line.315"></a>
+<FONT color="green">316</FONT>                if( pSession != null &amp;&amp; c_useJndi )<a name="line.316"></a>
+<FONT color="green">317</FONT>                {<a name="line.317"></a>
+<FONT color="green">318</FONT>                    c_fromAddress = pSession.getProperty( MailUtil.PROP_MAIL_SENDER );<a name="line.318"></a>
+<FONT color="green">319</FONT>                }<a name="line.319"></a>
+<FONT color="green">320</FONT>                // If unsuccessful, get the email address from the properties or<a name="line.320"></a>
+<FONT color="green">321</FONT>                // default.<a name="line.321"></a>
+<FONT color="green">322</FONT>                if( c_fromAddress == null )<a name="line.322"></a>
+<FONT color="green">323</FONT>                {<a name="line.323"></a>
+<FONT color="green">324</FONT>                    c_fromAddress = pProperties.getProperty( PROP_MAIL_SENDER, DEFAULT_SENDER ).trim();<a name="line.324"></a>
+<FONT color="green">325</FONT>                    if( log.isDebugEnabled() )<a name="line.325"></a>
+<FONT color="green">326</FONT>                        log.debug( "Attempt to get the sender's mail address from the JNDI mail session failed, will use \""<a name="line.326"></a>
+<FONT color="green">327</FONT>                                   + c_fromAddress + "\" (configured via jspwiki.properties or the internal default)." );<a name="line.327"></a>
+<FONT color="green">328</FONT>                }<a name="line.328"></a>
+<FONT color="green">329</FONT>                else<a name="line.329"></a>
+<FONT color="green">330</FONT>                {<a name="line.330"></a>
+<FONT color="green">331</FONT>                    if( log.isDebugEnabled() )<a name="line.331"></a>
+<FONT color="green">332</FONT>                        log.debug( "Attempt to get the sender's mail address from the JNDI mail session was successful (" + c_fromAddress<a name="line.332"></a>
+<FONT color="green">333</FONT>                                   + ")." );<a name="line.333"></a>
+<FONT color="green">334</FONT>                }<a name="line.334"></a>
+<FONT color="green">335</FONT>            }<a name="line.335"></a>
+<FONT color="green">336</FONT>            return c_fromAddress;<a name="line.336"></a>
+<FONT color="green">337</FONT>        }<a name="line.337"></a>
+<FONT color="green">338</FONT>    <a name="line.338"></a>
+<FONT color="green">339</FONT>        /**<a name="line.339"></a>
+<FONT color="green">340</FONT>         * Returns the Mail Session from either JNDI or creates a stand-alone.<a name="line.340"></a>
+<FONT color="green">341</FONT>         * @param props a the properties that contain mail session properties<a name="line.341"></a>
+<FONT color="green">342</FONT>         * @return &lt;code&gt;Session&lt;/code&gt;<a name="line.342"></a>
+<FONT color="green">343</FONT>         */<a name="line.343"></a>
+<FONT color="green">344</FONT>        private static Session getMailSession(Properties props)<a name="line.344"></a>
+<FONT color="green">345</FONT>        {<a name="line.345"></a>
+<FONT color="green">346</FONT>            Session result = null;<a name="line.346"></a>
+<FONT color="green">347</FONT>            String jndiName = props.getProperty(PROP_MAIL_JNDI_NAME, DEFAULT_MAIL_JNDI_NAME).trim();<a name="line.347"></a>
+<FONT color="green">348</FONT>    <a name="line.348"></a>
+<FONT color="green">349</FONT>            if (c_useJndi)<a name="line.349"></a>
+<FONT color="green">350</FONT>            {<a name="line.350"></a>
+<FONT color="green">351</FONT>                // Try getting the Session from the JNDI factory first<a name="line.351"></a>
+<FONT color="green">352</FONT>                if ( log.isDebugEnabled() )<a name="line.352"></a>
+<FONT color="green">353</FONT>                    log.debug("Try getting a mail session via JNDI name \"" + jndiName + "\".");<a name="line.353"></a>
+<FONT color="green">354</FONT>                try<a name="line.354"></a>
+<FONT color="green">355</FONT>                {<a name="line.355"></a>
+<FONT color="green">356</FONT>                    result = getJNDIMailSession(jndiName);<a name="line.356"></a>
+<FONT color="green">357</FONT>                }<a name="line.357"></a>
+<FONT color="green">358</FONT>                catch (NamingException e)<a name="line.358"></a>
+<FONT color="green">359</FONT>                {<a name="line.359"></a>
+<FONT color="green">360</FONT>                    // Oops! JNDI factory must not be set up<a name="line.360"></a>
+<FONT color="green">361</FONT>                    c_useJndi = false;<a name="line.361"></a>
+<FONT color="green">362</FONT>                    if ( log.isInfoEnabled() )<a name="line.362"></a>
+<FONT color="green">363</FONT>                        log.info("Unable to get a mail session via JNDI, will use custom settings at least until next startup.");<a name="line.363"></a>
+<FONT color="green">364</FONT>                }<a name="line.364"></a>
+<FONT color="green">365</FONT>            }<a name="line.365"></a>
+<FONT color="green">366</FONT>    <a name="line.366"></a>
+<FONT color="green">367</FONT>            // JNDI failed; so, get the Session from the standalone factory<a name="line.367"></a>
+<FONT color="green">368</FONT>            if (result == null)<a name="line.368"></a>
+<FONT color="green">369</FONT>            {<a name="line.369"></a>
+<FONT color="green">370</FONT>                if ( log.isDebugEnabled() )<a name="line.370"></a>
+<FONT color="green">371</FONT>                    log.debug("Getting a standalone mail session configured by jspwiki.properties and/or internal default values.");<a name="line.371"></a>
+<FONT color="green">372</FONT>                result = getStandaloneMailSession(props);<a name="line.372"></a>
+<FONT color="green">373</FONT>            }<a name="line.373"></a>
+<FONT color="green">374</FONT>            return result;<a name="line.374"></a>
+<FONT color="green">375</FONT>        }<a name="line.375"></a>
+<FONT color="green">376</FONT>    <a name="line.376"></a>
+<FONT color="green">377</FONT>        /**<a name="line.377"></a>
+<FONT color="green">378</FONT>         * Returns a stand-alone JavaMail Session by looking up the correct<a name="line.378"></a>
+<FONT color="green">379</FONT>         * mail account, password and host from a supplied set of properties.<a name="line.379"></a>
+<FONT color="green">380</FONT>         * If the JavaMail property {@value #PROP_MAIL_ACCOUNT} is set to<a name="line.380"></a>
+<FONT color="green">381</FONT>         * a value that is non-&lt;code&gt;null&lt;/code&gt; and of non-zero length, the<a name="line.381"></a>
+<FONT color="green">382</FONT>         * Session will be initialized with an instance of<a name="line.382"></a>
+<FONT color="green">383</FONT>         * {@link javax.mail.Authenticator}.<a name="line.383"></a>
+<FONT color="green">384</FONT>         * @param props the properties that contain mail session properties<a name="line.384"></a>
+<FONT color="green">385</FONT>         * @return the initialized JavaMail Session<a name="line.385"></a>
+<FONT color="green">386</FONT>         */<a name="line.386"></a>
+<FONT color="green">387</FONT>        protected static Session getStandaloneMailSession( Properties props ) {<a name="line.387"></a>
+<FONT color="green">388</FONT>            // Read the JSPWiki settings from the properties<a name="line.388"></a>
+<FONT color="green">389</FONT>            String host     = props.getProperty( PROP_MAIL_HOST, DEFAULT_MAIL_HOST );<a name="line.389"></a>
+<FONT color="green">390</FONT>            String port     = props.getProperty( PROP_MAIL_PORT, DEFAULT_MAIL_PORT );<a name="line.390"></a>
+<FONT color="green">391</FONT>            String account  = props.getProperty( PROP_MAIL_ACCOUNT );<a name="line.391"></a>
+<FONT color="green">392</FONT>            String password = props.getProperty( PROP_MAIL_PASSWORD );<a name="line.392"></a>
+<FONT color="green">393</FONT>            String timeout  = props.getProperty( PROP_MAIL_TIMEOUT, DEFAULT_MAIL_TIMEOUT);<a name="line.393"></a>
+<FONT color="green">394</FONT>            String conntimeout = props.getProperty( PROP_MAIL_CONNECTION_TIMEOUT, DEFAULT_MAIL_CONN_TIMEOUT );<a name="line.394"></a>
+<FONT color="green">395</FONT>            boolean starttls = TextUtil.getBooleanProperty( props, PROP_MAIL_STARTTLS, true);<a name="line.395"></a>
+<FONT color="green">396</FONT>            <a name="line.396"></a>
+<FONT color="green">397</FONT>            boolean useAuthentication = account != null &amp;&amp; account.length() &gt; 0;<a name="line.397"></a>
+<FONT color="green">398</FONT>    <a name="line.398"></a>
+<FONT color="green">399</FONT>            Properties mailProps = new Properties();<a name="line.399"></a>
+<FONT color="green">400</FONT>    <a name="line.400"></a>
+<FONT color="green">401</FONT>            // Set JavaMail properties<a name="line.401"></a>
+<FONT color="green">402</FONT>            mailProps.put( PROP_MAIL_HOST, host );<a name="line.402"></a>
+<FONT color="green">403</FONT>            mailProps.put( PROP_MAIL_PORT, port );<a name="line.403"></a>
+<FONT color="green">404</FONT>            mailProps.put( PROP_MAIL_TIMEOUT, timeout );<a name="line.404"></a>
+<FONT color="green">405</FONT>            mailProps.put( PROP_MAIL_CONNECTION_TIMEOUT, conntimeout );<a name="line.405"></a>
+<FONT color="green">406</FONT>            mailProps.put( PROP_MAIL_STARTTLS, starttls ? TRUE : FALSE );<a name="line.406"></a>
+<FONT color="green">407</FONT>    <a name="line.407"></a>
+<FONT color="green">408</FONT>            // Add SMTP authentication if required<a name="line.408"></a>
+<FONT color="green">409</FONT>            Session session = null;<a name="line.409"></a>
+<FONT color="green">410</FONT>            if ( useAuthentication )<a name="line.410"></a>
+<FONT color="green">411</FONT>            {<a name="line.411"></a>
+<FONT color="green">412</FONT>                mailProps.put( PROP_MAIL_AUTH, TRUE );<a name="line.412"></a>
+<FONT color="green">413</FONT>                SmtpAuthenticator auth = new SmtpAuthenticator( account, password );<a name="line.413"></a>
+<FONT color="green">414</FONT>    <a name="line.414"></a>
+<FONT color="green">415</FONT>                session = Session.getInstance( mailProps, auth );<a name="line.415"></a>
+<FONT color="green">416</FONT>            }<a name="line.416"></a>
+<FONT color="green">417</FONT>            else<a name="line.417"></a>
+<FONT color="green">418</FONT>            {<a name="line.418"></a>
+<FONT color="green">419</FONT>                session = Session.getInstance( mailProps );<a name="line.419"></a>
+<FONT color="green">420</FONT>            }<a name="line.420"></a>
+<FONT color="green">421</FONT>    <a name="line.421"></a>
+<FONT color="green">422</FONT>            if ( log.isDebugEnabled() )<a name="line.422"></a>
+<FONT color="green">423</FONT>            {<a name="line.423"></a>
+<FONT color="green">424</FONT>                String mailServer = host + ":" + port + ", account=" + account + ", password not displayed, timeout="<a name="line.424"></a>
+<FONT color="green">425</FONT>                + timeout + ", connectiontimeout=" + conntimeout + ", starttls.enable=" + starttls<a name="line.425"></a>
+<FONT color="green">426</FONT>                + ", use authentication=" + ( useAuthentication ? TRUE : FALSE );<a name="line.426"></a>
+<FONT color="green">427</FONT>                log.debug( "JavaMail session obtained from standalone mail factory: " + mailServer );<a name="line.427"></a>
+<FONT color="green">428</FONT>            }<a name="line.428"></a>
+<FONT color="green">429</FONT>            return session;<a name="line.429"></a>
+<FONT color="green">430</FONT>        }<a name="line.430"></a>
+<FONT color="green">431</FONT>    <a name="line.431"></a>
+<FONT color="green">432</FONT>    <a name="line.432"></a>
+<FONT color="green">433</FONT>        /**<a name="line.433"></a>
+<FONT color="green">434</FONT>         * Returns a JavaMail Session instance from a JNDI container-managed factory.<a name="line.434"></a>
+<FONT color="green">435</FONT>         * @param jndiName the JNDI name for the resource. If &lt;code&gt;null&lt;/code&gt;, the default value<a name="line.435"></a>
+<FONT color="green">436</FONT>         * of &lt;code&gt;mail/Session&lt;/code&gt; will be used<a name="line.436"></a>
+<FONT color="green">437</FONT>         * @return the initialized JavaMail Session<a name="line.437"></a>
+<FONT color="green">438</FONT>         * @throws NamingException if the Session cannot be obtained; for example, if the factory is not configured<a name="line.438"></a>
+<FONT color="green">439</FONT>         */<a name="line.439"></a>
+<FONT color="green">440</FONT>        protected static Session getJNDIMailSession( String jndiName ) throws NamingException<a name="line.440"></a>
+<FONT color="green">441</FONT>        {<a name="line.441"></a>
+<FONT color="green">442</FONT>            Session session = null;<a name="line.442"></a>
+<FONT color="green">443</FONT>            try<a name="line.443"></a>
+<FONT color="green">444</FONT>            {<a name="line.444"></a>
+<FONT color="green">445</FONT>                Context initCtx = new InitialContext();<a name="line.445"></a>
+<FONT color="green">446</FONT>                Context ctx = (Context) initCtx.lookup( JAVA_COMP_ENV );<a name="line.446"></a>
+<FONT color="green">447</FONT>                session = (Session) ctx.lookup( jndiName );<a name="line.447"></a>
+<FONT color="green">448</FONT>            }<a name="line.448"></a>
+<FONT color="green">449</FONT>            catch( NamingException e )<a name="line.449"></a>
+<FONT color="green">450</FONT>            {<a name="line.450"></a>
+<FONT color="green">451</FONT>                log.warn( "JNDI mail session initialization error: " + e.getMessage() );<a name="line.451"></a>
+<FONT color="green">452</FONT>                throw e;<a name="line.452"></a>
+<FONT color="green">453</FONT>            }<a name="line.453"></a>
+<FONT color="green">454</FONT>            if ( log.isDebugEnabled() )<a name="line.454"></a>
+<FONT color="green">455</FONT>            {<a name="line.455"></a>
+<FONT color="green">456</FONT>                log.debug( "mail session obtained from JNDI mail factory: " + jndiName );<a name="line.456"></a>
+<FONT color="green">457</FONT>            }<a name="line.457"></a>
+<FONT color="green">458</FONT>            return session;<a name="line.458"></a>
+<FONT color="green">459</FONT>        }<a name="line.459"></a>
+<FONT color="green">460</FONT>    <a name="line.460"></a>
+<FONT color="green">461</FONT>        /**<a name="line.461"></a>
+<FONT color="green">462</FONT>         * Simple {@link javax.mail.Authenticator} subclass that authenticates a user to<a name="line.462"></a>
+<FONT color="green">463</FONT>         * an SMTP server.<a name="line.463"></a>
+<FONT color="green">464</FONT>         */<a name="line.464"></a>
+<FONT color="green">465</FONT>        protected static class SmtpAuthenticator extends Authenticator {<a name="line.465"></a>
+<FONT color="green">466</FONT>    <a name="line.466"></a>
+<FONT color="green">467</FONT>            private static final String BLANK = "";<a name="line.467"></a>
+<FONT color="green">468</FONT>            private final String m_pass;<a name="line.468"></a>
+<FONT color="green">469</FONT>            private final String m_login;<a name="line.469"></a>
+<FONT color="green">470</FONT>    <a name="line.470"></a>
+<FONT color="green">471</FONT>            /**<a name="line.471"></a>
+<FONT color="green">472</FONT>             * Constructs a new SmtpAuthenticator with a supplied username and password.<a name="line.472"></a>
+<FONT color="green">473</FONT>             * @param login the user name<a name="line.473"></a>
+<FONT color="green">474</FONT>             * @param pass the password<a name="line.474"></a>
+<FONT color="green">475</FONT>             */<a name="line.475"></a>
+<FONT color="green">476</FONT>            public SmtpAuthenticator(String login, String pass)<a name="line.476"></a>
+<FONT color="green">477</FONT>            {<a name="line.477"></a>
+<FONT color="green">478</FONT>                super();<a name="line.478"></a>
+<FONT color="green">479</FONT>                m_login =   login == null ? BLANK : login;<a name="line.479"></a>
+<FONT color="green">480</FONT>                m_pass =     pass == null ? BLANK : pass;<a name="line.480"></a>
+<FONT color="green">481</FONT>            }<a name="line.481"></a>
+<FONT color="green">482</FONT>    <a name="line.482"></a>
+<FONT color="green">483</FONT>            /**<a name="line.483"></a>
+<FONT color="green">484</FONT>             * Returns the password used to authenticate to the SMTP server.<a name="line.484"></a>
+<FONT color="green">485</FONT>             * @return &lt;code&gt;PasswordAuthentication&lt;/code&gt;<a name="line.485"></a>
+<FONT color="green">486</FONT>             */<a name="line.486"></a>
+<FONT color="green">487</FONT>            public PasswordAuthentication getPasswordAuthentication()<a name="line.487"></a>
+<FONT color="green">488</FONT>            {<a name="line.488"></a>
+<FONT color="green">489</FONT>                if ( BLANK.equals(m_pass) )<a name="line.489"></a>
+<FONT color="green">490</FONT>                {<a name="line.490"></a>
+<FONT color="green">491</FONT>                    return null;<a name="line.491"></a>
+<FONT color="green">492</FONT>                }<a name="line.492"></a>
+<FONT color="green">493</FONT>    <a name="line.493"></a>
+<FONT color="green">494</FONT>                return new PasswordAuthentication( m_login, m_pass );<a name="line.494"></a>
+<FONT color="green">495</FONT>            }<a name="line.495"></a>
+<FONT color="green">496</FONT>    <a name="line.496"></a>
+<FONT color="green">497</FONT>        }<a name="line.497"></a>
+<FONT color="green">498</FONT>    <a name="line.498"></a>
+<FONT color="green">499</FONT>    }<a name="line.499"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
