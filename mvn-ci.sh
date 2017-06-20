@@ -8,5 +8,5 @@ find . -type d | grep -v target | grep -v .git | xargs rm -rf
 mv target/content/* ./
 rm -rf target
 git add .
-git commit -m "Automatic Site Publish by Buildbot"
+git commit -m "Site + Apidocs Maven Publish"
 git push origin asf-site
