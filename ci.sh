@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mvn clean generate-resources
+java -Djavax.xml.accessExternalDTD=http -jar "${JBAKE_HOME}/jbake-core.jar" src/main/jbake target/content
 git checkout asf-site
 git clean -f -d
 git pull origin asf-site
