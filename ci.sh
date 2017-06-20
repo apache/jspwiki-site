@@ -4,7 +4,7 @@ java -Djavax.xml.accessExternalDTD=http -jar "${JBAKE_HOME}/jbake-core.jar" src/
 git checkout asf-site
 git clean -f -d
 git pull origin asf-site
-find . -type d | grep -v target | grep -v .git | xargs rm -rf
+find . -type d | grep -v target | grep -v .git | grep -v apidocs | xargs rm -rf
 mv target/content/* ./
 rm -rf target
 git add .
