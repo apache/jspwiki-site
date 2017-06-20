@@ -5,7 +5,7 @@ git checkout asf-site
 git clean -f -d
 git pull origin asf-site
 find . -type d | grep -v target | grep -v .git | grep -v apidocs | xargs rm -rf
-mv target/content/* ./
+cp -rf target/content/* ./
 rm -rf target
 git add .
 git commit -m "Automatic Site Publish by Buildbot"
