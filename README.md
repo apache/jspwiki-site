@@ -61,6 +61,9 @@ Just run `mvn clean jbake:inline` and the site will be accesible through http://
 Changes will be reloaded on the fly. When done testing your local changes, press `Enter` to stop 
 the web server and return to the shell.
 
+In order to be able to navigate locally, you'll need to edit the `site.host` property at 
+`./src/main/jbake/jbake.properties`. Do **NOT** commit that change.
+
 Publishing changes
 ------------------
 
