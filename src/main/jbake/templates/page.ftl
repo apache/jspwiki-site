@@ -172,77 +172,57 @@
     <div class="sidebar">
       <div class="leftmenu">
         <div class="list-unstyled-hover">
-          <div class="accordion panel-group">
-            <div class="panel panel-default">
-              <div id="j4cur4jl" class="panel-heading active">General</div>
-              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 1; height: auto;" class="active">
-                <div class="tab-General panel-body" data-pane="General" id="section-LeftMenu-General">
-                  <ul class="list-unstyled list-hover">
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=News">News</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Wiki%20Syntax">Wiki Syntax</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Downloads">Downloads</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=NewIn">ReleaseNotes</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=FAQ">FAQ</a></li>
-                    <li><a class="external" href="http://www.apache.org/licenses/">License</a><img class="outlink" src="./images/out.png" alt=""></li>
-                  </ul>
-                </div>
-              </div>
+          <div class="accordion">
+            <div class="tab-General" id="section-LeftMenu-General">
+              <ul class="list-unstyled list-hover">
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=News">News</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Wiki%20Syntax">Wiki Syntax</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Downloads">Downloads</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=NewIn">ReleaseNotes</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=FAQ">FAQ</a></li>
+                <li><a class="external" href="http://www.apache.org/licenses/">License</a><img class="outlink" src="./images/out.png" alt=""></li>
+              </ul>
             </div>
-            <div class="panel panel-default">
-              <div id="j4cur4jm" class="panel-heading">Community</div>
-              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 0; height: 0px;">
-                <div class="tab-Community panel-body" data-pane="Community" id="section-LeftMenu-Community">
-                  <ul class="list-unstyled list-hover">
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Getting%20Started">Getting Started</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Getting%20Involved">Getting Involved</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Documentation">Documentation</a></li>
-                    <li><a class="external" href="http://www.ecyrd.com/JSPWiki/">Legacy site</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Mailing%20Lists">Mailing lists</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Social%20Media">Social media</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=People">People</a></li>
-                  </ul>
-                </div>
-              </div>
+
+            <div class="tab-Community" id="section-LeftMenu-Community">
+              <ul class="list-unstyled list-hover">
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Getting%20Started">Getting Started</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Getting%20Involved">Getting Involved</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Documentation">Documentation</a></li>
+                <li><a class="external" href="http://www.ecyrd.com/JSPWiki/">Legacy site</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Mailing%20Lists">Mailing lists</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Social%20Media">Social media</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=People">People</a></li>
+              </ul>
             </div>
-            <div class="panel panel-default">
-              <div id="j4cur4jn" class="panel-heading">Development</div>
-              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 0; height: 0px;">
-                <div class="tab-Development panel-body" data-pane="Development" id="section-LeftMenu-Development">
-                    <ul class="list-unstyled list-hover">
-                    <li><a class="external" href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=summary">Browse sources</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="external" href="http://jspwiki.apache.org/apidocs/index.html">JavaDoc</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Building%20from%20source%20code">Get and build source</a></li>
-                    <li><a class="external" href="https://issues.apache.org/jira/browse/JSPWIKI">Issue tracker</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="external" href="https://builds.apache.org/job/JSPWiki/">Jenkins build</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="external" href="https://builds.apache.org/analysis/overview?id=org.apache.jspwiki%3Ajspwiki-builder">Sonar Analysis</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="external" href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=blob;f=ChangeLog">ChangeLog</a><img class="outlink" src="./images/out.png" alt=""></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Other%20stuff">Other stuff</a></li>
-                  </ul>
-                </div>
-              </div>
+
+            <div class="tab-Development" id="section-LeftMenu-Development">
+              <ul class="list-unstyled list-hover">
+                <li><a class="external" href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=summary">Browse sources</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="external" href="http://jspwiki.apache.org/apidocs/index.html">JavaDoc</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Building%20from%20source%20code">Get and build source</a></li>
+                <li><a class="external" href="https://issues.apache.org/jira/browse/JSPWIKI">Issue tracker</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="external" href="https://builds.apache.org/job/JSPWiki/">Jenkins build</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="external" href="https://builds.apache.org/analysis/overview?id=org.apache.jspwiki%3Ajspwiki-builder">Sonar Analysis</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="external" href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=blob;f=ChangeLog">ChangeLog</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Other%20stuff">Other stuff</a></li>
+              </ul>
             </div>
-            <div class="panel panel-default">
-              <div id="j4cur4jo" class="panel-heading">PMC</div>
-              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 0; height: 0px;">
-                <div class="tab-PMC panel-body" data-pane="PMC" id="section-LeftMenu-PMC">
-                  <ul class="list-unstyled list-hover">
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=How%20to%20release">How to release</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Board%20Reports">Board Reports</a></li>
-                  </ul>
-                </div>
-              </div>
+
+            <div class="tab-PMC" id="section-LeftMenu-PMC">
+              <ul class="list-unstyled list-hover">
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=How%20to%20release">How to release</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Board%20Reports">Board Reports</a></li>
+              </ul>
             </div>
-            <div class="panel panel-default">
-              <div id="j4cur4jp" class="panel-heading">Special Pages</div>
-              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 0; height: 0px;">
-                <div class="tab-SpecialPages panel-body" data-pane="Special Pages" id="section-LeftMenu-SpecialPages">
-                  <ul class="list-unstyled list-hover"><li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=RecentChanges">Recent Changes</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Search">Search</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=PageIndex">Page Index</a></li>
-                    <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=SystemInfo">SystemInfo</a></li>
-                  </ul>
-                </div>
-              </div>
+
+            <div class="tab-SpecialPages" id="section-LeftMenu-SpecialPages">
+              <ul class="list-unstyled list-hover">
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=RecentChanges">Recent Changes</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Search">Search</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=PageIndex">Page Index</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=SystemInfo">SystemInfo</a></li>
+              </ul>
             </div>
           </div>
         </div>
@@ -252,39 +232,31 @@
 
       <div class="leftmenufooter">
         <div class="table-condensed-bordered">
-          <div class="accordion panel-group">
-            <div class="panel panel-default">
-              <div id="j4cur4jr" class="panel-heading active">ASF 
-                <table class="imageplugin" style="float:right;" border="0">
-                  <tbody><tr><td><img src="./images/asf_logo.png" height="30px"></td></tr></tbody>
-                </table>
-              </div>
-              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 1; height: auto;" class="active">
-                <div class="tab-ASF panel-body" data-pane="ASF &lt;table class=&quot;imageplugin&quot; style=&quot;float:right;&quot; border=&quot;0&quot;&gt;
-&l    t;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;img src=&quot;https://www.apache.org/img/asf_logo.png&quot; height=&quot;30px&quot;&gt;&lt;/td&gt;&lt;/tr&gt;
-&l    t;/tbody&gt;&lt;/table&gt;" id="section-LeftMenuFooter-ASF">
-                  <table class="wikitable table-condensed table-bordered" border="1">
-                    <tbody>
-                      <tr class="odd">
-                        <td><a class="external" href="http://www.apache.org/">Website</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://www.apache.org/foundation/">Foundation</a><img class="outlink" src="./images/out.png" alt=""></td>
-                      </tr>
-                      <tr>
-                        <td><a class="external" href="http://www.apache.org/foundation/contributing.html">Donations</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://projects.apache.org/">Projects</a><img class="outlink" src="./images/out.png" alt=""></td>
-                      </tr>
-                      <tr class="odd">
-                        <td><a class="external" href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://people.apache.org/">People</a><img class="outlink" src="./images/out.png" alt=""></td>
-                      </tr>
-                      <tr>
-                        <td><a class="external" href="http://www.apache.org/foundation/getinvolved.html">Get involved</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://www.apache.org/foundation/thanks.html">Thanks</a><img class="outlink" src="./images/out.png" alt=""></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+          <div class="accordion">
+            <div class="tab-ASF" id="section-LeftMenuFooter-ASF"> 
+              <table class="imageplugin" style="float:right;" border="0">
+                <tbody><tr><td><img src="./images/asf_logo.png" height="30px"></td></tr></tbody>
+              </table>
+              <table class="wikitable table-condensed table-bordered" border="1">
+                <tbody>
+                  <tr class="odd">
+                    <td><a class="external" href="http://www.apache.org/">Website</a><img class="outlink" src="./images/out.png" alt=""></td>
+                    <td><a class="external" href="http://www.apache.org/foundation/">Foundation</a><img class="outlink" src="./images/out.png" alt=""></td>
+                  </tr>
+                  <tr>
+                    <td><a class="external" href="http://www.apache.org/foundation/contributing.html">Donations</a><img class="outlink" src="./images/out.png" alt=""></td>
+                    <td><a class="external" href="http://projects.apache.org/">Projects</a><img class="outlink" src="./images/out.png" alt=""></td>
+                  </tr>
+                  <tr class="odd">
+                    <td><a class="external" href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a><img class="outlink" src="./images/out.png" alt=""></td>
+                    <td><a class="external" href="http://people.apache.org/">People</a><img class="outlink" src="./images/out.png" alt=""></td>
+                  </tr>
+                  <tr>
+                    <td><a class="external" href="http://www.apache.org/foundation/getinvolved.html">Get involved</a><img class="outlink" src="./images/out.png" alt=""></td>
+                    <td><a class="external" href="http://www.apache.org/foundation/thanks.html">Thanks</a><img class="outlink" src="./images/out.png" alt=""></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
