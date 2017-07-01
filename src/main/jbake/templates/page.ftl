@@ -201,6 +201,7 @@
                 <li><a class="external" href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=summary">Browse sources</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="external" href="http://jspwiki.apache.org/apidocs/index.html">JavaDoc</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Building%20from%20source%20code">Get and build source</a></li>
+                <li><a class="wikipage" href="${config.site_host}/development/edit_website.html">Editing website</a></li>
                 <li><a class="external" href="https://issues.apache.org/jira/browse/JSPWIKI">Issue tracker</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="external" href="https://builds.apache.org/job/JSPWiki/">Jenkins build</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="external" href="https://builds.apache.org/analysis/overview?id=org.apache.jspwiki%3Ajspwiki-builder">Sonar Analysis</a><img class="outlink" src="./images/out.png" alt=""></li>
