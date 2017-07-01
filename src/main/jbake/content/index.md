@@ -27,6 +27,8 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **01-Jul-2017:** new website!
+
   * **06-Apr-2016:** new committer and PMC member - Dave Koelmeyer
 
   * **20-Feb-2016:** Official [Apache JSPWiki 2.10.2 release][] is out!
@@ -36,8 +38,6 @@ JSPWiki is open-source software that is released under the Apache Public License
   * **21-Aug-2014:** new committer and PMC member - Siegfried Goeschl
 
   * **29-May-2014:** Official [Apache JSPWiki 2.10.1 release][] is out!
-
-  * **01-Feb-2014:** Official [Apache JSPWiki 2.10.0 release][] is out!
 
 
 [Apache JSPWiki]: https://jspwiki.apache.org
