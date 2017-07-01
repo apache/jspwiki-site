@@ -6,9 +6,9 @@ status=published
 
 [Apache JSPWiki][] is a leading open source [WikiWiki][] engine, feature-rich and built around standard [JEE][] components (Java, servlets, JSP). 
 
-Some of its features include:
+Some of its [features](https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiFeatures) include:
 
-  * WikiMarkup/Structured Text
+  * [WikiMarkup](https://jspwiki-wiki.apache.org/Wiki.jsp?page=TextFormattingRules) / Structured Text
   * File attachments 
   * Templates support
   * Data storage through your choice of two [WikiPage Providers][], with the capability to create and plug in new ones
