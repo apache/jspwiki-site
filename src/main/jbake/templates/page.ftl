@@ -112,7 +112,7 @@
         <ul class="dropdown-menu pull-right" data-hover-parent=".userbox" style="opacity: 0; visibility: hidden;">
           <li>
             <a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=UserPreferences" accesskey="" title="">
-              <span class="icon-user"></span>&nsbp;G’day!
+              <span class="icon-user"></span>&nbsp;G’day!
             </a>
           </li>
           <li class="divider"></li>
