@@ -10,13 +10,27 @@ JSPWiki [source code][] is maintained using Git.
 
 Checkout the code using:
 
-    git clone http://git-wip-us.apache.org/repos/asf/jspwiki.git jspwiki
+    git clone http://github.com/apache/jspwiki.git jspwiki
 
 Change http to https if you are a developer intending to git push. You can check 
-[Getting started with Git at the ASF][] for further information. There is also a 
-[GitHub mirror][], so you can also fork and send your PRs from there.
+[Getting started with Git at the ASF][] for further information. Also, as it is 
+hosted on GitHub, you can also fork and send your PRs from there. 
+
+In order to be able to commit on the github repos, the following steps must be taken:
+
+* Enable [2FA on your github account][]
+* Become part of the ASF org on github. If you have not done so already, visit id.apache.org and add your GitHub ID to your profile. An organisational invite will be sent to you via email shortly thereafter (within 30 minutes).
+* Link ASF and GitHub accounts through <a href="https://gitbox.apache.org/setup">https://gitbox.apache.org/setup</a>
 
 See the [Edit Website][] page for the website sources.
+
+## Current repositories
+
+* <a href="https://github.com/apache/jspwiki">https://github.com/apache/jspwiki</a>
+* <a href="https://github.com/apache/jspwiki-asf-docs">https://github.com/apache/jspwiki-asf-docs</a>
+* <a href="https://github.com/apache/jspwiki-site">https://github.com/apache/jspwiki-site</a>
+
+ASF git copies are on gitbox, like <a href="https://gitbox.apache.org/repos/asf/jspwiki.git">https://gitbox.apache.org/repos/asf/jspwiki.git</a>. 
 
 ## Building JSPWiki
 
@@ -48,7 +62,7 @@ planned release version as this is used to create the release notes.
 
 
 [Getting started with Git at the ASF]: https://reference.apache.org/committer/git
-[GitHub mirror]: https://github.com/apache/jspwiki
+[2FA on your github account]: https://help.github.com/articles/securing-your-account-with-two-factor-authentication-2fa/
 [Edit Website]: edit_website.html
 [Release Page]: ../pmc/how_to_release.html
 [downloads]: ../general/downloads.html

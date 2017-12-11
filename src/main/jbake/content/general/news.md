@@ -6,6 +6,10 @@ type=page
 
 ## Project News
 
+  * **11-Dec-2017:** JSPWiki development now occurs on [GitHub](https://jspwiki-wiki.apache.org/Wiki.jsp?page=Building%20from%20source%20code)! 
+
+  * **01-Jul-2017:** new website!
+
   * **06-Apr-2016:** new committer and PMC member - Dave Koelmeyer
 
   * **20-Feb-2016:** Official [Apache JSPWiki 2.10.2 release][] is out!
