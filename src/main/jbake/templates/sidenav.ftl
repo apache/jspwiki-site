@@ -24,13 +24,13 @@
 
 <p><strong>Development</strong></p>
 <ul>
-  <li><a href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=summary" class="external">Browse Sources</a></li>
+  <li><a href="https://github.com/apache/jspwiki" class="external">Browse Sources</a></li>
   <li><a href="/apidocs/index.html">JavaDocs</a></li>
   <li><a href="/development/source_and_guide.html">Get and Build Source</a></li>
   <li><a href="https://builds.apache.org/job/JSPWiki/" class="external">Jenkins CI</a></li>
   <li><a href="https://builds.apache.org/analysis/overview?id=org.apache.jspwiki%3Ajspwiki-builder" class="external">Sonar Analysis</a></li>
   <li><a href="/development/edit_website.html">Edit Website</a></li>
-  <li><a href="https://git-wip-us.apache.org/repos/asf?p=jspwiki.git;a=blob;f=ChangeLog" class="external">Change Log</a></li>
+  <li><a href="https://github.com/apache/jspwiki/blob/master/ChangeLog" class="external">Change Log</a></li>
 </ul>
 
 <p><strong>PMC</strong></p>
