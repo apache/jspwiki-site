@@ -279,7 +279,7 @@
       }
     </style>
     <div class="feather">
-      Copyright © 2017 The Apache Software Foundation, <br>
+      Copyright &copy; 2018 The Apache Software Foundation, <br>
       Licensed under the <a class="external" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><img class="outlink" src="./images/out.png" alt="">.<br>
       Apache and the Apache feather logo are trademarks of The Apache Software Foundation.<br> <br>
     </div> 
