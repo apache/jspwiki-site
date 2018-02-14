@@ -64,6 +64,6 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 [Getting Involved]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Getting%20Involved
 
-[Apache JSPWiki 2.10.3 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.3ReleasedOn13022018
+[Apache JSPWiki 2.10.3 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.3ReleasedOn13022018
 
-[Apache JSPWiki 2.10.2 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.2ReleasedOn20022016
+[Apache JSPWiki 2.10.2 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.2ReleasedOn20022016
