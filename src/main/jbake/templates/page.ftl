@@ -88,9 +88,17 @@
   <link rel="help" href="${config.wiki_site_host}/Wiki.jsp?page=TextFormattingRules" title="Help">
   <link rel="start" href="${config.wiki_site_host}/Wiki.jsp?page=Main" title="Front page">
   <link rel="alternate stylesheet" type="text/css" href="./css/haddock.css" title="Standard">
-  <link rel="shortcut icon" type="image/x-icon" href="${config.wiki_site_host}/images/favicon.ico">
   
-  <link rel="icon" type="image/x-icon" href="${config.wiki_site_host}/images/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+  <link rel="manifest" href="favicons/site.webmanifest">
+  <link rel="mask-icon" href="favicons/safari-pinned-tab.svg" color="#da532c">
+  <link rel="shortcut icon" href="favicons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-config" content="favicons/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+
   <link rel="alternate" type="application/rss+xml" title="RSS wiki feed for the entire site." href="${config.wiki_site_host}/rss.rdf">
   <link rel="alternate" type="application/rss+xml" title="RSS wiki feed for page JSPWiki: Main." href="${config.wiki_site_host}/rss.jsp?page=Main&amp;mode=wiki">
 
