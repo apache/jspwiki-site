@@ -6,6 +6,8 @@ type=page
 
 ## Project News
 
+  * **04-Sep-2018:** Official [Apache JSPWiki 2.10.5 release][] is out!
+
   * **23-May-2018:** Official [Apache JSPWiki 2.10.4 release][] is out!
 
   * **13-Feb-2018:** Official [Apache JSPWiki 2.10.3 release][] is out!
@@ -56,3 +58,4 @@ type=page
 [Apache JSPWiki 2.10.2 release]: downloads.html
 [Apache JSPWiki 2.10.3 release]: downloads.html
 [Apache JSPWiki 2.10.4 release]: downloads.html
+[Apache JSPWiki 2.10.5 release]: downloads.html

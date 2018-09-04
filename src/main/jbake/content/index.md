@@ -27,6 +27,8 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **04-Sep-2018:** Official [Apache JSPWiki 2.10.5 release][] is out!
+
   * **23-Feb-2018:** Official [Apache JSPWiki 2.10.4 release][] is out!
 
   * **13-Feb-2018:** Official [Apache JSPWiki 2.10.3 release][] is out!
@@ -36,8 +38,6 @@ JSPWiki is open-source software that is released under the Apache Public License
   * **01-Jul-2017:** new website!
 
   * **06-Apr-2016:** new committer and PMC member - Dave Koelmeyer
-
-  * **20-Feb-2016:** Official [Apache JSPWiki 2.10.2 release][] is out!
 
 
 [Apache JSPWiki]: https://jspwiki.apache.org
@@ -64,8 +64,8 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 [Getting Involved]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Getting%20Involved
 
-[Apache JSPWiki 2.10.4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.4ReleasedOn23025018
+[Apache JSPWiki 2.10.5 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.5ReleasedOn04092018
+
+[Apache JSPWiki 2.10.4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.4ReleasedOn23052018
 
 [Apache JSPWiki 2.10.3 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.3ReleasedOn13022018
-
-[Apache JSPWiki 2.10.2 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.2ReleasedOn20022016

@@ -16,10 +16,13 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 <br/> **Release Index**
 
-* **23-May-2018**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.4ReleasedOn23052018">2.10.4</a>. This release fixes the following issues:
+* **04-Sep-2018**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.5ReleasedOn04092018">2.10.5</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12343310
+
+* **23-May-2018**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.4ReleasedOn23052018">2.10.4</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12342771
 
-* **13-Feb-2018**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.3ReleasedOn13022018">2.10.3</a>. This release fixes the following issues:
+* **13-Feb-2018**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.3ReleasedOn13022018">2.10.3</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12334934
 
 * **20-Feb-2016**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.2ReleasedOn20022016">2.10.2</a>. This release fixes the following issues:
