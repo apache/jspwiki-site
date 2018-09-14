@@ -208,6 +208,7 @@
               <ul class="list-unstyled list-hover">
                 <li><a class="external" href="https://github.com/apache/jspwiki">Browse sources</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="external" href="http://jspwiki.apache.org/apidocs/index.html">JavaDoc</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="external" href="http://jspwiki.apache.org/japicmp/index.html">Binary compatibility reports</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Building%20from%20source%20code">Get and build source</a></li>
                 <li><a class="wikipage" href="${config.site_host}/development/edit_website.html">Editing website</a></li>
                 <li><a class="external" href="https://issues.apache.org/jira/browse/JSPWIKI">Issue tracker</a><img class="outlink" src="./images/out.png" alt=""></li>
