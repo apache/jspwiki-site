@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>17</version>
+    <version>21</version>
   </parent>
 
   <groupId>org.apache.jspwiki</groupId>
@@ -38,6 +38,10 @@
     <jbake.dest>${project.build.directory}/content</jbake.dest>
     <plugin.dependency>3.0.0</plugin.dependency>
     <plugin.enforcer>1.4</plugin.enforcer>
+    <plugin.resources>3.1.0</plugin.resources>
+	<plugin.japicmp.version>0.13.0</plugin.japicmp.version>
+	<plugin.japicmp.jspwiki-new>2.10.5</plugin.japicmp.jspwiki-new>
+	<plugin.japicmp.jspwiki-old>2.10.0</plugin.japicmp.jspwiki-old>
     <plugin.jbake>0.0.9</plugin.jbake>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -65,6 +69,11 @@
       
       <plugin><!-- jbaking apidocs takes a looong time, for just copying some files, we better unpack them only when actually building the site -->
         <artifactId>maven-dependency-plugin</artifactId>
+      </plugin>
+      
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
       </plugin>
     </plugins>
 
@@ -121,6 +130,28 @@
           </executions>
         </plugin>
 
+		<plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${plugin.resources}</version>
+          <executions>
+            <execution>
+              <id>copy-resources</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>copy-resources</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${project.build.directory}/content/japicmp/${plugin.japicmp.jspwiki-new}</outputDirectory>
+                <resources>          
+                  <resource>
+                    <directory>${project.build.directory}/japicmp</directory>
+                  </resource>
+                </resources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
         <plugin>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>${plugin.enforcer}</version>
@@ -148,9 +179,9 @@
           </configuration>
           <executions>
             <execution>
-          	  <id>generate-site</id>
-          	  <phase>generate-resources</phase>
-          	  <goals><goal>generate</goal></goals>
+                <id>generate-site</id>
+                <phase>generate-resources</phase>
+                <goals><goal>generate</goal></goals>
             </execution>
           </executions>
           <dependencies>
@@ -170,6 +201,70 @@
               <version>${version.pegdown}</version>
             </dependency>
           </dependencies>
+        </plugin>
+        
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>${plugin.japicmp.version}</version>
+          <configuration>
+            <parameter>
+              <includes>
+                <include>org.apache.jspwiki</include>
+              </includes>
+              <skipXmlReport>true</skipXmlReport>
+            </parameter>
+          </configuration>
+          <executions>
+            <execution>
+              <id>cmp-jspwiki-markdown</id>
+              <phase>generate-resources</phase>
+              <goals><goal>cmp</goal></goals>
+              <configuration>
+                <oldVersion>
+                  <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jspwiki-markdown</artifactId>
+                    <version>2.10.3</version>
+                    <type>jar</type>
+                  </dependency>
+                </oldVersion>
+                <newVersion>
+                  <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jspwiki-markdown</artifactId>
+                    <version>${plugin.japicmp.jspwiki-new}</version>
+                    <type>jar</type>
+                  </dependency>
+                </newVersion>
+              </configuration>
+            </execution>
+            <execution>
+              <id>cmp-jspwiki-main</id>
+              <phase>generate-resources</phase>
+              <goals><goal>cmp</goal></goals>
+              <configuration>
+                <oldVersion>
+                  <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jspwiki-war</artifactId>
+                    <version>${plugin.japicmp.jspwiki-old}</version>
+                    <type>jar</type>
+                    <classifier>classes</classifier>
+                  </dependency>
+                </oldVersion>
+                <newVersion>
+                  <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jspwiki-war</artifactId>
+                    <version>${plugin.japicmp.jspwiki-new}</version>
+                    <type>jar</type>
+                    <classifier>classes</classifier>
+                  </dependency>
+                </newVersion>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
