@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mvn clean generate-resources
+mvn clean process-resources
 git checkout asf-site
 git clean -f -d
 git pull origin asf-site
