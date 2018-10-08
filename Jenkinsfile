@@ -65,7 +65,7 @@ try {
                     sh 'git add .'
                     sh 'git commit -m "Automatic Site Publish by Buildbot"'
                     echo "pushing to $repo"
-                    sh 'git push origin asf-site'
+                    sh "git push $repo asf-site"
                 }
             }
         }
