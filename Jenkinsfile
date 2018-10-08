@@ -31,7 +31,7 @@ try {
         echo "Will use Maven $MAVEN_3_LATEST"
         
         stage( "clone $jbake and $asfsite branches" ) {
-		    cleanWs()
+            cleanWs()
             dir( jbake ) {
                 git branch: jbake, url: "https://$repo", credentialsId: creds
             }
@@ -55,28 +55,29 @@ try {
 
     node( 'git-websites' ) {
         stage( 'retrieve workspace' ) {
-		    cleanWs()
+            cleanWs()
             unstash 'workspace'
         }
         stage( 'publish site' ) {
             dir( asfsite ) {
                 sh "cp -rf ../$jbake/target/content/* ./"
-				withCredentials( [ usernamePassword( credentialsId: creds, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME' ) ] ) {
+                withCredentials( [ usernamePassword( credentialsId: creds, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME' ) ] ) {
                     sh 'git add .'
                     sh 'git commit -m "Automatic Site Publish by Buildbot"'
+                    echo "pushing to $repo"
                     sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@$repo asf-site"
-				}
+                }
             }
         }
     }
-	
-	currentBuild.result = 'SUCCESS'
-	
+    
+    currentBuild.result = 'SUCCESS'
+    
 } catch( Exception err ) {
+    echo err
     currentBuild.result = 'FAILURE'
 } finally {
     emailext body: "See ${env.BUILD_URL}",
-             recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'FailingTestSuspectsRecipientProvider'], [$class: 'FirstFailingBuildSuspectsRecipientProvider']], 
              replyTo: 'dev@jspwiki.apache.org', 
              to: 'commits@jspwiki.apache.org',
              subject: "[${env.JOB_NAME}] build ${env.BUILD_DISPLAY_NAME} - ${currentBuild.result}"
