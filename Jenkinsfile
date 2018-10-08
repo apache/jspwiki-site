@@ -18,7 +18,7 @@
  */
 
 try {
-    def repo = 'https://gitbox.apache.org/repos/asf/jspwiki-site.git'
+    def repo = 'gitbox.apache.org/repos/asf/jspwiki-site.git'
     def creds = '9b041bd0-aea9-4498-a576-9eeb771411dd'
     def asfsite = 'asf-site'
     def jbake = 'jbake'
@@ -33,10 +33,10 @@ try {
         stage( "clone $jbake and $asfsite branches" ) {
 		    cleanWs()
             dir( jbake ) {
-                git branch: jbake, url: repo, credentialsId: creds
+                git branch: jbake, url: "https://$repo", credentialsId: creds
             }
             dir( asfsite ) {
-                git branch: asfsite, url: repo, credentialsId: creds
+                git branch: asfsite, url: "https://$repo", credentialsId: creds
             }
         }
 
@@ -61,9 +61,11 @@ try {
         stage( 'publish site' ) {
             dir( asfsite ) {
                 sh "cp -rf ../$jbake/target/content/* ./"
-                sh 'git add .'
-                sh 'git commit -m "Automatic Site Publish by Buildbot"'
-                sh 'git push origin asf-site'
+				withCredentials( [ usernamePassword( credentialsId: creds, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME' ) ] ) {
+                    sh 'git add .'
+                    sh 'git commit -m "Automatic Site Publish by Buildbot"'
+                    sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@$repo asf-site"
+				}
             }
         }
     }
