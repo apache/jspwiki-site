@@ -31,6 +31,7 @@ try {
         echo "Will use Maven $MAVEN_3_LATEST"
         
         stage( "clone $jbake and $asfsite branches" ) {
+		    cleanWs()
             dir( jbake ) {
                 git branch: jbake, url: repo, credentialsId: creds
             }
@@ -54,6 +55,7 @@ try {
 
     node( 'git-websites' ) {
         stage( 'retrieve workspace' ) {
+		    cleanWs()
             unstash 'workspace'
         }
         stage( 'publish site' ) {
@@ -61,7 +63,7 @@ try {
                 sh "cp -rf ../$jbake/target/content/* ./"
                 sh 'git add .'
                 sh 'git commit -m "Automatic Site Publish by Buildbot"'
-                sh 'push origin asf-site'
+                sh 'git push origin asf-site'
             }
         }
     }
