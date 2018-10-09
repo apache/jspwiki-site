@@ -1,0 +1,857 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>        Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
+<FONT color="green">003</FONT>        or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
+<FONT color="green">004</FONT>        distributed with this work for additional information<a name="line.4"></a>
+<FONT color="green">005</FONT>        regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
+<FONT color="green">006</FONT>        to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
+<FONT color="green">007</FONT>        "License"); you may not use this file except in compliance<a name="line.7"></a>
+<FONT color="green">008</FONT>        with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<FONT color="green">009</FONT>    <a name="line.9"></a>
+<FONT color="green">010</FONT>           http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<FONT color="green">011</FONT>    <a name="line.11"></a>
+<FONT color="green">012</FONT>        Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
+<FONT color="green">013</FONT>        software distributed under the License is distributed on an<a name="line.13"></a>
+<FONT color="green">014</FONT>        "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
+<FONT color="green">015</FONT>        KIND, either express or implied.  See the License for the<a name="line.15"></a>
+<FONT color="green">016</FONT>        specific language governing permissions and limitations<a name="line.16"></a>
+<FONT color="green">017</FONT>        under the License.  <a name="line.17"></a>
+<FONT color="green">018</FONT>     */<a name="line.18"></a>
+<FONT color="green">019</FONT>    package org.apache.wiki.plugin;<a name="line.19"></a>
+<FONT color="green">020</FONT>    <a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.io.IOException;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.io.PrintWriter;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import java.io.StreamTokenizer;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import java.io.StringReader;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import java.io.StringWriter;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import java.text.MessageFormat;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.util.ArrayList;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.util.Collection;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import java.util.HashMap;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import java.util.Iterator;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import java.util.List;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import java.util.Map;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import java.util.NoSuchElementException;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import java.util.Properties;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.util.ResourceBundle;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.Set;<a name="line.36"></a>
+<FONT color="green">037</FONT>    import java.util.StringTokenizer;<a name="line.37"></a>
+<FONT color="green">038</FONT>    import java.util.TreeSet;<a name="line.38"></a>
+<FONT color="green">039</FONT>    <a name="line.39"></a>
+<FONT color="green">040</FONT>    import org.apache.commons.lang.ClassUtils;<a name="line.40"></a>
+<FONT color="green">041</FONT>    import org.apache.ecs.xhtml.b;<a name="line.41"></a>
+<FONT color="green">042</FONT>    import org.apache.ecs.xhtml.div;<a name="line.42"></a>
+<FONT color="green">043</FONT>    import org.apache.ecs.xhtml.li;<a name="line.43"></a>
+<FONT color="green">044</FONT>    import org.apache.ecs.xhtml.pre;<a name="line.44"></a>
+<FONT color="green">045</FONT>    import org.apache.ecs.xhtml.ul;<a name="line.45"></a>
+<FONT color="green">046</FONT>    import org.apache.log4j.Logger;<a name="line.46"></a>
+<FONT color="green">047</FONT>    import org.apache.oro.text.regex.MalformedPatternException;<a name="line.47"></a>
+<FONT color="green">048</FONT>    import org.apache.oro.text.regex.MatchResult;<a name="line.48"></a>
+<FONT color="green">049</FONT>    import org.apache.oro.text.regex.Pattern;<a name="line.49"></a>
+<FONT color="green">050</FONT>    import org.apache.oro.text.regex.PatternCompiler;<a name="line.50"></a>
+<FONT color="green">051</FONT>    import org.apache.oro.text.regex.PatternMatcher;<a name="line.51"></a>
+<FONT color="green">052</FONT>    import org.apache.oro.text.regex.Perl5Compiler;<a name="line.52"></a>
+<FONT color="green">053</FONT>    import org.apache.oro.text.regex.Perl5Matcher;<a name="line.53"></a>
+<FONT color="green">054</FONT>    import org.apache.wiki.InternalWikiException;<a name="line.54"></a>
+<FONT color="green">055</FONT>    import org.apache.wiki.WikiContext;<a name="line.55"></a>
+<FONT color="green">056</FONT>    import org.apache.wiki.WikiEngine;<a name="line.56"></a>
+<FONT color="green">057</FONT>    import org.apache.wiki.api.engine.PluginManager;<a name="line.57"></a>
+<FONT color="green">058</FONT>    import org.apache.wiki.api.exceptions.PluginException;<a name="line.58"></a>
+<FONT color="green">059</FONT>    import org.apache.wiki.api.plugin.InitializablePlugin;<a name="line.59"></a>
+<FONT color="green">060</FONT>    import org.apache.wiki.api.plugin.WikiPlugin;<a name="line.60"></a>
+<FONT color="green">061</FONT>    import org.apache.wiki.modules.ModuleManager;<a name="line.61"></a>
+<FONT color="green">062</FONT>    import org.apache.wiki.modules.WikiModuleInfo;<a name="line.62"></a>
+<FONT color="green">063</FONT>    import org.apache.wiki.preferences.Preferences;<a name="line.63"></a>
+<FONT color="green">064</FONT>    import org.apache.wiki.util.ClassUtil;<a name="line.64"></a>
+<FONT color="green">065</FONT>    import org.apache.wiki.util.FileUtil;<a name="line.65"></a>
+<FONT color="green">066</FONT>    import org.apache.wiki.util.TextUtil;<a name="line.66"></a>
+<FONT color="green">067</FONT>    import org.apache.wiki.util.XmlUtil;<a name="line.67"></a>
+<FONT color="green">068</FONT>    import org.jdom2.Element;<a name="line.68"></a>
+<FONT color="green">069</FONT>    <a name="line.69"></a>
+<FONT color="green">070</FONT>    /**<a name="line.70"></a>
+<FONT color="green">071</FONT>     *  Manages plugin classes.  There exists a single instance of PluginManager<a name="line.71"></a>
+<FONT color="green">072</FONT>     *  per each instance of WikiEngine, that is, each JSPWiki instance.<a name="line.72"></a>
+<FONT color="green">073</FONT>     *  &lt;P&gt;<a name="line.73"></a>
+<FONT color="green">074</FONT>     *  A plugin is defined to have three parts:<a name="line.74"></a>
+<FONT color="green">075</FONT>     *  &lt;OL&gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>     *    &lt;li&gt;The plugin class<a name="line.76"></a>
+<FONT color="green">077</FONT>     *    &lt;li&gt;The plugin parameters<a name="line.77"></a>
+<FONT color="green">078</FONT>     *    &lt;li&gt;The plugin body<a name="line.78"></a>
+<FONT color="green">079</FONT>     *  &lt;/ol&gt;<a name="line.79"></a>
+<FONT color="green">080</FONT>     *<a name="line.80"></a>
+<FONT color="green">081</FONT>     *  For example, in the following line of code:<a name="line.81"></a>
+<FONT color="green">082</FONT>     *  &lt;pre&gt;<a name="line.82"></a>
+<FONT color="green">083</FONT>     *  [{INSERT org.apache.wiki.plugin.FunnyPlugin  foo='bar'<a name="line.83"></a>
+<FONT color="green">084</FONT>     *  blob='goo'<a name="line.84"></a>
+<FONT color="green">085</FONT>     *<a name="line.85"></a>
+<FONT color="green">086</FONT>     *  abcdefghijklmnopqrstuvw<a name="line.86"></a>
+<FONT color="green">087</FONT>     *  01234567890}]<a name="line.87"></a>
+<FONT color="green">088</FONT>     *  &lt;/pre&gt;<a name="line.88"></a>
+<FONT color="green">089</FONT>     *<a name="line.89"></a>
+<FONT color="green">090</FONT>     *  The plugin class is "org.apache.wiki.plugin.FunnyPlugin", the<a name="line.90"></a>
+<FONT color="green">091</FONT>     *  parameters are "foo" and "blob" (having values "bar" and "goo",<a name="line.91"></a>
+<FONT color="green">092</FONT>     *  respectively), and the plugin body is then<a name="line.92"></a>
+<FONT color="green">093</FONT>     *  "abcdefghijklmnopqrstuvw\n01234567890".   The plugin body is<a name="line.93"></a>
+<FONT color="green">094</FONT>     *  accessible via a special parameter called "_body".<a name="line.94"></a>
+<FONT color="green">095</FONT>     *  &lt;p&gt;<a name="line.95"></a>
+<FONT color="green">096</FONT>     *  If the parameter "debug" is set to "true" for the plugin,<a name="line.96"></a>
+<FONT color="green">097</FONT>     *  JSPWiki will output debugging information directly to the page if there<a name="line.97"></a>
+<FONT color="green">098</FONT>     *  is an exception.<a name="line.98"></a>
+<FONT color="green">099</FONT>     *  &lt;P&gt;<a name="line.99"></a>
+<FONT color="green">100</FONT>     *  The class name can be shortened, and marked without the package.<a name="line.100"></a>
+<FONT color="green">101</FONT>     *  For example, "FunnyPlugin" would be expanded to<a name="line.101"></a>
+<FONT color="green">102</FONT>     *  "org.apache.wiki.plugin.FunnyPlugin" automatically.  It is also<a name="line.102"></a>
+<FONT color="green">103</FONT>     *  possible to define other packages, by setting the<a name="line.103"></a>
+<FONT color="green">104</FONT>     *  "jspwiki.plugin.searchPath" property.  See the included<a name="line.104"></a>
+<FONT color="green">105</FONT>     *  jspwiki.properties file for examples.<a name="line.105"></a>
+<FONT color="green">106</FONT>     *  &lt;P&gt;<a name="line.106"></a>
+<FONT color="green">107</FONT>     *  Even though the nominal way of writing the plugin is<a name="line.107"></a>
+<FONT color="green">108</FONT>     *  &lt;pre&gt;<a name="line.108"></a>
+<FONT color="green">109</FONT>     *  [{INSERT pluginclass WHERE param1=value1...}],<a name="line.109"></a>
+<FONT color="green">110</FONT>     *  &lt;/pre&gt;<a name="line.110"></a>
+<FONT color="green">111</FONT>     *  it is possible to shorten this quite a lot, by skipping the<a name="line.111"></a>
+<FONT color="green">112</FONT>     *  INSERT, and WHERE words, and dropping the package name.  For<a name="line.112"></a>
+<FONT color="green">113</FONT>     *  example:<a name="line.113"></a>
+<FONT color="green">114</FONT>     *<a name="line.114"></a>
+<FONT color="green">115</FONT>     *  &lt;pre&gt;<a name="line.115"></a>
+<FONT color="green">116</FONT>     *  [{INSERT org.apache.wiki.plugin.Counter WHERE name='foo'}]<a name="line.116"></a>
+<FONT color="green">117</FONT>     *  &lt;/pre&gt;<a name="line.117"></a>
+<FONT color="green">118</FONT>     *<a name="line.118"></a>
+<FONT color="green">119</FONT>     *  is the same as<a name="line.119"></a>
+<FONT color="green">120</FONT>     *  &lt;pre&gt;<a name="line.120"></a>
+<FONT color="green">121</FONT>     *  [{Counter name='foo'}]<a name="line.121"></a>
+<FONT color="green">122</FONT>     *  &lt;/pre&gt;<a name="line.122"></a>
+<FONT color="green">123</FONT>     *  &lt;h3&gt;Plugin property files&lt;/h3&gt;<a name="line.123"></a>
+<FONT color="green">124</FONT>     *  &lt;p&gt;<a name="line.124"></a>
+<FONT color="green">125</FONT>     *  Since 2.3.25 you can also define a generic plugin XML properties file per<a name="line.125"></a>
+<FONT color="green">126</FONT>     *  each JAR file.<a name="line.126"></a>
+<FONT color="green">127</FONT>     *  &lt;pre&gt;<a name="line.127"></a>
+<FONT color="green">128</FONT>     *  &lt;modules&gt;<a name="line.128"></a>
+<FONT color="green">129</FONT>     *   &lt;plugin class="org.apache.wiki.foo.TestPlugin"&gt;<a name="line.129"></a>
+<FONT color="green">130</FONT>     *       &lt;author&gt;Janne Jalkanen&lt;/author&gt;<a name="line.130"></a>
+<FONT color="green">131</FONT>     *       &lt;script&gt;foo.js&lt;/script&gt;<a name="line.131"></a>
+<FONT color="green">132</FONT>     *       &lt;stylesheet&gt;foo.css&lt;/stylesheet&gt;<a name="line.132"></a>
+<FONT color="green">133</FONT>     *       &lt;alias&gt;code&lt;/alias&gt;<a name="line.133"></a>
+<FONT color="green">134</FONT>     *   &lt;/plugin&gt;<a name="line.134"></a>
+<FONT color="green">135</FONT>     *   &lt;plugin class="org.apache.wiki.foo.TestPlugin2"&gt;<a name="line.135"></a>
+<FONT color="green">136</FONT>     *       &lt;author&gt;Janne Jalkanen&lt;/author&gt;<a name="line.136"></a>
+<FONT color="green">137</FONT>     *   &lt;/plugin&gt;<a name="line.137"></a>
+<FONT color="green">138</FONT>     *   &lt;/modules&gt;<a name="line.138"></a>
+<FONT color="green">139</FONT>     *  &lt;/pre&gt;<a name="line.139"></a>
+<FONT color="green">140</FONT>     *  &lt;h3&gt;Plugin lifecycle&lt;/h3&gt;<a name="line.140"></a>
+<FONT color="green">141</FONT>     *<a name="line.141"></a>
+<FONT color="green">142</FONT>     *  &lt;p&gt;Plugin can implement multiple interfaces to let JSPWiki know at which stages they should<a name="line.142"></a>
+<FONT color="green">143</FONT>     *  be invoked:<a name="line.143"></a>
+<FONT color="green">144</FONT>     *  &lt;ul&gt;<a name="line.144"></a>
+<FONT color="green">145</FONT>     *  &lt;li&gt;InitializablePlugin: If your plugin implements this interface, the initialize()-method is<a name="line.145"></a>
+<FONT color="green">146</FONT>     *      called once for this class<a name="line.146"></a>
+<FONT color="green">147</FONT>     *      before any actual execute() methods are called.  You should use the initialize() for e.g.<a name="line.147"></a>
+<FONT color="green">148</FONT>     *      precalculating things.  But notice that this method is really called only once during the<a name="line.148"></a>
+<FONT color="green">149</FONT>     *      entire WikiEngine lifetime.  The InitializablePlugin is available from 2.5.30 onwards.&lt;/li&gt;<a name="line.149"></a>
+<FONT color="green">150</FONT>     *  &lt;li&gt;ParserStagePlugin: If you implement this interface, the executeParse() method is called<a name="line.150"></a>
+<FONT color="green">151</FONT>     *      when JSPWiki is forming the DOM tree.  You will receive an incomplete DOM tree, as well<a name="line.151"></a>
+<FONT color="green">152</FONT>     *      as the regular parameters.  However, since JSPWiki caches the DOM tree to speed up later<a name="line.152"></a>
+<FONT color="green">153</FONT>     *      places, which means that whatever this method returns would be irrelevant.  You can do some DOM<a name="line.153"></a>
+<FONT color="green">154</FONT>     *      tree manipulation, though.  The ParserStagePlugin is available from 2.5.30 onwards.&lt;/li&gt;<a name="line.154"></a>
+<FONT color="green">155</FONT>     *  &lt;li&gt;WikiPlugin: The regular kind of plugin which is executed at every rendering stage.  Each<a name="line.155"></a>
+<FONT color="green">156</FONT>     *      new page load is guaranteed to invoke the plugin, unlike with the ParserStagePlugins.&lt;/li&gt;<a name="line.156"></a>
+<FONT color="green">157</FONT>     *  &lt;/ul&gt;<a name="line.157"></a>
+<FONT color="green">158</FONT>     *<a name="line.158"></a>
+<FONT color="green">159</FONT>     *  @since 1.6.1<a name="line.159"></a>
+<FONT color="green">160</FONT>     */<a name="line.160"></a>
+<FONT color="green">161</FONT>    public class DefaultPluginManager extends ModuleManager implements PluginManager {<a name="line.161"></a>
+<FONT color="green">162</FONT>        <a name="line.162"></a>
+<FONT color="green">163</FONT>        private static final String PLUGIN_INSERT_PATTERN = "\\{?(INSERT)?\\s*([\\w\\._]+)[ \\t]*(WHERE)?[ \\t]*";<a name="line.163"></a>
+<FONT color="green">164</FONT>    <a name="line.164"></a>
+<FONT color="green">165</FONT>        private static Logger log = Logger.getLogger( DefaultPluginManager.class );<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>        private static final String DEFAULT_FORMS_PACKAGE = "org.apache.wiki.forms";<a name="line.167"></a>
+<FONT color="green">168</FONT>    <a name="line.168"></a>
+<FONT color="green">169</FONT>        private ArrayList&lt;String&gt;  m_searchPath = new ArrayList&lt;String&gt;();<a name="line.169"></a>
+<FONT color="green">170</FONT>    <a name="line.170"></a>
+<FONT color="green">171</FONT>        private Pattern m_pluginPattern;<a name="line.171"></a>
+<FONT color="green">172</FONT>    <a name="line.172"></a>
+<FONT color="green">173</FONT>        private boolean m_pluginsEnabled = true;<a name="line.173"></a>
+<FONT color="green">174</FONT>    <a name="line.174"></a>
+<FONT color="green">175</FONT>        /**<a name="line.175"></a>
+<FONT color="green">176</FONT>         *  Keeps a list of all known plugin classes.<a name="line.176"></a>
+<FONT color="green">177</FONT>         */<a name="line.177"></a>
+<FONT color="green">178</FONT>        private Map&lt;String, WikiPluginInfo&gt; m_pluginClassMap = new HashMap&lt;String, WikiPluginInfo&gt;();<a name="line.178"></a>
+<FONT color="green">179</FONT>    <a name="line.179"></a>
+<FONT color="green">180</FONT>        /**<a name="line.180"></a>
+<FONT color="green">181</FONT>         *  Create a new PluginManager.<a name="line.181"></a>
+<FONT color="green">182</FONT>         *<a name="line.182"></a>
+<FONT color="green">183</FONT>         *  @param engine WikiEngine which owns this manager.<a name="line.183"></a>
+<FONT color="green">184</FONT>         *  @param props Contents of a "jspwiki.properties" file.<a name="line.184"></a>
+<FONT color="green">185</FONT>         */<a name="line.185"></a>
+<FONT color="green">186</FONT>        public DefaultPluginManager( WikiEngine engine, Properties props ) {<a name="line.186"></a>
+<FONT color="green">187</FONT>            super( engine );<a name="line.187"></a>
+<FONT color="green">188</FONT>            String packageNames = props.getProperty( PROP_SEARCHPATH );<a name="line.188"></a>
+<FONT color="green">189</FONT>    <a name="line.189"></a>
+<FONT color="green">190</FONT>            if( packageNames != null ) {<a name="line.190"></a>
+<FONT color="green">191</FONT>                StringTokenizer tok = new StringTokenizer( packageNames, "," );<a name="line.191"></a>
+<FONT color="green">192</FONT>    <a name="line.192"></a>
+<FONT color="green">193</FONT>                while( tok.hasMoreTokens() ) {<a name="line.193"></a>
+<FONT color="green">194</FONT>                    m_searchPath.add( tok.nextToken().trim() );<a name="line.194"></a>
+<FONT color="green">195</FONT>                }<a name="line.195"></a>
+<FONT color="green">196</FONT>            }<a name="line.196"></a>
+<FONT color="green">197</FONT>    <a name="line.197"></a>
+<FONT color="green">198</FONT>            registerPlugins();<a name="line.198"></a>
+<FONT color="green">199</FONT>    <a name="line.199"></a>
+<FONT color="green">200</FONT>            //<a name="line.200"></a>
+<FONT color="green">201</FONT>            //  The default packages are always added.<a name="line.201"></a>
+<FONT color="green">202</FONT>            //<a name="line.202"></a>
+<FONT color="green">203</FONT>            m_searchPath.add( DEFAULT_PACKAGE );<a name="line.203"></a>
+<FONT color="green">204</FONT>            m_searchPath.add( DEFAULT_FORMS_PACKAGE );<a name="line.204"></a>
+<FONT color="green">205</FONT>    <a name="line.205"></a>
+<FONT color="green">206</FONT>            PatternCompiler compiler = new Perl5Compiler();<a name="line.206"></a>
+<FONT color="green">207</FONT>    <a name="line.207"></a>
+<FONT color="green">208</FONT>            try {<a name="line.208"></a>
+<FONT color="green">209</FONT>                m_pluginPattern = compiler.compile( PLUGIN_INSERT_PATTERN );<a name="line.209"></a>
+<FONT color="green">210</FONT>            } catch( MalformedPatternException e ) {<a name="line.210"></a>
+<FONT color="green">211</FONT>                log.fatal( "Internal error: someone messed with pluginmanager patterns.", e );<a name="line.211"></a>
+<FONT color="green">212</FONT>                throw new InternalWikiException( "PluginManager patterns are broken" );<a name="line.212"></a>
+<FONT color="green">213</FONT>            }<a name="line.213"></a>
+<FONT color="green">214</FONT>    <a name="line.214"></a>
+<FONT color="green">215</FONT>        }<a name="line.215"></a>
+<FONT color="green">216</FONT>    <a name="line.216"></a>
+<FONT color="green">217</FONT>        /**<a name="line.217"></a>
+<FONT color="green">218</FONT>         * {@inheritDoc}<a name="line.218"></a>
+<FONT color="green">219</FONT>         */<a name="line.219"></a>
+<FONT color="green">220</FONT>        public void enablePlugins( boolean enabled ) {<a name="line.220"></a>
+<FONT color="green">221</FONT>            m_pluginsEnabled = enabled;<a name="line.221"></a>
+<FONT color="green">222</FONT>        }<a name="line.222"></a>
+<FONT color="green">223</FONT>    <a name="line.223"></a>
+<FONT color="green">224</FONT>        /**<a name="line.224"></a>
+<FONT color="green">225</FONT>         * {@inheritDoc}<a name="line.225"></a>
+<FONT color="green">226</FONT>         */<a name="line.226"></a>
+<FONT color="green">227</FONT>        public boolean pluginsEnabled() {<a name="line.227"></a>
+<FONT color="green">228</FONT>            return m_pluginsEnabled;<a name="line.228"></a>
+<FONT color="green">229</FONT>        }<a name="line.229"></a>
+<FONT color="green">230</FONT>    <a name="line.230"></a>
+<FONT color="green">231</FONT>        /**<a name="line.231"></a>
+<FONT color="green">232</FONT>         * {@inheritDoc}<a name="line.232"></a>
+<FONT color="green">233</FONT>         */<a name="line.233"></a>
+<FONT color="green">234</FONT>        public Pattern getPluginPattern() {<a name="line.234"></a>
+<FONT color="green">235</FONT>            return m_pluginPattern;<a name="line.235"></a>
+<FONT color="green">236</FONT>        }<a name="line.236"></a>
+<FONT color="green">237</FONT>        <a name="line.237"></a>
+<FONT color="green">238</FONT>        /**<a name="line.238"></a>
+<FONT color="green">239</FONT>         * {@inheritDoc}<a name="line.239"></a>
+<FONT color="green">240</FONT>         */<a name="line.240"></a>
+<FONT color="green">241</FONT>        public String getPluginSearchPath() {<a name="line.241"></a>
+<FONT color="green">242</FONT>            return TextUtil.getStringProperty( m_engine.getWikiProperties(), PROP_SEARCHPATH, null );<a name="line.242"></a>
+<FONT color="green">243</FONT>        }<a name="line.243"></a>
+<FONT color="green">244</FONT>    <a name="line.244"></a>
+<FONT color="green">245</FONT>        /**<a name="line.245"></a>
+<FONT color="green">246</FONT>         *  Attempts to locate a plugin class from the class path set in the property file.<a name="line.246"></a>
+<FONT color="green">247</FONT>         *<a name="line.247"></a>
+<FONT color="green">248</FONT>         *  @param classname Either a fully fledged class name, or just the name of the file (that is,<a name="line.248"></a>
+<FONT color="green">249</FONT>         *  "org.apache.wiki.plugin.Counter" or just plain "Counter").<a name="line.249"></a>
+<FONT color="green">250</FONT>         *<a name="line.250"></a>
+<FONT color="green">251</FONT>         *  @return A found class.<a name="line.251"></a>
+<FONT color="green">252</FONT>         *<a name="line.252"></a>
+<FONT color="green">253</FONT>         *  @throws ClassNotFoundException if no such class exists.<a name="line.253"></a>
+<FONT color="green">254</FONT>         */<a name="line.254"></a>
+<FONT color="green">255</FONT>        private Class&lt; ? &gt; findPluginClass( String classname ) throws ClassNotFoundException {<a name="line.255"></a>
+<FONT color="green">256</FONT>            return ClassUtil.findClass( m_searchPath, classname );<a name="line.256"></a>
+<FONT color="green">257</FONT>        }<a name="line.257"></a>
+<FONT color="green">258</FONT>    <a name="line.258"></a>
+<FONT color="green">259</FONT>        /**<a name="line.259"></a>
+<FONT color="green">260</FONT>         *  Outputs a HTML-formatted version of a stack trace.<a name="line.260"></a>
+<FONT color="green">261</FONT>         */<a name="line.261"></a>
+<FONT color="green">262</FONT>        private String stackTrace( Map&lt; String, String &gt; params, Throwable t ) {<a name="line.262"></a>
+<FONT color="green">263</FONT>            div d = new div();<a name="line.263"></a>
+<FONT color="green">264</FONT>            d.setClass( "debug" );<a name="line.264"></a>
+<FONT color="green">265</FONT>            d.addElement( "Plugin execution failed, stack trace follows:" );<a name="line.265"></a>
+<FONT color="green">266</FONT>            StringWriter out = new StringWriter();<a name="line.266"></a>
+<FONT color="green">267</FONT>            t.printStackTrace( new PrintWriter( out ) );<a name="line.267"></a>
+<FONT color="green">268</FONT>            d.addElement( new pre( out.toString() ) );<a name="line.268"></a>
+<FONT color="green">269</FONT>            d.addElement( new b( "Parameters to the plugin" ) );<a name="line.269"></a>
+<FONT color="green">270</FONT>    <a name="line.270"></a>
+<FONT color="green">271</FONT>            ul list = new ul();<a name="line.271"></a>
+<FONT color="green">272</FONT>            for( Iterator&lt;Map.Entry&lt; String, String &gt; &gt; i = params.entrySet().iterator(); i.hasNext(); ) {<a name="line.272"></a>
+<FONT color="green">273</FONT>                Map.Entry&lt; String, String &gt; e = i.next();<a name="line.273"></a>
+<FONT color="green">274</FONT>                String key = e.getKey();<a name="line.274"></a>
+<FONT color="green">275</FONT>    <a name="line.275"></a>
+<FONT color="green">276</FONT>                list.addElement( new li( key + "'='" + e.getValue() ) );<a name="line.276"></a>
+<FONT color="green">277</FONT>            }<a name="line.277"></a>
+<FONT color="green">278</FONT>    <a name="line.278"></a>
+<FONT color="green">279</FONT>            d.addElement( list );<a name="line.279"></a>
+<FONT color="green">280</FONT>    <a name="line.280"></a>
+<FONT color="green">281</FONT>            return d.toString();<a name="line.281"></a>
+<FONT color="green">282</FONT>        }<a name="line.282"></a>
+<FONT color="green">283</FONT>    <a name="line.283"></a>
+<FONT color="green">284</FONT>        /**<a name="line.284"></a>
+<FONT color="green">285</FONT>         *  Executes a plugin class in the given context.<a name="line.285"></a>
+<FONT color="green">286</FONT>         *  &lt;P&gt;Used to be private, but is public since 1.9.21.<a name="line.286"></a>
+<FONT color="green">287</FONT>         *<a name="line.287"></a>
+<FONT color="green">288</FONT>         *  @param context The current WikiContext.<a name="line.288"></a>
+<FONT color="green">289</FONT>         *  @param classname The name of the class.  Can also be a<a name="line.289"></a>
+<FONT color="green">290</FONT>         *  shortened version without the package name, since the class name is searched from the<a name="line.290"></a>
+<FONT color="green">291</FONT>         *  package search path.<a name="line.291"></a>
+<FONT color="green">292</FONT>         *<a name="line.292"></a>
+<FONT color="green">293</FONT>         *  @param params A parsed map of key-value pairs.<a name="line.293"></a>
+<FONT color="green">294</FONT>         *<a name="line.294"></a>
+<FONT color="green">295</FONT>         *  @return Whatever the plugin returns.<a name="line.295"></a>
+<FONT color="green">296</FONT>         *<a name="line.296"></a>
+<FONT color="green">297</FONT>         *  @throws PluginException If the plugin execution failed for<a name="line.297"></a>
+<FONT color="green">298</FONT>         *  some reason.<a name="line.298"></a>
+<FONT color="green">299</FONT>         *<a name="line.299"></a>
+<FONT color="green">300</FONT>         *  @since 2.0<a name="line.300"></a>
+<FONT color="green">301</FONT>         */<a name="line.301"></a>
+<FONT color="green">302</FONT>        public String execute( WikiContext context, String classname, Map&lt; String, String &gt; params ) throws PluginException {<a name="line.302"></a>
+<FONT color="green">303</FONT>            if( !m_pluginsEnabled ) {<a name="line.303"></a>
+<FONT color="green">304</FONT>                return "";<a name="line.304"></a>
+<FONT color="green">305</FONT>            }<a name="line.305"></a>
+<FONT color="green">306</FONT>    <a name="line.306"></a>
+<FONT color="green">307</FONT>            ResourceBundle rb = Preferences.getBundle( context, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.307"></a>
+<FONT color="green">308</FONT>            boolean debug = TextUtil.isPositive( params.get( PARAM_DEBUG ) );<a name="line.308"></a>
+<FONT color="green">309</FONT>            try {<a name="line.309"></a>
+<FONT color="green">310</FONT>                //<a name="line.310"></a>
+<FONT color="green">311</FONT>                //   Create...<a name="line.311"></a>
+<FONT color="green">312</FONT>                //<a name="line.312"></a>
+<FONT color="green">313</FONT>                WikiPlugin plugin = newWikiPlugin( classname, rb );<a name="line.313"></a>
+<FONT color="green">314</FONT>                if( plugin == null ) {<a name="line.314"></a>
+<FONT color="green">315</FONT>                    return "Plugin '" + classname + "' not compatible with this version of JSPWiki";<a name="line.315"></a>
+<FONT color="green">316</FONT>                }<a name="line.316"></a>
+<FONT color="green">317</FONT>    <a name="line.317"></a>
+<FONT color="green">318</FONT>                //<a name="line.318"></a>
+<FONT color="green">319</FONT>                //  ...and launch.<a name="line.319"></a>
+<FONT color="green">320</FONT>                //<a name="line.320"></a>
+<FONT color="green">321</FONT>                try {<a name="line.321"></a>
+<FONT color="green">322</FONT>                    return plugin.execute( context, params );<a name="line.322"></a>
+<FONT color="green">323</FONT>                } catch( PluginException e ) {<a name="line.323"></a>
+<FONT color="green">324</FONT>                    if( debug ) {<a name="line.324"></a>
+<FONT color="green">325</FONT>                        return stackTrace( params, e );<a name="line.325"></a>
+<FONT color="green">326</FONT>                    }<a name="line.326"></a>
+<FONT color="green">327</FONT>    <a name="line.327"></a>
+<FONT color="green">328</FONT>                    // Just pass this exception onward.<a name="line.328"></a>
+<FONT color="green">329</FONT>                    throw ( PluginException )e.fillInStackTrace();<a name="line.329"></a>
+<FONT color="green">330</FONT>                } catch( Throwable t ) {<a name="line.330"></a>
+<FONT color="green">331</FONT>                    // But all others get captured here.<a name="line.331"></a>
+<FONT color="green">332</FONT>                    log.info( "Plugin failed while executing:", t );<a name="line.332"></a>
+<FONT color="green">333</FONT>                    if( debug ) {<a name="line.333"></a>
+<FONT color="green">334</FONT>                        return stackTrace( params, t );<a name="line.334"></a>
+<FONT color="green">335</FONT>                    }<a name="line.335"></a>
+<FONT color="green">336</FONT>    <a name="line.336"></a>
+<FONT color="green">337</FONT>                    throw new PluginException( rb.getString( "plugin.error.failed" ), t );<a name="line.337"></a>
+<FONT color="green">338</FONT>                }<a name="line.338"></a>
+<FONT color="green">339</FONT>    <a name="line.339"></a>
+<FONT color="green">340</FONT>            } catch( ClassCastException e ) {<a name="line.340"></a>
+<FONT color="green">341</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.notawikiplugin" ), classname ), e );<a name="line.341"></a>
+<FONT color="green">342</FONT>            }<a name="line.342"></a>
+<FONT color="green">343</FONT>        }<a name="line.343"></a>
+<FONT color="green">344</FONT>    <a name="line.344"></a>
+<FONT color="green">345</FONT>        /**<a name="line.345"></a>
+<FONT color="green">346</FONT>         *  Parses plugin arguments.  Handles quotes and all other kewl stuff.<a name="line.346"></a>
+<FONT color="green">347</FONT>         *<a name="line.347"></a>
+<FONT color="green">348</FONT>         *  &lt;h3&gt;Special parameters&lt;/h3&gt;<a name="line.348"></a>
+<FONT color="green">349</FONT>         *  The plugin body is put into a special parameter defined by {@link #PARAM_BODY};<a name="line.349"></a>
+<FONT color="green">350</FONT>         *  the plugin's command line into a parameter defined by {@link #PARAM_CMDLINE};<a name="line.350"></a>
+<FONT color="green">351</FONT>         *  and the bounds of the plugin within the wiki page text by a parameter defined<a name="line.351"></a>
+<FONT color="green">352</FONT>         *  by {@link #PARAM_BOUNDS}, whose value is stored as a two-element int[] array,<a name="line.352"></a>
+<FONT color="green">353</FONT>         *  i.e., &lt;tt&gt;[start,end]&lt;/tt&gt;.<a name="line.353"></a>
+<FONT color="green">354</FONT>         *<a name="line.354"></a>
+<FONT color="green">355</FONT>         * @param argstring The argument string to the plugin.  This is<a name="line.355"></a>
+<FONT color="green">356</FONT>         *  typically a list of key-value pairs, using "'" to escape<a name="line.356"></a>
+<FONT color="green">357</FONT>         *  spaces in strings, followed by an empty line and then the<a name="line.357"></a>
+<FONT color="green">358</FONT>         *  plugin body.  In case the parameter is null, will return an<a name="line.358"></a>
+<FONT color="green">359</FONT>         *  empty parameter list.<a name="line.359"></a>
+<FONT color="green">360</FONT>         *<a name="line.360"></a>
+<FONT color="green">361</FONT>         * @return A parsed list of parameters.<a name="line.361"></a>
+<FONT color="green">362</FONT>         *<a name="line.362"></a>
+<FONT color="green">363</FONT>         * @throws IOException If the parsing fails.<a name="line.363"></a>
+<FONT color="green">364</FONT>         */<a name="line.364"></a>
+<FONT color="green">365</FONT>        public Map&lt; String, String &gt; parseArgs( String argstring ) throws IOException {<a name="line.365"></a>
+<FONT color="green">366</FONT>            Map&lt; String, String &gt; arglist = new HashMap&lt; String, String &gt;();<a name="line.366"></a>
+<FONT color="green">367</FONT>    <a name="line.367"></a>
+<FONT color="green">368</FONT>            //<a name="line.368"></a>
+<FONT color="green">369</FONT>            //  Protection against funny users.<a name="line.369"></a>
+<FONT color="green">370</FONT>            //<a name="line.370"></a>
+<FONT color="green">371</FONT>            if( argstring == null ) return arglist;<a name="line.371"></a>
+<FONT color="green">372</FONT>    <a name="line.372"></a>
+<FONT color="green">373</FONT>            arglist.put( PARAM_CMDLINE, argstring );<a name="line.373"></a>
+<FONT color="green">374</FONT>    <a name="line.374"></a>
+<FONT color="green">375</FONT>            StringReader    in      = new StringReader(argstring);<a name="line.375"></a>
+<FONT color="green">376</FONT>            StreamTokenizer tok     = new StreamTokenizer(in);<a name="line.376"></a>
+<FONT color="green">377</FONT>            int             type;<a name="line.377"></a>
+<FONT color="green">378</FONT>    <a name="line.378"></a>
+<FONT color="green">379</FONT>    <a name="line.379"></a>
+<FONT color="green">380</FONT>            String param = null;<a name="line.380"></a>
+<FONT color="green">381</FONT>            String value = null;<a name="line.381"></a>
+<FONT color="green">382</FONT>    <a name="line.382"></a>
+<FONT color="green">383</FONT>            tok.eolIsSignificant( true );<a name="line.383"></a>
+<FONT color="green">384</FONT>    <a name="line.384"></a>
+<FONT color="green">385</FONT>            boolean potentialEmptyLine = false;<a name="line.385"></a>
+<FONT color="green">386</FONT>            boolean quit               = false;<a name="line.386"></a>
+<FONT color="green">387</FONT>    <a name="line.387"></a>
+<FONT color="green">388</FONT>            while( !quit ) {<a name="line.388"></a>
+<FONT color="green">389</FONT>                String s;<a name="line.389"></a>
+<FONT color="green">390</FONT>                type = tok.nextToken();<a name="line.390"></a>
+<FONT color="green">391</FONT>    <a name="line.391"></a>
+<FONT color="green">392</FONT>                switch( type ) {<a name="line.392"></a>
+<FONT color="green">393</FONT>                  case StreamTokenizer.TT_EOF:<a name="line.393"></a>
+<FONT color="green">394</FONT>                    quit = true;<a name="line.394"></a>
+<FONT color="green">395</FONT>                    s = null;<a name="line.395"></a>
+<FONT color="green">396</FONT>                    break;<a name="line.396"></a>
+<FONT color="green">397</FONT>    <a name="line.397"></a>
+<FONT color="green">398</FONT>                  case StreamTokenizer.TT_WORD:<a name="line.398"></a>
+<FONT color="green">399</FONT>                    s = tok.sval;<a name="line.399"></a>
+<FONT color="green">400</FONT>                    potentialEmptyLine = false;<a name="line.400"></a>
+<FONT color="green">401</FONT>                    break;<a name="line.401"></a>
+<FONT color="green">402</FONT>    <a name="line.402"></a>
+<FONT color="green">403</FONT>                  case StreamTokenizer.TT_EOL:<a name="line.403"></a>
+<FONT color="green">404</FONT>                    quit = potentialEmptyLine;<a name="line.404"></a>
+<FONT color="green">405</FONT>                    potentialEmptyLine = true;<a name="line.405"></a>
+<FONT color="green">406</FONT>                    s = null;<a name="line.406"></a>
+<FONT color="green">407</FONT>                    break;<a name="line.407"></a>
+<FONT color="green">408</FONT>    <a name="line.408"></a>
+<FONT color="green">409</FONT>                  case StreamTokenizer.TT_NUMBER:<a name="line.409"></a>
+<FONT color="green">410</FONT>                    s = Integer.toString( (int) tok.nval );<a name="line.410"></a>
+<FONT color="green">411</FONT>                    potentialEmptyLine = false;<a name="line.411"></a>
+<FONT color="green">412</FONT>                    break;<a name="line.412"></a>
+<FONT color="green">413</FONT>    <a name="line.413"></a>
+<FONT color="green">414</FONT>                  case '\'':<a name="line.414"></a>
+<FONT color="green">415</FONT>                    s = tok.sval;<a name="line.415"></a>
+<FONT color="green">416</FONT>                    break;<a name="line.416"></a>
+<FONT color="green">417</FONT>    <a name="line.417"></a>
+<FONT color="green">418</FONT>                  default:<a name="line.418"></a>
+<FONT color="green">419</FONT>                    s = null;<a name="line.419"></a>
+<FONT color="green">420</FONT>                }<a name="line.420"></a>
+<FONT color="green">421</FONT>    <a name="line.421"></a>
+<FONT color="green">422</FONT>                //<a name="line.422"></a>
+<FONT color="green">423</FONT>                //  Assume that alternate words on the line are<a name="line.423"></a>
+<FONT color="green">424</FONT>                //  parameter and value, respectively.<a name="line.424"></a>
+<FONT color="green">425</FONT>                //<a name="line.425"></a>
+<FONT color="green">426</FONT>                if( s != null ) {<a name="line.426"></a>
+<FONT color="green">427</FONT>                    if( param == null ) {<a name="line.427"></a>
+<FONT color="green">428</FONT>                        param = s;<a name="line.428"></a>
+<FONT color="green">429</FONT>                    } else {<a name="line.429"></a>
+<FONT color="green">430</FONT>                        value = s;<a name="line.430"></a>
+<FONT color="green">431</FONT>    <a name="line.431"></a>
+<FONT color="green">432</FONT>                        arglist.put( param, value );<a name="line.432"></a>
+<FONT color="green">433</FONT>    <a name="line.433"></a>
+<FONT color="green">434</FONT>                        // log.debug("ARG: "+param+"="+value);<a name="line.434"></a>
+<FONT color="green">435</FONT>                        param = null;<a name="line.435"></a>
+<FONT color="green">436</FONT>                    }<a name="line.436"></a>
+<FONT color="green">437</FONT>                }<a name="line.437"></a>
+<FONT color="green">438</FONT>            }<a name="line.438"></a>
+<FONT color="green">439</FONT>    <a name="line.439"></a>
+<FONT color="green">440</FONT>            //<a name="line.440"></a>
+<FONT color="green">441</FONT>            //  Now, we'll check the body.<a name="line.441"></a>
+<FONT color="green">442</FONT>            //<a name="line.442"></a>
+<FONT color="green">443</FONT>            if( potentialEmptyLine ) {<a name="line.443"></a>
+<FONT color="green">444</FONT>                StringWriter out = new StringWriter();<a name="line.444"></a>
+<FONT color="green">445</FONT>                FileUtil.copyContents( in, out );<a name="line.445"></a>
+<FONT color="green">446</FONT>    <a name="line.446"></a>
+<FONT color="green">447</FONT>                String bodyContent = out.toString();<a name="line.447"></a>
+<FONT color="green">448</FONT>    <a name="line.448"></a>
+<FONT color="green">449</FONT>                if( bodyContent != null ) {<a name="line.449"></a>
+<FONT color="green">450</FONT>                    arglist.put( PARAM_BODY, bodyContent );<a name="line.450"></a>
+<FONT color="green">451</FONT>                }<a name="line.451"></a>
+<FONT color="green">452</FONT>            }<a name="line.452"></a>
+<FONT color="green">453</FONT>    <a name="line.453"></a>
+<FONT color="green">454</FONT>            return arglist;<a name="line.454"></a>
+<FONT color="green">455</FONT>        }<a name="line.455"></a>
+<FONT color="green">456</FONT>    <a name="line.456"></a>
+<FONT color="green">457</FONT>        /**<a name="line.457"></a>
+<FONT color="green">458</FONT>         *  Parses a plugin.  Plugin commands are of the form:<a name="line.458"></a>
+<FONT color="green">459</FONT>         *  [{INSERT myplugin WHERE param1=value1, param2=value2}]<a name="line.459"></a>
+<FONT color="green">460</FONT>         *  myplugin may either be a class name or a plugin alias.<a name="line.460"></a>
+<FONT color="green">461</FONT>         *  &lt;P&gt;<a name="line.461"></a>
+<FONT color="green">462</FONT>         *  This is the main entry point that is used.<a name="line.462"></a>
+<FONT color="green">463</FONT>         *<a name="line.463"></a>
+<FONT color="green">464</FONT>         *  @param context The current WikiContext.<a name="line.464"></a>
+<FONT color="green">465</FONT>         *  @param commandline The full command line, including plugin name, parameters and body.<a name="line.465"></a>
+<FONT color="green">466</FONT>         *<a name="line.466"></a>
+<FONT color="green">467</FONT>         *  @return HTML as returned by the plugin, or possibly an error message.<a name="line.467"></a>
+<FONT color="green">468</FONT>         *  <a name="line.468"></a>
+<FONT color="green">469</FONT>         *  @throws PluginException From the plugin itself, it propagates, waah!<a name="line.469"></a>
+<FONT color="green">470</FONT>         */<a name="line.470"></a>
+<FONT color="green">471</FONT>        public String execute( WikiContext context, String commandline ) throws PluginException {<a name="line.471"></a>
+<FONT color="green">472</FONT>            if( !m_pluginsEnabled ) {<a name="line.472"></a>
+<FONT color="green">473</FONT>                return "";<a name="line.473"></a>
+<FONT color="green">474</FONT>            }<a name="line.474"></a>
+<FONT color="green">475</FONT>    <a name="line.475"></a>
+<FONT color="green">476</FONT>            ResourceBundle rb = Preferences.getBundle( context, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.476"></a>
+<FONT color="green">477</FONT>            PatternMatcher matcher = new Perl5Matcher();<a name="line.477"></a>
+<FONT color="green">478</FONT>    <a name="line.478"></a>
+<FONT color="green">479</FONT>            try {<a name="line.479"></a>
+<FONT color="green">480</FONT>                if( matcher.contains( commandline, m_pluginPattern ) ) {<a name="line.480"></a>
+<FONT color="green">481</FONT>                    MatchResult res = matcher.getMatch();<a name="line.481"></a>
+<FONT color="green">482</FONT>    <a name="line.482"></a>
+<FONT color="green">483</FONT>                    String plugin   = res.group(2);<a name="line.483"></a>
+<FONT color="green">484</FONT>                    String args     = commandline.substring(res.endOffset(0),<a name="line.484"></a>
+<FONT color="green">485</FONT>                                                            commandline.length() -<a name="line.485"></a>
+<FONT color="green">486</FONT>                                                            (commandline.charAt(commandline.length()-1) == '}' ? 1 : 0 ) );<a name="line.486"></a>
+<FONT color="green">487</FONT>                    Map&lt;String, String&gt; arglist  = parseArgs( args );<a name="line.487"></a>
+<FONT color="green">488</FONT>    <a name="line.488"></a>
+<FONT color="green">489</FONT>                    return execute( context, plugin, arglist );<a name="line.489"></a>
+<FONT color="green">490</FONT>                }<a name="line.490"></a>
+<FONT color="green">491</FONT>            } catch( NoSuchElementException e ) {<a name="line.491"></a>
+<FONT color="green">492</FONT>                String msg =  "Missing parameter in plugin definition: "+commandline;<a name="line.492"></a>
+<FONT color="green">493</FONT>                log.warn( msg, e );<a name="line.493"></a>
+<FONT color="green">494</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.missingparameter" ), commandline ) );<a name="line.494"></a>
+<FONT color="green">495</FONT>            } catch( IOException e ) {<a name="line.495"></a>
+<FONT color="green">496</FONT>                String msg = "Zyrf.  Problems with parsing arguments: "+commandline;<a name="line.496"></a>
+<FONT color="green">497</FONT>                log.warn( msg, e );<a name="line.497"></a>
+<FONT color="green">498</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.parsingarguments" ), commandline ) );<a name="line.498"></a>
+<FONT color="green">499</FONT>            }<a name="line.499"></a>
+<FONT color="green">500</FONT>    <a name="line.500"></a>
+<FONT color="green">501</FONT>            // FIXME: We could either return an empty string "", or<a name="line.501"></a>
+<FONT color="green">502</FONT>            // the original line.  If we want unsuccessful requests<a name="line.502"></a>
+<FONT color="green">503</FONT>            // to be invisible, then we should return an empty string.<a name="line.503"></a>
+<FONT color="green">504</FONT>            return commandline;<a name="line.504"></a>
+<FONT color="green">505</FONT>        }<a name="line.505"></a>
+<FONT color="green">506</FONT>    <a name="line.506"></a>
+<FONT color="green">507</FONT>        /**<a name="line.507"></a>
+<FONT color="green">508</FONT>         *  Register a plugin.<a name="line.508"></a>
+<FONT color="green">509</FONT>         */<a name="line.509"></a>
+<FONT color="green">510</FONT>        private void registerPlugin( WikiPluginInfo pluginClass ) {<a name="line.510"></a>
+<FONT color="green">511</FONT>            String name;<a name="line.511"></a>
+<FONT color="green">512</FONT>    <a name="line.512"></a>
+<FONT color="green">513</FONT>            // Registrar the plugin with the className without the package-part<a name="line.513"></a>
+<FONT color="green">514</FONT>            name = pluginClass.getName();<a name="line.514"></a>
+<FONT color="green">515</FONT>            if( name != null ) {<a name="line.515"></a>
+<FONT color="green">516</FONT>                log.debug( "Registering plugin [name]: " + name );<a name="line.516"></a>
+<FONT color="green">517</FONT>                m_pluginClassMap.put( name, pluginClass );<a name="line.517"></a>
+<FONT color="green">518</FONT>            }<a name="line.518"></a>
+<FONT color="green">519</FONT>    <a name="line.519"></a>
+<FONT color="green">520</FONT>            // Registrar the plugin with a short convenient name.<a name="line.520"></a>
+<FONT color="green">521</FONT>            name = pluginClass.getAlias();<a name="line.521"></a>
+<FONT color="green">522</FONT>            if( name != null ) {<a name="line.522"></a>
+<FONT color="green">523</FONT>                log.debug( "Registering plugin [shortName]: " + name );<a name="line.523"></a>
+<FONT color="green">524</FONT>                m_pluginClassMap.put( name, pluginClass );<a name="line.524"></a>
+<FONT color="green">525</FONT>            }<a name="line.525"></a>
+<FONT color="green">526</FONT>    <a name="line.526"></a>
+<FONT color="green">527</FONT>            // Registrar the plugin with the className with the package-part<a name="line.527"></a>
+<FONT color="green">528</FONT>            name = pluginClass.getClassName();<a name="line.528"></a>
+<FONT color="green">529</FONT>            if( name != null ) {<a name="line.529"></a>
+<FONT color="green">530</FONT>                log.debug( "Registering plugin [className]: " + name );<a name="line.530"></a>
+<FONT color="green">531</FONT>                m_pluginClassMap.put( name, pluginClass );<a name="line.531"></a>
+<FONT color="green">532</FONT>            }<a name="line.532"></a>
+<FONT color="green">533</FONT>    <a name="line.533"></a>
+<FONT color="green">534</FONT>            pluginClass.initializePlugin( m_engine );<a name="line.534"></a>
+<FONT color="green">535</FONT>        }<a name="line.535"></a>
+<FONT color="green">536</FONT>    <a name="line.536"></a>
+<FONT color="green">537</FONT>        private void registerPlugins() {<a name="line.537"></a>
+<FONT color="green">538</FONT>            log.info( "Registering plugins" );<a name="line.538"></a>
+<FONT color="green">539</FONT>            List&lt; Element &gt; plugins = XmlUtil.parse( PLUGIN_RESOURCE_LOCATION, "/modules/plugin" );<a name="line.539"></a>
+<FONT color="green">540</FONT>    <a name="line.540"></a>
+<FONT color="green">541</FONT>            //<a name="line.541"></a>
+<FONT color="green">542</FONT>            // Register all plugins which have created a resource containing its properties.<a name="line.542"></a>
+<FONT color="green">543</FONT>            //<a name="line.543"></a>
+<FONT color="green">544</FONT>            // Get all resources of all plugins.<a name="line.544"></a>
+<FONT color="green">545</FONT>            //<a name="line.545"></a>
+<FONT color="green">546</FONT>            for( Element pluginEl : plugins ) {<a name="line.546"></a>
+<FONT color="green">547</FONT>                String className = pluginEl.getAttributeValue( "class" );<a name="line.547"></a>
+<FONT color="green">548</FONT>                WikiPluginInfo pluginInfo = WikiPluginInfo.newInstance( className, pluginEl );<a name="line.548"></a>
+<FONT color="green">549</FONT>    <a name="line.549"></a>
+<FONT color="green">550</FONT>                if( pluginInfo != null ) {<a name="line.550"></a>
+<FONT color="green">551</FONT>                    registerPlugin( pluginInfo );<a name="line.551"></a>
+<FONT color="green">552</FONT>                }<a name="line.552"></a>
+<FONT color="green">553</FONT>            }<a name="line.553"></a>
+<FONT color="green">554</FONT>        }<a name="line.554"></a>
+<FONT color="green">555</FONT>    <a name="line.555"></a>
+<FONT color="green">556</FONT>        /**<a name="line.556"></a>
+<FONT color="green">557</FONT>         *  Contains information about a bunch of plugins.<a name="line.557"></a>
+<FONT color="green">558</FONT>         *<a name="line.558"></a>
+<FONT color="green">559</FONT>         *<a name="line.559"></a>
+<FONT color="green">560</FONT>         *  @since<a name="line.560"></a>
+<FONT color="green">561</FONT>         */<a name="line.561"></a>
+<FONT color="green">562</FONT>        // FIXME: This class needs a better interface to return all sorts of possible<a name="line.562"></a>
+<FONT color="green">563</FONT>        //        information from the plugin XML.  In fact, it probably should have<a name="line.563"></a>
+<FONT color="green">564</FONT>        //        some sort of a superclass system.<a name="line.564"></a>
+<FONT color="green">565</FONT>        public static final class WikiPluginInfo extends WikiModuleInfo {<a name="line.565"></a>
+<FONT color="green">566</FONT>            <a name="line.566"></a>
+<FONT color="green">567</FONT>            private String    m_className;<a name="line.567"></a>
+<FONT color="green">568</FONT>            private String    m_alias;<a name="line.568"></a>
+<FONT color="green">569</FONT>            private Class&lt;?&gt;  m_clazz;<a name="line.569"></a>
+<FONT color="green">570</FONT>    <a name="line.570"></a>
+<FONT color="green">571</FONT>            private boolean m_initialized = false;<a name="line.571"></a>
+<FONT color="green">572</FONT>    <a name="line.572"></a>
+<FONT color="green">573</FONT>            /**<a name="line.573"></a>
+<FONT color="green">574</FONT>             *  Creates a new plugin info object which can be used to access a plugin.<a name="line.574"></a>
+<FONT color="green">575</FONT>             *<a name="line.575"></a>
+<FONT color="green">576</FONT>             *  @param className Either a fully qualified class name, or a "short" name which is then<a name="line.576"></a>
+<FONT color="green">577</FONT>             *                   checked against the internal list of plugin packages.<a name="line.577"></a>
+<FONT color="green">578</FONT>             *  @param el A JDOM Element containing the information about this class.<a name="line.578"></a>
+<FONT color="green">579</FONT>             *  @return A WikiPluginInfo object.<a name="line.579"></a>
+<FONT color="green">580</FONT>             */<a name="line.580"></a>
+<FONT color="green">581</FONT>            protected static WikiPluginInfo newInstance( String className, Element el ) {<a name="line.581"></a>
+<FONT color="green">582</FONT>                if( className == null || className.length() == 0 ) return null;<a name="line.582"></a>
+<FONT color="green">583</FONT>                <a name="line.583"></a>
+<FONT color="green">584</FONT>                WikiPluginInfo info = new WikiPluginInfo( className );<a name="line.584"></a>
+<FONT color="green">585</FONT>                info.initializeFromXML( el );<a name="line.585"></a>
+<FONT color="green">586</FONT>                return info;<a name="line.586"></a>
+<FONT color="green">587</FONT>            }<a name="line.587"></a>
+<FONT color="green">588</FONT>            <a name="line.588"></a>
+<FONT color="green">589</FONT>            /**<a name="line.589"></a>
+<FONT color="green">590</FONT>             *  Initializes a plugin, if it has not yet been initialized.<a name="line.590"></a>
+<FONT color="green">591</FONT>             *<a name="line.591"></a>
+<FONT color="green">592</FONT>             *  @param engine The WikiEngine<a name="line.592"></a>
+<FONT color="green">593</FONT>             */<a name="line.593"></a>
+<FONT color="green">594</FONT>            protected void initializePlugin( WikiEngine engine ) {<a name="line.594"></a>
+<FONT color="green">595</FONT>                if( !m_initialized ) {<a name="line.595"></a>
+<FONT color="green">596</FONT>                    // This makes sure we only try once per class, even if init fails.<a name="line.596"></a>
+<FONT color="green">597</FONT>                    m_initialized = true;<a name="line.597"></a>
+<FONT color="green">598</FONT>    <a name="line.598"></a>
+<FONT color="green">599</FONT>                    try {<a name="line.599"></a>
+<FONT color="green">600</FONT>                        WikiPlugin p = newPluginInstance();<a name="line.600"></a>
+<FONT color="green">601</FONT>                        if( p instanceof InitializablePlugin ) {<a name="line.601"></a>
+<FONT color="green">602</FONT>                            ( ( InitializablePlugin )p ).initialize( engine );<a name="line.602"></a>
+<FONT color="green">603</FONT>                        }<a name="line.603"></a>
+<FONT color="green">604</FONT>                    } catch( Exception e ) {<a name="line.604"></a>
+<FONT color="green">605</FONT>                        log.info( "Cannot initialize plugin " + m_className, e );<a name="line.605"></a>
+<FONT color="green">606</FONT>                    }<a name="line.606"></a>
+<FONT color="green">607</FONT>                }<a name="line.607"></a>
+<FONT color="green">608</FONT>            }<a name="line.608"></a>
+<FONT color="green">609</FONT>    <a name="line.609"></a>
+<FONT color="green">610</FONT>            /**<a name="line.610"></a>
+<FONT color="green">611</FONT>             *  {@inheritDoc}<a name="line.611"></a>
+<FONT color="green">612</FONT>             */<a name="line.612"></a>
+<FONT color="green">613</FONT>            @Override<a name="line.613"></a>
+<FONT color="green">614</FONT>            protected void initializeFromXML( Element el ) {<a name="line.614"></a>
+<FONT color="green">615</FONT>                super.initializeFromXML( el );<a name="line.615"></a>
+<FONT color="green">616</FONT>                m_alias = el.getChildText( "alias" );<a name="line.616"></a>
+<FONT color="green">617</FONT>            }<a name="line.617"></a>
+<FONT color="green">618</FONT>    <a name="line.618"></a>
+<FONT color="green">619</FONT>            /**<a name="line.619"></a>
+<FONT color="green">620</FONT>             *  Create a new WikiPluginInfo based on the Class information.<a name="line.620"></a>
+<FONT color="green">621</FONT>             *  <a name="line.621"></a>
+<FONT color="green">622</FONT>             *  @param clazz The class to check<a name="line.622"></a>
+<FONT color="green">623</FONT>             *  @return A WikiPluginInfo instance<a name="line.623"></a>
+<FONT color="green">624</FONT>             */<a name="line.624"></a>
+<FONT color="green">625</FONT>            protected static WikiPluginInfo newInstance( Class&lt; ? &gt; clazz ) {<a name="line.625"></a>
+<FONT color="green">626</FONT>                return new WikiPluginInfo( clazz.getName() );<a name="line.626"></a>
+<FONT color="green">627</FONT>            }<a name="line.627"></a>
+<FONT color="green">628</FONT>    <a name="line.628"></a>
+<FONT color="green">629</FONT>            private WikiPluginInfo( String className ) {<a name="line.629"></a>
+<FONT color="green">630</FONT>                super( className );<a name="line.630"></a>
+<FONT color="green">631</FONT>                setClassName( className );<a name="line.631"></a>
+<FONT color="green">632</FONT>            }<a name="line.632"></a>
+<FONT color="green">633</FONT>    <a name="line.633"></a>
+<FONT color="green">634</FONT>            private void setClassName( String fullClassName ) {<a name="line.634"></a>
+<FONT color="green">635</FONT>                m_name = ClassUtils.getShortClassName( fullClassName );<a name="line.635"></a>
+<FONT color="green">636</FONT>                m_className = fullClassName;<a name="line.636"></a>
+<FONT color="green">637</FONT>            }<a name="line.637"></a>
+<FONT color="green">638</FONT>    <a name="line.638"></a>
+<FONT color="green">639</FONT>            /**<a name="line.639"></a>
+<FONT color="green">640</FONT>             *  Returns the full class name of this object.<a name="line.640"></a>
+<FONT color="green">641</FONT>             *  @return The full class name of the object.<a name="line.641"></a>
+<FONT color="green">642</FONT>             */<a name="line.642"></a>
+<FONT color="green">643</FONT>            public String getClassName() {<a name="line.643"></a>
+<FONT color="green">644</FONT>                return m_className;<a name="line.644"></a>
+<FONT color="green">645</FONT>            }<a name="line.645"></a>
+<FONT color="green">646</FONT>    <a name="line.646"></a>
+<FONT color="green">647</FONT>            /**<a name="line.647"></a>
+<FONT color="green">648</FONT>             *  Returns the alias name for this object.<a name="line.648"></a>
+<FONT color="green">649</FONT>             *  @return An alias name for the plugin.<a name="line.649"></a>
+<FONT color="green">650</FONT>             */<a name="line.650"></a>
+<FONT color="green">651</FONT>            public String getAlias() {<a name="line.651"></a>
+<FONT color="green">652</FONT>                return m_alias;<a name="line.652"></a>
+<FONT color="green">653</FONT>            }<a name="line.653"></a>
+<FONT color="green">654</FONT>    <a name="line.654"></a>
+<FONT color="green">655</FONT>            /**<a name="line.655"></a>
+<FONT color="green">656</FONT>             *  Creates a new plugin instance.<a name="line.656"></a>
+<FONT color="green">657</FONT>             *<a name="line.657"></a>
+<FONT color="green">658</FONT>             *  @return A new plugin.<a name="line.658"></a>
+<FONT color="green">659</FONT>             *  @throws ClassNotFoundException If the class declared was not found.<a name="line.659"></a>
+<FONT color="green">660</FONT>             *  @throws InstantiationException If the class cannot be instantiated-<a name="line.660"></a>
+<FONT color="green">661</FONT>             *  @throws IllegalAccessException If the class cannot be accessed.<a name="line.661"></a>
+<FONT color="green">662</FONT>             */<a name="line.662"></a>
+<FONT color="green">663</FONT>            public WikiPlugin newPluginInstance() throws ClassNotFoundException, InstantiationException, IllegalAccessException {<a name="line.663"></a>
+<FONT color="green">664</FONT>                if( m_clazz == null ) {<a name="line.664"></a>
+<FONT color="green">665</FONT>                    m_clazz = Class.forName(m_className);<a name="line.665"></a>
+<FONT color="green">666</FONT>                }<a name="line.666"></a>
+<FONT color="green">667</FONT>    <a name="line.667"></a>
+<FONT color="green">668</FONT>                return (WikiPlugin) m_clazz.newInstance();<a name="line.668"></a>
+<FONT color="green">669</FONT>            }<a name="line.669"></a>
+<FONT color="green">670</FONT>    <a name="line.670"></a>
+<FONT color="green">671</FONT>            /**<a name="line.671"></a>
+<FONT color="green">672</FONT>             *  Returns a text for IncludeResources.<a name="line.672"></a>
+<FONT color="green">673</FONT>             *<a name="line.673"></a>
+<FONT color="green">674</FONT>             *  @param type Either "script" or "stylesheet"<a name="line.674"></a>
+<FONT color="green">675</FONT>             *  @return Text, or an empty string, if there is nothing to be included.<a name="line.675"></a>
+<FONT color="green">676</FONT>             */<a name="line.676"></a>
+<FONT color="green">677</FONT>            public String getIncludeText( String type ) {<a name="line.677"></a>
+<FONT color="green">678</FONT>                try {<a name="line.678"></a>
+<FONT color="green">679</FONT>                    if( "script".equals( type ) ) {<a name="line.679"></a>
+<FONT color="green">680</FONT>                        return getScriptText();<a name="line.680"></a>
+<FONT color="green">681</FONT>                    } else if( "stylesheet".equals( type ) ) {<a name="line.681"></a>
+<FONT color="green">682</FONT>                        return getStylesheetText();<a name="line.682"></a>
+<FONT color="green">683</FONT>                    }<a name="line.683"></a>
+<FONT color="green">684</FONT>                } catch( Exception ex ) {<a name="line.684"></a>
+<FONT color="green">685</FONT>                    // We want to fail gracefully here<a name="line.685"></a>
+<FONT color="green">686</FONT>                    return ex.getMessage();<a name="line.686"></a>
+<FONT color="green">687</FONT>                }<a name="line.687"></a>
+<FONT color="green">688</FONT>    <a name="line.688"></a>
+<FONT color="green">689</FONT>                return null;<a name="line.689"></a>
+<FONT color="green">690</FONT>            }<a name="line.690"></a>
+<FONT color="green">691</FONT>    <a name="line.691"></a>
+<FONT color="green">692</FONT>            private String getScriptText() throws IOException {<a name="line.692"></a>
+<FONT color="green">693</FONT>                if( m_scriptText != null ) {<a name="line.693"></a>
+<FONT color="green">694</FONT>                    return m_scriptText;<a name="line.694"></a>
+<FONT color="green">695</FONT>                }<a name="line.695"></a>
+<FONT color="green">696</FONT>    <a name="line.696"></a>
+<FONT color="green">697</FONT>                if( m_scriptLocation == null ) {<a name="line.697"></a>
+<FONT color="green">698</FONT>                    return "";<a name="line.698"></a>
+<FONT color="green">699</FONT>                }<a name="line.699"></a>
+<FONT color="green">700</FONT>    <a name="line.700"></a>
+<FONT color="green">701</FONT>                try {<a name="line.701"></a>
+<FONT color="green">702</FONT>                    m_scriptText = getTextResource(m_scriptLocation);<a name="line.702"></a>
+<FONT color="green">703</FONT>                } catch( IOException ex ) {<a name="line.703"></a>
+<FONT color="green">704</FONT>                    // Only throw this exception once!<a name="line.704"></a>
+<FONT color="green">705</FONT>                    m_scriptText = "";<a name="line.705"></a>
+<FONT color="green">706</FONT>                    throw ex;<a name="line.706"></a>
+<FONT color="green">707</FONT>                }<a name="line.707"></a>
+<FONT color="green">708</FONT>    <a name="line.708"></a>
+<FONT color="green">709</FONT>                return m_scriptText;<a name="line.709"></a>
+<FONT color="green">710</FONT>            }<a name="line.710"></a>
+<FONT color="green">711</FONT>    <a name="line.711"></a>
+<FONT color="green">712</FONT>            private String getStylesheetText() throws IOException {<a name="line.712"></a>
+<FONT color="green">713</FONT>                if( m_stylesheetText != null ) {<a name="line.713"></a>
+<FONT color="green">714</FONT>                    return m_stylesheetText;<a name="line.714"></a>
+<FONT color="green">715</FONT>                }<a name="line.715"></a>
+<FONT color="green">716</FONT>    <a name="line.716"></a>
+<FONT color="green">717</FONT>                if( m_stylesheetLocation == null ) {<a name="line.717"></a>
+<FONT color="green">718</FONT>                    return "";<a name="line.718"></a>
+<FONT color="green">719</FONT>                }<a name="line.719"></a>
+<FONT color="green">720</FONT>    <a name="line.720"></a>
+<FONT color="green">721</FONT>                try {<a name="line.721"></a>
+<FONT color="green">722</FONT>                    m_stylesheetText = getTextResource(m_stylesheetLocation);<a name="line.722"></a>
+<FONT color="green">723</FONT>                } catch( IOException ex ) {<a name="line.723"></a>
+<FONT color="green">724</FONT>                    // Only throw this exception once!<a name="line.724"></a>
+<FONT color="green">725</FONT>                    m_stylesheetText = "";<a name="line.725"></a>
+<FONT color="green">726</FONT>                    throw ex;<a name="line.726"></a>
+<FONT color="green">727</FONT>                }<a name="line.727"></a>
+<FONT color="green">728</FONT>    <a name="line.728"></a>
+<FONT color="green">729</FONT>                return m_stylesheetText;<a name="line.729"></a>
+<FONT color="green">730</FONT>            }<a name="line.730"></a>
+<FONT color="green">731</FONT>    <a name="line.731"></a>
+<FONT color="green">732</FONT>            /**<a name="line.732"></a>
+<FONT color="green">733</FONT>             *  Returns a string suitable for debugging.  Don't assume that the format would stay the same.<a name="line.733"></a>
+<FONT color="green">734</FONT>             *  <a name="line.734"></a>
+<FONT color="green">735</FONT>             *  @return Something human-readable<a name="line.735"></a>
+<FONT color="green">736</FONT>             */<a name="line.736"></a>
+<FONT color="green">737</FONT>            public String toString() {<a name="line.737"></a>
+<FONT color="green">738</FONT>                return "Plugin :[name=" + m_name + "][className=" + m_className + "]";<a name="line.738"></a>
+<FONT color="green">739</FONT>            }<a name="line.739"></a>
+<FONT color="green">740</FONT>        } // WikiPluginClass<a name="line.740"></a>
+<FONT color="green">741</FONT>    <a name="line.741"></a>
+<FONT color="green">742</FONT>        /**<a name="line.742"></a>
+<FONT color="green">743</FONT>         *  {@inheritDoc}<a name="line.743"></a>
+<FONT color="green">744</FONT>         */<a name="line.744"></a>
+<FONT color="green">745</FONT>        public Collection&lt; WikiModuleInfo &gt; modules() {<a name="line.745"></a>
+<FONT color="green">746</FONT>            Set&lt; WikiModuleInfo &gt; ls = new TreeSet&lt; WikiModuleInfo &gt;();<a name="line.746"></a>
+<FONT color="green">747</FONT>            <a name="line.747"></a>
+<FONT color="green">748</FONT>            for( Iterator&lt; WikiPluginInfo &gt; i = m_pluginClassMap.values().iterator(); i.hasNext(); ) {<a name="line.748"></a>
+<FONT color="green">749</FONT>                WikiModuleInfo wmi = i.next();<a name="line.749"></a>
+<FONT color="green">750</FONT>                if( !ls.contains( wmi ) ) ls.add( wmi );<a name="line.750"></a>
+<FONT color="green">751</FONT>            }<a name="line.751"></a>
+<FONT color="green">752</FONT>            <a name="line.752"></a>
+<FONT color="green">753</FONT>            return ls;<a name="line.753"></a>
+<FONT color="green">754</FONT>        }<a name="line.754"></a>
+<FONT color="green">755</FONT>    <a name="line.755"></a>
+<FONT color="green">756</FONT>        /**<a name="line.756"></a>
+<FONT color="green">757</FONT>         * Creates a {@link WikiPlugin}.<a name="line.757"></a>
+<FONT color="green">758</FONT>         * <a name="line.758"></a>
+<FONT color="green">759</FONT>         * @param pluginName plugin's classname<a name="line.759"></a>
+<FONT color="green">760</FONT>         * @param rb {@link ResourceBundle} with i18ned text for exceptions.<a name="line.760"></a>
+<FONT color="green">761</FONT>         * @return a {@link WikiPlugin}.<a name="line.761"></a>
+<FONT color="green">762</FONT>         * @throws PluginException if there is a problem building the {@link WikiPlugin}.<a name="line.762"></a>
+<FONT color="green">763</FONT>         */<a name="line.763"></a>
+<FONT color="green">764</FONT>        public WikiPlugin newWikiPlugin( String pluginName, ResourceBundle rb ) throws PluginException {<a name="line.764"></a>
+<FONT color="green">765</FONT>            WikiPlugin plugin = null;<a name="line.765"></a>
+<FONT color="green">766</FONT>            WikiPluginInfo pluginInfo = m_pluginClassMap.get( pluginName );<a name="line.766"></a>
+<FONT color="green">767</FONT>            try {<a name="line.767"></a>
+<FONT color="green">768</FONT>                if( pluginInfo == null ) {<a name="line.768"></a>
+<FONT color="green">769</FONT>                    pluginInfo = WikiPluginInfo.newInstance( findPluginClass( pluginName ) );<a name="line.769"></a>
+<FONT color="green">770</FONT>                    registerPlugin( pluginInfo );<a name="line.770"></a>
+<FONT color="green">771</FONT>                }<a name="line.771"></a>
+<FONT color="green">772</FONT>    <a name="line.772"></a>
+<FONT color="green">773</FONT>                if( !checkCompatibility( pluginInfo ) ) {<a name="line.773"></a>
+<FONT color="green">774</FONT>                    String msg = "Plugin '" + pluginInfo.getName() + "' not compatible with this version of JSPWiki";<a name="line.774"></a>
+<FONT color="green">775</FONT>                    log.info( msg );<a name="line.775"></a>
+<FONT color="green">776</FONT>                } else {<a name="line.776"></a>
+<FONT color="green">777</FONT>                    plugin = pluginInfo.newPluginInstance();<a name="line.777"></a>
+<FONT color="green">778</FONT>                }<a name="line.778"></a>
+<FONT color="green">779</FONT>            } catch( ClassNotFoundException e ) {<a name="line.779"></a>
+<FONT color="green">780</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.couldnotfind" ), pluginName ), e );<a name="line.780"></a>
+<FONT color="green">781</FONT>            } catch( InstantiationException e ) {<a name="line.781"></a>
+<FONT color="green">782</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.cannotinstantiate" ), pluginName ), e );<a name="line.782"></a>
+<FONT color="green">783</FONT>            } catch( IllegalAccessException e ) {<a name="line.783"></a>
+<FONT color="green">784</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.notallowed" ), pluginName ), e );<a name="line.784"></a>
+<FONT color="green">785</FONT>            } catch( Exception e ) {<a name="line.785"></a>
+<FONT color="green">786</FONT>                throw new PluginException( MessageFormat.format( rb.getString( "plugin.error.instantationfailed" ), pluginName ), e );<a name="line.786"></a>
+<FONT color="green">787</FONT>            }<a name="line.787"></a>
+<FONT color="green">788</FONT>            return plugin;<a name="line.788"></a>
+<FONT color="green">789</FONT>        }<a name="line.789"></a>
+<FONT color="green">790</FONT>        <a name="line.790"></a>
+<FONT color="green">791</FONT>    }<a name="line.791"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>
