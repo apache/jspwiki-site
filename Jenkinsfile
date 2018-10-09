@@ -30,42 +30,36 @@ try {
         def MAVEN_3_LATEST=tool name: 'Maven 3 (latest)', type: 'hudson.tasks.Maven$MavenInstallation'
         echo "Will use Maven $MAVEN_3_LATEST"
         
-        stage( "clone $jbake and $asfsite branches" ) {
+        stage( "clone $jbake branch" ) {
             cleanWs()
             dir( jbake ) {
-                git branch: jbake, url: repo, credentialsId: creds
-            }
-            dir( asfsite ) {
-                git branch: asfsite, url: repo, credentialsId: creds
+                git branch: jbake, url: repo, credentialsId: creds, poll: true
             }
         }
 
-        stage( 'generate site' ) {
+        stage( 'build website' ) {
             withEnv( [ "Path+JDK=$JAVA_JDK_8/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_8" ] ) {
                 dir( jbake ) {
                     sh 'mvn clean process-resources'
                 }
-                stash name: 'workspace',
-                      useDefaultExcludes: false, // we need .git to publish
-                      excludes: '**/*~,**/#*#,**/%*%,**/._*,.DS_Store'
+                stash name: 'jbake-website'
             }
         }
         
     } 
 
     node( 'git-websites' ) {
-        stage( 'retrieve workspace' ) {
+        stage( 'publish website' ) {
             cleanWs()
-            unstash 'workspace'
-        }
-        stage( 'publish site' ) {
+            unstash 'jbake-website'
             dir( asfsite ) {
+                git branch: asfsite, url: repo, credentialsId: creds
                 sh "cp -rf ../$jbake/target/content/* ./"
-                sshagent( [ creds ] ) {
+                timeout( 15 ) { // 15 minutes
                     sh 'git add .'
                     sh 'git commit -m "Automatic Site Publish by Buildbot"'
                     echo "pushing to $repo"
-                    sh "git push $repo asf-site"
+                    sh "git push origin asf-site"
                 }
             }
         }
@@ -77,8 +71,13 @@ try {
     echo err
     currentBuild.result = 'FAILURE'
 } finally {
-    emailext body: "See ${env.BUILD_URL}",
-             replyTo: 'dev@jspwiki.apache.org', 
-             to: 'commits@jspwiki.apache.org',
-             subject: "[${env.JOB_NAME}] build ${env.BUILD_DISPLAY_NAME} - ${currentBuild.result}"
+    node( 'ubuntu' ) {
+        if( currentBuild.result == null ) {
+            currentBuild.result = 'ABORTED'
+        }
+        emailext body: "See ${env.BUILD_URL}",
+                 replyTo: 'dev@jspwiki.apache.org', 
+                 to: 'commits@jspwiki.apache.org',
+                 subject: "[${env.JOB_NAME}] build ${env.BUILD_DISPLAY_NAME} - ${currentBuild.result}"
+    }
 }
