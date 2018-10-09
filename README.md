@@ -1,8 +1,6 @@
 Apache JSPWiki website
 ======================
 
-(adapted from [Apache Guacamole site](https://github.com/apache/incubator-guacamole-website))
-
 This repository contains the source for the website of Apache JSPWiki, so it 
 can be deployed via [gitpubsub](https://blogs.apache.org/infra/entry/git_based_websites_available) 
 (see https://issues.apache.org/jira/browse/INFRA-13716)
@@ -12,8 +10,8 @@ prior to deployment. The content of the website is written in a mixture of Freem
 Markdown. Templated content is interpreted only at build time, with the final result being 
 completely static.
 
-To facilitate ease of development and testing, this repository also contains a couple of
-build scripts, `ci.sh` and `mvn-ci.sh`, the usage of which is documented below.
+To facilitate ease of development and testing, this repository also contains an `mvn-ci.sh` build 
+script, the usage of which is documented below.
 
 Table of contents
 -----------------
@@ -32,7 +30,7 @@ the repository contains the following critical files:
 | Filename            | Description
 | -------------       | -----------
 | `./pom.xml`         | to orchestrate the website build
-| `./ci.sh`           | script, meant to be run by a CI server, to build and deploy the website.
+| `./Jenkinsfile`     | file meant to be run by a Jenkins CI server, to build and deploy the website.
 | `./mvn-ci.sh`       | script to build and deploy the website using Maven.
 | `./src/main/jbake/` | standard [jbake maven plugin structure](https://github.com/ingenieux/jbake-maven-plugin), contains three subdirectories:
 |  -> `assets/`       | The assets directory is where you should place your static files such as images, CSS files and JavaScript files etc. These files are copied over to the baked output as is. You can create any directory structure you like in the assets directory and this structure will be maintained when copied.
@@ -43,16 +41,16 @@ the repository contains the following critical files:
 Build prerequisites
 -------------------
 
-The CI build (`ci.sh`) needs Java 7 and a JBake installation under `$JBAKE_HOME`. This 
+The CI build (`Jenkinsfile`) needs Java 8 and a Maven installation. This 
 script is run at [ASF's Jenkins instance](https://builds.apache.org/job/jspwiki-site/). 
-As there isn't a Maven installation at the nodes which perform this job, this script 
-only takes the changes from the "jbake" branch, generates the site and puts it on the 
-"asf-site" branch. As for now, javadocs must be pushed locally through the Maven build 
-script.
+This script takes the changes from the "jbake" branch, generates the site, pulls the 
+javadocs, generates the binary compatibility reports and puts them on the "asf-site" 
+branch, where they get published, usually a few second later. See "publishing changes"
+section below for details.
 
-The Maven build (`mvn-ci.sh`) needs at least Maven 3.1.1 and Java 7, thus these must 
-be installed first. It's essentially the same build as the CI build, but done through 
-Maven. This allows us to generate the site and also put the javadocs in there.
+The Maven build (`mvn-ci.sh`) needs at least Maven 3 and Java 8, thus these must 
+be installed first. It's essentially the same build as the CI build, but meant to be 
+run locally.
 
 Testing changes locally
 -----------------------
@@ -78,7 +76,7 @@ the website thus involves:
 2. Replacing the entire contents within "asf-site" with the newly-generated site from the 
    "jbake" branch.
 
-Second step is automated through `ci.sh` and `mvn-ci.sh` scripts. 
+Second step is automated through `Jenkinsfile` and `mvn-ci.sh` files. 
 
 Keep in mind that the new content must be *staged* for and committed in this branch. Once you have 
 verified that the staged content is as expected, commit your changes (along with a useful commit 
