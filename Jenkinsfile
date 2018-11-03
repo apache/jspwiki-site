@@ -68,8 +68,8 @@ try {
     currentBuild.result = 'SUCCESS'
     
 } catch( Exception err ) {
-    echo err
     currentBuild.result = 'FAILURE'
+    echo err.message
 } finally {
     node( 'ubuntu' ) {
         if( currentBuild.result == null ) {
