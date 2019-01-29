@@ -6,6 +6,8 @@ type=page
 
 ## Project News
 
+  * **29-Jan-2019:** Official [Apache JSPWiki 2.11.0.M1 release][] is out!
+  
   * **04-Sep-2018:** Official [Apache JSPWiki 2.10.5 release][] is out!
 
   * **23-May-2018:** Official [Apache JSPWiki 2.10.4 release][] is out!
@@ -59,3 +61,4 @@ type=page
 [Apache JSPWiki 2.10.3 release]: downloads.html
 [Apache JSPWiki 2.10.4 release]: downloads.html
 [Apache JSPWiki 2.10.5 release]: downloads.html
+[Apache JSPWiki 2.11.0.M1 release]: downloads.html
