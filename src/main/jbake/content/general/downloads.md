@@ -4,13 +4,13 @@ title=Downloads
 type=page
 ~~~~~~
 
-**Current source and binary distributions** are available through the <a class="external" href="http://www.apache.org/dyn/closer.lua/jspwiki/2.10.4/">Apache mirrors</a>.
+**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M1/">Apache mirrors</a>.
 
-Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at http://www.apache.org/dist/jspwiki. Find here the <a class="external" href="http://www.apache.org/dist/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
+Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://www.apache.org/dist/jspwiki. Find here the <a class="external" href="https://www.apache.org/dist/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
 
-<br/> **Previous source and binary distributions** are available through the <a class="external" href="http://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
+<br/> **Previous source and binary distributions** are available through the <a class="external" href="https://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
 
-<br/> **Source, javadocs and build artifacts** are also available via the **<a class="external" href="https://repository.apache.org/index.html#nexus-search;quick~jspwiki">Apache Nexus</a>** repository, which is synced to <a class="external" href="http://search.maven.org/#search|ga|1|org.apache.jspwiki">Central repo</a>, <br/>under `org.apache.jspwiki` groupId.
+<br/> **Source, javadocs and build artifacts** are also available via the **<a class="external" href="https://repository.apache.org/index.html#nexus-search;quick~jspwiki">Apache Nexus</a>** repository, which is synced to <a class="external" href="https://search.maven.org/#search|ga|1|org.apache.jspwiki">Central repo</a>, <br/>under `org.apache.jspwiki` groupId.
 
 If you want to build directly from the sources, please check the [Get and Build Source][] page.
 
@@ -18,7 +18,7 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 * **29-Jan-2019**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M1ReleasedOn29012019">2.11.0.M1</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12343348 <br/>
-<strong><a class="external" href="http://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M1/source">source</a></strong> | <strong><a class="external" href="https://www.apache.org/dist/jspwiki/2.11.0.M1/source/jspwiki-builder-2.11.0.M1-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://www.apache.org/dist/jspwiki/2.11.0.M1/source/jspwiki-builder-2.11.0.M1-source-release.zip.asc">signature</a></strong>
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M1/source">source</a></strong> | <strong><a class="external" href="https://www.apache.org/dist/jspwiki/2.11.0.M1/source/jspwiki-builder-2.11.0.M1-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://www.apache.org/dist/jspwiki/2.11.0.M1/source/jspwiki-builder-2.11.0.M1-source-release.zip.asc">signature</a></strong>
 
 * **04-Sep-2018**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-SectionNewIn2.10NewInJSPWiki2.10.5ReleasedOn04092018">2.10.5</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12343310
