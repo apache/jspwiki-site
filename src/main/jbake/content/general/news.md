@@ -6,6 +6,8 @@ type=page
 
 ## Project News
 
+  * **08-Mar-2019:** Official [Apache JSPWiki 2.11.0.M2 release][] is out!
+
   * **30-Jan-2019:** Apache JSPWiki [CVE-2018-20242][] vulnerability disclosure 
 
   * **29-Jan-2019:** Official [Apache JSPWiki 2.11.0.M1 release][] is out!
@@ -64,4 +66,5 @@ type=page
 [Apache JSPWiki 2.10.4 release]: downloads.html
 [Apache JSPWiki 2.10.5 release]: downloads.html
 [Apache JSPWiki 2.11.0.M1 release]: downloads.html
+[Apache JSPWiki 2.11.0.M2 release]: downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
