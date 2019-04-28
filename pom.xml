@@ -36,10 +36,9 @@
   
   <properties>
     <jbake.dest>${project.build.directory}/content</jbake.dest>
-    <plugin.dependency>3.1.1</plugin.dependency>
     <plugin.enforcer>1.4.1</plugin.enforcer>
     <plugin.resources>3.1.0</plugin.resources>
-    <plugin.japicmp.version>0.13.0</plugin.japicmp.version>
+    <plugin.japicmp.version>0.14.0</plugin.japicmp.version>
     <plugin.japicmp.jspwiki-new>2.11.0.M3</plugin.japicmp.jspwiki-new>
     <plugin.japicmp.jspwiki-old>2.10.5</plugin.japicmp.jspwiki-old>
     <plugin.jbake>0.0.9</plugin.jbake>
@@ -69,10 +68,6 @@
         <artifactId>jbake-maven-plugin</artifactId>
       </plugin>
       
-      <plugin><!-- jbaking apidocs takes a looong time, for just copying some files, we better unpack them only when actually building the site -->
-        <artifactId>maven-dependency-plugin</artifactId>
-      </plugin>
-      
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
@@ -81,43 +76,6 @@
 
     <pluginManagement>
       <plugins>
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>${plugin.dependency}</version>
-          <executions>
-            <execution>
-              <id>unpack-apidocs-2.11</id>
-              <phase>generate-resources</phase>
-              <goals><goal>unpack</goal></goals>
-              <configuration>
-                 <artifactItems>
-                   <artifactItem>
-                     <groupId>org.apache.jspwiki</groupId>
-                     <artifactId>jspwiki-main</artifactId>
-                     <version>2.11.0.M3</version>
-                     <classifier>javadoc</classifier>
-                     <outputDirectory>${jbake.dest}/apidocs/2.11.0.M3/main</outputDirectory>
-                   </artifactItem>
-                   <artifactItem>
-                     <groupId>org.apache.jspwiki</groupId>
-                     <artifactId>jspwiki-markdown</artifactId>
-                     <version>2.11.0.M3</version>
-                     <classifier>javadoc</classifier>
-                     <outputDirectory>${jbake.dest}/apidocs/2.11.0.M3/markdown</outputDirectory>
-                   </artifactItem>
-                   <artifactItem>
-                     <groupId>org.apache.jspwiki</groupId>
-                     <artifactId>jspwiki-util</artifactId>
-                     <version>2.11.0.M3</version>
-                     <classifier>javadoc</classifier>
-                     <outputDirectory>${jbake.dest}/apidocs/2.11.0.M3/util</outputDirectory>
-                   </artifactItem>
-                 </artifactItems>
-               </configuration>
-            </execution>
-          </executions>
-        </plugin>
-
         <plugin>
           <artifactId>maven-resources-plugin</artifactId>
           <version>${plugin.resources}</version>
@@ -223,6 +181,31 @@
                   <dependency>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>jspwiki-markdown</artifactId>
+                    <version>${plugin.japicmp.jspwiki-new}</version>
+                    <type>jar</type>
+                  </dependency>
+                </newVersion>
+              </configuration>
+            </execution>
+            <execution>
+              <id>cmp-jspwiki-util</id>
+              <phase>generate-resources</phase>
+              <goals><goal>cmp</goal></goals>
+              <configuration>
+                <htmlTitle>Binary compatibility between jspwiki-util ${plugin.japicmp.jspwiki-new} and ${plugin.japicmp.jspwiki-old}</htmlTitle>
+                <oldVersion>
+                  <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jspwiki-war</artifactId>
+                    <version>${plugin.japicmp.jspwiki-old}</version>
+                    <type>jar</type>
+                    <classifier>classes</classifier>
+                  </dependency>
+                </oldVersion>
+                <newVersion>
+                  <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jspwiki-util</artifactId>
                     <version>${plugin.japicmp.jspwiki-new}</version>
                     <type>jar</type>
                   </dependency>
