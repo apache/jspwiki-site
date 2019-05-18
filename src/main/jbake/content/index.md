@@ -27,6 +27,8 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **18-May-2019:** Official [Apache JSPWiki 2.11.0.M4 release][] is out!
+
   * **25-Mar-2019:** Apache JSPWiki [CVE-2019-0224][] and [CVE-2019-0225][] vulnerability disclosures
 
   * **25-Mar-2019:** Official [Apache JSPWiki 2.11.0.M3 release][] is out!
@@ -38,8 +40,6 @@ JSPWiki is open-source software that is released under the Apache Public License
   * **29-Jan-2019:** Official [Apache JSPWiki 2.11.0.M1 release][] is out!
 
   * **04-Sep-2018:** Official [Apache JSPWiki 2.10.5 release][] is out!
-
-  * **23-Feb-2018:** Official [Apache JSPWiki 2.10.4 release][] is out!
 
 
 [Apache JSPWiki]: https://jspwiki.apache.org
@@ -54,11 +54,11 @@ JSPWiki is open-source software that is released under the Apache Public License
 [JSPWiki today]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiSites
 [WikiMatrix]: http://www.wikimatrix.org/show/JSPWiki
 [Getting Involved]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Getting%20Involved
+[Apache JSPWiki 2.11.0.M4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M4ReleasedOn18052019
 [Apache JSPWiki 2.11.0.M3 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M3ReleasedOn25032019
 [Apache JSPWiki 2.11.0.M2 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M2ReleasedOn08032019
 [Apache JSPWiki 2.11.0.M1 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M1ReleasedOn29012019
 [Apache JSPWiki 2.10.5 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.5ReleasedOn04092018
-[Apache JSPWiki 2.10.4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.10#section-NewIn2.10-NewInJSPWiki2.10.4ReleasedOn23052018
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
