@@ -26,94 +26,93 @@
 <span class="sourceLineNo">018</span> */<a name="line.18"></a>
 <span class="sourceLineNo">019</span>package org.apache.wiki.markdown.extensions.jspwikilinks.postprocessor;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.commons.lang.StringUtils;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.WikiContext;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.markdown.nodes.JSPWikiLink;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.parser.LinkParsingOperations;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.parser.MarkupParser;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.util.TextUtil;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>import com.vladsch.flexmark.ast.Link;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import com.vladsch.flexmark.parser.PostProcessor;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import com.vladsch.flexmark.parser.block.NodePostProcessor;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import com.vladsch.flexmark.util.NodeTracker;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import com.vladsch.flexmark.util.ast.Document;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import com.vladsch.flexmark.util.ast.Node;<a name="line.33"></a>
+<span class="sourceLineNo">021</span>import com.vladsch.flexmark.ast.Link;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import com.vladsch.flexmark.parser.PostProcessor;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import com.vladsch.flexmark.parser.block.NodePostProcessor;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import com.vladsch.flexmark.util.ast.Document;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import com.vladsch.flexmark.util.ast.Node;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import com.vladsch.flexmark.util.ast.NodeTracker;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.commons.lang.StringUtils;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.wiki.WikiContext;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.wiki.markdown.nodes.JSPWikiLink;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.wiki.parser.LinkParsingOperations;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.wiki.parser.MarkupParser;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.wiki.util.TextUtil;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
 <span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * {@link NodePostProcessor} to convert {@link Link}s into {@link JSPWikiLink}s.<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * Acts as a factory of {@link NodePostProcessorState}, which are the classes generating the extra markup for each concrete type of link.<a name="line.39"></a>
-<span class="sourceLineNo">040</span> */<a name="line.40"></a>
-<span class="sourceLineNo">041</span>public class JSPWikiLinkNodePostProcessor extends NodePostProcessor {<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    protected final WikiContext m_context;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    protected final LinkParsingOperations linkOperations;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    protected boolean m_useOutlinkImage = true;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    protected final Document document;<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    public JSPWikiLinkNodePostProcessor( final WikiContext m_context, final Document document ) {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        this.m_context = m_context;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        this.document = document;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        linkOperations = new LinkParsingOperations( m_context );<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        m_useOutlinkImage = m_context.getBooleanWikiProperty( MarkupParser.PROP_USEOUTLINKIMAGE, m_useOutlinkImage );<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    /**<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * {@inheritDoc}<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     *<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @see PostProcessor#process(NodeTracker, Node)<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    @Override<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    public void process( final NodeTracker state, final Node node ) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        if( node instanceof Link ) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            JSPWikiLink link = replaceLinkWithJSPWikiLink( state, node );<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>            final NodePostProcessorState&lt; JSPWikiLink &gt; linkPostProcessor;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>            if( linkOperations.isAccessRule( link.getUrl().toString() ) ) {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>                linkPostProcessor = new AccessRuleLinkNodePostProcessorState( m_context );<a name="line.67"></a>
-<span class="sourceLineNo">068</span>            } else if( linkOperations.isMetadata( link.getUrl().toString() ) ) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>                linkPostProcessor = new MetadataLinkNodePostProcessorState( m_context );<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            } else if( linkOperations.isPluginLink( link.getUrl().toString() ) ) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>                linkPostProcessor = new PluginLinkNodePostProcessorState( m_context );<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            } else if( linkOperations.isVariableLink( link.getUrl().toString() ) ) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                linkPostProcessor = new VariableLinkNodePostProcessorState( m_context );<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            } else if( linkOperations.isExternalLink( link.getUrl().toString() ) ) {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                linkPostProcessor = new ExternalLinkNodePostProcessorState( m_context );<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            } else if( linkOperations.isInterWikiLink( link.getUrl().toString() ) ) {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>                linkPostProcessor = new InterWikiLinkNodePostProcessorState( m_context, document );<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            } else if( StringUtils.startsWith( link.getUrl().toString(), "#" ) ) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                linkPostProcessor = new LocalFootnoteLinkNodePostProcessorState( m_context );<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            } else if( TextUtil.isNumber( link.getUrl().toString() ) ) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                linkPostProcessor = new LocalFootnoteRefLinkNodePostProcessorState( m_context );<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            } else {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                linkPostProcessor = new LocalLinkNodePostProcessorState( m_context );<a name="line.83"></a>
-<span class="sourceLineNo">084</span>            }<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            linkPostProcessor.process( state, link );<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        }<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    JSPWikiLink replaceLinkWithJSPWikiLink( final NodeTracker state, final Node node ) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        JSPWikiLink link = new JSPWikiLink( ( Link )node );<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        Node previous = node.getPrevious();<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        Node parent = node.getParent();<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>        link.takeChildren( node );<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        node.unlink();<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>        if( previous != null ) {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>            previous.insertAfter( link );<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        } else {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>            parent.appendChild( link );<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        }<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>        state.nodeRemoved( node );<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        state.nodeAddedWithChildren( link );<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        return link;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>}<a name="line.108"></a>
+<span class="sourceLineNo">035</span>/**<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * {@link NodePostProcessor} to convert {@link Link}s into {@link JSPWikiLink}s.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * Acts as a factory of {@link NodePostProcessorState}, which are the classes generating the extra markup for each concrete type of link.<a name="line.38"></a>
+<span class="sourceLineNo">039</span> */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>public class JSPWikiLinkNodePostProcessor extends NodePostProcessor {<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    protected final WikiContext m_context;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    protected final LinkParsingOperations linkOperations;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    protected boolean m_useOutlinkImage = true;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    protected final Document document;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public JSPWikiLinkNodePostProcessor( final WikiContext m_context, final Document document ) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        this.m_context = m_context;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        this.document = document;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        linkOperations = new LinkParsingOperations( m_context );<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        m_useOutlinkImage = m_context.getBooleanWikiProperty( MarkupParser.PROP_USEOUTLINKIMAGE, m_useOutlinkImage );<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * {@inheritDoc}<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @see PostProcessor#process(NodeTracker, Node)<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    @Override<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    public void process( final NodeTracker state, final Node node ) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        if( node instanceof Link ) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            JSPWikiLink link = replaceLinkWithJSPWikiLink( state, node );<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>            final NodePostProcessorState&lt; JSPWikiLink &gt; linkPostProcessor;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>            if( linkOperations.isAccessRule( link.getUrl().toString() ) ) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                linkPostProcessor = new AccessRuleLinkNodePostProcessorState( m_context );<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            } else if( linkOperations.isMetadata( link.getUrl().toString() ) ) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                linkPostProcessor = new MetadataLinkNodePostProcessorState( m_context );<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            } else if( linkOperations.isPluginLink( link.getUrl().toString() ) ) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                linkPostProcessor = new PluginLinkNodePostProcessorState( m_context );<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            } else if( linkOperations.isVariableLink( link.getUrl().toString() ) ) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                linkPostProcessor = new VariableLinkNodePostProcessorState( m_context );<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            } else if( linkOperations.isExternalLink( link.getUrl().toString() ) ) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                linkPostProcessor = new ExternalLinkNodePostProcessorState( m_context );<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            } else if( linkOperations.isInterWikiLink( link.getUrl().toString() ) ) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                linkPostProcessor = new InterWikiLinkNodePostProcessorState( m_context, document );<a name="line.76"></a>
+<span class="sourceLineNo">077</span>            } else if( StringUtils.startsWith( link.getUrl().toString(), "#" ) ) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                linkPostProcessor = new LocalFootnoteLinkNodePostProcessorState( m_context );<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            } else if( TextUtil.isNumber( link.getUrl().toString() ) ) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                linkPostProcessor = new LocalFootnoteRefLinkNodePostProcessorState( m_context );<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            } else {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                linkPostProcessor = new LocalLinkNodePostProcessorState( m_context );<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            linkPostProcessor.process( state, link );<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        }<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    JSPWikiLink replaceLinkWithJSPWikiLink( final NodeTracker state, final Node node ) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        JSPWikiLink link = new JSPWikiLink( ( Link )node );<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        Node previous = node.getPrevious();<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        Node parent = node.getParent();<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>        link.takeChildren( node );<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        node.unlink();<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>        if( previous != null ) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            previous.insertAfter( link );<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        } else {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            parent.appendChild( link );<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>        state.nodeRemoved( node );<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        state.nodeAddedWithChildren( link );<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        return link;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>}<a name="line.107"></a>
 
 
 
