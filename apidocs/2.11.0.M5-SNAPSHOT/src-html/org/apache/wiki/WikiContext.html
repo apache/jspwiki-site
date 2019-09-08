@@ -80,14 +80,14 @@
 <span class="sourceLineNo">072</span>    private    WikiPage   m_realPage;<a name="line.72"></a>
 <span class="sourceLineNo">073</span>    private    WikiEngine m_engine;<a name="line.73"></a>
 <span class="sourceLineNo">074</span>    private    String     m_template = "default";<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    <a name="line.75"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
 <span class="sourceLineNo">076</span>    private    HashMap&lt;String,Object&gt; m_variableMap = new HashMap&lt;&gt;();<a name="line.76"></a>
 <span class="sourceLineNo">077</span><a name="line.77"></a>
 <span class="sourceLineNo">078</span>    /** Stores the HttpServletRequest.  May be null, if the request did not come from a servlet. */<a name="line.78"></a>
 <span class="sourceLineNo">079</span>    protected  HttpServletRequest m_request = null;<a name="line.79"></a>
 <span class="sourceLineNo">080</span><a name="line.80"></a>
 <span class="sourceLineNo">081</span>    private    WikiSession m_session = null;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    <a name="line.82"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
 <span class="sourceLineNo">083</span>    /** User is administering JSPWiki (Install, SecurityConfig). */<a name="line.83"></a>
 <span class="sourceLineNo">084</span>    public static final String INSTALL = WikiCommand.INSTALL.getRequestContext();<a name="line.84"></a>
 <span class="sourceLineNo">085</span><a name="line.85"></a>
@@ -813,78 +813,80 @@
 <span class="sourceLineNo">805</span>        if ( request != null )<a name="line.805"></a>
 <span class="sourceLineNo">806</span>        {<a name="line.806"></a>
 <span class="sourceLineNo">807</span>            template = request.getParameter( "skin" );<a name="line.807"></a>
-<span class="sourceLineNo">808</span>        }<a name="line.808"></a>
-<span class="sourceLineNo">809</span><a name="line.809"></a>
-<span class="sourceLineNo">810</span>        // If request doesn't supply the value, extract from wiki page<a name="line.810"></a>
-<span class="sourceLineNo">811</span>        if( template == null )<a name="line.811"></a>
-<span class="sourceLineNo">812</span>        {<a name="line.812"></a>
-<span class="sourceLineNo">813</span>            WikiPage page = getPage();<a name="line.813"></a>
-<span class="sourceLineNo">814</span>            if ( page != null )<a name="line.814"></a>
-<span class="sourceLineNo">815</span>            {<a name="line.815"></a>
-<span class="sourceLineNo">816</span>                template = (String)page.getAttribute( WikiEngine.PROP_TEMPLATEDIR );<a name="line.816"></a>
-<span class="sourceLineNo">817</span>            }<a name="line.817"></a>
-<span class="sourceLineNo">818</span><a name="line.818"></a>
-<span class="sourceLineNo">819</span>        }<a name="line.819"></a>
+<span class="sourceLineNo">808</span><a name="line.808"></a>
+<span class="sourceLineNo">809</span>            if( template != null ) template = template.replaceAll("\\p{Punct}", "");<a name="line.809"></a>
+<span class="sourceLineNo">810</span>        }<a name="line.810"></a>
+<span class="sourceLineNo">811</span><a name="line.811"></a>
+<span class="sourceLineNo">812</span>        // If request doesn't supply the value, extract from wiki page<a name="line.812"></a>
+<span class="sourceLineNo">813</span>        if( template == null )<a name="line.813"></a>
+<span class="sourceLineNo">814</span>        {<a name="line.814"></a>
+<span class="sourceLineNo">815</span>            WikiPage page = getPage();<a name="line.815"></a>
+<span class="sourceLineNo">816</span>            if ( page != null )<a name="line.816"></a>
+<span class="sourceLineNo">817</span>            {<a name="line.817"></a>
+<span class="sourceLineNo">818</span>                template = (String)page.getAttribute( WikiEngine.PROP_TEMPLATEDIR );<a name="line.818"></a>
+<span class="sourceLineNo">819</span>            }<a name="line.819"></a>
 <span class="sourceLineNo">820</span><a name="line.820"></a>
-<span class="sourceLineNo">821</span>        // If something over-wrote the default, set the new value.<a name="line.821"></a>
-<span class="sourceLineNo">822</span>        if ( template != null )<a name="line.822"></a>
-<span class="sourceLineNo">823</span>        {<a name="line.823"></a>
-<span class="sourceLineNo">824</span>            setTemplate( template );<a name="line.824"></a>
-<span class="sourceLineNo">825</span>        }<a name="line.825"></a>
-<span class="sourceLineNo">826</span>        else<a name="line.826"></a>
-<span class="sourceLineNo">827</span>        {<a name="line.827"></a>
-<span class="sourceLineNo">828</span>            setTemplate( defaultTemplate );<a name="line.828"></a>
-<span class="sourceLineNo">829</span>        }<a name="line.829"></a>
-<span class="sourceLineNo">830</span>    }<a name="line.830"></a>
-<span class="sourceLineNo">831</span><a name="line.831"></a>
-<span class="sourceLineNo">832</span>    /**<a name="line.832"></a>
-<span class="sourceLineNo">833</span>     * Looks up and returns a PageCommand based on a supplied WikiPage and HTTP<a name="line.833"></a>
-<span class="sourceLineNo">834</span>     * request. First, the appropriate Command is obtained by examining the HTTP<a name="line.834"></a>
-<span class="sourceLineNo">835</span>     * request; the default is {@link PageCommand#VIEW}. If the Command is a<a name="line.835"></a>
-<span class="sourceLineNo">836</span>     * PageCommand (and it should be, in most cases), a targeted Command is<a name="line.836"></a>
-<span class="sourceLineNo">837</span>     * created using the (non-&lt;code&gt;null&lt;/code&gt;) WikiPage as target.<a name="line.837"></a>
-<span class="sourceLineNo">838</span>     * @param engine the wiki engine<a name="line.838"></a>
-<span class="sourceLineNo">839</span>     * @param request the HTTP request<a name="line.839"></a>
-<span class="sourceLineNo">840</span>     * @param page the wiki page<a name="line.840"></a>
-<span class="sourceLineNo">841</span>     * @return the correct command<a name="line.841"></a>
-<span class="sourceLineNo">842</span>     */<a name="line.842"></a>
-<span class="sourceLineNo">843</span>    protected static Command findCommand( WikiEngine engine, HttpServletRequest request, WikiPage page )<a name="line.843"></a>
-<span class="sourceLineNo">844</span>    {<a name="line.844"></a>
-<span class="sourceLineNo">845</span>        String defaultContext = PageCommand.VIEW.getRequestContext();<a name="line.845"></a>
-<span class="sourceLineNo">846</span>        Command command = engine.getCommandResolver().findCommand( request, defaultContext );<a name="line.846"></a>
-<span class="sourceLineNo">847</span>        if ( command instanceof PageCommand &amp;&amp; page != null )<a name="line.847"></a>
-<span class="sourceLineNo">848</span>        {<a name="line.848"></a>
-<span class="sourceLineNo">849</span>            command = command.targetedCommand( page );<a name="line.849"></a>
-<span class="sourceLineNo">850</span>        }<a name="line.850"></a>
-<span class="sourceLineNo">851</span>        return command;<a name="line.851"></a>
-<span class="sourceLineNo">852</span>    }<a name="line.852"></a>
-<span class="sourceLineNo">853</span><a name="line.853"></a>
-<span class="sourceLineNo">854</span>    /**<a name="line.854"></a>
-<span class="sourceLineNo">855</span>     * Protected method that updates the internally cached Command.<a name="line.855"></a>
-<span class="sourceLineNo">856</span>     * Will always be called when the page name, request context, or variable<a name="line.856"></a>
-<span class="sourceLineNo">857</span>     * changes.<a name="line.857"></a>
-<span class="sourceLineNo">858</span>     * @param requestContext the desired request context<a name="line.858"></a>
-<span class="sourceLineNo">859</span>     * @since 2.4<a name="line.859"></a>
-<span class="sourceLineNo">860</span>     */<a name="line.860"></a>
-<span class="sourceLineNo">861</span>    protected void updateCommand( String requestContext )<a name="line.861"></a>
-<span class="sourceLineNo">862</span>    {<a name="line.862"></a>
-<span class="sourceLineNo">863</span>        if ( requestContext == null )<a name="line.863"></a>
-<span class="sourceLineNo">864</span>        {<a name="line.864"></a>
-<span class="sourceLineNo">865</span>            m_command = PageCommand.NONE;<a name="line.865"></a>
-<span class="sourceLineNo">866</span>        }<a name="line.866"></a>
-<span class="sourceLineNo">867</span>        else<a name="line.867"></a>
-<span class="sourceLineNo">868</span>        {<a name="line.868"></a>
-<span class="sourceLineNo">869</span>            CommandResolver resolver = m_engine.getCommandResolver();<a name="line.869"></a>
-<span class="sourceLineNo">870</span>            m_command = resolver.findCommand( m_request, requestContext );<a name="line.870"></a>
-<span class="sourceLineNo">871</span>        }<a name="line.871"></a>
-<span class="sourceLineNo">872</span><a name="line.872"></a>
-<span class="sourceLineNo">873</span>        if ( m_command instanceof PageCommand &amp;&amp; m_page != null )<a name="line.873"></a>
-<span class="sourceLineNo">874</span>        {<a name="line.874"></a>
-<span class="sourceLineNo">875</span>            m_command = m_command.targetedCommand( m_page );<a name="line.875"></a>
-<span class="sourceLineNo">876</span>        }<a name="line.876"></a>
-<span class="sourceLineNo">877</span>    }<a name="line.877"></a>
-<span class="sourceLineNo">878</span><a name="line.878"></a>
-<span class="sourceLineNo">879</span>}<a name="line.879"></a>
+<span class="sourceLineNo">821</span>        }<a name="line.821"></a>
+<span class="sourceLineNo">822</span><a name="line.822"></a>
+<span class="sourceLineNo">823</span>        // If something over-wrote the default, set the new value.<a name="line.823"></a>
+<span class="sourceLineNo">824</span>        if ( template != null )<a name="line.824"></a>
+<span class="sourceLineNo">825</span>        {<a name="line.825"></a>
+<span class="sourceLineNo">826</span>            setTemplate( template );<a name="line.826"></a>
+<span class="sourceLineNo">827</span>        }<a name="line.827"></a>
+<span class="sourceLineNo">828</span>        else<a name="line.828"></a>
+<span class="sourceLineNo">829</span>        {<a name="line.829"></a>
+<span class="sourceLineNo">830</span>            setTemplate( defaultTemplate );<a name="line.830"></a>
+<span class="sourceLineNo">831</span>        }<a name="line.831"></a>
+<span class="sourceLineNo">832</span>    }<a name="line.832"></a>
+<span class="sourceLineNo">833</span><a name="line.833"></a>
+<span class="sourceLineNo">834</span>    /**<a name="line.834"></a>
+<span class="sourceLineNo">835</span>     * Looks up and returns a PageCommand based on a supplied WikiPage and HTTP<a name="line.835"></a>
+<span class="sourceLineNo">836</span>     * request. First, the appropriate Command is obtained by examining the HTTP<a name="line.836"></a>
+<span class="sourceLineNo">837</span>     * request; the default is {@link PageCommand#VIEW}. If the Command is a<a name="line.837"></a>
+<span class="sourceLineNo">838</span>     * PageCommand (and it should be, in most cases), a targeted Command is<a name="line.838"></a>
+<span class="sourceLineNo">839</span>     * created using the (non-&lt;code&gt;null&lt;/code&gt;) WikiPage as target.<a name="line.839"></a>
+<span class="sourceLineNo">840</span>     * @param engine the wiki engine<a name="line.840"></a>
+<span class="sourceLineNo">841</span>     * @param request the HTTP request<a name="line.841"></a>
+<span class="sourceLineNo">842</span>     * @param page the wiki page<a name="line.842"></a>
+<span class="sourceLineNo">843</span>     * @return the correct command<a name="line.843"></a>
+<span class="sourceLineNo">844</span>     */<a name="line.844"></a>
+<span class="sourceLineNo">845</span>    protected static Command findCommand( WikiEngine engine, HttpServletRequest request, WikiPage page )<a name="line.845"></a>
+<span class="sourceLineNo">846</span>    {<a name="line.846"></a>
+<span class="sourceLineNo">847</span>        String defaultContext = PageCommand.VIEW.getRequestContext();<a name="line.847"></a>
+<span class="sourceLineNo">848</span>        Command command = engine.getCommandResolver().findCommand( request, defaultContext );<a name="line.848"></a>
+<span class="sourceLineNo">849</span>        if ( command instanceof PageCommand &amp;&amp; page != null )<a name="line.849"></a>
+<span class="sourceLineNo">850</span>        {<a name="line.850"></a>
+<span class="sourceLineNo">851</span>            command = command.targetedCommand( page );<a name="line.851"></a>
+<span class="sourceLineNo">852</span>        }<a name="line.852"></a>
+<span class="sourceLineNo">853</span>        return command;<a name="line.853"></a>
+<span class="sourceLineNo">854</span>    }<a name="line.854"></a>
+<span class="sourceLineNo">855</span><a name="line.855"></a>
+<span class="sourceLineNo">856</span>    /**<a name="line.856"></a>
+<span class="sourceLineNo">857</span>     * Protected method that updates the internally cached Command.<a name="line.857"></a>
+<span class="sourceLineNo">858</span>     * Will always be called when the page name, request context, or variable<a name="line.858"></a>
+<span class="sourceLineNo">859</span>     * changes.<a name="line.859"></a>
+<span class="sourceLineNo">860</span>     * @param requestContext the desired request context<a name="line.860"></a>
+<span class="sourceLineNo">861</span>     * @since 2.4<a name="line.861"></a>
+<span class="sourceLineNo">862</span>     */<a name="line.862"></a>
+<span class="sourceLineNo">863</span>    protected void updateCommand( String requestContext )<a name="line.863"></a>
+<span class="sourceLineNo">864</span>    {<a name="line.864"></a>
+<span class="sourceLineNo">865</span>        if ( requestContext == null )<a name="line.865"></a>
+<span class="sourceLineNo">866</span>        {<a name="line.866"></a>
+<span class="sourceLineNo">867</span>            m_command = PageCommand.NONE;<a name="line.867"></a>
+<span class="sourceLineNo">868</span>        }<a name="line.868"></a>
+<span class="sourceLineNo">869</span>        else<a name="line.869"></a>
+<span class="sourceLineNo">870</span>        {<a name="line.870"></a>
+<span class="sourceLineNo">871</span>            CommandResolver resolver = m_engine.getCommandResolver();<a name="line.871"></a>
+<span class="sourceLineNo">872</span>            m_command = resolver.findCommand( m_request, requestContext );<a name="line.872"></a>
+<span class="sourceLineNo">873</span>        }<a name="line.873"></a>
+<span class="sourceLineNo">874</span><a name="line.874"></a>
+<span class="sourceLineNo">875</span>        if ( m_command instanceof PageCommand &amp;&amp; m_page != null )<a name="line.875"></a>
+<span class="sourceLineNo">876</span>        {<a name="line.876"></a>
+<span class="sourceLineNo">877</span>            m_command = m_command.targetedCommand( m_page );<a name="line.877"></a>
+<span class="sourceLineNo">878</span>        }<a name="line.878"></a>
+<span class="sourceLineNo">879</span>    }<a name="line.879"></a>
+<span class="sourceLineNo">880</span><a name="line.880"></a>
+<span class="sourceLineNo">881</span>}<a name="line.881"></a>
 
 
 

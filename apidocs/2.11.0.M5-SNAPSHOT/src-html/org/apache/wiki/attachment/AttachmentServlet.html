@@ -280,407 +280,412 @@
 <span class="sourceLineNo">272</span>                    log.debug( "Attachment "+att.getFileName()+" sent to "+req.getRemoteUser()+" on "+HttpUtil.getRemoteAddress(req) );<a name="line.272"></a>
 <span class="sourceLineNo">273</span>                }<a name="line.273"></a>
 <span class="sourceLineNo">274</span>                if( nextPage != null ) {<a name="line.274"></a>
-<span class="sourceLineNo">275</span>                    res.sendRedirect( validateNextPage( nextPage, m_engine.getURL( WikiContext.ERROR, "", null, false ) ) );<a name="line.275"></a>
-<span class="sourceLineNo">276</span>                }<a name="line.276"></a>
-<span class="sourceLineNo">277</span><a name="line.277"></a>
-<span class="sourceLineNo">278</span>            } else {<a name="line.278"></a>
-<span class="sourceLineNo">279</span>                final String msg = "Attachment '" + page + "', version " + ver + " does not exist.";<a name="line.279"></a>
-<span class="sourceLineNo">280</span>                log.info( msg );<a name="line.280"></a>
-<span class="sourceLineNo">281</span>                res.sendError( HttpServletResponse.SC_NOT_FOUND, msg );<a name="line.281"></a>
-<span class="sourceLineNo">282</span>            }<a name="line.282"></a>
-<span class="sourceLineNo">283</span>        } catch( final ProviderException pe ) {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>            log.debug("Provider failed while reading", pe);<a name="line.284"></a>
-<span class="sourceLineNo">285</span>            //<a name="line.285"></a>
-<span class="sourceLineNo">286</span>            //  This might fail, if the response is already committed.  So in that<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            //  case we just log it.<a name="line.287"></a>
-<span class="sourceLineNo">288</span>            //<a name="line.288"></a>
-<span class="sourceLineNo">289</span>            sendError( res, "Provider error: "+ pe.getMessage() );<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        } catch( final NumberFormatException nfe ) {<a name="line.290"></a>
-<span class="sourceLineNo">291</span>            log.warn( "Invalid version number: " + version );<a name="line.291"></a>
-<span class="sourceLineNo">292</span>            res.sendError( HttpServletResponse.SC_BAD_REQUEST, "Invalid version number" );<a name="line.292"></a>
-<span class="sourceLineNo">293</span>        } catch( final SocketException se ) {<a name="line.293"></a>
-<span class="sourceLineNo">294</span>            //<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            //  These are very common in download situations due to aggressive<a name="line.295"></a>
-<span class="sourceLineNo">296</span>            //  clients.  No need to try and send an error.<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            //<a name="line.297"></a>
-<span class="sourceLineNo">298</span>            log.debug( "I/O exception during download", se );<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        } catch( final IOException ioe ) {<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            //<a name="line.300"></a>
-<span class="sourceLineNo">301</span>            //  Client dropped the connection or something else happened.<a name="line.301"></a>
-<span class="sourceLineNo">302</span>            //  We don't know where the error came from, so we'll at least<a name="line.302"></a>
-<span class="sourceLineNo">303</span>            //  try to send an error and catch it quietly if it doesn't quite work.<a name="line.303"></a>
-<span class="sourceLineNo">304</span>            //<a name="line.304"></a>
-<span class="sourceLineNo">305</span>            log.debug( "I/O exception during download", ioe );<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            sendError( res, "Error: " + ioe.getMessage() );<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        } finally {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>            //<a name="line.308"></a>
-<span class="sourceLineNo">309</span>            //  Quite often, aggressive clients close the connection when they have received the last bits.<a name="line.309"></a>
-<span class="sourceLineNo">310</span>            //  Therefore, we close the output, but ignore any exception that might come out of it.<a name="line.310"></a>
-<span class="sourceLineNo">311</span>            //<a name="line.311"></a>
-<span class="sourceLineNo">312</span>            try {<a name="line.312"></a>
-<span class="sourceLineNo">313</span>                if( out != null ) {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>                    out.close();<a name="line.314"></a>
-<span class="sourceLineNo">315</span>                }<a name="line.315"></a>
-<span class="sourceLineNo">316</span>            } catch( final IOException ioe ) {<a name="line.316"></a>
-<span class="sourceLineNo">317</span>                // ignore<a name="line.317"></a>
-<span class="sourceLineNo">318</span>            }<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        }<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    }<a name="line.320"></a>
-<span class="sourceLineNo">321</span><a name="line.321"></a>
-<span class="sourceLineNo">322</span>    void sendError( final HttpServletResponse res, final String message ) throws IOException {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        try {<a name="line.323"></a>
-<span class="sourceLineNo">324</span>            res.sendError( HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message );<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        } catch( final IllegalStateException e ) {<a name="line.325"></a>
-<span class="sourceLineNo">326</span>            // ignore<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        }<a name="line.327"></a>
-<span class="sourceLineNo">328</span>    }<a name="line.328"></a>
-<span class="sourceLineNo">329</span><a name="line.329"></a>
-<span class="sourceLineNo">330</span>    /**<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     *  Returns the mime type for this particular file.  Case does not matter.<a name="line.331"></a>
-<span class="sourceLineNo">332</span>     *<a name="line.332"></a>
-<span class="sourceLineNo">333</span>     * @param ctx WikiContext; required to access the ServletContext of the request.<a name="line.333"></a>
-<span class="sourceLineNo">334</span>     * @param fileName The name to check for.<a name="line.334"></a>
-<span class="sourceLineNo">335</span>     * @return A valid mime type, or application/binary, if not recognized<a name="line.335"></a>
-<span class="sourceLineNo">336</span>     */<a name="line.336"></a>
-<span class="sourceLineNo">337</span>    private static String getMimeType(WikiContext ctx, String fileName )<a name="line.337"></a>
-<span class="sourceLineNo">338</span>    {<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        String mimetype = null;<a name="line.339"></a>
-<span class="sourceLineNo">340</span><a name="line.340"></a>
-<span class="sourceLineNo">341</span>        HttpServletRequest req = ctx.getHttpRequest();<a name="line.341"></a>
-<span class="sourceLineNo">342</span>        if( req != null )<a name="line.342"></a>
-<span class="sourceLineNo">343</span>        {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>            ServletContext s = req.getSession().getServletContext();<a name="line.344"></a>
+<span class="sourceLineNo">275</span>                    res.sendRedirect(<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                        validateNextPage(<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                            TextUtil.urlEncodeUTF8(nextPage),<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                            m_engine.getURL( WikiContext.ERROR, "", null, false )<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                        )<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                    );<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                }<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>            } else {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>                final String msg = "Attachment '" + page + "', version " + ver + " does not exist.";<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                log.info( msg );<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                res.sendError( HttpServletResponse.SC_NOT_FOUND, msg );<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        } catch( final ProviderException pe ) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            log.debug("Provider failed while reading", pe);<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            //<a name="line.290"></a>
+<span class="sourceLineNo">291</span>            //  This might fail, if the response is already committed.  So in that<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            //  case we just log it.<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            //<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            sendError( res, "Provider error: "+ pe.getMessage() );<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        } catch( final NumberFormatException nfe ) {<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            log.warn( "Invalid version number: " + version );<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            res.sendError( HttpServletResponse.SC_BAD_REQUEST, "Invalid version number" );<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        } catch( final SocketException se ) {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            //<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            //  These are very common in download situations due to aggressive<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            //  clients.  No need to try and send an error.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            //<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            log.debug( "I/O exception during download", se );<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        } catch( final IOException ioe ) {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            //<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            //  Client dropped the connection or something else happened.<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            //  We don't know where the error came from, so we'll at least<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            //  try to send an error and catch it quietly if it doesn't quite work.<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            //<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            log.debug( "I/O exception during download", ioe );<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            sendError( res, "Error: " + ioe.getMessage() );<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        } finally {<a name="line.312"></a>
+<span class="sourceLineNo">313</span>            //<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            //  Quite often, aggressive clients close the connection when they have received the last bits.<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            //  Therefore, we close the output, but ignore any exception that might come out of it.<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            //<a name="line.316"></a>
+<span class="sourceLineNo">317</span>            try {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                if( out != null ) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                    out.close();<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                }<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            } catch( final IOException ioe ) {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                // ignore<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            }<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    }<a name="line.325"></a>
+<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">327</span>    void sendError( final HttpServletResponse res, final String message ) throws IOException {<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        try {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            res.sendError( HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message );<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        } catch( final IllegalStateException e ) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            // ignore<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        }<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    }<a name="line.333"></a>
+<span class="sourceLineNo">334</span><a name="line.334"></a>
+<span class="sourceLineNo">335</span>    /**<a name="line.335"></a>
+<span class="sourceLineNo">336</span>     *  Returns the mime type for this particular file.  Case does not matter.<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     *<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     * @param ctx WikiContext; required to access the ServletContext of the request.<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * @param fileName The name to check for.<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @return A valid mime type, or application/binary, if not recognized<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     */<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    private static String getMimeType(WikiContext ctx, String fileName )<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        String mimetype = null;<a name="line.344"></a>
 <span class="sourceLineNo">345</span><a name="line.345"></a>
-<span class="sourceLineNo">346</span>            if( s != null )<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            {<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                mimetype = s.getMimeType( fileName.toLowerCase() );<a name="line.348"></a>
-<span class="sourceLineNo">349</span>            }<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        }<a name="line.350"></a>
-<span class="sourceLineNo">351</span><a name="line.351"></a>
-<span class="sourceLineNo">352</span>        if( mimetype == null )<a name="line.352"></a>
-<span class="sourceLineNo">353</span>        {<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            mimetype = "application/binary";<a name="line.354"></a>
+<span class="sourceLineNo">346</span>        HttpServletRequest req = ctx.getHttpRequest();<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        if( req != null )<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>            ServletContext s = req.getSession().getServletContext();<a name="line.349"></a>
+<span class="sourceLineNo">350</span><a name="line.350"></a>
+<span class="sourceLineNo">351</span>            if( s != null )<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                mimetype = s.getMimeType( fileName.toLowerCase() );<a name="line.353"></a>
+<span class="sourceLineNo">354</span>            }<a name="line.354"></a>
 <span class="sourceLineNo">355</span>        }<a name="line.355"></a>
 <span class="sourceLineNo">356</span><a name="line.356"></a>
-<span class="sourceLineNo">357</span>        return mimetype;<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
-<span class="sourceLineNo">359</span><a name="line.359"></a>
-<span class="sourceLineNo">360</span><a name="line.360"></a>
-<span class="sourceLineNo">361</span>    /**<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * Grabs mime/multipart data and stores it into the temporary area.<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     * Uses other parameters to determine which name to store as.<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     *<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     * &lt;p&gt;The input to this servlet is generated by an HTML FORM with<a name="line.365"></a>
-<span class="sourceLineNo">366</span>     * two parts. The first, named 'page', is the WikiName identifier<a name="line.366"></a>
-<span class="sourceLineNo">367</span>     * for the parent file. The second, named 'content', is the binary<a name="line.367"></a>
-<span class="sourceLineNo">368</span>     * content of the file.<a name="line.368"></a>
+<span class="sourceLineNo">357</span>        if( mimetype == null )<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>            mimetype = "application/binary";<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        }<a name="line.360"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>        return mimetype;<a name="line.362"></a>
+<span class="sourceLineNo">363</span>    }<a name="line.363"></a>
+<span class="sourceLineNo">364</span><a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>    /**<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     * Grabs mime/multipart data and stores it into the temporary area.<a name="line.367"></a>
+<span class="sourceLineNo">368</span>     * Uses other parameters to determine which name to store as.<a name="line.368"></a>
 <span class="sourceLineNo">369</span>     *<a name="line.369"></a>
-<span class="sourceLineNo">370</span>     */<a name="line.370"></a>
-<span class="sourceLineNo">371</span>    public void doPost( HttpServletRequest  req, HttpServletResponse res ) throws IOException {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        try<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        {<a name="line.373"></a>
-<span class="sourceLineNo">374</span>            String nextPage = upload( req );<a name="line.374"></a>
-<span class="sourceLineNo">375</span>            req.getSession().removeAttribute("msg");<a name="line.375"></a>
-<span class="sourceLineNo">376</span>            res.sendRedirect( nextPage );<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        catch( RedirectException e )<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        {<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            WikiSession session = WikiSession.getWikiSession( m_engine, req );<a name="line.380"></a>
-<span class="sourceLineNo">381</span>            session.addMessage( e.getMessage() );<a name="line.381"></a>
-<span class="sourceLineNo">382</span><a name="line.382"></a>
-<span class="sourceLineNo">383</span>            req.getSession().setAttribute("msg", e.getMessage());<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            res.sendRedirect( e.getRedirect() );<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        }<a name="line.385"></a>
-<span class="sourceLineNo">386</span>    }<a name="line.386"></a>
+<span class="sourceLineNo">370</span>     * &lt;p&gt;The input to this servlet is generated by an HTML FORM with<a name="line.370"></a>
+<span class="sourceLineNo">371</span>     * two parts. The first, named 'page', is the WikiName identifier<a name="line.371"></a>
+<span class="sourceLineNo">372</span>     * for the parent file. The second, named 'content', is the binary<a name="line.372"></a>
+<span class="sourceLineNo">373</span>     * content of the file.<a name="line.373"></a>
+<span class="sourceLineNo">374</span>     *<a name="line.374"></a>
+<span class="sourceLineNo">375</span>     */<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    public void doPost( HttpServletRequest  req, HttpServletResponse res ) throws IOException {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        try<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            String nextPage = upload( req );<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            req.getSession().removeAttribute("msg");<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            res.sendRedirect( nextPage );<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        }<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        catch( RedirectException e )<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            WikiSession session = WikiSession.getWikiSession( m_engine, req );<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            session.addMessage( e.getMessage() );<a name="line.386"></a>
 <span class="sourceLineNo">387</span><a name="line.387"></a>
-<span class="sourceLineNo">388</span>    /**<a name="line.388"></a>
-<span class="sourceLineNo">389</span>     *  Validates the next page to be on the same server as this webapp.<a name="line.389"></a>
-<span class="sourceLineNo">390</span>     *  Fixes [JSPWIKI-46].<a name="line.390"></a>
-<span class="sourceLineNo">391</span>     */<a name="line.391"></a>
-<span class="sourceLineNo">392</span>    private String validateNextPage( String nextPage, String errorPage )<a name="line.392"></a>
-<span class="sourceLineNo">393</span>    {<a name="line.393"></a>
-<span class="sourceLineNo">394</span>        if( nextPage.indexOf("://") != -1 )<a name="line.394"></a>
-<span class="sourceLineNo">395</span>        {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            // It's an absolute link, so unless it starts with our address, we'll<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            // log an error.<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>            if( !nextPage.startsWith( m_engine.getBaseURL() ) )<a name="line.399"></a>
-<span class="sourceLineNo">400</span>            {<a name="line.400"></a>
-<span class="sourceLineNo">401</span>                log.warn("Detected phishing attempt by redirecting to an unsecure location: "+nextPage);<a name="line.401"></a>
-<span class="sourceLineNo">402</span>                nextPage = errorPage;<a name="line.402"></a>
-<span class="sourceLineNo">403</span>            }<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
-<span class="sourceLineNo">405</span><a name="line.405"></a>
-<span class="sourceLineNo">406</span>        return nextPage;<a name="line.406"></a>
-<span class="sourceLineNo">407</span>    }<a name="line.407"></a>
-<span class="sourceLineNo">408</span><a name="line.408"></a>
-<span class="sourceLineNo">409</span>    /**<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     *  Uploads a specific mime multipart input set, intercepts exceptions.<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     *<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     *  @param req The servlet request<a name="line.412"></a>
-<span class="sourceLineNo">413</span>     *  @return The page to which we should go next.<a name="line.413"></a>
-<span class="sourceLineNo">414</span>     *  @throws RedirectException If there's an error and a redirection is needed<a name="line.414"></a>
-<span class="sourceLineNo">415</span>     *  @throws IOException If upload fails<a name="line.415"></a>
-<span class="sourceLineNo">416</span>     * @throws FileUploadException<a name="line.416"></a>
-<span class="sourceLineNo">417</span>     */<a name="line.417"></a>
-<span class="sourceLineNo">418</span>    protected String upload( HttpServletRequest req ) throws RedirectException, IOException {<a name="line.418"></a>
-<span class="sourceLineNo">419</span>        String msg     = "";<a name="line.419"></a>
-<span class="sourceLineNo">420</span>        String attName = "(unknown)";<a name="line.420"></a>
-<span class="sourceLineNo">421</span>        String errorPage = m_engine.getURL( WikiContext.ERROR, "", null, false ); // If something bad happened, Upload should be able to take care of most stuff<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        String nextPage = errorPage;<a name="line.422"></a>
-<span class="sourceLineNo">423</span>        String progressId = req.getParameter( "progressid" );<a name="line.423"></a>
-<span class="sourceLineNo">424</span><a name="line.424"></a>
-<span class="sourceLineNo">425</span>        // Check that we have a file upload request<a name="line.425"></a>
-<span class="sourceLineNo">426</span>        if( !ServletFileUpload.isMultipartContent(req) ) {<a name="line.426"></a>
-<span class="sourceLineNo">427</span>            throw new RedirectException( "Not a file upload", errorPage );<a name="line.427"></a>
-<span class="sourceLineNo">428</span>        }<a name="line.428"></a>
+<span class="sourceLineNo">388</span>            req.getSession().setAttribute("msg", e.getMessage());<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            res.sendRedirect( e.getRedirect() );<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        }<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    }<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>    /**<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     *  Validates the next page to be on the same server as this webapp.<a name="line.394"></a>
+<span class="sourceLineNo">395</span>     *  Fixes [JSPWIKI-46].<a name="line.395"></a>
+<span class="sourceLineNo">396</span>     */<a name="line.396"></a>
+<span class="sourceLineNo">397</span>    private String validateNextPage( String nextPage, String errorPage )<a name="line.397"></a>
+<span class="sourceLineNo">398</span>    {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        if( nextPage.indexOf("://") != -1 )<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            // It's an absolute link, so unless it starts with our address, we'll<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            // log an error.<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>            if( !nextPage.startsWith( m_engine.getBaseURL() ) )<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                log.warn("Detected phishing attempt by redirecting to an unsecure location: "+nextPage);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                nextPage = errorPage;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        }<a name="line.409"></a>
+<span class="sourceLineNo">410</span><a name="line.410"></a>
+<span class="sourceLineNo">411</span>        return nextPage;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>    }<a name="line.412"></a>
+<span class="sourceLineNo">413</span><a name="line.413"></a>
+<span class="sourceLineNo">414</span>    /**<a name="line.414"></a>
+<span class="sourceLineNo">415</span>     *  Uploads a specific mime multipart input set, intercepts exceptions.<a name="line.415"></a>
+<span class="sourceLineNo">416</span>     *<a name="line.416"></a>
+<span class="sourceLineNo">417</span>     *  @param req The servlet request<a name="line.417"></a>
+<span class="sourceLineNo">418</span>     *  @return The page to which we should go next.<a name="line.418"></a>
+<span class="sourceLineNo">419</span>     *  @throws RedirectException If there's an error and a redirection is needed<a name="line.419"></a>
+<span class="sourceLineNo">420</span>     *  @throws IOException If upload fails<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     * @throws FileUploadException<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     */<a name="line.422"></a>
+<span class="sourceLineNo">423</span>    protected String upload( HttpServletRequest req ) throws RedirectException, IOException {<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        String msg     = "";<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        String attName = "(unknown)";<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        String errorPage = m_engine.getURL( WikiContext.ERROR, "", null, false ); // If something bad happened, Upload should be able to take care of most stuff<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        String nextPage = errorPage;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        String progressId = req.getParameter( "progressid" );<a name="line.428"></a>
 <span class="sourceLineNo">429</span><a name="line.429"></a>
-<span class="sourceLineNo">430</span>        try {<a name="line.430"></a>
-<span class="sourceLineNo">431</span>            FileItemFactory factory = new DiskFileItemFactory();<a name="line.431"></a>
-<span class="sourceLineNo">432</span><a name="line.432"></a>
-<span class="sourceLineNo">433</span>            // Create the context _before_ Multipart operations, otherwise<a name="line.433"></a>
-<span class="sourceLineNo">434</span>            // strict servlet containers may fail when setting encoding.<a name="line.434"></a>
-<span class="sourceLineNo">435</span>            WikiContext context = m_engine.createContext( req, WikiContext.ATTACH );<a name="line.435"></a>
-<span class="sourceLineNo">436</span><a name="line.436"></a>
-<span class="sourceLineNo">437</span>            UploadListener pl = new UploadListener();<a name="line.437"></a>
-<span class="sourceLineNo">438</span><a name="line.438"></a>
-<span class="sourceLineNo">439</span>            m_engine.getProgressManager().startProgress( pl, progressId );<a name="line.439"></a>
-<span class="sourceLineNo">440</span><a name="line.440"></a>
-<span class="sourceLineNo">441</span>            ServletFileUpload upload = new ServletFileUpload(factory);<a name="line.441"></a>
-<span class="sourceLineNo">442</span>            upload.setHeaderEncoding("UTF-8");<a name="line.442"></a>
-<span class="sourceLineNo">443</span>            if( !context.hasAdminPermissions() ) {<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                upload.setFileSizeMax( m_maxSize );<a name="line.444"></a>
-<span class="sourceLineNo">445</span>            }<a name="line.445"></a>
-<span class="sourceLineNo">446</span>            upload.setProgressListener( pl );<a name="line.446"></a>
-<span class="sourceLineNo">447</span>            List&lt;FileItem&gt; items = upload.parseRequest( req );<a name="line.447"></a>
-<span class="sourceLineNo">448</span><a name="line.448"></a>
-<span class="sourceLineNo">449</span>            String   wikipage   = null;<a name="line.449"></a>
-<span class="sourceLineNo">450</span>            String   changeNote = null;<a name="line.450"></a>
-<span class="sourceLineNo">451</span>            //FileItem actualFile = null;<a name="line.451"></a>
-<span class="sourceLineNo">452</span>            List&lt;FileItem&gt; fileItems = new ArrayList&lt;&gt;();<a name="line.452"></a>
+<span class="sourceLineNo">430</span>        // Check that we have a file upload request<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        if( !ServletFileUpload.isMultipartContent(req) ) {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            throw new RedirectException( "Not a file upload", errorPage );<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        }<a name="line.433"></a>
+<span class="sourceLineNo">434</span><a name="line.434"></a>
+<span class="sourceLineNo">435</span>        try {<a name="line.435"></a>
+<span class="sourceLineNo">436</span>            FileItemFactory factory = new DiskFileItemFactory();<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>            // Create the context _before_ Multipart operations, otherwise<a name="line.438"></a>
+<span class="sourceLineNo">439</span>            // strict servlet containers may fail when setting encoding.<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            WikiContext context = m_engine.createContext( req, WikiContext.ATTACH );<a name="line.440"></a>
+<span class="sourceLineNo">441</span><a name="line.441"></a>
+<span class="sourceLineNo">442</span>            UploadListener pl = new UploadListener();<a name="line.442"></a>
+<span class="sourceLineNo">443</span><a name="line.443"></a>
+<span class="sourceLineNo">444</span>            m_engine.getProgressManager().startProgress( pl, progressId );<a name="line.444"></a>
+<span class="sourceLineNo">445</span><a name="line.445"></a>
+<span class="sourceLineNo">446</span>            ServletFileUpload upload = new ServletFileUpload(factory);<a name="line.446"></a>
+<span class="sourceLineNo">447</span>            upload.setHeaderEncoding("UTF-8");<a name="line.447"></a>
+<span class="sourceLineNo">448</span>            if( !context.hasAdminPermissions() ) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                upload.setFileSizeMax( m_maxSize );<a name="line.449"></a>
+<span class="sourceLineNo">450</span>            }<a name="line.450"></a>
+<span class="sourceLineNo">451</span>            upload.setProgressListener( pl );<a name="line.451"></a>
+<span class="sourceLineNo">452</span>            List&lt;FileItem&gt; items = upload.parseRequest( req );<a name="line.452"></a>
 <span class="sourceLineNo">453</span><a name="line.453"></a>
-<span class="sourceLineNo">454</span>            for( FileItem item : items ) {<a name="line.454"></a>
-<span class="sourceLineNo">455</span>                if( item.isFormField() ) {<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                    if( item.getFieldName().equals("page") ) {<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                        //<a name="line.457"></a>
-<span class="sourceLineNo">458</span>                        // FIXME: Kludge alert.  We must end up with the parent page name,<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                        //        if this is an upload of a new revision<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                        //<a name="line.460"></a>
-<span class="sourceLineNo">461</span><a name="line.461"></a>
-<span class="sourceLineNo">462</span>                        wikipage = item.getString("UTF-8");<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                        int x = wikipage.indexOf("/");<a name="line.463"></a>
-<span class="sourceLineNo">464</span><a name="line.464"></a>
-<span class="sourceLineNo">465</span>                        if( x != -1 ) wikipage = wikipage.substring(0,x);<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                    } else if( item.getFieldName().equals("changenote") ) {<a name="line.466"></a>
-<span class="sourceLineNo">467</span>                        changeNote = item.getString("UTF-8");<a name="line.467"></a>
-<span class="sourceLineNo">468</span>                        if (changeNote != null) {<a name="line.468"></a>
-<span class="sourceLineNo">469</span>                            changeNote = TextUtil.replaceEntities(changeNote);<a name="line.469"></a>
-<span class="sourceLineNo">470</span>                        }<a name="line.470"></a>
-<span class="sourceLineNo">471</span>                    } else if( item.getFieldName().equals( "nextpage" ) ) {<a name="line.471"></a>
-<span class="sourceLineNo">472</span>                        nextPage = validateNextPage( item.getString("UTF-8"), errorPage );<a name="line.472"></a>
-<span class="sourceLineNo">473</span>                    }<a name="line.473"></a>
-<span class="sourceLineNo">474</span>                } else {<a name="line.474"></a>
-<span class="sourceLineNo">475</span>                    fileItems.add( item );<a name="line.475"></a>
-<span class="sourceLineNo">476</span>                }<a name="line.476"></a>
-<span class="sourceLineNo">477</span>            }<a name="line.477"></a>
-<span class="sourceLineNo">478</span><a name="line.478"></a>
-<span class="sourceLineNo">479</span>            if( fileItems.size() == 0 ) {<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                throw new RedirectException( "Broken file upload", errorPage );<a name="line.480"></a>
-<span class="sourceLineNo">481</span><a name="line.481"></a>
-<span class="sourceLineNo">482</span>            } else {<a name="line.482"></a>
-<span class="sourceLineNo">483</span>                for( FileItem actualFile : fileItems ) {<a name="line.483"></a>
-<span class="sourceLineNo">484</span>                    String filename = actualFile.getName();<a name="line.484"></a>
-<span class="sourceLineNo">485</span>                    long   fileSize = actualFile.getSize();<a name="line.485"></a>
-<span class="sourceLineNo">486</span>                    try( InputStream in  = actualFile.getInputStream() ) {<a name="line.486"></a>
-<span class="sourceLineNo">487</span>                        executeUpload( context, in, filename, nextPage, wikipage, changeNote, fileSize );<a name="line.487"></a>
-<span class="sourceLineNo">488</span>                    }<a name="line.488"></a>
-<span class="sourceLineNo">489</span>                }<a name="line.489"></a>
-<span class="sourceLineNo">490</span>            }<a name="line.490"></a>
-<span class="sourceLineNo">491</span><a name="line.491"></a>
-<span class="sourceLineNo">492</span>        } catch( ProviderException e ) {<a name="line.492"></a>
-<span class="sourceLineNo">493</span>            msg = "Upload failed because the provider failed: "+e.getMessage();<a name="line.493"></a>
-<span class="sourceLineNo">494</span>            log.warn( msg + " (attachment: " + attName + ")", e );<a name="line.494"></a>
-<span class="sourceLineNo">495</span><a name="line.495"></a>
-<span class="sourceLineNo">496</span>            throw new IOException(msg);<a name="line.496"></a>
-<span class="sourceLineNo">497</span>        } catch( IOException e ) {<a name="line.497"></a>
-<span class="sourceLineNo">498</span>            // Show the submit page again, but with a bit more intimidating output.<a name="line.498"></a>
-<span class="sourceLineNo">499</span>            msg = "Upload failure: " + e.getMessage();<a name="line.499"></a>
-<span class="sourceLineNo">500</span>            log.warn( msg + " (attachment: " + attName + ")", e );<a name="line.500"></a>
-<span class="sourceLineNo">501</span><a name="line.501"></a>
-<span class="sourceLineNo">502</span>            throw e;<a name="line.502"></a>
-<span class="sourceLineNo">503</span>        } catch (FileUploadException e) {<a name="line.503"></a>
-<span class="sourceLineNo">504</span>            // Show the submit page again, but with a bit more intimidating output.<a name="line.504"></a>
-<span class="sourceLineNo">505</span>            msg = "Upload failure: " + e.getMessage();<a name="line.505"></a>
-<span class="sourceLineNo">506</span>            log.warn( msg + " (attachment: " + attName + ")", e );<a name="line.506"></a>
-<span class="sourceLineNo">507</span><a name="line.507"></a>
-<span class="sourceLineNo">508</span>            throw new IOException( msg, e );<a name="line.508"></a>
-<span class="sourceLineNo">509</span>        } finally {<a name="line.509"></a>
-<span class="sourceLineNo">510</span>            m_engine.getProgressManager().stopProgress( progressId );<a name="line.510"></a>
-<span class="sourceLineNo">511</span>            // FIXME: In case of exceptions should absolutely remove the uploaded file.<a name="line.511"></a>
-<span class="sourceLineNo">512</span>        }<a name="line.512"></a>
-<span class="sourceLineNo">513</span><a name="line.513"></a>
-<span class="sourceLineNo">514</span>        return nextPage;<a name="line.514"></a>
-<span class="sourceLineNo">515</span>    }<a name="line.515"></a>
-<span class="sourceLineNo">516</span><a name="line.516"></a>
-<span class="sourceLineNo">517</span>    /**<a name="line.517"></a>
-<span class="sourceLineNo">518</span>     *<a name="line.518"></a>
-<span class="sourceLineNo">519</span>     * @param context the wiki context<a name="line.519"></a>
-<span class="sourceLineNo">520</span>     * @param data the input stream data<a name="line.520"></a>
-<span class="sourceLineNo">521</span>     * @param filename the name of the file to upload<a name="line.521"></a>
-<span class="sourceLineNo">522</span>     * @param errorPage the place to which you want to get a redirection<a name="line.522"></a>
-<span class="sourceLineNo">523</span>     * @param parentPage the page to which the file should be attached<a name="line.523"></a>
-<span class="sourceLineNo">524</span>     * @param changenote The change note<a name="line.524"></a>
-<span class="sourceLineNo">525</span>     * @param contentLength The content length<a name="line.525"></a>
-<span class="sourceLineNo">526</span>     * @return &lt;code&gt;true&lt;/code&gt; if upload results in the creation of a new page;<a name="line.526"></a>
-<span class="sourceLineNo">527</span>     * &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.527"></a>
-<span class="sourceLineNo">528</span>     * @throws RedirectException If the content needs to be redirected<a name="line.528"></a>
-<span class="sourceLineNo">529</span>     * @throws IOException       If there is a problem in the upload.<a name="line.529"></a>
-<span class="sourceLineNo">530</span>     * @throws ProviderException If there is a problem in the backend.<a name="line.530"></a>
-<span class="sourceLineNo">531</span>     */<a name="line.531"></a>
-<span class="sourceLineNo">532</span>    protected boolean executeUpload( WikiContext context, InputStream data,<a name="line.532"></a>
-<span class="sourceLineNo">533</span>                                     String filename, String errorPage,<a name="line.533"></a>
-<span class="sourceLineNo">534</span>                                     String parentPage, String changenote,<a name="line.534"></a>
-<span class="sourceLineNo">535</span>                                     long contentLength )<a name="line.535"></a>
-<span class="sourceLineNo">536</span>            throws RedirectException,<a name="line.536"></a>
-<span class="sourceLineNo">537</span>            IOException, ProviderException<a name="line.537"></a>
-<span class="sourceLineNo">538</span>    {<a name="line.538"></a>
-<span class="sourceLineNo">539</span>        boolean created = false;<a name="line.539"></a>
-<span class="sourceLineNo">540</span><a name="line.540"></a>
-<span class="sourceLineNo">541</span>        try<a name="line.541"></a>
-<span class="sourceLineNo">542</span>        {<a name="line.542"></a>
-<span class="sourceLineNo">543</span>            filename = AttachmentManager.validateFileName( filename );<a name="line.543"></a>
-<span class="sourceLineNo">544</span>        }<a name="line.544"></a>
-<span class="sourceLineNo">545</span>        catch( WikiException e )<a name="line.545"></a>
-<span class="sourceLineNo">546</span>        {<a name="line.546"></a>
-<span class="sourceLineNo">547</span>            // this is a kludge, the exception that is caught here contains the i18n key<a name="line.547"></a>
-<span class="sourceLineNo">548</span>            // here we have the context available, so we can internationalize it properly :<a name="line.548"></a>
-<span class="sourceLineNo">549</span>            throw new RedirectException (Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE )<a name="line.549"></a>
-<span class="sourceLineNo">550</span>                    .getString( e.getMessage() ), errorPage );<a name="line.550"></a>
-<span class="sourceLineNo">551</span>        }<a name="line.551"></a>
-<span class="sourceLineNo">552</span><a name="line.552"></a>
-<span class="sourceLineNo">553</span>        //<a name="line.553"></a>
-<span class="sourceLineNo">554</span>        //  FIXME: This has the unfortunate side effect that it will receive the<a name="line.554"></a>
-<span class="sourceLineNo">555</span>        //  contents.  But we can't figure out the page to redirect to<a name="line.555"></a>
-<span class="sourceLineNo">556</span>        //  before we receive the file, due to the stupid constructor of MultipartRequest.<a name="line.556"></a>
-<span class="sourceLineNo">557</span>        //<a name="line.557"></a>
-<span class="sourceLineNo">558</span><a name="line.558"></a>
-<span class="sourceLineNo">559</span>        if( !context.hasAdminPermissions() )<a name="line.559"></a>
-<span class="sourceLineNo">560</span>        {<a name="line.560"></a>
-<span class="sourceLineNo">561</span>            if( contentLength &gt; m_maxSize )<a name="line.561"></a>
-<span class="sourceLineNo">562</span>            {<a name="line.562"></a>
-<span class="sourceLineNo">563</span>                // FIXME: Does not delete the received files.<a name="line.563"></a>
-<span class="sourceLineNo">564</span>                throw new RedirectException( "File exceeds maximum size ("+m_maxSize+" bytes)",<a name="line.564"></a>
-<span class="sourceLineNo">565</span>                        errorPage );<a name="line.565"></a>
-<span class="sourceLineNo">566</span>            }<a name="line.566"></a>
-<span class="sourceLineNo">567</span><a name="line.567"></a>
-<span class="sourceLineNo">568</span>            if( !isTypeAllowed(filename) )<a name="line.568"></a>
-<span class="sourceLineNo">569</span>            {<a name="line.569"></a>
-<span class="sourceLineNo">570</span>                throw new RedirectException( "Files of this type may not be uploaded to this wiki",<a name="line.570"></a>
-<span class="sourceLineNo">571</span>                        errorPage );<a name="line.571"></a>
-<span class="sourceLineNo">572</span>            }<a name="line.572"></a>
-<span class="sourceLineNo">573</span>        }<a name="line.573"></a>
-<span class="sourceLineNo">574</span><a name="line.574"></a>
-<span class="sourceLineNo">575</span>        Principal user    = context.getCurrentUser();<a name="line.575"></a>
-<span class="sourceLineNo">576</span><a name="line.576"></a>
-<span class="sourceLineNo">577</span>        AttachmentManager mgr = m_engine.getAttachmentManager();<a name="line.577"></a>
-<span class="sourceLineNo">578</span><a name="line.578"></a>
-<span class="sourceLineNo">579</span>        log.debug("file="+filename);<a name="line.579"></a>
-<span class="sourceLineNo">580</span><a name="line.580"></a>
-<span class="sourceLineNo">581</span>        if( data == null )<a name="line.581"></a>
-<span class="sourceLineNo">582</span>        {<a name="line.582"></a>
-<span class="sourceLineNo">583</span>            log.error("File could not be opened.");<a name="line.583"></a>
-<span class="sourceLineNo">584</span><a name="line.584"></a>
-<span class="sourceLineNo">585</span>            throw new RedirectException("File could not be opened.",<a name="line.585"></a>
-<span class="sourceLineNo">586</span>                    errorPage);<a name="line.586"></a>
-<span class="sourceLineNo">587</span>        }<a name="line.587"></a>
-<span class="sourceLineNo">588</span><a name="line.588"></a>
-<span class="sourceLineNo">589</span>        //<a name="line.589"></a>
-<span class="sourceLineNo">590</span>        //  Check whether we already have this kind of a page.<a name="line.590"></a>
-<span class="sourceLineNo">591</span>        //  If the "page" parameter already defines an attachment<a name="line.591"></a>
-<span class="sourceLineNo">592</span>        //  name for an update, then we just use that file.<a name="line.592"></a>
-<span class="sourceLineNo">593</span>        //  Otherwise we create a new attachment, and use the<a name="line.593"></a>
-<span class="sourceLineNo">594</span>        //  filename given.  Incidentally, this will also mean<a name="line.594"></a>
-<span class="sourceLineNo">595</span>        //  that if the user uploads a file with the exact<a name="line.595"></a>
-<span class="sourceLineNo">596</span>        //  same name than some other previous attachment,<a name="line.596"></a>
-<span class="sourceLineNo">597</span>        //  then that attachment gains a new version.<a name="line.597"></a>
-<span class="sourceLineNo">598</span>        //<a name="line.598"></a>
-<span class="sourceLineNo">599</span><a name="line.599"></a>
-<span class="sourceLineNo">600</span>        Attachment att = mgr.getAttachmentInfo( context.getPage().getName() );<a name="line.600"></a>
-<span class="sourceLineNo">601</span><a name="line.601"></a>
-<span class="sourceLineNo">602</span>        if( att == null )<a name="line.602"></a>
-<span class="sourceLineNo">603</span>        {<a name="line.603"></a>
-<span class="sourceLineNo">604</span>            att = new Attachment( m_engine, parentPage, filename );<a name="line.604"></a>
-<span class="sourceLineNo">605</span>            created = true;<a name="line.605"></a>
-<span class="sourceLineNo">606</span>        }<a name="line.606"></a>
-<span class="sourceLineNo">607</span>        att.setSize( contentLength );<a name="line.607"></a>
-<span class="sourceLineNo">608</span><a name="line.608"></a>
-<span class="sourceLineNo">609</span>        //<a name="line.609"></a>
-<span class="sourceLineNo">610</span>        //  Check if we're allowed to do this?<a name="line.610"></a>
-<span class="sourceLineNo">611</span>        //<a name="line.611"></a>
-<span class="sourceLineNo">612</span><a name="line.612"></a>
-<span class="sourceLineNo">613</span>        Permission permission = PermissionFactory.getPagePermission( att, "upload" );<a name="line.613"></a>
-<span class="sourceLineNo">614</span>        if( m_engine.getAuthorizationManager().checkPermission( context.getWikiSession(),<a name="line.614"></a>
-<span class="sourceLineNo">615</span>                permission ) )<a name="line.615"></a>
-<span class="sourceLineNo">616</span>        {<a name="line.616"></a>
-<span class="sourceLineNo">617</span>            if( user != null )<a name="line.617"></a>
-<span class="sourceLineNo">618</span>            {<a name="line.618"></a>
-<span class="sourceLineNo">619</span>                att.setAuthor( user.getName() );<a name="line.619"></a>
-<span class="sourceLineNo">620</span>            }<a name="line.620"></a>
-<span class="sourceLineNo">621</span><a name="line.621"></a>
-<span class="sourceLineNo">622</span>            if( changenote != null &amp;&amp; changenote.length() &gt; 0 )<a name="line.622"></a>
+<span class="sourceLineNo">454</span>            String   wikipage   = null;<a name="line.454"></a>
+<span class="sourceLineNo">455</span>            String   changeNote = null;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>            //FileItem actualFile = null;<a name="line.456"></a>
+<span class="sourceLineNo">457</span>            List&lt;FileItem&gt; fileItems = new ArrayList&lt;&gt;();<a name="line.457"></a>
+<span class="sourceLineNo">458</span><a name="line.458"></a>
+<span class="sourceLineNo">459</span>            for( FileItem item : items ) {<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                if( item.isFormField() ) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                    if( item.getFieldName().equals("page") ) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                        //<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                        // FIXME: Kludge alert.  We must end up with the parent page name,<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                        //        if this is an upload of a new revision<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                        //<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>                        wikipage = item.getString("UTF-8");<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                        int x = wikipage.indexOf("/");<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>                        if( x != -1 ) wikipage = wikipage.substring(0,x);<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                    } else if( item.getFieldName().equals("changenote") ) {<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                        changeNote = item.getString("UTF-8");<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                        if (changeNote != null) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                            changeNote = TextUtil.replaceEntities(changeNote);<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                        }<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                    } else if( item.getFieldName().equals( "nextpage" ) ) {<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                        nextPage = validateNextPage( item.getString("UTF-8"), errorPage );<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                    }<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                } else {<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                    fileItems.add( item );<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                }<a name="line.481"></a>
+<span class="sourceLineNo">482</span>            }<a name="line.482"></a>
+<span class="sourceLineNo">483</span><a name="line.483"></a>
+<span class="sourceLineNo">484</span>            if( fileItems.size() == 0 ) {<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                throw new RedirectException( "Broken file upload", errorPage );<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>            } else {<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                for( FileItem actualFile : fileItems ) {<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                    String filename = actualFile.getName();<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                    long   fileSize = actualFile.getSize();<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                    try( InputStream in  = actualFile.getInputStream() ) {<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                        executeUpload( context, in, filename, nextPage, wikipage, changeNote, fileSize );<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                    }<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                }<a name="line.494"></a>
+<span class="sourceLineNo">495</span>            }<a name="line.495"></a>
+<span class="sourceLineNo">496</span><a name="line.496"></a>
+<span class="sourceLineNo">497</span>        } catch( ProviderException e ) {<a name="line.497"></a>
+<span class="sourceLineNo">498</span>            msg = "Upload failed because the provider failed: "+e.getMessage();<a name="line.498"></a>
+<span class="sourceLineNo">499</span>            log.warn( msg + " (attachment: " + attName + ")", e );<a name="line.499"></a>
+<span class="sourceLineNo">500</span><a name="line.500"></a>
+<span class="sourceLineNo">501</span>            throw new IOException(msg);<a name="line.501"></a>
+<span class="sourceLineNo">502</span>        } catch( IOException e ) {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>            // Show the submit page again, but with a bit more intimidating output.<a name="line.503"></a>
+<span class="sourceLineNo">504</span>            msg = "Upload failure: " + e.getMessage();<a name="line.504"></a>
+<span class="sourceLineNo">505</span>            log.warn( msg + " (attachment: " + attName + ")", e );<a name="line.505"></a>
+<span class="sourceLineNo">506</span><a name="line.506"></a>
+<span class="sourceLineNo">507</span>            throw e;<a name="line.507"></a>
+<span class="sourceLineNo">508</span>        } catch (FileUploadException e) {<a name="line.508"></a>
+<span class="sourceLineNo">509</span>            // Show the submit page again, but with a bit more intimidating output.<a name="line.509"></a>
+<span class="sourceLineNo">510</span>            msg = "Upload failure: " + e.getMessage();<a name="line.510"></a>
+<span class="sourceLineNo">511</span>            log.warn( msg + " (attachment: " + attName + ")", e );<a name="line.511"></a>
+<span class="sourceLineNo">512</span><a name="line.512"></a>
+<span class="sourceLineNo">513</span>            throw new IOException( msg, e );<a name="line.513"></a>
+<span class="sourceLineNo">514</span>        } finally {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>            m_engine.getProgressManager().stopProgress( progressId );<a name="line.515"></a>
+<span class="sourceLineNo">516</span>            // FIXME: In case of exceptions should absolutely remove the uploaded file.<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        }<a name="line.517"></a>
+<span class="sourceLineNo">518</span><a name="line.518"></a>
+<span class="sourceLineNo">519</span>        return nextPage;<a name="line.519"></a>
+<span class="sourceLineNo">520</span>    }<a name="line.520"></a>
+<span class="sourceLineNo">521</span><a name="line.521"></a>
+<span class="sourceLineNo">522</span>    /**<a name="line.522"></a>
+<span class="sourceLineNo">523</span>     *<a name="line.523"></a>
+<span class="sourceLineNo">524</span>     * @param context the wiki context<a name="line.524"></a>
+<span class="sourceLineNo">525</span>     * @param data the input stream data<a name="line.525"></a>
+<span class="sourceLineNo">526</span>     * @param filename the name of the file to upload<a name="line.526"></a>
+<span class="sourceLineNo">527</span>     * @param errorPage the place to which you want to get a redirection<a name="line.527"></a>
+<span class="sourceLineNo">528</span>     * @param parentPage the page to which the file should be attached<a name="line.528"></a>
+<span class="sourceLineNo">529</span>     * @param changenote The change note<a name="line.529"></a>
+<span class="sourceLineNo">530</span>     * @param contentLength The content length<a name="line.530"></a>
+<span class="sourceLineNo">531</span>     * @return &lt;code&gt;true&lt;/code&gt; if upload results in the creation of a new page;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>     * &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.532"></a>
+<span class="sourceLineNo">533</span>     * @throws RedirectException If the content needs to be redirected<a name="line.533"></a>
+<span class="sourceLineNo">534</span>     * @throws IOException       If there is a problem in the upload.<a name="line.534"></a>
+<span class="sourceLineNo">535</span>     * @throws ProviderException If there is a problem in the backend.<a name="line.535"></a>
+<span class="sourceLineNo">536</span>     */<a name="line.536"></a>
+<span class="sourceLineNo">537</span>    protected boolean executeUpload( WikiContext context, InputStream data,<a name="line.537"></a>
+<span class="sourceLineNo">538</span>                                     String filename, String errorPage,<a name="line.538"></a>
+<span class="sourceLineNo">539</span>                                     String parentPage, String changenote,<a name="line.539"></a>
+<span class="sourceLineNo">540</span>                                     long contentLength )<a name="line.540"></a>
+<span class="sourceLineNo">541</span>            throws RedirectException,<a name="line.541"></a>
+<span class="sourceLineNo">542</span>            IOException, ProviderException<a name="line.542"></a>
+<span class="sourceLineNo">543</span>    {<a name="line.543"></a>
+<span class="sourceLineNo">544</span>        boolean created = false;<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>        try<a name="line.546"></a>
+<span class="sourceLineNo">547</span>        {<a name="line.547"></a>
+<span class="sourceLineNo">548</span>            filename = AttachmentManager.validateFileName( filename );<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        }<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        catch( WikiException e )<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        {<a name="line.551"></a>
+<span class="sourceLineNo">552</span>            // this is a kludge, the exception that is caught here contains the i18n key<a name="line.552"></a>
+<span class="sourceLineNo">553</span>            // here we have the context available, so we can internationalize it properly :<a name="line.553"></a>
+<span class="sourceLineNo">554</span>            throw new RedirectException (Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE )<a name="line.554"></a>
+<span class="sourceLineNo">555</span>                    .getString( e.getMessage() ), errorPage );<a name="line.555"></a>
+<span class="sourceLineNo">556</span>        }<a name="line.556"></a>
+<span class="sourceLineNo">557</span><a name="line.557"></a>
+<span class="sourceLineNo">558</span>        //<a name="line.558"></a>
+<span class="sourceLineNo">559</span>        //  FIXME: This has the unfortunate side effect that it will receive the<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        //  contents.  But we can't figure out the page to redirect to<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        //  before we receive the file, due to the stupid constructor of MultipartRequest.<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        //<a name="line.562"></a>
+<span class="sourceLineNo">563</span><a name="line.563"></a>
+<span class="sourceLineNo">564</span>        if( !context.hasAdminPermissions() )<a name="line.564"></a>
+<span class="sourceLineNo">565</span>        {<a name="line.565"></a>
+<span class="sourceLineNo">566</span>            if( contentLength &gt; m_maxSize )<a name="line.566"></a>
+<span class="sourceLineNo">567</span>            {<a name="line.567"></a>
+<span class="sourceLineNo">568</span>                // FIXME: Does not delete the received files.<a name="line.568"></a>
+<span class="sourceLineNo">569</span>                throw new RedirectException( "File exceeds maximum size ("+m_maxSize+" bytes)",<a name="line.569"></a>
+<span class="sourceLineNo">570</span>                        errorPage );<a name="line.570"></a>
+<span class="sourceLineNo">571</span>            }<a name="line.571"></a>
+<span class="sourceLineNo">572</span><a name="line.572"></a>
+<span class="sourceLineNo">573</span>            if( !isTypeAllowed(filename) )<a name="line.573"></a>
+<span class="sourceLineNo">574</span>            {<a name="line.574"></a>
+<span class="sourceLineNo">575</span>                throw new RedirectException( "Files of this type may not be uploaded to this wiki",<a name="line.575"></a>
+<span class="sourceLineNo">576</span>                        errorPage );<a name="line.576"></a>
+<span class="sourceLineNo">577</span>            }<a name="line.577"></a>
+<span class="sourceLineNo">578</span>        }<a name="line.578"></a>
+<span class="sourceLineNo">579</span><a name="line.579"></a>
+<span class="sourceLineNo">580</span>        Principal user    = context.getCurrentUser();<a name="line.580"></a>
+<span class="sourceLineNo">581</span><a name="line.581"></a>
+<span class="sourceLineNo">582</span>        AttachmentManager mgr = m_engine.getAttachmentManager();<a name="line.582"></a>
+<span class="sourceLineNo">583</span><a name="line.583"></a>
+<span class="sourceLineNo">584</span>        log.debug("file="+filename);<a name="line.584"></a>
+<span class="sourceLineNo">585</span><a name="line.585"></a>
+<span class="sourceLineNo">586</span>        if( data == null )<a name="line.586"></a>
+<span class="sourceLineNo">587</span>        {<a name="line.587"></a>
+<span class="sourceLineNo">588</span>            log.error("File could not be opened.");<a name="line.588"></a>
+<span class="sourceLineNo">589</span><a name="line.589"></a>
+<span class="sourceLineNo">590</span>            throw new RedirectException("File could not be opened.",<a name="line.590"></a>
+<span class="sourceLineNo">591</span>                    errorPage);<a name="line.591"></a>
+<span class="sourceLineNo">592</span>        }<a name="line.592"></a>
+<span class="sourceLineNo">593</span><a name="line.593"></a>
+<span class="sourceLineNo">594</span>        //<a name="line.594"></a>
+<span class="sourceLineNo">595</span>        //  Check whether we already have this kind of a page.<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        //  If the "page" parameter already defines an attachment<a name="line.596"></a>
+<span class="sourceLineNo">597</span>        //  name for an update, then we just use that file.<a name="line.597"></a>
+<span class="sourceLineNo">598</span>        //  Otherwise we create a new attachment, and use the<a name="line.598"></a>
+<span class="sourceLineNo">599</span>        //  filename given.  Incidentally, this will also mean<a name="line.599"></a>
+<span class="sourceLineNo">600</span>        //  that if the user uploads a file with the exact<a name="line.600"></a>
+<span class="sourceLineNo">601</span>        //  same name than some other previous attachment,<a name="line.601"></a>
+<span class="sourceLineNo">602</span>        //  then that attachment gains a new version.<a name="line.602"></a>
+<span class="sourceLineNo">603</span>        //<a name="line.603"></a>
+<span class="sourceLineNo">604</span><a name="line.604"></a>
+<span class="sourceLineNo">605</span>        Attachment att = mgr.getAttachmentInfo( context.getPage().getName() );<a name="line.605"></a>
+<span class="sourceLineNo">606</span><a name="line.606"></a>
+<span class="sourceLineNo">607</span>        if( att == null )<a name="line.607"></a>
+<span class="sourceLineNo">608</span>        {<a name="line.608"></a>
+<span class="sourceLineNo">609</span>            att = new Attachment( m_engine, parentPage, filename );<a name="line.609"></a>
+<span class="sourceLineNo">610</span>            created = true;<a name="line.610"></a>
+<span class="sourceLineNo">611</span>        }<a name="line.611"></a>
+<span class="sourceLineNo">612</span>        att.setSize( contentLength );<a name="line.612"></a>
+<span class="sourceLineNo">613</span><a name="line.613"></a>
+<span class="sourceLineNo">614</span>        //<a name="line.614"></a>
+<span class="sourceLineNo">615</span>        //  Check if we're allowed to do this?<a name="line.615"></a>
+<span class="sourceLineNo">616</span>        //<a name="line.616"></a>
+<span class="sourceLineNo">617</span><a name="line.617"></a>
+<span class="sourceLineNo">618</span>        Permission permission = PermissionFactory.getPagePermission( att, "upload" );<a name="line.618"></a>
+<span class="sourceLineNo">619</span>        if( m_engine.getAuthorizationManager().checkPermission( context.getWikiSession(),<a name="line.619"></a>
+<span class="sourceLineNo">620</span>                permission ) )<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        {<a name="line.621"></a>
+<span class="sourceLineNo">622</span>            if( user != null )<a name="line.622"></a>
 <span class="sourceLineNo">623</span>            {<a name="line.623"></a>
-<span class="sourceLineNo">624</span>                att.setAttribute( WikiPage.CHANGENOTE, changenote );<a name="line.624"></a>
+<span class="sourceLineNo">624</span>                att.setAuthor( user.getName() );<a name="line.624"></a>
 <span class="sourceLineNo">625</span>            }<a name="line.625"></a>
 <span class="sourceLineNo">626</span><a name="line.626"></a>
-<span class="sourceLineNo">627</span>            try<a name="line.627"></a>
+<span class="sourceLineNo">627</span>            if( changenote != null &amp;&amp; changenote.length() &gt; 0 )<a name="line.627"></a>
 <span class="sourceLineNo">628</span>            {<a name="line.628"></a>
-<span class="sourceLineNo">629</span>                m_engine.getAttachmentManager().storeAttachment( att, data );<a name="line.629"></a>
+<span class="sourceLineNo">629</span>                att.setAttribute( WikiPage.CHANGENOTE, changenote );<a name="line.629"></a>
 <span class="sourceLineNo">630</span>            }<a name="line.630"></a>
-<span class="sourceLineNo">631</span>            catch( ProviderException pe )<a name="line.631"></a>
-<span class="sourceLineNo">632</span>            {<a name="line.632"></a>
-<span class="sourceLineNo">633</span>                // this is a kludge, the exception that is caught here contains the i18n key<a name="line.633"></a>
-<span class="sourceLineNo">634</span>                // here we have the context available, so we can internationalize it properly :<a name="line.634"></a>
-<span class="sourceLineNo">635</span>                throw new ProviderException( Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE )<a name="line.635"></a>
-<span class="sourceLineNo">636</span>                        .getString( pe.getMessage() ) );<a name="line.636"></a>
-<span class="sourceLineNo">637</span>            }<a name="line.637"></a>
-<span class="sourceLineNo">638</span><a name="line.638"></a>
-<span class="sourceLineNo">639</span>            log.info( "User " + user + " uploaded attachment to " + parentPage +<a name="line.639"></a>
-<span class="sourceLineNo">640</span>                    " called "+filename+", size " + att.getSize() );<a name="line.640"></a>
-<span class="sourceLineNo">641</span>        }<a name="line.641"></a>
-<span class="sourceLineNo">642</span>        else<a name="line.642"></a>
-<span class="sourceLineNo">643</span>        {<a name="line.643"></a>
-<span class="sourceLineNo">644</span>            throw new RedirectException( "No permission to upload a file", errorPage );<a name="line.644"></a>
-<span class="sourceLineNo">645</span>        }<a name="line.645"></a>
-<span class="sourceLineNo">646</span><a name="line.646"></a>
-<span class="sourceLineNo">647</span>        return created;<a name="line.647"></a>
-<span class="sourceLineNo">648</span>    }<a name="line.648"></a>
-<span class="sourceLineNo">649</span><a name="line.649"></a>
-<span class="sourceLineNo">650</span>    /**<a name="line.650"></a>
-<span class="sourceLineNo">651</span>     *  Provides tracking for upload progress.<a name="line.651"></a>
-<span class="sourceLineNo">652</span>     *<a name="line.652"></a>
-<span class="sourceLineNo">653</span>     */<a name="line.653"></a>
-<span class="sourceLineNo">654</span>    private static class UploadListener<a name="line.654"></a>
-<span class="sourceLineNo">655</span>            extends    ProgressItem<a name="line.655"></a>
-<span class="sourceLineNo">656</span>            implements ProgressListener<a name="line.656"></a>
-<span class="sourceLineNo">657</span>    {<a name="line.657"></a>
-<span class="sourceLineNo">658</span>        public long m_currentBytes;<a name="line.658"></a>
-<span class="sourceLineNo">659</span>        public long m_totalBytes;<a name="line.659"></a>
-<span class="sourceLineNo">660</span><a name="line.660"></a>
-<span class="sourceLineNo">661</span>        public void update(long recvdBytes, long totalBytes, int item)<a name="line.661"></a>
-<span class="sourceLineNo">662</span>        {<a name="line.662"></a>
-<span class="sourceLineNo">663</span>            m_currentBytes = recvdBytes;<a name="line.663"></a>
-<span class="sourceLineNo">664</span>            m_totalBytes   = totalBytes;<a name="line.664"></a>
-<span class="sourceLineNo">665</span>        }<a name="line.665"></a>
-<span class="sourceLineNo">666</span><a name="line.666"></a>
-<span class="sourceLineNo">667</span>        public int getProgress()<a name="line.667"></a>
-<span class="sourceLineNo">668</span>        {<a name="line.668"></a>
-<span class="sourceLineNo">669</span>            return (int) (((float)m_currentBytes / m_totalBytes) * 100 + 0.5);<a name="line.669"></a>
+<span class="sourceLineNo">631</span><a name="line.631"></a>
+<span class="sourceLineNo">632</span>            try<a name="line.632"></a>
+<span class="sourceLineNo">633</span>            {<a name="line.633"></a>
+<span class="sourceLineNo">634</span>                m_engine.getAttachmentManager().storeAttachment( att, data );<a name="line.634"></a>
+<span class="sourceLineNo">635</span>            }<a name="line.635"></a>
+<span class="sourceLineNo">636</span>            catch( ProviderException pe )<a name="line.636"></a>
+<span class="sourceLineNo">637</span>            {<a name="line.637"></a>
+<span class="sourceLineNo">638</span>                // this is a kludge, the exception that is caught here contains the i18n key<a name="line.638"></a>
+<span class="sourceLineNo">639</span>                // here we have the context available, so we can internationalize it properly :<a name="line.639"></a>
+<span class="sourceLineNo">640</span>                throw new ProviderException( Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE )<a name="line.640"></a>
+<span class="sourceLineNo">641</span>                        .getString( pe.getMessage() ) );<a name="line.641"></a>
+<span class="sourceLineNo">642</span>            }<a name="line.642"></a>
+<span class="sourceLineNo">643</span><a name="line.643"></a>
+<span class="sourceLineNo">644</span>            log.info( "User " + user + " uploaded attachment to " + parentPage +<a name="line.644"></a>
+<span class="sourceLineNo">645</span>                    " called "+filename+", size " + att.getSize() );<a name="line.645"></a>
+<span class="sourceLineNo">646</span>        }<a name="line.646"></a>
+<span class="sourceLineNo">647</span>        else<a name="line.647"></a>
+<span class="sourceLineNo">648</span>        {<a name="line.648"></a>
+<span class="sourceLineNo">649</span>            throw new RedirectException( "No permission to upload a file", errorPage );<a name="line.649"></a>
+<span class="sourceLineNo">650</span>        }<a name="line.650"></a>
+<span class="sourceLineNo">651</span><a name="line.651"></a>
+<span class="sourceLineNo">652</span>        return created;<a name="line.652"></a>
+<span class="sourceLineNo">653</span>    }<a name="line.653"></a>
+<span class="sourceLineNo">654</span><a name="line.654"></a>
+<span class="sourceLineNo">655</span>    /**<a name="line.655"></a>
+<span class="sourceLineNo">656</span>     *  Provides tracking for upload progress.<a name="line.656"></a>
+<span class="sourceLineNo">657</span>     *<a name="line.657"></a>
+<span class="sourceLineNo">658</span>     */<a name="line.658"></a>
+<span class="sourceLineNo">659</span>    private static class UploadListener<a name="line.659"></a>
+<span class="sourceLineNo">660</span>            extends    ProgressItem<a name="line.660"></a>
+<span class="sourceLineNo">661</span>            implements ProgressListener<a name="line.661"></a>
+<span class="sourceLineNo">662</span>    {<a name="line.662"></a>
+<span class="sourceLineNo">663</span>        public long m_currentBytes;<a name="line.663"></a>
+<span class="sourceLineNo">664</span>        public long m_totalBytes;<a name="line.664"></a>
+<span class="sourceLineNo">665</span><a name="line.665"></a>
+<span class="sourceLineNo">666</span>        public void update(long recvdBytes, long totalBytes, int item)<a name="line.666"></a>
+<span class="sourceLineNo">667</span>        {<a name="line.667"></a>
+<span class="sourceLineNo">668</span>            m_currentBytes = recvdBytes;<a name="line.668"></a>
+<span class="sourceLineNo">669</span>            m_totalBytes   = totalBytes;<a name="line.669"></a>
 <span class="sourceLineNo">670</span>        }<a name="line.670"></a>
-<span class="sourceLineNo">671</span>    }<a name="line.671"></a>
-<span class="sourceLineNo">672</span><a name="line.672"></a>
-<span class="sourceLineNo">673</span>}<a name="line.673"></a>
-<span class="sourceLineNo">674</span><a name="line.674"></a>
-<span class="sourceLineNo">675</span><a name="line.675"></a>
+<span class="sourceLineNo">671</span><a name="line.671"></a>
+<span class="sourceLineNo">672</span>        public int getProgress()<a name="line.672"></a>
+<span class="sourceLineNo">673</span>        {<a name="line.673"></a>
+<span class="sourceLineNo">674</span>            return (int) (((float)m_currentBytes / m_totalBytes) * 100 + 0.5);<a name="line.674"></a>
+<span class="sourceLineNo">675</span>        }<a name="line.675"></a>
+<span class="sourceLineNo">676</span>    }<a name="line.676"></a>
+<span class="sourceLineNo">677</span><a name="line.677"></a>
+<span class="sourceLineNo">678</span>}<a name="line.678"></a>
+<span class="sourceLineNo">679</span><a name="line.679"></a>
+<span class="sourceLineNo">680</span><a name="line.680"></a>
 
 
 
