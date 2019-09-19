@@ -6,6 +6,8 @@ type=page
 
 ## Project News
 
+  * **18-Sep-2019:** Official [Apache JSPWiki 2.11.0.M5 release][] is out!
+
   * **19-May-2019:** Apache JSPWiki [CVE-2019-10076][], [CVE-2019-10077][] and [CVE-2019-10078][] vulnerability disclosures
 
   * **18-May-2019:** Official [Apache JSPWiki 2.11.0.M4 release][] is out!
@@ -77,6 +79,7 @@ type=page
 [Apache JSPWiki 2.11.0.M2 release]: downloads.html
 [Apache JSPWiki 2.11.0.M3 release]: downloads.html
 [Apache JSPWiki 2.11.0.M4 release]: downloads.html
+[Apache JSPWiki 2.11.0.M5 release]: downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
