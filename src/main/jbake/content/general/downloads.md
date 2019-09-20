@@ -10,7 +10,7 @@ Note: When downloading from a mirror, please be sure to verify that checksums an
 
 <br/> **Previous source and binary distributions** are available through the <a class="external" href="https://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
 
-<br/> **Source, javadocs and build artifacts** are also available via the **<a class="external" href="https://repository.apache.org/index.html#nexus-search;quick~jspwiki">Apache Nexus</a>** repository, which is synced to <a class="external" href="https://search.maven.org/#search|ga|1|org.apache.jspwiki">Central repo</a>, <br/>under `org.apache.jspwiki` groupId.
+<br/> **Source, javadocs and build artifacts** are also available via <a class="external" href="https://search.maven.org/#search|ga|1|org.apache.jspwiki">Central repo</a>, <br/>under `org.apache.jspwiki` groupId.
 
 If you want to build directly from the sources, please check the [Get and Build Source][] page.
 
