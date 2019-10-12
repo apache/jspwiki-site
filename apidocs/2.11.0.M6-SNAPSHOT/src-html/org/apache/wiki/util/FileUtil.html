@@ -31,267 +31,255 @@
 <span class="sourceLineNo">023</span>import java.io.BufferedReader;<a name="line.23"></a>
 <span class="sourceLineNo">024</span>import java.io.ByteArrayOutputStream;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import java.io.File;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import java.io.FileOutputStream;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import java.io.IOException;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import java.io.InputStream;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import java.io.InputStreamReader;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import java.io.OutputStream;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import java.io.OutputStreamWriter;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import java.io.Reader;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import java.io.StringReader;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import java.io.StringWriter;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.io.Writer;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.nio.ByteBuffer;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.nio.CharBuffer;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.nio.charset.CharacterCodingException;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.nio.charset.Charset;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import java.nio.charset.CharsetDecoder;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import java.nio.charset.CodingErrorAction;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import java.nio.charset.StandardCharsets;<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>/**<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *  Generic utilities related to file and stream handling.<a name="line.45"></a>
-<span class="sourceLineNo">046</span> */<a name="line.46"></a>
-<span class="sourceLineNo">047</span>public final class FileUtil {<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>    /** Size of the buffer used when copying large chunks of data. */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    private static final int      BUFFER_SIZE = 4096;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    private static final Logger   log         = Logger.getLogger(FileUtil.class);<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     *  Private constructor prevents instantiation.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    private FileUtil()<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    {}<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     *  Makes a new temporary file and writes content into it. The temporary<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     *  file is created using &lt;code&gt;File.createTempFile()&lt;/code&gt;, and the usual<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     *  semantics apply.  The files are not deleted automatically in exit.<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     *<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     *  @param content Initial content of the temporary file.<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     *  @param encoding Encoding to use.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *  @return The handle to the new temporary file<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     *  @throws IOException If the content creation failed.<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     *  @see java.io.File#createTempFile(String,String,File)<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public static File newTmpFile( final String content, final Charset encoding ) throws IOException {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        final File f = File.createTempFile( "jspwiki", null );<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        try( final Reader in = new StringReader( content );<a name="line.72"></a>
-<span class="sourceLineNo">073</span>             final Writer out = new OutputStreamWriter( new FileOutputStream( f ), encoding ) ) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            copyContents( in, out );<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        }<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>        return f;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    }<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    /**<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     *  Creates a new temporary file using the default encoding of ISO-8859-1 (Latin1).<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     *<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     *  @param content The content to put into the file.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     *  @throws IOException If writing was unsuccessful.<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     *  @return A handle to the newly created file.<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     *  @see #newTmpFile( String, Charset )<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     *  @see java.io.File#createTempFile(String,String,File)<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     */<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    public static File newTmpFile( final String content ) throws IOException {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        return newTmpFile( content, StandardCharsets.ISO_8859_1 );<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
-<span class="sourceLineNo">092</span><a name="line.92"></a>
-<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     *  Runs a simple command in given directory. The environment is inherited from the parent process (e.g. the<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     *  one in which this Java VM runs).<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     *  @return Standard output from the command.<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     *  @param  command The command to run<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     *  @param  directory The working directory to run the command in<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *  @throws IOException If the command failed<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     *  @throws InterruptedException If the command was halted<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    public static String runSimpleCommand( final String command, final String directory ) throws IOException, InterruptedException {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        log.info( "Running simple command " + command + " in " + directory );<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        final StringBuilder result = new StringBuilder();<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        final Process process = Runtime.getRuntime().exec( command, null, new File( directory ) );<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>        try( final BufferedReader stdout = new BufferedReader( new InputStreamReader( process.getInputStream() ) );<a name="line.108"></a>
-<span class="sourceLineNo">109</span>             final BufferedReader stderr = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            String line;<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>            while( (line = stdout.readLine()) != null ) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>                result.append( line+"\n");<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>            final StringBuilder error = new StringBuilder();<a name="line.116"></a>
-<span class="sourceLineNo">117</span>            while( (line = stderr.readLine()) != null ) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>                error.append( line+"\n");<a name="line.118"></a>
-<span class="sourceLineNo">119</span>            }<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>            if( error.length() &gt; 0 ) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>                log.error("Command failed, error stream is: "+error);<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            }<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>            process.waitFor();<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        } finally {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            // we must close all by exec(..) opened streams: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4784692<a name="line.127"></a>
-<span class="sourceLineNo">128</span>            process.getInputStream().close();<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        }<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>        return result.toString();<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
-<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">026</span>import java.io.FileDescriptor;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.io.FileOutputStream;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import java.io.IOException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import java.io.InputStream;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import java.io.InputStreamReader;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import java.io.OutputStream;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import java.io.OutputStreamWriter;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import java.io.Reader;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.io.StringReader;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.io.StringWriter;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.io.Writer;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.nio.ByteBuffer;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.nio.CharBuffer;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.nio.charset.CharacterCodingException;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.nio.charset.Charset;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.nio.charset.CharsetDecoder;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.nio.charset.CodingErrorAction;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import java.nio.charset.StandardCharsets;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>/**<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *  Generic utilities related to file and stream handling.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>public final class FileUtil {<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /** Size of the buffer used when copying large chunks of data. */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    private static final int      BUFFER_SIZE = 8192;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    private static final Logger   log         = Logger.getLogger(FileUtil.class);<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *  Private constructor prevents instantiation.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    private FileUtil()<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    {}<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *  Makes a new temporary file and writes content into it. The temporary<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *  file is created using &lt;code&gt;File.createTempFile()&lt;/code&gt;, and the usual<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *  semantics apply.  The files are not deleted automatically in exit.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     *<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *  @param content Initial content of the temporary file.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *  @param encoding Encoding to use.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     *  @return The handle to the new temporary file<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     *  @throws IOException If the content creation failed.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *  @see java.io.File#createTempFile(String,String,File)<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    public static File newTmpFile( final String content, final Charset encoding ) throws IOException {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        final File f = File.createTempFile( "jspwiki", null );<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        try( final Reader in = new StringReader( content );<a name="line.73"></a>
+<span class="sourceLineNo">074</span>             final Writer out = new OutputStreamWriter( new FileOutputStream( f ), encoding ) ) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            copyContents( in, out );<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>        return f;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     *  Creates a new temporary file using the default encoding of ISO-8859-1 (Latin1).<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     *  @param content The content to put into the file.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     *  @throws IOException If writing was unsuccessful.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     *  @return A handle to the newly created file.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     *  @see #newTmpFile( String, Charset )<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *  @see java.io.File#createTempFile(String,String,File)<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    public static File newTmpFile( final String content ) throws IOException {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>        return newTmpFile( content, StandardCharsets.ISO_8859_1 );<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *  Runs a simple command in given directory. The environment is inherited from the parent process (e.g. the<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *  one in which this Java VM runs).<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     *  @return Standard output from the command.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     *  @param  command The command to run<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     *  @param  directory The working directory to run the command in<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *  @throws IOException If the command failed<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     *  @throws InterruptedException If the command was halted<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public static String runSimpleCommand( final String command, final String directory ) throws IOException, InterruptedException {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        log.info( "Running simple command " + command + " in " + directory );<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        final StringBuilder result = new StringBuilder();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        final Process process = Runtime.getRuntime().exec( command, null, new File( directory ) );<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>        try( final BufferedReader stdout = new BufferedReader( new InputStreamReader( process.getInputStream() ) );<a name="line.109"></a>
+<span class="sourceLineNo">110</span>             final BufferedReader stderr = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            String line;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>            while( (line = stdout.readLine()) != null ) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                result.append( line+"\n");<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>            final StringBuilder error = new StringBuilder();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            while( (line = stderr.readLine()) != null ) {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                error.append( line+"\n");<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>            if( error.length() &gt; 0 ) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                log.error("Command failed, error stream is: "+error);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>            process.waitFor();<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        } finally {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            // we must close all by exec(..) opened streams: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4784692<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            process.getInputStream().close();<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>        return result.toString();<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
 <span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span>    /**<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     *  Just copies all characters from &lt;I&gt;in&lt;/I&gt; to &lt;I&gt;out&lt;/I&gt;.  The copying is performed using a buffer of bytes.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     *<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     *  @since 1.5.8<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     *  @param in The reader to copy from<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     *  @param out The reader to copy to<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     *  @throws IOException If reading or writing failed.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    public static void copyContents( final Reader in, final Writer out ) throws IOException {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        char[] buf = new char[BUFFER_SIZE];<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        int bytesRead;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        while( ( bytesRead = in.read( buf ) ) &gt; 0 ) {<a name="line.146"></a>
-<span class="sourceLineNo">147</span>            out.write( buf, 0, bytesRead );<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>        out.flush();<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
-<span class="sourceLineNo">152</span><a name="line.152"></a>
-<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     *  Just copies all bytes from &lt;I&gt;in&lt;/I&gt; to &lt;I&gt;out&lt;/I&gt;.  The copying is performed using a buffer of bytes.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     *<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     *  @since 1.9.31<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     *  @param in The inputstream to copy from<a name="line.157"></a>
-<span class="sourceLineNo">158</span>     *  @param out The outputstream to copy to<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     *  @throws IOException In case reading or writing fails.<a name="line.159"></a>
-<span class="sourceLineNo">160</span>     */<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    public static void copyContents( final InputStream in, final OutputStream out ) throws IOException {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        byte[] buf = new byte[BUFFER_SIZE];<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        int bytesRead;<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        while( ( bytesRead = in.read( buf ) ) &gt; 0 ) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            out.write( buf, 0, bytesRead );<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        }<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>        out.flush();<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *  Just copies all characters from &lt;I&gt;in&lt;/I&gt; to &lt;I&gt;out&lt;/I&gt;.  The copying is performed using a buffer of bytes.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     *  @since 1.5.8<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *  @param in The reader to copy from<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     *  @param out The reader to copy to<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *  @throws IOException If reading or writing failed.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    public static void copyContents( final Reader in, final Writer out ) throws IOException {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        char[] buf = new char[BUFFER_SIZE];<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        int bytesRead;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        while( ( bytesRead = in.read( buf ) ) &gt; 0 ) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            out.write( buf, 0, bytesRead );<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>        out.flush();<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    /**<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     *  Just copies all bytes from &lt;I&gt;in&lt;/I&gt; to &lt;I&gt;out&lt;/I&gt;.  The copying is performed using a buffer of bytes.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     *  @since 1.9.31<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     *  @param in The inputstream to copy from<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     *  @param out The outputstream to copy to<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     *  @throws IOException In case reading or writing fails.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    public static void copyContents( final InputStream in, final OutputStream out ) throws IOException {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        byte[] buf = new byte[BUFFER_SIZE];<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        int bytesRead;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        while( ( bytesRead = in.read( buf ) ) &gt; 0 ) {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            out.write( buf, 0, bytesRead );<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>        out.flush();<a name="line.169"></a>
 <span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>    /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     *  Reads in file contents.<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     *  &lt;P&gt;<a name="line.173"></a>
-<span class="sourceLineNo">174</span>     *  This method is smart and falls back to ISO-8859-1 if the input stream does not<a name="line.174"></a>
-<span class="sourceLineNo">175</span>     *  seem to be in the specified encoding.<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     *<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     *  @param input The InputStream to read from.<a name="line.177"></a>
-<span class="sourceLineNo">178</span>     *  @param encoding The encoding to assume at first.<a name="line.178"></a>
-<span class="sourceLineNo">179</span>     *  @return A String, interpreted in the "encoding", or, if it fails, in Latin1.<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     *  @throws IOException If the stream cannot be read or the stream cannot be<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     *          decoded (even) in Latin1<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     */<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    public static String readContents( InputStream input, String encoding )<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        throws IOException<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        ByteArrayOutputStream out = new ByteArrayOutputStream();<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        FileUtil.copyContents( input, out );<a name="line.187"></a>
-<span class="sourceLineNo">188</span><a name="line.188"></a>
-<span class="sourceLineNo">189</span>        ByteBuffer     bbuf        = ByteBuffer.wrap( out.toByteArray() );<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>        Charset        cset        = Charset.forName( encoding );<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        CharsetDecoder csetdecoder = cset.newDecoder();<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>        csetdecoder.onMalformedInput( CodingErrorAction.REPORT );<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        csetdecoder.onUnmappableCharacter( CodingErrorAction.REPORT );<a name="line.195"></a>
-<span class="sourceLineNo">196</span><a name="line.196"></a>
-<span class="sourceLineNo">197</span>        try<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        {<a name="line.198"></a>
-<span class="sourceLineNo">199</span>            CharBuffer cbuf = csetdecoder.decode( bbuf );<a name="line.199"></a>
+<span class="sourceLineNo">171</span>        // FileOutputStream.flush is an empty method, so in this case we grab the underlying file descriptor and force from there thw write to disk<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        if( out instanceof FileOutputStream ) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            FileDescriptor fd = ( ( FileOutputStream )out ).getFD();<a name="line.173"></a>
+<span class="sourceLineNo">174</span>            fd.sync();<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        }<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    }<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>    /**<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     *  Reads in file contents.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     *  &lt;P&gt;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     *  This method is smart and falls back to ISO-8859-1 if the input stream does not<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     *  seem to be in the specified encoding.<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     *<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     *  @param input The InputStream to read from.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     *  @param encoding The encoding to assume at first.<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     *  @return A String, interpreted in the "encoding", or, if it fails, in Latin1.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     *  @throws IOException If the stream cannot be read or the stream cannot be<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     *          decoded (even) in Latin1<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     */<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    public static String readContents( InputStream input, String encoding )<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        throws IOException<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        ByteArrayOutputStream out = new ByteArrayOutputStream();<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        FileUtil.copyContents( input, out );<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>        ByteBuffer     bbuf        = ByteBuffer.wrap( out.toByteArray() );<a name="line.196"></a>
+<span class="sourceLineNo">197</span><a name="line.197"></a>
+<span class="sourceLineNo">198</span>        Charset        cset        = Charset.forName( encoding );<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        CharsetDecoder csetdecoder = cset.newDecoder();<a name="line.199"></a>
 <span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>            return cbuf.toString();<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        }<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        catch( CharacterCodingException e )<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            Charset        latin1    = Charset.forName("ISO-8859-1");<a name="line.205"></a>
-<span class="sourceLineNo">206</span>            CharsetDecoder l1decoder = latin1.newDecoder();<a name="line.206"></a>
+<span class="sourceLineNo">201</span>        csetdecoder.onMalformedInput( CodingErrorAction.REPORT );<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        csetdecoder.onUnmappableCharacter( CodingErrorAction.REPORT );<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>        try<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            CharBuffer cbuf = csetdecoder.decode( bbuf );<a name="line.206"></a>
 <span class="sourceLineNo">207</span><a name="line.207"></a>
-<span class="sourceLineNo">208</span>            l1decoder.onMalformedInput( CodingErrorAction.REPORT );<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            l1decoder.onUnmappableCharacter( CodingErrorAction.REPORT );<a name="line.209"></a>
-<span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>            try<a name="line.211"></a>
-<span class="sourceLineNo">212</span>            {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>                bbuf = ByteBuffer.wrap( out.toByteArray() );<a name="line.213"></a>
+<span class="sourceLineNo">208</span>            return cbuf.toString();<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        }<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        catch( CharacterCodingException e )<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>            Charset        latin1    = Charset.forName("ISO-8859-1");<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            CharsetDecoder l1decoder = latin1.newDecoder();<a name="line.213"></a>
 <span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>                CharBuffer cbuf = l1decoder.decode( bbuf );<a name="line.215"></a>
-<span class="sourceLineNo">216</span><a name="line.216"></a>
-<span class="sourceLineNo">217</span>                return cbuf.toString();<a name="line.217"></a>
-<span class="sourceLineNo">218</span>            }<a name="line.218"></a>
-<span class="sourceLineNo">219</span>            catch( CharacterCodingException ex )<a name="line.219"></a>
-<span class="sourceLineNo">220</span>            {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>                throw (CharacterCodingException) ex.fillInStackTrace();<a name="line.221"></a>
-<span class="sourceLineNo">222</span>            }<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    /**<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     *  Returns the full contents of the Reader as a String.<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     *  @since 1.5.8<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     *  @param in The reader from which the contents shall be read.<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     *  @return String read from the Reader<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     *  @throws IOException If reading fails.<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     */<a name="line.233"></a>
-<span class="sourceLineNo">234</span>    public static String readContents( Reader in )<a name="line.234"></a>
-<span class="sourceLineNo">235</span>        throws IOException<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    {<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        Writer out = null;<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>        try<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>            out = new StringWriter();<a name="line.241"></a>
-<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">215</span>            l1decoder.onMalformedInput( CodingErrorAction.REPORT );<a name="line.215"></a>
+<span class="sourceLineNo">216</span>            l1decoder.onUnmappableCharacter( CodingErrorAction.REPORT );<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>            try<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                bbuf = ByteBuffer.wrap( out.toByteArray() );<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>                CharBuffer cbuf = l1decoder.decode( bbuf );<a name="line.222"></a>
+<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">224</span>                return cbuf.toString();<a name="line.224"></a>
+<span class="sourceLineNo">225</span>            }<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            catch( CharacterCodingException ex )<a name="line.226"></a>
+<span class="sourceLineNo">227</span>            {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                throw (CharacterCodingException) ex.fillInStackTrace();<a name="line.228"></a>
+<span class="sourceLineNo">229</span>            }<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        }<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    }<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>    /**<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     *  Returns the full contents of the Reader as a String.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>     *<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     *  @since 1.5.8<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     *  @param in The reader from which the contents shall be read.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     *  @return String read from the Reader<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     *  @throws IOException If reading fails.<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    public static String readContents( final Reader in ) throws IOException {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        try( Writer out = new StringWriter() ) {<a name="line.242"></a>
 <span class="sourceLineNo">243</span>            copyContents( in, out );<a name="line.243"></a>
-<span class="sourceLineNo">244</span><a name="line.244"></a>
-<span class="sourceLineNo">245</span>            return out.toString();<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        }<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        finally<a name="line.247"></a>
-<span class="sourceLineNo">248</span>        {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>            try<a name="line.249"></a>
-<span class="sourceLineNo">250</span>            {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>                out.close();<a name="line.251"></a>
-<span class="sourceLineNo">252</span>            }<a name="line.252"></a>
-<span class="sourceLineNo">253</span>            catch( Exception e )<a name="line.253"></a>
-<span class="sourceLineNo">254</span>            {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                log.error("Not able to close the stream while reading contents.");<a name="line.255"></a>
-<span class="sourceLineNo">256</span>            }<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        }<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    }<a name="line.258"></a>
-<span class="sourceLineNo">259</span><a name="line.259"></a>
-<span class="sourceLineNo">260</span>    /**<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     *  Returns the class and method name (+a line number) in which the<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     *  Throwable was thrown.<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     *<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     *  @param t A Throwable to analyze.<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     *  @return A human-readable string stating the class and method.  Do not rely<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     *          the format to be anything fixed.<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     */<a name="line.267"></a>
-<span class="sourceLineNo">268</span>    public static String getThrowingMethod( Throwable t )<a name="line.268"></a>
-<span class="sourceLineNo">269</span>    {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        StackTraceElement[] trace = t.getStackTrace();<a name="line.270"></a>
-<span class="sourceLineNo">271</span>        StringBuilder sb = new StringBuilder();<a name="line.271"></a>
-<span class="sourceLineNo">272</span><a name="line.272"></a>
-<span class="sourceLineNo">273</span>        if( trace == null || trace.length == 0 )<a name="line.273"></a>
-<span class="sourceLineNo">274</span>        {<a name="line.274"></a>
-<span class="sourceLineNo">275</span>            sb.append( "[Stack trace not available]" );<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        }<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        else<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        {<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            sb.append( trace[0].isNativeMethod() ? "native method" : "" );<a name="line.279"></a>
-<span class="sourceLineNo">280</span>            sb.append( trace[0].getClassName() );<a name="line.280"></a>
-<span class="sourceLineNo">281</span>            sb.append(".");<a name="line.281"></a>
-<span class="sourceLineNo">282</span>            sb.append(trace[0].getMethodName()+"(), line "+trace[0].getLineNumber());<a name="line.282"></a>
-<span class="sourceLineNo">283</span>        }<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        return sb.toString();<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    }<a name="line.285"></a>
-<span class="sourceLineNo">286</span>}<a name="line.286"></a>
+<span class="sourceLineNo">244</span>            return out.toString();<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>    /**<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     *  Returns the class and method name (+a line number) in which the<a name="line.249"></a>
+<span class="sourceLineNo">250</span>     *  Throwable was thrown.<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     *<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     *  @param t A Throwable to analyze.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     *  @return A human-readable string stating the class and method.  Do not rely<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     *          the format to be anything fixed.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    public static String getThrowingMethod( Throwable t )<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        StackTraceElement[] trace = t.getStackTrace();<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        StringBuilder sb = new StringBuilder();<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>        if( trace == null || trace.length == 0 )<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            sb.append( "[Stack trace not available]" );<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        }<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        else<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>            sb.append( trace[0].isNativeMethod() ? "native method" : "" );<a name="line.267"></a>
+<span class="sourceLineNo">268</span>            sb.append( trace[0].getClassName() );<a name="line.268"></a>
+<span class="sourceLineNo">269</span>            sb.append(".");<a name="line.269"></a>
+<span class="sourceLineNo">270</span>            sb.append(trace[0].getMethodName()+"(), line "+trace[0].getLineNumber());<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        }<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        return sb.toString();<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>}<a name="line.274"></a>
 
 
 
