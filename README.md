@@ -32,6 +32,7 @@ the repository contains the following critical files:
 | `./pom.xml`         | to orchestrate the website build
 | `./Jenkinsfile`     | file meant to be run by a Jenkins CI server, to build and deploy the website.
 | `./mvn-ci.sh`       | script to build and deploy the website using Maven.
+| `./src/main/config/`| changelog header; will be merged with actual changelog through the main ``Jenkinsfile`
 | `./src/main/jbake/` | standard [jbake maven plugin structure](https://github.com/ingenieux/jbake-maven-plugin), contains three subdirectories:
 |  -> `assets/`       | The assets directory is where you should place your static files such as images, CSS files and JavaScript files etc. These files are copied over to the baked output as is. You can create any directory structure you like in the assets directory and this structure will be maintained when copied.
 |  -> `content/`      | holds content files, with the extension of these files determining what type of content it contains (i.e.: `.md` for [Markdown](http://daringfireball.net/projects/markdown/syntax), `.html` for raw HTML, etc.)
