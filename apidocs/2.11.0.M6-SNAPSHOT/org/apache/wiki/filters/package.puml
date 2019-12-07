@@ -1,0 +1,94 @@
+@startuml
+
+    namespace org.apache.wiki.filters {
+
+        class DefaultFilterManager [[DefaultFilterManager.html]] {
+            +DefaultFilterManager(WikiEngine, Properties)
+            +addPageFilter(PageFilter, int): void
+            #initialize(Properties): void
+            +doPreTranslateFiltering(WikiContext, String): String
+            +doPostTranslateFiltering(WikiContext, String): String
+            +doPreSaveFiltering(WikiContext, String): String
+            +doPostSaveFiltering(WikiContext, String): void
+            +getFilterList(): List<PageFilter>
+            +destroy(): void
+            +fireEvent(int, WikiContext): void
+            +modules(): Collection<WikiModuleInfo>
+            +getModuleInfo(String): DefaultFilterManager.PageFilterInfo
+        }
+
+        class SpamFilter [[SpamFilter.html]] {
+            {static} +PROP_WORDLIST: String
+            {static} +PROP_IPLIST: String
+            {static} +PROP_MAX_PAGENAME_LENGTH: String
+            {static} +PROP_ERRORPAGE: String
+            {static} +PROP_PAGECHANGES: String
+            {static} +PROP_SIMILARCHANGES: String
+            {static} +PROP_BANTIME: String
+            {static} +PROP_BLACKLIST: String
+            {static} +PROP_MAXURLS: String
+            {static} +PROP_AKISMET_API_KEY: String
+            {static} +PROP_IGNORE_AUTHENTICATED: String
+            {static} +PROP_CAPTCHA: String
+            {static} +PROP_FILTERSTRATEGY: String
+            {static} +STRATEGY_EAGER: String
+            {static} +STRATEGY_SCORE: String
+            +initialize(WikiEngine, Properties): void
+            +preSave(WikiContext, String): String
+            {static} +getBotFieldName(): String
+            +isValidUserProfile(WikiContext, UserProfile): boolean
+            {static} +getSpamHash(WikiPage, HttpServletRequest): String
+            {static} +getHashFieldName(HttpServletRequest): String
+            {static} +checkHash(WikiContext, PageContext): boolean
+            {static} +insertInputFields(PageContext): String
+        }
+
+        class PingWeblogsComFilter [[PingWeblogsComFilter.html]] {
+            {static} +PROP_PINGURL: String
+            +initialize(WikiEngine, Properties): void
+            +postSave(WikiContext, String): void
+        }
+
+        class CreoleFilter [[CreoleFilter.html]] {
+            +initialize(WikiEngine, Properties): void
+            +preSave(WikiContext, String): String
+            +preTranslate(WikiContext, String): String
+        }
+
+        class ProfanityFilter [[ProfanityFilter.html]] {
+            +preTranslate(WikiContext, String): String
+        }
+
+        abstract class org.apache.wiki.modules.ModuleManager {
+            {abstract} +modules(): Collection<WikiModuleInfo>
+            {abstract} +getModuleInfo(String): WikiModuleInfo
+        }
+        org.apache.wiki.modules.ModuleManager <|-- DefaultFilterManager
+
+        interface org.apache.wiki.api.engine.FilterManager {
+            {abstract} +addPageFilter(PageFilter, int): void
+            {abstract} +doPreTranslateFiltering(WikiContext, String): String
+            {abstract} +doPostTranslateFiltering(WikiContext, String): String
+            {abstract} +doPreSaveFiltering(WikiContext, String): String
+            {abstract} +doPostSaveFiltering(WikiContext, String): void
+            {abstract} +getFilterList(): List<PageFilter>
+            {abstract} +destroy(): void
+            {abstract} +modules(): Collection<WikiModuleInfo>
+            {abstract} +getModuleInfo(String): WikiModuleInfo
+        }
+        org.apache.wiki.api.engine.FilterManager <|.. DefaultFilterManager
+
+        class org.apache.wiki.api.filters.BasicPageFilter
+        org.apache.wiki.api.filters.BasicPageFilter <|-- SpamFilter
+
+        org.apache.wiki.api.filters.BasicPageFilter <|-- PingWeblogsComFilter
+
+        org.apache.wiki.api.filters.BasicPageFilter <|-- CreoleFilter
+
+        org.apache.wiki.api.filters.BasicPageFilter <|-- ProfanityFilter
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

@@ -1,0 +1,198 @@
+@startuml
+
+    namespace org.apache.wiki.parser {
+
+        class WikiDocument [[WikiDocument.html]] {
+            +WikiDocument(WikiPage)
+            +setPageData(String): void
+            +getPageData(): String
+            +getPage(): WikiPage
+            +setContext(WikiContext): void
+            +getContext(): WikiContext
+        }
+
+        class ParseException [[ParseException.html]] {
+            +ParseException(String)
+        }
+
+        class JSPWikiMarkupParser [[JSPWikiMarkupParser.html]] {
+            {static} #READ: int
+            {static} #EDIT: int
+            {static} #EMPTY: int
+            {static} #LOCAL: int
+            {static} #LOCALREF: int
+            {static} #IMAGE: int
+            {static} #EXTERNAL: int
+            {static} #INTERWIKI: int
+            {static} #IMAGELINK: int
+            {static} #IMAGEWIKILINK: int
+            {static} #ATTACHMENT: int
+            {static} +PROP_CAMELCASELINKS: String
+            {static} +PROP_PLAINURIS: String
+            {static} +PROP_USEATTACHMENTIMAGE: String
+            {static} #CHARACTER: int
+            {static} #ELEMENT: int
+            {static} #IGNORE: int
+            +JSPWikiMarkupParser(WikiContext, Reader)
+            #callMutatorChain(Collection<StringTransmutator>, String): String
+            #callHeadingListenerChain(Heading): void
+            #createAnchor(int, String, String, String): Element
+            +makeHeading(int, String, Heading): Element
+            #parseToken(int): int
+            +parse(): WikiDocument
+        }
+
+        class PluginContent [[PluginContent.html]] {
+            +PluginContent(String, Map<String, String>)
+            +getPluginName(): String
+            +getParameter(String): String
+            +getParameters(): Map<String, String>
+            +getValue(): String
+            +getText(): String
+            +invoke(WikiContext): String
+            +executeParse(WikiContext): void
+            {static} +parsePluginLine(WikiContext, String, int): PluginContent
+        }
+
+        class VariableContent [[VariableContent.html]] {
+            +VariableContent(String)
+            +getValue(): String
+            +getText(): String
+        }
+
+        class LinkParser [[LinkParser.html]] {
+            +parse(String): LinkParser.Link
+            {static} +isSpace(String): boolean
+            {static} +isSpace(char): boolean
+        }
+
+        class org.apache.wiki.parser.LinkParser.Link [[LinkParser.Link.html]] {
+            #Link(String)
+            #Link(String, String)
+            #setText(String): void
+            +getText(): String
+            #setReference(String): void
+            +hasReference(): boolean
+            +getReference(): String
+            +isInterwikiLink(): boolean
+            +getExternalWiki(): String
+            +getExternalWikiPage(): String
+            +attributeCount(): int
+            +addAttribute(Attribute): void
+            +getAttributes(): Iterator<Attribute>
+        }
+
+        class Heading [[Heading.html]] {
+            {static} +HEADING_SMALL: int
+            {static} +HEADING_MEDIUM: int
+            {static} +HEADING_LARGE: int
+            +m_level: int
+            +m_titleText: String
+            +m_titleAnchor: String
+            +m_titleSection: String
+        }
+
+        abstract class MarkupParser [[MarkupParser.html]] {
+            {static} #PUSHBACK_BUFFER_SIZE: int
+            {static} +PROP_ALLOWHTML: String
+            {static} +PROP_RUNPLUGINS: String
+            {static} #LEGACY_CHARS_ALLOWED: String
+            {static} +PUNCTUATION_CHARS_ALLOWED: String
+            {static} +HASHLINK: String
+            {static} +OUTLINK_IMAGE: String
+            {static} +OUTLINK: String
+            {static} +PROP_USEOUTLINKIMAGE: String
+            {static} +PROP_USERELNOFOLLOW: String
+            {static} +CLASS_WIKIPAGE: String
+            {static} +CLASS_EDITPAGE: String
+            {static} +CLASS_INTERWIKI: String
+            {static} +CLASS_FOOTNOTE: String
+            {static} +CLASS_FOOTNOTE_REF: String
+            {static} +CLASS_EXTERNAL: String
+            {static} +CLASS_ATTACHMENT: String
+            {static} +CLASS_TYPES: String[]
+            #m_in: PushbackReader
+            #m_engine: WikiEngine
+            #m_context: WikiContext
+            #m_localLinkMutatorChain: ArrayList<StringTransmutator>
+            #m_externalLinkMutatorChain: ArrayList<StringTransmutator>
+            #m_attachmentLinkMutatorChain: ArrayList<StringTransmutator>
+            #m_headingListenerChain: ArrayList<HeadingListener>
+            #m_linkMutators: ArrayList<StringTransmutator>
+            #m_inlineImages: boolean
+            #m_parseAccessRules: boolean
+            #m_inlineImagePatterns: List<Pattern>
+            #MarkupParser(WikiContext, Reader)
+            +setInputReader(Reader): Reader
+            +addLinkTransmutator(StringTransmutator): void
+            +addLocalLinkHook(StringTransmutator): void
+            +addExternalLinkHook(StringTransmutator): void
+            +addAttachmentLinkHook(StringTransmutator): void
+            +addHeadingListener(HeadingListener): void
+            +disableAccessRules(): void
+            +isParseAccessRules(): boolean
+            +enableImageInlining(boolean): void
+            +isImageInlining(): boolean
+            #initInlineImagePatterns(): void
+            +getInlineImagePatterns(): List<Pattern>
+            +getPosition(): int
+            #nextToken(): int
+            #pushBack(int): void
+            {static} +makeError(String): Element
+            {static} +cleanLink(String): String
+            {static} +cleanLink(String, String): String
+            {static} +wikifyLink(String): String
+            {abstract} +parse(): WikiDocument
+        }
+
+        interface HeadingListener [[HeadingListener.html]] {
+            {abstract} +headingAdded(WikiContext, Heading): void
+        }
+
+        class LinkParsingOperations [[LinkParsingOperations.html]] {
+            +LinkParsingOperations(WikiContext)
+            +isAccessRule(String): boolean
+            +isPluginLink(String): boolean
+            +isMetadata(String): boolean
+            +isVariableLink(String): boolean
+            +isInterWikiLink(String): boolean
+            +interWikiLinkAt(String): int
+            +isExternalLink(String): boolean
+            +isImageLink(String): boolean
+            +linkExists(String): boolean
+            +linkIfExists(String): String
+        }
+
+        class CreoleToJSPWikiTranslator [[CreoleToJSPWikiTranslator.html]] {
+            {static} +VAR_VERSION: String
+            {static} +VAR_CREOLE_VERSION: String
+            {static} +VAR_LINEBREAK_BLOGLIKE: String
+            {static} +VAR_LINEBREAK_C2LIKE: String
+            +translateSignature(Properties, String, String): String
+            +translate(Properties, String): String
+        }
+
+        class org.jdom2.Document
+        org.jdom2.Document <|-- WikiDocument
+
+        class org.apache.wiki.api.exceptions.WikiException
+        org.apache.wiki.api.exceptions.WikiException <|-- ParseException
+
+        MarkupParser <|-- JSPWikiMarkupParser
+
+        class org.jdom2.Text
+        org.jdom2.Text <|-- PluginContent
+
+        org.jdom2.Text <|-- VariableContent
+
+        LinkParser +-- org.apache.wiki.parser.LinkParser.Link
+
+        JSPWikiMarkupParser --> JSPWikiMarkupParser: cleanTranslator
+
+        MarkupParser --> LinkParsingOperations: m_linkParsingOperations
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

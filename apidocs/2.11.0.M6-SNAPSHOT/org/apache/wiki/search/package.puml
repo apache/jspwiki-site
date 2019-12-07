@@ -1,0 +1,147 @@
+@startuml
+
+    namespace org.apache.wiki.search {
+
+        class BasicSearchProvider [[BasicSearchProvider.html]] {
+            +initialize(WikiEngine, Properties): void
+            +pageRemoved(WikiPage): void
+            +reindexPage(WikiPage): void
+            +parseQuery(String): QueryItem[]
+            +findPages(String, WikiContext): Collection<SearchResult>
+            +getProviderInfo(): String
+        }
+
+        interface SearchResult [[SearchResult.html]] {
+            {abstract} +getPage(): WikiPage
+            {abstract} +getScore(): int
+            {abstract} +getContexts(): String[]
+        }
+
+        class LuceneSearchProvider [[LuceneSearchProvider.html]] {
+            {static} #log: Logger
+            {static} +PROP_LUCENE_ANALYZER: String
+            {static} +SEARCHABLE_FILE_SUFFIXES: String[]
+            {static} #LUCENE_ID: String
+            {static} #LUCENE_PAGE_CONTENTS: String
+            {static} #LUCENE_AUTHOR: String
+            {static} #LUCENE_ATTACHMENTS: String
+            {static} #LUCENE_PAGE_NAME: String
+            {static} #LUCENE_PAGE_KEYWORDS: String
+            {static} +MAX_SEARCH_HITS: int
+            {static} +FLAG_CONTEXTS: int
+            #m_updates: List<Object[]>
+            +initialize(WikiEngine, Properties): void
+            #getEngine(): WikiEngine
+            #doFullLuceneReindex(): void
+            #getAttachmentContent(String, int): String
+            #getAttachmentContent(Attachment): String
+            #updateLuceneIndex(WikiPage, String): void
+            #luceneIndexPage(WikiPage, String, IndexWriter): Document
+            +pageRemoved(WikiPage): void
+            +reindexPage(WikiPage): void
+            +findPages(String, WikiContext): Collection<SearchResult>
+            +findPages(String, int, WikiContext): Collection<SearchResult>
+            +getProviderInfo(): String
+        }
+
+        class SearchManager [[SearchManager.html]] {
+            {static} +PROP_SEARCHPROVIDER: String
+            {static} +JSON_SEARCH: String
+            +SearchManager(WikiEngine, Properties)
+            +initialize(WikiEngine, Properties): void
+            +findPages(String, WikiContext): Collection<SearchResult>
+            +pageRemoved(WikiPage): void
+            +postSave(WikiContext, String): void
+            +reindexPage(WikiPage): void
+            +actionPerformed(WikiEvent): void
+        }
+
+        class org.apache.wiki.search.SearchManager.JSONSearch [[SearchManager.JSONSearch.html]] {
+            {static} +AJAX_ACTION_SUGGESTIONS: String
+            {static} +AJAX_ACTION_PAGES: String
+            {static} +DEFAULT_MAX_RESULTS: int
+            +maxResults: int
+            +getServletMapping(): String
+            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+            +getSuggestions(String, int): List<String>
+            +findPages(String, int, WikiContext): List<Map<String, Object>>
+        }
+
+        class SearchResultComparator [[SearchResultComparator.html]] {
+            +compare(SearchResult, SearchResult): int
+        }
+
+        interface SearchProvider [[SearchProvider.html]] {
+            {abstract} +pageRemoved(WikiPage): void
+            {abstract} +reindexPage(WikiPage): void
+            {abstract} +findPages(String, WikiContext): Collection<SearchResult>
+        }
+
+        class SearchMatcher [[SearchMatcher.html]] {
+            +SearchMatcher(WikiEngine, QueryItem[])
+            +matchPageContent(String, String): SearchResult
+        }
+
+        class org.apache.wiki.search.SearchMatcher.SearchResultImpl [[SearchMatcher.SearchResultImpl.html]] {
+            +SearchResultImpl(String, int)
+            +getPage(): WikiPage
+            +getScore(): int
+            +getContexts(): String[]
+        }
+
+        class QueryItem [[QueryItem.html]] {
+            {static} +REQUIRED: int
+            {static} +FORBIDDEN: int
+            {static} +REQUESTED: int
+            +word: String
+            +type: int
+        }
+
+        SearchProvider <|.. BasicSearchProvider
+
+        SearchProvider <|.. LuceneSearchProvider
+
+        class org.apache.wiki.api.filters.BasicPageFilter
+        org.apache.wiki.api.filters.BasicPageFilter <|-- SearchManager
+
+        interface org.apache.wiki.modules.InternalModule
+        org.apache.wiki.modules.InternalModule <|.. SearchManager
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. SearchManager
+
+        interface org.apache.wiki.ajax.WikiAjaxServlet {
+            {abstract} +getServletMapping(): String
+            {abstract} +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+        }
+        org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.search.SearchManager.JSONSearch
+
+        SearchManager +-- org.apache.wiki.search.SearchManager.JSONSearch
+
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
+        }
+        java.util.Comparator <|.. SearchResultComparator
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. SearchResultComparator
+
+        interface org.apache.wiki.WikiProvider {
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +getProviderInfo(): String
+        }
+        org.apache.wiki.WikiProvider <|.. SearchProvider
+
+        SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
+
+        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
+
+        SearchManager --> SearchProvider: searchEngine
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml
