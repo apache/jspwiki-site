@@ -2,6 +2,32 @@
 
     namespace org.apache.wiki.providers {
 
+        interface WikiPageProvider [[WikiPageProvider.html]] {
+            {abstract} +putPageText(WikiPage, String): void
+            {abstract} +pageExists(String): boolean
+            {abstract} +pageExists(String, int): boolean
+            {abstract} +findPages(QueryItem[]): Collection<SearchResult>
+            {abstract} +getPageInfo(String, int): WikiPage
+            {abstract} +getAllPages(): Collection<WikiPage>
+            {abstract} +getAllChangedSince(Date): Collection<WikiPage>
+            {abstract} +getPageCount(): int
+            {abstract} +getVersionHistory(String): List<WikiPage>
+            {abstract} +getPageText(String, int): String
+            {abstract} +deleteVersion(String, int): void
+            {abstract} +deletePage(String): void
+            {abstract} +movePage(String, String): void
+        }
+
+        interface VersioningProvider [[VersioningProvider.html]] {
+            {abstract} +pageExists(String, int): boolean
+        }
+
+        class RepositoryModifiedException [[RepositoryModifiedException.html]] {
+            #m_page: String
+            +RepositoryModifiedException(String, String)
+            +getPageName(): String
+        }
+
         class VersioningFileProvider [[VersioningFileProvider.html]] {
             {static} +PAGEDIR: String
             {static} +PROPERTYFILE: String
@@ -15,6 +41,34 @@
             +deleteVersion(String, int): void
             +getAllPages(): Collection<WikiPage>
             +getProviderInfo(): String
+            +movePage(String, String): void
+        }
+
+        class NoSuchVersionException [[NoSuchVersionException.html]] {
+            +NoSuchVersionException(String)
+        }
+
+        class CachingProvider [[CachingProvider.html]] {
+            {static} +CACHE_NAME: String
+            {static} +TEXTCACHE_NAME: String
+            {static} +HISTORYCACHE_NAME: String
+            {static} +DEFAULT_CACHECAPACITY: int
+            {static} +DEFAULT_CACHETIMETOLIVESECONDS: int
+            {static} +DEFAULT_CACHETIMETOIDLESECONDS: int
+            +initialize(WikiEngine, Properties): void
+            +pageExists(String, int): boolean
+            +pageExists(String): boolean
+            +getPageText(String, int): String
+            +putPageText(WikiPage, String): void
+            +getAllPages(): Collection<WikiPage>
+            +getAllChangedSince(Date): Collection<WikiPage>
+            +getPageCount(): int
+            +findPages(QueryItem[]): Collection<SearchResult>
+            +getPageInfo(String, int): WikiPage
+            +getVersionHistory(String): List<WikiPage>
+            +getProviderInfo(): String
+            +deleteVersion(String, int): void
+            +deletePage(String): void
             +movePage(String, String): void
         }
 
@@ -89,10 +143,6 @@
             +accept(File, String): boolean
         }
 
-        interface VersioningProvider [[VersioningProvider.html]] {
-            {abstract} +pageExists(String, int): boolean
-        }
-
         interface WikiAttachmentProvider [[WikiAttachmentProvider.html]] {
             {abstract} +putAttachmentData(Attachment, InputStream): void
             {abstract} +getAttachmentData(Attachment): InputStream
@@ -106,32 +156,10 @@
             {abstract} +moveAttachmentsForPage(String, String): void
         }
 
-        class RepositoryModifiedException [[RepositoryModifiedException.html]] {
-            #m_page: String
-            +RepositoryModifiedException(String, String)
-            +getPageName(): String
-        }
-
-        class CachingProvider [[CachingProvider.html]] {
-            {static} +CACHE_NAME: String
-            {static} +TEXTCACHE_NAME: String
-            {static} +HISTORYCACHE_NAME: String
-            {static} +DEFAULT_CACHECAPACITY: int
-            {static} +DEFAULT_CACHETIMETOLIVESECONDS: int
-            {static} +DEFAULT_CACHETIMETOIDLESECONDS: int
-            +initialize(WikiEngine, Properties): void
-            +pageExists(String, int): boolean
-            +pageExists(String): boolean
-            +getPageText(String, int): String
+        class FileSystemProvider [[FileSystemProvider.html]] {
+            {static} +PROP_EXT: String
             +putPageText(WikiPage, String): void
-            +getAllPages(): Collection<WikiPage>
-            +getAllChangedSince(Date): Collection<WikiPage>
-            +getPageCount(): int
-            +findPages(QueryItem[]): Collection<SearchResult>
             +getPageInfo(String, int): WikiPage
-            +getVersionHistory(String): List<WikiPage>
-            +getProviderInfo(): String
-            +deleteVersion(String, int): void
             +deletePage(String): void
             +movePage(String, String): void
         }
@@ -156,38 +184,23 @@
             +moveAttachmentsForPage(String, String): void
         }
 
-        class NoSuchVersionException [[NoSuchVersionException.html]] {
-            +NoSuchVersionException(String)
-        }
-
         interface FastSearch [[FastSearch.html]] {
         }
 
-        class FileSystemProvider [[FileSystemProvider.html]] {
-            {static} +PROP_EXT: String
-            +putPageText(WikiPage, String): void
-            +getPageInfo(String, int): WikiPage
-            +deletePage(String): void
-            +movePage(String, String): void
+        interface org.apache.wiki.WikiProvider {
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +getProviderInfo(): String
         }
+        org.apache.wiki.WikiProvider <|.. WikiPageProvider
 
-        interface WikiPageProvider [[WikiPageProvider.html]] {
-            {abstract} +putPageText(WikiPage, String): void
-            {abstract} +pageExists(String): boolean
-            {abstract} +pageExists(String, int): boolean
-            {abstract} +findPages(QueryItem[]): Collection<SearchResult>
-            {abstract} +getPageInfo(String, int): WikiPage
-            {abstract} +getAllPages(): Collection<WikiPage>
-            {abstract} +getAllChangedSince(Date): Collection<WikiPage>
-            {abstract} +getPageCount(): int
-            {abstract} +getVersionHistory(String): List<WikiPage>
-            {abstract} +getPageText(String, int): String
-            {abstract} +deleteVersion(String, int): void
-            {abstract} +deletePage(String): void
-            {abstract} +movePage(String, String): void
-        }
+        class org.apache.wiki.api.exceptions.ProviderException
+        org.apache.wiki.api.exceptions.ProviderException <|-- RepositoryModifiedException
 
         AbstractFileProvider <|-- VersioningFileProvider
+
+        org.apache.wiki.api.exceptions.ProviderException <|-- NoSuchVersionException
+
+        WikiPageProvider <|.. CachingProvider
 
         WikiPageProvider <|.. AbstractFileProvider
 
@@ -208,24 +221,11 @@
 
         BasicAttachmentProvider +-- org.apache.wiki.providers.BasicAttachmentProvider.AttachmentVersionFilter
 
-        interface org.apache.wiki.WikiProvider {
-            {abstract} +initialize(WikiEngine, Properties): void
-            {abstract} +getProviderInfo(): String
-        }
         org.apache.wiki.WikiProvider <|.. WikiAttachmentProvider
-
-        class org.apache.wiki.api.exceptions.ProviderException
-        org.apache.wiki.api.exceptions.ProviderException <|-- RepositoryModifiedException
-
-        WikiPageProvider <|.. CachingProvider
-
-        WikiAttachmentProvider <|.. CachingAttachmentProvider
-
-        org.apache.wiki.api.exceptions.ProviderException <|-- NoSuchVersionException
 
         AbstractFileProvider <|-- FileSystemProvider
 
-        org.apache.wiki.WikiProvider <|.. WikiPageProvider
+        WikiAttachmentProvider <|.. CachingAttachmentProvider
 
         CachingProvider --> WikiPageProvider: realProvider
 
