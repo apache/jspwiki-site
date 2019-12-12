@@ -2,12 +2,27 @@
 
     namespace org.apache.wiki.parser {
 
+        class CreoleToJSPWikiTranslator [[CreoleToJSPWikiTranslator.html]] {
+            {static} +VAR_VERSION: String
+            {static} +VAR_CREOLE_VERSION: String
+            {static} +VAR_LINEBREAK_BLOGLIKE: String
+            {static} +VAR_LINEBREAK_C2LIKE: String
+            +translateSignature(Properties, String, String): String
+            +translate(Properties, String): String
+        }
+
         class ParseException [[ParseException.html]] {
             +ParseException(String)
         }
 
-        interface HeadingListener [[HeadingListener.html]] {
-            {abstract} +headingAdded(WikiContext, Heading): void
+        class Heading [[Heading.html]] {
+            {static} +HEADING_SMALL: int
+            {static} +HEADING_MEDIUM: int
+            {static} +HEADING_LARGE: int
+            +m_level: int
+            +m_titleText: String
+            +m_titleAnchor: String
+            +m_titleSection: String
         }
 
         class LinkParsingOperations [[LinkParsingOperations.html]] {
@@ -36,14 +51,72 @@
             {static} +parsePluginLine(WikiContext, String, int): PluginContent
         }
 
-        class Heading [[Heading.html]] {
-            {static} +HEADING_SMALL: int
-            {static} +HEADING_MEDIUM: int
-            {static} +HEADING_LARGE: int
-            +m_level: int
-            +m_titleText: String
-            +m_titleAnchor: String
-            +m_titleSection: String
+        class VariableContent [[VariableContent.html]] {
+            +VariableContent(String)
+            +getValue(): String
+            +getText(): String
+        }
+
+        class LinkParser [[LinkParser.html]] {
+            +parse(String): LinkParser.Link
+            {static} +isSpace(String): boolean
+            {static} +isSpace(char): boolean
+        }
+
+        class org.apache.wiki.parser.LinkParser.Link [[LinkParser.Link.html]] {
+            #Link(String)
+            #Link(String, String)
+            #setText(String): void
+            +getText(): String
+            #setReference(String): void
+            +hasReference(): boolean
+            +getReference(): String
+            +isInterwikiLink(): boolean
+            +getExternalWiki(): String
+            +getExternalWikiPage(): String
+            +attributeCount(): int
+            +addAttribute(Attribute): void
+            +getAttributes(): Iterator<Attribute>
+        }
+
+        class JSPWikiMarkupParser [[JSPWikiMarkupParser.html]] {
+            {static} #READ: int
+            {static} #EDIT: int
+            {static} #EMPTY: int
+            {static} #LOCAL: int
+            {static} #LOCALREF: int
+            {static} #IMAGE: int
+            {static} #EXTERNAL: int
+            {static} #INTERWIKI: int
+            {static} #IMAGELINK: int
+            {static} #IMAGEWIKILINK: int
+            {static} #ATTACHMENT: int
+            {static} +PROP_CAMELCASELINKS: String
+            {static} +PROP_PLAINURIS: String
+            {static} +PROP_USEATTACHMENTIMAGE: String
+            {static} #CHARACTER: int
+            {static} #ELEMENT: int
+            {static} #IGNORE: int
+            +JSPWikiMarkupParser(WikiContext, Reader)
+            #callMutatorChain(Collection<StringTransmutator>, String): String
+            #callHeadingListenerChain(Heading): void
+            #createAnchor(int, String, String, String): Element
+            +makeHeading(int, String, Heading): Element
+            #parseToken(int): int
+            +parse(): WikiDocument
+        }
+
+        interface HeadingListener [[HeadingListener.html]] {
+            {abstract} +headingAdded(WikiContext, Heading): void
+        }
+
+        class WikiDocument [[WikiDocument.html]] {
+            +WikiDocument(WikiPage)
+            +setPageData(String): void
+            +getPageData(): String
+            +getPage(): WikiPage
+            +setContext(WikiContext): void
+            +getContext(): WikiContext
         }
 
         abstract class MarkupParser [[MarkupParser.html]] {
@@ -99,97 +172,24 @@
             {abstract} +parse(): WikiDocument
         }
 
-        class CreoleToJSPWikiTranslator [[CreoleToJSPWikiTranslator.html]] {
-            {static} +VAR_VERSION: String
-            {static} +VAR_CREOLE_VERSION: String
-            {static} +VAR_LINEBREAK_BLOGLIKE: String
-            {static} +VAR_LINEBREAK_C2LIKE: String
-            +translateSignature(Properties, String, String): String
-            +translate(Properties, String): String
-        }
-
-        class LinkParser [[LinkParser.html]] {
-            +parse(String): LinkParser.Link
-            {static} +isSpace(String): boolean
-            {static} +isSpace(char): boolean
-        }
-
-        class org.apache.wiki.parser.LinkParser.Link [[LinkParser.Link.html]] {
-            #Link(String)
-            #Link(String, String)
-            #setText(String): void
-            +getText(): String
-            #setReference(String): void
-            +hasReference(): boolean
-            +getReference(): String
-            +isInterwikiLink(): boolean
-            +getExternalWiki(): String
-            +getExternalWikiPage(): String
-            +attributeCount(): int
-            +addAttribute(Attribute): void
-            +getAttributes(): Iterator<Attribute>
-        }
-
-        class VariableContent [[VariableContent.html]] {
-            +VariableContent(String)
-            +getValue(): String
-            +getText(): String
-        }
-
-        class JSPWikiMarkupParser [[JSPWikiMarkupParser.html]] {
-            {static} #READ: int
-            {static} #EDIT: int
-            {static} #EMPTY: int
-            {static} #LOCAL: int
-            {static} #LOCALREF: int
-            {static} #IMAGE: int
-            {static} #EXTERNAL: int
-            {static} #INTERWIKI: int
-            {static} #IMAGELINK: int
-            {static} #IMAGEWIKILINK: int
-            {static} #ATTACHMENT: int
-            {static} +PROP_CAMELCASELINKS: String
-            {static} +PROP_PLAINURIS: String
-            {static} +PROP_USEATTACHMENTIMAGE: String
-            {static} #CHARACTER: int
-            {static} #ELEMENT: int
-            {static} #IGNORE: int
-            +JSPWikiMarkupParser(WikiContext, Reader)
-            #callMutatorChain(Collection<StringTransmutator>, String): String
-            #callHeadingListenerChain(Heading): void
-            #createAnchor(int, String, String, String): Element
-            +makeHeading(int, String, Heading): Element
-            #parseToken(int): int
-            +parse(): WikiDocument
-        }
-
-        class WikiDocument [[WikiDocument.html]] {
-            +WikiDocument(WikiPage)
-            +setPageData(String): void
-            +getPageData(): String
-            +getPage(): WikiPage
-            +setContext(WikiContext): void
-            +getContext(): WikiContext
-        }
-
         class org.apache.wiki.api.exceptions.WikiException
         org.apache.wiki.api.exceptions.WikiException <|-- ParseException
 
         class org.jdom2.Text
         org.jdom2.Text <|-- PluginContent
 
-        LinkParser +-- org.apache.wiki.parser.LinkParser.Link
-
         org.jdom2.Text <|-- VariableContent
+
+        LinkParser +-- org.apache.wiki.parser.LinkParser.Link
 
         MarkupParser <|-- JSPWikiMarkupParser
 
         class org.jdom2.Document
         org.jdom2.Document <|-- WikiDocument
 
-        MarkupParser --> LinkParsingOperations: m_linkParsingOperations
-
         JSPWikiMarkupParser --> JSPWikiMarkupParser: cleanTranslator
+
+        MarkupParser --> LinkParsingOperations: m_linkParsingOperations
 
     }
 

@@ -2,6 +2,11 @@
 
     namespace org.apache.wiki.auth {
 
+        class WikiSecurityException [[WikiSecurityException.html]] {
+            +WikiSecurityException(String)
+            +WikiSecurityException(String, Throwable)
+        }
+
         class SessionMonitor [[SessionMonitor.html]] {
             +SessionMonitor()
             {static} +getInstance(WikiEngine): SessionMonitor
@@ -16,39 +21,6 @@
             +sessionDestroyed(HttpSessionEvent): void
         }
 
-        class SecurityVerifier [[SecurityVerifier.html]] {
-            {static} +ERROR: String
-            {static} +WARNING: String
-            {static} +INFO: String
-            {static} +ERROR_POLICY: String
-            {static} +WARNING_POLICY: String
-            {static} +INFO_POLICY: String
-            {static} +ERROR_JAAS: String
-            {static} +WARNING_JAAS: String
-            {static} +ERROR_ROLES: String
-            {static} +INFO_ROLES: String
-            {static} +ERROR_DB: String
-            {static} +WARNING_DB: String
-            {static} +INFO_DB: String
-            {static} +ERROR_GROUPS: String
-            {static} +WARNING_GROUPS: String
-            {static} +INFO_GROUPS: String
-            {static} +INFO_JAAS: String
-            +SecurityVerifier(WikiEngine, WikiSession)
-            +policyPrincipals(): Principal[]
-            +policyRoleTable(): String
-            +containerRoleTable(): String
-            +isSecurityPolicyConfigured(): boolean
-            +webContainerRoles(): Principal[]
-            #verifyPolicyAndContainerRoles(): void
-            #verifyGroupDatabase(): void
-            #verifyJaas(): void
-            #getFileFromProperty(String): File
-            #verifyPolicy(): void
-            #verifyStaticPermission(Principal, Permission): boolean
-            #verifyUserDatabase(): void
-        }
-
         class NoSuchPrincipalException [[NoSuchPrincipalException.html]] {
             +NoSuchPrincipalException(String)
         }
@@ -59,77 +31,9 @@
             {abstract} +isUserInRole(WikiSession, Principal): boolean
         }
 
-        class WikiPrincipal [[WikiPrincipal.html]] {
-            {static} +GUEST: Principal
-            {static} +FULL_NAME: String
-            {static} +LOGIN_NAME: String
-            {static} +WIKI_NAME: String
-            {static} +UNSPECIFIED: String
-            {static} +COMPARATOR: Comparator<Principal>
-            #WikiPrincipal()
-            +WikiPrincipal(String)
-            +WikiPrincipal(String, String)
+        class GroupPrincipal [[GroupPrincipal.html]] {
+            +GroupPrincipal(String)
             +getName(): String
-            +getType(): String
-            +compareTo(Principal): int
-        }
-
-        class AuthorizationManager [[AuthorizationManager.html]] {
-            {static} +DEFAULT_AUTHORIZER: String
-            {static} #POLICY: String
-            {static} #DEFAULT_POLICY: String
-            {static} +PROP_AUTHORIZER: String
-            +checkPermission(WikiSession, Permission): boolean
-            +isUserInRole(WikiSession, Principal): boolean
-            #hasRoleOrPrincipal(WikiSession, Principal): boolean
-            +hasAccess(WikiContext, HttpServletResponse): boolean
-            +hasAccess(WikiContext, HttpServletResponse, boolean): boolean
-            +initialize(WikiEngine, Properties): void
-            #allowedByLocalPolicy(Principal[], Permission): boolean
-            #checkStaticPermission(WikiSession, Permission): boolean
-            +resolvePrincipal(String): Principal
-            +addWikiEventListener(WikiEventListener): void
-            +removeWikiEventListener(WikiEventListener): void
-            #fireEvent(int, Principal, Object): void
-        }
-
-        class AuthenticationManager [[AuthenticationManager.html]] {
-            {static} +COOKIE_MODULE: String
-            {static} +COOKIE_AUTHENTICATION_MODULE: String
-            {static} +PROP_STOREIPADDRESS: String
-            {static} +PROP_ALLOW_COOKIE_AUTH: String
-            {static} +PROP_LOGIN_THROTTLING: String
-            {static} #log: Logger
-            {static} #PREFIX_LOGIN_MODULE_OPTIONS: String
-            {static} #PROP_ALLOW_COOKIE_ASSERTIONS: String
-            {static} #PROP_LOGIN_MODULE: String
-            {static} #EMPTY_MAP: Map<String, String>
-            #m_loginModuleClass: Class<?>
-            #m_loginModuleOptions: Map<String, String>
-            +initialize(WikiEngine, Properties): void
-            +isContainerAuthenticated(): boolean
-            +login(HttpServletRequest): boolean
-            +login(WikiSession, HttpServletRequest, String, String): boolean
-            +logout(HttpServletRequest): void
-            +allowsCookieAssertions(): boolean
-            +allowsCookieAuthentication(): boolean
-            {static} +isRolePrincipal(Principal): boolean
-            {static} +isUserPrincipal(Principal): boolean
-            #doJAASLogin(Class<?>, CallbackHandler, Map<String, String>): Set<Principal>
-            {static} #findConfigFile(WikiEngine, String): URL
-            #getLoginPrincipal(Set<Principal>): Principal
-            +addWikiEventListener(WikiEventListener): void
-            +removeWikiEventListener(WikiEventListener): void
-            #fireEvent(int, Principal, Object): void
-        }
-
-        class WikiSecurityException [[WikiSecurityException.html]] {
-            +WikiSecurityException(String)
-            +WikiSecurityException(String, Throwable)
-        }
-
-        class PrincipalComparator [[PrincipalComparator.html]] {
-            +compare(Principal, Principal): int
         }
 
         class UserManager [[UserManager.html]] {
@@ -166,10 +70,109 @@
             +getUserInfo(String): UserProfile
         }
 
-        class GroupPrincipal [[GroupPrincipal.html]] {
-            +GroupPrincipal(String)
-            +getName(): String
+        class PrincipalComparator [[PrincipalComparator.html]] {
+            +compare(Principal, Principal): int
         }
+
+        class AuthenticationManager [[AuthenticationManager.html]] {
+            {static} +COOKIE_MODULE: String
+            {static} +COOKIE_AUTHENTICATION_MODULE: String
+            {static} +PROP_STOREIPADDRESS: String
+            {static} +PROP_ALLOW_COOKIE_AUTH: String
+            {static} +PROP_LOGIN_THROTTLING: String
+            {static} #log: Logger
+            {static} #PREFIX_LOGIN_MODULE_OPTIONS: String
+            {static} #PROP_ALLOW_COOKIE_ASSERTIONS: String
+            {static} #PROP_LOGIN_MODULE: String
+            {static} #EMPTY_MAP: Map<String, String>
+            #m_loginModuleClass: Class<?>
+            #m_loginModuleOptions: Map<String, String>
+            +initialize(WikiEngine, Properties): void
+            +isContainerAuthenticated(): boolean
+            +login(HttpServletRequest): boolean
+            +login(WikiSession, HttpServletRequest, String, String): boolean
+            +logout(HttpServletRequest): void
+            +allowsCookieAssertions(): boolean
+            +allowsCookieAuthentication(): boolean
+            {static} +isRolePrincipal(Principal): boolean
+            {static} +isUserPrincipal(Principal): boolean
+            #doJAASLogin(Class<?>, CallbackHandler, Map<String, String>): Set<Principal>
+            {static} #findConfigFile(WikiEngine, String): URL
+            #getLoginPrincipal(Set<Principal>): Principal
+            +addWikiEventListener(WikiEventListener): void
+            +removeWikiEventListener(WikiEventListener): void
+            #fireEvent(int, Principal, Object): void
+        }
+
+        class AuthorizationManager [[AuthorizationManager.html]] {
+            {static} +DEFAULT_AUTHORIZER: String
+            {static} #POLICY: String
+            {static} #DEFAULT_POLICY: String
+            {static} +PROP_AUTHORIZER: String
+            +checkPermission(WikiSession, Permission): boolean
+            +isUserInRole(WikiSession, Principal): boolean
+            #hasRoleOrPrincipal(WikiSession, Principal): boolean
+            +hasAccess(WikiContext, HttpServletResponse): boolean
+            +hasAccess(WikiContext, HttpServletResponse, boolean): boolean
+            +initialize(WikiEngine, Properties): void
+            #allowedByLocalPolicy(Principal[], Permission): boolean
+            #checkStaticPermission(WikiSession, Permission): boolean
+            +resolvePrincipal(String): Principal
+            +addWikiEventListener(WikiEventListener): void
+            +removeWikiEventListener(WikiEventListener): void
+            #fireEvent(int, Principal, Object): void
+        }
+
+        class SecurityVerifier [[SecurityVerifier.html]] {
+            {static} +ERROR: String
+            {static} +WARNING: String
+            {static} +INFO: String
+            {static} +ERROR_POLICY: String
+            {static} +WARNING_POLICY: String
+            {static} +INFO_POLICY: String
+            {static} +ERROR_JAAS: String
+            {static} +WARNING_JAAS: String
+            {static} +ERROR_ROLES: String
+            {static} +INFO_ROLES: String
+            {static} +ERROR_DB: String
+            {static} +WARNING_DB: String
+            {static} +INFO_DB: String
+            {static} +ERROR_GROUPS: String
+            {static} +WARNING_GROUPS: String
+            {static} +INFO_GROUPS: String
+            {static} +INFO_JAAS: String
+            +SecurityVerifier(WikiEngine, WikiSession)
+            +policyPrincipals(): Principal[]
+            +policyRoleTable(): String
+            +containerRoleTable(): String
+            +isSecurityPolicyConfigured(): boolean
+            +webContainerRoles(): Principal[]
+            #verifyPolicyAndContainerRoles(): void
+            #verifyGroupDatabase(): void
+            #verifyJaas(): void
+            #getFileFromProperty(String): File
+            #verifyPolicy(): void
+            #verifyStaticPermission(Principal, Permission): boolean
+            #verifyUserDatabase(): void
+        }
+
+        class WikiPrincipal [[WikiPrincipal.html]] {
+            {static} +GUEST: Principal
+            {static} +FULL_NAME: String
+            {static} +LOGIN_NAME: String
+            {static} +WIKI_NAME: String
+            {static} +UNSPECIFIED: String
+            {static} +COMPARATOR: Comparator<Principal>
+            #WikiPrincipal()
+            +WikiPrincipal(String)
+            +WikiPrincipal(String, String)
+            +getName(): String
+            +getType(): String
+            +compareTo(Principal): int
+        }
+
+        class org.apache.wiki.api.exceptions.WikiException
+        org.apache.wiki.api.exceptions.WikiException <|-- WikiSecurityException
 
         interface javax.servlet.http.HttpSessionListener {
             {abstract} +sessionCreated(HttpSessionEvent): void
@@ -182,25 +185,7 @@
         interface java.security.Principal {
             {abstract} +getName(): String
         }
-        java.security.Principal <|.. WikiPrincipal
-
-        interface java.lang.Comparable<T> {
-            {abstract} +compareTo(T): int
-        }
-        java.lang.Comparable <|.. WikiPrincipal
-
-        interface java.io.Serializable
-        java.io.Serializable <|.. WikiPrincipal
-
-        class org.apache.wiki.api.exceptions.WikiException
-        org.apache.wiki.api.exceptions.WikiException <|-- WikiSecurityException
-
-        interface java.util.Comparator<T> {
-            {abstract} +compare(T, T): int
-        }
-        java.util.Comparator <|.. PrincipalComparator
-
-        java.io.Serializable <|.. PrincipalComparator
+        java.security.Principal <|.. GroupPrincipal
 
         abstract class org.apache.wiki.auth.user.AbstractUserDatabase {
             {abstract} +findByEmail(String): UserProfile
@@ -222,13 +207,28 @@
 
         UserManager +-- org.apache.wiki.auth.UserManager.JSONUserModule
 
-        java.security.Principal <|.. GroupPrincipal
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
+        }
+        java.util.Comparator <|.. PrincipalComparator
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. PrincipalComparator
+
+        java.security.Principal <|.. WikiPrincipal
+
+        interface java.lang.Comparable<T> {
+            {abstract} +compareTo(T): int
+        }
+        java.lang.Comparable <|.. WikiPrincipal
+
+        java.io.Serializable <|.. WikiPrincipal
 
         Authorizer --> "*" java.security.Principal: roles
 
-        AuthorizationManager --> Authorizer: authorizer
-
         org.apache.wiki.auth.UserManager.DummyUserDatabase --> "*" java.security.Principal: wikiNames
+
+        AuthorizationManager --> Authorizer: authorizer
 
     }
 
