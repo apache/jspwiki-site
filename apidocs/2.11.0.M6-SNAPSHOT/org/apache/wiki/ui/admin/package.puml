@@ -2,6 +2,22 @@
 
     namespace org.apache.wiki.ui.admin {
 
+        interface AdminBean [[AdminBean.html]] {
+            {static} +UNKNOWN: int
+            {static} +CORE: int
+            {static} +EDITOR: int
+            {abstract} +initialize(WikiEngine): void
+            {abstract} +getTitle(): String
+            {abstract} +getType(): int
+        }
+
+        abstract class WikiFormAdminBean [[WikiFormAdminBean.html]] {
+            +doGet(WikiContext): String
+            +handlePost(WikiContext, HttpServletRequest, HttpServletResponse): String
+            {abstract} +getForm(WikiContext): String
+            {abstract} +handleResponse(WikiContext, Map<?, ?>): void
+        }
+
         abstract class SimpleAdminBean [[SimpleAdminBean.html]] {
             #m_engine: WikiEngine
             +initialize(WikiEngine): void
@@ -18,21 +34,14 @@
             +actionPerformed(WikiEvent): void
         }
 
-        abstract class WikiFormAdminBean [[WikiFormAdminBean.html]] {
-            +doGet(WikiContext): String
-            +handlePost(WikiContext, HttpServletRequest, HttpServletResponse): String
-            {abstract} +getForm(WikiContext): String
-            {abstract} +handleResponse(WikiContext, Map<?, ?>): void
+        interface org.apache.wiki.ui.GenericHTTPHandler {
+            {abstract} +getId(): String
+            {abstract} +doGet(WikiContext): String
+            {abstract} +doPost(WikiContext): String
         }
+        org.apache.wiki.ui.GenericHTTPHandler <|.. AdminBean
 
-        interface AdminBean [[AdminBean.html]] {
-            {static} +UNKNOWN: int
-            {static} +CORE: int
-            {static} +EDITOR: int
-            {abstract} +initialize(WikiEngine): void
-            {abstract} +getTitle(): String
-            {abstract} +getType(): int
-        }
+        AdminBean <|.. WikiFormAdminBean
 
         abstract class org.apache.wiki.management.SimpleMBean {
             {abstract} +getAttributeNames(): String[]
@@ -55,15 +64,6 @@
             {abstract} +getTypeFromString(String): int
         }
         org.apache.wiki.api.engine.AdminBeanManager <|.. DefaultAdminBeanManager
-
-        AdminBean <|.. WikiFormAdminBean
-
-        interface org.apache.wiki.ui.GenericHTTPHandler {
-            {abstract} +getId(): String
-            {abstract} +doGet(WikiContext): String
-            {abstract} +doPost(WikiContext): String
-        }
-        org.apache.wiki.ui.GenericHTTPHandler <|.. AdminBean
 
         DefaultAdminBeanManager --> "*" AdminBean: allBeans
 
