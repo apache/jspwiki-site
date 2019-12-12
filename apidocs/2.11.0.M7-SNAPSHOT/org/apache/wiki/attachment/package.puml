@@ -1,0 +1,78 @@
+@startuml
+
+    namespace org.apache.wiki.attachment {
+
+        interface DynamicAttachmentProvider [[DynamicAttachmentProvider.html]] {
+            {abstract} +getAttachmentData(WikiContext, Attachment): InputStream
+        }
+
+        class AttachmentServlet [[AttachmentServlet.html]] {
+            {static} #DEFAULT_EXPIRY: long
+            +init(ServletConfig): void
+            #doOptions(HttpServletRequest, HttpServletResponse): void
+            +doGet(HttpServletRequest, HttpServletResponse): void
+            +doPost(HttpServletRequest, HttpServletResponse): void
+            #upload(HttpServletRequest): String
+            #executeUpload(WikiContext, InputStream, String, String, String, String, long): boolean
+        }
+
+        class DynamicAttachment [[DynamicAttachment.html]] {
+            +DynamicAttachment(WikiEngine, String, String, DynamicAttachmentProvider)
+        }
+
+        class Attachment [[Attachment.html]] {
+            +Attachment(WikiEngine, String, String)
+            +getFileName(): String
+            +setFileName(String): void
+            +getParentName(): String
+            +isCacheable(): boolean
+            +setCacheable(boolean): void
+        }
+
+        class AttachmentManager [[AttachmentManager.html]] {
+            {static} +PROP_PROVIDER: String
+            {static} +PROP_MAXSIZE: String
+            {static} +PROP_ALLOWEDEXTENSIONS: String
+            {static} +PROP_FORBIDDENEXTENSIONS: String
+            {static} +PROP_FORCEDOWNLOAD: String
+            {static} +CACHE_NAME: String
+            {static} +DEFAULT_CACHECAPACITY: int
+            +AttachmentManager(WikiEngine, Properties)
+            +attachmentsEnabled(): boolean
+            +getAttachmentInfo(String): Attachment
+            +getAttachmentInfo(String, int): Attachment
+            +getAttachmentInfo(WikiContext, String): Attachment
+            +getAttachmentInfoName(WikiContext, String): String
+            +getAttachmentInfo(WikiContext, String, int): Attachment
+            +listAttachments(WikiPage): List<Attachment>
+            +hasAttachments(WikiPage): boolean
+            +forceDownload(String): boolean
+            +getAttachmentStream(Attachment): InputStream
+            +getAttachmentStream(WikiContext, Attachment): InputStream
+            +storeDynamicAttachment(WikiContext, DynamicAttachment): void
+            +getDynamicAttachment(String): DynamicAttachment
+            +storeAttachment(Attachment, File): void
+            +storeAttachment(Attachment, InputStream): void
+            +getVersionHistory(String): List<Attachment>
+            +getCurrentProvider(): WikiAttachmentProvider
+            +deleteVersion(Attachment): void
+            +deleteAttachment(Attachment): void
+        }
+
+        abstract class javax.servlet.http.HttpServlet
+        javax.servlet.http.HttpServlet <|-- AttachmentServlet
+
+        Attachment <|-- DynamicAttachment
+
+        class org.apache.wiki.WikiPage
+        org.apache.wiki.WikiPage <|-- Attachment
+
+        DynamicAttachment --> DynamicAttachmentProvider: provider
+
+        AttachmentManager --> "*" Attachment: allAttachments
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml
