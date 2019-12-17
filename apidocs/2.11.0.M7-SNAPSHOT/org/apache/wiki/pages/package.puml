@@ -26,10 +26,6 @@
             +isExpired(): boolean
         }
 
-        class PageTimeComparator [[PageTimeComparator.html]] {
-            +compare(WikiPage, WikiPage): int
-        }
-
         interface PageManager [[PageManager.html]] {
             {static} +PROP_PAGEPROVIDER: String
             {static} +PROP_USECACHE: String
@@ -51,6 +47,20 @@
             {abstract} +deleteVersion(WikiPage): void
             {abstract} +deletePage(WikiPage): void
             {abstract} +actionPerformed(WikiEvent): void
+        }
+
+        class PageSorter [[PageSorter.html]] {
+            {static} #PROP_PAGE_NAME_COMPARATOR: String
+            +PageSorter()
+            +PageSorter(Comparator<String>)
+            +compare(String, String): int
+            +initialize(Properties): void
+            +sort(List<String>): void
+            +sort(String[]): void
+        }
+
+        class PageTimeComparator [[PageTimeComparator.html]] {
+            +compare(WikiPage, WikiPage): int
         }
 
         class DefaultPageManager [[DefaultPageManager.html]] {
@@ -79,30 +89,22 @@
             #changeAcl(WikiPage, Principal[], Principal): boolean
         }
 
-        class PageSorter [[PageSorter.html]] {
-            {static} #PROP_PAGE_NAME_COMPARATOR: String
-            +PageSorter()
-            +PageSorter(Comparator<String>)
-            +compare(String, String): int
-            +initialize(Properties): void
-            +sort(List<String>): void
-            +sort(String[]): void
-        }
-
         interface java.io.Serializable
         java.io.Serializable <|.. PageLock
-
-        interface java.util.Comparator<T> {
-            {abstract} +compare(T, T): int
-        }
-        java.util.Comparator <|.. PageTimeComparator
-
-        java.io.Serializable <|.. PageTimeComparator
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
         }
         org.apache.wiki.event.WikiEventListener <|.. PageManager
+
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
+        }
+        java.util.Comparator <|.. PageSorter
+
+        java.util.Comparator <|.. PageTimeComparator
+
+        java.io.Serializable <|.. PageTimeComparator
 
         abstract class org.apache.wiki.modules.ModuleManager {
             {abstract} +modules(): Collection<WikiModuleInfo>
@@ -111,8 +113,6 @@
         org.apache.wiki.modules.ModuleManager <|-- DefaultPageManager
 
         PageManager <|.. DefaultPageManager
-
-        java.util.Comparator <|.. PageSorter
 
         PageManager --> "*" PageLock: activeLocks
 

@@ -2,23 +2,27 @@
 
     namespace org.apache.wiki.auth.user {
 
-        abstract class AbstractUserDatabase [[AbstractUserDatabase.html]] {
-            {static} #log: Logger
-            {static} #SHA_PREFIX: String
-            {static} #SSHA_PREFIX: String
-            +find(String): UserProfile
-            +getPrincipals(String): Principal[]
-            +newProfile(): UserProfile
-            +validatePassword(String, String): boolean
-            {static} #generateUid(UserDatabase): String
-            #getHash(String): String
-            #parseLong(String): long
-            {abstract} +findByEmail(String): UserProfile
-            {abstract} +findByFullName(String): UserProfile
-            {abstract} +findByLoginName(String): UserProfile
-            {abstract} +findByWikiName(String): UserProfile
-            {abstract} +initialize(WikiEngine, Properties): void
-            {abstract} +save(UserProfile): void
+        interface UserProfile [[UserProfile.html]] {
+            {abstract} +getAttributes(): Map<String, Serializable>
+            {abstract} +getCreated(): Date
+            {abstract} +getEmail(): String
+            {abstract} +getFullname(): String
+            {abstract} +getLastModified(): Date
+            {abstract} +getLockExpiry(): Date
+            {abstract} +getLoginName(): String
+            {abstract} +getPassword(): String
+            {abstract} +getUid(): String
+            {abstract} +getWikiName(): String
+            {abstract} +isLocked(): boolean
+            {abstract} +isNew(): boolean
+            {abstract} +setCreated(Date): void
+            {abstract} +setEmail(String): void
+            {abstract} +setFullname(String): void
+            {abstract} +setLastModified(Date): void
+            {abstract} +setLockExpiry(Date): void
+            {abstract} +setLoginName(String): void
+            {abstract} +setPassword(String): void
+            {abstract} +setUid(String): void
         }
 
         class DefaultUserProfile [[DefaultUserProfile.html]] {
@@ -43,29 +47,6 @@
             +isLocked(): boolean
             +setLockExpiry(Date): void
             +setUid(String): void
-        }
-
-        interface UserProfile [[UserProfile.html]] {
-            {abstract} +getAttributes(): Map<String, Serializable>
-            {abstract} +getCreated(): Date
-            {abstract} +getEmail(): String
-            {abstract} +getFullname(): String
-            {abstract} +getLastModified(): Date
-            {abstract} +getLockExpiry(): Date
-            {abstract} +getLoginName(): String
-            {abstract} +getPassword(): String
-            {abstract} +getUid(): String
-            {abstract} +getWikiName(): String
-            {abstract} +isLocked(): boolean
-            {abstract} +isNew(): boolean
-            {abstract} +setCreated(Date): void
-            {abstract} +setEmail(String): void
-            {abstract} +setFullname(String): void
-            {abstract} +setLastModified(Date): void
-            {abstract} +setLockExpiry(Date): void
-            {abstract} +setLoginName(String): void
-            {abstract} +setPassword(String): void
-            {abstract} +setUid(String): void
         }
 
         class DuplicateUserException [[DuplicateUserException.html]] {
@@ -114,6 +95,20 @@
             +save(UserProfile): void
         }
 
+        class XMLUserDatabase [[XMLUserDatabase.html]] {
+            {static} +PROP_USERDATABASE: String
+            +deleteByLoginName(String): void
+            +findByEmail(String): UserProfile
+            +findByFullName(String): UserProfile
+            +findByLoginName(String): UserProfile
+            +findByUid(String): UserProfile
+            +findByWikiName(String): UserProfile
+            +getWikiNames(): Principal[]
+            +initialize(WikiEngine, Properties): void
+            +rename(String, String): void
+            +save(UserProfile): void
+        }
+
         interface UserDatabase [[UserDatabase.html]] {
             {abstract} +deleteByLoginName(String): void
             {abstract} +getPrincipals(String): Principal[]
@@ -131,26 +126,29 @@
             {abstract} +validatePassword(String, String): boolean
         }
 
-        class XMLUserDatabase [[XMLUserDatabase.html]] {
-            {static} +PROP_USERDATABASE: String
-            +deleteByLoginName(String): void
-            +findByEmail(String): UserProfile
-            +findByFullName(String): UserProfile
-            +findByLoginName(String): UserProfile
-            +findByUid(String): UserProfile
-            +findByWikiName(String): UserProfile
-            +getWikiNames(): Principal[]
-            +initialize(WikiEngine, Properties): void
-            +rename(String, String): void
-            +save(UserProfile): void
+        abstract class AbstractUserDatabase [[AbstractUserDatabase.html]] {
+            {static} #log: Logger
+            {static} #SHA_PREFIX: String
+            {static} #SSHA_PREFIX: String
+            +find(String): UserProfile
+            +getPrincipals(String): Principal[]
+            +newProfile(): UserProfile
+            +validatePassword(String, String): boolean
+            {static} #generateUid(UserDatabase): String
+            #getHash(String): String
+            #parseLong(String): long
+            {abstract} +findByEmail(String): UserProfile
+            {abstract} +findByFullName(String): UserProfile
+            {abstract} +findByLoginName(String): UserProfile
+            {abstract} +findByWikiName(String): UserProfile
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +save(UserProfile): void
         }
-
-        UserDatabase <|.. AbstractUserDatabase
-
-        UserProfile <|.. DefaultUserProfile
 
         interface java.io.Serializable
         java.io.Serializable <|.. UserProfile
+
+        UserProfile <|.. DefaultUserProfile
 
         class org.apache.wiki.api.exceptions.WikiI18nException
         org.apache.wiki.api.exceptions.WikiI18nException <|-- DuplicateUserException
@@ -158,6 +156,8 @@
         AbstractUserDatabase <|-- JDBCUserDatabase
 
         AbstractUserDatabase <|-- XMLUserDatabase
+
+        UserDatabase <|.. AbstractUserDatabase
 
     }
 

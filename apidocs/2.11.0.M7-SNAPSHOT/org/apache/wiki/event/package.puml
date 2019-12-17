@@ -2,17 +2,6 @@
 
     namespace org.apache.wiki.event {
 
-        class PageEventFilter [[PageEventFilter.html]] {
-            +initialize(Properties): void
-            +preTranslate(WikiContext, String): String
-            +postTranslate(WikiContext, String): String
-            +preSave(WikiContext, String): String
-            +postSave(WikiContext, String): void
-            +addWikiEventListener(WikiEventListener): void
-            +removeWikiEventListener(WikiEventListener): void
-            #fireEvent(int, WikiContext): void
-        }
-
         class WikiPageEvent [[WikiPageEvent.html]] {
             {static} +PAGE_LOCK: int
             {static} +PAGE_UNLOCK: int
@@ -43,17 +32,8 @@
             {abstract} +actionPerformed(WikiEvent): void
         }
 
-        abstract class WikiEvent [[WikiEvent.html]] {
-            {static} +ERROR: int
-            {static} +UNDEFINED: int
-            +WikiEvent(Object, int)
-            +getSrc(): T
-            +getWhen(): long
-            #setType(int): void
-            +getType(): int
-            +getTypeDescription(): String
-            {static} +isValidType(int): boolean
-            +eventName(): String
+        class WikiEventUtils [[WikiEventUtils.html]] {
+            {static} +addWikiEventListener(Object, int, WikiEventListener): void
         }
 
         class WikiEngineEvent [[WikiEngineEvent.html]] {
@@ -67,6 +47,40 @@
             {static} +isValidType(int): boolean
             +eventName(): String
             +getTypeDescription(): String
+        }
+
+        class PageEventFilter [[PageEventFilter.html]] {
+            +initialize(Properties): void
+            +preTranslate(WikiContext, String): String
+            +postTranslate(WikiContext, String): String
+            +preSave(WikiContext, String): String
+            +postSave(WikiContext, String): void
+            +addWikiEventListener(WikiEventListener): void
+            +removeWikiEventListener(WikiEventListener): void
+            #fireEvent(int, WikiContext): void
+        }
+
+        class WikiPageRenameEvent [[WikiPageRenameEvent.html]] {
+            {static} +PAGE_RENAMED: int
+            +WikiPageRenameEvent(Object, String, String)
+            +getOldPageName(): String
+            +getNewPageName(): String
+            {static} +isValidType(int): boolean
+            +eventName(): String
+            +getTypeDescription(): String
+        }
+
+        abstract class WikiEvent [[WikiEvent.html]] {
+            {static} +ERROR: int
+            {static} +UNDEFINED: int
+            +WikiEvent(Object, int)
+            +getSrc(): T
+            +getWhen(): long
+            #setType(int): void
+            +getType(): int
+            +getTypeDescription(): String
+            {static} +isValidType(int): boolean
+            +eventName(): String
         }
 
         class WikiSecurityEvent [[WikiSecurityEvent.html]] {
@@ -96,6 +110,16 @@
             +getTypeDescription(): String
         }
 
+        class WikiEventManager [[WikiEventManager.html]] {
+            {static} +getInstance(): WikiEventManager
+            {static} +addWikiEventListener(Object, WikiEventListener): boolean
+            {static} +removeWikiEventListener(Object, WikiEventListener): boolean
+            {static} +getWikiEventListeners(Object): Set<WikiEventListener>
+            {static} +removeWikiEventListener(WikiEventListener): boolean
+            {static} +isListening(Object): boolean
+            {static} +fireEvent(Object, WikiEvent): void
+        }
+
         class WorkflowEvent [[WorkflowEvent.html]] {
             {static} +CREATED: int
             {static} +STARTED: int
@@ -107,48 +131,24 @@
             +eventName(int): String
         }
 
-        class WikiEventUtils [[WikiEventUtils.html]] {
-            {static} +addWikiEventListener(Object, int, WikiEventListener): void
-        }
-
-        class WikiEventManager [[WikiEventManager.html]] {
-            {static} +getInstance(): WikiEventManager
-            {static} +addWikiEventListener(Object, WikiEventListener): boolean
-            {static} +removeWikiEventListener(Object, WikiEventListener): boolean
-            {static} +getWikiEventListeners(Object): Set<WikiEventListener>
-            {static} +removeWikiEventListener(WikiEventListener): boolean
-            {static} +isListening(Object): boolean
-            {static} +fireEvent(Object, WikiEvent): void
-        }
-
-        class WikiPageRenameEvent [[WikiPageRenameEvent.html]] {
-            {static} +PAGE_RENAMED: int
-            +WikiPageRenameEvent(Object, String, String)
-            +getOldPageName(): String
-            +getNewPageName(): String
-            {static} +isValidType(int): boolean
-            +eventName(): String
-            +getTypeDescription(): String
-        }
-
-        class org.apache.wiki.api.filters.BasicPageFilter
-        org.apache.wiki.api.filters.BasicPageFilter <|-- PageEventFilter
-
         WikiEvent <|-- WikiPageEvent
 
         interface java.util.EventListener
         java.util.EventListener <|.. WikiEventListener
 
+        WikiEvent <|-- WikiEngineEvent
+
+        class org.apache.wiki.api.filters.BasicPageFilter
+        org.apache.wiki.api.filters.BasicPageFilter <|-- PageEventFilter
+
+        WikiPageEvent <|-- WikiPageRenameEvent
+
         class java.util.EventObject
         java.util.EventObject <|-- WikiEvent
-
-        WikiEvent <|-- WikiEngineEvent
 
         WikiEvent <|-- WikiSecurityEvent
 
         WikiEvent <|-- WorkflowEvent
-
-        WikiPageEvent <|-- WikiPageRenameEvent
 
     }
 

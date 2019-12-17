@@ -2,36 +2,20 @@
 
     namespace org.apache.wiki.workflow {
 
-        class WorkflowBuilder [[WorkflowBuilder.html]] {
-            {static} +getBuilder(WikiEngine): WorkflowBuilder
-            +buildApprovalWorkflow(Principal, String, Step, String, Fact[], Step, String): Workflow
-        }
-
-        abstract class Decision [[Decision.html]] {
-            +Decision(Workflow, String, Principal, Outcome)
-            +addFact(Fact): void
-            +decide(Outcome): void
-            +execute(): Outcome
-            +getId(): int
-            +isReassignable(): boolean
-            +reassign(Principal): void
-            +setId(int): void
-        }
-
-        class Fact [[Fact.html]] {
-            +Fact(String, Serializable)
+        abstract class AbstractStep [[AbstractStep.html]] {
+            #AbstractStep(String)
+            +AbstractStep(Workflow, String)
+            +addSuccessor(Outcome, Step): void
+            +getErrors(): List<String>
+            +getEndTime(): Date
             +getMessageKey(): String
-        }
-
-        class SystemPrincipal [[SystemPrincipal.html]] {
-            {static} +SYSTEM_USER: Principal
-            +getName(): String
-        }
-
-        class SimpleNotification [[SimpleNotification.html]] {
-            +SimpleNotification(Workflow, String, Principal)
-            +acknowledge(): void
-            +isReassignable(): boolean
+            +getStartTime(): Date
+            +isCompleted(): boolean
+            +isStarted(): boolean
+            +start(): void
+            +getSuccessor(Outcome): Step
+            #addError(String): void
+            {abstract} +execute(): Outcome
         }
 
         class WorkflowManager [[WorkflowManager.html]] {
@@ -63,31 +47,15 @@
             #remove(Workflow): void
         }
 
-        interface Step [[Step.html]] {
-            {abstract} +addSuccessor(Outcome, Step): void
-            {abstract} +getErrors(): List<String>
-            {abstract} +execute(): Outcome
-            {abstract} +getEndTime(): Date
-            {abstract} +getMessageKey(): String
-            {abstract} +getStartTime(): Date
-            {abstract} +isCompleted(): boolean
-            {abstract} +isStarted(): boolean
-            {abstract} +start(): void
-            {abstract} +getSuccessor(Outcome): Step
+        class SimpleNotification [[SimpleNotification.html]] {
+            +SimpleNotification(Workflow, String, Principal)
+            +acknowledge(): void
+            +isReassignable(): boolean
         }
 
-        class Outcome [[Outcome.html]] {
-            {static} +STEP_COMPLETE: Outcome
-            {static} +STEP_ABORT: Outcome
-            {static} +STEP_CONTINUE: Outcome
-            {static} +DECISION_ACKNOWLEDGE: Outcome
-            {static} +DECISION_APPROVE: Outcome
-            {static} +DECISION_DENY: Outcome
-            {static} +DECISION_HOLD: Outcome
-            {static} +DECISION_REASSIGN: Outcome
-            +isCompletion(): boolean
-            +getMessageKey(): String
-            {static} +forName(String): Outcome
+        class WorkflowBuilder [[WorkflowBuilder.html]] {
+            {static} +getBuilder(WikiEngine): WorkflowBuilder
+            +buildApprovalWorkflow(Principal, String, Step, String, Fact[], Step, String): Workflow
         }
 
         class Workflow [[Workflow.html]] {
@@ -124,8 +92,23 @@
             #fireEvent(int): void
         }
 
-        class DecisionRequiredException [[DecisionRequiredException.html]] {
-            +DecisionRequiredException(String)
+        class SimpleDecision [[SimpleDecision.html]] {
+            +SimpleDecision(Workflow, String, Principal)
+        }
+
+        class Fact [[Fact.html]] {
+            +Fact(String, Serializable)
+            +getMessageKey(): String
+        }
+
+        abstract class Task [[Task.html]] {
+            +Task(String)
+            +Task(Workflow, String)
+        }
+
+        class SystemPrincipal [[SystemPrincipal.html]] {
+            {static} +SYSTEM_USER: Principal
+            +getName(): String
         }
 
         class DecisionQueue [[DecisionQueue.html]] {
@@ -137,102 +120,87 @@
             +reassign(Decision, Principal): void
         }
 
-        abstract class AbstractStep [[AbstractStep.html]] {
-            #AbstractStep(String)
-            +AbstractStep(Workflow, String)
-            +addSuccessor(Outcome, Step): void
-            +getErrors(): List<String>
-            +getEndTime(): Date
-            +getMessageKey(): String
-            +getStartTime(): Date
-            +isCompleted(): boolean
-            +isStarted(): boolean
-            +start(): void
-            +getSuccessor(Outcome): Step
-            #addError(String): void
-            {abstract} +execute(): Outcome
+        abstract class Decision [[Decision.html]] {
+            +Decision(Workflow, String, Principal, Outcome)
+            +addFact(Fact): void
+            +decide(Outcome): void
+            +execute(): Outcome
+            +getId(): int
+            +isReassignable(): boolean
+            +reassign(Principal): void
+            +setId(int): void
         }
 
-        abstract class Task [[Task.html]] {
-            +Task(String)
-            +Task(Workflow, String)
+        class DecisionRequiredException [[DecisionRequiredException.html]] {
+            +DecisionRequiredException(String)
         }
 
         class NoSuchOutcomeException [[NoSuchOutcomeException.html]] {
             +NoSuchOutcomeException(String)
         }
 
-        class SimpleDecision [[SimpleDecision.html]] {
-            +SimpleDecision(Workflow, String, Principal)
+        interface Step [[Step.html]] {
+            {abstract} +addSuccessor(Outcome, Step): void
+            {abstract} +getErrors(): List<String>
+            {abstract} +execute(): Outcome
+            {abstract} +getEndTime(): Date
+            {abstract} +getMessageKey(): String
+            {abstract} +getStartTime(): Date
+            {abstract} +isCompleted(): boolean
+            {abstract} +isStarted(): boolean
+            {abstract} +start(): void
+            {abstract} +getSuccessor(Outcome): Step
         }
 
-        AbstractStep <|-- Decision
-
-        interface java.io.Serializable
-        java.io.Serializable <|.. Fact
-
-        interface java.security.Principal {
-            {abstract} +getName(): String
+        class Outcome [[Outcome.html]] {
+            {static} +STEP_COMPLETE: Outcome
+            {static} +STEP_ABORT: Outcome
+            {static} +STEP_CONTINUE: Outcome
+            {static} +DECISION_ACKNOWLEDGE: Outcome
+            {static} +DECISION_APPROVE: Outcome
+            {static} +DECISION_DENY: Outcome
+            {static} +DECISION_HOLD: Outcome
+            {static} +DECISION_REASSIGN: Outcome
+            +isCompletion(): boolean
+            +getMessageKey(): String
+            {static} +forName(String): Outcome
         }
-        java.security.Principal <|.. SystemPrincipal
 
-        Decision <|-- SimpleNotification
+        Step <|.. AbstractStep
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
         }
         org.apache.wiki.event.WikiEventListener <|.. WorkflowManager
 
-        java.io.Serializable <|.. Step
+        Decision <|-- SimpleNotification
 
-        java.io.Serializable <|.. Outcome
-
+        interface java.io.Serializable
         java.io.Serializable <|.. Workflow
+
+        Decision <|-- SimpleDecision
+
+        java.io.Serializable <|.. Fact
+
+        AbstractStep <|-- Task
+
+        interface java.security.Principal {
+            {abstract} +getName(): String
+        }
+        java.security.Principal <|.. SystemPrincipal
+
+        java.io.Serializable <|.. DecisionQueue
+
+        AbstractStep <|-- Decision
 
         class org.apache.wiki.api.exceptions.WikiException
         org.apache.wiki.api.exceptions.WikiException <|-- DecisionRequiredException
 
-        java.io.Serializable <|.. DecisionQueue
-
-        Step <|.. AbstractStep
-
-        AbstractStep <|-- Task
-
         org.apache.wiki.api.exceptions.WikiException <|-- NoSuchOutcomeException
 
-        Decision <|-- SimpleDecision
+        java.io.Serializable <|.. Step
 
-        Decision --> java.security.Principal: actor
-
-        Decision --> Outcome: defaultOutcome
-
-        Decision --> "*" Fact: facts
-
-        Fact --> java.io.Serializable: value
-
-        WorkflowManager --> "*" Workflow: workflows\ncompletedWorkflows
-
-        WorkflowManager --> DecisionQueue: decisionQueue
-
-        Step --> "*" Outcome: availableOutcomes
-
-        Step --> java.security.Principal: actor\nowner
-
-        Step --> "*" java.io.Serializable: messageArguments
-
-        Step --> Outcome: outcome
-
-        Step --> Workflow: workflow
-
-        Workflow --> java.security.Principal: currentActor\nowner
-
-        Workflow --> Step: currentStep\npreviousStep\nfirstStep
-
-        Workflow --> "*" java.io.Serializable: messageArguments
-
-        Workflow --> WorkflowManager: workflowManager
-
-        Workflow --> "*" Step: history
+        java.io.Serializable <|.. Outcome
 
         AbstractStep --> "*" Outcome: availableOutcomes
 
@@ -244,9 +212,41 @@
 
         AbstractStep --> Workflow: workflow
 
+        WorkflowManager --> "*" Workflow: workflows\ncompletedWorkflows
+
+        WorkflowManager --> DecisionQueue: decisionQueue
+
+        Workflow --> java.security.Principal: currentActor\nowner
+
+        Workflow --> Step: currentStep\npreviousStep\nfirstStep
+
+        Workflow --> "*" java.io.Serializable: messageArguments
+
+        Workflow --> WorkflowManager: workflowManager
+
+        Workflow --> "*" Step: history
+
+        Fact --> java.io.Serializable: value
+
         Task --> java.security.Principal: actor
 
         Task --> Step: successor
+
+        Decision --> java.security.Principal: actor
+
+        Decision --> Outcome: defaultOutcome
+
+        Decision --> "*" Fact: facts
+
+        Step --> "*" Outcome: availableOutcomes
+
+        Step --> java.security.Principal: actor\nowner
+
+        Step --> "*" java.io.Serializable: messageArguments
+
+        Step --> Outcome: outcome
+
+        Step --> Workflow: workflow
 
     }
 
