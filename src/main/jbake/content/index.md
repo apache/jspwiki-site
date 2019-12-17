@@ -27,7 +27,7 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
-  * **17-Dec-2019**: Official [Apache JSPWiki 2.11.0.M6][] release is out!
+  * **17-Dec-2019**: Official [Apache JSPWiki 2.11.0.M6 release][] is out!
 
   * **19-Sep-2019:** Apache JSPWiki [CVE-2019-10087][], [CVE-2019-10089][], [CVE-2019-10090][], [CVE-2019-12404][] and [CVE-2019-12407][] vulnerability disclosures
 
