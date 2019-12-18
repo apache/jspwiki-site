@@ -1,0 +1,78 @@
+@startuml
+
+    namespace org.apache.wiki.render {
+
+        class XHTMLRenderer [[XHTMLRenderer.html]] {
+            +XHTMLRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
+        class WysiwygEditingRenderer [[WysiwygEditingRenderer.html]] {
+            +WysiwygEditingRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
+        abstract class WikiRenderer [[WikiRenderer.html]] {
+            {static} +LINKS_TRANSLATION: String
+            {static} +LINKS_SOURCE: String
+            #m_context: WikiContext
+            #m_document: WikiDocument
+            #WikiRenderer(WikiContext, WikiDocument)
+            {abstract} +getString(): String
+        }
+
+        class RenderingManager [[RenderingManager.html]] {
+            {static} +DEFAULT_PARSER: String
+            {static} +DEFAULT_RENDERER: String
+            {static} +DEFAULT_WYSIWYG_RENDERER: String
+            {static} +DOCUMENTCACHE_NAME: String
+            {static} +WYSIWYG_EDITOR_MODE: String
+            {static} +VAR_EXECUTE_PLUGINS: String
+            +initialize(WikiEngine, Properties): void
+            +getParser(WikiContext, String): MarkupParser
+            #getRenderedDocument(WikiContext, String): WikiDocument
+            +getHTML(WikiContext, WikiDocument): String
+            +getRenderer(WikiContext, WikiDocument): WikiRenderer
+            +getWysiwygRenderer(WikiContext, WikiDocument): WikiRenderer
+            +getHTML(WikiContext, String): String
+            +actionPerformed(WikiEvent): void
+        }
+
+        class CustomXMLOutputProcessor [[CustomXMLOutputProcessor.html]] {
+            #attributeEscapedEntitiesFilter(Writer, FormatStack, String): void
+        }
+
+        class CreoleRenderer [[CreoleRenderer.html]] {
+            +CreoleRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
+        class CleanTextRenderer [[CleanTextRenderer.html]] {
+            +CleanTextRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
+        WikiRenderer <|-- XHTMLRenderer
+
+        WikiRenderer <|-- WysiwygEditingRenderer
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. RenderingManager
+
+        interface org.apache.wiki.modules.InternalModule
+        org.apache.wiki.modules.InternalModule <|.. RenderingManager
+
+        abstract class org.jdom2.output.support.AbstractXMLOutputProcessor
+        org.jdom2.output.support.AbstractXMLOutputProcessor <|-- CustomXMLOutputProcessor
+
+        WikiRenderer <|-- CreoleRenderer
+
+        WikiRenderer <|-- CleanTextRenderer
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

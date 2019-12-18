@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="es">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/* <a name="line.1"></a>
+<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
+<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
+<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
+<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
+<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
+<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
+<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
+<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
+<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
+<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
+<span class="sourceLineNo">017</span>    under the License.  <a name="line.17"></a>
+<span class="sourceLineNo">018</span> */<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>package org.apache.wiki.util.comparators;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.commons.lang3.StringUtils;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.Comparator;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * A comparator that sorts Strings using "human" ordering, including decimal<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * ordering. Only works for languages where every character is lexigraphically<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * distinct and correctly unicode ordered (e.g. English). Other languages should use<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;code&gt;CollatedHumanComparator&lt;/code&gt;. Pretty efficient but still slower than<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * String.compareTo().<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * <a name="line.32"></a>
+<span class="sourceLineNo">033</span> */<a name="line.33"></a>
+<span class="sourceLineNo">034</span>public class HumanComparator implements Comparator&lt; String &gt; {<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    // Constants for categorising characters and specifying category level<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    // ordering<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    public enum CharType<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        TYPE_OTHER, TYPE_DIGIT, TYPE_LETTER<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    // A special singleton instance for quick access<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    public static final Comparator&lt;String&gt; DEFAULT_HUMAN_COMPARATOR = new HumanComparator();<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>    /**<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * Returns a singleton comparator that implements the default behaviour.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * <a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @return the singleton comparator.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    public static Comparator&lt;String&gt; getInstance()<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        return DEFAULT_HUMAN_COMPARATOR;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    private CharType[] sortOrder = { CharType.TYPE_OTHER, CharType.TYPE_DIGIT, CharType.TYPE_LETTER };<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>    /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * Default constructor which does nothing. Here because it has a non-default<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * constructor.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    public HumanComparator()<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        // Empty<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * Constructor specifying all the character type order.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * <a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @param sortOrder see setSortOrder<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    public HumanComparator( CharType[] sortOrder )<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        setSortOrder( sortOrder );<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /*<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * (non-Javadoc)<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public int compare( String str1, String str2 )<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        // Some quick and easy checks<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        if( StringUtils.equals( str1, str2 ) ) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            // they're identical, possibly both null<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            return 0;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        } else if ( str1 == null ) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            // str1 is null and str2 isn't so str1 is smaller<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            return -1;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        } else if ( str2 == null ) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            // str2 is null and str1 isn't so str1 is bigger<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            return 1;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>        char[] s1 = str1.toCharArray();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        char[] s2 = str2.toCharArray();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        int len1 = s1.length;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        int len2 = s2.length;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        int idx = 0;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        // caseComparison used to defer a case sensitive comparison<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        int caseComparison = 0;<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>        while ( idx &lt; len1 &amp;&amp; idx &lt; len2 )<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            char c1 = s1[idx];<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            char c2 = s2[idx++];<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>            // Convert to lower case<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            char lc1 = Character.toLowerCase( c1 );<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            char lc2 = Character.toLowerCase( c2 );<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>            // If case makes a difference, note the difference the first time<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            // it's encountered<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            if( caseComparison == 0 &amp;&amp; c1 != c2 &amp;&amp; lc1 == lc2 )<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                if( Character.isLowerCase( c1 ) )<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                    caseComparison = 1;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                else if( Character.isLowerCase( c2 ) )<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                    caseComparison = -1;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            // Do the rest of the tests in lower case<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            c1 = lc1;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            c2 = lc2;<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>            // leading zeros are a special case<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            if( c1 != c2 || c1 == '0' )<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                // They might be different, now we can do a comparison<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                CharType type1 = mapCharTypes( c1 );<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                CharType type2 = mapCharTypes( c2 );<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>                // Do the character class check<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                int result = compareCharTypes( type1, type2 );<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                if( result != 0 )<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                    // different character classes so that's sufficient<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                    return result;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>                // If they're not digits, use character to character comparison<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                if( type1 != CharType.TYPE_DIGIT )<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                    Character ch1 = Character.valueOf( c1 );<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                    Character ch2 = Character.valueOf( c2 );<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                    return ch1.compareTo( ch2 );<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>                // The only way to get here is both characters are digits<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                assert( type1 == CharType.TYPE_DIGIT &amp;&amp; type2 == CharType.TYPE_DIGIT );<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                result = compareDigits( s1, s2, idx - 1 );<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                if( result != 0 )<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                    // Got a result so return it<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                    return result;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                }<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>                // No result yet, spin through the digits and continue trying<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                while ( idx &lt; len1 &amp;&amp; idx &lt; len2 &amp;&amp; Character.isDigit( s1[idx] ) ) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                    idx++;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>            }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>        if( len1 == len2 )<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            // identical so return any case dependency<a name="line.166"></a>
+<span class="sourceLineNo">167</span>            return caseComparison;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        }<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>        // Shorter String is less<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        return len1 - len2;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>    /**<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * Implements ordering based on broad categories (e.g. numbers are always<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * less than digits)<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * <a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * @param type1 first CharType<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     * @param type2 second CharType<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     * @return -1 if type1 &lt; type2, 0 if type1 == type2, 1 if type1 &gt; type2<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     */<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    private int compareCharTypes( CharType type1, CharType type2 )<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        if( type1 == type2 )<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            // Same type so equal<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            return 0;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        } else if( type1 == sortOrder[0] )<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            // t1 is the lowest order and t2 isn't so t1 must be less<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            return -1;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        } else if( type2 == sortOrder[0] )<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            // t2 is the lowest order and t1 isn't so t1 must be more<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            return 1;<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        } else if( type1 == sortOrder[1] )<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            // t1 is the middle order and t2 isn't so t1 must be less<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            return -1;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        } else if( type2 == sortOrder[1] )<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>            // t2 is the middle order and t1 isn't so t1 must be more<a name="line.202"></a>
+<span class="sourceLineNo">203</span>            return 1;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        } else<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>            // Can't possibly get here as that would mean they're both sortOrder[2]<a name="line.206"></a>
+<span class="sourceLineNo">207</span>            assert( type1 != type2 );<a name="line.207"></a>
+<span class="sourceLineNo">208</span>            return 0;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        }<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    }<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>    /**<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     * Do a numeric comparison on two otherwise identical char arrays.<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * <a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @param left the left hand character array.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * @param offset the index of the first digit of the number in both char<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     *            arrays.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>     * @return negative, zero or positive depending on the numeric comparison of<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     *         left and right.<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     */<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    private int compareDigits( char[] left, char[] right, int offset )<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        // Calculate the integer value of the left hand side<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        int idx = offset;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        while ( idx &lt; left.length &amp;&amp; Character.isDigit( left[idx] ) ) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>            idx++;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        int leftLen = idx - offset;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        int leftValue = Integer.valueOf( new String( left, offset, leftLen ) );<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>        // Calculate the integer value of the right hand side<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        idx = offset;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        while ( idx &lt; right.length &amp;&amp; Character.isDigit( right[idx] ) ) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            idx++;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        }<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        int rightLen = idx - offset;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        int rightValue = Integer.valueOf( new String( right, offset, rightLen ) );<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>        if( leftValue == rightValue ) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            return leftLen - rightLen; // Same value so use the lengths<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        }<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        return leftValue - rightValue; // Otherwise compare the values<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>    public CharType[] getSortOrder()<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        return sortOrder;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * Very broadly characterises a character as a digit, a letter or a punctuation character.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * <a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * @param c &lt;code&gt;char&lt;/code&gt; to be characterised<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     * @return &lt;code&gt;IS_DIGIT&lt;/code&gt; if it's a digit, &lt;code&gt;IS_LETTER&lt;/code&gt; if<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     *         it's a letter, &lt;code&gt;IS_PUNC&lt;/code&gt; otherwise.<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     */<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    private CharType mapCharTypes( char c ) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        if( Character.isDigit( c ) ) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>            return CharType.TYPE_DIGIT;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        } else if( Character.isLetter( c ) ) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            return CharType.TYPE_LETTER;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        } else {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>            return CharType.TYPE_OTHER;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        }<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    }<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>    /**<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * Set the order in which letters, numbers and everything else is presented.<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * Default is other, digits and then letters. For example, the strings<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * "abb", "a1b" and "a b" will sort in the order "a b", "a1b" then "abb" by<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     * default.<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * <a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * @param sortOrder Must be an array of &lt;code&gt;CharType&lt;/code&gt; containing<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     *            exactly 3 elements each of which must be distinct.<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * @throws IllegalArgumentException if being called on the result of<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     *             &lt;code&gt;HumanStringComparator.getInstance()&lt;/code&gt; or<a name="line.276"></a>
+<span class="sourceLineNo">277</span>     *             &lt;code&gt;sortOrder&lt;/code&gt; is not exactly 3 different<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     *             &lt;code&gt;CharType&lt;/code&gt;.<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     */<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    public void setSortOrder( CharType[] sortOrder ) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        if( this == DEFAULT_HUMAN_COMPARATOR ) {<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            throw new IllegalArgumentException( "Can't call setters on default " + HumanComparator.class.getName() );<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        }<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>        // Sanity check the sort order<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        if( sortOrder == null || sortOrder.length != 3 ) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>            throw new IllegalArgumentException( "There must be exactly three elements in the sort order" );<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        }<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        if( sortOrder[0] == sortOrder[1] || sortOrder[0] == sortOrder[2] || sortOrder[1] == sortOrder[2] ) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            throw new IllegalArgumentException( "The sort order must contain EXACTLY one of each CharType" );<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        }<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        this.sortOrder = sortOrder.clone();<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    }<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>}<a name="line.295"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

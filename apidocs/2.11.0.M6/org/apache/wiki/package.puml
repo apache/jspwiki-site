@@ -1,0 +1,418 @@
+@startuml
+
+    namespace org.apache.wiki {
+
+        class WikiSession [[WikiSession.html]] {
+            {static} +ANONYMOUS: String
+            {static} +ASSERTED: String
+            {static} +AUTHENTICATED: String
+            #isInGroup(Group): boolean
+            +isAsserted(): boolean
+            +isAuthenticated(): boolean
+            +isAnonymous(): boolean
+            +getLoginPrincipal(): Principal
+            +getUserPrincipal(): Principal
+            +getLocale(): Locale
+            +addMessage(String): void
+            +addMessage(String, String): void
+            +clearMessages(): void
+            +clearMessages(String): void
+            +getMessages(): String[]
+            +getMessages(String): String[]
+            +getPrincipals(): Principal[]
+            +getRoles(): Principal[]
+            {static} +removeWikiSession(WikiEngine, HttpServletRequest): void
+            +hasPrincipal(Principal): boolean
+            +actionPerformed(WikiEvent): void
+            +invalidate(): void
+            #injectGroupPrincipals(): void
+            #injectUserProfilePrincipals(): void
+            +getStatus(): String
+            {static} +getWikiSession(WikiEngine, HttpServletRequest): WikiSession
+            {static} +guestSession(WikiEngine): WikiSession
+            {static} +sessions(WikiEngine): int
+            {static} +userPrincipals(WikiEngine): Principal[]
+            {static} +doPrivileged(WikiSession, PrivilegedAction<?>): Object
+            {static} #isIPV4Address(String): boolean
+        }
+
+        class WikiServlet [[WikiServlet.html]] {
+            +init(ServletConfig): void
+            +destroy(): void
+            +doPost(HttpServletRequest, HttpServletResponse): void
+            +doGet(HttpServletRequest, HttpServletResponse): void
+        }
+
+        interface WikiProvider [[WikiProvider.html]] {
+            {static} +LATEST_VERSION: int
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +getProviderInfo(): String
+        }
+
+        class WikiPage [[WikiPage.html]] {
+            {static} +DESCRIPTION: String
+            {static} +ALIAS: String
+            {static} +REDIRECT: String
+            {static} +AUTHOR: String
+            {static} +CHANGENOTE: String
+            {static} +VIEWCOUNT: String
+            +WikiPage(WikiEngine, String)
+            +getName(): String
+            +getAttribute(String): Object
+            +setAttribute(String, Object): void
+            +getAttributes(): Map<String, Object>
+            +removeAttribute(String): Object
+            +getLastModified(): Date
+            +setLastModified(Date): void
+            +setVersion(int): void
+            +getVersion(): int
+            +getSize(): long
+            +setSize(long): void
+            +getAcl(): Acl
+            +setAcl(Acl): void
+            +setAuthor(String): void
+            +getAuthor(): String
+            +getWiki(): String
+            +invalidateMetadata(): void
+            +hasMetadata(): boolean
+            +setHasMetadata(): void
+            +compareTo(WikiPage): int
+        }
+
+        class WikiEngine [[WikiEngine.html]] {
+            {static} +DEFAULT_INLINEPATTERN: String
+            {static} +DEFAULT_TEMPLATE_NAME: String
+            {static} +PROP_APPNAME: String
+            {static} +PROP_INLINEIMAGEPTRN: String
+            {static} +PROP_INTERWIKIREF: String
+            {static} +PROP_STOREUSERNAME: String
+            {static} +PROP_ENCODING: String
+            {static} +PROP_NO_FILTER_ENCODING: String
+            {static} +PROP_REFSTYLE: String
+            {static} +PROP_BEAUTIFYTITLE: String
+            {static} +PROP_WORKDIR: String
+            {static} +PREFS_COOKIE_NAME: String
+            {static} +PROP_MATCHPLURALS: String
+            {static} +PROP_TEMPLATEDIR: String
+            {static} +PROP_FRONTPAGE: String
+            {static} +PROP_URLCONSTRUCTOR: String
+            {static} +PROP_RUNFILTERS: String
+            {static} +PROP_ACL_MANAGER_IMPL: String
+            {static} +PROP_ALLOW_CREATION_OF_EMPTY_PAGES: String
+            +WikiEngine(Properties)
+            #WikiEngine(ServletContext, String, Properties)
+            {static} +getInstance(ServletConfig): WikiEngine
+            {static} +getInstance(ServletConfig, Properties): WikiEngine
+            {static} +getInstance(ServletContext, Properties): WikiEngine
+            +initReferenceManager(): void
+            +getWikiProperties(): Properties
+            +getWorkDir(): String
+            +getTemplateDir(): String
+            +getTemplateManager(): TemplateManager
+            +getBaseURL(): String
+            +getStartTime(): Date
+            +getViewURL(String): String
+            +getURL(String, String, String, boolean): String
+            +getFrontPage(): String
+            +getServletContext(): ServletContext
+            +getInterWikiURL(String): String
+            +getAllInterWikiLinks(): Collection<String>
+            +getAllInlinedImagePatterns(): Collection<String>
+            +getSpecialPageReference(String): String
+            +getApplicationName(): String
+            +beautifyTitle(String): String
+            +beautifyTitleNoBreak(String): String
+            +pageExists(String): boolean
+            +pageExists(String, int): boolean
+            +pageExists(WikiPage): boolean
+            +getFinalPageName(String): String
+            +encodeName(String): String
+            +decodeName(String): String
+            +getContentEncoding(): Charset
+            +getWorkflowManager(): WorkflowManager
+            +getText(String): String
+            +getText(String, int): String
+            +getText(WikiContext, WikiPage): String
+            +getPureText(String, int): String
+            +getPureText(WikiPage): String
+            +getHTML(WikiContext, WikiPage): String
+            +getHTML(String): String
+            +getHTML(String, int): String
+            +textToHTML(WikiContext, String): String
+            #shutdown(): void
+            +scanWikiLinks(WikiPage, String): Collection<String>
+            +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator): String
+            +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator, StringTransmutator): String
+            +updateReferences(WikiPage): void
+            +saveText(WikiContext, String): void
+            +getPageCount(): int
+            +getCurrentProvider(): String
+            +getCurrentProviderInfo(): String
+            +getPage(String): WikiPage
+            +getPage(String, int): WikiPage
+            +getVersionHistory(String): List<?>
+            +getDiff(WikiContext, int, int): String
+            +getRenderingManager(): RenderingManager
+            +getPluginManager(): T
+            +getVariable(WikiContext, String): String
+            +getPageManager(): PageManager
+            +getCommandResolver(): CommandResolver
+            +getAttachmentManager(): AttachmentManager
+            +getAuthorizationManager(): AuthorizationManager
+            +getAuthenticationManager(): AuthenticationManager
+            +getFilterManager(): T
+            +getSearchManager(): SearchManager
+            +getProgressManager(): ProgressManager
+            +getRedirectURL(WikiContext): String
+            +createContext(HttpServletRequest, String): WikiContext
+            +deletePage(String): void
+            +deleteVersion(WikiPage): void
+            +getGlobalRSSURL(): String
+            +getRootPath(): String
+            +getURLConstructor(): URLConstructor
+            +getRSSGenerator(): RSSGenerator
+            +renamePage(WikiContext, String, String, boolean): String
+            +getPageRenamer(): PageRenamer
+            +getUserManager(): UserManager
+            +getTasksManager(): TasksManager
+            +getGroupManager(): GroupManager
+            +getAdminBeanManager(): AdminBeanManager
+            +getAclManager(): AclManager
+            +getDifferenceManager(): DifferenceManager
+            +getEditorManager(): EditorManager
+            +getInternationalizationManager(): InternationalizationManager
+            +addWikiEventListener(WikiEventListener): void
+            +removeWikiEventListener(WikiEventListener): void
+            #fireEvent(int): void
+            #firePageEvent(int, String): void
+            #firePageRenameEvent(String, String): void
+            +setAttribute(String, Object): void
+            +getAttribute(String): Object
+            +removeAttribute(String): Object
+        }
+
+        class WikiContext [[WikiContext.html]] {
+            {static} +INSTALL: String
+            {static} +VIEW: String
+            {static} +WORKFLOW: String
+            {static} +EDIT: String
+            {static} +LOGIN: String
+            {static} +LOGOUT: String
+            {static} +MESSAGE: String
+            {static} +DIFF: String
+            {static} +INFO: String
+            {static} +PREVIEW: String
+            {static} +CONFLICT: String
+            {static} +ERROR: String
+            {static} +UPLOAD: String
+            {static} +COMMENT: String
+            {static} +FIND: String
+            {static} +CREATE_GROUP: String
+            {static} +DELETE_GROUP: String
+            {static} +EDIT_GROUP: String
+            {static} +VIEW_GROUP: String
+            {static} +PREFS: String
+            {static} +RENAME: String
+            {static} +DELETE: String
+            {static} +ATTACH: String
+            {static} +RSS: String
+            {static} +NONE: String
+            {static} +OTHER: String
+            {static} +ADMIN: String
+            #m_request: HttpServletRequest
+            +WikiContext(WikiEngine, WikiPage)
+            +WikiContext(WikiEngine, HttpServletRequest, Command)
+            +WikiContext(WikiEngine, HttpServletRequest, WikiPage)
+            +getContentTemplate(): String
+            +getJSP(): String
+            +getRedirectURL(): String
+            +getRequestContext(): String
+            +setRequestContext(String): void
+            +getTarget(): Object
+            +getURLPattern(): String
+            +getVariable(String): Object
+            +setVariable(String, Object): void
+            +getBooleanWikiProperty(String, boolean): boolean
+            +getHttpParameter(String): String
+            +getHttpRequest(): HttpServletRequest
+            +setTemplate(String): void
+            +getName(): String
+            +getTemplate(): String
+            +getCurrentUser(): Principal
+            +getViewURL(String): String
+            +getURL(String, String): String
+            +getURL(String, String, String): String
+            +deepClone(): WikiContext
+            {static} +findContext(PageContext): WikiContext
+            +requiredPermission(): Permission
+            +targetedCommand(Object): Command
+            +hasAdminPermissions(): boolean
+            #setDefaultTemplate(HttpServletRequest): void
+            {static} #findCommand(WikiEngine, HttpServletRequest, WikiPage): Command
+            #updateCommand(String): void
+        }
+
+        abstract class WikiBackgroundThread [[WikiBackgroundThread.html]] {
+            +WikiBackgroundThread(WikiEngine, int)
+            +actionPerformed(WikiEvent): void
+            +shutdown(): void
+            +run(): void
+            +shutdownTask(): void
+            +startupTask(): void
+            {abstract} +backgroundTask(): void
+        }
+
+        class WatchDog [[WatchDog.html]] {
+            +WatchDog(WikiEngine, Watchable)
+            +WatchDog(WikiEngine, Thread)
+            {static} +getCurrentWatchDog(WikiEngine): WatchDog
+            +enable(): void
+            +disable(): void
+            +enterState(String): void
+            +enterState(String, int): void
+            +exitState(): void
+            +exitState(String): void
+            +isStateStackNotEmpty(): boolean
+            +isWatchableAlive(): boolean
+        }
+
+        interface Watchable [[Watchable.html]] {
+            {abstract} +timeoutExceeded(String): void
+            {abstract} +getName(): String
+            {abstract} +isAlive(): boolean
+        }
+
+        class VariableManager [[VariableManager.html]] {
+            {static} +VAR_ERROR: String
+            {static} +VAR_MSG: String
+            +VariableManager(Properties)
+            +parseAndGetValue(WikiContext, String): String
+            +expandVariables(WikiContext, String): String
+            +getValue(WikiContext, String, String): String
+            +getValue(WikiContext, String): String
+        }
+
+        class TranslationsCheck [[TranslationsCheck.html]] {
+            {static} +main(String[]): void
+            {static} +diff(String, String): Map<String, Integer>
+            {static} +detectDuplicates(String): int
+        }
+
+        interface StringTransmutator [[StringTransmutator.html]] {
+            {abstract} +mutate(WikiContext, String): String
+        }
+
+        class Release [[Release.html]] {
+            {static} +APPNAME: String
+            {static} +VERSION: int
+            {static} +REVISION: int
+            {static} +MINORREVISION: int
+            {static} +BUILD: String
+            {static} +VERSTR: String
+            {static} +getVersionString(): String
+            {static} +isNewerOrEqual(String): boolean
+            {static} +isOlderOrEqual(String): boolean
+            {static} +main(String[]): void
+        }
+
+        class ReferenceManager [[ReferenceManager.html]] {
+            +ReferenceManager(WikiEngine)
+            +initialize(Collection<WikiPage>): void
+            +postSave(WikiContext, String): void
+            +pageRemoved(WikiPage): void
+            +updateReferences(String, Collection<String>): void
+            #getRefersTo(): Map<String, Collection<String>>
+            #getReferredBy(): Map<String, Set<String>>
+            +clearPageEntries(String): void
+            +findUnreferenced(): Collection<String>
+            +findUncreated(): Collection<String>
+            +findReferrers(String): Set<String>
+            +findReferredBy(String): Set<String>
+            +findRefersTo(String): Collection<String>
+            +deepHashCode(): int
+            +findCreated(): Set<String>
+            +actionPerformed(WikiEvent): void
+        }
+
+        class LinkCollector [[LinkCollector.html]] {
+            +getLinks(): List<String>
+            +mutate(WikiContext, String): String
+        }
+
+        class InternalWikiException [[InternalWikiException.html]] {
+            +InternalWikiException(String)
+            +InternalWikiException(String, Throwable)
+            +InternalWikiException(Throwable)
+        }
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. WikiSession
+
+        abstract class javax.servlet.http.HttpServlet
+        javax.servlet.http.HttpServlet <|-- WikiServlet
+
+        interface java.lang.Cloneable
+        java.lang.Cloneable <|.. WikiPage
+
+        interface java.lang.Comparable<T> {
+            {abstract} +compareTo(T): int
+        }
+        java.lang.Comparable <|.. WikiPage
+
+        java.lang.Cloneable <|.. WikiContext
+
+        interface org.apache.wiki.ui.Command {
+            {abstract} +targetedCommand(Object): Command
+            {abstract} +getContentTemplate(): String
+            {abstract} +getJSP(): String
+            {abstract} +getName(): String
+            {abstract} +getRequestContext(): String
+            {abstract} +requiredPermission(): Permission
+            {abstract} +getTarget(): Object
+            {abstract} +getURLPattern(): String
+        }
+        org.apache.wiki.ui.Command <|.. WikiContext
+
+        class java.lang.Thread
+        java.lang.Thread <|-- WikiBackgroundThread
+
+        org.apache.wiki.event.WikiEventListener <|.. WikiBackgroundThread
+
+        class org.apache.wiki.api.filters.BasicPageFilter
+        org.apache.wiki.api.filters.BasicPageFilter <|-- ReferenceManager
+
+        interface org.apache.wiki.modules.InternalModule
+        org.apache.wiki.modules.InternalModule <|.. ReferenceManager
+
+        org.apache.wiki.event.WikiEventListener <|.. ReferenceManager
+
+        StringTransmutator <|.. LinkCollector
+
+        class java.lang.RuntimeException
+        java.lang.RuntimeException <|-- InternalWikiException
+
+        WikiEngine --> "*" WikiPage: recentChanges
+
+        WikiEngine --> ReferenceManager: referenceManager
+
+        WikiEngine --> VariableManager: variableManager
+
+        WikiEngine --> WatchDog: currentWatchDog
+
+        WikiContext --> WikiPage: realPage\npage
+
+        WikiContext --> WikiEngine: engine
+
+        WikiContext --> org.apache.wiki.ui.Command: command
+
+        WikiContext --> WikiSession: wikiSession
+
+        WikiBackgroundThread --> WikiEngine: engine
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

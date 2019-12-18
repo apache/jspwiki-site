@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="es">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
+<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
+<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
+<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
+<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
+<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
+<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
+<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
+<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
+<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
+<span class="sourceLineNo">017</span>    under the License.    <a name="line.17"></a>
+<span class="sourceLineNo">018</span> */<a name="line.18"></a>
+<span class="sourceLineNo">019</span>package org.apache.wiki.api.engine;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.io.IOException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Collection;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.Map;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.ResourceBundle;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.oro.text.regex.Pattern;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.wiki.WikiContext;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.wiki.api.exceptions.PluginException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.wiki.api.plugin.WikiPlugin;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.wiki.modules.WikiModuleInfo;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.wiki.plugin.DefaultPluginManager.WikiPluginInfo;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>public interface PluginManager {<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    /** The property name defining which packages will be searched for plugin classes. */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    String PROP_SEARCHPATH = "jspwiki.plugin.searchPath";<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>    /** The property name defining which external jars will be added to the classpath when searching for plugin classes. */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    String PROP_EXTERNALJARS = "jspwiki.plugin.externalJars";<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    /** This is the default package to try in case the instantiation fails. */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    String DEFAULT_PACKAGE = "org.apache.wiki.plugin";<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     *  The name of the body content.  Current value is "_body".<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    String PARAM_BODY      = "_body";<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /** The name of the command line content parameter. The value is "_cmdline". */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    String PARAM_CMDLINE   = "_cmdline";<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     *  The name of the parameter containing the start and end positions in the<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *  read stream of the plugin text (stored as a two-element int[], start<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *  and end resp.).<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    String PARAM_BOUNDS    = "_bounds";<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /** A special name to be used in case you want to see debug output */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    String PARAM_DEBUG     = "debug";<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * Enables or disables plugin execution.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * <a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * @param enabled True, if plugins should be globally enabled; false, if disabled.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    void enablePlugins( boolean enabled );<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Returns plugin execution status. If false, plugins are not<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * executed when they are encountered on a WikiPage, and an<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * empty string is returned in their place.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * <a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @return True, if plugins are enabled; false otherwise.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    boolean pluginsEnabled();<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    <a name="line.78"></a>
+<span class="sourceLineNo">079</span>    /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * Returns plugin insert pattern.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * <a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @return plugin insert pattern.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    Pattern getPluginPattern();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    <a name="line.85"></a>
+<span class="sourceLineNo">086</span>    /**<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * Returns plugins' search path.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * <a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * @return plugins' search path.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    String getPluginSearchPath();<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *  Executes a plugin class in the given context.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *  &lt;P&gt;Used to be private, but is public since 1.9.21.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     *  @param context The current WikiContext.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     *  @param classname The name of the class.  Can also be a<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     *  shortened version without the package name, since the class name is searched from the<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     *  package search path.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     *  @param params A parsed map of key-value pairs.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *  @return Whatever the plugin returns.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     *<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     *  @throws PluginException If the plugin execution failed for<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     *  some reason.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     *  @since 2.0<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    String execute( WikiContext context, String classname, Map&lt; String, String &gt; params ) throws PluginException;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     *  Parses plugin arguments.  Handles quotes and all other kewl stuff.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     *<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *  &lt;h3&gt;Special parameters&lt;/h3&gt;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     *  The plugin body is put into a special parameter defined by {@link #PARAM_BODY};<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     *  the plugin's command line into a parameter defined by {@link #PARAM_CMDLINE};<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     *  and the bounds of the plugin within the wiki page text by a parameter defined<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     *  by {@link #PARAM_BOUNDS}, whose value is stored as a two-element int[] array,<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     *  i.e., &lt;tt&gt;[start,end]&lt;/tt&gt;.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @param argstring The argument string to the plugin.  This is<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     *  typically a list of key-value pairs, using "'" to escape<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     *  spaces in strings, followed by an empty line and then the<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     *  plugin body.  In case the parameter is null, will return an<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *  empty parameter list.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @return A parsed list of parameters.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     *<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @throws IOException If the parsing fails.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    Map&lt; String, String &gt; parseArgs( String argstring ) throws IOException;<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>    /**<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     *  Parses a plugin.  Plugin commands are of the form:<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *  [{INSERT myplugin WHERE param1=value1, param2=value2}]<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     *  myplugin may either be a class name or a plugin alias.<a name="line.138"></a>
+<span class="sourceLineNo">139</span>     *  &lt;P&gt;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *  This is the main entry point that is used.<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     *<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *  @param context The current WikiContext.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *  @param commandline The full command line, including plugin<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *  name, parameters and body.<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     *<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     *  @return HTML as returned by the plugin, or possibly an error<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     *  message.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     *  <a name="line.148"></a>
+<span class="sourceLineNo">149</span>     *  @throws PluginException From the plugin itself, it propagates, waah!<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     */<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    String execute( WikiContext context, String commandline ) throws PluginException;<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    /**<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * Returns a collection of modules currently managed by this ModuleManager.  Each<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * entry is an instance of the {@link WikiModuleInfo} class.  This method should return something<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * which is safe to iterate over, even if the underlying collection changes.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * <a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * @return A Collection of {@link WikiModuleInfo} instances.<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    Collection&lt; WikiModuleInfo &gt; modules();<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>    /**<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * Returns the {@link WikiPluginInfo} information about the provided pluginName.<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     * @param pluginName<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * @return The wikiPluginInfo<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     */<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    WikiPluginInfo getModuleInfo(String pluginName);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    <a name="line.168"></a>
+<span class="sourceLineNo">169</span>    /**<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * Creates a {@link WikiPlugin}.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * <a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * @param pluginName plugin's classname<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * @param rb {@link ResourceBundle} with i18ned text for exceptions.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     * @return a {@link WikiPlugin}.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * @throws PluginException if there is a problem building the {@link WikiPlugin}.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    WikiPlugin newWikiPlugin( String pluginName, ResourceBundle rb ) throws PluginException;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    <a name="line.178"></a>
+<span class="sourceLineNo">179</span>}<a name="line.179"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+@startuml
+
+    namespace org.apache.wiki.providers {
+
+        interface WikiPageProvider [[WikiPageProvider.html]] {
+            {abstract} +putPageText(WikiPage, String): void
+            {abstract} +pageExists(String): boolean
+            {abstract} +pageExists(String, int): boolean
+            {abstract} +findPages(QueryItem[]): Collection<SearchResult>
+            {abstract} +getPageInfo(String, int): WikiPage
+            {abstract} +getAllPages(): Collection<WikiPage>
+            {abstract} +getAllChangedSince(Date): Collection<WikiPage>
+            {abstract} +getPageCount(): int
+            {abstract} +getVersionHistory(String): List<WikiPage>
+            {abstract} +getPageText(String, int): String
+            {abstract} +deleteVersion(String, int): void
+            {abstract} +deletePage(String): void
+            {abstract} +movePage(String, String): void
+        }
+
+        interface WikiAttachmentProvider [[WikiAttachmentProvider.html]] {
+            {abstract} +putAttachmentData(Attachment, InputStream): void
+            {abstract} +getAttachmentData(Attachment): InputStream
+            {abstract} +listAttachments(WikiPage): List<Attachment>
+            {abstract} +findAttachments(QueryItem[]): Collection<Attachment>
+            {abstract} +listAllChanged(Date): List<Attachment>
+            {abstract} +getAttachmentInfo(WikiPage, String, int): Attachment
+            {abstract} +getVersionHistory(Attachment): List<Attachment>
+            {abstract} +deleteVersion(Attachment): void
+            {abstract} +deleteAttachment(Attachment): void
+            {abstract} +moveAttachmentsForPage(String, String): void
+        }
+
+        interface VersioningProvider [[VersioningProvider.html]] {
+            {abstract} +pageExists(String, int): boolean
+        }
+
+        class VersioningFileProvider [[VersioningFileProvider.html]] {
+            {static} +PAGEDIR: String
+            {static} +PROPERTYFILE: String
+            +initialize(WikiEngine, Properties): void
+            +getPageText(String, int): String
+            +putPageText(WikiPage, String): void
+            +getPageInfo(String, int): WikiPage
+            +pageExists(String, int): boolean
+            +getVersionHistory(String): List<WikiPage>
+            +deletePage(String): void
+            +deleteVersion(String, int): void
+            +getAllPages(): Collection<WikiPage>
+            +getProviderInfo(): String
+            +movePage(String, String): void
+        }
+
+        class RepositoryModifiedException [[RepositoryModifiedException.html]] {
+            #m_page: String
+            +RepositoryModifiedException(String, String)
+            +getPageName(): String
+        }
+
+        class NoSuchVersionException [[NoSuchVersionException.html]] {
+            +NoSuchVersionException(String)
+        }
+
+        class FileSystemProvider [[FileSystemProvider.html]] {
+            {static} +PROP_EXT: String
+            +putPageText(WikiPage, String): void
+            +getPageInfo(String, int): WikiPage
+            +deletePage(String): void
+            +movePage(String, String): void
+        }
+
+        interface FastSearch [[FastSearch.html]] {
+        }
+
+        class CachingProvider [[CachingProvider.html]] {
+            {static} +CACHE_NAME: String
+            {static} +TEXTCACHE_NAME: String
+            {static} +HISTORYCACHE_NAME: String
+            {static} +DEFAULT_CACHECAPACITY: int
+            {static} +DEFAULT_CACHETIMETOLIVESECONDS: int
+            {static} +DEFAULT_CACHETIMETOIDLESECONDS: int
+            +initialize(WikiEngine, Properties): void
+            +pageExists(String, int): boolean
+            +pageExists(String): boolean
+            +getPageText(String, int): String
+            +putPageText(WikiPage, String): void
+            +getAllPages(): Collection<WikiPage>
+            +getAllChangedSince(Date): Collection<WikiPage>
+            +getPageCount(): int
+            +findPages(QueryItem[]): Collection<SearchResult>
+            +getPageInfo(String, int): WikiPage
+            +getVersionHistory(String): List<WikiPage>
+            +getProviderInfo(): String
+            +deleteVersion(String, int): void
+            +deletePage(String): void
+            +movePage(String, String): void
+        }
+
+        class CachingAttachmentProvider [[CachingAttachmentProvider.html]] {
+            {static} +m_capacity: int
+            {static} +ATTCOLLCACHE_NAME: String
+            {static} +ATTCACHE_NAME: String
+            {static} +DIR_EXTENSION: String
+            {static} +PROP_STORAGEDIR: String
+            +initialize(WikiEngine, Properties): void
+            +putAttachmentData(Attachment, InputStream): void
+            +getAttachmentData(Attachment): InputStream
+            +listAttachments(WikiPage): List<Attachment>
+            +findAttachments(QueryItem[]): Collection<Attachment>
+            +listAllChanged(Date): List<Attachment>
+            +getAttachmentInfo(WikiPage, String, int): Attachment
+            +getVersionHistory(Attachment): List<Attachment>
+            +deleteVersion(Attachment): void
+            +deleteAttachment(Attachment): void
+            +getProviderInfo(): String
+            +moveAttachmentsForPage(String, String): void
+        }
+
+        class BasicAttachmentProvider [[BasicAttachmentProvider.html]] {
+            {static} +PROP_STORAGEDIR: String
+            {static} +PROP_DISABLECACHE: String
+            {static} +PROPERTY_FILE: String
+            {static} +DIR_EXTENSION: String
+            {static} +ATTDIR_EXTENSION: String
+            +initialize(WikiEngine, Properties): void
+            {static} #getFileExtension(String): String
+            +putAttachmentData(Attachment, InputStream): void
+            +getProviderInfo(): String
+            +getAttachmentData(Attachment): InputStream
+            +listAttachments(WikiPage): List<Attachment>
+            +findAttachments(QueryItem[]): Collection<Attachment>
+            +listAllChanged(Date): List<Attachment>
+            +getAttachmentInfo(WikiPage, String, int): Attachment
+            +getVersionHistory(Attachment): List<Attachment>
+            +deleteVersion(Attachment): void
+            +deleteAttachment(Attachment): void
+            +moveAttachmentsForPage(String, String): void
+        }
+
+        class org.apache.wiki.providers.BasicAttachmentProvider.AttachmentFilter [[BasicAttachmentProvider.AttachmentFilter.html]] {
+            +accept(File, String): boolean
+        }
+
+        class org.apache.wiki.providers.BasicAttachmentProvider.AttachmentVersionFilter [[BasicAttachmentProvider.AttachmentVersionFilter.html]] {
+            +accept(File, String): boolean
+        }
+
+        abstract class AbstractFileProvider [[AbstractFileProvider.html]] {
+            {static} +PROP_CUSTOMPROP_MAXLIMIT: String
+            {static} +PROP_CUSTOMPROP_MAXKEYLENGTH: String
+            {static} +PROP_CUSTOMPROP_MAXVALUELENGTH: String
+            {static} +DEFAULT_MAX_PROPLIMIT: int
+            {static} +DEFAULT_MAX_PROPKEYLENGTH: int
+            {static} +DEFAULT_MAX_PROPVALUELENGTH: int
+            {static} +MAX_PROPLIMIT: int
+            {static} +MAX_PROPKEYLENGTH: int
+            {static} +MAX_PROPVALUELENGTH: int
+            {static} +PROP_PAGEDIR: String
+            {static} +FILE_EXT: String
+            {static} +DEFAULT_ENCODING: String
+            #m_encoding: String
+            #m_engine: WikiEngine
+            +initialize(WikiEngine, Properties): void
+            #mangleName(String): String
+            #unmangleName(String): String
+            #findPage(String): File
+            +pageExists(String): boolean
+            +pageExists(String, int): boolean
+            +getPageText(String, int): String
+            +putPageText(WikiPage, String): void
+            +getAllPages(): Collection<WikiPage>
+            +getAllChangedSince(Date): Collection<WikiPage>
+            +getPageCount(): int
+            +findPages(QueryItem[]): Collection<SearchResult>
+            +getPageInfo(String, int): WikiPage
+            +getVersionHistory(String): List<WikiPage>
+            +getProviderInfo(): String
+            +deleteVersion(String, int): void
+            +deletePage(String): void
+            #setCustomProperties(WikiPage, Properties): void
+            #getCustomProperties(WikiPage, Properties): void
+            #addCustomProperties(WikiPage, Properties): Properties
+            #validateCustomPageProperties(Properties): void
+        }
+
+        class org.apache.wiki.providers.AbstractFileProvider.WikiFileFilter [[AbstractFileProvider.WikiFileFilter.html]] {
+            +accept(File, String): boolean
+        }
+
+        interface org.apache.wiki.WikiProvider {
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +getProviderInfo(): String
+        }
+        org.apache.wiki.WikiProvider <|.. WikiPageProvider
+
+        org.apache.wiki.WikiProvider <|.. WikiAttachmentProvider
+
+        AbstractFileProvider <|-- VersioningFileProvider
+
+        class org.apache.wiki.api.exceptions.ProviderException
+        org.apache.wiki.api.exceptions.ProviderException <|-- RepositoryModifiedException
+
+        org.apache.wiki.api.exceptions.ProviderException <|-- NoSuchVersionException
+
+        AbstractFileProvider <|-- FileSystemProvider
+
+        WikiPageProvider <|.. CachingProvider
+
+        WikiAttachmentProvider <|.. CachingAttachmentProvider
+
+        WikiAttachmentProvider <|.. BasicAttachmentProvider
+
+        interface java.io.FilenameFilter {
+            {abstract} +accept(File, String): boolean
+        }
+        java.io.FilenameFilter <|.. org.apache.wiki.providers.BasicAttachmentProvider.AttachmentFilter
+
+        BasicAttachmentProvider +-- org.apache.wiki.providers.BasicAttachmentProvider.AttachmentFilter
+
+        java.io.FilenameFilter <|.. org.apache.wiki.providers.BasicAttachmentProvider.AttachmentVersionFilter
+
+        BasicAttachmentProvider +-- org.apache.wiki.providers.BasicAttachmentProvider.AttachmentVersionFilter
+
+        WikiPageProvider <|.. AbstractFileProvider
+
+        java.io.FilenameFilter <|.. org.apache.wiki.providers.AbstractFileProvider.WikiFileFilter
+
+        AbstractFileProvider +-- org.apache.wiki.providers.AbstractFileProvider.WikiFileFilter
+
+        CachingProvider --> WikiPageProvider: realProvider
+
+        CachingAttachmentProvider --> WikiAttachmentProvider: realProvider
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml
