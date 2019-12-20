@@ -27,462 +27,405 @@
 <span class="sourceLineNo">019</span><a name="line.19"></a>
 <span class="sourceLineNo">020</span>package org.apache.wiki.diff;<a name="line.20"></a>
 <span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>import java.io.IOException;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import java.util.ArrayList;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import java.util.List;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import java.util.Properties;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import java.util.StringTokenizer;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.log4j.Logger;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.WikiContext;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.WikiEngine;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.api.exceptions.NoRequiredPropertyException;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.util.TextUtil;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.suigeneris.jrcs.diff.Diff;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.suigeneris.jrcs.diff.DifferentiationFailedException;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.suigeneris.jrcs.diff.Revision;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.suigeneris.jrcs.diff.RevisionVisitor;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.suigeneris.jrcs.diff.delta.AddDelta;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.suigeneris.jrcs.diff.delta.ChangeDelta;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.suigeneris.jrcs.diff.delta.Chunk;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import org.suigeneris.jrcs.diff.delta.DeleteDelta;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import org.suigeneris.jrcs.diff.delta.Delta;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import org.suigeneris.jrcs.diff.myers.MyersDiff;<a name="line.42"></a>
+<span class="sourceLineNo">022</span>import org.apache.log4j.Logger;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.wiki.WikiContext;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.wiki.WikiEngine;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.wiki.api.exceptions.NoRequiredPropertyException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.wiki.util.TextUtil;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.suigeneris.jrcs.diff.Diff;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.suigeneris.jrcs.diff.DifferentiationFailedException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.suigeneris.jrcs.diff.Revision;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.suigeneris.jrcs.diff.RevisionVisitor;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.suigeneris.jrcs.diff.delta.AddDelta;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.suigeneris.jrcs.diff.delta.ChangeDelta;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.suigeneris.jrcs.diff.delta.Chunk;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.suigeneris.jrcs.diff.delta.DeleteDelta;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.suigeneris.jrcs.diff.delta.Delta;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.suigeneris.jrcs.diff.myers.MyersDiff;<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.io.IOException;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import java.util.ArrayList;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import java.util.List;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.util.Properties;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.util.StringTokenizer;<a name="line.42"></a>
 <span class="sourceLineNo">043</span><a name="line.43"></a>
 <span class="sourceLineNo">044</span><a name="line.44"></a>
 <span class="sourceLineNo">045</span>/**<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * A seriously better diff provider, which highlights changes word-by-word using<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * CSS.<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * Suggested by John Volkar.<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *<a name="line.50"></a>
-<span class="sourceLineNo">051</span> */<a name="line.51"></a>
-<span class="sourceLineNo">052</span>public class ContextualDiffProvider implements DiffProvider {<a name="line.52"></a>
+<span class="sourceLineNo">046</span> * A seriously better diff provider, which highlights changes word-by-word using CSS.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Suggested by John Volkar.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>public class ContextualDiffProvider implements DiffProvider {<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    private static final Logger log = Logger.getLogger( ContextualDiffProvider.class );<a name="line.52"></a>
 <span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    private static final Logger log = Logger.getLogger( ContextualDiffProvider.class );<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     *  A jspwiki.properties value to define how many characters are shown around the change context.<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     *  The current value is &lt;tt&gt;{@value}&lt;/tt&gt;.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public static final String PROP_UNCHANGED_CONTEXT_LIMIT = "jspwiki.contextualDiffProvider.unchangedContextLimit";<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>    //TODO all of these publics can become jspwiki.properties entries...<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    //TODO span title= can be used to get hover info...<a name="line.63"></a>
+<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *  A jspwiki.properties value to define how many characters are shown around the change context.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *  The current value is &lt;tt&gt;{@value}&lt;/tt&gt;.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public static final String PROP_UNCHANGED_CONTEXT_LIMIT = "jspwiki.contextualDiffProvider.unchangedContextLimit";<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    //TODO all of these publics can become jspwiki.properties entries...<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    //TODO span title= can be used to get hover info...<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    public boolean m_emitChangeNextPreviousHyperlinks = true;<a name="line.63"></a>
 <span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    public boolean m_emitChangeNextPreviousHyperlinks = true;<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    //Don't use spans here the deletion and insertions are nested in this...<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    public String m_changeStartHtml    = ""; //This could be a image '&gt;' for a start marker<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    public String m_changeEndHtml      = ""; //and an image for an end '&lt;' marker<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public String m_diffStart          = "&lt;div class=\"diff-wikitext\"&gt;";<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    public String m_diffEnd            = "&lt;/div&gt;";<a name="line.71"></a>
+<span class="sourceLineNo">065</span>    //Don't use spans here the deletion and insertions are nested in this...<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public static String CHANGE_START_HTML = ""; //This could be a image '&gt;' for a start marker<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    public static String CHANGE_END_HTML = ""; //and an image for an end '&lt;' marker<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    public static String DIFF_START = "&lt;div class=\"diff-wikitext\"&gt;";<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    public static String DIFF_END = "&lt;/div&gt;";<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    // Unfortunately we need to do dumb HTML here for RSS feeds.<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>    // Unfortunately we need to do dumb HTML here for RSS feeds.<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    public String m_insertionStartHtml = "&lt;font color=\"#8000FF\"&gt;&lt;span class=\"diff-insertion\"&gt;";<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    public String m_insertionEndHtml   = "&lt;/span&gt;&lt;/font&gt;";<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    public String m_deletionStartHtml  = "&lt;strike&gt;&lt;font color=\"red\"&gt;&lt;span class=\"diff-deletion\"&gt;";<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    public String m_deletionEndHtml    = "&lt;/span&gt;&lt;/font&gt;&lt;/strike&gt;";<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    private String m_anchorPreIndex    = "&lt;a name=\"change-";<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    private String m_anchorPostIndex   = "\" /&gt;";<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    private String m_backPreIndex      = "&lt;a class=\"diff-nextprev\" title=\"Go to previous change\" href=\"#change-";<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    private String m_backPostIndex     = "\"&gt;&amp;lt;&amp;lt;&lt;/a&gt;";<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    private String m_forwardPreIndex   = "&lt;a class=\"diff-nextprev\" title=\"Go to next change\" href=\"#change-";<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    private String m_forwardPostIndex  = "\"&gt;&amp;gt;&amp;gt;&lt;/a&gt;";<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public String m_elidedHeadIndicatorHtml = "&lt;br/&gt;&lt;br/&gt;&lt;b&gt;...&lt;/b&gt;";<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    public String m_elidedTailIndicatorHtml = "&lt;b&gt;...&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;";<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    public String m_lineBreakHtml = "&lt;br /&gt;";<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    public String m_alternatingSpaceHtml = "&amp;nbsp;";<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    // This one, I will make property file based...<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    private static final int LIMIT_MAX_VALUE = (Integer.MAX_VALUE /2) - 1;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    private int m_unchangedContextLimit = LIMIT_MAX_VALUE;<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>    /**<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     *  Constructs this provider.<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    public ContextualDiffProvider()<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    {}<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>    /**<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * @see org.apache.wiki.WikiProvider#getProviderInfo()<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * <a name="line.103"></a>
-<span class="sourceLineNo">104</span>     * {@inheritDoc}<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    public String getProviderInfo()<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        return "ContextualDiffProvider";<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>    /**<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * @see org.apache.wiki.WikiProvider#initialize(org.apache.wiki.WikiEngine,<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     *      java.util.Properties)<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     *      <a name="line.114"></a>
-<span class="sourceLineNo">115</span>     * {@inheritDoc}<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    public void initialize(WikiEngine engine, Properties properties) throws NoRequiredPropertyException, IOException<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        String configuredLimit = properties.getProperty(PROP_UNCHANGED_CONTEXT_LIMIT, <a name="line.119"></a>
-<span class="sourceLineNo">120</span>                                                        Integer.toString(LIMIT_MAX_VALUE));<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        int limit = LIMIT_MAX_VALUE;<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        try<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>            limit = Integer.parseInt(configuredLimit);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        catch (NumberFormatException e)<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>            log.warn("Failed to parseInt " + PROP_UNCHANGED_CONTEXT_LIMIT + "=" + configuredLimit<a name="line.128"></a>
-<span class="sourceLineNo">129</span>                + "   Will use a huge number as limit.", e);<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        m_unchangedContextLimit = limit;<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
-<span class="sourceLineNo">133</span><a name="line.133"></a>
-<span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>    /**<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * Do a colored diff of the two regions. This. is. serious. fun. ;-)<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     *<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * @see org.apache.wiki.diff.DiffProvider#makeDiffHtml(WikiContext, String, String)<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * <a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * {@inheritDoc}<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     */<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    public synchronized String makeDiffHtml( WikiContext ctx, String wikiOld, String wikiNew )<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        //<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        // Sequencing handles lineterminator to &lt;br /&gt; and every-other consequtive space to a &amp;nbsp;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        //<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        String[] alpha = sequence( TextUtil.replaceEntities( wikiOld ) );<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        String[] beta  = sequence( TextUtil.replaceEntities( wikiNew ) );<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>        Revision rev = null;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        try<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            rev = Diff.diff( alpha, beta, new MyersDiff() );<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        catch( DifferentiationFailedException dfe )<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            log.error( "Diff generation failed", dfe );<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            return "Error while creating version diff.";<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>        int revSize = rev.size();<a name="line.162"></a>
-<span class="sourceLineNo">163</span><a name="line.163"></a>
-<span class="sourceLineNo">164</span>        StringBuffer sb = new StringBuffer();<a name="line.164"></a>
+<span class="sourceLineNo">073</span>    public static String INSERTION_START_HTML = "&lt;font color=\"#8000FF\"&gt;&lt;span class=\"diff-insertion\"&gt;";<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    public static String INSERTION_END_HTML = "&lt;/span&gt;&lt;/font&gt;";<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    public static String DELETION_START_HTML = "&lt;strike&gt;&lt;font color=\"red\"&gt;&lt;span class=\"diff-deletion\"&gt;";<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    public static String DELETION_END_HTML = "&lt;/span&gt;&lt;/font&gt;&lt;/strike&gt;";<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    private static final String ANCHOR_PRE_INDEX = "&lt;a name=\"change-";<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    private static final String ANCHOR_POST_INDEX = "\" /&gt;";<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    private static final String BACK_PRE_INDEX = "&lt;a class=\"diff-nextprev\" title=\"Go to previous change\" href=\"#change-";<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    private static final String BACK_POST_INDEX = "\"&gt;&amp;lt;&amp;lt;&lt;/a&gt;";<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    private static final String FORWARD_PRE_INDEX = "&lt;a class=\"diff-nextprev\" title=\"Go to next change\" href=\"#change-";<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    private static final String FORWARD_POST_INDEX = "\"&gt;&amp;gt;&amp;gt;&lt;/a&gt;";<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    public static String ELIDED_HEAD_INDICATOR_HTML = "&lt;br/&gt;&lt;br/&gt;&lt;b&gt;...&lt;/b&gt;";<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public static String ELIDED_TAIL_INDICATOR_HTML = "&lt;b&gt;...&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;";<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    public static String LINE_BREAK_HTML = "&lt;br /&gt;";<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    public static String ALTERNATING_SPACE_HTML = "&amp;nbsp;";<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    // This one, I will make property file based...<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    private static final int LIMIT_MAX_VALUE = (Integer.MAX_VALUE /2) - 1;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    private int m_unchangedContextLimit = LIMIT_MAX_VALUE;<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *  Constructs this provider.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    public ContextualDiffProvider()<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    {}<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * @see org.apache.wiki.WikiProvider#getProviderInfo()<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     * <a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * {@inheritDoc}<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    public String getProviderInfo()<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        return "ContextualDiffProvider";<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>    /**<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * @see org.apache.wiki.WikiProvider#initialize(org.apache.wiki.WikiEngine,<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     *      java.util.Properties)<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     *      <a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * {@inheritDoc}<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    public void initialize( final WikiEngine engine, final Properties properties) throws NoRequiredPropertyException, IOException {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        final String configuredLimit = properties.getProperty( PROP_UNCHANGED_CONTEXT_LIMIT, Integer.toString( LIMIT_MAX_VALUE ) );<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        int limit = LIMIT_MAX_VALUE;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        try {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            limit = Integer.parseInt( configuredLimit );<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        } catch( final NumberFormatException e ) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            log.warn("Failed to parseInt " + PROP_UNCHANGED_CONTEXT_LIMIT + "=" + configuredLimit + " Will use a huge number as limit.", e );<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        m_unchangedContextLimit = limit;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    /**<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * Do a colored diff of the two regions. This. is. serious. fun. ;-)<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     *<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @see org.apache.wiki.diff.DiffProvider#makeDiffHtml(WikiContext, String, String)<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * <a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * {@inheritDoc}<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    public synchronized String makeDiffHtml( final WikiContext ctx, final String wikiOld, final String wikiNew ) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        //<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        // Sequencing handles lineterminator to &lt;br /&gt; and every-other consequtive space to a &amp;nbsp;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>        //<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        final String[] alpha = sequence( TextUtil.replaceEntities( wikiOld ) );<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        final String[] beta  = sequence( TextUtil.replaceEntities( wikiNew ) );<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>        final Revision rev;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        try {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            rev = Diff.diff( alpha, beta, new MyersDiff() );<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        } catch( final DifferentiationFailedException dfe ) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            log.error( "Diff generation failed", dfe );<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            return "Error while creating version diff.";<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>        final int revSize = rev.size();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        final StringBuffer sb = new StringBuffer();<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>        sb.append( DIFF_START );<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>        //<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        // The MyersDiff is a bit dumb by converting a single line multi-word diff into a series<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        // of Changes. The ChangeMerger pulls them together again...<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        //<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        final ChangeMerger cm = new ChangeMerger( sb, alpha, revSize );<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        rev.accept( cm );<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        cm.shutdown();<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        sb.append( DIFF_END );<a name="line.162"></a>
+<span class="sourceLineNo">163</span>        return sb.toString();<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
 <span class="sourceLineNo">165</span><a name="line.165"></a>
-<span class="sourceLineNo">166</span>        sb.append( m_diffStart );<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>        //<a name="line.168"></a>
-<span class="sourceLineNo">169</span>        // The MyersDiff is a bit dumb by converting a single line multi-word diff into a series<a name="line.169"></a>
-<span class="sourceLineNo">170</span>        // of Changes. The ChangeMerger pulls them together again...<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        //<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        ChangeMerger cm = new ChangeMerger( sb, alpha, revSize );<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>        rev.accept( cm );<a name="line.174"></a>
-<span class="sourceLineNo">175</span><a name="line.175"></a>
-<span class="sourceLineNo">176</span>        cm.shutdown();<a name="line.176"></a>
-<span class="sourceLineNo">177</span><a name="line.177"></a>
-<span class="sourceLineNo">178</span>        sb.append( m_diffEnd );<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>        return sb.toString();<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>    /**<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     * Take the string and create an array from it, split it first on newlines, making<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     * sure to preserve the newlines in the elements, split each resulting element on<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     * spaces, preserving the spaces.<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     *<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * All this preseving of newlines and spaces is so the wikitext when diffed will have fidelity<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     * to it's original form.  As a side affect we see edits of purely whilespace.<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     */<a name="line.190"></a>
-<span class="sourceLineNo">191</span>    private String[] sequence( String wikiText )<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        String[] linesArray = Diff.stringToArray( wikiText );<a name="line.193"></a>
-<span class="sourceLineNo">194</span><a name="line.194"></a>
-<span class="sourceLineNo">195</span>        List&lt;String&gt; list = new ArrayList&lt;String&gt;();<a name="line.195"></a>
-<span class="sourceLineNo">196</span><a name="line.196"></a>
-<span class="sourceLineNo">197</span>        for( int i = 0; i &lt; linesArray.length; i++ )<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        {<a name="line.198"></a>
-<span class="sourceLineNo">199</span>            String line = linesArray[i];<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>            String lastToken = null;<a name="line.201"></a>
-<span class="sourceLineNo">202</span>            String token = null;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>            // StringTokenizer might be discouraged but it still is perfect here...<a name="line.203"></a>
-<span class="sourceLineNo">204</span>            for (StringTokenizer st = new StringTokenizer( line, " ", true ); st.hasMoreTokens();)<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            {<a name="line.205"></a>
-<span class="sourceLineNo">206</span>                token = st.nextToken();<a name="line.206"></a>
+<span class="sourceLineNo">166</span>    /**<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * Take the string and create an array from it, split it first on newlines, making<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * sure to preserve the newlines in the elements, split each resulting element on<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * spaces, preserving the spaces.<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     *<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * All this preseving of newlines and spaces is so the wikitext when diffed will have fidelity<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * to it's original form.  As a side affect we see edits of purely whilespace.<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     */<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    private String[] sequence( final String wikiText ) {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        final String[] linesArray = Diff.stringToArray( wikiText );<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        final List&lt; String &gt; list = new ArrayList&lt;&gt;();<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        for( final String line : linesArray ) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>            String lastToken = null;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            String token;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>            // StringTokenizer might be discouraged but it still is perfect here...<a name="line.181"></a>
+<span class="sourceLineNo">182</span>            for( final StringTokenizer st = new StringTokenizer( line, " ", true ); st.hasMoreTokens(); ) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                token = st.nextToken();<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>                if( " ".equals( lastToken ) &amp;&amp; " ".equals( token ) ) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                    token = ALTERNATING_SPACE_HTML;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                }<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>                list.add( token );<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                lastToken = token;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            }<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>            list.add( LINE_BREAK_HTML ); // Line Break<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        }<a name="line.194"></a>
+<span class="sourceLineNo">195</span><a name="line.195"></a>
+<span class="sourceLineNo">196</span>        return list.toArray( new String[ 0 ] );<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>    /**<a name="line.199"></a>
+<span class="sourceLineNo">200</span>     * This helper class does the housekeeping for merging<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * our various changes down and also makes sure that the<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * whole change process is threadsafe by encapsulating<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     * all necessary variables.<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     */<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    private final class ChangeMerger implements RevisionVisitor {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        private StringBuffer m_sb;<a name="line.206"></a>
 <span class="sourceLineNo">207</span><a name="line.207"></a>
-<span class="sourceLineNo">208</span>                if(" ".equals( lastToken) &amp;&amp; " ".equals( token ))<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                    token = m_alternatingSpaceHtml;<a name="line.209"></a>
+<span class="sourceLineNo">208</span>        /** Keeping score of the original lines to process */<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        private int m_max;<a name="line.209"></a>
 <span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>                list.add(token);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>                lastToken = token;<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            }<a name="line.213"></a>
-<span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>            list.add(m_lineBreakHtml); // Line Break<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        }<a name="line.216"></a>
-<span class="sourceLineNo">217</span><a name="line.217"></a>
-<span class="sourceLineNo">218</span>        return list.toArray( new String[0] );<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    }<a name="line.219"></a>
-<span class="sourceLineNo">220</span><a name="line.220"></a>
-<span class="sourceLineNo">221</span>    /**<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     * This helper class does the housekeeping for merging<a name="line.222"></a>
-<span class="sourceLineNo">223</span>     * our various changes down and also makes sure that the<a name="line.223"></a>
-<span class="sourceLineNo">224</span>     * whole change process is threadsafe by encapsulating<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     * all necessary variables.<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     */<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    private final class ChangeMerger implements RevisionVisitor<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    {<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        private StringBuffer m_sb = null;<a name="line.229"></a>
-<span class="sourceLineNo">230</span><a name="line.230"></a>
-<span class="sourceLineNo">231</span>        /** Keeping score of the original lines to process */<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        private int m_max = -1;<a name="line.232"></a>
-<span class="sourceLineNo">233</span><a name="line.233"></a>
-<span class="sourceLineNo">234</span>        private int m_index = 0;<a name="line.234"></a>
-<span class="sourceLineNo">235</span><a name="line.235"></a>
-<span class="sourceLineNo">236</span>        /** Index of the next element to be copied into the output. */<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        private int m_firstElem = 0;<a name="line.237"></a>
+<span class="sourceLineNo">211</span>        private int m_index = 0;<a name="line.211"></a>
+<span class="sourceLineNo">212</span><a name="line.212"></a>
+<span class="sourceLineNo">213</span>        /** Index of the next element to be copied into the output. */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        private int m_firstElem = 0;<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>        /** Link Anchor counter */<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        private int m_count = 1;<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>        /** State Machine Mode */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        private int m_mode = -1; /* -1: Unset, 0: Add, 1: Del, 2: Change mode */<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>        /** Buffer to coalesce the changes together */<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        private StringBuffer m_origBuf;<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>        private StringBuffer m_newBuf;<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>        /** Reference to the source string array */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        private String[] m_origStrings;<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>        private ChangeMerger( final StringBuffer sb, final String[] origStrings, final int max ) {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>            m_sb = sb;<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            m_origStrings = origStrings != null ? origStrings.clone() : null;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            m_max = max;<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>            m_origBuf = new StringBuffer();<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            m_newBuf = new StringBuffer();<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        }<a name="line.237"></a>
 <span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>        /** Link Anchor counter */<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        private int m_count = 1;<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>        /** State Machine Mode */<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        private int m_mode = -1; /* -1: Unset, 0: Add, 1: Del, 2: Change mode */<a name="line.243"></a>
-<span class="sourceLineNo">244</span><a name="line.244"></a>
-<span class="sourceLineNo">245</span>        /** Buffer to coalesce the changes together */<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        private StringBuffer m_origBuf = null;<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>        private StringBuffer m_newBuf = null;<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>        /** Reference to the source string array */<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        private String[] m_origStrings = null;<a name="line.251"></a>
+<span class="sourceLineNo">239</span>        private void updateState( final Delta delta ) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>            m_index++;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            final Chunk orig = delta.getOriginal();<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            if( orig.first() &gt; m_firstElem ) {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                // We "skip" some lines in the output.<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                // So flush out the last Change, if one exists.<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                flushChanges();<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>                // Allow us to "skip" large swaths of unchanged text, show a "limited" amound of<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                // unchanged context so the changes are shown in<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                if( ( orig.first() - m_firstElem ) &gt; 2 * m_unchangedContextLimit ) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                    if (m_firstElem &gt; 0) {<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                        final int endIndex = Math.min( m_firstElem + m_unchangedContextLimit, m_origStrings.length -1 );<a name="line.251"></a>
 <span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>        private ChangeMerger( final StringBuffer sb, final String[] origStrings, final int max )<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>            m_sb = sb;<a name="line.255"></a>
-<span class="sourceLineNo">256</span>            m_origStrings = origStrings != null ? origStrings.clone() : null;<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            m_max = max;<a name="line.257"></a>
-<span class="sourceLineNo">258</span><a name="line.258"></a>
-<span class="sourceLineNo">259</span>            m_origBuf = new StringBuffer();<a name="line.259"></a>
-<span class="sourceLineNo">260</span>            m_newBuf = new StringBuffer();<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        }<a name="line.261"></a>
-<span class="sourceLineNo">262</span><a name="line.262"></a>
-<span class="sourceLineNo">263</span>        private void updateState( Delta delta )<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        {<a name="line.264"></a>
-<span class="sourceLineNo">265</span>            m_index++;<a name="line.265"></a>
+<span class="sourceLineNo">253</span>                        for( int j = m_firstElem; j &lt; endIndex; j++ ) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                            m_sb.append( m_origStrings[ j ] );<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                        }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>                        m_sb.append( ELIDED_TAIL_INDICATOR_HTML );<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                    }<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>                    m_sb.append( ELIDED_HEAD_INDICATOR_HTML );<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>                    final int startIndex = Math.max(orig.first() - m_unchangedContextLimit, 0);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                    for (int j = startIndex; j &lt; orig.first(); j++) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                        m_sb.append( m_origStrings[ j ] );<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                    }<a name="line.265"></a>
 <span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>            Chunk orig = delta.getOriginal();<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>            if (orig.first() &gt; m_firstElem)<a name="line.269"></a>
-<span class="sourceLineNo">270</span>            {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                // We "skip" some lines in the output.<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                // So flush out the last Change, if one exists.<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                flushChanges();<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>                // Allow us to "skip" large swaths of unchanged text, show a "limited" amound of<a name="line.275"></a>
-<span class="sourceLineNo">276</span>                // unchanged context so the changes are shown in<a name="line.276"></a>
-<span class="sourceLineNo">277</span>                if ((orig.first() - m_firstElem) &gt; 2 * m_unchangedContextLimit)<a name="line.277"></a>
-<span class="sourceLineNo">278</span>                {<a name="line.278"></a>
-<span class="sourceLineNo">279</span>                    if (m_firstElem &gt; 0)<a name="line.279"></a>
-<span class="sourceLineNo">280</span>                    {<a name="line.280"></a>
-<span class="sourceLineNo">281</span>                        int endIndex = Math.min( m_firstElem + m_unchangedContextLimit, m_origStrings.length -1 );<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>                        for (int j = m_firstElem; j &lt; endIndex; j++)<a name="line.283"></a>
-<span class="sourceLineNo">284</span>                            m_sb.append(m_origStrings[j]);<a name="line.284"></a>
-<span class="sourceLineNo">285</span><a name="line.285"></a>
-<span class="sourceLineNo">286</span>                        m_sb.append(m_elidedTailIndicatorHtml);<a name="line.286"></a>
-<span class="sourceLineNo">287</span>                    }<a name="line.287"></a>
-<span class="sourceLineNo">288</span><a name="line.288"></a>
-<span class="sourceLineNo">289</span>                    m_sb.append(m_elidedHeadIndicatorHtml);<a name="line.289"></a>
-<span class="sourceLineNo">290</span><a name="line.290"></a>
-<span class="sourceLineNo">291</span>                    int startIndex = Math.max(orig.first() - m_unchangedContextLimit, 0);<a name="line.291"></a>
-<span class="sourceLineNo">292</span>                    for (int j = startIndex; j &lt; orig.first(); j++)<a name="line.292"></a>
-<span class="sourceLineNo">293</span>                        m_sb.append(m_origStrings[j]);<a name="line.293"></a>
-<span class="sourceLineNo">294</span><a name="line.294"></a>
-<span class="sourceLineNo">295</span>                }<a name="line.295"></a>
-<span class="sourceLineNo">296</span>                else<a name="line.296"></a>
-<span class="sourceLineNo">297</span>                {<a name="line.297"></a>
-<span class="sourceLineNo">298</span>                    // No need to skip anything, just output the whole range...<a name="line.298"></a>
-<span class="sourceLineNo">299</span>                    for (int j = m_firstElem; j &lt; orig.first(); j++)<a name="line.299"></a>
-<span class="sourceLineNo">300</span>                    m_sb.append( m_origStrings[j] );<a name="line.300"></a>
-<span class="sourceLineNo">301</span>                }<a name="line.301"></a>
-<span class="sourceLineNo">302</span>            }<a name="line.302"></a>
-<span class="sourceLineNo">303</span>            m_firstElem = orig.last() + 1;<a name="line.303"></a>
-<span class="sourceLineNo">304</span>        }<a name="line.304"></a>
-<span class="sourceLineNo">305</span><a name="line.305"></a>
-<span class="sourceLineNo">306</span>        public void visit( Revision rev )<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>            // GNDN (Goes nowhere, does nothing)<a name="line.308"></a>
-<span class="sourceLineNo">309</span>        }<a name="line.309"></a>
-<span class="sourceLineNo">310</span><a name="line.310"></a>
-<span class="sourceLineNo">311</span>        public void visit( AddDelta delta )<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        {<a name="line.312"></a>
-<span class="sourceLineNo">313</span>            updateState( delta );<a name="line.313"></a>
-<span class="sourceLineNo">314</span><a name="line.314"></a>
-<span class="sourceLineNo">315</span>            // We have run Deletes up to now. Flush them out.<a name="line.315"></a>
-<span class="sourceLineNo">316</span>            if( m_mode == 1 )<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            {<a name="line.317"></a>
-<span class="sourceLineNo">318</span>                flushChanges();<a name="line.318"></a>
-<span class="sourceLineNo">319</span>                m_mode = -1;<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            }<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            // We are in "neutral mode". Start a new Change<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            if( m_mode == -1 )<a name="line.322"></a>
-<span class="sourceLineNo">323</span>            {<a name="line.323"></a>
-<span class="sourceLineNo">324</span>                m_mode = 0;<a name="line.324"></a>
+<span class="sourceLineNo">267</span>                } else {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                    // No need to skip anything, just output the whole range...<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                    for( int j = m_firstElem; j &lt; orig.first(); j++ ) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                        m_sb.append( m_origStrings[ j ] );<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                    }<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                }<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            m_firstElem = orig.last() + 1;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        }<a name="line.275"></a>
+<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">277</span>        public void visit( final Revision rev ) {<a name="line.277"></a>
+<span class="sourceLineNo">278</span>            // GNDN (Goes nowhere, does nothing)<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        }<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>        public void visit( final AddDelta delta ) {<a name="line.281"></a>
+<span class="sourceLineNo">282</span>            updateState( delta );<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>            // We have run Deletes up to now. Flush them out.<a name="line.284"></a>
+<span class="sourceLineNo">285</span>            if( m_mode == 1 ) {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                flushChanges();<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                m_mode = -1;<a name="line.287"></a>
+<span class="sourceLineNo">288</span>            }<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            // We are in "neutral mode". Start a new Change<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            if( m_mode == -1 ) {<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                m_mode = 0;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            }<a name="line.292"></a>
+<span class="sourceLineNo">293</span><a name="line.293"></a>
+<span class="sourceLineNo">294</span>            // We are in "add mode".<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            if( m_mode == 0 || m_mode == 2 ) {<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                addNew( delta.getRevised() );<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                m_mode = 1;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            }<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        }<a name="line.299"></a>
+<span class="sourceLineNo">300</span><a name="line.300"></a>
+<span class="sourceLineNo">301</span>        public void visit( final ChangeDelta delta ) {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            updateState( delta );<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>            // We are in "neutral mode". A Change might be merged with an add or delete.<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            if( m_mode == -1 ) {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                m_mode = 2;<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            }<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>            // Add the Changes to the buffers.<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            addOrig( delta.getOriginal() );<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            addNew( delta.getRevised() );<a name="line.311"></a>
+<span class="sourceLineNo">312</span>        }<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>        public void visit( final DeleteDelta delta ) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            updateState( delta );<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>            // We have run Adds up to now. Flush them out.<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            if( m_mode == 0 ) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                flushChanges();<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                m_mode = -1;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            }<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            // We are in "neutral mode". Start a new Change<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            if( m_mode == -1 ) {<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                m_mode = 1;<a name="line.324"></a>
 <span class="sourceLineNo">325</span>            }<a name="line.325"></a>
 <span class="sourceLineNo">326</span><a name="line.326"></a>
-<span class="sourceLineNo">327</span>            // We are in "add mode".<a name="line.327"></a>
-<span class="sourceLineNo">328</span>            if( m_mode == 0 || m_mode == 2 )<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            {<a name="line.329"></a>
-<span class="sourceLineNo">330</span>                addNew( delta.getRevised() );<a name="line.330"></a>
-<span class="sourceLineNo">331</span>                m_mode = 1;<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            }<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        }<a name="line.333"></a>
-<span class="sourceLineNo">334</span><a name="line.334"></a>
-<span class="sourceLineNo">335</span>        public void visit( ChangeDelta delta )<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        {<a name="line.336"></a>
-<span class="sourceLineNo">337</span>            updateState( delta );<a name="line.337"></a>
-<span class="sourceLineNo">338</span><a name="line.338"></a>
-<span class="sourceLineNo">339</span>            // We are in "neutral mode". A Change might be merged with an add or delete.<a name="line.339"></a>
-<span class="sourceLineNo">340</span>            if( m_mode == -1 )<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            {<a name="line.341"></a>
-<span class="sourceLineNo">342</span>                m_mode = 2;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            }<a name="line.343"></a>
-<span class="sourceLineNo">344</span><a name="line.344"></a>
-<span class="sourceLineNo">345</span>            // Add the Changes to the buffers.<a name="line.345"></a>
-<span class="sourceLineNo">346</span>            addOrig( delta.getOriginal() );<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            addNew( delta.getRevised() );<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        }<a name="line.348"></a>
-<span class="sourceLineNo">349</span><a name="line.349"></a>
-<span class="sourceLineNo">350</span>        public void visit( DeleteDelta delta )<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        {<a name="line.351"></a>
-<span class="sourceLineNo">352</span>            updateState( delta );<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>            // We have run Adds up to now. Flush them out.<a name="line.354"></a>
-<span class="sourceLineNo">355</span>            if( m_mode == 0 )<a name="line.355"></a>
-<span class="sourceLineNo">356</span>            {<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                flushChanges();<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                m_mode = -1;<a name="line.358"></a>
+<span class="sourceLineNo">327</span>            // We are in "delete mode".<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            if( m_mode == 1 || m_mode == 2 ) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                addOrig( delta.getOriginal() );<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                m_mode = 1;<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            }<a name="line.331"></a>
+<span class="sourceLineNo">332</span>        }<a name="line.332"></a>
+<span class="sourceLineNo">333</span><a name="line.333"></a>
+<span class="sourceLineNo">334</span>        public void shutdown() {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            m_index = m_max + 1; // Make sure that no hyperlink gets created<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            flushChanges();<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>            if( m_firstElem &lt; m_origStrings.length ) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                // If there's more than the limit of the orginal left just emit limit and elided...<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                if( ( m_origStrings.length - m_firstElem ) &gt; m_unchangedContextLimit ) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                    final int endIndex = Math.min( m_firstElem + m_unchangedContextLimit, m_origStrings.length -1 );<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                    for (int j = m_firstElem; j &lt; endIndex; j++) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                        m_sb.append( m_origStrings[ j ] );<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                    }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>                    m_sb.append( ELIDED_TAIL_INDICATOR_HTML );<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                } else {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                // emit entire tail of original...<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                    for( int j = m_firstElem; j &lt; m_origStrings.length; j++ ) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                        m_sb.append( m_origStrings[ j ] );<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                    }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                }<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        }<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>        private void addOrig( final Chunk chunk ) {<a name="line.356"></a>
+<span class="sourceLineNo">357</span>            if( chunk != null ) {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                chunk.toString( m_origBuf );<a name="line.358"></a>
 <span class="sourceLineNo">359</span>            }<a name="line.359"></a>
-<span class="sourceLineNo">360</span>            // We are in "neutral mode". Start a new Change<a name="line.360"></a>
-<span class="sourceLineNo">361</span>            if( m_mode == -1 )<a name="line.361"></a>
-<span class="sourceLineNo">362</span>            {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>                m_mode = 1;<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            }<a name="line.364"></a>
-<span class="sourceLineNo">365</span><a name="line.365"></a>
-<span class="sourceLineNo">366</span>            // We are in "delete mode".<a name="line.366"></a>
-<span class="sourceLineNo">367</span>            if( m_mode == 1 || m_mode == 2 )<a name="line.367"></a>
-<span class="sourceLineNo">368</span>            {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>                addOrig( delta.getOriginal() );<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                m_mode = 1;<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            }<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        }<a name="line.372"></a>
-<span class="sourceLineNo">373</span><a name="line.373"></a>
-<span class="sourceLineNo">374</span>        public void shutdown()<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>            m_index = m_max + 1; // Make sure that no hyperlink gets created<a name="line.376"></a>
-<span class="sourceLineNo">377</span>            flushChanges();<a name="line.377"></a>
-<span class="sourceLineNo">378</span><a name="line.378"></a>
-<span class="sourceLineNo">379</span>            if (m_firstElem &lt; m_origStrings.length)<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            {<a name="line.380"></a>
-<span class="sourceLineNo">381</span>                // If there's more than the limit of the orginal left just emit limit and elided...<a name="line.381"></a>
-<span class="sourceLineNo">382</span>                if ((m_origStrings.length - m_firstElem) &gt; m_unchangedContextLimit)<a name="line.382"></a>
-<span class="sourceLineNo">383</span>                {<a name="line.383"></a>
-<span class="sourceLineNo">384</span>                    int endIndex = Math.min( m_firstElem + m_unchangedContextLimit, m_origStrings.length -1 );<a name="line.384"></a>
-<span class="sourceLineNo">385</span><a name="line.385"></a>
-<span class="sourceLineNo">386</span>                    for (int j = m_firstElem; j &lt; endIndex; j++)<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                    m_sb.append( m_origStrings[j] );<a name="line.387"></a>
-<span class="sourceLineNo">388</span><a name="line.388"></a>
-<span class="sourceLineNo">389</span>                    m_sb.append(m_elidedTailIndicatorHtml);<a name="line.389"></a>
-<span class="sourceLineNo">390</span>                }<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                else<a name="line.391"></a>
-<span class="sourceLineNo">392</span>                // emit entire tail of original...<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                {<a name="line.393"></a>
-<span class="sourceLineNo">394</span>                    for (int j = m_firstElem; j &lt; m_origStrings.length; j++)<a name="line.394"></a>
-<span class="sourceLineNo">395</span>                        m_sb.append(m_origStrings[j]);<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                }<a name="line.396"></a>
-<span class="sourceLineNo">397</span>            }<a name="line.397"></a>
-<span class="sourceLineNo">398</span>        }<a name="line.398"></a>
-<span class="sourceLineNo">399</span><a name="line.399"></a>
-<span class="sourceLineNo">400</span>        private void addOrig( Chunk chunk )<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>            if( chunk != null )<a name="line.402"></a>
-<span class="sourceLineNo">403</span>            {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>                chunk.toString( m_origBuf );<a name="line.404"></a>
-<span class="sourceLineNo">405</span>            }<a name="line.405"></a>
-<span class="sourceLineNo">406</span>        }<a name="line.406"></a>
+<span class="sourceLineNo">360</span>        }<a name="line.360"></a>
+<span class="sourceLineNo">361</span><a name="line.361"></a>
+<span class="sourceLineNo">362</span>        private void addNew( final Chunk chunk ) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>            if( chunk != null ) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                chunk.toString( m_newBuf );<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            }<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>        private void flushChanges() {<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            if( m_newBuf.length() + m_origBuf.length() &gt; 0 ) {<a name="line.369"></a>
+<span class="sourceLineNo">370</span>                // This is the span element which encapsulates anchor and the change itself<a name="line.370"></a>
+<span class="sourceLineNo">371</span>                m_sb.append( CHANGE_START_HTML );<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>                // Do we want to have a "back link"?<a name="line.373"></a>
+<span class="sourceLineNo">374</span>                if( m_emitChangeNextPreviousHyperlinks &amp;&amp; m_count &gt; 1 ) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>                    m_sb.append( BACK_PRE_INDEX );<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                    m_sb.append( m_count - 1 );<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                    m_sb.append( BACK_POST_INDEX );<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                }<a name="line.378"></a>
+<span class="sourceLineNo">379</span><a name="line.379"></a>
+<span class="sourceLineNo">380</span>                // An anchor for the change.<a name="line.380"></a>
+<span class="sourceLineNo">381</span>                if (m_emitChangeNextPreviousHyperlinks) {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>                    m_sb.append( ANCHOR_PRE_INDEX );<a name="line.382"></a>
+<span class="sourceLineNo">383</span>                    m_sb.append( m_count++ );<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                    m_sb.append( ANCHOR_POST_INDEX );<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                }<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>                // ... has been added<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                if( m_newBuf.length() &gt; 0 ) {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                    m_sb.append( INSERTION_START_HTML );<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                    m_sb.append( m_newBuf );<a name="line.390"></a>
+<span class="sourceLineNo">391</span>                    m_sb.append( INSERTION_END_HTML );<a name="line.391"></a>
+<span class="sourceLineNo">392</span>                }<a name="line.392"></a>
+<span class="sourceLineNo">393</span><a name="line.393"></a>
+<span class="sourceLineNo">394</span>                // .. has been removed<a name="line.394"></a>
+<span class="sourceLineNo">395</span>                if( m_origBuf.length() &gt; 0 ) {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                    m_sb.append( DELETION_START_HTML );<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                    m_sb.append( m_origBuf );<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                    m_sb.append( DELETION_END_HTML );<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                }<a name="line.399"></a>
+<span class="sourceLineNo">400</span><a name="line.400"></a>
+<span class="sourceLineNo">401</span>                // Do we want a "forward" link?<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                if( m_emitChangeNextPreviousHyperlinks &amp;&amp; (m_index &lt; m_max) ) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                    m_sb.append( FORWARD_PRE_INDEX );<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                    m_sb.append( m_count ); // Has already been incremented.<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                    m_sb.append( FORWARD_POST_INDEX );<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                }<a name="line.406"></a>
 <span class="sourceLineNo">407</span><a name="line.407"></a>
-<span class="sourceLineNo">408</span>        private void addNew( Chunk chunk )<a name="line.408"></a>
-<span class="sourceLineNo">409</span>        {<a name="line.409"></a>
-<span class="sourceLineNo">410</span>            if( chunk != null )<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            {<a name="line.411"></a>
-<span class="sourceLineNo">412</span>                chunk.toString( m_newBuf );<a name="line.412"></a>
+<span class="sourceLineNo">408</span>                m_sb.append( CHANGE_END_HTML );<a name="line.408"></a>
+<span class="sourceLineNo">409</span><a name="line.409"></a>
+<span class="sourceLineNo">410</span>                // Nuke the buffers.<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                m_origBuf = new StringBuffer();<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                m_newBuf = new StringBuffer();<a name="line.412"></a>
 <span class="sourceLineNo">413</span>            }<a name="line.413"></a>
-<span class="sourceLineNo">414</span>        }<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span><a name="line.416"></a>
-<span class="sourceLineNo">417</span><a name="line.417"></a>
-<span class="sourceLineNo">418</span>        private void flushChanges()<a name="line.418"></a>
-<span class="sourceLineNo">419</span>        {<a name="line.419"></a>
-<span class="sourceLineNo">420</span><a name="line.420"></a>
-<span class="sourceLineNo">421</span>            if( m_newBuf.length() + m_origBuf.length() &gt; 0 )<a name="line.421"></a>
-<span class="sourceLineNo">422</span>            {<a name="line.422"></a>
-<span class="sourceLineNo">423</span>                // This is the span element which encapsulates anchor and the change itself<a name="line.423"></a>
-<span class="sourceLineNo">424</span>                m_sb.append( m_changeStartHtml );<a name="line.424"></a>
-<span class="sourceLineNo">425</span><a name="line.425"></a>
-<span class="sourceLineNo">426</span>                // Do we want to have a "back link"?<a name="line.426"></a>
-<span class="sourceLineNo">427</span>                if( m_emitChangeNextPreviousHyperlinks &amp;&amp; m_count &gt; 1 )<a name="line.427"></a>
-<span class="sourceLineNo">428</span>                {<a name="line.428"></a>
-<span class="sourceLineNo">429</span>                    m_sb.append( m_backPreIndex );<a name="line.429"></a>
-<span class="sourceLineNo">430</span>                    m_sb.append( m_count - 1 );<a name="line.430"></a>
-<span class="sourceLineNo">431</span>                    m_sb.append( m_backPostIndex );<a name="line.431"></a>
-<span class="sourceLineNo">432</span>                }<a name="line.432"></a>
-<span class="sourceLineNo">433</span><a name="line.433"></a>
-<span class="sourceLineNo">434</span>                // An anchor for the change.<a name="line.434"></a>
-<span class="sourceLineNo">435</span>                if (m_emitChangeNextPreviousHyperlinks)<a name="line.435"></a>
-<span class="sourceLineNo">436</span>                {<a name="line.436"></a>
-<span class="sourceLineNo">437</span>                    m_sb.append( m_anchorPreIndex );<a name="line.437"></a>
-<span class="sourceLineNo">438</span>                    m_sb.append( m_count++ );<a name="line.438"></a>
-<span class="sourceLineNo">439</span>                    m_sb.append( m_anchorPostIndex );<a name="line.439"></a>
-<span class="sourceLineNo">440</span>                }<a name="line.440"></a>
-<span class="sourceLineNo">441</span><a name="line.441"></a>
-<span class="sourceLineNo">442</span>                // ... has been added<a name="line.442"></a>
-<span class="sourceLineNo">443</span>                if( m_newBuf.length() &gt; 0 )<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                {<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                    m_sb.append( m_insertionStartHtml );<a name="line.445"></a>
-<span class="sourceLineNo">446</span>                    m_sb.append( m_newBuf );<a name="line.446"></a>
-<span class="sourceLineNo">447</span>                    m_sb.append( m_insertionEndHtml );<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                }<a name="line.448"></a>
-<span class="sourceLineNo">449</span><a name="line.449"></a>
-<span class="sourceLineNo">450</span>                // .. has been removed<a name="line.450"></a>
-<span class="sourceLineNo">451</span>                if( m_origBuf.length() &gt; 0 )<a name="line.451"></a>
-<span class="sourceLineNo">452</span>                {<a name="line.452"></a>
-<span class="sourceLineNo">453</span>                    m_sb.append( m_deletionStartHtml );<a name="line.453"></a>
-<span class="sourceLineNo">454</span>                    m_sb.append( m_origBuf );<a name="line.454"></a>
-<span class="sourceLineNo">455</span>                    m_sb.append( m_deletionEndHtml );<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                }<a name="line.456"></a>
-<span class="sourceLineNo">457</span><a name="line.457"></a>
-<span class="sourceLineNo">458</span>                // Do we want a "forward" link?<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                if( m_emitChangeNextPreviousHyperlinks &amp;&amp; (m_index &lt; m_max) )<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                {<a name="line.460"></a>
-<span class="sourceLineNo">461</span>                    m_sb.append( m_forwardPreIndex );<a name="line.461"></a>
-<span class="sourceLineNo">462</span>                    m_sb.append( m_count ); // Has already been incremented.<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                    m_sb.append( m_forwardPostIndex );<a name="line.463"></a>
-<span class="sourceLineNo">464</span>                }<a name="line.464"></a>
-<span class="sourceLineNo">465</span><a name="line.465"></a>
-<span class="sourceLineNo">466</span>                m_sb.append( m_changeEndHtml );<a name="line.466"></a>
-<span class="sourceLineNo">467</span><a name="line.467"></a>
-<span class="sourceLineNo">468</span>                // Nuke the buffers.<a name="line.468"></a>
-<span class="sourceLineNo">469</span>                m_origBuf = new StringBuffer();<a name="line.469"></a>
-<span class="sourceLineNo">470</span>                m_newBuf = new StringBuffer();<a name="line.470"></a>
-<span class="sourceLineNo">471</span>            }<a name="line.471"></a>
-<span class="sourceLineNo">472</span><a name="line.472"></a>
-<span class="sourceLineNo">473</span>            // After a flush, everything is reset.<a name="line.473"></a>
-<span class="sourceLineNo">474</span>            m_mode = -1;<a name="line.474"></a>
-<span class="sourceLineNo">475</span>        }<a name="line.475"></a>
-<span class="sourceLineNo">476</span>    }<a name="line.476"></a>
-<span class="sourceLineNo">477</span>}<a name="line.477"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>            // After a flush, everything is reset.<a name="line.415"></a>
+<span class="sourceLineNo">416</span>            m_mode = -1;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>        }<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    }<a name="line.418"></a>
+<span class="sourceLineNo">419</span><a name="line.419"></a>
+<span class="sourceLineNo">420</span>}<a name="line.420"></a>
 
 
 
