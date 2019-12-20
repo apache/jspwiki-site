@@ -25,6 +25,23 @@
             {abstract} +setUid(String): void
         }
 
+        interface UserDatabase [[UserDatabase.html]] {
+            {abstract} +deleteByLoginName(String): void
+            {abstract} +getPrincipals(String): Principal[]
+            {abstract} +getWikiNames(): Principal[]
+            {abstract} +find(String): UserProfile
+            {abstract} +findByEmail(String): UserProfile
+            {abstract} +findByLoginName(String): UserProfile
+            {abstract} +findByUid(String): UserProfile
+            {abstract} +findByWikiName(String): UserProfile
+            {abstract} +findByFullName(String): UserProfile
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +newProfile(): UserProfile
+            {abstract} +rename(String, String): void
+            {abstract} +save(UserProfile): void
+            {abstract} +validatePassword(String, String): boolean
+        }
+
         class DefaultUserProfile [[DefaultUserProfile.html]] {
             {static} #newProfile(UserDatabase): UserProfile
             +getCreated(): Date
@@ -49,9 +66,23 @@
             +setUid(String): void
         }
 
-        class DuplicateUserException [[DuplicateUserException.html]] {
-            +DuplicateUserException(String)
-            +DuplicateUserException(String, Object[])
+        abstract class AbstractUserDatabase [[AbstractUserDatabase.html]] {
+            {static} #log: Logger
+            {static} #SHA_PREFIX: String
+            {static} #SSHA_PREFIX: String
+            +find(String): UserProfile
+            +getPrincipals(String): Principal[]
+            +newProfile(): UserProfile
+            +validatePassword(String, String): boolean
+            {static} #generateUid(UserDatabase): String
+            #getHash(String): String
+            #parseLong(String): long
+            {abstract} +findByEmail(String): UserProfile
+            {abstract} +findByFullName(String): UserProfile
+            {abstract} +findByLoginName(String): UserProfile
+            {abstract} +findByWikiName(String): UserProfile
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +save(UserProfile): void
         }
 
         class JDBCUserDatabase [[JDBCUserDatabase.html]] {
@@ -95,6 +126,11 @@
             +save(UserProfile): void
         }
 
+        class DuplicateUserException [[DuplicateUserException.html]] {
+            +DuplicateUserException(String)
+            +DuplicateUserException(String, Object[])
+        }
+
         class XMLUserDatabase [[XMLUserDatabase.html]] {
             {static} +PROP_USERDATABASE: String
             +deleteByLoginName(String): void
@@ -109,55 +145,19 @@
             +save(UserProfile): void
         }
 
-        interface UserDatabase [[UserDatabase.html]] {
-            {abstract} +deleteByLoginName(String): void
-            {abstract} +getPrincipals(String): Principal[]
-            {abstract} +getWikiNames(): Principal[]
-            {abstract} +find(String): UserProfile
-            {abstract} +findByEmail(String): UserProfile
-            {abstract} +findByLoginName(String): UserProfile
-            {abstract} +findByUid(String): UserProfile
-            {abstract} +findByWikiName(String): UserProfile
-            {abstract} +findByFullName(String): UserProfile
-            {abstract} +initialize(WikiEngine, Properties): void
-            {abstract} +newProfile(): UserProfile
-            {abstract} +rename(String, String): void
-            {abstract} +save(UserProfile): void
-            {abstract} +validatePassword(String, String): boolean
-        }
-
-        abstract class AbstractUserDatabase [[AbstractUserDatabase.html]] {
-            {static} #log: Logger
-            {static} #SHA_PREFIX: String
-            {static} #SSHA_PREFIX: String
-            +find(String): UserProfile
-            +getPrincipals(String): Principal[]
-            +newProfile(): UserProfile
-            +validatePassword(String, String): boolean
-            {static} #generateUid(UserDatabase): String
-            #getHash(String): String
-            #parseLong(String): long
-            {abstract} +findByEmail(String): UserProfile
-            {abstract} +findByFullName(String): UserProfile
-            {abstract} +findByLoginName(String): UserProfile
-            {abstract} +findByWikiName(String): UserProfile
-            {abstract} +initialize(WikiEngine, Properties): void
-            {abstract} +save(UserProfile): void
-        }
-
         interface java.io.Serializable
         java.io.Serializable <|.. UserProfile
 
         UserProfile <|.. DefaultUserProfile
 
-        class org.apache.wiki.api.exceptions.WikiI18nException
-        org.apache.wiki.api.exceptions.WikiI18nException <|-- DuplicateUserException
+        UserDatabase <|.. AbstractUserDatabase
 
         AbstractUserDatabase <|-- JDBCUserDatabase
 
-        AbstractUserDatabase <|-- XMLUserDatabase
+        class org.apache.wiki.api.exceptions.WikiI18nException
+        org.apache.wiki.api.exceptions.WikiI18nException <|-- DuplicateUserException
 
-        UserDatabase <|.. AbstractUserDatabase
+        AbstractUserDatabase <|-- XMLUserDatabase
 
     }
 

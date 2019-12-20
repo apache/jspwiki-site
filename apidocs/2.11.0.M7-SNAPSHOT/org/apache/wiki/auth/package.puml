@@ -2,10 +2,9 @@
 
     namespace org.apache.wiki.auth {
 
-        interface Authorizer [[Authorizer.html]] {
-            {abstract} +findRole(String): Principal
-            {abstract} +initialize(WikiEngine, Properties): void
-            {abstract} +isUserInRole(WikiSession, Principal): boolean
+        class WikiSecurityException [[WikiSecurityException.html]] {
+            +WikiSecurityException(String)
+            +WikiSecurityException(String, Throwable)
         }
 
         class SessionMonitor [[SessionMonitor.html]] {
@@ -22,45 +21,19 @@
             +sessionDestroyed(HttpSessionEvent): void
         }
 
-        class PrincipalComparator [[PrincipalComparator.html]] {
-            +compare(Principal, Principal): int
-        }
-
-        class SecurityVerifier [[SecurityVerifier.html]] {
-            {static} +ERROR: String
-            {static} +WARNING: String
-            {static} +INFO: String
-            {static} +ERROR_POLICY: String
-            {static} +WARNING_POLICY: String
-            {static} +INFO_POLICY: String
-            {static} +ERROR_JAAS: String
-            {static} +WARNING_JAAS: String
-            {static} +ERROR_ROLES: String
-            {static} +INFO_ROLES: String
-            {static} +ERROR_DB: String
-            {static} +WARNING_DB: String
-            {static} +INFO_DB: String
-            {static} +ERROR_GROUPS: String
-            {static} +WARNING_GROUPS: String
-            {static} +INFO_GROUPS: String
-            {static} +INFO_JAAS: String
-            +SecurityVerifier(WikiEngine, WikiSession)
-            +policyPrincipals(): Principal[]
-            +policyRoleTable(): String
-            +containerRoleTable(): String
-            +isSecurityPolicyConfigured(): boolean
-            +webContainerRoles(): Principal[]
-            #verifyPolicyAndContainerRoles(): void
-            #verifyGroupDatabase(): void
-            #verifyJaas(): void
-            #getFileFromProperty(String): File
-            #verifyPolicy(): void
-            #verifyStaticPermission(Principal, Permission): boolean
-            #verifyUserDatabase(): void
-        }
-
         class NoSuchPrincipalException [[NoSuchPrincipalException.html]] {
             +NoSuchPrincipalException(String)
+        }
+
+        interface Authorizer [[Authorizer.html]] {
+            {abstract} +findRole(String): Principal
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +isUserInRole(WikiSession, Principal): boolean
+        }
+
+        class GroupPrincipal [[GroupPrincipal.html]] {
+            +GroupPrincipal(String)
+            +getName(): String
         }
 
         class UserManager [[UserManager.html]] {
@@ -97,9 +70,8 @@
             +getUserInfo(String): UserProfile
         }
 
-        class GroupPrincipal [[GroupPrincipal.html]] {
-            +GroupPrincipal(String)
-            +getName(): String
+        class PrincipalComparator [[PrincipalComparator.html]] {
+            +compare(Principal, Principal): int
         }
 
         class AuthenticationManager [[AuthenticationManager.html]] {
@@ -151,9 +123,37 @@
             #fireEvent(int, Principal, Object): void
         }
 
-        class WikiSecurityException [[WikiSecurityException.html]] {
-            +WikiSecurityException(String)
-            +WikiSecurityException(String, Throwable)
+        class SecurityVerifier [[SecurityVerifier.html]] {
+            {static} +ERROR: String
+            {static} +WARNING: String
+            {static} +INFO: String
+            {static} +ERROR_POLICY: String
+            {static} +WARNING_POLICY: String
+            {static} +INFO_POLICY: String
+            {static} +ERROR_JAAS: String
+            {static} +WARNING_JAAS: String
+            {static} +ERROR_ROLES: String
+            {static} +INFO_ROLES: String
+            {static} +ERROR_DB: String
+            {static} +WARNING_DB: String
+            {static} +INFO_DB: String
+            {static} +ERROR_GROUPS: String
+            {static} +WARNING_GROUPS: String
+            {static} +INFO_GROUPS: String
+            {static} +INFO_JAAS: String
+            +SecurityVerifier(WikiEngine, WikiSession)
+            +policyPrincipals(): Principal[]
+            +policyRoleTable(): String
+            +containerRoleTable(): String
+            +isSecurityPolicyConfigured(): boolean
+            +webContainerRoles(): Principal[]
+            #verifyPolicyAndContainerRoles(): void
+            #verifyGroupDatabase(): void
+            #verifyJaas(): void
+            #getFileFromProperty(String): File
+            #verifyPolicy(): void
+            #verifyStaticPermission(Principal, Permission): boolean
+            #verifyUserDatabase(): void
         }
 
         class WikiPrincipal [[WikiPrincipal.html]] {
@@ -171,21 +171,21 @@
             +compareTo(Principal): int
         }
 
+        class org.apache.wiki.api.exceptions.WikiException
+        org.apache.wiki.api.exceptions.WikiException <|-- WikiSecurityException
+
         interface javax.servlet.http.HttpSessionListener {
             {abstract} +sessionCreated(HttpSessionEvent): void
             {abstract} +sessionDestroyed(HttpSessionEvent): void
         }
         javax.servlet.http.HttpSessionListener <|.. SessionMonitor
 
-        interface java.util.Comparator<T> {
-            {abstract} +compare(T, T): int
-        }
-        java.util.Comparator <|.. PrincipalComparator
-
-        interface java.io.Serializable
-        java.io.Serializable <|.. PrincipalComparator
-
         WikiSecurityException <|-- NoSuchPrincipalException
+
+        interface java.security.Principal {
+            {abstract} +getName(): String
+        }
+        java.security.Principal <|.. GroupPrincipal
 
         abstract class org.apache.wiki.auth.user.AbstractUserDatabase {
             {abstract} +findByEmail(String): UserProfile
@@ -207,13 +207,13 @@
 
         UserManager +-- org.apache.wiki.auth.UserManager.JSONUserModule
 
-        interface java.security.Principal {
-            {abstract} +getName(): String
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
         }
-        java.security.Principal <|.. GroupPrincipal
+        java.util.Comparator <|.. PrincipalComparator
 
-        class org.apache.wiki.api.exceptions.WikiException
-        org.apache.wiki.api.exceptions.WikiException <|-- WikiSecurityException
+        interface java.io.Serializable
+        java.io.Serializable <|.. PrincipalComparator
 
         java.security.Principal <|.. WikiPrincipal
 

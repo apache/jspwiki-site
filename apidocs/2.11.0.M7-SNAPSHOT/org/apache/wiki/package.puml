@@ -12,45 +12,10 @@
             {abstract} +backgroundTask(): void
         }
 
-        class ReferenceManager [[ReferenceManager.html]] {
-            +ReferenceManager(WikiEngine)
-            +initialize(Collection<WikiPage>): void
-            +postSave(WikiContext, String): void
-            +pageRemoved(WikiPage): void
-            +updateReferences(String, Collection<String>): void
-            #getRefersTo(): Map<String, Collection<String>>
-            #getReferredBy(): Map<String, Set<String>>
-            +clearPageEntries(String): void
-            +findUnreferenced(): Collection<String>
-            +findUncreated(): Collection<String>
-            +findReferrers(String): Set<String>
-            +findReferredBy(String): Set<String>
-            +findRefersTo(String): Collection<String>
-            +deepHashCode(): int
-            +findCreated(): Set<String>
-            +actionPerformed(WikiEvent): void
-        }
-
-        class WikiServlet [[WikiServlet.html]] {
-            +init(ServletConfig): void
-            +destroy(): void
-            +doPost(HttpServletRequest, HttpServletResponse): void
-            +doGet(HttpServletRequest, HttpServletResponse): void
-        }
-
         interface Watchable [[Watchable.html]] {
             {abstract} +timeoutExceeded(String): void
             {abstract} +getName(): String
             {abstract} +isAlive(): boolean
-        }
-
-        interface StringTransmutator [[StringTransmutator.html]] {
-            {abstract} +mutate(WikiContext, String): String
-        }
-
-        class LinkCollector [[LinkCollector.html]] {
-            +getLinks(): List<String>
-            +mutate(WikiContext, String): String
         }
 
         class WikiPage [[WikiPage.html]] {
@@ -83,17 +48,75 @@
             +compareTo(WikiPage): int
         }
 
-        class Release [[Release.html]] {
-            {static} +APPNAME: String
-            {static} +VERSION: int
-            {static} +REVISION: int
-            {static} +MINORREVISION: int
-            {static} +BUILD: String
-            {static} +VERSTR: String
-            {static} +getVersionString(): String
-            {static} +isNewerOrEqual(String): boolean
-            {static} +isOlderOrEqual(String): boolean
+        class WikiServlet [[WikiServlet.html]] {
+            +init(ServletConfig): void
+            +destroy(): void
+            +doPost(HttpServletRequest, HttpServletResponse): void
+            +doGet(HttpServletRequest, HttpServletResponse): void
+        }
+
+        interface WikiProvider [[WikiProvider.html]] {
+            {static} +LATEST_VERSION: int
+            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +getProviderInfo(): String
+        }
+
+        interface StringTransmutator [[StringTransmutator.html]] {
+            {abstract} +mutate(WikiContext, String): String
+        }
+
+        class LinkCollector [[LinkCollector.html]] {
+            +getLinks(): List<String>
+            +mutate(WikiContext, String): String
+        }
+
+        class ReferenceManager [[ReferenceManager.html]] {
+            +ReferenceManager(WikiEngine)
+            +initialize(Collection<WikiPage>): void
+            +postSave(WikiContext, String): void
+            +pageRemoved(WikiPage): void
+            +updateReferences(String, Collection<String>): void
+            #getRefersTo(): Map<String, Collection<String>>
+            #getReferredBy(): Map<String, Set<String>>
+            +clearPageEntries(String): void
+            +findUnreferenced(): Collection<String>
+            +findUncreated(): Collection<String>
+            +findReferrers(String): Set<String>
+            +findReferredBy(String): Set<String>
+            +findRefersTo(String): Collection<String>
+            +deepHashCode(): int
+            +findCreated(): Set<String>
+            +actionPerformed(WikiEvent): void
+        }
+
+        class WatchDog [[WatchDog.html]] {
+            +WatchDog(WikiEngine, Watchable)
+            +WatchDog(WikiEngine, Thread)
+            {static} +getCurrentWatchDog(WikiEngine): WatchDog
+            +enable(): void
+            +disable(): void
+            +enterState(String): void
+            +enterState(String, int): void
+            +exitState(): void
+            +exitState(String): void
+            +isStateStackNotEmpty(): boolean
+            +isWatchableAlive(): boolean
+        }
+
+        class VariableManager [[VariableManager.html]] {
+            {static} +VAR_ERROR: String
+            {static} +VAR_MSG: String
+            +VariableManager(Properties)
+            +parseAndGetValue(WikiContext, String): String
+            +expandVariables(WikiContext, String): String
+            +getValue(WikiContext, String, String): String
+            +getValue(WikiContext, String): String
+        }
+
+        class TranslationsCheck [[TranslationsCheck.html]] {
             {static} +main(String[]): void
+            {static} +diff(String, String): Map<String, Integer>
+            {static} +detectDuplicates(String): int
         }
 
         class WikiContext [[WikiContext.html]] {
@@ -155,6 +178,46 @@
             #setDefaultTemplate(HttpServletRequest): void
             {static} #findCommand(WikiEngine, HttpServletRequest, WikiPage): Command
             #updateCommand(String): void
+        }
+
+        class WikiSession [[WikiSession.html]] {
+            {static} +ANONYMOUS: String
+            {static} +ASSERTED: String
+            {static} +AUTHENTICATED: String
+            #isInGroup(Group): boolean
+            +isAsserted(): boolean
+            +isAuthenticated(): boolean
+            +isAnonymous(): boolean
+            +getLoginPrincipal(): Principal
+            +getUserPrincipal(): Principal
+            +getLocale(): Locale
+            +addMessage(String): void
+            +addMessage(String, String): void
+            +clearMessages(): void
+            +clearMessages(String): void
+            +getMessages(): String[]
+            +getMessages(String): String[]
+            +getPrincipals(): Principal[]
+            +getRoles(): Principal[]
+            {static} +removeWikiSession(WikiEngine, HttpServletRequest): void
+            +hasPrincipal(Principal): boolean
+            +actionPerformed(WikiEvent): void
+            +invalidate(): void
+            #injectGroupPrincipals(): void
+            #injectUserProfilePrincipals(): void
+            +getStatus(): String
+            {static} +getWikiSession(WikiEngine, HttpServletRequest): WikiSession
+            {static} +guestSession(WikiEngine): WikiSession
+            {static} +sessions(WikiEngine): int
+            {static} +userPrincipals(WikiEngine): Principal[]
+            {static} +doPrivileged(WikiSession, PrivilegedAction<?>): Object
+            {static} #isIPV4Address(String): boolean
+        }
+
+        class InternalWikiException [[InternalWikiException.html]] {
+            +InternalWikiException(String)
+            +InternalWikiException(String, Throwable)
+            +InternalWikiException(Throwable)
         }
 
         class WikiEngine [[WikiEngine.html]] {
@@ -249,7 +312,6 @@
             +getRootPath(): String
             +getURLConstructor(): URLConstructor
             +getRSSGenerator(): RSSGenerator
-            +renamePage(WikiContext, String, String, boolean): String
             +getPageRenamer(): PageRenamer
             +getUserManager(): UserManager
             +getTasksManager(): TasksManager
@@ -263,86 +325,22 @@
             +removeWikiEventListener(WikiEventListener): void
             #fireEvent(int): void
             #firePageEvent(int, String): void
-            #firePageRenameEvent(String, String): void
             +setAttribute(String, Object): void
             +getAttribute(String): Object
             +removeAttribute(String): Object
         }
 
-        class VariableManager [[VariableManager.html]] {
-            {static} +VAR_ERROR: String
-            {static} +VAR_MSG: String
-            +VariableManager(Properties)
-            +parseAndGetValue(WikiContext, String): String
-            +expandVariables(WikiContext, String): String
-            +getValue(WikiContext, String, String): String
-            +getValue(WikiContext, String): String
-        }
-
-        class WatchDog [[WatchDog.html]] {
-            +WatchDog(WikiEngine, Watchable)
-            +WatchDog(WikiEngine, Thread)
-            {static} +getCurrentWatchDog(WikiEngine): WatchDog
-            +enable(): void
-            +disable(): void
-            +enterState(String): void
-            +enterState(String, int): void
-            +exitState(): void
-            +exitState(String): void
-            +isStateStackNotEmpty(): boolean
-            +isWatchableAlive(): boolean
-        }
-
-        class InternalWikiException [[InternalWikiException.html]] {
-            +InternalWikiException(String)
-            +InternalWikiException(String, Throwable)
-            +InternalWikiException(Throwable)
-        }
-
-        class WikiSession [[WikiSession.html]] {
-            {static} +ANONYMOUS: String
-            {static} +ASSERTED: String
-            {static} +AUTHENTICATED: String
-            #isInGroup(Group): boolean
-            +isAsserted(): boolean
-            +isAuthenticated(): boolean
-            +isAnonymous(): boolean
-            +getLoginPrincipal(): Principal
-            +getUserPrincipal(): Principal
-            +getLocale(): Locale
-            +addMessage(String): void
-            +addMessage(String, String): void
-            +clearMessages(): void
-            +clearMessages(String): void
-            +getMessages(): String[]
-            +getMessages(String): String[]
-            +getPrincipals(): Principal[]
-            +getRoles(): Principal[]
-            {static} +removeWikiSession(WikiEngine, HttpServletRequest): void
-            +hasPrincipal(Principal): boolean
-            +actionPerformed(WikiEvent): void
-            +invalidate(): void
-            #injectGroupPrincipals(): void
-            #injectUserProfilePrincipals(): void
-            +getStatus(): String
-            {static} +getWikiSession(WikiEngine, HttpServletRequest): WikiSession
-            {static} +guestSession(WikiEngine): WikiSession
-            {static} +sessions(WikiEngine): int
-            {static} +userPrincipals(WikiEngine): Principal[]
-            {static} +doPrivileged(WikiSession, PrivilegedAction<?>): Object
-            {static} #isIPV4Address(String): boolean
-        }
-
-        interface WikiProvider [[WikiProvider.html]] {
-            {static} +LATEST_VERSION: int
-            {abstract} +initialize(WikiEngine, Properties): void
-            {abstract} +getProviderInfo(): String
-        }
-
-        class TranslationsCheck [[TranslationsCheck.html]] {
+        class Release [[Release.html]] {
+            {static} +APPNAME: String
+            {static} +VERSION: int
+            {static} +REVISION: int
+            {static} +MINORREVISION: int
+            {static} +BUILD: String
+            {static} +VERSTR: String
+            {static} +getVersionString(): String
+            {static} +isNewerOrEqual(String): boolean
+            {static} +isOlderOrEqual(String): boolean
             {static} +main(String[]): void
-            {static} +diff(String, String): Map<String, Integer>
-            {static} +detectDuplicates(String): int
         }
 
         class java.lang.Thread
@@ -353,19 +351,6 @@
         }
         org.apache.wiki.event.WikiEventListener <|.. WikiBackgroundThread
 
-        class org.apache.wiki.api.filters.BasicPageFilter
-        org.apache.wiki.api.filters.BasicPageFilter <|-- ReferenceManager
-
-        interface org.apache.wiki.modules.InternalModule
-        org.apache.wiki.modules.InternalModule <|.. ReferenceManager
-
-        org.apache.wiki.event.WikiEventListener <|.. ReferenceManager
-
-        abstract class javax.servlet.http.HttpServlet
-        javax.servlet.http.HttpServlet <|-- WikiServlet
-
-        StringTransmutator <|.. LinkCollector
-
         interface java.lang.Cloneable
         java.lang.Cloneable <|.. WikiPage
 
@@ -373,6 +358,19 @@
             {abstract} +compareTo(T): int
         }
         java.lang.Comparable <|.. WikiPage
+
+        abstract class javax.servlet.http.HttpServlet
+        javax.servlet.http.HttpServlet <|-- WikiServlet
+
+        StringTransmutator <|.. LinkCollector
+
+        class org.apache.wiki.api.filters.BasicPageFilter
+        org.apache.wiki.api.filters.BasicPageFilter <|-- ReferenceManager
+
+        interface org.apache.wiki.modules.InternalModule
+        org.apache.wiki.modules.InternalModule <|.. ReferenceManager
+
+        org.apache.wiki.event.WikiEventListener <|.. ReferenceManager
 
         java.lang.Cloneable <|.. WikiContext
 
@@ -388,10 +386,10 @@
         }
         org.apache.wiki.ui.Command <|.. WikiContext
 
+        org.apache.wiki.event.WikiEventListener <|.. WikiSession
+
         class java.lang.RuntimeException
         java.lang.RuntimeException <|-- InternalWikiException
-
-        org.apache.wiki.event.WikiEventListener <|.. WikiSession
 
         WikiBackgroundThread --> WikiEngine: engine
 
