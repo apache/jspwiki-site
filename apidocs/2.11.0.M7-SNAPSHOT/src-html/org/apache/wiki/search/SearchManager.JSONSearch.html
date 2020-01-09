@@ -322,10 +322,10 @@
 <span class="sourceLineNo">314</span>     * @throws ProviderException If the provider fails and a search cannot be completed.<a name="line.314"></a>
 <span class="sourceLineNo">315</span>     * @throws IOException If something else goes wrong.<a name="line.315"></a>
 <span class="sourceLineNo">316</span>     */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>    public Collection&lt; SearchResult &gt; findPages( String query, WikiContext wikiContext )<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        throws ProviderException, IOException<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        if( query == null ) query = "";<a name="line.320"></a>
+<span class="sourceLineNo">317</span>    public Collection&lt; SearchResult &gt; findPages( String query, final WikiContext wikiContext ) throws ProviderException, IOException {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        if( query == null ) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            query = "";<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        }<a name="line.320"></a>
 <span class="sourceLineNo">321</span>        return m_searchProvider.findPages( query, wikiContext );<a name="line.321"></a>
 <span class="sourceLineNo">322</span>    }<a name="line.322"></a>
 <span class="sourceLineNo">323</span><a name="line.323"></a>
@@ -333,7 +333,7 @@
 <span class="sourceLineNo">325</span>     *  Removes the page from the search cache (if any).<a name="line.325"></a>
 <span class="sourceLineNo">326</span>     *  @param page  The page to remove<a name="line.326"></a>
 <span class="sourceLineNo">327</span>     */<a name="line.327"></a>
-<span class="sourceLineNo">328</span>    public void pageRemoved(WikiPage page)<a name="line.328"></a>
+<span class="sourceLineNo">328</span>    public void pageRemoved( final WikiPage page )<a name="line.328"></a>
 <span class="sourceLineNo">329</span>    {<a name="line.329"></a>
 <span class="sourceLineNo">330</span>        m_searchProvider.pageRemoved(page);<a name="line.330"></a>
 <span class="sourceLineNo">331</span>    }<a name="line.331"></a>
@@ -345,47 +345,40 @@
 <span class="sourceLineNo">337</span>     *  @param content {@inheritDoc}<a name="line.337"></a>
 <span class="sourceLineNo">338</span>     */<a name="line.338"></a>
 <span class="sourceLineNo">339</span>    @Override<a name="line.339"></a>
-<span class="sourceLineNo">340</span>    public void postSave( WikiContext wikiContext, String content )<a name="line.340"></a>
-<span class="sourceLineNo">341</span>    {<a name="line.341"></a>
-<span class="sourceLineNo">342</span>        //<a name="line.342"></a>
-<span class="sourceLineNo">343</span>        //  Makes sure that we're indexing the latest version of this<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        //  page.<a name="line.344"></a>
-<span class="sourceLineNo">345</span>        //<a name="line.345"></a>
-<span class="sourceLineNo">346</span>        WikiPage p = m_engine.getPage( wikiContext.getPage().getName() );<a name="line.346"></a>
-<span class="sourceLineNo">347</span>        reindexPage( p );<a name="line.347"></a>
-<span class="sourceLineNo">348</span>    }<a name="line.348"></a>
-<span class="sourceLineNo">349</span><a name="line.349"></a>
-<span class="sourceLineNo">350</span>    /**<a name="line.350"></a>
-<span class="sourceLineNo">351</span>     *   Forces the reindex of the given page.<a name="line.351"></a>
-<span class="sourceLineNo">352</span>     *<a name="line.352"></a>
-<span class="sourceLineNo">353</span>     *   @param page The page.<a name="line.353"></a>
-<span class="sourceLineNo">354</span>     */<a name="line.354"></a>
-<span class="sourceLineNo">355</span>    public void reindexPage(WikiPage page)<a name="line.355"></a>
-<span class="sourceLineNo">356</span>    {<a name="line.356"></a>
-<span class="sourceLineNo">357</span>        m_searchProvider.reindexPage(page);<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
-<span class="sourceLineNo">359</span><a name="line.359"></a>
-<span class="sourceLineNo">360</span>    /**<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     *  If the page has been deleted, removes it from the index.<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     *<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     *  @param event {@inheritDoc}<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     */<a name="line.364"></a>
-<span class="sourceLineNo">365</span>    @Override<a name="line.365"></a>
-<span class="sourceLineNo">366</span>    public void actionPerformed(WikiEvent event)<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    {<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        if( (event instanceof WikiPageEvent) &amp;&amp; (event.getType() == WikiPageEvent.PAGE_DELETE_REQUEST) )<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>            String pageName = ((WikiPageEvent) event).getPageName();<a name="line.370"></a>
-<span class="sourceLineNo">371</span><a name="line.371"></a>
-<span class="sourceLineNo">372</span>            WikiPage p = m_engine.getPage( pageName );<a name="line.372"></a>
-<span class="sourceLineNo">373</span>            if( p != null )<a name="line.373"></a>
-<span class="sourceLineNo">374</span>            {<a name="line.374"></a>
-<span class="sourceLineNo">375</span>                pageRemoved( p );<a name="line.375"></a>
-<span class="sourceLineNo">376</span>            }<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
-<span class="sourceLineNo">378</span>    }<a name="line.378"></a>
-<span class="sourceLineNo">379</span><a name="line.379"></a>
-<span class="sourceLineNo">380</span>}<a name="line.380"></a>
+<span class="sourceLineNo">340</span>    public void postSave( final WikiContext wikiContext, final String content ) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        //  Makes sure that we're indexing the latest version of this page.<a name="line.341"></a>
+<span class="sourceLineNo">342</span>        final WikiPage p = m_engine.getPageManager().getPage( wikiContext.getPage().getName() );<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        reindexPage( p );<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>    /**<a name="line.346"></a>
+<span class="sourceLineNo">347</span>     *   Forces the reindex of the given page.<a name="line.347"></a>
+<span class="sourceLineNo">348</span>     *<a name="line.348"></a>
+<span class="sourceLineNo">349</span>     *   @param page The page.<a name="line.349"></a>
+<span class="sourceLineNo">350</span>     */<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    public void reindexPage( final WikiPage page )<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        m_searchProvider.reindexPage( page );<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    }<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>    /**<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     *  If the page has been deleted, removes it from the index.<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     *<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     *  @param event {@inheritDoc}<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     */<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    @Override<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    public void actionPerformed( final WikiEvent event ) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        if( event instanceof WikiPageEvent &amp;&amp; event.getType() == WikiPageEvent.PAGE_DELETE_REQUEST ) {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            final String pageName = ( ( WikiPageEvent ) event ).getPageName();<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>            final WikiPage p = m_engine.getPageManager().getPage( pageName );<a name="line.366"></a>
+<span class="sourceLineNo">367</span>            if( p != null ) {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                pageRemoved( p );<a name="line.368"></a>
+<span class="sourceLineNo">369</span>            }<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        }<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    }<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>}<a name="line.373"></a>
 
 
 

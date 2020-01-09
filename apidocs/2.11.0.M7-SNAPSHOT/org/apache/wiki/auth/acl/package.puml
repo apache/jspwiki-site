@@ -2,16 +2,29 @@
 
     namespace org.apache.wiki.auth.acl {
 
-        class AclEntryImpl [[AclEntryImpl.html]] {
-            +addPermission(Permission): boolean
-            +checkPermission(Permission): boolean
-            +permissions(): Enumeration<Permission>
-            +removePermission(Permission): boolean
+        interface Acl [[Acl.html]] {
+            {abstract} +addEntry(AclEntry): boolean
+            {abstract} +entries(): Enumeration<AclEntry>
+            {abstract} +isEmpty(): boolean
+            {abstract} +findPrincipals(Permission): Principal[]
+            {abstract} +getEntry(Principal): AclEntry
+            {abstract} +removeEntry(AclEntry): boolean
         }
 
-        class UnresolvedPrincipal [[UnresolvedPrincipal.html]] {
-            +UnresolvedPrincipal(String)
-            +getName(): String
+        interface AclEntry [[AclEntry.html]] {
+            {abstract} +addPermission(Permission): boolean
+            {abstract} +checkPermission(Permission): boolean
+            {abstract} +permissions(): Enumeration<Permission>
+            {abstract} +removePermission(Permission): boolean
+        }
+
+        class DefaultAclManager [[DefaultAclManager.html]] {
+            {static} +ACL_PATTERN: Pattern
+            +initialize(WikiEngine, Properties): void
+            +parseAcl(WikiPage, String): Acl
+            +getPermissions(WikiPage): Acl
+            +setPermissions(WikiPage, Acl): void
+            {static} #printAcl(Acl): String
         }
 
         class AclImpl [[AclImpl.html]] {
@@ -30,34 +43,27 @@
             {abstract} +setPermissions(WikiPage, Acl): void
         }
 
-        interface AclEntry [[AclEntry.html]] {
-            {abstract} +addPermission(Permission): boolean
-            {abstract} +checkPermission(Permission): boolean
-            {abstract} +permissions(): Enumeration<Permission>
-            {abstract} +removePermission(Permission): boolean
+        class AclEntryImpl [[AclEntryImpl.html]] {
+            +addPermission(Permission): boolean
+            +checkPermission(Permission): boolean
+            +permissions(): Enumeration<Permission>
+            +removePermission(Permission): boolean
         }
 
-        interface Acl [[Acl.html]] {
-            {abstract} +addEntry(AclEntry): boolean
-            {abstract} +entries(): Enumeration<AclEntry>
-            {abstract} +isEmpty(): boolean
-            {abstract} +findPrincipals(Permission): Principal[]
-            {abstract} +getEntry(Principal): AclEntry
-            {abstract} +removeEntry(AclEntry): boolean
+        class UnresolvedPrincipal [[UnresolvedPrincipal.html]] {
+            +UnresolvedPrincipal(String)
+            +getName(): String
         }
 
-        class DefaultAclManager [[DefaultAclManager.html]] {
-            {static} +ACL_PATTERN: Pattern
-            +initialize(WikiEngine, Properties): void
-            +parseAcl(WikiPage, String): Acl
-            +getPermissions(WikiPage): Acl
-            +setPermissions(WikiPage, Acl): void
-            {static} #printAcl(Acl): String
-        }
+        AclManager <|.. DefaultAclManager
+
+        Acl <|.. AclImpl
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. AclImpl
 
         AclEntry <|.. AclEntryImpl
 
-        interface java.io.Serializable
         java.io.Serializable <|.. AclEntryImpl
 
         interface java.security.Principal {
@@ -67,15 +73,9 @@
 
         java.io.Serializable <|.. UnresolvedPrincipal
 
-        Acl <|.. AclImpl
-
-        java.io.Serializable <|.. AclImpl
-
-        AclManager <|.. DefaultAclManager
+        AclEntry --> java.security.Principal: principal
 
         AclEntryImpl --> java.security.Principal: principal
-
-        AclEntry --> java.security.Principal: principal
 
     }
 

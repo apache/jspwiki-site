@@ -709,459 +709,455 @@
 <span class="sourceLineNo">701</span>            String remote = HttpUtil.getRemoteAddress(req);<a name="line.701"></a>
 <span class="sourceLineNo">702</span>            long now = System.currentTimeMillis();<a name="line.702"></a>
 <span class="sourceLineNo">703</span><a name="line.703"></a>
-<span class="sourceLineNo">704</span>            for( Iterator&lt; Host &gt; i = m_temporaryBanList.iterator(); i.hasNext(); ) {<a name="line.704"></a>
-<span class="sourceLineNo">705</span>                Host host = i.next();<a name="line.705"></a>
-<span class="sourceLineNo">706</span><a name="line.706"></a>
-<span class="sourceLineNo">707</span>                if( host.getAddress().equals( remote ) ) {<a name="line.707"></a>
-<span class="sourceLineNo">708</span>                    long timeleft = ( host.getReleaseTime() - now ) / 1000L;<a name="line.708"></a>
-<span class="sourceLineNo">709</span><a name="line.709"></a>
-<span class="sourceLineNo">710</span>                    log( context, REJECT, REASON_IP_BANNED_TEMPORARILY, change.m_change );<a name="line.710"></a>
-<span class="sourceLineNo">711</span>                    checkStrategy( context, REASON_IP_BANNED_TEMPORARILY, "You have been temporarily banned from modifying this wiki. (" + timeleft + " seconds of ban left)" );<a name="line.711"></a>
-<span class="sourceLineNo">712</span>                }<a name="line.712"></a>
-<span class="sourceLineNo">713</span>            }<a name="line.713"></a>
-<span class="sourceLineNo">714</span>        }<a name="line.714"></a>
-<span class="sourceLineNo">715</span>    }<a name="line.715"></a>
-<span class="sourceLineNo">716</span><a name="line.716"></a>
-<span class="sourceLineNo">717</span>    /**<a name="line.717"></a>
-<span class="sourceLineNo">718</span>     *  If the spam filter notices changes in the black list page, it will refresh them automatically.<a name="line.718"></a>
-<span class="sourceLineNo">719</span>     *<a name="line.719"></a>
-<span class="sourceLineNo">720</span>     *  @param context<a name="line.720"></a>
-<span class="sourceLineNo">721</span>     */<a name="line.721"></a>
-<span class="sourceLineNo">722</span>    private void refreshBlacklists( WikiContext context ) {<a name="line.722"></a>
-<span class="sourceLineNo">723</span>        try {<a name="line.723"></a>
-<span class="sourceLineNo">724</span><a name="line.724"></a>
-<span class="sourceLineNo">725</span>            boolean rebuild = false;<a name="line.725"></a>
-<span class="sourceLineNo">726</span><a name="line.726"></a>
-<span class="sourceLineNo">727</span>            //<a name="line.727"></a>
-<span class="sourceLineNo">728</span>            //  Rebuild, if the spam words page, the attachment or the IP ban page has changed since.<a name="line.728"></a>
-<span class="sourceLineNo">729</span>            //<a name="line.729"></a>
-<span class="sourceLineNo">730</span>            WikiPage sourceSpam = context.getEngine().getPage( m_forbiddenWordsPage );<a name="line.730"></a>
-<span class="sourceLineNo">731</span>            if( sourceSpam != null ) {<a name="line.731"></a>
-<span class="sourceLineNo">732</span>                if( m_spamPatterns == null || m_spamPatterns.isEmpty() || sourceSpam.getLastModified().after( m_lastRebuild ) ) {<a name="line.732"></a>
-<span class="sourceLineNo">733</span>                    rebuild = true;<a name="line.733"></a>
-<span class="sourceLineNo">734</span>                }<a name="line.734"></a>
-<span class="sourceLineNo">735</span>            }<a name="line.735"></a>
-<span class="sourceLineNo">736</span><a name="line.736"></a>
-<span class="sourceLineNo">737</span>            Attachment att = context.getEngine().getAttachmentManager().getAttachmentInfo( context, m_blacklist );<a name="line.737"></a>
-<span class="sourceLineNo">738</span>            if( att != null ) {<a name="line.738"></a>
-<span class="sourceLineNo">739</span>                if( m_spamPatterns == null || m_spamPatterns.isEmpty() || att.getLastModified().after( m_lastRebuild ) ) {<a name="line.739"></a>
-<span class="sourceLineNo">740</span>                    rebuild = true;<a name="line.740"></a>
-<span class="sourceLineNo">741</span>                }<a name="line.741"></a>
-<span class="sourceLineNo">742</span>            }<a name="line.742"></a>
-<span class="sourceLineNo">743</span><a name="line.743"></a>
-<span class="sourceLineNo">744</span>            WikiPage sourceIPs = context.getEngine().getPage( m_forbiddenIPsPage );<a name="line.744"></a>
-<span class="sourceLineNo">745</span>            if( sourceIPs != null ) {<a name="line.745"></a>
-<span class="sourceLineNo">746</span>                if( m_IPPatterns == null || m_IPPatterns.isEmpty() || sourceIPs.getLastModified().after( m_lastRebuild ) ) {<a name="line.746"></a>
-<span class="sourceLineNo">747</span>                    rebuild = true;<a name="line.747"></a>
-<span class="sourceLineNo">748</span>                }<a name="line.748"></a>
-<span class="sourceLineNo">749</span>            }<a name="line.749"></a>
-<span class="sourceLineNo">750</span><a name="line.750"></a>
-<span class="sourceLineNo">751</span>            //<a name="line.751"></a>
-<span class="sourceLineNo">752</span>            //  Do the actual rebuilding.  For simplicity's sake, we always rebuild the complete<a name="line.752"></a>
-<span class="sourceLineNo">753</span>            //  filter list regardless of what changed.<a name="line.753"></a>
-<span class="sourceLineNo">754</span>            //<a name="line.754"></a>
-<span class="sourceLineNo">755</span>            if( rebuild ) {<a name="line.755"></a>
-<span class="sourceLineNo">756</span>                m_lastRebuild = new Date();<a name="line.756"></a>
-<span class="sourceLineNo">757</span>                m_spamPatterns = parseWordList( sourceSpam,<a name="line.757"></a>
-<span class="sourceLineNo">758</span>                                                ( sourceSpam != null ) ? ( String )sourceSpam.getAttribute( LISTVAR ) : null );<a name="line.758"></a>
+<span class="sourceLineNo">704</span>            for( Host host : m_temporaryBanList ) {<a name="line.704"></a>
+<span class="sourceLineNo">705</span>                if( host.getAddress().equals( remote ) ) {<a name="line.705"></a>
+<span class="sourceLineNo">706</span>                    long timeleft = ( host.getReleaseTime() - now ) / 1000L;<a name="line.706"></a>
+<span class="sourceLineNo">707</span><a name="line.707"></a>
+<span class="sourceLineNo">708</span>                    log( context, REJECT, REASON_IP_BANNED_TEMPORARILY, change.m_change );<a name="line.708"></a>
+<span class="sourceLineNo">709</span>                    checkStrategy( context, REASON_IP_BANNED_TEMPORARILY,<a name="line.709"></a>
+<span class="sourceLineNo">710</span>                            "You have been temporarily banned from modifying this wiki. (" + timeleft + " seconds of ban left)" );<a name="line.710"></a>
+<span class="sourceLineNo">711</span>                }<a name="line.711"></a>
+<span class="sourceLineNo">712</span>            }<a name="line.712"></a>
+<span class="sourceLineNo">713</span>        }<a name="line.713"></a>
+<span class="sourceLineNo">714</span>    }<a name="line.714"></a>
+<span class="sourceLineNo">715</span><a name="line.715"></a>
+<span class="sourceLineNo">716</span>    /**<a name="line.716"></a>
+<span class="sourceLineNo">717</span>     *  If the spam filter notices changes in the black list page, it will refresh them automatically.<a name="line.717"></a>
+<span class="sourceLineNo">718</span>     *<a name="line.718"></a>
+<span class="sourceLineNo">719</span>     *  @param context associated WikiContext<a name="line.719"></a>
+<span class="sourceLineNo">720</span>     */<a name="line.720"></a>
+<span class="sourceLineNo">721</span>    private void refreshBlacklists( final WikiContext context ) {<a name="line.721"></a>
+<span class="sourceLineNo">722</span>        try {<a name="line.722"></a>
+<span class="sourceLineNo">723</span><a name="line.723"></a>
+<span class="sourceLineNo">724</span>            boolean rebuild = false;<a name="line.724"></a>
+<span class="sourceLineNo">725</span><a name="line.725"></a>
+<span class="sourceLineNo">726</span>            //<a name="line.726"></a>
+<span class="sourceLineNo">727</span>            //  Rebuild, if the spam words page, the attachment or the IP ban page has changed since.<a name="line.727"></a>
+<span class="sourceLineNo">728</span>            //<a name="line.728"></a>
+<span class="sourceLineNo">729</span>            final WikiPage sourceSpam = context.getEngine().getPageManager().getPage( m_forbiddenWordsPage );<a name="line.729"></a>
+<span class="sourceLineNo">730</span>            if( sourceSpam != null ) {<a name="line.730"></a>
+<span class="sourceLineNo">731</span>                if( m_spamPatterns == null || m_spamPatterns.isEmpty() || sourceSpam.getLastModified().after( m_lastRebuild ) ) {<a name="line.731"></a>
+<span class="sourceLineNo">732</span>                    rebuild = true;<a name="line.732"></a>
+<span class="sourceLineNo">733</span>                }<a name="line.733"></a>
+<span class="sourceLineNo">734</span>            }<a name="line.734"></a>
+<span class="sourceLineNo">735</span><a name="line.735"></a>
+<span class="sourceLineNo">736</span>            final Attachment att = context.getEngine().getAttachmentManager().getAttachmentInfo( context, m_blacklist );<a name="line.736"></a>
+<span class="sourceLineNo">737</span>            if( att != null ) {<a name="line.737"></a>
+<span class="sourceLineNo">738</span>                if( m_spamPatterns == null || m_spamPatterns.isEmpty() || att.getLastModified().after( m_lastRebuild ) ) {<a name="line.738"></a>
+<span class="sourceLineNo">739</span>                    rebuild = true;<a name="line.739"></a>
+<span class="sourceLineNo">740</span>                }<a name="line.740"></a>
+<span class="sourceLineNo">741</span>            }<a name="line.741"></a>
+<span class="sourceLineNo">742</span><a name="line.742"></a>
+<span class="sourceLineNo">743</span>            final WikiPage sourceIPs = context.getEngine().getPageManager().getPage( m_forbiddenIPsPage );<a name="line.743"></a>
+<span class="sourceLineNo">744</span>            if( sourceIPs != null ) {<a name="line.744"></a>
+<span class="sourceLineNo">745</span>                if( m_IPPatterns == null || m_IPPatterns.isEmpty() || sourceIPs.getLastModified().after( m_lastRebuild ) ) {<a name="line.745"></a>
+<span class="sourceLineNo">746</span>                    rebuild = true;<a name="line.746"></a>
+<span class="sourceLineNo">747</span>                }<a name="line.747"></a>
+<span class="sourceLineNo">748</span>            }<a name="line.748"></a>
+<span class="sourceLineNo">749</span><a name="line.749"></a>
+<span class="sourceLineNo">750</span>            //<a name="line.750"></a>
+<span class="sourceLineNo">751</span>            //  Do the actual rebuilding.  For simplicity's sake, we always rebuild the complete<a name="line.751"></a>
+<span class="sourceLineNo">752</span>            //  filter list regardless of what changed.<a name="line.752"></a>
+<span class="sourceLineNo">753</span>            //<a name="line.753"></a>
+<span class="sourceLineNo">754</span>            if( rebuild ) {<a name="line.754"></a>
+<span class="sourceLineNo">755</span>                m_lastRebuild = new Date();<a name="line.755"></a>
+<span class="sourceLineNo">756</span>                m_spamPatterns = parseWordList( sourceSpam, ( sourceSpam != null ) ? sourceSpam.getAttribute( LISTVAR ) : null );<a name="line.756"></a>
+<span class="sourceLineNo">757</span><a name="line.757"></a>
+<span class="sourceLineNo">758</span>                log.info( "Spam filter reloaded - recognizing " + m_spamPatterns.size() + " patterns from page " + m_forbiddenWordsPage );<a name="line.758"></a>
 <span class="sourceLineNo">759</span><a name="line.759"></a>
-<span class="sourceLineNo">760</span>                log.info( "Spam filter reloaded - recognizing " + m_spamPatterns.size() + " patterns from page " + m_forbiddenWordsPage );<a name="line.760"></a>
-<span class="sourceLineNo">761</span><a name="line.761"></a>
-<span class="sourceLineNo">762</span>                m_IPPatterns = parseWordList( sourceIPs,<a name="line.762"></a>
-<span class="sourceLineNo">763</span>                        ( sourceIPs != null ) ? ( String )sourceIPs.getAttribute( LISTIPVAR ) : null );<a name="line.763"></a>
-<span class="sourceLineNo">764</span>                log.info( "IP filter reloaded - recognizing " + m_IPPatterns.size() + " patterns from page " + m_forbiddenIPsPage );<a name="line.764"></a>
-<span class="sourceLineNo">765</span><a name="line.765"></a>
-<span class="sourceLineNo">766</span>                if( att != null ) {<a name="line.766"></a>
-<span class="sourceLineNo">767</span>                    InputStream in = context.getEngine().getAttachmentManager().getAttachmentStream(att);<a name="line.767"></a>
-<span class="sourceLineNo">768</span>                    StringWriter out = new StringWriter();<a name="line.768"></a>
-<span class="sourceLineNo">769</span>                    FileUtil.copyContents( new InputStreamReader( in,"UTF-8" ), out );<a name="line.769"></a>
-<span class="sourceLineNo">770</span>                    Collection&lt; Pattern &gt; blackList = parseBlacklist( out.toString() );<a name="line.770"></a>
-<span class="sourceLineNo">771</span>                    log.info( "...recognizing additional " + blackList.size() + " patterns from blacklist " + m_blacklist );<a name="line.771"></a>
-<span class="sourceLineNo">772</span>                    m_spamPatterns.addAll( blackList );<a name="line.772"></a>
-<span class="sourceLineNo">773</span>                }<a name="line.773"></a>
-<span class="sourceLineNo">774</span>            }<a name="line.774"></a>
-<span class="sourceLineNo">775</span>        } catch( IOException ex ) {<a name="line.775"></a>
-<span class="sourceLineNo">776</span>            log.info( "Unable to read attachment data, continuing...", ex );<a name="line.776"></a>
-<span class="sourceLineNo">777</span>        } catch( ProviderException ex ) {<a name="line.777"></a>
-<span class="sourceLineNo">778</span>            log.info( "Failed to read spam filter attachment, continuing...", ex );<a name="line.778"></a>
-<span class="sourceLineNo">779</span>        }<a name="line.779"></a>
-<span class="sourceLineNo">780</span>    }<a name="line.780"></a>
-<span class="sourceLineNo">781</span><a name="line.781"></a>
-<span class="sourceLineNo">782</span>    /**<a name="line.782"></a>
-<span class="sourceLineNo">783</span>     *  Does a check against a known pattern list.<a name="line.783"></a>
-<span class="sourceLineNo">784</span>     *<a name="line.784"></a>
-<span class="sourceLineNo">785</span>     *  @param context<a name="line.785"></a>
-<span class="sourceLineNo">786</span>     *  @param content<a name="line.786"></a>
-<span class="sourceLineNo">787</span>     *  @param change<a name="line.787"></a>
-<span class="sourceLineNo">788</span>     *  @throws RedirectException<a name="line.788"></a>
-<span class="sourceLineNo">789</span>     */<a name="line.789"></a>
-<span class="sourceLineNo">790</span>    private void checkPatternList( WikiContext context, String content, Change change ) throws RedirectException {<a name="line.790"></a>
+<span class="sourceLineNo">760</span>                m_IPPatterns = parseWordList( sourceIPs,  ( sourceIPs != null ) ? sourceIPs.getAttribute( LISTIPVAR ) : null );<a name="line.760"></a>
+<span class="sourceLineNo">761</span>                log.info( "IP filter reloaded - recognizing " + m_IPPatterns.size() + " patterns from page " + m_forbiddenIPsPage );<a name="line.761"></a>
+<span class="sourceLineNo">762</span><a name="line.762"></a>
+<span class="sourceLineNo">763</span>                if( att != null ) {<a name="line.763"></a>
+<span class="sourceLineNo">764</span>                    final InputStream in = context.getEngine().getAttachmentManager().getAttachmentStream(att);<a name="line.764"></a>
+<span class="sourceLineNo">765</span>                    final StringWriter out = new StringWriter();<a name="line.765"></a>
+<span class="sourceLineNo">766</span>                    FileUtil.copyContents( new InputStreamReader( in, StandardCharsets.UTF_8 ), out );<a name="line.766"></a>
+<span class="sourceLineNo">767</span>                    final Collection&lt; Pattern &gt; blackList = parseBlacklist( out.toString() );<a name="line.767"></a>
+<span class="sourceLineNo">768</span>                    log.info( "...recognizing additional " + blackList.size() + " patterns from blacklist " + m_blacklist );<a name="line.768"></a>
+<span class="sourceLineNo">769</span>                    m_spamPatterns.addAll( blackList );<a name="line.769"></a>
+<span class="sourceLineNo">770</span>                }<a name="line.770"></a>
+<span class="sourceLineNo">771</span>            }<a name="line.771"></a>
+<span class="sourceLineNo">772</span>        } catch( final IOException ex ) {<a name="line.772"></a>
+<span class="sourceLineNo">773</span>            log.info( "Unable to read attachment data, continuing...", ex );<a name="line.773"></a>
+<span class="sourceLineNo">774</span>        } catch( final ProviderException ex ) {<a name="line.774"></a>
+<span class="sourceLineNo">775</span>            log.info( "Failed to read spam filter attachment, continuing...", ex );<a name="line.775"></a>
+<span class="sourceLineNo">776</span>        }<a name="line.776"></a>
+<span class="sourceLineNo">777</span>    }<a name="line.777"></a>
+<span class="sourceLineNo">778</span><a name="line.778"></a>
+<span class="sourceLineNo">779</span>    /**<a name="line.779"></a>
+<span class="sourceLineNo">780</span>     *  Does a check against a known pattern list.<a name="line.780"></a>
+<span class="sourceLineNo">781</span>     *<a name="line.781"></a>
+<span class="sourceLineNo">782</span>     *  @param context<a name="line.782"></a>
+<span class="sourceLineNo">783</span>     *  @param content<a name="line.783"></a>
+<span class="sourceLineNo">784</span>     *  @param change<a name="line.784"></a>
+<span class="sourceLineNo">785</span>     *  @throws RedirectException<a name="line.785"></a>
+<span class="sourceLineNo">786</span>     */<a name="line.786"></a>
+<span class="sourceLineNo">787</span>    private void checkPatternList( WikiContext context, String content, Change change ) throws RedirectException {<a name="line.787"></a>
+<span class="sourceLineNo">788</span>        //<a name="line.788"></a>
+<span class="sourceLineNo">789</span>        //  If we have no spam patterns defined, or we're trying to save<a name="line.789"></a>
+<span class="sourceLineNo">790</span>        //  the page containing the patterns, just return.<a name="line.790"></a>
 <span class="sourceLineNo">791</span>        //<a name="line.791"></a>
-<span class="sourceLineNo">792</span>        //  If we have no spam patterns defined, or we're trying to save<a name="line.792"></a>
-<span class="sourceLineNo">793</span>        //  the page containing the patterns, just return.<a name="line.793"></a>
-<span class="sourceLineNo">794</span>        //<a name="line.794"></a>
-<span class="sourceLineNo">795</span>        if( m_spamPatterns == null || context.getPage().getName().equals( m_forbiddenWordsPage ) ) {<a name="line.795"></a>
-<span class="sourceLineNo">796</span>            return;<a name="line.796"></a>
-<span class="sourceLineNo">797</span>        }<a name="line.797"></a>
-<span class="sourceLineNo">798</span><a name="line.798"></a>
-<span class="sourceLineNo">799</span>        String ch = change.toString();<a name="line.799"></a>
-<span class="sourceLineNo">800</span>        if( context.getHttpRequest() != null ) {<a name="line.800"></a>
-<span class="sourceLineNo">801</span>            ch += HttpUtil.getRemoteAddress( context.getHttpRequest() );<a name="line.801"></a>
-<span class="sourceLineNo">802</span>        }<a name="line.802"></a>
+<span class="sourceLineNo">792</span>        if( m_spamPatterns == null || context.getPage().getName().equals( m_forbiddenWordsPage ) ) {<a name="line.792"></a>
+<span class="sourceLineNo">793</span>            return;<a name="line.793"></a>
+<span class="sourceLineNo">794</span>        }<a name="line.794"></a>
+<span class="sourceLineNo">795</span><a name="line.795"></a>
+<span class="sourceLineNo">796</span>        String ch = change.toString();<a name="line.796"></a>
+<span class="sourceLineNo">797</span>        if( context.getHttpRequest() != null ) {<a name="line.797"></a>
+<span class="sourceLineNo">798</span>            ch += HttpUtil.getRemoteAddress( context.getHttpRequest() );<a name="line.798"></a>
+<span class="sourceLineNo">799</span>        }<a name="line.799"></a>
+<span class="sourceLineNo">800</span><a name="line.800"></a>
+<span class="sourceLineNo">801</span>        for( Pattern p : m_spamPatterns ) {<a name="line.801"></a>
+<span class="sourceLineNo">802</span>            // log.debug("Attempting to match page contents with "+p.getPattern());<a name="line.802"></a>
 <span class="sourceLineNo">803</span><a name="line.803"></a>
-<span class="sourceLineNo">804</span>        for( Pattern p : m_spamPatterns ) {<a name="line.804"></a>
-<span class="sourceLineNo">805</span>            // log.debug("Attempting to match page contents with "+p.getPattern());<a name="line.805"></a>
-<span class="sourceLineNo">806</span><a name="line.806"></a>
-<span class="sourceLineNo">807</span>            if( m_matcher.contains( ch, p ) ) {<a name="line.807"></a>
-<span class="sourceLineNo">808</span>                //<a name="line.808"></a>
-<span class="sourceLineNo">809</span>                //  Spam filter has a match.<a name="line.809"></a>
-<span class="sourceLineNo">810</span>                //<a name="line.810"></a>
-<span class="sourceLineNo">811</span>                String uid = log( context, REJECT, REASON_REGEXP + "(" + p.getPattern() + ")", ch );<a name="line.811"></a>
-<span class="sourceLineNo">812</span><a name="line.812"></a>
-<span class="sourceLineNo">813</span>                log.info( "SPAM:Regexp (" + uid + "). Content matches the spam filter '" + p.getPattern() + "'" );<a name="line.813"></a>
-<span class="sourceLineNo">814</span>                checkStrategy( context, REASON_REGEXP, "Herb says '" + p.getPattern() + "' is a bad spam word and I trust Herb! (Incident code " + uid + ")" );<a name="line.814"></a>
-<span class="sourceLineNo">815</span>            }<a name="line.815"></a>
-<span class="sourceLineNo">816</span>        }<a name="line.816"></a>
-<span class="sourceLineNo">817</span>    }<a name="line.817"></a>
-<span class="sourceLineNo">818</span><a name="line.818"></a>
-<span class="sourceLineNo">819</span><a name="line.819"></a>
-<span class="sourceLineNo">820</span>    /**<a name="line.820"></a>
-<span class="sourceLineNo">821</span>     *  Does a check against a pattern list of IPs.<a name="line.821"></a>
-<span class="sourceLineNo">822</span>     *<a name="line.822"></a>
-<span class="sourceLineNo">823</span>     *  @param context<a name="line.823"></a>
-<span class="sourceLineNo">824</span>     *  @throws RedirectException<a name="line.824"></a>
-<span class="sourceLineNo">825</span>     */<a name="line.825"></a>
-<span class="sourceLineNo">826</span>    private void checkIPList( WikiContext context ) throws RedirectException {<a name="line.826"></a>
+<span class="sourceLineNo">804</span>            if( m_matcher.contains( ch, p ) ) {<a name="line.804"></a>
+<span class="sourceLineNo">805</span>                //<a name="line.805"></a>
+<span class="sourceLineNo">806</span>                //  Spam filter has a match.<a name="line.806"></a>
+<span class="sourceLineNo">807</span>                //<a name="line.807"></a>
+<span class="sourceLineNo">808</span>                String uid = log( context, REJECT, REASON_REGEXP + "(" + p.getPattern() + ")", ch );<a name="line.808"></a>
+<span class="sourceLineNo">809</span><a name="line.809"></a>
+<span class="sourceLineNo">810</span>                log.info( "SPAM:Regexp (" + uid + "). Content matches the spam filter '" + p.getPattern() + "'" );<a name="line.810"></a>
+<span class="sourceLineNo">811</span>                checkStrategy( context, REASON_REGEXP, "Herb says '" + p.getPattern() + "' is a bad spam word and I trust Herb! (Incident code " + uid + ")" );<a name="line.811"></a>
+<span class="sourceLineNo">812</span>            }<a name="line.812"></a>
+<span class="sourceLineNo">813</span>        }<a name="line.813"></a>
+<span class="sourceLineNo">814</span>    }<a name="line.814"></a>
+<span class="sourceLineNo">815</span><a name="line.815"></a>
+<span class="sourceLineNo">816</span><a name="line.816"></a>
+<span class="sourceLineNo">817</span>    /**<a name="line.817"></a>
+<span class="sourceLineNo">818</span>     *  Does a check against a pattern list of IPs.<a name="line.818"></a>
+<span class="sourceLineNo">819</span>     *<a name="line.819"></a>
+<span class="sourceLineNo">820</span>     *  @param context<a name="line.820"></a>
+<span class="sourceLineNo">821</span>     *  @throws RedirectException<a name="line.821"></a>
+<span class="sourceLineNo">822</span>     */<a name="line.822"></a>
+<span class="sourceLineNo">823</span>    private void checkIPList( WikiContext context ) throws RedirectException {<a name="line.823"></a>
+<span class="sourceLineNo">824</span>        //<a name="line.824"></a>
+<span class="sourceLineNo">825</span>        //  If we have no IP patterns defined, or we're trying to save<a name="line.825"></a>
+<span class="sourceLineNo">826</span>        //  the page containing the IP patterns, just return.<a name="line.826"></a>
 <span class="sourceLineNo">827</span>        //<a name="line.827"></a>
-<span class="sourceLineNo">828</span>        //  If we have no IP patterns defined, or we're trying to save<a name="line.828"></a>
-<span class="sourceLineNo">829</span>        //  the page containing the IP patterns, just return.<a name="line.829"></a>
-<span class="sourceLineNo">830</span>        //<a name="line.830"></a>
-<span class="sourceLineNo">831</span>        if( m_IPPatterns == null || context.getPage().getName().equals( m_forbiddenIPsPage ) ) {<a name="line.831"></a>
-<span class="sourceLineNo">832</span>            return;<a name="line.832"></a>
-<span class="sourceLineNo">833</span>        }<a name="line.833"></a>
+<span class="sourceLineNo">828</span>        if( m_IPPatterns == null || context.getPage().getName().equals( m_forbiddenIPsPage ) ) {<a name="line.828"></a>
+<span class="sourceLineNo">829</span>            return;<a name="line.829"></a>
+<span class="sourceLineNo">830</span>        }<a name="line.830"></a>
+<span class="sourceLineNo">831</span><a name="line.831"></a>
+<span class="sourceLineNo">832</span>        String remoteIP = HttpUtil.getRemoteAddress( context.getHttpRequest() );<a name="line.832"></a>
+<span class="sourceLineNo">833</span>        log.info("Attempting to match remoteIP " + remoteIP + " against " + m_IPPatterns.size() + " patterns");<a name="line.833"></a>
 <span class="sourceLineNo">834</span><a name="line.834"></a>
-<span class="sourceLineNo">835</span>        String remoteIP = HttpUtil.getRemoteAddress( context.getHttpRequest() );<a name="line.835"></a>
-<span class="sourceLineNo">836</span>        log.info("Attempting to match remoteIP " + remoteIP + " against " + m_IPPatterns.size() + " patterns");<a name="line.836"></a>
+<span class="sourceLineNo">835</span>        for( Pattern p : m_IPPatterns ) {<a name="line.835"></a>
+<span class="sourceLineNo">836</span>             log.debug("Attempting to match remoteIP with " + p.getPattern());<a name="line.836"></a>
 <span class="sourceLineNo">837</span><a name="line.837"></a>
-<span class="sourceLineNo">838</span>        for( Pattern p : m_IPPatterns ) {<a name="line.838"></a>
-<span class="sourceLineNo">839</span>             log.debug("Attempting to match remoteIP with " + p.getPattern());<a name="line.839"></a>
-<span class="sourceLineNo">840</span><a name="line.840"></a>
-<span class="sourceLineNo">841</span>            if( m_matcher.contains( remoteIP, p ) ) {<a name="line.841"></a>
-<span class="sourceLineNo">842</span><a name="line.842"></a>
-<span class="sourceLineNo">843</span>                //  IP filter has a match.<a name="line.843"></a>
-<span class="sourceLineNo">844</span>                //<a name="line.844"></a>
-<span class="sourceLineNo">845</span>                String uid = log( context, REJECT, REASON_IP_BANNED_PERMANENTLY + "(" + p.getPattern() + ")", remoteIP );<a name="line.845"></a>
-<span class="sourceLineNo">846</span><a name="line.846"></a>
-<span class="sourceLineNo">847</span>                log.info( "SPAM:IPBanList (" + uid + "). remoteIP matches the IP filter '" + p.getPattern() + "'" );<a name="line.847"></a>
-<span class="sourceLineNo">848</span>                checkStrategy( context, REASON_IP_BANNED_PERMANENTLY, "Herb says '" + p.getPattern() + "' is a banned IP and I trust Herb! (Incident code " + uid + ")" );<a name="line.848"></a>
-<span class="sourceLineNo">849</span>            }<a name="line.849"></a>
-<span class="sourceLineNo">850</span>        }<a name="line.850"></a>
-<span class="sourceLineNo">851</span>    }<a name="line.851"></a>
-<span class="sourceLineNo">852</span><a name="line.852"></a>
-<span class="sourceLineNo">853</span>    private void checkPatternList( WikiContext context, String content, String change ) throws RedirectException {<a name="line.853"></a>
-<span class="sourceLineNo">854</span>        Change c = new Change();<a name="line.854"></a>
-<span class="sourceLineNo">855</span>        c.m_change = change;<a name="line.855"></a>
-<span class="sourceLineNo">856</span>        checkPatternList( context, content, c );<a name="line.856"></a>
-<span class="sourceLineNo">857</span>    }<a name="line.857"></a>
-<span class="sourceLineNo">858</span> <a name="line.858"></a>
-<span class="sourceLineNo">859</span>    /**<a name="line.859"></a>
-<span class="sourceLineNo">860</span>     *  Creates a simple text string describing the added content.<a name="line.860"></a>
-<span class="sourceLineNo">861</span>     *<a name="line.861"></a>
-<span class="sourceLineNo">862</span>     *  @param context<a name="line.862"></a>
-<span class="sourceLineNo">863</span>     *  @param newText<a name="line.863"></a>
-<span class="sourceLineNo">864</span>     *  @return Empty string, if there is no change.<a name="line.864"></a>
-<span class="sourceLineNo">865</span>     */<a name="line.865"></a>
-<span class="sourceLineNo">866</span>    private static Change getChange( WikiContext context, String newText ) {<a name="line.866"></a>
-<span class="sourceLineNo">867</span>        WikiPage page = context.getPage();<a name="line.867"></a>
-<span class="sourceLineNo">868</span>        StringBuffer change = new StringBuffer();<a name="line.868"></a>
-<span class="sourceLineNo">869</span>        WikiEngine engine = context.getEngine();<a name="line.869"></a>
-<span class="sourceLineNo">870</span>        // Get current page version<a name="line.870"></a>
-<span class="sourceLineNo">871</span><a name="line.871"></a>
-<span class="sourceLineNo">872</span>        Change ch = new Change();<a name="line.872"></a>
-<span class="sourceLineNo">873</span>        <a name="line.873"></a>
-<span class="sourceLineNo">874</span>        try {<a name="line.874"></a>
-<span class="sourceLineNo">875</span>            String oldText = engine.getPureText( page.getName(), WikiProvider.LATEST_VERSION );<a name="line.875"></a>
+<span class="sourceLineNo">838</span>            if( m_matcher.contains( remoteIP, p ) ) {<a name="line.838"></a>
+<span class="sourceLineNo">839</span><a name="line.839"></a>
+<span class="sourceLineNo">840</span>                //  IP filter has a match.<a name="line.840"></a>
+<span class="sourceLineNo">841</span>                //<a name="line.841"></a>
+<span class="sourceLineNo">842</span>                String uid = log( context, REJECT, REASON_IP_BANNED_PERMANENTLY + "(" + p.getPattern() + ")", remoteIP );<a name="line.842"></a>
+<span class="sourceLineNo">843</span><a name="line.843"></a>
+<span class="sourceLineNo">844</span>                log.info( "SPAM:IPBanList (" + uid + "). remoteIP matches the IP filter '" + p.getPattern() + "'" );<a name="line.844"></a>
+<span class="sourceLineNo">845</span>                checkStrategy( context, REASON_IP_BANNED_PERMANENTLY, "Herb says '" + p.getPattern() + "' is a banned IP and I trust Herb! (Incident code " + uid + ")" );<a name="line.845"></a>
+<span class="sourceLineNo">846</span>            }<a name="line.846"></a>
+<span class="sourceLineNo">847</span>        }<a name="line.847"></a>
+<span class="sourceLineNo">848</span>    }<a name="line.848"></a>
+<span class="sourceLineNo">849</span><a name="line.849"></a>
+<span class="sourceLineNo">850</span>    private void checkPatternList( WikiContext context, String content, String change ) throws RedirectException {<a name="line.850"></a>
+<span class="sourceLineNo">851</span>        Change c = new Change();<a name="line.851"></a>
+<span class="sourceLineNo">852</span>        c.m_change = change;<a name="line.852"></a>
+<span class="sourceLineNo">853</span>        checkPatternList( context, content, c );<a name="line.853"></a>
+<span class="sourceLineNo">854</span>    }<a name="line.854"></a>
+<span class="sourceLineNo">855</span> <a name="line.855"></a>
+<span class="sourceLineNo">856</span>    /**<a name="line.856"></a>
+<span class="sourceLineNo">857</span>     *  Creates a simple text string describing the added content.<a name="line.857"></a>
+<span class="sourceLineNo">858</span>     *<a name="line.858"></a>
+<span class="sourceLineNo">859</span>     *  @param context<a name="line.859"></a>
+<span class="sourceLineNo">860</span>     *  @param newText<a name="line.860"></a>
+<span class="sourceLineNo">861</span>     *  @return Empty string, if there is no change.<a name="line.861"></a>
+<span class="sourceLineNo">862</span>     */<a name="line.862"></a>
+<span class="sourceLineNo">863</span>    private static Change getChange( final WikiContext context, final String newText ) {<a name="line.863"></a>
+<span class="sourceLineNo">864</span>        final WikiPage page = context.getPage();<a name="line.864"></a>
+<span class="sourceLineNo">865</span>        final StringBuffer change = new StringBuffer();<a name="line.865"></a>
+<span class="sourceLineNo">866</span>        final WikiEngine engine = context.getEngine();<a name="line.866"></a>
+<span class="sourceLineNo">867</span>        // Get current page version<a name="line.867"></a>
+<span class="sourceLineNo">868</span><a name="line.868"></a>
+<span class="sourceLineNo">869</span>        final Change ch = new Change();<a name="line.869"></a>
+<span class="sourceLineNo">870</span>        <a name="line.870"></a>
+<span class="sourceLineNo">871</span>        try {<a name="line.871"></a>
+<span class="sourceLineNo">872</span>            final String oldText = engine.getPageManager().getPureText( page.getName(), WikiProvider.LATEST_VERSION );<a name="line.872"></a>
+<span class="sourceLineNo">873</span>            final String[] first  = Diff.stringToArray( oldText );<a name="line.873"></a>
+<span class="sourceLineNo">874</span>            final String[] second = Diff.stringToArray( newText );<a name="line.874"></a>
+<span class="sourceLineNo">875</span>            final Revision rev = Diff.diff( first, second, new MyersDiff() );<a name="line.875"></a>
 <span class="sourceLineNo">876</span><a name="line.876"></a>
-<span class="sourceLineNo">877</span>            String[] first  = Diff.stringToArray( oldText );<a name="line.877"></a>
-<span class="sourceLineNo">878</span>            String[] second = Diff.stringToArray( newText );<a name="line.878"></a>
-<span class="sourceLineNo">879</span>            Revision rev = Diff.diff( first, second, new MyersDiff() );<a name="line.879"></a>
-<span class="sourceLineNo">880</span><a name="line.880"></a>
-<span class="sourceLineNo">881</span>            if( rev == null || rev.size() == 0 ) {<a name="line.881"></a>
-<span class="sourceLineNo">882</span>                return ch;<a name="line.882"></a>
-<span class="sourceLineNo">883</span>            }<a name="line.883"></a>
-<span class="sourceLineNo">884</span>            <a name="line.884"></a>
-<span class="sourceLineNo">885</span>            for( int i = 0; i &lt; rev.size(); i++ ) {<a name="line.885"></a>
-<span class="sourceLineNo">886</span>                Delta d = rev.getDelta( i );<a name="line.886"></a>
-<span class="sourceLineNo">887</span><a name="line.887"></a>
-<span class="sourceLineNo">888</span>                if( d instanceof AddDelta ) {<a name="line.888"></a>
+<span class="sourceLineNo">877</span>            if( rev == null || rev.size() == 0 ) {<a name="line.877"></a>
+<span class="sourceLineNo">878</span>                return ch;<a name="line.878"></a>
+<span class="sourceLineNo">879</span>            }<a name="line.879"></a>
+<span class="sourceLineNo">880</span>            <a name="line.880"></a>
+<span class="sourceLineNo">881</span>            for( int i = 0; i &lt; rev.size(); i++ ) {<a name="line.881"></a>
+<span class="sourceLineNo">882</span>                final Delta d = rev.getDelta( i );<a name="line.882"></a>
+<span class="sourceLineNo">883</span><a name="line.883"></a>
+<span class="sourceLineNo">884</span>                if( d instanceof AddDelta ) {<a name="line.884"></a>
+<span class="sourceLineNo">885</span>                    d.getRevised().toString( change, "", "\r\n" );<a name="line.885"></a>
+<span class="sourceLineNo">886</span>                    ch.m_adds++;<a name="line.886"></a>
+<span class="sourceLineNo">887</span>                    <a name="line.887"></a>
+<span class="sourceLineNo">888</span>                } else if( d instanceof ChangeDelta ) {<a name="line.888"></a>
 <span class="sourceLineNo">889</span>                    d.getRevised().toString( change, "", "\r\n" );<a name="line.889"></a>
 <span class="sourceLineNo">890</span>                    ch.m_adds++;<a name="line.890"></a>
 <span class="sourceLineNo">891</span>                    <a name="line.891"></a>
-<span class="sourceLineNo">892</span>                } else if( d instanceof ChangeDelta ) {<a name="line.892"></a>
-<span class="sourceLineNo">893</span>                    d.getRevised().toString( change, "", "\r\n" );<a name="line.893"></a>
-<span class="sourceLineNo">894</span>                    ch.m_adds++;<a name="line.894"></a>
-<span class="sourceLineNo">895</span>                    <a name="line.895"></a>
-<span class="sourceLineNo">896</span>                } else if( d instanceof DeleteDelta ) {<a name="line.896"></a>
-<span class="sourceLineNo">897</span>                    ch.m_removals++;<a name="line.897"></a>
-<span class="sourceLineNo">898</span>                }<a name="line.898"></a>
-<span class="sourceLineNo">899</span>            }<a name="line.899"></a>
-<span class="sourceLineNo">900</span>        } catch( DifferentiationFailedException e ) {<a name="line.900"></a>
-<span class="sourceLineNo">901</span>            log.error( "Diff failed", e );<a name="line.901"></a>
-<span class="sourceLineNo">902</span>        }<a name="line.902"></a>
-<span class="sourceLineNo">903</span><a name="line.903"></a>
-<span class="sourceLineNo">904</span>        //<a name="line.904"></a>
-<span class="sourceLineNo">905</span>        //  Don't forget to include the change note, too<a name="line.905"></a>
-<span class="sourceLineNo">906</span>        //<a name="line.906"></a>
-<span class="sourceLineNo">907</span>        String changeNote = ( String )page.getAttribute( WikiPage.CHANGENOTE );<a name="line.907"></a>
-<span class="sourceLineNo">908</span><a name="line.908"></a>
-<span class="sourceLineNo">909</span>        if( changeNote != null ) {<a name="line.909"></a>
-<span class="sourceLineNo">910</span>            change.append( "\r\n" );<a name="line.910"></a>
-<span class="sourceLineNo">911</span>            change.append( changeNote );<a name="line.911"></a>
-<span class="sourceLineNo">912</span>        }<a name="line.912"></a>
-<span class="sourceLineNo">913</span><a name="line.913"></a>
-<span class="sourceLineNo">914</span>        //<a name="line.914"></a>
-<span class="sourceLineNo">915</span>        //  And author as well<a name="line.915"></a>
-<span class="sourceLineNo">916</span>        //<a name="line.916"></a>
-<span class="sourceLineNo">917</span>        if( page.getAuthor() != null ) {<a name="line.917"></a>
-<span class="sourceLineNo">918</span>            change.append( "\r\n" + page.getAuthor() );<a name="line.918"></a>
-<span class="sourceLineNo">919</span>        }<a name="line.919"></a>
+<span class="sourceLineNo">892</span>                } else if( d instanceof DeleteDelta ) {<a name="line.892"></a>
+<span class="sourceLineNo">893</span>                    ch.m_removals++;<a name="line.893"></a>
+<span class="sourceLineNo">894</span>                }<a name="line.894"></a>
+<span class="sourceLineNo">895</span>            }<a name="line.895"></a>
+<span class="sourceLineNo">896</span>        } catch( final DifferentiationFailedException e ) {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>            log.error( "Diff failed", e );<a name="line.897"></a>
+<span class="sourceLineNo">898</span>        }<a name="line.898"></a>
+<span class="sourceLineNo">899</span><a name="line.899"></a>
+<span class="sourceLineNo">900</span>        //<a name="line.900"></a>
+<span class="sourceLineNo">901</span>        //  Don't forget to include the change note, too<a name="line.901"></a>
+<span class="sourceLineNo">902</span>        //<a name="line.902"></a>
+<span class="sourceLineNo">903</span>        final String changeNote = page.getAttribute( WikiPage.CHANGENOTE );<a name="line.903"></a>
+<span class="sourceLineNo">904</span><a name="line.904"></a>
+<span class="sourceLineNo">905</span>        if( changeNote != null ) {<a name="line.905"></a>
+<span class="sourceLineNo">906</span>            change.append( "\r\n" );<a name="line.906"></a>
+<span class="sourceLineNo">907</span>            change.append( changeNote );<a name="line.907"></a>
+<span class="sourceLineNo">908</span>        }<a name="line.908"></a>
+<span class="sourceLineNo">909</span><a name="line.909"></a>
+<span class="sourceLineNo">910</span>        //<a name="line.910"></a>
+<span class="sourceLineNo">911</span>        //  And author as well<a name="line.911"></a>
+<span class="sourceLineNo">912</span>        //<a name="line.912"></a>
+<span class="sourceLineNo">913</span>        if( page.getAuthor() != null ) {<a name="line.913"></a>
+<span class="sourceLineNo">914</span>            change.append( "\r\n" + page.getAuthor() );<a name="line.914"></a>
+<span class="sourceLineNo">915</span>        }<a name="line.915"></a>
+<span class="sourceLineNo">916</span><a name="line.916"></a>
+<span class="sourceLineNo">917</span>        ch.m_change = change.toString();<a name="line.917"></a>
+<span class="sourceLineNo">918</span>        return ch;<a name="line.918"></a>
+<span class="sourceLineNo">919</span>    }<a name="line.919"></a>
 <span class="sourceLineNo">920</span><a name="line.920"></a>
-<span class="sourceLineNo">921</span>        ch.m_change = change.toString();<a name="line.921"></a>
-<span class="sourceLineNo">922</span>        return ch;<a name="line.922"></a>
-<span class="sourceLineNo">923</span>    }<a name="line.923"></a>
-<span class="sourceLineNo">924</span><a name="line.924"></a>
-<span class="sourceLineNo">925</span>    /**<a name="line.925"></a>
-<span class="sourceLineNo">926</span>     *  Returns true, if this user should be ignored.  For example, admin users.<a name="line.926"></a>
-<span class="sourceLineNo">927</span>     *<a name="line.927"></a>
-<span class="sourceLineNo">928</span>     * @param context<a name="line.928"></a>
-<span class="sourceLineNo">929</span>     * @return True, if this users should be ignored.<a name="line.929"></a>
-<span class="sourceLineNo">930</span>     */<a name="line.930"></a>
-<span class="sourceLineNo">931</span>    private boolean ignoreThisUser( WikiContext context ) {<a name="line.931"></a>
-<span class="sourceLineNo">932</span>        if( context.hasAdminPermissions() ) {<a name="line.932"></a>
+<span class="sourceLineNo">921</span>    /**<a name="line.921"></a>
+<span class="sourceLineNo">922</span>     *  Returns true, if this user should be ignored.  For example, admin users.<a name="line.922"></a>
+<span class="sourceLineNo">923</span>     *<a name="line.923"></a>
+<span class="sourceLineNo">924</span>     * @param context<a name="line.924"></a>
+<span class="sourceLineNo">925</span>     * @return True, if this users should be ignored.<a name="line.925"></a>
+<span class="sourceLineNo">926</span>     */<a name="line.926"></a>
+<span class="sourceLineNo">927</span>    private boolean ignoreThisUser( WikiContext context ) {<a name="line.927"></a>
+<span class="sourceLineNo">928</span>        if( context.hasAdminPermissions() ) {<a name="line.928"></a>
+<span class="sourceLineNo">929</span>            return true;<a name="line.929"></a>
+<span class="sourceLineNo">930</span>        }<a name="line.930"></a>
+<span class="sourceLineNo">931</span><a name="line.931"></a>
+<span class="sourceLineNo">932</span>        if( m_ignoreAuthenticated &amp;&amp; context.getWikiSession().isAuthenticated() ) {<a name="line.932"></a>
 <span class="sourceLineNo">933</span>            return true;<a name="line.933"></a>
 <span class="sourceLineNo">934</span>        }<a name="line.934"></a>
 <span class="sourceLineNo">935</span><a name="line.935"></a>
-<span class="sourceLineNo">936</span>        if( m_ignoreAuthenticated &amp;&amp; context.getWikiSession().isAuthenticated() ) {<a name="line.936"></a>
+<span class="sourceLineNo">936</span>        if( context.getVariable( "captcha" ) != null ) {<a name="line.936"></a>
 <span class="sourceLineNo">937</span>            return true;<a name="line.937"></a>
 <span class="sourceLineNo">938</span>        }<a name="line.938"></a>
 <span class="sourceLineNo">939</span><a name="line.939"></a>
-<span class="sourceLineNo">940</span>        if( context.getVariable( "captcha" ) != null ) {<a name="line.940"></a>
-<span class="sourceLineNo">941</span>            return true;<a name="line.941"></a>
-<span class="sourceLineNo">942</span>        }<a name="line.942"></a>
-<span class="sourceLineNo">943</span><a name="line.943"></a>
-<span class="sourceLineNo">944</span>        return false;<a name="line.944"></a>
-<span class="sourceLineNo">945</span>    }<a name="line.945"></a>
-<span class="sourceLineNo">946</span><a name="line.946"></a>
-<span class="sourceLineNo">947</span>    /**<a name="line.947"></a>
-<span class="sourceLineNo">948</span>     *  Returns a random string of six uppercase characters.<a name="line.948"></a>
-<span class="sourceLineNo">949</span>     *<a name="line.949"></a>
-<span class="sourceLineNo">950</span>     *  @return A random string<a name="line.950"></a>
-<span class="sourceLineNo">951</span>     */<a name="line.951"></a>
-<span class="sourceLineNo">952</span>    private static String getUniqueID() {<a name="line.952"></a>
-<span class="sourceLineNo">953</span>        StringBuilder sb = new StringBuilder();<a name="line.953"></a>
-<span class="sourceLineNo">954</span>        Random rand = new Random();<a name="line.954"></a>
-<span class="sourceLineNo">955</span><a name="line.955"></a>
-<span class="sourceLineNo">956</span>        for( int i = 0; i &lt; 6; i++ ) {<a name="line.956"></a>
-<span class="sourceLineNo">957</span>            char x = ( char )( 'A' + rand.nextInt( 26 ) );<a name="line.957"></a>
-<span class="sourceLineNo">958</span>            sb.append( x );<a name="line.958"></a>
-<span class="sourceLineNo">959</span>        }<a name="line.959"></a>
-<span class="sourceLineNo">960</span><a name="line.960"></a>
-<span class="sourceLineNo">961</span>        return sb.toString();<a name="line.961"></a>
-<span class="sourceLineNo">962</span>    }<a name="line.962"></a>
-<span class="sourceLineNo">963</span><a name="line.963"></a>
-<span class="sourceLineNo">964</span>    /**<a name="line.964"></a>
-<span class="sourceLineNo">965</span>     *  Returns a page to which we shall redirect, based on the current value of the "captcha" parameter.<a name="line.965"></a>
-<span class="sourceLineNo">966</span>     *<a name="line.966"></a>
-<span class="sourceLineNo">967</span>     *  @param ctx WikiContext<a name="line.967"></a>
-<span class="sourceLineNo">968</span>     *  @return An URL to redirect to<a name="line.968"></a>
-<span class="sourceLineNo">969</span>     */<a name="line.969"></a>
-<span class="sourceLineNo">970</span>    private String getRedirectPage( WikiContext ctx ) {<a name="line.970"></a>
-<span class="sourceLineNo">971</span>        if( m_useCaptcha ) {<a name="line.971"></a>
-<span class="sourceLineNo">972</span>            return ctx.getURL( WikiContext.NONE, "Captcha.jsp", "page="+ctx.getEngine().encodeName( ctx.getPage().getName() ) );<a name="line.972"></a>
-<span class="sourceLineNo">973</span>        }<a name="line.973"></a>
-<span class="sourceLineNo">974</span><a name="line.974"></a>
-<span class="sourceLineNo">975</span>        return ctx.getURL( WikiContext.VIEW, m_errorPage );<a name="line.975"></a>
-<span class="sourceLineNo">976</span>    }<a name="line.976"></a>
-<span class="sourceLineNo">977</span><a name="line.977"></a>
-<span class="sourceLineNo">978</span>    /**<a name="line.978"></a>
-<span class="sourceLineNo">979</span>     *  Checks whether the UserProfile matches certain checks.<a name="line.979"></a>
-<span class="sourceLineNo">980</span>     *<a name="line.980"></a>
-<span class="sourceLineNo">981</span>     *  @param profile The profile to check<a name="line.981"></a>
-<span class="sourceLineNo">982</span>     *  @param context The WikiContext<a name="line.982"></a>
-<span class="sourceLineNo">983</span>     *  @return False, if this userprofile is suspect and should not be allowed to be added.<a name="line.983"></a>
-<span class="sourceLineNo">984</span>     *  @since 2.6.1<a name="line.984"></a>
-<span class="sourceLineNo">985</span>     */<a name="line.985"></a>
-<span class="sourceLineNo">986</span>    public boolean isValidUserProfile( WikiContext context, UserProfile profile ) {<a name="line.986"></a>
-<span class="sourceLineNo">987</span>        try {<a name="line.987"></a>
-<span class="sourceLineNo">988</span>            checkPatternList( context, profile.getEmail(), profile.getEmail() );<a name="line.988"></a>
-<span class="sourceLineNo">989</span>            checkPatternList( context, profile.getFullname(), profile.getFullname() );<a name="line.989"></a>
-<span class="sourceLineNo">990</span>            checkPatternList( context, profile.getLoginName(), profile.getLoginName() );<a name="line.990"></a>
-<span class="sourceLineNo">991</span>        } catch( RedirectException e ) {<a name="line.991"></a>
-<span class="sourceLineNo">992</span>            log.info("Detected attempt to create a spammer user account (see above for rejection reason)");<a name="line.992"></a>
-<span class="sourceLineNo">993</span>            return false;<a name="line.993"></a>
-<span class="sourceLineNo">994</span>        }<a name="line.994"></a>
-<span class="sourceLineNo">995</span><a name="line.995"></a>
-<span class="sourceLineNo">996</span>        return true;<a name="line.996"></a>
-<span class="sourceLineNo">997</span>    }<a name="line.997"></a>
-<span class="sourceLineNo">998</span><a name="line.998"></a>
-<span class="sourceLineNo">999</span>    /**<a name="line.999"></a>
-<span class="sourceLineNo">1000</span>     *  This method is used to calculate an unique code when submitting the page to detect edit conflicts.  <a name="line.1000"></a>
-<span class="sourceLineNo">1001</span>     *  It currently incorporates the last-modified date of the page, and the IP address of the submitter.<a name="line.1001"></a>
-<span class="sourceLineNo">1002</span>     *<a name="line.1002"></a>
-<span class="sourceLineNo">1003</span>     *  @param page The WikiPage under edit<a name="line.1003"></a>
-<span class="sourceLineNo">1004</span>     *  @param request The HTTP Request<a name="line.1004"></a>
-<span class="sourceLineNo">1005</span>     *  @since 2.6<a name="line.1005"></a>
-<span class="sourceLineNo">1006</span>     *  @return A hash value for this page and session<a name="line.1006"></a>
-<span class="sourceLineNo">1007</span>     */<a name="line.1007"></a>
-<span class="sourceLineNo">1008</span>    public static final String getSpamHash( WikiPage page, HttpServletRequest request ) {<a name="line.1008"></a>
-<span class="sourceLineNo">1009</span>        long lastModified = 0;<a name="line.1009"></a>
-<span class="sourceLineNo">1010</span><a name="line.1010"></a>
-<span class="sourceLineNo">1011</span>        if( page.getLastModified() != null ) {<a name="line.1011"></a>
-<span class="sourceLineNo">1012</span>            lastModified = page.getLastModified().getTime();<a name="line.1012"></a>
-<span class="sourceLineNo">1013</span>        }<a name="line.1013"></a>
-<span class="sourceLineNo">1014</span>        long remote = HttpUtil.getRemoteAddress( request ).hashCode();<a name="line.1014"></a>
-<span class="sourceLineNo">1015</span><a name="line.1015"></a>
-<span class="sourceLineNo">1016</span>        return Long.toString( lastModified ^ remote );<a name="line.1016"></a>
-<span class="sourceLineNo">1017</span>    }<a name="line.1017"></a>
-<span class="sourceLineNo">1018</span><a name="line.1018"></a>
-<span class="sourceLineNo">1019</span>    /**<a name="line.1019"></a>
-<span class="sourceLineNo">1020</span>     *  Returns the name of the hash field to be used in this request. The value is unique per session, and once <a name="line.1020"></a>
-<span class="sourceLineNo">1021</span>     *  the session has expired, you cannot edit anymore.<a name="line.1021"></a>
-<span class="sourceLineNo">1022</span>     *<a name="line.1022"></a>
-<span class="sourceLineNo">1023</span>     *  @param request The page request<a name="line.1023"></a>
-<span class="sourceLineNo">1024</span>     *  @return The name to be used in the hash field<a name="line.1024"></a>
-<span class="sourceLineNo">1025</span>     *  @since  2.6<a name="line.1025"></a>
-<span class="sourceLineNo">1026</span>     */<a name="line.1026"></a>
-<span class="sourceLineNo">1027</span>    public static final String getHashFieldName( HttpServletRequest request ) {<a name="line.1027"></a>
-<span class="sourceLineNo">1028</span>        String hash = null;<a name="line.1028"></a>
-<span class="sourceLineNo">1029</span><a name="line.1029"></a>
-<span class="sourceLineNo">1030</span>        if( request.getSession() != null ) {<a name="line.1030"></a>
-<span class="sourceLineNo">1031</span>            hash = ( String )request.getSession().getAttribute( "_hash" );<a name="line.1031"></a>
-<span class="sourceLineNo">1032</span><a name="line.1032"></a>
-<span class="sourceLineNo">1033</span>            if( hash == null ) {<a name="line.1033"></a>
-<span class="sourceLineNo">1034</span>                hash = c_hashName;<a name="line.1034"></a>
-<span class="sourceLineNo">1035</span>                request.getSession().setAttribute( "_hash", hash );<a name="line.1035"></a>
-<span class="sourceLineNo">1036</span>            }<a name="line.1036"></a>
-<span class="sourceLineNo">1037</span>        }<a name="line.1037"></a>
-<span class="sourceLineNo">1038</span><a name="line.1038"></a>
-<span class="sourceLineNo">1039</span>        if( c_hashName == null || c_lastUpdate &lt; ( System.currentTimeMillis() - HASH_DELAY * 60 * 60 * 1000 ) ) {<a name="line.1039"></a>
-<span class="sourceLineNo">1040</span>            c_hashName = getUniqueID().toLowerCase();<a name="line.1040"></a>
-<span class="sourceLineNo">1041</span>            c_lastUpdate = System.currentTimeMillis();<a name="line.1041"></a>
-<span class="sourceLineNo">1042</span>        }<a name="line.1042"></a>
+<span class="sourceLineNo">940</span>        return false;<a name="line.940"></a>
+<span class="sourceLineNo">941</span>    }<a name="line.941"></a>
+<span class="sourceLineNo">942</span><a name="line.942"></a>
+<span class="sourceLineNo">943</span>    /**<a name="line.943"></a>
+<span class="sourceLineNo">944</span>     *  Returns a random string of six uppercase characters.<a name="line.944"></a>
+<span class="sourceLineNo">945</span>     *<a name="line.945"></a>
+<span class="sourceLineNo">946</span>     *  @return A random string<a name="line.946"></a>
+<span class="sourceLineNo">947</span>     */<a name="line.947"></a>
+<span class="sourceLineNo">948</span>    private static String getUniqueID() {<a name="line.948"></a>
+<span class="sourceLineNo">949</span>        StringBuilder sb = new StringBuilder();<a name="line.949"></a>
+<span class="sourceLineNo">950</span>        Random rand = new Random();<a name="line.950"></a>
+<span class="sourceLineNo">951</span><a name="line.951"></a>
+<span class="sourceLineNo">952</span>        for( int i = 0; i &lt; 6; i++ ) {<a name="line.952"></a>
+<span class="sourceLineNo">953</span>            char x = ( char )( 'A' + rand.nextInt( 26 ) );<a name="line.953"></a>
+<span class="sourceLineNo">954</span>            sb.append( x );<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        }<a name="line.955"></a>
+<span class="sourceLineNo">956</span><a name="line.956"></a>
+<span class="sourceLineNo">957</span>        return sb.toString();<a name="line.957"></a>
+<span class="sourceLineNo">958</span>    }<a name="line.958"></a>
+<span class="sourceLineNo">959</span><a name="line.959"></a>
+<span class="sourceLineNo">960</span>    /**<a name="line.960"></a>
+<span class="sourceLineNo">961</span>     *  Returns a page to which we shall redirect, based on the current value of the "captcha" parameter.<a name="line.961"></a>
+<span class="sourceLineNo">962</span>     *<a name="line.962"></a>
+<span class="sourceLineNo">963</span>     *  @param ctx WikiContext<a name="line.963"></a>
+<span class="sourceLineNo">964</span>     *  @return An URL to redirect to<a name="line.964"></a>
+<span class="sourceLineNo">965</span>     */<a name="line.965"></a>
+<span class="sourceLineNo">966</span>    private String getRedirectPage( WikiContext ctx ) {<a name="line.966"></a>
+<span class="sourceLineNo">967</span>        if( m_useCaptcha ) {<a name="line.967"></a>
+<span class="sourceLineNo">968</span>            return ctx.getURL( WikiContext.NONE, "Captcha.jsp", "page="+ctx.getEngine().encodeName( ctx.getPage().getName() ) );<a name="line.968"></a>
+<span class="sourceLineNo">969</span>        }<a name="line.969"></a>
+<span class="sourceLineNo">970</span><a name="line.970"></a>
+<span class="sourceLineNo">971</span>        return ctx.getURL( WikiContext.VIEW, m_errorPage );<a name="line.971"></a>
+<span class="sourceLineNo">972</span>    }<a name="line.972"></a>
+<span class="sourceLineNo">973</span><a name="line.973"></a>
+<span class="sourceLineNo">974</span>    /**<a name="line.974"></a>
+<span class="sourceLineNo">975</span>     *  Checks whether the UserProfile matches certain checks.<a name="line.975"></a>
+<span class="sourceLineNo">976</span>     *<a name="line.976"></a>
+<span class="sourceLineNo">977</span>     *  @param profile The profile to check<a name="line.977"></a>
+<span class="sourceLineNo">978</span>     *  @param context The WikiContext<a name="line.978"></a>
+<span class="sourceLineNo">979</span>     *  @return False, if this userprofile is suspect and should not be allowed to be added.<a name="line.979"></a>
+<span class="sourceLineNo">980</span>     *  @since 2.6.1<a name="line.980"></a>
+<span class="sourceLineNo">981</span>     */<a name="line.981"></a>
+<span class="sourceLineNo">982</span>    public boolean isValidUserProfile( WikiContext context, UserProfile profile ) {<a name="line.982"></a>
+<span class="sourceLineNo">983</span>        try {<a name="line.983"></a>
+<span class="sourceLineNo">984</span>            checkPatternList( context, profile.getEmail(), profile.getEmail() );<a name="line.984"></a>
+<span class="sourceLineNo">985</span>            checkPatternList( context, profile.getFullname(), profile.getFullname() );<a name="line.985"></a>
+<span class="sourceLineNo">986</span>            checkPatternList( context, profile.getLoginName(), profile.getLoginName() );<a name="line.986"></a>
+<span class="sourceLineNo">987</span>        } catch( RedirectException e ) {<a name="line.987"></a>
+<span class="sourceLineNo">988</span>            log.info("Detected attempt to create a spammer user account (see above for rejection reason)");<a name="line.988"></a>
+<span class="sourceLineNo">989</span>            return false;<a name="line.989"></a>
+<span class="sourceLineNo">990</span>        }<a name="line.990"></a>
+<span class="sourceLineNo">991</span><a name="line.991"></a>
+<span class="sourceLineNo">992</span>        return true;<a name="line.992"></a>
+<span class="sourceLineNo">993</span>    }<a name="line.993"></a>
+<span class="sourceLineNo">994</span><a name="line.994"></a>
+<span class="sourceLineNo">995</span>    /**<a name="line.995"></a>
+<span class="sourceLineNo">996</span>     *  This method is used to calculate an unique code when submitting the page to detect edit conflicts.  <a name="line.996"></a>
+<span class="sourceLineNo">997</span>     *  It currently incorporates the last-modified date of the page, and the IP address of the submitter.<a name="line.997"></a>
+<span class="sourceLineNo">998</span>     *<a name="line.998"></a>
+<span class="sourceLineNo">999</span>     *  @param page The WikiPage under edit<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>     *  @param request The HTTP Request<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>     *  @since 2.6<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>     *  @return A hash value for this page and session<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>     */<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>    public static final String getSpamHash( WikiPage page, HttpServletRequest request ) {<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>        long lastModified = 0;<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span><a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>        if( page.getLastModified() != null ) {<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>            lastModified = page.getLastModified().getTime();<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>        }<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>        long remote = HttpUtil.getRemoteAddress( request ).hashCode();<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span><a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>        return Long.toString( lastModified ^ remote );<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>    }<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span><a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>    /**<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>     *  Returns the name of the hash field to be used in this request. The value is unique per session, and once <a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>     *  the session has expired, you cannot edit anymore.<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>     *<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>     *  @param request The page request<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>     *  @return The name to be used in the hash field<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>     *  @since  2.6<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>     */<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>    public static final String getHashFieldName( HttpServletRequest request ) {<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>        String hash = null;<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span><a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>        if( request.getSession() != null ) {<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>            hash = ( String )request.getSession().getAttribute( "_hash" );<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span><a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>            if( hash == null ) {<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>                hash = c_hashName;<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>                request.getSession().setAttribute( "_hash", hash );<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>            }<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>        }<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span><a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>        if( c_hashName == null || c_lastUpdate &lt; ( System.currentTimeMillis() - HASH_DELAY * 60 * 60 * 1000 ) ) {<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>            c_hashName = getUniqueID().toLowerCase();<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>            c_lastUpdate = System.currentTimeMillis();<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>        }<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span><a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>        return hash != null ? hash : c_hashName;<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>    }<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span><a name="line.1042"></a>
 <span class="sourceLineNo">1043</span><a name="line.1043"></a>
-<span class="sourceLineNo">1044</span>        return hash != null ? hash : c_hashName;<a name="line.1044"></a>
-<span class="sourceLineNo">1045</span>    }<a name="line.1045"></a>
-<span class="sourceLineNo">1046</span><a name="line.1046"></a>
-<span class="sourceLineNo">1047</span><a name="line.1047"></a>
-<span class="sourceLineNo">1048</span>    /**<a name="line.1048"></a>
-<span class="sourceLineNo">1049</span>     *  This method checks if the hash value is still valid, i.e. if it exists at all. This can occur in two cases: <a name="line.1049"></a>
-<span class="sourceLineNo">1050</span>     *  either this is a spam bot which is not adaptive, or it is someone who has been editing one page for too long, <a name="line.1050"></a>
-<span class="sourceLineNo">1051</span>     *  and their session has expired.<a name="line.1051"></a>
-<span class="sourceLineNo">1052</span>     *  &lt;p&gt;<a name="line.1052"></a>
-<span class="sourceLineNo">1053</span>     *  This method puts a redirect to the http response field to page "SessionExpired" and logs the incident in <a name="line.1053"></a>
-<span class="sourceLineNo">1054</span>     *  the spam log (it may or may not be spam, but it's rather likely that it is).<a name="line.1054"></a>
-<span class="sourceLineNo">1055</span>     *<a name="line.1055"></a>
-<span class="sourceLineNo">1056</span>     *  @param context The WikiContext<a name="line.1056"></a>
-<span class="sourceLineNo">1057</span>     *  @param pageContext The JSP PageContext.<a name="line.1057"></a>
-<span class="sourceLineNo">1058</span>     *  @return True, if hash is okay.  False, if hash is not okay, and you need to redirect.<a name="line.1058"></a>
-<span class="sourceLineNo">1059</span>     *  @throws IOException If redirection fails<a name="line.1059"></a>
-<span class="sourceLineNo">1060</span>     *  @since 2.6<a name="line.1060"></a>
-<span class="sourceLineNo">1061</span>     */<a name="line.1061"></a>
-<span class="sourceLineNo">1062</span>    public static final boolean checkHash( WikiContext context, PageContext pageContext ) throws IOException {<a name="line.1062"></a>
-<span class="sourceLineNo">1063</span>        String hashName = getHashFieldName( (HttpServletRequest)pageContext.getRequest() );<a name="line.1063"></a>
-<span class="sourceLineNo">1064</span><a name="line.1064"></a>
-<span class="sourceLineNo">1065</span>        if( pageContext.getRequest().getParameter(hashName) == null ) {<a name="line.1065"></a>
-<span class="sourceLineNo">1066</span>            if( pageContext.getAttribute( hashName ) == null ) {<a name="line.1066"></a>
-<span class="sourceLineNo">1067</span>                Change change = getChange( context, EditorManager.getEditedText( pageContext ) );<a name="line.1067"></a>
-<span class="sourceLineNo">1068</span>                log( context, REJECT, "MissingHash", change.m_change );<a name="line.1068"></a>
-<span class="sourceLineNo">1069</span><a name="line.1069"></a>
-<span class="sourceLineNo">1070</span>                String redirect = context.getURL( WikiContext.VIEW,"SessionExpired" );<a name="line.1070"></a>
-<span class="sourceLineNo">1071</span>                ( ( HttpServletResponse )pageContext.getResponse() ).sendRedirect( redirect );<a name="line.1071"></a>
-<span class="sourceLineNo">1072</span>                return false;<a name="line.1072"></a>
-<span class="sourceLineNo">1073</span>            }<a name="line.1073"></a>
-<span class="sourceLineNo">1074</span>        }<a name="line.1074"></a>
-<span class="sourceLineNo">1075</span><a name="line.1075"></a>
-<span class="sourceLineNo">1076</span>        return true;<a name="line.1076"></a>
-<span class="sourceLineNo">1077</span>    }<a name="line.1077"></a>
-<span class="sourceLineNo">1078</span><a name="line.1078"></a>
-<span class="sourceLineNo">1079</span>    /**<a name="line.1079"></a>
-<span class="sourceLineNo">1080</span>     * This helper method adds all the input fields to your editor that the SpamFilter requires<a name="line.1080"></a>
-<span class="sourceLineNo">1081</span>     * to check for spam.  This &lt;i&gt;must&lt;/i&gt; be in your editor form if you intend to use the SpamFilter.<a name="line.1081"></a>
-<span class="sourceLineNo">1082</span>     *  <a name="line.1082"></a>
-<span class="sourceLineNo">1083</span>     * @param pageContext The PageContext<a name="line.1083"></a>
-<span class="sourceLineNo">1084</span>     * @return A HTML string which contains input fields for the SpamFilter.<a name="line.1084"></a>
-<span class="sourceLineNo">1085</span>     */<a name="line.1085"></a>
-<span class="sourceLineNo">1086</span>    public static final String insertInputFields( final PageContext pageContext ) {<a name="line.1086"></a>
-<span class="sourceLineNo">1087</span>        final WikiContext ctx = WikiContext.findContext( pageContext );<a name="line.1087"></a>
-<span class="sourceLineNo">1088</span>        final WikiEngine engine = ctx.getEngine();<a name="line.1088"></a>
-<span class="sourceLineNo">1089</span>        final StringBuilder sb = new StringBuilder();<a name="line.1089"></a>
-<span class="sourceLineNo">1090</span>        if( engine.getContentEncoding().equals( StandardCharsets.UTF_8 ) ) {<a name="line.1090"></a>
-<span class="sourceLineNo">1091</span>            sb.append( "&lt;input name='encodingcheck' type='hidden' value='\u3041' /&gt;\n" );<a name="line.1091"></a>
-<span class="sourceLineNo">1092</span>        }<a name="line.1092"></a>
-<span class="sourceLineNo">1093</span><a name="line.1093"></a>
-<span class="sourceLineNo">1094</span>        return sb.toString();<a name="line.1094"></a>
-<span class="sourceLineNo">1095</span>    }<a name="line.1095"></a>
-<span class="sourceLineNo">1096</span>    <a name="line.1096"></a>
-<span class="sourceLineNo">1097</span>    /**<a name="line.1097"></a>
-<span class="sourceLineNo">1098</span>     *  A local class for storing host information.<a name="line.1098"></a>
-<span class="sourceLineNo">1099</span>     *<a name="line.1099"></a>
-<span class="sourceLineNo">1100</span>     *  @since<a name="line.1100"></a>
-<span class="sourceLineNo">1101</span>     */<a name="line.1101"></a>
-<span class="sourceLineNo">1102</span>    private class Host {<a name="line.1102"></a>
-<span class="sourceLineNo">1103</span>        <a name="line.1103"></a>
-<span class="sourceLineNo">1104</span>        private long   m_addedTime = System.currentTimeMillis();<a name="line.1104"></a>
-<span class="sourceLineNo">1105</span>        private long   m_releaseTime;<a name="line.1105"></a>
-<span class="sourceLineNo">1106</span>        private String m_address;<a name="line.1106"></a>
-<span class="sourceLineNo">1107</span>        private Change m_change;<a name="line.1107"></a>
+<span class="sourceLineNo">1044</span>    /**<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>     *  This method checks if the hash value is still valid, i.e. if it exists at all. This can occur in two cases: <a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>     *  either this is a spam bot which is not adaptive, or it is someone who has been editing one page for too long, <a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>     *  and their session has expired.<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>     *  &lt;p&gt;<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>     *  This method puts a redirect to the http response field to page "SessionExpired" and logs the incident in <a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>     *  the spam log (it may or may not be spam, but it's rather likely that it is).<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>     *<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>     *  @param context The WikiContext<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>     *  @param pageContext The JSP PageContext.<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>     *  @return True, if hash is okay.  False, if hash is not okay, and you need to redirect.<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>     *  @throws IOException If redirection fails<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>     *  @since 2.6<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>     */<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>    public static final boolean checkHash( WikiContext context, PageContext pageContext ) throws IOException {<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>        String hashName = getHashFieldName( (HttpServletRequest)pageContext.getRequest() );<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span><a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>        if( pageContext.getRequest().getParameter(hashName) == null ) {<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>            if( pageContext.getAttribute( hashName ) == null ) {<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>                Change change = getChange( context, EditorManager.getEditedText( pageContext ) );<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>                log( context, REJECT, "MissingHash", change.m_change );<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span><a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>                String redirect = context.getURL( WikiContext.VIEW,"SessionExpired" );<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>                ( ( HttpServletResponse )pageContext.getResponse() ).sendRedirect( redirect );<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>                return false;<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>            }<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>        }<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span><a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>        return true;<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>    }<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span><a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>    /**<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>     * This helper method adds all the input fields to your editor that the SpamFilter requires<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>     * to check for spam.  This &lt;i&gt;must&lt;/i&gt; be in your editor form if you intend to use the SpamFilter.<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>     *  <a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>     * @param pageContext The PageContext<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>     * @return A HTML string which contains input fields for the SpamFilter.<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>     */<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>    public static final String insertInputFields( final PageContext pageContext ) {<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>        final WikiContext ctx = WikiContext.findContext( pageContext );<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>        final WikiEngine engine = ctx.getEngine();<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>        final StringBuilder sb = new StringBuilder();<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>        if( engine.getContentEncoding().equals( StandardCharsets.UTF_8 ) ) {<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>            sb.append( "&lt;input name='encodingcheck' type='hidden' value='\u3041' /&gt;\n" );<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>        }<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span><a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>        return sb.toString();<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>    }<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>    <a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>    /**<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span>     *  A local class for storing host information.<a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>     *<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>     *  @since<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span>     */<a name="line.1097"></a>
+<span class="sourceLineNo">1098</span>    private class Host {<a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>        <a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>        private long   m_addedTime = System.currentTimeMillis();<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>        private long   m_releaseTime;<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>        private String m_address;<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span>        private Change m_change;<a name="line.1103"></a>
+<span class="sourceLineNo">1104</span><a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>        public String getAddress() {<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span>            return m_address;<a name="line.1106"></a>
+<span class="sourceLineNo">1107</span>        }<a name="line.1107"></a>
 <span class="sourceLineNo">1108</span><a name="line.1108"></a>
-<span class="sourceLineNo">1109</span>        public String getAddress() {<a name="line.1109"></a>
-<span class="sourceLineNo">1110</span>            return m_address;<a name="line.1110"></a>
+<span class="sourceLineNo">1109</span>        public long getReleaseTime() {<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span>            return m_releaseTime;<a name="line.1110"></a>
 <span class="sourceLineNo">1111</span>        }<a name="line.1111"></a>
 <span class="sourceLineNo">1112</span><a name="line.1112"></a>
-<span class="sourceLineNo">1113</span>        public long getReleaseTime() {<a name="line.1113"></a>
-<span class="sourceLineNo">1114</span>            return m_releaseTime;<a name="line.1114"></a>
+<span class="sourceLineNo">1113</span>        public long getAddedTime() {<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span>            return m_addedTime;<a name="line.1114"></a>
 <span class="sourceLineNo">1115</span>        }<a name="line.1115"></a>
 <span class="sourceLineNo">1116</span><a name="line.1116"></a>
-<span class="sourceLineNo">1117</span>        public long getAddedTime() {<a name="line.1117"></a>
-<span class="sourceLineNo">1118</span>            return m_addedTime;<a name="line.1118"></a>
+<span class="sourceLineNo">1117</span>        public Change getChange() {<a name="line.1117"></a>
+<span class="sourceLineNo">1118</span>            return m_change;<a name="line.1118"></a>
 <span class="sourceLineNo">1119</span>        }<a name="line.1119"></a>
 <span class="sourceLineNo">1120</span><a name="line.1120"></a>
-<span class="sourceLineNo">1121</span>        public Change getChange() {<a name="line.1121"></a>
-<span class="sourceLineNo">1122</span>            return m_change;<a name="line.1122"></a>
-<span class="sourceLineNo">1123</span>        }<a name="line.1123"></a>
-<span class="sourceLineNo">1124</span><a name="line.1124"></a>
-<span class="sourceLineNo">1125</span>        public Host( String ipaddress, Change change ) {<a name="line.1125"></a>
-<span class="sourceLineNo">1126</span>            m_address = ipaddress;<a name="line.1126"></a>
-<span class="sourceLineNo">1127</span>            m_change  = change;<a name="line.1127"></a>
-<span class="sourceLineNo">1128</span>            m_releaseTime = System.currentTimeMillis() + m_banTime * 60 * 1000L;<a name="line.1128"></a>
-<span class="sourceLineNo">1129</span>        }<a name="line.1129"></a>
+<span class="sourceLineNo">1121</span>        public Host( String ipaddress, Change change ) {<a name="line.1121"></a>
+<span class="sourceLineNo">1122</span>            m_address = ipaddress;<a name="line.1122"></a>
+<span class="sourceLineNo">1123</span>            m_change  = change;<a name="line.1123"></a>
+<span class="sourceLineNo">1124</span>            m_releaseTime = System.currentTimeMillis() + m_banTime * 60 * 1000L;<a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>        }<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>        <a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>    }<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>    <a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>    private static class Change {<a name="line.1129"></a>
 <span class="sourceLineNo">1130</span>        <a name="line.1130"></a>
-<span class="sourceLineNo">1131</span>    }<a name="line.1131"></a>
-<span class="sourceLineNo">1132</span>    <a name="line.1132"></a>
-<span class="sourceLineNo">1133</span>    private static class Change {<a name="line.1133"></a>
+<span class="sourceLineNo">1131</span>        public String m_change;<a name="line.1131"></a>
+<span class="sourceLineNo">1132</span>        public int    m_adds;<a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>        public int    m_removals;<a name="line.1133"></a>
 <span class="sourceLineNo">1134</span>        <a name="line.1134"></a>
-<span class="sourceLineNo">1135</span>        public String m_change;<a name="line.1135"></a>
-<span class="sourceLineNo">1136</span>        public int    m_adds;<a name="line.1136"></a>
-<span class="sourceLineNo">1137</span>        public int    m_removals;<a name="line.1137"></a>
+<span class="sourceLineNo">1135</span>        public String toString() {<a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>            return m_change;<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span>        }<a name="line.1137"></a>
 <span class="sourceLineNo">1138</span>        <a name="line.1138"></a>
-<span class="sourceLineNo">1139</span>        public String toString() {<a name="line.1139"></a>
-<span class="sourceLineNo">1140</span>            return m_change;<a name="line.1140"></a>
-<span class="sourceLineNo">1141</span>        }<a name="line.1141"></a>
-<span class="sourceLineNo">1142</span>        <a name="line.1142"></a>
-<span class="sourceLineNo">1143</span>        public boolean equals( Object o ) {<a name="line.1143"></a>
-<span class="sourceLineNo">1144</span>            if( o instanceof Change ) {<a name="line.1144"></a>
-<span class="sourceLineNo">1145</span>                return m_change.equals( ( ( Change )o ).m_change );<a name="line.1145"></a>
-<span class="sourceLineNo">1146</span>            }<a name="line.1146"></a>
-<span class="sourceLineNo">1147</span>            return false;<a name="line.1147"></a>
+<span class="sourceLineNo">1139</span>        public boolean equals( Object o ) {<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>            if( o instanceof Change ) {<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span>                return m_change.equals( ( ( Change )o ).m_change );<a name="line.1141"></a>
+<span class="sourceLineNo">1142</span>            }<a name="line.1142"></a>
+<span class="sourceLineNo">1143</span>            return false;<a name="line.1143"></a>
+<span class="sourceLineNo">1144</span>        }<a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>        <a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>        public int hashCode() {<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>            return m_change.hashCode() + 17;<a name="line.1147"></a>
 <span class="sourceLineNo">1148</span>        }<a name="line.1148"></a>
 <span class="sourceLineNo">1149</span>        <a name="line.1149"></a>
-<span class="sourceLineNo">1150</span>        public int hashCode() {<a name="line.1150"></a>
-<span class="sourceLineNo">1151</span>            return m_change.hashCode() + 17;<a name="line.1151"></a>
-<span class="sourceLineNo">1152</span>        }<a name="line.1152"></a>
-<span class="sourceLineNo">1153</span>        <a name="line.1153"></a>
-<span class="sourceLineNo">1154</span>    }<a name="line.1154"></a>
-<span class="sourceLineNo">1155</span><a name="line.1155"></a>
-<span class="sourceLineNo">1156</span>}<a name="line.1156"></a>
+<span class="sourceLineNo">1150</span>    }<a name="line.1150"></a>
+<span class="sourceLineNo">1151</span><a name="line.1151"></a>
+<span class="sourceLineNo">1152</span>}<a name="line.1152"></a>
 
 
 

@@ -2,6 +2,33 @@
 
     namespace org.apache.wiki.search {
 
+        class BasicSearchProvider [[BasicSearchProvider.html]] {
+            +initialize(WikiEngine, Properties): void
+            +pageRemoved(WikiPage): void
+            +reindexPage(WikiPage): void
+            +parseQuery(String): QueryItem[]
+            +findPages(String, WikiContext): Collection<SearchResult>
+            +getProviderInfo(): String
+        }
+
+        class QueryItem [[QueryItem.html]] {
+            {static} +REQUIRED: int
+            {static} +FORBIDDEN: int
+            {static} +REQUESTED: int
+            +word: String
+            +type: int
+        }
+
+        class SearchResultComparator [[SearchResultComparator.html]] {
+            +compare(SearchResult, SearchResult): int
+        }
+
+        interface SearchProvider [[SearchProvider.html]] {
+            {abstract} +pageRemoved(WikiPage): void
+            {abstract} +reindexPage(WikiPage): void
+            {abstract} +findPages(String, WikiContext): Collection<SearchResult>
+        }
+
         class SearchMatcher [[SearchMatcher.html]] {
             +SearchMatcher(WikiEngine, QueryItem[])
             +matchPageContent(String, String): SearchResult
@@ -14,29 +41,27 @@
             +getContexts(): String[]
         }
 
-        interface SearchResult [[SearchResult.html]] {
-            {abstract} +getPage(): WikiPage
-            {abstract} +getScore(): int
-            {abstract} +getContexts(): String[]
-        }
-
-        class BasicSearchProvider [[BasicSearchProvider.html]] {
+        class SearchManager [[SearchManager.html]] {
+            {static} +PROP_SEARCHPROVIDER: String
+            {static} +JSON_SEARCH: String
+            +SearchManager(WikiEngine, Properties)
             +initialize(WikiEngine, Properties): void
-            +pageRemoved(WikiPage): void
-            +reindexPage(WikiPage): void
-            +parseQuery(String): QueryItem[]
             +findPages(String, WikiContext): Collection<SearchResult>
-            +getProviderInfo(): String
+            +pageRemoved(WikiPage): void
+            +postSave(WikiContext, String): void
+            +reindexPage(WikiPage): void
+            +actionPerformed(WikiEvent): void
         }
 
-        class SearchResultComparator [[SearchResultComparator.html]] {
-            +compare(SearchResult, SearchResult): int
-        }
-
-        interface SearchProvider [[SearchProvider.html]] {
-            {abstract} +pageRemoved(WikiPage): void
-            {abstract} +reindexPage(WikiPage): void
-            {abstract} +findPages(String, WikiContext): Collection<SearchResult>
+        class org.apache.wiki.search.SearchManager.JSONSearch [[SearchManager.JSONSearch.html]] {
+            {static} +AJAX_ACTION_SUGGESTIONS: String
+            {static} +AJAX_ACTION_PAGES: String
+            {static} +DEFAULT_MAX_RESULTS: int
+            +maxResults: int
+            +getServletMapping(): String
+            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+            +getSuggestions(String, int): List<String>
+            +findPages(String, int, WikiContext): List<Map<String, Object>>
         }
 
         class LuceneSearchProvider [[LuceneSearchProvider.html]] {
@@ -66,40 +91,11 @@
             +getProviderInfo(): String
         }
 
-        class QueryItem [[QueryItem.html]] {
-            {static} +REQUIRED: int
-            {static} +FORBIDDEN: int
-            {static} +REQUESTED: int
-            +word: String
-            +type: int
+        interface SearchResult [[SearchResult.html]] {
+            {abstract} +getPage(): WikiPage
+            {abstract} +getScore(): int
+            {abstract} +getContexts(): String[]
         }
-
-        class SearchManager [[SearchManager.html]] {
-            {static} +PROP_SEARCHPROVIDER: String
-            {static} +JSON_SEARCH: String
-            +SearchManager(WikiEngine, Properties)
-            +initialize(WikiEngine, Properties): void
-            +findPages(String, WikiContext): Collection<SearchResult>
-            +pageRemoved(WikiPage): void
-            +postSave(WikiContext, String): void
-            +reindexPage(WikiPage): void
-            +actionPerformed(WikiEvent): void
-        }
-
-        class org.apache.wiki.search.SearchManager.JSONSearch [[SearchManager.JSONSearch.html]] {
-            {static} +AJAX_ACTION_SUGGESTIONS: String
-            {static} +AJAX_ACTION_PAGES: String
-            {static} +DEFAULT_MAX_RESULTS: int
-            +maxResults: int
-            +getServletMapping(): String
-            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
-            +getSuggestions(String, int): List<String>
-            +findPages(String, int, WikiContext): List<Map<String, Object>>
-        }
-
-        SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
-
-        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
 
         SearchProvider <|.. BasicSearchProvider
 
@@ -117,7 +113,9 @@
         }
         org.apache.wiki.WikiProvider <|.. SearchProvider
 
-        SearchProvider <|.. LuceneSearchProvider
+        SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
+
+        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
 
         class org.apache.wiki.api.filters.BasicPageFilter
         org.apache.wiki.api.filters.BasicPageFilter <|-- SearchManager
@@ -137,6 +135,8 @@
         org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.search.SearchManager.JSONSearch
 
         SearchManager +-- org.apache.wiki.search.SearchManager.JSONSearch
+
+        SearchProvider <|.. LuceneSearchProvider
 
         SearchManager --> SearchProvider: searchEngine
 
