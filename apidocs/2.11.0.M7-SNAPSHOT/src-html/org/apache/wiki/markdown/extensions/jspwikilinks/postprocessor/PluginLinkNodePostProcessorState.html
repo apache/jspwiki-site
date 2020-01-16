@@ -38,112 +38,111 @@
 <span class="sourceLineNo">030</span>import org.apache.wiki.markdown.nodes.JSPWikiLink;<a name="line.30"></a>
 <span class="sourceLineNo">031</span>import org.apache.wiki.parser.PluginContent;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>import org.apache.wiki.preferences.Preferences;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.render.RenderingManager;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.text.MessageFormat;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.util.ResourceBundle;<a name="line.36"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.text.MessageFormat;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.util.ResourceBundle;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
 <span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>/**<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * {@link NodePostProcessorState} which further post processes plugin links.<a name="line.40"></a>
-<span class="sourceLineNo">041</span> */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>public class PluginLinkNodePostProcessorState implements NodePostProcessorState&lt; JSPWikiLink &gt; {<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>    private static final Logger LOG = Logger.getLogger( PluginLinkNodePostProcessorState.class );<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private final WikiContext wikiContext;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    private final boolean m_wysiwygEditorMode;<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    public PluginLinkNodePostProcessorState( final WikiContext wikiContext ) {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        this.wikiContext = wikiContext;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>        final Boolean wysiwygVariable = ( Boolean )wikiContext.getVariable( RenderingManager.WYSIWYG_EDITOR_MODE );<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        m_wysiwygEditorMode = wysiwygVariable != null ? wysiwygVariable.booleanValue() : false;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    /**<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * {@inheritDoc}<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @see NodePostProcessorState#process(NodeTracker, Node) <a name="line.57"></a>
-<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    @Override<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public void process( final NodeTracker state, final JSPWikiLink link ) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        if( link.getText().toString().startsWith( "{TableOfContents" ) ) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            handleTableOfContentsPlugin( state, link );<a name="line.62"></a>
-<span class="sourceLineNo">063</span>            return;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        }<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        PluginContent pluginContent = null;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        try {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            pluginContent = PluginContent.parsePluginLine( wikiContext, link.getUrl().toString(), -1 ); // -1 == do not generate _bounds parameter<a name="line.67"></a>
-<span class="sourceLineNo">068</span>            //<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            //  This might sometimes fail, especially if there is something which looks<a name="line.69"></a>
-<span class="sourceLineNo">070</span>            //  like a plugin invocation but is really not.<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            //<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            if( pluginContent != null ) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                final String pluginInvocation = pluginInvocation( link.getText().toString(), pluginContent );<a name="line.73"></a>
-<span class="sourceLineNo">074</span>                final HtmlInline content = new HtmlInline( CharSubSequence.of( pluginInvocation ) );<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                pluginContent.executeParse( wikiContext );<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                NodePostProcessorStateCommonOperations.addContent( state, link, content );<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        } catch( final PluginException e ) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>            LOG.info( wikiContext.getRealPage().getWiki() + " : " + wikiContext.getRealPage().getName() + " - Failed to insert plugin: " + e.getMessage() );<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            if( !m_wysiwygEditorMode ) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>                final ResourceBundle rbPlugin = Preferences.getBundle( wikiContext, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                NodePostProcessorStateCommonOperations.makeError( state, link, MessageFormat.format( rbPlugin.getString( "plugin.error.insertionfailed" ),<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                                                                                                                         wikiContext.getRealPage().getWiki(),<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                                                                                                                         wikiContext.getRealPage().getName(),<a name="line.84"></a>
-<span class="sourceLineNo">085</span>                                                                                                                         e.getMessage() ) );<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            }<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        } finally {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            if( pluginContent != null ) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                removeLink( state, link );<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            }<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * Return plugin execution. As plugin execution may not fire the plugin (i.e., on WYSIWYG editors), on those cases, the plugin line is returned.<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * @param pluginMarkup plugin markup line<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * @param pluginContent the plugin content.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * @return plugin execution, or plugin markup line if it wasn't executed.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    String pluginInvocation( final String pluginMarkup, final PluginContent pluginContent ) {<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        final String pluginInvocation = pluginContent.invoke( wikiContext );<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        if( pluginMarkup.equals( pluginInvocation + "()" ) ) { // plugin line markup == plugin execution + "()" -&gt; hasn't been executed<a name="line.103"></a>
-<span class="sourceLineNo">104</span>            return pluginMarkup;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        } else {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            return pluginInvocation;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        }<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>    void handleTableOfContentsPlugin(final NodeTracker state, final JSPWikiLink link) {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        if( !m_wysiwygEditorMode ) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            final ResourceBundle rb = Preferences.getBundle( wikiContext, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            final HtmlInline divToc = new HtmlInline( CharSubSequence.of( "&lt;div class=\"toc\"&gt;\n" ) );<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            final HtmlInline divCollapseBox = new HtmlInline( CharSubSequence.of( "&lt;div class=\"collapsebox\"&gt;\n" ) );<a name="line.114"></a>
-<span class="sourceLineNo">115</span>            final HtmlInline divsClosing = new HtmlInline( CharSubSequence.of( "&lt;/div&gt;\n&lt;/div&gt;\n" ) );<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            final HtmlInline h4Title = new HtmlInline( CharSubSequence.of( "&lt;h4 id=\"section-TOC\"&gt;" + // FIXME proper plugin parameters handling<a name="line.116"></a>
-<span class="sourceLineNo">117</span>                                                                           rb.getString( "tableofcontents.title" ) +<a name="line.117"></a>
-<span class="sourceLineNo">118</span>                                                                           "&lt;/h4&gt;\n" ) );<a name="line.118"></a>
-<span class="sourceLineNo">119</span>            final TocBlock toc = new TocBlock( CharSubSequence.of( "[TOC]" ), CharSubSequence.of( "levels=1-3" ) );<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>            link.insertAfter( divToc );<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            divToc.insertAfter( divCollapseBox );<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            divCollapseBox.insertAfter( h4Title );<a name="line.123"></a>
-<span class="sourceLineNo">124</span>            h4Title.insertAfter( toc );<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            toc.insertAfter( divsClosing );<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>        } else {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>            NodePostProcessorStateCommonOperations.inlineLinkTextOnWysiwyg( state, link, m_wysiwygEditorMode );<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        }<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        removeLink( state, link );<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>    void removeLink(final NodeTracker state, final JSPWikiLink link) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        link.unlink();<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        state.nodeRemoved( link );<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>}<a name="line.138"></a>
+<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * {@link NodePostProcessorState} which further post processes plugin links.<a name="line.39"></a>
+<span class="sourceLineNo">040</span> */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>public class PluginLinkNodePostProcessorState implements NodePostProcessorState&lt; JSPWikiLink &gt; {<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private static final Logger LOG = Logger.getLogger( PluginLinkNodePostProcessorState.class );<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private final WikiContext wikiContext;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private final boolean m_wysiwygEditorMode;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public PluginLinkNodePostProcessorState( final WikiContext wikiContext ) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        this.wikiContext = wikiContext;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        final Boolean wysiwygVariable = ( Boolean )wikiContext.getVariable( WikiContext.VAR_WYSIWYG_EDITOR_MODE );<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        m_wysiwygEditorMode = wysiwygVariable != null ? wysiwygVariable : false;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * {@inheritDoc}<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @see NodePostProcessorState#process(NodeTracker, Node) <a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    @Override<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    public void process( final NodeTracker state, final JSPWikiLink link ) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        if( link.getText().toString().startsWith( "{TableOfContents" ) ) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            handleTableOfContentsPlugin( state, link );<a name="line.61"></a>
+<span class="sourceLineNo">062</span>            return;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        PluginContent pluginContent = null;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        try {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>            pluginContent = PluginContent.parsePluginLine( wikiContext, link.getUrl().toString(), -1 ); // -1 == do not generate _bounds parameter<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            //<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            //  This might sometimes fail, especially if there is something which looks<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            //  like a plugin invocation but is really not.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            //<a name="line.70"></a>
+<span class="sourceLineNo">071</span>            if( pluginContent != null ) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                final String pluginInvocation = pluginInvocation( link.getText().toString(), pluginContent );<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                final HtmlInline content = new HtmlInline( CharSubSequence.of( pluginInvocation ) );<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                pluginContent.executeParse( wikiContext );<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                NodePostProcessorStateCommonOperations.addContent( state, link, content );<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            }<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        } catch( final PluginException e ) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            LOG.info( wikiContext.getRealPage().getWiki() + " : " + wikiContext.getRealPage().getName() + " - Failed to insert plugin: " + e.getMessage() );<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            if( !m_wysiwygEditorMode ) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                final ResourceBundle rbPlugin = Preferences.getBundle( wikiContext, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                NodePostProcessorStateCommonOperations.makeError( state, link, MessageFormat.format( rbPlugin.getString( "plugin.error.insertionfailed" ),<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                                                                                                                         wikiContext.getRealPage().getWiki(),<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                                                                                                                         wikiContext.getRealPage().getName(),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                                                                                                                         e.getMessage() ) );<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            }<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        } finally {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            if( pluginContent != null ) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                removeLink( state, link );<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>    /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * Return plugin execution. As plugin execution may not fire the plugin (i.e., on WYSIWYG editors), on those cases, the plugin line is returned.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @param pluginMarkup plugin markup line<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @param pluginContent the plugin content.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @return plugin execution, or plugin markup line if it wasn't executed.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    String pluginInvocation( final String pluginMarkup, final PluginContent pluginContent ) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        final String pluginInvocation = pluginContent.invoke( wikiContext );<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        if( pluginMarkup.equals( pluginInvocation + "()" ) ) { // plugin line markup == plugin execution + "()" -&gt; hasn't been executed<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            return pluginMarkup;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        } else {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            return pluginInvocation;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        }<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>    void handleTableOfContentsPlugin(final NodeTracker state, final JSPWikiLink link) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        if( !m_wysiwygEditorMode ) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            final ResourceBundle rb = Preferences.getBundle( wikiContext, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            final HtmlInline divToc = new HtmlInline( CharSubSequence.of( "&lt;div class=\"toc\"&gt;\n" ) );<a name="line.112"></a>
+<span class="sourceLineNo">113</span>            final HtmlInline divCollapseBox = new HtmlInline( CharSubSequence.of( "&lt;div class=\"collapsebox\"&gt;\n" ) );<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            final HtmlInline divsClosing = new HtmlInline( CharSubSequence.of( "&lt;/div&gt;\n&lt;/div&gt;\n" ) );<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            final HtmlInline h4Title = new HtmlInline( CharSubSequence.of( "&lt;h4 id=\"section-TOC\"&gt;" + // FIXME proper plugin parameters handling<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                                                                           rb.getString( "tableofcontents.title" ) +<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                                                                           "&lt;/h4&gt;\n" ) );<a name="line.117"></a>
+<span class="sourceLineNo">118</span>            final TocBlock toc = new TocBlock( CharSubSequence.of( "[TOC]" ), CharSubSequence.of( "levels=1-3" ) );<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>            link.insertAfter( divToc );<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            divToc.insertAfter( divCollapseBox );<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            divCollapseBox.insertAfter( h4Title );<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            h4Title.insertAfter( toc );<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            toc.insertAfter( divsClosing );<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        } else {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            NodePostProcessorStateCommonOperations.inlineLinkTextOnWysiwyg( state, link, m_wysiwygEditorMode );<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        removeLink( state, link );<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    void removeLink(final NodeTracker state, final JSPWikiLink link) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        link.unlink();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        state.nodeRemoved( link );<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    }<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>}<a name="line.137"></a>
 
 
 
