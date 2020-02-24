@@ -46,10 +46,10 @@
             {static} +OTHER: String
             {static} +ADMIN: String
             #m_request: HttpServletRequest
-            +WikiContext(WikiEngine, WikiPage)
-            +WikiContext(WikiEngine, HttpServletRequest, Command)
-            +WikiContext(WikiEngine, HttpServletRequest, WikiPage)
-            +WikiContext(WikiEngine, HttpServletRequest, String)
+            +WikiContext(Engine, WikiPage)
+            +WikiContext(Engine, HttpServletRequest, Command)
+            +WikiContext(Engine, HttpServletRequest, WikiPage)
+            +WikiContext(Engine, HttpServletRequest, String)
             +getContentTemplate(): String
             +getJSP(): String
             +getRedirectURL(): String
@@ -75,7 +75,7 @@
             +targetedCommand(Object): Command
             +hasAdminPermissions(): boolean
             #setDefaultTemplate(HttpServletRequest): void
-            {static} #findCommand(WikiEngine, HttpServletRequest, WikiPage): Command
+            {static} #findCommand(Engine, HttpServletRequest, WikiPage): Command
             #updateCommand(String): void
         }
 
@@ -86,12 +86,12 @@
             {static} +AUTHOR: String
             {static} +CHANGENOTE: String
             {static} +VIEWCOUNT: String
-            +WikiPage(WikiEngine, String)
+            +WikiPage(Engine, String)
             +getName(): String
             +getAttribute(String): T
             +setAttribute(String, Object): void
             +getAttributes(): Map<String, Object>
-            +removeAttribute(String): Object
+            +removeAttribute(String): T
             +getLastModified(): Date
             +setLastModified(Date): void
             +setVersion(int): void
@@ -110,7 +110,7 @@
         }
 
         abstract class WikiBackgroundThread [[WikiBackgroundThread.html]] {
-            +WikiBackgroundThread(WikiEngine, int)
+            +WikiBackgroundThread(Engine, int)
             +actionPerformed(WikiEvent): void
             +shutdown(): void
             +run(): void
@@ -121,14 +121,14 @@
 
         interface WikiProvider [[WikiProvider.html]] {
             {static} +LATEST_VERSION: int
-            {abstract} +initialize(WikiEngine, Properties): void
+            {abstract} +initialize(Engine, Properties): void
             {abstract} +getProviderInfo(): String
         }
 
         class WatchDog [[WatchDog.html]] {
-            +WatchDog(WikiEngine, Watchable)
-            +WatchDog(WikiEngine, Thread)
-            {static} +getCurrentWatchDog(WikiEngine): WatchDog
+            +WatchDog(Engine, Watchable)
+            +WatchDog(Engine, Thread)
+            {static} +getCurrentWatchDog(Engine): WatchDog
             +enable(): void
             +disable(): void
             +enterState(String): void
@@ -251,17 +251,17 @@
             +getMessages(String): String[]
             +getPrincipals(): Principal[]
             +getRoles(): Principal[]
-            {static} +removeWikiSession(WikiEngine, HttpServletRequest): void
+            {static} +removeWikiSession(Engine, HttpServletRequest): void
             +hasPrincipal(Principal): boolean
             +actionPerformed(WikiEvent): void
             +invalidate(): void
             #injectGroupPrincipals(): void
             #injectUserProfilePrincipals(): void
             +getStatus(): String
-            {static} +getWikiSession(WikiEngine, HttpServletRequest): WikiSession
-            {static} +guestSession(WikiEngine): WikiSession
-            {static} +sessions(WikiEngine): int
-            {static} +userPrincipals(WikiEngine): Principal[]
+            {static} +getWikiSession(Engine, HttpServletRequest): WikiSession
+            {static} +guestSession(Engine): WikiSession
+            {static} +sessions(Engine): int
+            {static} +userPrincipals(Engine): Principal[]
             {static} +doPrivileged(WikiSession, PrivilegedAction<?>): Object
             {static} #isIPV4Address(String): boolean
         }
@@ -334,7 +334,6 @@
             {abstract} +setAttribute(String, Object): void
             {abstract} +getAttribute(String): T
             {abstract} +removeAttribute(String): T
-            {abstract} +getCurrentWatchDog(): WatchDog
             {abstract} +shutdown(): void
         }
         org.apache.wiki.api.core.Engine <|.. WikiEngine
@@ -346,15 +345,13 @@
 
         WikiContext --> WikiPage: realPage\npage
 
-        WikiContext --> WikiEngine: engine
+        WikiContext --> org.apache.wiki.api.core.Engine: engine
 
         WikiContext --> org.apache.wiki.ui.Command: command
 
         WikiContext --> WikiSession: wikiSession
 
-        WikiBackgroundThread --> WikiEngine: engine
-
-        WikiEngine --> WatchDog: currentWatchDog
+        WikiBackgroundThread --> org.apache.wiki.api.core.Engine: engine
 
     }
 

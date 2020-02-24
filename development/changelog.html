@@ -187,6 +187,25 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
+<p><strong>2020-02-24 Juan Pablo Santos (juanpablo AT apache DOT org)</strong></p>
+<ul>
+  <li>
+  <p><em>2.11.0-M7-git-09</em></p></li>
+  <li>
+    <p><a href="https://issues.apache.org/jira/browse/JSPWIKI-120">JSPWIKI-120</a>:</p>
+    <ul>
+      <li>Use <code>Engine</code> inside <code>WikiContext</code>, <code>WikiSession</code>, <code>WikiPage</code>, <code>Attachment</code> and <code>SessionMonitor</code>.
+        <ul>
+          <li>e.g. <code>WikiContext#getEngine()</code> now returns an <code>Engine</code> instead of a <code>WikiEngine</code>. To retrieve a manager<br/>from it just use <code>Engine#getManager( DesiredManager.class )</code>. See implementations on <code>getXXXManager()</code><br/>methods on <code>WikiEngine</code> for details.</li>
+        </ul>
+      </li>
+      <li><code>WikiProvider#initialize(..)</code> receives an <code>Engine</code> instead of a <code>WikiEngine</code>.</li>
+      <li><code>Engine</code> gains an <code>adapt( Class&lt; E &gt; cls )</code>, to facilitate downcasting to <code>Engine</code> implementation classes.</li>
+      <li>Removed <code>Engine#getCurrentWatchDog()</code>, as it was a pass-through and introduced a package cycle; use instead<br/><code>WatchDog#getCurrentWathDog( Engine )</code>.<br/><code>o.a.wiki</code> and <code>o.a.w.event</code>. To obtain the <code>WikiEngine</code> reference from the event just use <code>getSrc()</code></li>
+      <li>Rename + extract interfaces from <code>AttachmentManager</code>, <code>AuthenticationManager</code>, <code>AuthorizationManager</code>,<br/><code>GroupManager</code> and <code>UserManager</code>.</li>
+    </ul>
+  </li>
+</ul>
 <p><strong>2020-02-20 Juan Pablo Santos (juanpablo AT apache DOT org)</strong></p>
 <ul>
   <li>
@@ -877,7 +896,7 @@ under the License.
     <ul>
       <li><code>PageSorter</code> is accesed now through <code>PageManager</code></li>
       <li>to compare WikiPages use <code>wikiPage.compareTo( anotherWikiPage );</code></li>
-      <li><code>sortPages</code> methods are also gone, as an alternative you can use something along these lines (see<br/><code>AttachmentManager#listAttachments</code> for another example):<br/><code>Collections.&lt; WikiPage &gt;sort( pages, Comparator.comparing( WikiPage::getName, m_engine.getPageManager().getPageSorter() ) );</code></li>
+      <li><code>sortPages</code> methods are also gone, as an alternative you can use something along these lines (see<br/><code>AttachmentManager#listAttachments</code> for another example):<br/><code>Collections.&lt; WikiPage &gt;sort( pages, Comparator.comparing( WikiPage::getName, m_engine.getManager( PageManager.class ).getPageSorter() ) );</code></li>
       <li>as a side effect of this change, <code>AbstractReferalPlugin#filter[AndSort]Collection</code> methods operate with<br/><code>Collection&lt; String &gt;</code> instead of with plain <code>Collection</code> (except for <code>RecentChangesPlugin</code>, plugins<br/>inheriting this method were already doing it), custom plugins inheriting this method will have to use<br/>new <code>filterWikiPageCollection</code> method instead</li>
     </ul>
   </li>

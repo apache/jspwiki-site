@@ -17,7 +17,7 @@
         }
 
         class Attachment [[Attachment.html]] {
-            +Attachment(WikiEngine, String, String)
+            +Attachment(Engine, String, String)
             +getFileName(): String
             +setFileName(String): void
             +getParentName(): String
@@ -29,7 +29,24 @@
             {abstract} +getAttachmentData(WikiContext, Attachment): InputStream
         }
 
-        class AttachmentManager [[AttachmentManager.html]] {
+        class DefaultAttachmentManager [[DefaultAttachmentManager.html]] {
+            +DefaultAttachmentManager(Engine, Properties)
+            +attachmentsEnabled(): boolean
+            +getAttachmentInfoName(WikiContext, String): String
+            +getAttachmentInfo(WikiContext, String, int): Attachment
+            +listAttachments(WikiPage): List<Attachment>
+            +forceDownload(String): boolean
+            +getAttachmentStream(WikiContext, Attachment): InputStream
+            +storeDynamicAttachment(WikiContext, DynamicAttachment): void
+            +getDynamicAttachment(String): DynamicAttachment
+            +storeAttachment(Attachment, InputStream): void
+            +getVersionHistory(String): List<Attachment>
+            +getCurrentProvider(): WikiAttachmentProvider
+            +deleteVersion(Attachment): void
+            +deleteAttachment(Attachment): void
+        }
+
+        interface AttachmentManager [[AttachmentManager.html]] {
             {static} +PROP_PROVIDER: String
             {static} +PROP_MAXSIZE: String
             {static} +PROP_ALLOWEDEXTENSIONS: String
@@ -37,26 +54,26 @@
             {static} +PROP_FORCEDOWNLOAD: String
             {static} +CACHE_NAME: String
             {static} +DEFAULT_CACHECAPACITY: int
-            +AttachmentManager(WikiEngine, Properties)
-            +attachmentsEnabled(): boolean
             +getAttachmentInfo(String): Attachment
             +getAttachmentInfo(String, int): Attachment
             +getAttachmentInfo(WikiContext, String): Attachment
-            +getAttachmentInfoName(WikiContext, String): String
-            +getAttachmentInfo(WikiContext, String, int): Attachment
-            +listAttachments(WikiPage): List<Attachment>
             +hasAttachments(WikiPage): boolean
-            +forceDownload(String): boolean
             +getAttachmentStream(Attachment): InputStream
-            +getAttachmentStream(WikiContext, Attachment): InputStream
-            +storeDynamicAttachment(WikiContext, DynamicAttachment): void
-            +getDynamicAttachment(String): DynamicAttachment
             +storeAttachment(Attachment, File): void
-            +storeAttachment(Attachment, InputStream): void
-            +getVersionHistory(String): List<Attachment>
-            +getCurrentProvider(): WikiAttachmentProvider
-            +deleteVersion(Attachment): void
-            +deleteAttachment(Attachment): void
+            {static} +validateFileName(String): String
+            {abstract} +attachmentsEnabled(): boolean
+            {abstract} +getAttachmentInfo(WikiContext, String, int): Attachment
+            {abstract} +getAttachmentInfoName(WikiContext, String): String
+            {abstract} +listAttachments(WikiPage): List<Attachment>
+            {abstract} +forceDownload(String): boolean
+            {abstract} +getAttachmentStream(WikiContext, Attachment): InputStream
+            {abstract} +storeDynamicAttachment(WikiContext, DynamicAttachment): void
+            {abstract} +getDynamicAttachment(String): DynamicAttachment
+            {abstract} +storeAttachment(Attachment, InputStream): void
+            {abstract} +getVersionHistory(String): List<Attachment>
+            {abstract} +getCurrentProvider(): WikiAttachmentProvider
+            {abstract} +deleteVersion(Attachment): void
+            {abstract} +deleteAttachment(Attachment): void
         }
 
         abstract class javax.servlet.http.HttpServlet
@@ -67,7 +84,11 @@
         class org.apache.wiki.WikiPage
         org.apache.wiki.WikiPage <|-- Attachment
 
+        AttachmentManager <|.. DefaultAttachmentManager
+
         DynamicAttachment --> DynamicAttachmentProvider: provider
+
+        DefaultAttachmentManager --> "*" Attachment: allAttachments
 
         AttachmentManager --> "*" Attachment: allAttachments
 

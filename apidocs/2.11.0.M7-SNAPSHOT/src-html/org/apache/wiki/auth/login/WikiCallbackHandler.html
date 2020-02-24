@@ -26,42 +26,42 @@
 <span class="sourceLineNo">018</span> */<a name="line.18"></a>
 <span class="sourceLineNo">019</span>package org.apache.wiki.auth.login;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import java.io.IOException;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>import javax.security.auth.callback.*;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import javax.servlet.http.HttpServletRequest;<a name="line.24"></a>
-<span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.WikiEngine;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * Handles logins made from inside the wiki application, rather than via the web<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * container. This handler is instantiated in<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * {@link org.apache.wiki.auth.AuthenticationManager#login(org.apache.wiki.WikiSession,HttpServletRequest, String, String)}.<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * If container-managed authentication is used, the<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * {@link WebContainerCallbackHandler}is used instead. This callback handler is<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * designed to be used with {@link UserDatabaseLoginModule}.<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * @since 2.3<a name="line.35"></a>
-<span class="sourceLineNo">036</span> */<a name="line.36"></a>
-<span class="sourceLineNo">037</span>public class WikiCallbackHandler implements CallbackHandler<a name="line.37"></a>
-<span class="sourceLineNo">038</span>{<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    private final HttpServletRequest m_request;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    private final WikiEngine m_engine;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    <a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private final String       m_password;<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    private final String       m_username;<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
-<span class="sourceLineNo">048</span>     *  Create a new callback handler.<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * @param engine the WikiEngine<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * @param request the user's HTTP request. If passed as &lt;code&gt;null&lt;/code&gt;,<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     *  later requests for {@link HttpRequestCallback} will return an UnsupportedCallbackException<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * @param username the username<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * @param password the password<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    public WikiCallbackHandler( WikiEngine engine, HttpServletRequest request, String username, String password )<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    {<a name="line.56"></a>
+<span class="sourceLineNo">021</span>import org.apache.wiki.api.core.Engine;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.auth.UserManager;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import javax.security.auth.callback.Callback;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import javax.security.auth.callback.CallbackHandler;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import javax.security.auth.callback.NameCallback;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import javax.security.auth.callback.PasswordCallback;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import javax.security.auth.callback.UnsupportedCallbackException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import javax.servlet.http.HttpServletRequest;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import java.io.IOException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>/**<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Handles logins made from inside the wiki application, rather than via the web container. This handler is instantiated in<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * {@link org.apache.wiki.auth.AuthenticationManager#login(org.apache.wiki.WikiSession,HttpServletRequest, String, String)}.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * If container-managed authentication is used, the {@link WebContainerCallbackHandler}is used instead. This callback handler is<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * designed to be used with {@link UserDatabaseLoginModule}.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * @since 2.3<a name="line.39"></a>
+<span class="sourceLineNo">040</span> */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>public class WikiCallbackHandler implements CallbackHandler {<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private final HttpServletRequest m_request;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private final Engine m_engine;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private final String m_password;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private final String m_username;<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     *  Create a new callback handler.<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     *<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     * @param engine the WikiEngine<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @param request the user's HTTP request. If passed as &lt;code&gt;null&lt;/code&gt;, later requests for {@link HttpRequestCallback} will return an UnsupportedCallbackException<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @param username the username<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @param password the password<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    public WikiCallbackHandler( final Engine engine, final HttpServletRequest request, final String username, final String password ) {<a name="line.56"></a>
 <span class="sourceLineNo">057</span>        m_request = request;<a name="line.57"></a>
 <span class="sourceLineNo">058</span>        m_engine = engine;<a name="line.58"></a>
 <span class="sourceLineNo">059</span>        m_username = username;<a name="line.59"></a>
@@ -73,38 +73,24 @@
 <span class="sourceLineNo">065</span>     * <a name="line.65"></a>
 <span class="sourceLineNo">066</span>     * {@inheritDoc}<a name="line.66"></a>
 <span class="sourceLineNo">067</span>     */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    public void handle( Callback[] callbacks ) throws IOException, UnsupportedCallbackException<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        for( int i = 0; i &lt; callbacks.length; i++ )<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            Callback callback = callbacks[i];<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            if ( callback instanceof HttpRequestCallback )<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                ( (HttpRequestCallback) callback ).setRequest( m_request );<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            }<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            else if( callback instanceof WikiEngineCallback )<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                ( (WikiEngineCallback) callback ).setEngine( m_engine );<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            }<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            else if ( callback instanceof UserDatabaseCallback )<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                ( (UserDatabaseCallback) callback ).setUserDatabase( m_engine.getUserManager().getUserDatabase() );<a name="line.83"></a>
-<span class="sourceLineNo">084</span>            }<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            else if ( callback instanceof NameCallback )<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>                ( (NameCallback) callback ).setName( m_username );<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            }<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            else if ( callback instanceof PasswordCallback )<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                ( (PasswordCallback) callback ).setPassword( m_password.toCharArray() );<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            else<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                throw new UnsupportedCallbackException( callback );<a name="line.95"></a>
-<span class="sourceLineNo">096</span>            }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
-<span class="sourceLineNo">099</span>}<a name="line.99"></a>
+<span class="sourceLineNo">068</span>    @Override public void handle( final Callback[] callbacks ) throws IOException, UnsupportedCallbackException {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        for( final Callback callback : callbacks ) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            if( callback instanceof HttpRequestCallback ) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                ( ( HttpRequestCallback )callback ).setRequest( m_request );<a name="line.71"></a>
+<span class="sourceLineNo">072</span>            } else if( callback instanceof WikiEngineCallback ) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                ( ( WikiEngineCallback )callback ).setEngine( m_engine );<a name="line.73"></a>
+<span class="sourceLineNo">074</span>            } else if( callback instanceof UserDatabaseCallback ) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                ( ( UserDatabaseCallback )callback ).setUserDatabase( m_engine.getManager( UserManager.class ).getUserDatabase() );<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            } else if( callback instanceof NameCallback ) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                ( ( NameCallback )callback ).setName( m_username );<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            } else if( callback instanceof PasswordCallback ) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                ( ( PasswordCallback )callback ).setPassword( m_password.toCharArray() );<a name="line.79"></a>
+<span class="sourceLineNo">080</span>            } else {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                throw new UnsupportedCallbackException( callback );<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span>}<a name="line.85"></a>
 
 
 

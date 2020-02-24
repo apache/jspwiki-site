@@ -26,691 +26,269 @@
 <span class="sourceLineNo">018</span> */<a name="line.18"></a>
 <span class="sourceLineNo">019</span>package org.apache.wiki.auth;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.log4j.Logger;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.WikiContext;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.WikiEngine;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.WikiPage;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.WikiSession;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.exceptions.NoRequiredPropertyException;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.auth.acl.Acl;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.auth.acl.AclEntry;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.auth.acl.UnresolvedPrincipal;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.auth.authorize.Role;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.auth.permissions.AllPermission;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.wiki.auth.permissions.PagePermission;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.apache.wiki.auth.user.UserDatabase;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.apache.wiki.auth.user.UserProfile;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.apache.wiki.event.WikiEventListener;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.apache.wiki.event.WikiEventManager;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.apache.wiki.event.WikiSecurityEvent;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import org.apache.wiki.i18n.InternationalizationManager;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import org.apache.wiki.preferences.Preferences;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import org.apache.wiki.util.ClassUtil;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>import org.freshcookies.security.policy.LocalPolicy;<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>import javax.servlet.http.HttpServletResponse;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>import java.io.File;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>import java.io.IOException;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>import java.net.URL;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>import java.security.AccessControlException;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>import java.security.AccessController;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>import java.security.CodeSource;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>import java.security.Permission;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>import java.security.Principal;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>import java.security.PrivilegedAction;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>import java.security.ProtectionDomain;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>import java.security.cert.Certificate;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>import java.text.MessageFormat;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>import java.util.Arrays;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>import java.util.Map;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>import java.util.Properties;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>import java.util.ResourceBundle;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>import java.util.WeakHashMap;<a name="line.62"></a>
+<span class="sourceLineNo">021</span>import org.apache.wiki.WikiContext;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.WikiSession;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Engine;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.wiki.auth.authorize.Role;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.wiki.event.WikiEventListener;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.wiki.event.WikiEventManager;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.wiki.event.WikiSecurityEvent;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>import javax.servlet.http.HttpServletResponse;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import java.io.IOException;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import java.security.AccessController;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import java.security.Permission;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.security.Principal;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.util.Properties;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;p&gt;Manages all access control and authorization; determines what authenticated users are allowed to do.&lt;/p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;p&gt;Privileges in JSPWiki are expressed as Java-standard {@link java.security.Permission} classes. There are two types of permissions:&lt;/p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;ul&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *   &lt;li&gt;{@link org.apache.wiki.auth.permissions.WikiPermission} - privileges that apply to an entire wiki instance: &lt;em&gt;e.g.,&lt;/em&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *   editing user profiles, creating pages, creating groups&lt;/li&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *   &lt;li&gt;{@link org.apache.wiki.auth.permissions.PagePermission} - privileges that apply to a single wiki page or range of pages:<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *   &lt;em&gt;e.g.,&lt;/em&gt; reading, editing, renaming<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;/ul&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * &lt;p&gt;Calling classes determine whether they are entitled to perform a particular action by constructing the appropriate permission first,<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * then passing it and the current {@link org.apache.wiki.WikiSession} to the {@link #checkPermission(WikiSession, Permission)} method. If<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * the session's Subject possesses the permission, the action is allowed.&lt;/p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * &lt;p&gt;For WikiPermissions, the decision criteria is relatively simple: the caller either possesses the permission, as granted by the wiki<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * security policy -- or not.&lt;/p&gt;<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * &lt;p&gt;For PagePermissions, the logic is exactly the same if the page being checked does not have an access control list. However, if the<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * page does have an ACL, the authorization decision is made based the &lt;em&gt;union&lt;/em&gt; of the permissions granted in the ACL and in the<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * security policy. In other words, the user must be named in the ACL (or belong to a group or role that is named in the ACL) &lt;em&gt;and&lt;/em&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * be granted (at least) the same permission in the security policy. We do this to prevent a user from gaining more permissions than they<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * already have, based on the security policy.&lt;/p&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;p&gt;See the implementation on {@link #checkPermission(WikiSession, Permission)} method for more information on the authorization logic.&lt;/p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * @since 2.3<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * @see AuthenticationManager<a name="line.60"></a>
+<span class="sourceLineNo">061</span> */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>public interface AuthorizationManager {<a name="line.62"></a>
 <span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>/**<a name="line.64"></a>
-<span class="sourceLineNo">065</span> * &lt;p&gt;Manages all access control and authorization; determines what authenticated<a name="line.65"></a>
-<span class="sourceLineNo">066</span> * users are allowed to do.&lt;/p&gt;<a name="line.66"></a>
-<span class="sourceLineNo">067</span> * &lt;p&gt;Privileges in JSPWiki are expressed as Java-standard {@link java.security.Permission}<a name="line.67"></a>
-<span class="sourceLineNo">068</span> * classes. There are two types of permissions:&lt;/p&gt;<a name="line.68"></a>
-<span class="sourceLineNo">069</span> * &lt;ul&gt;<a name="line.69"></a>
-<span class="sourceLineNo">070</span> *   &lt;li&gt;{@link org.apache.wiki.auth.permissions.WikiPermission} - privileges that apply<a name="line.70"></a>
-<span class="sourceLineNo">071</span> *   to an entire wiki instance: &lt;em&gt;e.g.,&lt;/em&gt; editing user profiles, creating pages, creating groups&lt;/li&gt;<a name="line.71"></a>
-<span class="sourceLineNo">072</span> *   &lt;li&gt;{@link org.apache.wiki.auth.permissions.PagePermission} - privileges that apply<a name="line.72"></a>
-<span class="sourceLineNo">073</span> *   to a single wiki page or range of pages: &lt;em&gt;e.g.,&lt;/em&gt; reading, editing, renaming<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * &lt;/ul&gt;<a name="line.74"></a>
-<span class="sourceLineNo">075</span> * &lt;p&gt;Calling classes determine whether they are entitled to perform a particular action<a name="line.75"></a>
-<span class="sourceLineNo">076</span> * by constructing the appropriate permission first, then passing it and the current<a name="line.76"></a>
-<span class="sourceLineNo">077</span> * {@link org.apache.wiki.WikiSession} to the<a name="line.77"></a>
-<span class="sourceLineNo">078</span> * {@link #checkPermission(WikiSession, Permission)} method. If the session's<a name="line.78"></a>
-<span class="sourceLineNo">079</span> * Subject possesses the permission, the action is allowed.&lt;/p&gt;<a name="line.79"></a>
-<span class="sourceLineNo">080</span> * &lt;p&gt;For WikiPermissions, the decision criteria is relatively simple: the caller either<a name="line.80"></a>
-<span class="sourceLineNo">081</span> * possesses the permission, as granted by the wiki security policy -- or not.&lt;/p&gt;<a name="line.81"></a>
-<span class="sourceLineNo">082</span> * &lt;p&gt;For PagePermissions, the logic is exactly the same if the page being checked<a name="line.82"></a>
-<span class="sourceLineNo">083</span> * does not have an access control list. However, if the page does have an ACL, the<a name="line.83"></a>
-<span class="sourceLineNo">084</span> * authorization decision is made based the &lt;em&gt;union&lt;/em&gt; of the permissions<a name="line.84"></a>
-<span class="sourceLineNo">085</span> * granted in the ACL and in the security policy. In other words, the user must<a name="line.85"></a>
-<span class="sourceLineNo">086</span> * be named in the ACL (or belong to a group or role that is named in the ACL)<a name="line.86"></a>
-<span class="sourceLineNo">087</span> * &lt;em&gt;and&lt;/em&gt; be granted (at least) the same permission in the security policy. We<a name="line.87"></a>
-<span class="sourceLineNo">088</span> * do this to prevent a user from gaining more permissions than they already<a name="line.88"></a>
-<span class="sourceLineNo">089</span> * have, based on the security policy.&lt;/p&gt;<a name="line.89"></a>
-<span class="sourceLineNo">090</span> * &lt;p&gt;See the {@link #checkPermission(WikiSession, Permission)} and<a name="line.90"></a>
-<span class="sourceLineNo">091</span> * {@link #hasRoleOrPrincipal(WikiSession, Principal)} methods for more information<a name="line.91"></a>
-<span class="sourceLineNo">092</span> * on the authorization logic.&lt;/p&gt;<a name="line.92"></a>
-<span class="sourceLineNo">093</span> * @since 2.3<a name="line.93"></a>
-<span class="sourceLineNo">094</span> * @see AuthenticationManager<a name="line.94"></a>
-<span class="sourceLineNo">095</span> */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>public class AuthorizationManager {<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    private static final Logger log = Logger.getLogger( AuthorizationManager.class );<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * The default external Authorizer is the {@link org.apache.wiki.auth.authorize.WebContainerAuthorizer}<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    public static final String                DEFAULT_AUTHORIZER = "org.apache.wiki.auth.authorize.WebContainerAuthorizer";<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    /** Property that supplies the security policy file name, in WEB-INF. */<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    protected static final String             POLICY      = "jspwiki.policy.file";<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>    /** Name of the default security policy file, in WEB-INF. */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    protected static final String             DEFAULT_POLICY      = "jspwiki.policy";<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>    /**<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     * The property name in jspwiki.properties for specifying the external {@link Authorizer}.<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    public static final String                PROP_AUTHORIZER   = "jspwiki.authorizer";<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>    private Authorizer                        m_authorizer      = null;<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>    /** Cache for storing ProtectionDomains used to evaluate the local policy. */<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    private Map&lt;Principal, ProtectionDomain&gt;                               m_cachedPds       = new WeakHashMap&lt;Principal, ProtectionDomain&gt;();<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>    private WikiEngine                        m_engine          = null;<a name="line.120"></a>
-<span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>    private LocalPolicy                       m_localPolicy     = null;<a name="line.122"></a>
-<span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>    /**<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     * Constructs a new AuthorizationManager instance.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     */<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    public AuthorizationManager()<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    {<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    }<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>    /**<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * Returns &lt;code&gt;true&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;, depending on<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * whether a Permission is allowed for the Subject associated with<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * a supplied WikiSession. The access control algorithm works this way:<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * &lt;ol&gt;<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * &lt;li&gt;The {@link org.apache.wiki.auth.acl.Acl} for the page is obtained&lt;/li&gt;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     * &lt;li&gt;The Subject associated with the current<a name="line.137"></a>
-<span class="sourceLineNo">138</span>     * {@link org.apache.wiki.WikiSession} is obtained&lt;/li&gt;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     * &lt;li&gt;If the Subject's Principal set includes the Role Principal that is<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     * the administrator group, always allow the Permission&lt;/li&gt;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * &lt;li&gt;For all permissions, check to see if the Permission is allowed according<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     * to the default security policy. If it isn't, deny the permission and halt<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * further processing.&lt;/li&gt;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * &lt;li&gt;If there is an Acl, get the list of Principals assigned this<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * Permission in the Acl: these will be role, group or user Principals, or<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * {@link org.apache.wiki.auth.acl.UnresolvedPrincipal}s (see below).<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     * Then iterate through the Subject's Principal set and determine whether<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     * the user (Subject) possesses any one of these specified Roles or<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     * Principals. The matching process delegates to<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     * {@link #hasRoleOrPrincipal(WikiSession, Principal)}.<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     * &lt;/ol&gt;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * &lt;p&gt;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     * Note that when iterating through the Acl's list of authorized Principals,<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     * it is possible that one or more of the Acl's Principal entries are of<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     * type &lt;code&gt;UnresolvedPrincipal&lt;/code&gt;. This means that the last time<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     * the ACL was read, the Principal (user, built-in Role, authorizer Role, or<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     * wiki Group) could not be resolved: the Role was not valid, the user<a name="line.157"></a>
-<span class="sourceLineNo">158</span>     * wasn't found in the UserDatabase, or the Group wasn't known to (e.g.,<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     * cached) in the GroupManager. If an &lt;code&gt;UnresolvedPrincipal&lt;/code&gt; is<a name="line.159"></a>
-<span class="sourceLineNo">160</span>     * encountered, this method will attempt to resolve it first &lt;em&gt;before&lt;/em&gt;<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     * checking to see if the Subject possesses this principal, by calling<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     * {@link #resolvePrincipal(String)}. If the (re-)resolution does not<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     * succeed, the access check for the principal will fail by definition (the<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     * Subject should never contain UnresolvedPrincipals).<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     * &lt;/p&gt;<a name="line.165"></a>
-<span class="sourceLineNo">166</span>     * &lt;p&gt;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     * If security not set to JAAS, will return true.<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     * &lt;/p&gt;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     * @param session the current wiki session<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * @param permission the Permission being checked<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * @see #hasRoleOrPrincipal(WikiSession, Principal)<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     * @return the result of the Permission check<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     */<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    public boolean checkPermission( WikiSession session, Permission permission )<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        //<a name="line.176"></a>
-<span class="sourceLineNo">177</span>        //  A slight sanity check.<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        //<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        if ( session == null || permission == null )<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        {<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            fireEvent( WikiSecurityEvent.ACCESS_DENIED, null, permission );<a name="line.181"></a>
-<span class="sourceLineNo">182</span>            return false;<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        }<a name="line.183"></a>
-<span class="sourceLineNo">184</span><a name="line.184"></a>
-<span class="sourceLineNo">185</span>        Principal user = session.getLoginPrincipal();<a name="line.185"></a>
-<span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>        // Always allow the action if user has AllPermission<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        Permission allPermission = new AllPermission( m_engine.getApplicationName() );<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        boolean hasAllPermission = checkStaticPermission( session, allPermission );<a name="line.189"></a>
-<span class="sourceLineNo">190</span>        if ( hasAllPermission )<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>            fireEvent( WikiSecurityEvent.ACCESS_ALLOWED, user, permission );<a name="line.192"></a>
-<span class="sourceLineNo">193</span>            return true;<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        }<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>        // If the user doesn't have *at least* the permission<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        // granted by policy, return false.<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        boolean hasPolicyPermission = checkStaticPermission( session, permission );<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        if ( !hasPolicyPermission )<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>            fireEvent( WikiSecurityEvent.ACCESS_DENIED, user, permission );<a name="line.201"></a>
-<span class="sourceLineNo">202</span>            return false;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>        // If this isn't a PagePermission, it's allowed<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        if ( ! ( permission instanceof PagePermission ) )<a name="line.206"></a>
-<span class="sourceLineNo">207</span>        {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>            fireEvent( WikiSecurityEvent.ACCESS_ALLOWED, user, permission );<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            return true;<a name="line.209"></a>
-<span class="sourceLineNo">210</span>        }<a name="line.210"></a>
-<span class="sourceLineNo">211</span><a name="line.211"></a>
-<span class="sourceLineNo">212</span>        //<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        // If the page or ACL is null, it's allowed.<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        //<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        String pageName = ((PagePermission)permission).getPage();<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        WikiPage page = m_engine.getPageManager().getPage( pageName );<a name="line.216"></a>
-<span class="sourceLineNo">217</span>        Acl acl = ( page == null) ? null : m_engine.getAclManager().getPermissions( page );<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        if ( page == null ||  acl == null || acl.isEmpty() )<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>            fireEvent( WikiSecurityEvent.ACCESS_ALLOWED, user, permission );<a name="line.220"></a>
-<span class="sourceLineNo">221</span>            return true;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        }<a name="line.222"></a>
-<span class="sourceLineNo">223</span><a name="line.223"></a>
-<span class="sourceLineNo">224</span>        //<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        //  Next, iterate through the Principal objects assigned<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        //  this permission. If the context's subject possesses<a name="line.226"></a>
-<span class="sourceLineNo">227</span>        //  any of these, the action is allowed.<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>        Principal[] aclPrincipals = acl.findPrincipals( permission );<a name="line.229"></a>
-<span class="sourceLineNo">230</span><a name="line.230"></a>
-<span class="sourceLineNo">231</span>        log.debug( "Checking ACL entries..." );<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        log.debug( "Acl for this page is: " + acl );<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        log.debug( "Checking for principal: " + Arrays.toString( aclPrincipals ) );<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        log.debug( "Permission: " + permission );<a name="line.234"></a>
-<span class="sourceLineNo">235</span><a name="line.235"></a>
-<span class="sourceLineNo">236</span>        for( Principal aclPrincipal : aclPrincipals )<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>            // If the ACL principal we're looking at is unresolved,<a name="line.238"></a>
-<span class="sourceLineNo">239</span>            // try to resolve it here &amp; correct the Acl<a name="line.239"></a>
-<span class="sourceLineNo">240</span>            if ( aclPrincipal instanceof UnresolvedPrincipal )<a name="line.240"></a>
-<span class="sourceLineNo">241</span>            {<a name="line.241"></a>
-<span class="sourceLineNo">242</span>                AclEntry aclEntry = acl.getEntry( aclPrincipal );<a name="line.242"></a>
-<span class="sourceLineNo">243</span>                aclPrincipal = resolvePrincipal( aclPrincipal.getName() );<a name="line.243"></a>
-<span class="sourceLineNo">244</span>                if ( aclEntry != null &amp;&amp; !( aclPrincipal instanceof UnresolvedPrincipal ) )<a name="line.244"></a>
-<span class="sourceLineNo">245</span>                {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>                    aclEntry.setPrincipal( aclPrincipal );<a name="line.246"></a>
-<span class="sourceLineNo">247</span>                }<a name="line.247"></a>
-<span class="sourceLineNo">248</span>            }<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>            if ( hasRoleOrPrincipal( session, aclPrincipal ) )<a name="line.250"></a>
-<span class="sourceLineNo">251</span>            {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>                fireEvent( WikiSecurityEvent.ACCESS_ALLOWED, user, permission );<a name="line.252"></a>
-<span class="sourceLineNo">253</span>                return true;<a name="line.253"></a>
-<span class="sourceLineNo">254</span>            }<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        }<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        fireEvent( WikiSecurityEvent.ACCESS_DENIED, user, permission );<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        return false;<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    }<a name="line.258"></a>
-<span class="sourceLineNo">259</span><a name="line.259"></a>
-<span class="sourceLineNo">260</span>    /**<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     * &lt;p&gt;Determines if the Subject associated with a<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     * supplied WikiSession contains a desired Role or GroupPrincipal.<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     * The algorithm simply checks to see if the Subject possesses<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     * the Role or GroupPrincipal it in its Principal set. Note that<a name="line.264"></a>
-<span class="sourceLineNo">265</span>     * any user (anonymous, asserted, authenticated) can possess<a name="line.265"></a>
-<span class="sourceLineNo">266</span>     * a built-in role. But a user &lt;em&gt;must&lt;/em&gt; be authenticated to<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * possess a role other than one of the built-in ones.<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     * We do this to prevent privilege escalation.&lt;/p&gt;<a name="line.268"></a>
-<span class="sourceLineNo">269</span>     * &lt;p&gt;For all other cases, this method returns &lt;code&gt;false&lt;/code&gt;.&lt;/p&gt;<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * &lt;p&gt;Note that this method does &lt;em&gt;not&lt;/em&gt; consult the external<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     * Authorizer or GroupManager; it relies on the Principals that<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * have been injected into the user's Subject at login time, or<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     * after group creation/modification/deletion.&lt;/p&gt;<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     * @param session the current wiki session, which must be non-null. If null,<a name="line.274"></a>
-<span class="sourceLineNo">275</span>     *            the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     * @param principal the Principal (role or group principal) to look<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     *            for, which must be non-&lt;code&gt;null&lt;/code&gt;. If &lt;code&gt;null&lt;/code&gt;,<a name="line.277"></a>
-<span class="sourceLineNo">278</span>     *            the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject supplied with the WikiContext<a name="line.279"></a>
-<span class="sourceLineNo">280</span>     *         posesses the Role or GroupPrincipal, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.280"></a>
-<span class="sourceLineNo">281</span>     */<a name="line.281"></a>
-<span class="sourceLineNo">282</span>    public boolean isUserInRole( WikiSession session, Principal principal )<a name="line.282"></a>
-<span class="sourceLineNo">283</span>    {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        if ( session == null || principal == null ||<a name="line.284"></a>
-<span class="sourceLineNo">285</span>             AuthenticationManager.isUserPrincipal( principal ) )<a name="line.285"></a>
-<span class="sourceLineNo">286</span>        {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>            return false;<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        }<a name="line.288"></a>
-<span class="sourceLineNo">289</span><a name="line.289"></a>
-<span class="sourceLineNo">290</span>        // Any type of user can possess a built-in role<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        if ( principal instanceof Role &amp;&amp; Role.isBuiltInRole( (Role)principal ) )<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        {<a name="line.292"></a>
-<span class="sourceLineNo">293</span>            return session.hasPrincipal( principal );<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        }<a name="line.294"></a>
-<span class="sourceLineNo">295</span><a name="line.295"></a>
-<span class="sourceLineNo">296</span>        // Only authenticated users can possess groups or custom roles<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        if ( session.isAuthenticated() &amp;&amp; AuthenticationManager.isRolePrincipal( principal ) )<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        {<a name="line.298"></a>
-<span class="sourceLineNo">299</span>            return session.hasPrincipal( principal );<a name="line.299"></a>
-<span class="sourceLineNo">300</span>        }<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        return false;<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    }<a name="line.302"></a>
-<span class="sourceLineNo">303</span><a name="line.303"></a>
-<span class="sourceLineNo">304</span>    /**<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     * Returns the current external {@link Authorizer} in use. This method<a name="line.305"></a>
-<span class="sourceLineNo">306</span>     * is guaranteed to return a properly-initialized Authorizer, unless<a name="line.306"></a>
-<span class="sourceLineNo">307</span>     * it could not be initialized. In that case, this method throws<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     * a {@link org.apache.wiki.auth.WikiSecurityException}.<a name="line.308"></a>
-<span class="sourceLineNo">309</span>     * @throws org.apache.wiki.auth.WikiSecurityException if the Authorizer could<a name="line.309"></a>
-<span class="sourceLineNo">310</span>     * not be initialized<a name="line.310"></a>
-<span class="sourceLineNo">311</span>     * @return the current Authorizer<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     */<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    public Authorizer getAuthorizer() throws WikiSecurityException<a name="line.313"></a>
-<span class="sourceLineNo">314</span>    {<a name="line.314"></a>
-<span class="sourceLineNo">315</span>        if ( m_authorizer != null )<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        {<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            return m_authorizer;<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        }<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        throw new WikiSecurityException( "Authorizer did not initialize properly. Check the logs." );<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    }<a name="line.320"></a>
-<span class="sourceLineNo">321</span><a name="line.321"></a>
-<span class="sourceLineNo">322</span>    /**<a name="line.322"></a>
-<span class="sourceLineNo">323</span>     * &lt;p&gt;Determines if the Subject associated with a supplied WikiSession contains<a name="line.323"></a>
-<span class="sourceLineNo">324</span>     * a desired user Principal or built-in Role principal, OR is a member a<a name="line.324"></a>
-<span class="sourceLineNo">325</span>     * Group or external Role. The rules are as follows:&lt;/p&gt;<a name="line.325"></a>
-<span class="sourceLineNo">326</span>     * &lt;ol&gt;<a name="line.326"></a>
-<span class="sourceLineNo">327</span>     * &lt;li&gt;First, if desired Principal is a Role or GroupPrincipal, delegate to<a name="line.327"></a>
-<span class="sourceLineNo">328</span>     * {@link #isUserInRole(WikiSession, Principal)} and<a name="line.328"></a>
-<span class="sourceLineNo">329</span>     * return the result.&lt;/li&gt;<a name="line.329"></a>
-<span class="sourceLineNo">330</span>     * &lt;li&gt;Otherwise, we're looking for a user Principal,<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     * so iterate through the Principal set and see if<a name="line.331"></a>
-<span class="sourceLineNo">332</span>     * any share the same name as the one we are looking for.&lt;/li&gt;<a name="line.332"></a>
-<span class="sourceLineNo">333</span>     * &lt;/ol&gt;<a name="line.333"></a>
-<span class="sourceLineNo">334</span>     * &lt;p&gt;&lt;em&gt;Note: if the Principal parameter is a user principal, the session<a name="line.334"></a>
-<span class="sourceLineNo">335</span>     * must be authenticated in order for the user to "possess it". Anonymous<a name="line.335"></a>
-<span class="sourceLineNo">336</span>     * or asserted sessions will never posseess a named user principal.&lt;/em&gt;&lt;/p&gt;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>     * @param session the current wiki session, which must be non-null. If null,<a name="line.337"></a>
-<span class="sourceLineNo">338</span>     *            the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     * @param principal the Principal (role, group, or user principal) to look<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     *            for, which must be non-null. If null, the result of this<a name="line.340"></a>
-<span class="sourceLineNo">341</span>     *            method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.341"></a>
-<span class="sourceLineNo">342</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject supplied with the WikiContext<a name="line.342"></a>
-<span class="sourceLineNo">343</span>     *         posesses the Role, GroupPrincipal or desired<a name="line.343"></a>
-<span class="sourceLineNo">344</span>     *         user Principal, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.344"></a>
-<span class="sourceLineNo">345</span>     */<a name="line.345"></a>
-<span class="sourceLineNo">346</span>    protected boolean hasRoleOrPrincipal( WikiSession session, Principal principal )<a name="line.346"></a>
-<span class="sourceLineNo">347</span>    {<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        // If either parameter is null, always deny<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        if( session == null || principal == null )<a name="line.349"></a>
-<span class="sourceLineNo">350</span>        {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>            return false;<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        }<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>        // If principal is role, delegate to isUserInRole<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        if( AuthenticationManager.isRolePrincipal( principal ) )<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        {<a name="line.356"></a>
-<span class="sourceLineNo">357</span>            return isUserInRole( session, principal );<a name="line.357"></a>
-<span class="sourceLineNo">358</span>        }<a name="line.358"></a>
-<span class="sourceLineNo">359</span><a name="line.359"></a>
-<span class="sourceLineNo">360</span>        // We must be looking for a user principal, assuming that the user<a name="line.360"></a>
-<span class="sourceLineNo">361</span>        // has been properly logged in.<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        // So just look for a name match.<a name="line.362"></a>
-<span class="sourceLineNo">363</span>        if( session.isAuthenticated() &amp;&amp; AuthenticationManager.isUserPrincipal( principal ) )<a name="line.363"></a>
-<span class="sourceLineNo">364</span>        {<a name="line.364"></a>
-<span class="sourceLineNo">365</span>            String principalName = principal.getName();<a name="line.365"></a>
-<span class="sourceLineNo">366</span>            Principal[] userPrincipals = session.getPrincipals();<a name="line.366"></a>
-<span class="sourceLineNo">367</span>            for( Principal userPrincipal : userPrincipals )<a name="line.367"></a>
-<span class="sourceLineNo">368</span>            {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>                if( userPrincipal.getName().equals( principalName ) )<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                {<a name="line.370"></a>
-<span class="sourceLineNo">371</span>                    return true;<a name="line.371"></a>
-<span class="sourceLineNo">372</span>                }<a name="line.372"></a>
-<span class="sourceLineNo">373</span>            }<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        return false;<a name="line.375"></a>
-<span class="sourceLineNo">376</span>    }<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>    /**<a name="line.378"></a>
-<span class="sourceLineNo">379</span>     * Checks whether the current user has access to the wiki context,<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     * by obtaining the required Permission ({@link WikiContext#requiredPermission()})<a name="line.380"></a>
-<span class="sourceLineNo">381</span>     * and delegating the access check to {@link #checkPermission(WikiSession, Permission)}.<a name="line.381"></a>
-<span class="sourceLineNo">382</span>     * If the user is allowed, this method returns &lt;code&gt;true&lt;/code&gt;;<a name="line.382"></a>
-<span class="sourceLineNo">383</span>     * &lt;code&gt;false&lt;/code&gt; otherwise. If access is allowed,<a name="line.383"></a>
-<span class="sourceLineNo">384</span>     * the wiki context will be added to the request as an attribute<a name="line.384"></a>
-<span class="sourceLineNo">385</span>     * with the key name {@link org.apache.wiki.WikiContext#ATTR_CONTEXT}.<a name="line.385"></a>
-<span class="sourceLineNo">386</span>     * Note that this method will automatically redirect the user to<a name="line.386"></a>
-<span class="sourceLineNo">387</span>     * a login or error page, as appropriate, if access fails. This is<a name="line.387"></a>
-<span class="sourceLineNo">388</span>     * NOT guaranteed to be default behavior in the future.<a name="line.388"></a>
-<span class="sourceLineNo">389</span>     *<a name="line.389"></a>
-<span class="sourceLineNo">390</span>     * @param context wiki context to check if it is accesible<a name="line.390"></a>
-<span class="sourceLineNo">391</span>     * @param response the http response<a name="line.391"></a>
-<span class="sourceLineNo">392</span>     * @return the result of the access check<a name="line.392"></a>
-<span class="sourceLineNo">393</span>     * @throws IOException In case something goes wrong<a name="line.393"></a>
-<span class="sourceLineNo">394</span>     */<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    public boolean hasAccess( WikiContext context, HttpServletResponse response ) throws IOException<a name="line.395"></a>
-<span class="sourceLineNo">396</span>    {<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        return hasAccess( context, response, true );<a name="line.397"></a>
-<span class="sourceLineNo">398</span>    }<a name="line.398"></a>
-<span class="sourceLineNo">399</span><a name="line.399"></a>
-<span class="sourceLineNo">400</span>    /**<a name="line.400"></a>
-<span class="sourceLineNo">401</span>     * Checks whether the current user has access to the wiki context (and<a name="line.401"></a>
-<span class="sourceLineNo">402</span>     * optionally redirects if not), by obtaining the required Permission ({@link WikiContext#requiredPermission()})<a name="line.402"></a>
-<span class="sourceLineNo">403</span>     * and delegating the access check to {@link #checkPermission(WikiSession, Permission)}.<a name="line.403"></a>
-<span class="sourceLineNo">404</span>     * If the user is allowed, this method returns &lt;code&gt;true&lt;/code&gt;;<a name="line.404"></a>
-<span class="sourceLineNo">405</span>     * &lt;code&gt;false&lt;/code&gt; otherwise. Also, the wiki context will be added to the request as attribute<a name="line.405"></a>
-<span class="sourceLineNo">406</span>     * with the key name {@link org.apache.wiki.WikiContext#ATTR_CONTEXT}.<a name="line.406"></a>
-<span class="sourceLineNo">407</span>     *<a name="line.407"></a>
-<span class="sourceLineNo">408</span>     * @param context wiki context to check if it is accesible<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     * @param response The servlet response object<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     * @param redirect If true, makes an automatic redirect to the response<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     * @return the result of the access check<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     * @throws IOException If something goes wrong<a name="line.412"></a>
-<span class="sourceLineNo">413</span>     */<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    public boolean hasAccess( final WikiContext context, final HttpServletResponse response, final boolean redirect ) throws IOException {<a name="line.414"></a>
-<span class="sourceLineNo">415</span>        final boolean allowed = checkPermission( context.getWikiSession(), context.requiredPermission() );<a name="line.415"></a>
-<span class="sourceLineNo">416</span>        final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE );<a name="line.416"></a>
-<span class="sourceLineNo">417</span><a name="line.417"></a>
-<span class="sourceLineNo">418</span>        // Stash the wiki context<a name="line.418"></a>
-<span class="sourceLineNo">419</span>        if ( context.getHttpRequest() != null &amp;&amp; context.getHttpRequest().getAttribute( WikiContext.ATTR_CONTEXT ) == null ) {<a name="line.419"></a>
-<span class="sourceLineNo">420</span>            context.getHttpRequest().setAttribute( WikiContext.ATTR_CONTEXT, context );<a name="line.420"></a>
-<span class="sourceLineNo">421</span>        }<a name="line.421"></a>
-<span class="sourceLineNo">422</span><a name="line.422"></a>
-<span class="sourceLineNo">423</span>        // If access not allowed, redirect<a name="line.423"></a>
-<span class="sourceLineNo">424</span>        if( !allowed &amp;&amp; redirect ) {<a name="line.424"></a>
-<span class="sourceLineNo">425</span>            final Principal currentUser  = context.getWikiSession().getUserPrincipal();<a name="line.425"></a>
-<span class="sourceLineNo">426</span>            final String pageurl = context.getPage().getName();<a name="line.426"></a>
-<span class="sourceLineNo">427</span>            if( context.getWikiSession().isAuthenticated() ) {<a name="line.427"></a>
-<span class="sourceLineNo">428</span>                log.info("User "+currentUser.getName()+" has no access - forbidden (permission=" + context.requiredPermission() + ")" );<a name="line.428"></a>
-<span class="sourceLineNo">429</span>                context.getWikiSession().addMessage( MessageFormat.format( rb.getString( "security.error.noaccess.logged" ),<a name="line.429"></a>
-<span class="sourceLineNo">430</span>                                                     context.getName()) );<a name="line.430"></a>
-<span class="sourceLineNo">431</span>            } else {<a name="line.431"></a>
-<span class="sourceLineNo">432</span>                log.info("User "+currentUser.getName()+" has no access - redirecting (permission=" + context.requiredPermission() + ")");<a name="line.432"></a>
-<span class="sourceLineNo">433</span>                context.getWikiSession().addMessage( MessageFormat.format( rb.getString("security.error.noaccess"), context.getName() ) );<a name="line.433"></a>
-<span class="sourceLineNo">434</span>            }<a name="line.434"></a>
-<span class="sourceLineNo">435</span>            response.sendRedirect( m_engine.getURL(WikiContext.LOGIN, pageurl, null ) );<a name="line.435"></a>
-<span class="sourceLineNo">436</span>        }<a name="line.436"></a>
-<span class="sourceLineNo">437</span>        return allowed;<a name="line.437"></a>
-<span class="sourceLineNo">438</span>    }<a name="line.438"></a>
-<span class="sourceLineNo">439</span><a name="line.439"></a>
-<span class="sourceLineNo">440</span>    /**<a name="line.440"></a>
-<span class="sourceLineNo">441</span>     * Initializes AuthorizationManager with an engine and set of properties.<a name="line.441"></a>
-<span class="sourceLineNo">442</span>     * Expects to find property 'jspwiki.authorizer' with a valid Authorizer<a name="line.442"></a>
-<span class="sourceLineNo">443</span>     * implementation name to take care of role lookup operations.<a name="line.443"></a>
-<span class="sourceLineNo">444</span>     * @param engine the wiki engine<a name="line.444"></a>
-<span class="sourceLineNo">445</span>     * @param properties the set of properties used to initialize the wiki engine<a name="line.445"></a>
-<span class="sourceLineNo">446</span>     * @throws WikiException if the AuthorizationManager cannot be initialized<a name="line.446"></a>
-<span class="sourceLineNo">447</span>     */<a name="line.447"></a>
-<span class="sourceLineNo">448</span>    public void initialize( final WikiEngine engine, final Properties properties ) throws WikiException {<a name="line.448"></a>
-<span class="sourceLineNo">449</span>        m_engine = engine;<a name="line.449"></a>
-<span class="sourceLineNo">450</span><a name="line.450"></a>
-<span class="sourceLineNo">451</span>        //<a name="line.451"></a>
-<span class="sourceLineNo">452</span>        //  JAAS authorization continues<a name="line.452"></a>
-<span class="sourceLineNo">453</span>        //<a name="line.453"></a>
-<span class="sourceLineNo">454</span>        m_authorizer = getAuthorizerImplementation( properties );<a name="line.454"></a>
-<span class="sourceLineNo">455</span>        m_authorizer.initialize( engine, properties );<a name="line.455"></a>
-<span class="sourceLineNo">456</span><a name="line.456"></a>
-<span class="sourceLineNo">457</span>        // Initialize local security policy<a name="line.457"></a>
-<span class="sourceLineNo">458</span>        try {<a name="line.458"></a>
-<span class="sourceLineNo">459</span>            final String policyFileName = properties.getProperty( POLICY, DEFAULT_POLICY );<a name="line.459"></a>
-<span class="sourceLineNo">460</span>            final URL policyURL = AuthenticationManager.findConfigFile( engine, policyFileName );<a name="line.460"></a>
-<span class="sourceLineNo">461</span><a name="line.461"></a>
-<span class="sourceLineNo">462</span>            if (policyURL != null) {<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                final File policyFile = new File( policyURL.toURI().getPath() );<a name="line.463"></a>
-<span class="sourceLineNo">464</span>                log.info("We found security policy URL: " + policyURL + " and transformed it to file " + policyFile.getAbsolutePath());<a name="line.464"></a>
-<span class="sourceLineNo">465</span>                m_localPolicy = new LocalPolicy( policyFile, engine.getContentEncoding().displayName() );<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                m_localPolicy.refresh();<a name="line.466"></a>
-<span class="sourceLineNo">467</span>                log.info( "Initialized default security policy: " + policyFile.getAbsolutePath() );<a name="line.467"></a>
-<span class="sourceLineNo">468</span>            } else {<a name="line.468"></a>
-<span class="sourceLineNo">469</span>                final String sb = "JSPWiki was unable to initialize the default security policy (WEB-INF/jspwiki.policy) file. " +<a name="line.469"></a>
-<span class="sourceLineNo">470</span>                                  "Please ensure that the jspwiki.policy file exists in the default location. " +<a name="line.470"></a>
-<span class="sourceLineNo">471</span>                                  "This file should exist regardless of the existance of a global policy file. " +<a name="line.471"></a>
-<span class="sourceLineNo">472</span>                                  "The global policy file is identified by the java.security.policy variable. ";<a name="line.472"></a>
-<span class="sourceLineNo">473</span>                final WikiSecurityException wse = new WikiSecurityException( sb );<a name="line.473"></a>
-<span class="sourceLineNo">474</span>                log.fatal( sb, wse );<a name="line.474"></a>
-<span class="sourceLineNo">475</span>                throw wse;<a name="line.475"></a>
-<span class="sourceLineNo">476</span>            }<a name="line.476"></a>
-<span class="sourceLineNo">477</span>        } catch ( final Exception e) {<a name="line.477"></a>
-<span class="sourceLineNo">478</span>            log.error("Could not initialize local security policy: " + e.getMessage() );<a name="line.478"></a>
-<span class="sourceLineNo">479</span>            throw new WikiException( "Could not initialize local security policy: " + e.getMessage(), e );<a name="line.479"></a>
-<span class="sourceLineNo">480</span>        }<a name="line.480"></a>
-<span class="sourceLineNo">481</span>    }<a name="line.481"></a>
-<span class="sourceLineNo">482</span><a name="line.482"></a>
-<span class="sourceLineNo">483</span>    /**<a name="line.483"></a>
-<span class="sourceLineNo">484</span>     * Attempts to locate and initialize a Authorizer to use with this manager.<a name="line.484"></a>
-<span class="sourceLineNo">485</span>     * Throws a WikiException if no entry is found, or if one fails to<a name="line.485"></a>
-<span class="sourceLineNo">486</span>     * initialize.<a name="line.486"></a>
-<span class="sourceLineNo">487</span>     * @param props jspwiki.properties, containing a<a name="line.487"></a>
-<span class="sourceLineNo">488</span>     *            'jspwiki.authorization.provider' class name<a name="line.488"></a>
-<span class="sourceLineNo">489</span>     * @return a Authorizer used to get page authorization information<a name="line.489"></a>
-<span class="sourceLineNo">490</span>     * @throws WikiException<a name="line.490"></a>
-<span class="sourceLineNo">491</span>     */<a name="line.491"></a>
-<span class="sourceLineNo">492</span>    private Authorizer getAuthorizerImplementation( Properties props ) throws WikiException {<a name="line.492"></a>
-<span class="sourceLineNo">493</span>        final String authClassName = props.getProperty( PROP_AUTHORIZER, DEFAULT_AUTHORIZER );<a name="line.493"></a>
-<span class="sourceLineNo">494</span>        return ( Authorizer )locateImplementation( authClassName );<a name="line.494"></a>
-<span class="sourceLineNo">495</span>    }<a name="line.495"></a>
-<span class="sourceLineNo">496</span><a name="line.496"></a>
-<span class="sourceLineNo">497</span>    private Object locateImplementation( final String clazz ) throws WikiException {<a name="line.497"></a>
-<span class="sourceLineNo">498</span>        if ( clazz != null ) {<a name="line.498"></a>
-<span class="sourceLineNo">499</span>            try {<a name="line.499"></a>
-<span class="sourceLineNo">500</span>                Class&lt; ? &gt; authClass = ClassUtil.findClass( "org.apache.wiki.auth.authorize", clazz );<a name="line.500"></a>
-<span class="sourceLineNo">501</span>                Object impl = authClass.newInstance();<a name="line.501"></a>
-<span class="sourceLineNo">502</span>                return impl;<a name="line.502"></a>
-<span class="sourceLineNo">503</span>            } catch( ClassNotFoundException e ) {<a name="line.503"></a>
-<span class="sourceLineNo">504</span>                log.fatal( "Authorizer " + clazz + " cannot be found", e );<a name="line.504"></a>
-<span class="sourceLineNo">505</span>                throw new WikiException( "Authorizer " + clazz + " cannot be found", e );<a name="line.505"></a>
-<span class="sourceLineNo">506</span>            } catch( InstantiationException e ) {<a name="line.506"></a>
-<span class="sourceLineNo">507</span>                log.fatal( "Authorizer " + clazz + " cannot be created", e );<a name="line.507"></a>
-<span class="sourceLineNo">508</span>                throw new WikiException( "Authorizer " + clazz + " cannot be created", e );<a name="line.508"></a>
-<span class="sourceLineNo">509</span>            } catch( IllegalAccessException e ) {<a name="line.509"></a>
-<span class="sourceLineNo">510</span>                log.fatal( "You are not allowed to access this authorizer class", e );<a name="line.510"></a>
-<span class="sourceLineNo">511</span>                throw new WikiException( "You are not allowed to access this authorizer class", e );<a name="line.511"></a>
-<span class="sourceLineNo">512</span>            }<a name="line.512"></a>
-<span class="sourceLineNo">513</span>        }<a name="line.513"></a>
-<span class="sourceLineNo">514</span><a name="line.514"></a>
-<span class="sourceLineNo">515</span>        throw new NoRequiredPropertyException( "Unable to find a " + PROP_AUTHORIZER + " entry in the properties.",<a name="line.515"></a>
-<span class="sourceLineNo">516</span>                                               PROP_AUTHORIZER );<a name="line.516"></a>
-<span class="sourceLineNo">517</span>    }<a name="line.517"></a>
-<span class="sourceLineNo">518</span><a name="line.518"></a>
-<span class="sourceLineNo">519</span>    /**<a name="line.519"></a>
-<span class="sourceLineNo">520</span>     * Checks to see if the local security policy allows a particular static Permission.<a name="line.520"></a>
-<span class="sourceLineNo">521</span>     * Do not use this method for normal permission checks; use<a name="line.521"></a>
-<span class="sourceLineNo">522</span>     * {@link #checkPermission(WikiSession, Permission)} instead.<a name="line.522"></a>
-<span class="sourceLineNo">523</span>     * @param principals the Principals to check<a name="line.523"></a>
-<span class="sourceLineNo">524</span>     * @param permission the Permission<a name="line.524"></a>
-<span class="sourceLineNo">525</span>     * @return the result<a name="line.525"></a>
-<span class="sourceLineNo">526</span>     */<a name="line.526"></a>
-<span class="sourceLineNo">527</span>    protected boolean allowedByLocalPolicy( Principal[] principals, Permission permission )<a name="line.527"></a>
-<span class="sourceLineNo">528</span>    {<a name="line.528"></a>
-<span class="sourceLineNo">529</span>        for ( Principal principal : principals )<a name="line.529"></a>
-<span class="sourceLineNo">530</span>        {<a name="line.530"></a>
-<span class="sourceLineNo">531</span>            // Get ProtectionDomain for this Principal from cache, or create new one<a name="line.531"></a>
-<span class="sourceLineNo">532</span>            ProtectionDomain pd = m_cachedPds.get( principal );<a name="line.532"></a>
-<span class="sourceLineNo">533</span>            if ( pd == null )<a name="line.533"></a>
-<span class="sourceLineNo">534</span>            {<a name="line.534"></a>
-<span class="sourceLineNo">535</span>                ClassLoader cl = this.getClass().getClassLoader();<a name="line.535"></a>
-<span class="sourceLineNo">536</span>                CodeSource cs = new CodeSource( null, (Certificate[])null );<a name="line.536"></a>
-<span class="sourceLineNo">537</span>                pd = new ProtectionDomain( cs, null, cl, new Principal[]{ principal } );<a name="line.537"></a>
-<span class="sourceLineNo">538</span>                m_cachedPds.put( principal, pd );<a name="line.538"></a>
-<span class="sourceLineNo">539</span>            }<a name="line.539"></a>
-<span class="sourceLineNo">540</span><a name="line.540"></a>
-<span class="sourceLineNo">541</span>            // Consult the local policy and get the answer<a name="line.541"></a>
-<span class="sourceLineNo">542</span>            if ( m_localPolicy.implies( pd, permission ) )<a name="line.542"></a>
-<span class="sourceLineNo">543</span>            {<a name="line.543"></a>
-<span class="sourceLineNo">544</span>                return true;<a name="line.544"></a>
-<span class="sourceLineNo">545</span>            }<a name="line.545"></a>
-<span class="sourceLineNo">546</span>        }<a name="line.546"></a>
-<span class="sourceLineNo">547</span>        return false;<a name="line.547"></a>
-<span class="sourceLineNo">548</span>    }<a name="line.548"></a>
-<span class="sourceLineNo">549</span><a name="line.549"></a>
-<span class="sourceLineNo">550</span>    /**<a name="line.550"></a>
-<span class="sourceLineNo">551</span>     * Determines whether a Subject possesses a given "static" Permission as<a name="line.551"></a>
-<span class="sourceLineNo">552</span>     * defined in the security policy file. This method uses standard Java 2<a name="line.552"></a>
-<span class="sourceLineNo">553</span>     * security calls to do its work. Note that the current access control<a name="line.553"></a>
-<span class="sourceLineNo">554</span>     * context's &lt;code&gt;codeBase&lt;/code&gt; is effectively &lt;em&gt;this class&lt;/em&gt;,<a name="line.554"></a>
-<span class="sourceLineNo">555</span>     * not that of the caller. Therefore, this method will work best when what<a name="line.555"></a>
-<span class="sourceLineNo">556</span>     * matters in the policy is &lt;em&gt;who&lt;/em&gt; makes the permission check, not<a name="line.556"></a>
-<span class="sourceLineNo">557</span>     * what the caller's code source is. Internally, this method works by<a name="line.557"></a>
-<span class="sourceLineNo">558</span>     * executing &lt;code&gt;Subject.doAsPrivileged&lt;/code&gt; with a privileged action<a name="line.558"></a>
-<span class="sourceLineNo">559</span>     * that simply calls {@link java.security.AccessController#checkPermission(Permission)}.<a name="line.559"></a>
-<span class="sourceLineNo">560</span>     * @see AccessController#checkPermission(java.security.Permission) . A<a name="line.560"></a>
-<span class="sourceLineNo">561</span>     *       caught exception (or lack thereof) determines whether the privilege<a name="line.561"></a>
-<span class="sourceLineNo">562</span>     *       is absent (or present).<a name="line.562"></a>
-<span class="sourceLineNo">563</span>     * @param session the WikiSession whose permission status is being queried<a name="line.563"></a>
-<span class="sourceLineNo">564</span>     * @param permission the Permission the Subject must possess<a name="line.564"></a>
-<span class="sourceLineNo">565</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject possesses the permission,<a name="line.565"></a>
-<span class="sourceLineNo">566</span>     *         &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.566"></a>
-<span class="sourceLineNo">567</span>     */<a name="line.567"></a>
-<span class="sourceLineNo">568</span>    protected boolean checkStaticPermission( final WikiSession session, final Permission permission )<a name="line.568"></a>
-<span class="sourceLineNo">569</span>    {<a name="line.569"></a>
-<span class="sourceLineNo">570</span>        Boolean allowed = (Boolean) WikiSession.doPrivileged( session, new PrivilegedAction&lt;Boolean&gt;()<a name="line.570"></a>
-<span class="sourceLineNo">571</span>        {<a name="line.571"></a>
-<span class="sourceLineNo">572</span>            public Boolean run()<a name="line.572"></a>
-<span class="sourceLineNo">573</span>            {<a name="line.573"></a>
-<span class="sourceLineNo">574</span>                try<a name="line.574"></a>
-<span class="sourceLineNo">575</span>                {<a name="line.575"></a>
-<span class="sourceLineNo">576</span>                    // Check the JVM-wide security policy first<a name="line.576"></a>
-<span class="sourceLineNo">577</span>                    AccessController.checkPermission( permission );<a name="line.577"></a>
-<span class="sourceLineNo">578</span>                    return Boolean.TRUE;<a name="line.578"></a>
-<span class="sourceLineNo">579</span>                }<a name="line.579"></a>
-<span class="sourceLineNo">580</span>                catch( AccessControlException e )<a name="line.580"></a>
-<span class="sourceLineNo">581</span>                {<a name="line.581"></a>
-<span class="sourceLineNo">582</span>                    // Global policy denied the permission<a name="line.582"></a>
-<span class="sourceLineNo">583</span>                }<a name="line.583"></a>
-<span class="sourceLineNo">584</span><a name="line.584"></a>
-<span class="sourceLineNo">585</span>                // Try the local policy - check each Role/Group and User Principal<a name="line.585"></a>
-<span class="sourceLineNo">586</span>                if ( allowedByLocalPolicy( session.getRoles(), permission ) ||<a name="line.586"></a>
-<span class="sourceLineNo">587</span>                     allowedByLocalPolicy( session.getPrincipals(), permission ) )<a name="line.587"></a>
-<span class="sourceLineNo">588</span>                {<a name="line.588"></a>
-<span class="sourceLineNo">589</span>                    return Boolean.TRUE;<a name="line.589"></a>
-<span class="sourceLineNo">590</span>                }<a name="line.590"></a>
-<span class="sourceLineNo">591</span>                return Boolean.FALSE;<a name="line.591"></a>
-<span class="sourceLineNo">592</span>            }<a name="line.592"></a>
-<span class="sourceLineNo">593</span>        } );<a name="line.593"></a>
-<span class="sourceLineNo">594</span>        return allowed.booleanValue();<a name="line.594"></a>
-<span class="sourceLineNo">595</span>    }<a name="line.595"></a>
-<span class="sourceLineNo">596</span><a name="line.596"></a>
-<span class="sourceLineNo">597</span>    /**<a name="line.597"></a>
-<span class="sourceLineNo">598</span>     * &lt;p&gt;Given a supplied string representing a Principal's name from an Acl, this<a name="line.598"></a>
-<span class="sourceLineNo">599</span>     * method resolves the correct type of Principal (role, group, or user).<a name="line.599"></a>
-<span class="sourceLineNo">600</span>     * This method is guaranteed to always return a Principal.<a name="line.600"></a>
-<span class="sourceLineNo">601</span>     * The algorithm is straightforward:&lt;/p&gt;<a name="line.601"></a>
-<span class="sourceLineNo">602</span>     * &lt;ol&gt;<a name="line.602"></a>
-<span class="sourceLineNo">603</span>     * &lt;li&gt;If the name matches one of the built-in {@link org.apache.wiki.auth.authorize.Role} names,<a name="line.603"></a>
-<span class="sourceLineNo">604</span>     * return that built-in Role&lt;/li&gt;<a name="line.604"></a>
-<span class="sourceLineNo">605</span>     * &lt;li&gt;If the name matches one supplied by the current<a name="line.605"></a>
-<span class="sourceLineNo">606</span>     * {@link org.apache.wiki.auth.Authorizer}, return that Role&lt;/li&gt;<a name="line.606"></a>
-<span class="sourceLineNo">607</span>     * &lt;li&gt;If the name matches a group managed by the<a name="line.607"></a>
-<span class="sourceLineNo">608</span>     * current {@link org.apache.wiki.auth.authorize.GroupManager}, return that Group&lt;/li&gt;<a name="line.608"></a>
-<span class="sourceLineNo">609</span>     * &lt;li&gt;Otherwise, assume that the name represents a user<a name="line.609"></a>
-<span class="sourceLineNo">610</span>     * principal. Using the current {@link org.apache.wiki.auth.user.UserDatabase}, find the<a name="line.610"></a>
-<span class="sourceLineNo">611</span>     * first user who matches the supplied name by calling<a name="line.611"></a>
-<span class="sourceLineNo">612</span>     * {@link org.apache.wiki.auth.user.UserDatabase#find(String)}.&lt;/li&gt;<a name="line.612"></a>
-<span class="sourceLineNo">613</span>     * &lt;li&gt;Finally, if a user cannot be found, manufacture<a name="line.613"></a>
-<span class="sourceLineNo">614</span>     * and return a generic {@link org.apache.wiki.auth.acl.UnresolvedPrincipal}&lt;/li&gt;<a name="line.614"></a>
-<span class="sourceLineNo">615</span>     * &lt;/ol&gt;<a name="line.615"></a>
-<span class="sourceLineNo">616</span>     * @param name the name of the Principal to resolve<a name="line.616"></a>
-<span class="sourceLineNo">617</span>     * @return the fully-resolved Principal<a name="line.617"></a>
-<span class="sourceLineNo">618</span>     */<a name="line.618"></a>
-<span class="sourceLineNo">619</span>    public Principal resolvePrincipal( String name )<a name="line.619"></a>
-<span class="sourceLineNo">620</span>    {<a name="line.620"></a>
-<span class="sourceLineNo">621</span>        // Check built-in Roles first<a name="line.621"></a>
-<span class="sourceLineNo">622</span>        Role role = new Role(name);<a name="line.622"></a>
-<span class="sourceLineNo">623</span>        if ( Role.isBuiltInRole( role ) )<a name="line.623"></a>
-<span class="sourceLineNo">624</span>        {<a name="line.624"></a>
-<span class="sourceLineNo">625</span>            return role;<a name="line.625"></a>
-<span class="sourceLineNo">626</span>        }<a name="line.626"></a>
-<span class="sourceLineNo">627</span><a name="line.627"></a>
-<span class="sourceLineNo">628</span>        // Check Authorizer Roles<a name="line.628"></a>
-<span class="sourceLineNo">629</span>        Principal principal = m_authorizer.findRole( name );<a name="line.629"></a>
-<span class="sourceLineNo">630</span>        if ( principal != null )<a name="line.630"></a>
-<span class="sourceLineNo">631</span>        {<a name="line.631"></a>
-<span class="sourceLineNo">632</span>            return principal;<a name="line.632"></a>
-<span class="sourceLineNo">633</span>        }<a name="line.633"></a>
-<span class="sourceLineNo">634</span><a name="line.634"></a>
-<span class="sourceLineNo">635</span>        // Check Groups<a name="line.635"></a>
-<span class="sourceLineNo">636</span>        principal = m_engine.getGroupManager().findRole( name );<a name="line.636"></a>
-<span class="sourceLineNo">637</span>        if ( principal != null )<a name="line.637"></a>
-<span class="sourceLineNo">638</span>        {<a name="line.638"></a>
-<span class="sourceLineNo">639</span>            return principal;<a name="line.639"></a>
-<span class="sourceLineNo">640</span>        }<a name="line.640"></a>
-<span class="sourceLineNo">641</span><a name="line.641"></a>
-<span class="sourceLineNo">642</span>        // Ok, no luck---this must be a user principal<a name="line.642"></a>
-<span class="sourceLineNo">643</span>        Principal[] principals = null;<a name="line.643"></a>
-<span class="sourceLineNo">644</span>        UserProfile profile = null;<a name="line.644"></a>
-<span class="sourceLineNo">645</span>        UserDatabase db = m_engine.getUserManager().getUserDatabase();<a name="line.645"></a>
-<span class="sourceLineNo">646</span>        try<a name="line.646"></a>
-<span class="sourceLineNo">647</span>        {<a name="line.647"></a>
-<span class="sourceLineNo">648</span>            profile = db.find( name );<a name="line.648"></a>
-<span class="sourceLineNo">649</span>            principals = db.getPrincipals( profile.getLoginName() );<a name="line.649"></a>
-<span class="sourceLineNo">650</span>            for (int i = 0; i &lt; principals.length; i++)<a name="line.650"></a>
-<span class="sourceLineNo">651</span>            {<a name="line.651"></a>
-<span class="sourceLineNo">652</span>                principal = principals[i];<a name="line.652"></a>
-<span class="sourceLineNo">653</span>                if ( principal.getName().equals( name ) )<a name="line.653"></a>
-<span class="sourceLineNo">654</span>                {<a name="line.654"></a>
-<span class="sourceLineNo">655</span>                    return principal;<a name="line.655"></a>
-<span class="sourceLineNo">656</span>                }<a name="line.656"></a>
-<span class="sourceLineNo">657</span>            }<a name="line.657"></a>
-<span class="sourceLineNo">658</span>        }<a name="line.658"></a>
-<span class="sourceLineNo">659</span>        catch( NoSuchPrincipalException e )<a name="line.659"></a>
-<span class="sourceLineNo">660</span>        {<a name="line.660"></a>
-<span class="sourceLineNo">661</span>            // We couldn't find the user...<a name="line.661"></a>
-<span class="sourceLineNo">662</span>        }<a name="line.662"></a>
-<span class="sourceLineNo">663</span>        // Ok, no luck---mark this as unresolved and move on<a name="line.663"></a>
-<span class="sourceLineNo">664</span>        return new UnresolvedPrincipal( name );<a name="line.664"></a>
-<span class="sourceLineNo">665</span>    }<a name="line.665"></a>
-<span class="sourceLineNo">666</span><a name="line.666"></a>
-<span class="sourceLineNo">667</span><a name="line.667"></a>
-<span class="sourceLineNo">668</span>    // events processing .......................................................<a name="line.668"></a>
-<span class="sourceLineNo">669</span><a name="line.669"></a>
-<span class="sourceLineNo">670</span>    /**<a name="line.670"></a>
-<span class="sourceLineNo">671</span>     * Registers a WikiEventListener with this instance.<a name="line.671"></a>
-<span class="sourceLineNo">672</span>     * @param listener the event listener<a name="line.672"></a>
-<span class="sourceLineNo">673</span>     */<a name="line.673"></a>
-<span class="sourceLineNo">674</span>    public synchronized void addWikiEventListener( WikiEventListener listener )<a name="line.674"></a>
-<span class="sourceLineNo">675</span>    {<a name="line.675"></a>
-<span class="sourceLineNo">676</span>        WikiEventManager.addWikiEventListener( this, listener );<a name="line.676"></a>
-<span class="sourceLineNo">677</span>    }<a name="line.677"></a>
-<span class="sourceLineNo">678</span><a name="line.678"></a>
-<span class="sourceLineNo">679</span>    /**<a name="line.679"></a>
-<span class="sourceLineNo">680</span>     * Un-registers a WikiEventListener with this instance.<a name="line.680"></a>
-<span class="sourceLineNo">681</span>     * @param listener the event listener<a name="line.681"></a>
-<span class="sourceLineNo">682</span>     */<a name="line.682"></a>
-<span class="sourceLineNo">683</span>    public synchronized void removeWikiEventListener( WikiEventListener listener )<a name="line.683"></a>
-<span class="sourceLineNo">684</span>    {<a name="line.684"></a>
-<span class="sourceLineNo">685</span>        WikiEventManager.removeWikiEventListener( this, listener );<a name="line.685"></a>
-<span class="sourceLineNo">686</span>    }<a name="line.686"></a>
-<span class="sourceLineNo">687</span><a name="line.687"></a>
-<span class="sourceLineNo">688</span>    /**<a name="line.688"></a>
-<span class="sourceLineNo">689</span>     *  Fires a WikiSecurityEvent of the provided type, user,<a name="line.689"></a>
-<span class="sourceLineNo">690</span>     *  and permission to all registered listeners.<a name="line.690"></a>
-<span class="sourceLineNo">691</span>     *<a name="line.691"></a>
-<span class="sourceLineNo">692</span>     * @see org.apache.wiki.event.WikiSecurityEvent<a name="line.692"></a>
-<span class="sourceLineNo">693</span>     * @param type        the event type to be fired<a name="line.693"></a>
-<span class="sourceLineNo">694</span>     * @param user        the user associated with the event<a name="line.694"></a>
-<span class="sourceLineNo">695</span>     * @param permission  the permission the subject must possess<a name="line.695"></a>
-<span class="sourceLineNo">696</span>     */<a name="line.696"></a>
-<span class="sourceLineNo">697</span>    protected void fireEvent( int type, Principal user, Object permission )<a name="line.697"></a>
-<span class="sourceLineNo">698</span>    {<a name="line.698"></a>
-<span class="sourceLineNo">699</span>        if ( WikiEventManager.isListening(this) )<a name="line.699"></a>
-<span class="sourceLineNo">700</span>        {<a name="line.700"></a>
-<span class="sourceLineNo">701</span>            WikiEventManager.fireEvent(this,new WikiSecurityEvent(this,type,user,permission));<a name="line.701"></a>
-<span class="sourceLineNo">702</span>        }<a name="line.702"></a>
-<span class="sourceLineNo">703</span>    }<a name="line.703"></a>
-<span class="sourceLineNo">704</span><a name="line.704"></a>
-<span class="sourceLineNo">705</span>}<a name="line.705"></a>
+<span class="sourceLineNo">064</span>    /** The default external Authorizer is the {@link org.apache.wiki.auth.authorize.WebContainerAuthorizer} */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    String DEFAULT_AUTHORIZER = "org.apache.wiki.auth.authorize.WebContainerAuthorizer";<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    /** Property that supplies the security policy file name, in WEB-INF. */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    String POLICY = "jspwiki.policy.file";<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /** Name of the default security policy file, in WEB-INF. */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    String DEFAULT_POLICY = "jspwiki.policy";<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    /** The property name in jspwiki.properties for specifying the external {@link Authorizer}. */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    String PROP_AUTHORIZER = "jspwiki.authorizer";<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * Returns &lt;code&gt;true&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;, depending on whether a Permission is allowed for the Subject associated with<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * a supplied WikiSession. The access control algorithm works this way:<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * &lt;ol&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * &lt;li&gt;The {@link org.apache.wiki.auth.acl.Acl} for the page is obtained&lt;/li&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * &lt;li&gt;The Subject associated with the current {@link org.apache.wiki.WikiSession} is obtained&lt;/li&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * &lt;li&gt;If the Subject's Principal set includes the Role Principal that is the administrator group, always allow the Permission&lt;/li&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * &lt;li&gt;For all permissions, check to see if the Permission is allowed according to the default security policy. If it isn't, deny<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * the permission and halt further processing.&lt;/li&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * &lt;li&gt;If there is an Acl, get the list of Principals assigned this Permission in the Acl: these will be role, group or user Principals,<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * or {@link org.apache.wiki.auth.acl.UnresolvedPrincipal}s (see below). Then iterate through the Subject's Principal set and determine<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * whether the user (Subject) possesses any one of these specified Roles or Principals.&lt;/li&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * &lt;/ol&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * &lt;p&gt;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * Note that when iterating through the Acl's list of authorized Principals, it is possible that one or more of the Acl's Principal<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * entries are of type &lt;code&gt;UnresolvedPrincipal&lt;/code&gt;. This means that the last time the ACL was read, the Principal (user, built-in<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * Role, authorizer Role, or wiki Group) could not be resolved: the Role was not valid, the user wasn't found in the UserDatabase, or<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * the Group wasn't known to (e.g., cached) in the GroupManager. If an &lt;code&gt;UnresolvedPrincipal&lt;/code&gt; is encountered, this method<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * will attempt to resolve it first &lt;em&gt;before&lt;/em&gt; checking to see if the Subject possesses this principal, by calling<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * {@link #resolvePrincipal(String)}. If the (re-)resolution does not succeed, the access check for the principal will fail by<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * definition (the Subject should never contain UnresolvedPrincipals).<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * &lt;/p&gt;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * &lt;p&gt;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * If security not set to JAAS, will return true.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * &lt;/p&gt;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param session the current wiki session<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @param permission the Permission being checked<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @return the result of the Permission check<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    boolean checkPermission( WikiSession session, Permission permission );<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * &lt;p&gt;Determines if the Subject associated with a supplied WikiSession contains a desired Role or GroupPrincipal. The algorithm<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * simply checks to see if the Subject possesses the Role or GroupPrincipal it in its Principal set. Note that any user (anonymous,<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * asserted, authenticated) can possess a built-in role. But a user &lt;em&gt;must&lt;/em&gt; be authenticated to possess a role other than one<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * of the built-in ones. We do this to prevent privilege escalation.&lt;/p&gt;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * &lt;p&gt;For all other cases, this method returns &lt;code&gt;false&lt;/code&gt;.&lt;/p&gt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * &lt;p&gt;Note that this method does &lt;em&gt;not&lt;/em&gt; consult the external Authorizer or GroupManager; it relies on the Principals that<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * have been injected into the user's Subject at login time, or after group creation/modification/deletion.&lt;/p&gt;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @param session the current wiki session, which must be non-null. If null, the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @param principal the Principal (role or group principal) to look for, which must be non-&lt;code&gt;null&lt;/code&gt;. If &lt;code&gt;null&lt;/code&gt;,<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     *                  the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject supplied with the WikiContext posesses the Role or GroupPrincipal, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    default boolean isUserInRole( final WikiSession session, final Principal principal ) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        if ( session == null || principal == null || AuthenticationManager.isUserPrincipal( principal ) ) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            return false;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>        // Any type of user can possess a built-in role<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        if ( principal instanceof Role &amp;&amp; Role.isBuiltInRole( (Role)principal ) ) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            return session.hasPrincipal( principal );<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>        // Only authenticated users can possess groups or custom roles<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        if ( session.isAuthenticated() &amp;&amp; AuthenticationManager.isRolePrincipal( principal ) ) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            return session.hasPrincipal( principal );<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        }<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        return false;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>    /**<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     * Returns the current external {@link Authorizer} in use. This method is guaranteed to return a properly-initialized Authorizer, unless<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     * it could not be initialized. In that case, this method throws a {@link org.apache.wiki.auth.WikiSecurityException}.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     * @throws org.apache.wiki.auth.WikiSecurityException if the Authorizer could not be initialized<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     * @return the current Authorizer<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     */<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    Authorizer getAuthorizer() throws WikiSecurityException;<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    /**<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     * &lt;p&gt;Determines if the Subject associated with a supplied WikiSession contains a desired user Principal or built-in Role principal,<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * OR is a member a Group or external Role. The rules are as follows:&lt;/p&gt;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     * &lt;ol&gt;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * &lt;li&gt;First, if desired Principal is a Role or GroupPrincipal, delegate to {@link #isUserInRole(WikiSession, Principal)} and<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     * return the result.&lt;/li&gt;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * &lt;li&gt;Otherwise, we're looking for a user Principal, so iterate through the Principal set and see if any share the same name as the<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * one we are looking for.&lt;/li&gt;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * &lt;/ol&gt;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * &lt;p&gt;&lt;em&gt;Note: if the Principal parameter is a user principal, the session must be authenticated in order for the user to "possess it".<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     * Anonymous or asserted sessions will never posseess a named user principal.&lt;/em&gt;&lt;/p&gt;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     *<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     * @param session the current wiki session, which must be non-null. If null, the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>     * @param principal the Principal (role, group, or user principal) to look for, which must be non-null. If null, the result of this<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     *                  method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject supplied with the WikiContext posesses the Role, GroupPrincipal or desired<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     *         user Principal, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    boolean hasRoleOrPrincipal( WikiSession session, Principal principal );<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>    /**<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * Checks whether the current user has access to the wiki context, by obtaining the required Permission ({@link WikiContext#requiredPermission()})<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     * and delegating the access check to {@link #checkPermission(WikiSession, Permission)}. If the user is allowed, this method returns<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     * &lt;code&gt;true&lt;/code&gt;; &lt;code&gt;false&lt;/code&gt; otherwise. If access is allowed, the wiki context will be added to the request as an attribute<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     * with the key name {@link org.apache.wiki.WikiContext#ATTR_CONTEXT}. Note that this method will automatically redirect the user to<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     * a login or error page, as appropriate, if access fails. This is NOT guaranteed to be default behavior in the future.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     *<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     * @param context wiki context to check if it is accesible<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     * @param response the http response<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     * @return the result of the access check<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     * @throws IOException In case something goes wrong<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     */<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    default boolean hasAccess( final WikiContext context, final HttpServletResponse response ) throws IOException {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        return hasAccess( context, response, true );<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     * Checks whether the current user has access to the wiki context (and<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     * optionally redirects if not), by obtaining the required Permission ({@link WikiContext#requiredPermission()})<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     * and delegating the access check to {@link #checkPermission(WikiSession, Permission)}.<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     * If the user is allowed, this method returns &lt;code&gt;true&lt;/code&gt;;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     * &lt;code&gt;false&lt;/code&gt; otherwise. Also, the wiki context will be added to the request as attribute<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     * with the key name {@link org.apache.wiki.WikiContext#ATTR_CONTEXT}.<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     *<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     * @param context wiki context to check if it is accesible<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * @param response The servlet response object<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     * @param redirect If true, makes an automatic redirect to the response<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     * @return the result of the access check<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     * @throws IOException If something goes wrong<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     */<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    boolean hasAccess( final WikiContext context, final HttpServletResponse response, final boolean redirect ) throws IOException;<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>    /**<a name="line.200"></a>
+<span class="sourceLineNo">201</span>     * Initializes AuthorizationManager with an engine and set of properties. Expects to find property 'jspwiki.authorizer' with a valid<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     * Authorizer implementation name to take care of role lookup operations.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     * @param engine the wiki engine<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     * @param properties the set of properties used to initialize the wiki engine<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     * @throws WikiException if the AuthorizationManager cannot be initialized<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     */<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    void initialize( final Engine engine, final Properties properties ) throws WikiException;<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>    /**<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     * Checks to see if the local security policy allows a particular static Permission.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     * Do not use this method for normal permission checks; use {@link #checkPermission(WikiSession, Permission)} instead.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     *<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     * @param principals the Principals to check<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     * @param permission the Permission<a name="line.215"></a>
+<span class="sourceLineNo">216</span>     * @return the result<a name="line.216"></a>
+<span class="sourceLineNo">217</span>     */<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    boolean allowedByLocalPolicy( Principal[] principals, Permission permission );<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>    /**<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * Determines whether a Subject possesses a given "static" Permission as defined in the security policy file. This method uses standard<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     * Java 2 security calls to do its work. Note that the current access control context's &lt;code&gt;codeBase&lt;/code&gt; is effectively &lt;em&gt;this<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     * class&lt;/em&gt;, not that of the caller. Therefore, this method will work best when what matters in the policy is &lt;em&gt;who&lt;/em&gt; makes the<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     * permission check, not what the caller's code source is. Internally, this method works by executing &lt;code&gt;Subject.doAsPrivileged&lt;/code&gt;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     * with a privileged action that simply calls {@link AccessController#checkPermission(Permission)}.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     *<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     * @see AccessController#checkPermission(Permission) . A caught exception (or lack thereof) determines whether the<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     *       privilege is absent (or present).<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     * @param session the WikiSession whose permission status is being queried<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     * @param permission the Permission the Subject must possess<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject possesses the permission, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.231"></a>
+<span class="sourceLineNo">232</span>     */<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    boolean checkStaticPermission( WikiSession session, Permission permission );<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>    /**<a name="line.235"></a>
+<span class="sourceLineNo">236</span>     * &lt;p&gt;Given a supplied string representing a Principal's name from an Acl, this method resolves the correct type of Principal (role,<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     * group, or user). This method is guaranteed to always return a Principal. The algorithm is straightforward:&lt;/p&gt;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     * &lt;ol&gt;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     * &lt;li&gt;If the name matches one of the built-in {@link org.apache.wiki.auth.authorize.Role} names, return that built-in Role&lt;/li&gt;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     * &lt;li&gt;If the name matches one supplied by the current {@link org.apache.wiki.auth.Authorizer}, return that Role&lt;/li&gt;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     * &lt;li&gt;If the name matches a group managed by the current {@link org.apache.wiki.auth.authorize.GroupManager}, return that Group&lt;/li&gt;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     * &lt;li&gt;Otherwise, assume that the name represents a user principal. Using the current {@link org.apache.wiki.auth.user.UserDatabase},<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     * find the first user who matches the supplied name by calling {@link org.apache.wiki.auth.user.UserDatabase#find(String)}.&lt;/li&gt;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     * &lt;li&gt;Finally, if a user cannot be found, manufacture and return a generic {@link org.apache.wiki.auth.acl.UnresolvedPrincipal}&lt;/li&gt;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * &lt;/ol&gt;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     *<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     * @param name the name of the Principal to resolve<a name="line.247"></a>
+<span class="sourceLineNo">248</span>     * @return the fully-resolved Principal<a name="line.248"></a>
+<span class="sourceLineNo">249</span>     */<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    Principal resolvePrincipal( final String name );<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span><a name="line.252"></a>
+<span class="sourceLineNo">253</span>    // events processing .......................................................<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>    /**<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     * Registers a WikiEventListener with this instance.<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     *<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * @param listener the event listener<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     */<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    void addWikiEventListener( WikiEventListener listener );<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>    /**<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     * Un-registers a WikiEventListener with this instance.<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     *<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * @param listener the event listener<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     */<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    void removeWikiEventListener( final WikiEventListener listener );<a name="line.267"></a>
+<span class="sourceLineNo">268</span><a name="line.268"></a>
+<span class="sourceLineNo">269</span>    /**<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     * Fires a WikiSecurityEvent of the provided type, user, and permission to all registered listeners.<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     *<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     * @see org.apache.wiki.event.WikiSecurityEvent<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * @param type        the event type to be fired<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * @param user        the user associated with the event<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     * @param permission  the permission the subject must possess<a name="line.275"></a>
+<span class="sourceLineNo">276</span>     */<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    default void fireEvent( final int type, final Principal user, final Object permission ) {<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        if( WikiEventManager.isListening( this ) ) {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>            WikiEventManager.fireEvent( this, new WikiSecurityEvent( this, type, user, permission ) );<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        }<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>}<a name="line.283"></a>
 
 
 
