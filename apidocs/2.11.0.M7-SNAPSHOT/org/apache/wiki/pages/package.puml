@@ -2,6 +2,10 @@
 
     namespace org.apache.wiki.pages {
 
+        class PageBuilder [[PageBuilder.html]] {
+            +openAs(T): T
+        }
+
         interface Page [[Page.html]] {
             {static} +withUrl(String): PageBuilder
             {static} +baseUrl(): String
@@ -10,20 +14,6 @@
             +url(): String
             {abstract} +wikiTitle(): String
             {abstract} +wikiPageContent(): String
-        }
-
-        class PageBuilder [[PageBuilder.html]] {
-            +openAs(T): T
-        }
-
-        class PageLock [[PageLock.html]] {
-            +PageLock(WikiPage, String, Date, Date)
-            +getPage(): String
-            +getLocker(): String
-            +getAcquisitionTime(): Date
-            +getExpiryTime(): Date
-            +getTimeLeft(): long
-            +isExpired(): boolean
         }
 
         interface PageManager [[PageManager.html]] {
@@ -72,16 +62,20 @@
             +sort(String[]): void
         }
 
+        class PageTimeComparator [[PageTimeComparator.html]] {
+            +compare(WikiPage, WikiPage): int
+        }
+
         class DefaultPageManager [[DefaultPageManager.html]] {
             #m_pageLocks: ConcurrentHashMap<String, PageLock>
-            +DefaultPageManager(WikiEngine, Properties)
+            +DefaultPageManager(Engine, Properties)
             +getProvider(): WikiPageProvider
             +getAllPages(): Collection<WikiPage>
             +getPageText(String, int): String
             +getPureText(String, int): String
             +getText(String, int): String
             +saveText(WikiContext, String): void
-            #getEngine(): WikiEngine
+            #getEngine(): Engine
             +putPageText(WikiPage, String): void
             +lockPage(WikiPage, String): PageLock
             +unlockPage(PageLock): void
@@ -108,12 +102,15 @@
             #changeAcl(WikiPage, Principal[], Principal): boolean
         }
 
-        class PageTimeComparator [[PageTimeComparator.html]] {
-            +compare(WikiPage, WikiPage): int
+        class PageLock [[PageLock.html]] {
+            +PageLock(WikiPage, String, Date, Date)
+            +getPage(): String
+            +getLocker(): String
+            +getAcquisitionTime(): Date
+            +getExpiryTime(): Date
+            +getTimeLeft(): long
+            +isExpired(): boolean
         }
-
-        interface java.io.Serializable
-        java.io.Serializable <|.. PageLock
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
@@ -125,6 +122,11 @@
         }
         java.util.Comparator <|.. PageSorter
 
+        java.util.Comparator <|.. PageTimeComparator
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. PageTimeComparator
+
         abstract class org.apache.wiki.modules.ModuleManager {
             {abstract} +modules(): Collection<WikiModuleInfo>
             {abstract} +getModuleInfo(String): WikiModuleInfo
@@ -133,9 +135,7 @@
 
         PageManager <|.. DefaultPageManager
 
-        java.util.Comparator <|.. PageTimeComparator
-
-        java.io.Serializable <|.. PageTimeComparator
+        java.io.Serializable <|.. PageLock
 
         PageManager --> "*" PageLock: activeLocks
 
