@@ -12,14 +12,31 @@
             +getTypeDescription(): String
         }
 
-        class WikiEventManager [[WikiEventManager.html]] {
-            {static} +getInstance(): WikiEventManager
-            {static} +addWikiEventListener(Object, WikiEventListener): boolean
-            {static} +removeWikiEventListener(Object, WikiEventListener): boolean
-            {static} +getWikiEventListeners(Object): Set<WikiEventListener>
-            {static} +removeWikiEventListener(WikiEventListener): boolean
-            {static} +isListening(Object): boolean
-            {static} +fireEvent(Object, WikiEvent): void
+        interface WikiEventListener [[WikiEventListener.html]] {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+
+        class WorkflowEvent [[WorkflowEvent.html]] {
+            {static} +CREATED: int
+            {static} +STARTED: int
+            {static} +RUNNING: int
+            {static} +WAITING: int
+            {static} +COMPLETED: int
+            {static} +ABORTED: int
+            +WorkflowEvent(Object, int)
+            +eventName(int): String
+        }
+
+        class WikiEngineEvent [[WikiEngineEvent.html]] {
+            {static} +INITIALIZING: int
+            {static} +INITIALIZED: int
+            {static} +SHUTDOWN: int
+            {static} +STOPPED: int
+            +WikiEngineEvent(Object, int)
+            #setType(int): void
+            {static} +isValidType(int): boolean
+            +eventName(): String
+            +getTypeDescription(): String
         }
 
         class WikiPageEvent [[WikiPageEvent.html]] {
@@ -46,6 +63,29 @@
             {static} +isValidType(int): boolean
             +eventName(): String
             +getTypeDescription(): String
+        }
+
+        abstract class WikiEvent [[WikiEvent.html]] {
+            {static} +ERROR: int
+            {static} +UNDEFINED: int
+            +WikiEvent(Object, int)
+            +getSrc(): T
+            +getWhen(): long
+            #setType(int): void
+            +getType(): int
+            +getTypeDescription(): String
+            {static} +isValidType(int): boolean
+            +eventName(): String
+        }
+
+        class WikiEventManager [[WikiEventManager.html]] {
+            {static} +getInstance(): WikiEventManager
+            {static} +addWikiEventListener(Object, WikiEventListener): boolean
+            {static} +removeWikiEventListener(Object, WikiEventListener): boolean
+            {static} +getWikiEventListeners(Object): Set<WikiEventListener>
+            {static} +removeWikiEventListener(WikiEventListener): boolean
+            {static} +isListening(Object): boolean
+            {static} +fireEvent(Object, WikiEvent): void
         }
 
         class WikiSecurityEvent [[WikiSecurityEvent.html]] {
@@ -75,61 +115,21 @@
             +getTypeDescription(): String
         }
 
-        interface WikiEventListener [[WikiEventListener.html]] {
-            {abstract} +actionPerformed(WikiEvent): void
-        }
-
-        class WorkflowEvent [[WorkflowEvent.html]] {
-            {static} +CREATED: int
-            {static} +STARTED: int
-            {static} +RUNNING: int
-            {static} +WAITING: int
-            {static} +COMPLETED: int
-            {static} +ABORTED: int
-            +WorkflowEvent(Object, int)
-            +eventName(int): String
-        }
-
-        abstract class WikiEvent [[WikiEvent.html]] {
-            {static} +ERROR: int
-            {static} +UNDEFINED: int
-            +WikiEvent(Object, int)
-            +getSrc(): T
-            +getWhen(): long
-            #setType(int): void
-            +getType(): int
-            +getTypeDescription(): String
-            {static} +isValidType(int): boolean
-            +eventName(): String
-        }
-
-        class WikiEngineEvent [[WikiEngineEvent.html]] {
-            {static} +INITIALIZING: int
-            {static} +INITIALIZED: int
-            {static} +SHUTDOWN: int
-            {static} +STOPPED: int
-            +WikiEngineEvent(Object, int)
-            #setType(int): void
-            {static} +isValidType(int): boolean
-            +eventName(): String
-            +getTypeDescription(): String
-        }
-
         WikiPageEvent <|-- WikiPageRenameEvent
-
-        WikiEvent <|-- WikiPageEvent
-
-        WikiEvent <|-- WikiSecurityEvent
 
         interface java.util.EventListener
         java.util.EventListener <|.. WikiEventListener
 
         WikiEvent <|-- WorkflowEvent
 
+        WikiEvent <|-- WikiEngineEvent
+
+        WikiEvent <|-- WikiPageEvent
+
         class java.util.EventObject
         java.util.EventObject <|-- WikiEvent
 
-        WikiEvent <|-- WikiEngineEvent
+        WikiEvent <|-- WikiSecurityEvent
 
     }
 
