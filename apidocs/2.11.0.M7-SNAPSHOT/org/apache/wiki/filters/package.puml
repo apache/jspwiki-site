@@ -66,17 +66,11 @@
             +preTranslate(WikiContext, String): String
         }
 
-        class ProfanityFilter [[ProfanityFilter.html]] {
-            +preTranslate(WikiContext, String): String
-        }
-
-        abstract class org.apache.wiki.modules.ModuleManager {
-            {abstract} +modules(): Collection<WikiModuleInfo>
-            {abstract} +getModuleInfo(String): WikiModuleInfo
-        }
-        org.apache.wiki.modules.ModuleManager <|-- DefaultFilterManager
-
-        interface org.apache.wiki.api.engine.FilterManager {
+        interface FilterManager [[FilterManager.html]] {
+            {static} +PROP_FILTERXML: String
+            {static} +DEFAULT_XMLFILE: String
+            {static} +SYSTEM_FILTER_PRIORITY: int
+            {static} +USER_FILTER_PRIORITY: int
             {abstract} +addPageFilter(PageFilter, int): void
             {abstract} +doPreTranslateFiltering(WikiContext, String): String
             {abstract} +doPostTranslateFiltering(WikiContext, String): String
@@ -84,10 +78,16 @@
             {abstract} +doPostSaveFiltering(WikiContext, String): void
             {abstract} +getFilterList(): List<PageFilter>
             {abstract} +destroy(): void
-            {abstract} +modules(): Collection<WikiModuleInfo>
-            {abstract} +getModuleInfo(String): WikiModuleInfo
         }
-        org.apache.wiki.api.engine.FilterManager <|.. DefaultFilterManager
+
+        class ProfanityFilter [[ProfanityFilter.html]] {
+            +preTranslate(WikiContext, String): String
+        }
+
+        abstract class org.apache.wiki.modules.BaseModuleManager
+        org.apache.wiki.modules.BaseModuleManager <|-- DefaultFilterManager
+
+        FilterManager <|.. DefaultFilterManager
 
         class org.apache.wiki.api.filters.BasicPageFilter
         org.apache.wiki.api.filters.BasicPageFilter <|-- PageEventFilter
@@ -97,6 +97,13 @@
         org.apache.wiki.api.filters.BasicPageFilter <|-- SpamFilter
 
         org.apache.wiki.api.filters.BasicPageFilter <|-- CreoleFilter
+
+        interface org.apache.wiki.modules.ModuleManager {
+            {abstract} +checkCompatibility(WikiModuleInfo): boolean
+            {abstract} +getModuleInfo(String): WikiModuleInfo
+            {abstract} +modules(): Collection<WikiModuleInfo>
+        }
+        org.apache.wiki.modules.ModuleManager <|.. FilterManager
 
         org.apache.wiki.api.filters.BasicPageFilter <|-- ProfanityFilter
 

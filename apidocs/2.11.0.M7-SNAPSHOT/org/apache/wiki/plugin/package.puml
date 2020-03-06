@@ -253,6 +253,24 @@
             +execute(WikiContext, Map<String, String>): String
         }
 
+        interface PluginManager [[PluginManager.html]] {
+            {static} +PROP_SEARCHPATH: String
+            {static} +PROP_EXTERNALJARS: String
+            {static} +DEFAULT_PACKAGE: String
+            {static} +PARAM_BODY: String
+            {static} +PARAM_CMDLINE: String
+            {static} +PARAM_BOUNDS: String
+            {static} +PARAM_DEBUG: String
+            {abstract} +enablePlugins(boolean): void
+            {abstract} +pluginsEnabled(): boolean
+            {abstract} +getPluginPattern(): Pattern
+            {abstract} +getPluginSearchPath(): String
+            {abstract} +execute(WikiContext, String, Map<String, String>): String
+            {abstract} +parseArgs(String): Map<String, String>
+            {abstract} +execute(WikiContext, String): String
+            {abstract} +newWikiPlugin(String, ResourceBundle): WikiPlugin
+        }
+
         class InsertPage [[InsertPage.html]] {
             {static} +PARAM_PAGENAME: String
             {static} +PARAM_STYLE: String
@@ -344,25 +362,10 @@
 
         org.apache.wiki.api.plugin.WikiPlugin <|.. Groups
 
-        abstract class org.apache.wiki.modules.ModuleManager {
-            {abstract} +modules(): Collection<WikiModuleInfo>
-            {abstract} +getModuleInfo(String): WikiModuleInfo
-        }
-        org.apache.wiki.modules.ModuleManager <|-- DefaultPluginManager
+        abstract class org.apache.wiki.modules.BaseModuleManager
+        org.apache.wiki.modules.BaseModuleManager <|-- DefaultPluginManager
 
-        interface org.apache.wiki.api.engine.PluginManager {
-            {abstract} +enablePlugins(boolean): void
-            {abstract} +pluginsEnabled(): boolean
-            {abstract} +getPluginPattern(): Pattern
-            {abstract} +getPluginSearchPath(): String
-            {abstract} +execute(WikiContext, String, Map<String, String>): String
-            {abstract} +parseArgs(String): Map<String, String>
-            {abstract} +execute(WikiContext, String): String
-            {abstract} +modules(): Collection<WikiModuleInfo>
-            {abstract} +getModuleInfo(String): DefaultPluginManager.WikiPluginInfo
-            {abstract} +newWikiPlugin(String, ResourceBundle): WikiPlugin
-        }
-        org.apache.wiki.api.engine.PluginManager <|.. DefaultPluginManager
+        PluginManager <|.. DefaultPluginManager
 
         class org.apache.wiki.modules.WikiModuleInfo
         org.apache.wiki.modules.WikiModuleInfo <|-- org.apache.wiki.plugin.DefaultPluginManager.WikiPluginInfo
@@ -376,6 +379,13 @@
         org.apache.wiki.api.plugin.WikiPlugin <|.. CurrentTimePlugin
 
         org.apache.wiki.api.plugin.WikiPlugin <|.. WeblogArchivePlugin
+
+        interface org.apache.wiki.modules.ModuleManager {
+            {abstract} +checkCompatibility(WikiModuleInfo): boolean
+            {abstract} +getModuleInfo(String): WikiModuleInfo
+            {abstract} +modules(): Collection<WikiModuleInfo>
+        }
+        org.apache.wiki.modules.ModuleManager <|.. PluginManager
 
         org.apache.wiki.api.plugin.WikiPlugin <|.. InsertPage
 

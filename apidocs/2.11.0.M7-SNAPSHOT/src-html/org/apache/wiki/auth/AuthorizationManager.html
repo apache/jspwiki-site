@@ -27,8 +27,8 @@
 <span class="sourceLineNo">019</span>package org.apache.wiki.auth;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.apache.wiki.WikiContext;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.WikiSession;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Engine;<a name="line.23"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.Engine;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Session;<a name="line.23"></a>
 <span class="sourceLineNo">024</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import org.apache.wiki.auth.authorize.Role;<a name="line.25"></a>
 <span class="sourceLineNo">026</span>import org.apache.wiki.event.WikiEventListener;<a name="line.26"></a>
@@ -53,7 +53,7 @@
 <span class="sourceLineNo">045</span> *   &lt;em&gt;e.g.,&lt;/em&gt; reading, editing, renaming<a name="line.45"></a>
 <span class="sourceLineNo">046</span> * &lt;/ul&gt;<a name="line.46"></a>
 <span class="sourceLineNo">047</span> * &lt;p&gt;Calling classes determine whether they are entitled to perform a particular action by constructing the appropriate permission first,<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * then passing it and the current {@link org.apache.wiki.WikiSession} to the {@link #checkPermission(WikiSession, Permission)} method. If<a name="line.48"></a>
+<span class="sourceLineNo">048</span> * then passing it and the current {@link Session} to the {@link #checkPermission(Session, Permission)} method. If<a name="line.48"></a>
 <span class="sourceLineNo">049</span> * the session's Subject possesses the permission, the action is allowed.&lt;/p&gt;<a name="line.49"></a>
 <span class="sourceLineNo">050</span> * &lt;p&gt;For WikiPermissions, the decision criteria is relatively simple: the caller either possesses the permission, as granted by the wiki<a name="line.50"></a>
 <span class="sourceLineNo">051</span> * security policy -- or not.&lt;/p&gt;<a name="line.51"></a>
@@ -62,7 +62,7 @@
 <span class="sourceLineNo">054</span> * security policy. In other words, the user must be named in the ACL (or belong to a group or role that is named in the ACL) &lt;em&gt;and&lt;/em&gt;<a name="line.54"></a>
 <span class="sourceLineNo">055</span> * be granted (at least) the same permission in the security policy. We do this to prevent a user from gaining more permissions than they<a name="line.55"></a>
 <span class="sourceLineNo">056</span> * already have, based on the security policy.&lt;/p&gt;<a name="line.56"></a>
-<span class="sourceLineNo">057</span> * &lt;p&gt;See the implementation on {@link #checkPermission(WikiSession, Permission)} method for more information on the authorization logic.&lt;/p&gt;<a name="line.57"></a>
+<span class="sourceLineNo">057</span> * &lt;p&gt;See the implementation on {@link #checkPermission(Session, Permission)} method for more information on the authorization logic.&lt;/p&gt;<a name="line.57"></a>
 <span class="sourceLineNo">058</span> *<a name="line.58"></a>
 <span class="sourceLineNo">059</span> * @since 2.3<a name="line.59"></a>
 <span class="sourceLineNo">060</span> * @see AuthenticationManager<a name="line.60"></a>
@@ -83,10 +83,10 @@
 <span class="sourceLineNo">075</span><a name="line.75"></a>
 <span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
 <span class="sourceLineNo">077</span>     * Returns &lt;code&gt;true&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;, depending on whether a Permission is allowed for the Subject associated with<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     * a supplied WikiSession. The access control algorithm works this way:<a name="line.78"></a>
+<span class="sourceLineNo">078</span>     * a supplied Session. The access control algorithm works this way:<a name="line.78"></a>
 <span class="sourceLineNo">079</span>     * &lt;ol&gt;<a name="line.79"></a>
 <span class="sourceLineNo">080</span>     * &lt;li&gt;The {@link org.apache.wiki.auth.acl.Acl} for the page is obtained&lt;/li&gt;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * &lt;li&gt;The Subject associated with the current {@link org.apache.wiki.WikiSession} is obtained&lt;/li&gt;<a name="line.81"></a>
+<span class="sourceLineNo">081</span>     * &lt;li&gt;The Subject associated with the current {@link org.apache.wiki.api.core.Session} is obtained&lt;/li&gt;<a name="line.81"></a>
 <span class="sourceLineNo">082</span>     * &lt;li&gt;If the Subject's Principal set includes the Role Principal that is the administrator group, always allow the Permission&lt;/li&gt;<a name="line.82"></a>
 <span class="sourceLineNo">083</span>     * &lt;li&gt;For all permissions, check to see if the Permission is allowed according to the default security policy. If it isn't, deny<a name="line.83"></a>
 <span class="sourceLineNo">084</span>     * the permission and halt further processing.&lt;/li&gt;<a name="line.84"></a>
@@ -111,10 +111,10 @@
 <span class="sourceLineNo">103</span>     * @param permission the Permission being checked<a name="line.103"></a>
 <span class="sourceLineNo">104</span>     * @return the result of the Permission check<a name="line.104"></a>
 <span class="sourceLineNo">105</span>     */<a name="line.105"></a>
-<span class="sourceLineNo">106</span>    boolean checkPermission( WikiSession session, Permission permission );<a name="line.106"></a>
+<span class="sourceLineNo">106</span>    boolean checkPermission( Session session, Permission permission );<a name="line.106"></a>
 <span class="sourceLineNo">107</span><a name="line.107"></a>
 <span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * &lt;p&gt;Determines if the Subject associated with a supplied WikiSession contains a desired Role or GroupPrincipal. The algorithm<a name="line.109"></a>
+<span class="sourceLineNo">109</span>     * &lt;p&gt;Determines if the Subject associated with a supplied Session contains a desired Role or GroupPrincipal. The algorithm<a name="line.109"></a>
 <span class="sourceLineNo">110</span>     * simply checks to see if the Subject possesses the Role or GroupPrincipal it in its Principal set. Note that any user (anonymous,<a name="line.110"></a>
 <span class="sourceLineNo">111</span>     * asserted, authenticated) can possess a built-in role. But a user &lt;em&gt;must&lt;/em&gt; be authenticated to possess a role other than one<a name="line.111"></a>
 <span class="sourceLineNo">112</span>     * of the built-in ones. We do this to prevent privilege escalation.&lt;/p&gt;<a name="line.112"></a>
@@ -127,7 +127,7 @@
 <span class="sourceLineNo">119</span>     *                  the result of this method always returns &lt;code&gt;false&lt;/code&gt;<a name="line.119"></a>
 <span class="sourceLineNo">120</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject supplied with the WikiContext posesses the Role or GroupPrincipal, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.120"></a>
 <span class="sourceLineNo">121</span>     */<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    default boolean isUserInRole( final WikiSession session, final Principal principal ) {<a name="line.122"></a>
+<span class="sourceLineNo">122</span>    default boolean isUserInRole( final Session session, final Principal principal ) {<a name="line.122"></a>
 <span class="sourceLineNo">123</span>        if ( session == null || principal == null || AuthenticationManager.isUserPrincipal( principal ) ) {<a name="line.123"></a>
 <span class="sourceLineNo">124</span>            return false;<a name="line.124"></a>
 <span class="sourceLineNo">125</span>        }<a name="line.125"></a>
@@ -154,10 +154,10 @@
 <span class="sourceLineNo">146</span>    Authorizer getAuthorizer() throws WikiSecurityException;<a name="line.146"></a>
 <span class="sourceLineNo">147</span><a name="line.147"></a>
 <span class="sourceLineNo">148</span>    /**<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     * &lt;p&gt;Determines if the Subject associated with a supplied WikiSession contains a desired user Principal or built-in Role principal,<a name="line.149"></a>
+<span class="sourceLineNo">149</span>     * &lt;p&gt;Determines if the Subject associated with a supplied Session contains a desired user Principal or built-in Role principal,<a name="line.149"></a>
 <span class="sourceLineNo">150</span>     * OR is a member a Group or external Role. The rules are as follows:&lt;/p&gt;<a name="line.150"></a>
 <span class="sourceLineNo">151</span>     * &lt;ol&gt;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * &lt;li&gt;First, if desired Principal is a Role or GroupPrincipal, delegate to {@link #isUserInRole(WikiSession, Principal)} and<a name="line.152"></a>
+<span class="sourceLineNo">152</span>     * &lt;li&gt;First, if desired Principal is a Role or GroupPrincipal, delegate to {@link #isUserInRole(Session, Principal)} and<a name="line.152"></a>
 <span class="sourceLineNo">153</span>     * return the result.&lt;/li&gt;<a name="line.153"></a>
 <span class="sourceLineNo">154</span>     * &lt;li&gt;Otherwise, we're looking for a user Principal, so iterate through the Principal set and see if any share the same name as the<a name="line.154"></a>
 <span class="sourceLineNo">155</span>     * one we are looking for.&lt;/li&gt;<a name="line.155"></a>
@@ -171,11 +171,11 @@
 <span class="sourceLineNo">163</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject supplied with the WikiContext posesses the Role, GroupPrincipal or desired<a name="line.163"></a>
 <span class="sourceLineNo">164</span>     *         user Principal, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.164"></a>
 <span class="sourceLineNo">165</span>     */<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    boolean hasRoleOrPrincipal( WikiSession session, Principal principal );<a name="line.166"></a>
+<span class="sourceLineNo">166</span>    boolean hasRoleOrPrincipal( Session session, Principal principal );<a name="line.166"></a>
 <span class="sourceLineNo">167</span><a name="line.167"></a>
 <span class="sourceLineNo">168</span>    /**<a name="line.168"></a>
 <span class="sourceLineNo">169</span>     * Checks whether the current user has access to the wiki context, by obtaining the required Permission ({@link WikiContext#requiredPermission()})<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * and delegating the access check to {@link #checkPermission(WikiSession, Permission)}. If the user is allowed, this method returns<a name="line.170"></a>
+<span class="sourceLineNo">170</span>     * and delegating the access check to {@link #checkPermission(Session, Permission)}. If the user is allowed, this method returns<a name="line.170"></a>
 <span class="sourceLineNo">171</span>     * &lt;code&gt;true&lt;/code&gt;; &lt;code&gt;false&lt;/code&gt; otherwise. If access is allowed, the wiki context will be added to the request as an attribute<a name="line.171"></a>
 <span class="sourceLineNo">172</span>     * with the key name {@link org.apache.wiki.WikiContext#ATTR_CONTEXT}. Note that this method will automatically redirect the user to<a name="line.172"></a>
 <span class="sourceLineNo">173</span>     * a login or error page, as appropriate, if access fails. This is NOT guaranteed to be default behavior in the future.<a name="line.173"></a>
@@ -192,7 +192,7 @@
 <span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
 <span class="sourceLineNo">185</span>     * Checks whether the current user has access to the wiki context (and<a name="line.185"></a>
 <span class="sourceLineNo">186</span>     * optionally redirects if not), by obtaining the required Permission ({@link WikiContext#requiredPermission()})<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * and delegating the access check to {@link #checkPermission(WikiSession, Permission)}.<a name="line.187"></a>
+<span class="sourceLineNo">187</span>     * and delegating the access check to {@link #checkPermission(Session, Permission)}.<a name="line.187"></a>
 <span class="sourceLineNo">188</span>     * If the user is allowed, this method returns &lt;code&gt;true&lt;/code&gt;;<a name="line.188"></a>
 <span class="sourceLineNo">189</span>     * &lt;code&gt;false&lt;/code&gt; otherwise. Also, the wiki context will be added to the request as attribute<a name="line.189"></a>
 <span class="sourceLineNo">190</span>     * with the key name {@link org.apache.wiki.WikiContext#ATTR_CONTEXT}.<a name="line.190"></a>
@@ -217,7 +217,7 @@
 <span class="sourceLineNo">209</span><a name="line.209"></a>
 <span class="sourceLineNo">210</span>    /**<a name="line.210"></a>
 <span class="sourceLineNo">211</span>     * Checks to see if the local security policy allows a particular static Permission.<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     * Do not use this method for normal permission checks; use {@link #checkPermission(WikiSession, Permission)} instead.<a name="line.212"></a>
+<span class="sourceLineNo">212</span>     * Do not use this method for normal permission checks; use {@link #checkPermission(Session, Permission)} instead.<a name="line.212"></a>
 <span class="sourceLineNo">213</span>     *<a name="line.213"></a>
 <span class="sourceLineNo">214</span>     * @param principals the Principals to check<a name="line.214"></a>
 <span class="sourceLineNo">215</span>     * @param permission the Permission<a name="line.215"></a>
@@ -234,11 +234,11 @@
 <span class="sourceLineNo">226</span>     *<a name="line.226"></a>
 <span class="sourceLineNo">227</span>     * @see AccessController#checkPermission(Permission) . A caught exception (or lack thereof) determines whether the<a name="line.227"></a>
 <span class="sourceLineNo">228</span>     *       privilege is absent (or present).<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     * @param session the WikiSession whose permission status is being queried<a name="line.229"></a>
+<span class="sourceLineNo">229</span>     * @param session the Session whose permission status is being queried<a name="line.229"></a>
 <span class="sourceLineNo">230</span>     * @param permission the Permission the Subject must possess<a name="line.230"></a>
 <span class="sourceLineNo">231</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Subject possesses the permission, &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.231"></a>
 <span class="sourceLineNo">232</span>     */<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    boolean checkStaticPermission( WikiSession session, Permission permission );<a name="line.233"></a>
+<span class="sourceLineNo">233</span>    boolean checkStaticPermission( Session session, Permission permission );<a name="line.233"></a>
 <span class="sourceLineNo">234</span><a name="line.234"></a>
 <span class="sourceLineNo">235</span>    /**<a name="line.235"></a>
 <span class="sourceLineNo">236</span>     * &lt;p&gt;Given a supplied string representing a Principal's name from an Acl, this method resolves the correct type of Principal (role,<a name="line.236"></a>

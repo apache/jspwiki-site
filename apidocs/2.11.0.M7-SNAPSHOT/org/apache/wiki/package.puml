@@ -156,9 +156,6 @@
         }
 
         class WikiSession [[WikiSession.html]] {
-            {static} +ANONYMOUS: String
-            {static} +ASSERTED: String
-            {static} +AUTHENTICATED: String
             #isInGroup(Group): boolean
             +isAsserted(): boolean
             +isAuthenticated(): boolean
@@ -174,19 +171,18 @@
             +getMessages(String): String[]
             +getPrincipals(): Principal[]
             +getRoles(): Principal[]
-            {static} +removeWikiSession(Engine, HttpServletRequest): void
             +hasPrincipal(Principal): boolean
             +actionPerformed(WikiEvent): void
             +invalidate(): void
             #injectGroupPrincipals(): void
             #injectUserProfilePrincipals(): void
             +getStatus(): String
-            {static} +getWikiSession(Engine, HttpServletRequest): WikiSession
-            {static} +guestSession(Engine): WikiSession
+            +getSubject(): Subject
+            {static} +removeWikiSession(Engine, HttpServletRequest): void
+            {static} +getWikiSession(Engine, HttpServletRequest): Session
+            {static} +guestSession(Engine): Session
             {static} +sessions(Engine): int
             {static} +userPrincipals(Engine): Principal[]
-            {static} +doPrivileged(WikiSession, PrivilegedAction<?>): Object
-            {static} #isIPV4Address(String): boolean
         }
 
         class InternalWikiException [[InternalWikiException.html]] {
@@ -203,6 +199,7 @@
             {static} +getInstance(ServletConfig, Properties): WikiEngine
             {static} +getInstance(ServletContext, Properties): WikiEngine
             +getManager(Class<T>): T
+            +getManagers(Class<T>): List<T>
             +isConfigured(): boolean
             +initReferenceManager(): void
             +getWikiProperties(): Properties
@@ -259,19 +256,6 @@
             +removeAttribute(String): T
         }
 
-        class Release [[Release.html]] {
-            {static} +APPNAME: String
-            {static} +VERSION: int
-            {static} +REVISION: int
-            {static} +MINORREVISION: int
-            {static} +BUILD: String
-            {static} +VERSTR: String
-            {static} +getVersionString(): String
-            {static} +isNewerOrEqual(String): boolean
-            {static} +isOlderOrEqual(String): boolean
-            {static} +main(String[]): void
-        }
-
         class java.lang.Thread
         java.lang.Thread <|-- WikiBackgroundThread
 
@@ -307,13 +291,34 @@
         }
         org.apache.wiki.ui.Command <|.. WikiContext
 
-        org.apache.wiki.event.WikiEventListener <|.. WikiSession
+        interface org.apache.wiki.api.core.Session {
+            {abstract} +isAsserted(): boolean
+            {abstract} +isAuthenticated(): boolean
+            {abstract} +isAnonymous(): boolean
+            {abstract} +getLoginPrincipal(): Principal
+            {abstract} +getUserPrincipal(): Principal
+            {abstract} +getLocale(): Locale
+            {abstract} +addMessage(String): void
+            {abstract} +addMessage(String, String): void
+            {abstract} +clearMessages(): void
+            {abstract} +clearMessages(String): void
+            {abstract} +getMessages(): String[]
+            {abstract} +getMessages(String): String[]
+            {abstract} +getPrincipals(): Principal[]
+            {abstract} +getRoles(): Principal[]
+            {abstract} +hasPrincipal(Principal): boolean
+            {abstract} +invalidate(): void
+            {abstract} +getStatus(): String
+            {abstract} +getSubject(): Subject
+        }
+        org.apache.wiki.api.core.Session <|.. WikiSession
 
         class java.lang.RuntimeException
         java.lang.RuntimeException <|-- InternalWikiException
 
         interface org.apache.wiki.api.core.Engine {
             {abstract} +getManager(Class<T>): T
+            {abstract} +getManagers(Class<T>): List<T>
             {abstract} +isConfigured(): boolean
             {abstract} +getWikiProperties(): Properties
             {abstract} +getWorkDir(): String
@@ -351,7 +356,7 @@
 
         WikiContext --> org.apache.wiki.ui.Command: command
 
-        WikiContext --> WikiSession: wikiSession
+        WikiContext --> org.apache.wiki.api.core.Session: wikiSession
 
     }
 
