@@ -4,9 +4,9 @@ title=Downloads
 type=page
 ~~~~~~
 
-**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M3/">Apache mirrors</a>.
+**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M6/">Apache mirrors</a>.
 
-Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://www.apache.org/dist/jspwiki. Find here the <a class="external" href="https://www.apache.org/dist/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
+Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://downloads.apache.org/jspwiki. Find here the <a class="external" href="https://downloads.apache.org/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
 
 <br/> **Previous source and binary distributions** are available through the <a class="external" href="https://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
 
@@ -18,7 +18,7 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 * **17-Dec-2019**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M6ReleasedOn17122019">2.11.0.M6</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12346489 <br/>
-<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip">source</a></strong> | <strong><a class="external" href="https://www.apache.org/dist/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://www.apache.org/dist/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip.asc">signature</a></strong>
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip.asc">signature</a></strong>
 
 * **18-Sep-2019**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M5ReleasedOn18092019">2.11.0.M5</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12345540 
