@@ -2,6 +2,37 @@
 
     namespace org.apache.wiki.filters {
 
+        class CreoleFilter [[CreoleFilter.html]] {
+            +initialize(Engine, Properties): void
+            +preSave(WikiContext, String): String
+            +preTranslate(WikiContext, String): String
+        }
+
+        interface FilterManager [[FilterManager.html]] {
+            {static} +PROP_FILTERXML: String
+            {static} +DEFAULT_XMLFILE: String
+            {static} +SYSTEM_FILTER_PRIORITY: int
+            {static} +USER_FILTER_PRIORITY: int
+            {abstract} +addPageFilter(PageFilter, int): void
+            {abstract} +doPreTranslateFiltering(WikiContext, String): String
+            {abstract} +doPostTranslateFiltering(WikiContext, String): String
+            {abstract} +doPreSaveFiltering(WikiContext, String): String
+            {abstract} +doPostSaveFiltering(WikiContext, String): void
+            {abstract} +getFilterList(): List<PageFilter>
+            {abstract} +destroy(): void
+        }
+
+        class PageEventFilter [[PageEventFilter.html]] {
+            +initialize(Properties): void
+            +preTranslate(WikiContext, String): String
+            +postTranslate(WikiContext, String): String
+            +preSave(WikiContext, String): String
+            +postSave(WikiContext, String): void
+            +addWikiEventListener(WikiEventListener): void
+            +removeWikiEventListener(WikiEventListener): void
+            #fireEvent(int, WikiContext): void
+        }
+
         class DefaultFilterManager [[DefaultFilterManager.html]] {
             +DefaultFilterManager(Engine, Properties)
             +addPageFilter(PageFilter, int): void
@@ -15,17 +46,6 @@
             +fireEvent(int, WikiContext): void
             +modules(): Collection<WikiModuleInfo>
             +getModuleInfo(String): DefaultFilterManager.PageFilterInfo
-        }
-
-        class PageEventFilter [[PageEventFilter.html]] {
-            +initialize(Properties): void
-            +preTranslate(WikiContext, String): String
-            +postTranslate(WikiContext, String): String
-            +preSave(WikiContext, String): String
-            +postSave(WikiContext, String): void
-            +addWikiEventListener(WikiEventListener): void
-            +removeWikiEventListener(WikiEventListener): void
-            #fireEvent(int, WikiContext): void
         }
 
         class PingWeblogsComFilter [[PingWeblogsComFilter.html]] {
@@ -60,42 +80,11 @@
             {static} +insertInputFields(PageContext): String
         }
 
-        class CreoleFilter [[CreoleFilter.html]] {
-            +initialize(Engine, Properties): void
-            +preSave(WikiContext, String): String
-            +preTranslate(WikiContext, String): String
-        }
-
-        interface FilterManager [[FilterManager.html]] {
-            {static} +PROP_FILTERXML: String
-            {static} +DEFAULT_XMLFILE: String
-            {static} +SYSTEM_FILTER_PRIORITY: int
-            {static} +USER_FILTER_PRIORITY: int
-            {abstract} +addPageFilter(PageFilter, int): void
-            {abstract} +doPreTranslateFiltering(WikiContext, String): String
-            {abstract} +doPostTranslateFiltering(WikiContext, String): String
-            {abstract} +doPreSaveFiltering(WikiContext, String): String
-            {abstract} +doPostSaveFiltering(WikiContext, String): void
-            {abstract} +getFilterList(): List<PageFilter>
-            {abstract} +destroy(): void
-        }
-
         class ProfanityFilter [[ProfanityFilter.html]] {
             +preTranslate(WikiContext, String): String
         }
 
-        abstract class org.apache.wiki.modules.BaseModuleManager
-        org.apache.wiki.modules.BaseModuleManager <|-- DefaultFilterManager
-
-        FilterManager <|.. DefaultFilterManager
-
         class org.apache.wiki.api.filters.BasicPageFilter
-        org.apache.wiki.api.filters.BasicPageFilter <|-- PageEventFilter
-
-        org.apache.wiki.api.filters.BasicPageFilter <|-- PingWeblogsComFilter
-
-        org.apache.wiki.api.filters.BasicPageFilter <|-- SpamFilter
-
         org.apache.wiki.api.filters.BasicPageFilter <|-- CreoleFilter
 
         interface org.apache.wiki.modules.ModuleManager {
@@ -104,6 +93,17 @@
             {abstract} +modules(): Collection<WikiModuleInfo>
         }
         org.apache.wiki.modules.ModuleManager <|.. FilterManager
+
+        org.apache.wiki.api.filters.BasicPageFilter <|-- PageEventFilter
+
+        abstract class org.apache.wiki.modules.BaseModuleManager
+        org.apache.wiki.modules.BaseModuleManager <|-- DefaultFilterManager
+
+        FilterManager <|.. DefaultFilterManager
+
+        org.apache.wiki.api.filters.BasicPageFilter <|-- PingWeblogsComFilter
+
+        org.apache.wiki.api.filters.BasicPageFilter <|-- SpamFilter
 
         org.apache.wiki.api.filters.BasicPageFilter <|-- ProfanityFilter
 

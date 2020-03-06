@@ -2,15 +2,37 @@
 
     namespace org.apache.wiki.ui {
 
-        interface Command [[Command.html]] {
-            {abstract} +targetedCommand(Object): Command
-            {abstract} +getContentTemplate(): String
-            {abstract} +getJSP(): String
-            {abstract} +getName(): String
-            {abstract} +getRequestContext(): String
-            {abstract} +requiredPermission(): Permission
-            {abstract} +getTarget(): Object
-            {abstract} +getURLPattern(): String
+        class WikiCommand [[WikiCommand.html]] {
+            {static} +CREATE_GROUP: Command
+            {static} +ERROR: Command
+            {static} +FIND: Command
+            {static} +INSTALL: Command
+            {static} +LOGIN: Command
+            {static} +LOGOUT: Command
+            {static} +MESSAGE: Command
+            {static} +PREFS: Command
+            {static} +WORKFLOW: Command
+            {static} +ADMIN: Command
+            +targetedCommand(Object): Command
+            +getName(): String
+            +requiredPermission(): Permission
+        }
+
+        class DefaultCommandResolver [[DefaultCommandResolver.html]] {
+            +DefaultCommandResolver(Engine, Properties)
+            +findCommand(HttpServletRequest, String): Command
+            +getFinalPageName(String): String
+            +getSpecialPageReference(String): String
+            #extractCommandFromPath(HttpServletRequest): Command
+            +extractPageFromParameter(String, HttpServletRequest): String
+            +resolvePage(HttpServletRequest, String): WikiPage
+            #simplePageExists(String): boolean
+        }
+
+        interface GenericHTTPHandler [[GenericHTTPHandler.html]] {
+            {abstract} +getId(): String
+            {abstract} +doGet(WikiContext): String
+            {abstract} +doPost(WikiContext): String
         }
 
         interface CommandResolver [[CommandResolver.html]] {
@@ -34,33 +56,6 @@
             +init(FilterConfig): void
             +doFilter(ServletRequest, ServletResponse, FilterChain): void
             #fireEvent(int, String): void
-        }
-
-        class WikiRequestWrapper [[WikiRequestWrapper.html]] {
-            +WikiRequestWrapper(Engine, HttpServletRequest)
-            +getRemoteUser(): String
-            +getUserPrincipal(): Principal
-            +isUserInRole(String): boolean
-        }
-
-        class PageCommand [[PageCommand.html]] {
-            {static} +ATTACH: Command
-            {static} +COMMENT: Command
-            {static} +CONFLICT: Command
-            {static} +DELETE: Command
-            {static} +DIFF: Command
-            {static} +EDIT: Command
-            {static} +INFO: Command
-            {static} +PREVIEW: Command
-            {static} +RENAME: Command
-            {static} +RSS: Command
-            {static} +UPLOAD: Command
-            {static} +VIEW: Command
-            {static} +NONE: Command
-            {static} +OTHER: Command
-            +targetedCommand(Object): Command
-            +getName(): String
-            +requiredPermission(): Permission
         }
 
         interface TemplateManager [[TemplateManager.html]] {
@@ -97,86 +92,6 @@
             {abstract} +listTimeFormats(PageContext): Map<String, String>
         }
 
-        class DefaultCommandResolver [[DefaultCommandResolver.html]] {
-            +DefaultCommandResolver(Engine, Properties)
-            +findCommand(HttpServletRequest, String): Command
-            +getFinalPageName(String): String
-            +getSpecialPageReference(String): String
-            #extractCommandFromPath(HttpServletRequest): Command
-            +extractPageFromParameter(String, HttpServletRequest): String
-            +resolvePage(HttpServletRequest, String): WikiPage
-            #simplePageExists(String): boolean
-        }
-
-        class InputValidator [[InputValidator.html]] {
-            {static} +STANDARD: int
-            {static} +EMAIL: int
-            {static} +ID: int
-            {static} #EMAIL_PATTERN: Pattern
-            {static} #UNSAFE_PATTERN: Pattern
-            {static} #ID_PATTERN: Pattern
-            +InputValidator(String, WikiContext)
-            +validateNotNull(String, String): boolean
-            +validateNotNull(String, String, int): boolean
-            +validate(String, String, int): boolean
-            {static} +isBlank(String): boolean
-        }
-
-        abstract class AbstractCommand [[AbstractCommand.html]] {
-            #AbstractCommand(String, String, String, Object)
-            {static} +allCommands(): Command[]
-            +getContentTemplate(): String
-            +getJSP(): String
-            +getRequestContext(): String
-            +getTarget(): Object
-            +getURLPattern(): String
-            #getJSPFriendlyName(): String
-            {abstract} +targetedCommand(Object): Command
-            {abstract} +getName(): String
-        }
-
-        class WikiCommand [[WikiCommand.html]] {
-            {static} +CREATE_GROUP: Command
-            {static} +ERROR: Command
-            {static} +FIND: Command
-            {static} +INSTALL: Command
-            {static} +LOGIN: Command
-            {static} +LOGOUT: Command
-            {static} +MESSAGE: Command
-            {static} +PREFS: Command
-            {static} +WORKFLOW: Command
-            {static} +ADMIN: Command
-            +targetedCommand(Object): Command
-            +getName(): String
-            +requiredPermission(): Permission
-        }
-
-        class DefaultTemplateManager [[DefaultTemplateManager.html]] {
-            +DefaultTemplateManager(Engine, Properties)
-            +templateExists(String): boolean
-            +findJSP(PageContext, String): String
-            +findJSP(PageContext, String, String): String
-            +findResource(WikiContext, String, String): String
-            +listSkins(PageContext, String): Set<String>
-            +listTimeFormats(PageContext): Map<String, String>
-            +modules(): Collection<WikiModuleInfo>
-            +getModuleInfo(String): WikiModuleInfo
-        }
-
-        interface EditorManager [[EditorManager.html]] {
-            {static} +PROP_EDITORTYPE: String
-            {static} +PARA_EDITOR: String
-            {static} +EDITOR_PLAIN: String
-            {static} +EDITOR_PREVIEW: String
-            {static} +REQ_EDITEDTEXT: String
-            {static} +ATTR_EDITEDTEXT: String
-            {static} +getEditedText(PageContext): String
-            {abstract} +initialize(Properties): void
-            {abstract} +getEditorName(WikiContext): String
-            {abstract} +getEditorList(): String[]
-            {abstract} +getEditorPath(WikiContext): String
-        }
-
         class GroupCommand [[GroupCommand.html]] {
             {static} +DELETE_GROUP: Command
             {static} +EDIT_GROUP: Command
@@ -210,20 +125,18 @@
             +validateProperties(): boolean
         }
 
-        class DefaultEditorManager [[DefaultEditorManager.html]] {
-            +DefaultEditorManager(Engine)
-            +initialize(Properties): void
-            +getEditorName(WikiContext): String
-            +getEditorList(): String[]
-            +getEditorPath(WikiContext): String
-            +modules(): Collection<WikiModuleInfo>
-            +getModuleInfo(String): DefaultEditorManager.WikiEditorInfo
-        }
-
-        interface GenericHTTPHandler [[GenericHTTPHandler.html]] {
-            {abstract} +getId(): String
-            {abstract} +doGet(WikiContext): String
-            {abstract} +doPost(WikiContext): String
+        class InputValidator [[InputValidator.html]] {
+            {static} +STANDARD: int
+            {static} +EMAIL: int
+            {static} +ID: int
+            {static} #EMAIL_PATTERN: Pattern
+            {static} #UNSAFE_PATTERN: Pattern
+            {static} #ID_PATTERN: Pattern
+            +InputValidator(String, WikiContext)
+            +validateNotNull(String, String): boolean
+            +validateNotNull(String, String, int): boolean
+            +validate(String, String, int): boolean
+            {static} +isBlank(String): boolean
         }
 
         class Editor [[Editor.html]] {
@@ -234,6 +147,63 @@
             +isSelected(String, String): String
         }
 
+        class PageCommand [[PageCommand.html]] {
+            {static} +ATTACH: Command
+            {static} +COMMENT: Command
+            {static} +CONFLICT: Command
+            {static} +DELETE: Command
+            {static} +DIFF: Command
+            {static} +EDIT: Command
+            {static} +INFO: Command
+            {static} +PREVIEW: Command
+            {static} +RENAME: Command
+            {static} +RSS: Command
+            {static} +UPLOAD: Command
+            {static} +VIEW: Command
+            {static} +NONE: Command
+            {static} +OTHER: Command
+            +targetedCommand(Object): Command
+            +getName(): String
+            +requiredPermission(): Permission
+        }
+
+        interface EditorManager [[EditorManager.html]] {
+            {static} +PROP_EDITORTYPE: String
+            {static} +PARA_EDITOR: String
+            {static} +EDITOR_PLAIN: String
+            {static} +EDITOR_PREVIEW: String
+            {static} +REQ_EDITEDTEXT: String
+            {static} +ATTR_EDITEDTEXT: String
+            {static} +getEditedText(PageContext): String
+            {abstract} +initialize(Properties): void
+            {abstract} +getEditorName(WikiContext): String
+            {abstract} +getEditorList(): String[]
+            {abstract} +getEditorPath(WikiContext): String
+        }
+
+        class DefaultEditorManager [[DefaultEditorManager.html]] {
+            +DefaultEditorManager(Engine)
+            +initialize(Properties): void
+            +getEditorName(WikiContext): String
+            +getEditorList(): String[]
+            +getEditorPath(WikiContext): String
+            +modules(): Collection<WikiModuleInfo>
+            +getModuleInfo(String): DefaultEditorManager.WikiEditorInfo
+        }
+
+        abstract class AbstractCommand [[AbstractCommand.html]] {
+            #AbstractCommand(String, String, String, Object)
+            {static} +allCommands(): Command[]
+            +getContentTemplate(): String
+            +getJSP(): String
+            +getRequestContext(): String
+            +getTarget(): Object
+            +getURLPattern(): String
+            #getJSPFriendlyName(): String
+            {abstract} +targetedCommand(Object): Command
+            {abstract} +getName(): String
+        }
+
         class WikiServletFilter [[WikiServletFilter.html]] {
             #m_engine: Engine
             +init(FilterConfig): void
@@ -242,14 +212,43 @@
             #getWikiContext(ServletRequest): WikiContext
         }
 
+        class DefaultTemplateManager [[DefaultTemplateManager.html]] {
+            +DefaultTemplateManager(Engine, Properties)
+            +templateExists(String): boolean
+            +findJSP(PageContext, String): String
+            +findJSP(PageContext, String, String): String
+            +findResource(WikiContext, String, String): String
+            +listSkins(PageContext, String): Set<String>
+            +listTimeFormats(PageContext): Map<String, String>
+            +modules(): Collection<WikiModuleInfo>
+            +getModuleInfo(String): WikiModuleInfo
+        }
+
+        class WikiRequestWrapper [[WikiRequestWrapper.html]] {
+            +WikiRequestWrapper(Engine, HttpServletRequest)
+            +getRemoteUser(): String
+            +getUserPrincipal(): Principal
+            +isUserInRole(String): boolean
+        }
+
+        interface Command [[Command.html]] {
+            {abstract} +targetedCommand(Object): Command
+            {abstract} +getContentTemplate(): String
+            {abstract} +getJSP(): String
+            {abstract} +getName(): String
+            {abstract} +getRequestContext(): String
+            {abstract} +requiredPermission(): Permission
+            {abstract} +getTarget(): Object
+            {abstract} +getURLPattern(): String
+        }
+
+        AbstractCommand <|-- WikiCommand
+
+        CommandResolver <|.. DefaultCommandResolver
+
         AbstractCommand <|-- RedirectCommand
 
         WikiServletFilter <|-- WikiJSPFilter
-
-        class javax.servlet.http.HttpServletRequestWrapper
-        javax.servlet.http.HttpServletRequestWrapper <|-- WikiRequestWrapper
-
-        AbstractCommand <|-- PageCommand
 
         interface org.apache.wiki.modules.ModuleManager {
             {abstract} +checkCompatibility(WikiModuleInfo): boolean
@@ -258,24 +257,18 @@
         }
         org.apache.wiki.modules.ModuleManager <|.. TemplateManager
 
-        CommandResolver <|.. DefaultCommandResolver
+        AbstractCommand <|-- GroupCommand
 
-        Command <|.. AbstractCommand
-
-        AbstractCommand <|-- WikiCommand
-
-        abstract class org.apache.wiki.modules.BaseModuleManager
-        org.apache.wiki.modules.BaseModuleManager <|-- DefaultTemplateManager
-
-        TemplateManager <|.. DefaultTemplateManager
+        AbstractCommand <|-- PageCommand
 
         org.apache.wiki.modules.ModuleManager <|.. EditorManager
 
-        AbstractCommand <|-- GroupCommand
-
+        abstract class org.apache.wiki.modules.BaseModuleManager
         org.apache.wiki.modules.BaseModuleManager <|-- DefaultEditorManager
 
         EditorManager <|.. DefaultEditorManager
+
+        Command <|.. AbstractCommand
 
         interface javax.servlet.Filter {
             {abstract} +init(FilterConfig): void
@@ -283,6 +276,13 @@
             {abstract} +destroy(): void
         }
         javax.servlet.Filter <|.. WikiServletFilter
+
+        org.apache.wiki.modules.BaseModuleManager <|-- DefaultTemplateManager
+
+        TemplateManager <|.. DefaultTemplateManager
+
+        class javax.servlet.http.HttpServletRequestWrapper
+        javax.servlet.http.HttpServletRequestWrapper <|-- WikiRequestWrapper
 
     }
 

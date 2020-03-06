@@ -2,6 +2,21 @@
 
     namespace org.apache.wiki.render {
 
+        class CreoleRenderer [[CreoleRenderer.html]] {
+            +CreoleRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
+        class WysiwygEditingRenderer [[WysiwygEditingRenderer.html]] {
+            +WysiwygEditingRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
+        class CleanTextRenderer [[CleanTextRenderer.html]] {
+            +CleanTextRenderer(WikiContext, WikiDocument)
+            +getString(): String
+        }
+
         class CustomXMLOutputProcessor [[CustomXMLOutputProcessor.html]] {
             #attributeEscapedEntitiesFilter(Writer, FormatStack, String): void
         }
@@ -9,6 +24,30 @@
         class XHTMLRenderer [[XHTMLRenderer.html]] {
             +XHTMLRenderer(WikiContext, WikiDocument)
             +getString(): String
+        }
+
+        interface RenderingManager [[RenderingManager.html]] {
+            {static} +PROP_PARSER: String
+            {static} +PROP_RENDERER: String
+            {static} +PROP_WYSIWYG_RENDERER: String
+            {static} +PROP_BEAUTIFYTITLE: String
+            {static} +DOCUMENTCACHE_NAME: String
+            +getHTML(WikiContext, String): String
+            +getHTML(String): String
+            +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator): String
+            +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator, StringTransmutator): String
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +beautifyTitle(String): String
+            {abstract} +beautifyTitleNoBreak(String): String
+            {abstract} +getParser(WikiContext, String): MarkupParser
+            {abstract} +getRenderedDocument(WikiContext, String): WikiDocument
+            {abstract} +getRenderer(WikiContext, WikiDocument): WikiRenderer
+            {abstract} +getWysiwygRenderer(WikiContext, WikiDocument): WikiRenderer
+            {abstract} +getHTML(WikiContext, WikiDocument): String
+            {abstract} +getHTML(WikiContext, WikiPage): String
+            {abstract} +getHTML(String, int): String
+            {abstract} +textToHTML(WikiContext, String): String
+            {abstract} +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
         }
 
         abstract class WikiRenderer [[WikiRenderer.html]] {
@@ -36,51 +75,16 @@
             +actionPerformed(WikiEvent): void
         }
 
-        interface RenderingManager [[RenderingManager.html]] {
-            {static} +PROP_PARSER: String
-            {static} +PROP_RENDERER: String
-            {static} +PROP_WYSIWYG_RENDERER: String
-            {static} +PROP_BEAUTIFYTITLE: String
-            {static} +DOCUMENTCACHE_NAME: String
-            +getHTML(WikiContext, String): String
-            +getHTML(String): String
-            +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator): String
-            +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator, StringTransmutator): String
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +beautifyTitle(String): String
-            {abstract} +beautifyTitleNoBreak(String): String
-            {abstract} +getParser(WikiContext, String): MarkupParser
-            {abstract} +getRenderedDocument(WikiContext, String): WikiDocument
-            {abstract} +getRenderer(WikiContext, WikiDocument): WikiRenderer
-            {abstract} +getWysiwygRenderer(WikiContext, WikiDocument): WikiRenderer
-            {abstract} +getHTML(WikiContext, WikiDocument): String
-            {abstract} +getHTML(WikiContext, WikiPage): String
-            {abstract} +getHTML(String, int): String
-            {abstract} +textToHTML(WikiContext, String): String
-            {abstract} +textToHTML(WikiContext, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
-        }
+        WikiRenderer <|-- CreoleRenderer
 
-        class CreoleRenderer [[CreoleRenderer.html]] {
-            +CreoleRenderer(WikiContext, WikiDocument)
-            +getString(): String
-        }
+        WikiRenderer <|-- WysiwygEditingRenderer
 
-        class WysiwygEditingRenderer [[WysiwygEditingRenderer.html]] {
-            +WysiwygEditingRenderer(WikiContext, WikiDocument)
-            +getString(): String
-        }
-
-        class CleanTextRenderer [[CleanTextRenderer.html]] {
-            +CleanTextRenderer(WikiContext, WikiDocument)
-            +getString(): String
-        }
+        WikiRenderer <|-- CleanTextRenderer
 
         abstract class org.jdom2.output.support.AbstractXMLOutputProcessor
         org.jdom2.output.support.AbstractXMLOutputProcessor <|-- CustomXMLOutputProcessor
 
         WikiRenderer <|-- XHTMLRenderer
-
-        RenderingManager <|.. DefaultRenderingManager
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
@@ -90,11 +94,7 @@
         interface org.apache.wiki.modules.InternalModule
         org.apache.wiki.modules.InternalModule <|.. RenderingManager
 
-        WikiRenderer <|-- CreoleRenderer
-
-        WikiRenderer <|-- WysiwygEditingRenderer
-
-        WikiRenderer <|-- CleanTextRenderer
+        RenderingManager <|.. DefaultRenderingManager
 
     }
 

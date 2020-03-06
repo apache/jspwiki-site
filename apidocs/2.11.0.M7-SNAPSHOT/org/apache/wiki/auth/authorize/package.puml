@@ -2,15 +2,30 @@
 
     namespace org.apache.wiki.auth.authorize {
 
-        interface WebAuthorizer [[WebAuthorizer.html]] {
-            {abstract} +isUserInRole(HttpServletRequest, Principal): boolean
-        }
-
-        interface GroupDatabase [[GroupDatabase.html]] {
-            {abstract} +delete(Group): void
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +save(Group, Principal): void
-            {abstract} +groups(): Group[]
+        class JDBCGroupDatabase [[JDBCGroupDatabase.html]] {
+            {static} +DEFAULT_GROUPDB_DATASOURCE: String
+            {static} +DEFAULT_GROUPDB_TABLE: String
+            {static} +DEFAULT_GROUPDB_MEMBER_TABLE: String
+            {static} +DEFAULT_GROUPDB_CREATED: String
+            {static} +DEFAULT_GROUPDB_CREATOR: String
+            {static} +DEFAULT_GROUPDB_NAME: String
+            {static} +DEFAULT_GROUPDB_MEMBER: String
+            {static} +DEFAULT_GROUPDB_MODIFIED: String
+            {static} +DEFAULT_GROUPDB_MODIFIER: String
+            {static} +PROP_GROUPDB_DATASOURCE: String
+            {static} +PROP_GROUPDB_TABLE: String
+            {static} +PROP_GROUPDB_MEMBER_TABLE: String
+            {static} +PROP_GROUPDB_CREATED: String
+            {static} +PROP_GROUPDB_CREATOR: String
+            {static} +PROP_GROUPDB_NAME: String
+            {static} +PROP_GROUPDB_MEMBER: String
+            {static} +PROP_GROUPDB_MODIFIED: String
+            {static} +PROP_GROUPDB_MODIFIER: String
+            {static} #log: Logger
+            +delete(Group): void
+            +groups(): Group[]
+            +save(Group, Principal): void
+            +initialize(Engine, Properties): void
         }
 
         class WebContainerAuthorizer [[WebContainerAuthorizer.html]] {
@@ -45,30 +60,24 @@
             {abstract} +removeWikiEventListener(WikiEventListener): void
         }
 
-        class JDBCGroupDatabase [[JDBCGroupDatabase.html]] {
-            {static} +DEFAULT_GROUPDB_DATASOURCE: String
-            {static} +DEFAULT_GROUPDB_TABLE: String
-            {static} +DEFAULT_GROUPDB_MEMBER_TABLE: String
-            {static} +DEFAULT_GROUPDB_CREATED: String
-            {static} +DEFAULT_GROUPDB_CREATOR: String
-            {static} +DEFAULT_GROUPDB_NAME: String
-            {static} +DEFAULT_GROUPDB_MEMBER: String
-            {static} +DEFAULT_GROUPDB_MODIFIED: String
-            {static} +DEFAULT_GROUPDB_MODIFIER: String
-            {static} +PROP_GROUPDB_DATASOURCE: String
-            {static} +PROP_GROUPDB_TABLE: String
-            {static} +PROP_GROUPDB_MEMBER_TABLE: String
-            {static} +PROP_GROUPDB_CREATED: String
-            {static} +PROP_GROUPDB_CREATOR: String
-            {static} +PROP_GROUPDB_NAME: String
-            {static} +PROP_GROUPDB_MEMBER: String
-            {static} +PROP_GROUPDB_MODIFIED: String
-            {static} +PROP_GROUPDB_MODIFIER: String
-            {static} #log: Logger
+        class Role [[Role.html]] {
+            {static} +ALL: Role
+            {static} +ANONYMOUS: Role
+            {static} +ASSERTED: Role
+            {static} +AUTHENTICATED: Role
+            #Role()
+            +Role(String)
+            {static} +isBuiltInRole(Role): boolean
+            {static} +isReservedName(String): boolean
+            +getName(): String
+        }
+
+        class XMLGroupDatabase [[XMLGroupDatabase.html]] {
+            {static} +PROP_DATABASE: String
             +delete(Group): void
             +groups(): Group[]
-            +save(Group, Principal): void
             +initialize(Engine, Properties): void
+            +save(Group, Principal): void
         }
 
         class DefaultGroupManager [[DefaultGroupManager.html]] {
@@ -86,16 +95,8 @@
             +actionPerformed(WikiEvent): void
         }
 
-        class Role [[Role.html]] {
-            {static} +ALL: Role
-            {static} +ANONYMOUS: Role
-            {static} +ASSERTED: Role
-            {static} +AUTHENTICATED: Role
-            #Role()
-            +Role(String)
-            {static} +isBuiltInRole(Role): boolean
-            {static} +isReservedName(String): boolean
-            +getName(): String
+        interface WebAuthorizer [[WebAuthorizer.html]] {
+            {abstract} +isUserInRole(HttpServletRequest, Principal): boolean
         }
 
         class Group [[Group.html]] {
@@ -117,21 +118,14 @@
             +setModifier(String): void
         }
 
-        class XMLGroupDatabase [[XMLGroupDatabase.html]] {
-            {static} +PROP_DATABASE: String
-            +delete(Group): void
-            +groups(): Group[]
-            +initialize(Engine, Properties): void
-            +save(Group, Principal): void
+        interface GroupDatabase [[GroupDatabase.html]] {
+            {abstract} +delete(Group): void
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +save(Group, Principal): void
+            {abstract} +groups(): Group[]
         }
 
-        interface org.apache.wiki.auth.Authorizer {
-            {abstract} +getRoles(): Principal[]
-            {abstract} +findRole(String): Principal
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +isUserInRole(Session, Principal): boolean
-        }
-        org.apache.wiki.auth.Authorizer <|.. WebAuthorizer
+        GroupDatabase <|.. JDBCGroupDatabase
 
         WebAuthorizer <|.. WebContainerAuthorizer
 
@@ -142,20 +136,18 @@
 
         WebContainerAuthorizer +-- org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver
 
+        interface org.apache.wiki.auth.Authorizer {
+            {abstract} +getRoles(): Principal[]
+            {abstract} +findRole(String): Principal
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +isUserInRole(Session, Principal): boolean
+        }
         org.apache.wiki.auth.Authorizer <|.. GroupManager
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
         }
         org.apache.wiki.event.WikiEventListener <|.. GroupManager
-
-        GroupDatabase <|.. JDBCGroupDatabase
-
-        GroupManager <|.. DefaultGroupManager
-
-        org.apache.wiki.auth.Authorizer <|.. DefaultGroupManager
-
-        org.apache.wiki.event.WikiEventListener <|.. DefaultGroupManager
 
         interface java.security.Principal {
             {abstract} +getName(): String
@@ -166,6 +158,14 @@
         java.io.Serializable <|.. Role
 
         GroupDatabase <|.. XMLGroupDatabase
+
+        GroupManager <|.. DefaultGroupManager
+
+        org.apache.wiki.auth.Authorizer <|.. DefaultGroupManager
+
+        org.apache.wiki.event.WikiEventListener <|.. DefaultGroupManager
+
+        org.apache.wiki.auth.Authorizer <|.. WebAuthorizer
 
         WebContainerAuthorizer --> "*" Role: m_containerRoles
 
