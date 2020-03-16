@@ -17,7 +17,7 @@
         }
 
         class PageLock [[PageLock.html]] {
-            +PageLock(WikiPage, String, Date, Date)
+            +PageLock(Page, String, Date, Date)
             +getPage(): String
             +getLocker(): String
             +getAcquisitionTime(): Date
@@ -26,42 +26,40 @@
             +isExpired(): boolean
         }
 
-        class PageTimeComparator [[PageTimeComparator.html]] {
-            +compare(WikiPage, WikiPage): int
-        }
-
-        class DefaultPageManager [[DefaultPageManager.html]] {
-            #m_pageLocks: ConcurrentHashMap<String, PageLock>
-            +DefaultPageManager(Engine, Properties)
-            +getProvider(): WikiPageProvider
-            +getAllPages(): Collection<WikiPage>
-            +getPageText(String, int): String
-            +getPureText(String, int): String
-            +getText(String, int): String
-            +saveText(WikiContext, String): void
-            #getEngine(): Engine
-            +putPageText(WikiPage, String): void
-            +lockPage(WikiPage, String): PageLock
-            +unlockPage(PageLock): void
-            +getCurrentLock(WikiPage): PageLock
-            +getPage(String): WikiPage
-            +getPage(String, int): WikiPage
-            +getPageInfo(String, int): WikiPage
-            +getVersionHistory(String): List<T>
-            +getCurrentProvider(): String
-            +getProviderDescription(): String
-            +getTotalPageCount(): int
-            +getRecentChanges(): Set<WikiPage>
-            +pageExists(String): boolean
-            +pageExists(String, int): boolean
-            +wikiPageExists(String): boolean
-            +wikiPageExists(String, int): boolean
-            +deleteVersion(WikiPage): void
-            +deletePage(String): void
-            +deletePage(WikiPage): void
-            #fireEvent(int, String): void
-            +actionPerformed(WikiEvent): void
-            #changeAcl(WikiPage, Principal[], Principal): boolean
+        interface PageManager [[PageManager.html]] {
+            {static} +PROP_PAGEPROVIDER: String
+            {static} +PROP_USECACHE: String
+            {static} +PROP_LOCKEXPIRY: String
+            +getPureText(Page): String
+            +getText(String): String
+            +getText(Page): String
+            +pageExists(Page): boolean
+            +wikiPageExists(Page): boolean
+            {abstract} +getProvider(): PageProvider
+            {abstract} +getAllPages(): Collection<Page>
+            {abstract} +getPageText(String, int): String
+            {abstract} +getPureText(String, int): String
+            {abstract} +getText(String, int): String
+            {abstract} +saveText(Context, String): void
+            {abstract} +putPageText(Page, String): void
+            {abstract} +lockPage(Page, String): PageLock
+            {abstract} +unlockPage(PageLock): void
+            {abstract} +getCurrentLock(Page): PageLock
+            {abstract} +getPage(String): Page
+            {abstract} +getPage(String, int): Page
+            {abstract} +getPageInfo(String, int): Page
+            {abstract} +getVersionHistory(String): List<T>
+            {abstract} +getCurrentProvider(): String
+            {abstract} +getProviderDescription(): String
+            {abstract} +getTotalPageCount(): int
+            {abstract} +getRecentChanges(): Set<Page>
+            {abstract} +pageExists(String): boolean
+            {abstract} +pageExists(String, int): boolean
+            {abstract} +wikiPageExists(String): boolean
+            {abstract} +wikiPageExists(String, int): boolean
+            {abstract} +deleteVersion(Page): void
+            {abstract} +deletePage(String): void
+            {abstract} +deletePage(Page): void
         }
 
         class PageSorter [[PageSorter.html]] {
@@ -74,68 +72,70 @@
             +sort(String[]): void
         }
 
-        interface PageManager [[PageManager.html]] {
-            {static} +PROP_PAGEPROVIDER: String
-            {static} +PROP_USECACHE: String
-            {static} +PROP_LOCKEXPIRY: String
-            +getPureText(WikiPage): String
-            +getText(String): String
-            +getText(WikiPage): String
-            +pageExists(WikiPage): boolean
-            +wikiPageExists(WikiPage): boolean
-            {abstract} +getProvider(): WikiPageProvider
-            {abstract} +getAllPages(): Collection<WikiPage>
-            {abstract} +getPageText(String, int): String
-            {abstract} +getPureText(String, int): String
-            {abstract} +getText(String, int): String
-            {abstract} +saveText(WikiContext, String): void
-            {abstract} +putPageText(WikiPage, String): void
-            {abstract} +lockPage(WikiPage, String): PageLock
-            {abstract} +unlockPage(PageLock): void
-            {abstract} +getCurrentLock(WikiPage): PageLock
-            {abstract} +getPage(String): WikiPage
-            {abstract} +getPage(String, int): WikiPage
-            {abstract} +getPageInfo(String, int): WikiPage
-            {abstract} +getVersionHistory(String): List<T>
-            {abstract} +getCurrentProvider(): String
-            {abstract} +getProviderDescription(): String
-            {abstract} +getTotalPageCount(): int
-            {abstract} +getRecentChanges(): Set<WikiPage>
-            {abstract} +pageExists(String): boolean
-            {abstract} +pageExists(String, int): boolean
-            {abstract} +wikiPageExists(String): boolean
-            {abstract} +wikiPageExists(String, int): boolean
-            {abstract} +deleteVersion(WikiPage): void
-            {abstract} +deletePage(String): void
-            {abstract} +deletePage(WikiPage): void
+        class DefaultPageManager [[DefaultPageManager.html]] {
+            #m_pageLocks: ConcurrentHashMap<String, PageLock>
+            +DefaultPageManager(Engine, Properties)
+            +getProvider(): PageProvider
+            +getAllPages(): Collection<Page>
+            +getPageText(String, int): String
+            +getPureText(String, int): String
+            +getText(String, int): String
+            +saveText(Context, String): void
+            #getEngine(): Engine
+            +putPageText(Page, String): void
+            +lockPage(Page, String): PageLock
+            +unlockPage(PageLock): void
+            +getCurrentLock(Page): PageLock
+            +getPage(String): Page
+            +getPage(String, int): Page
+            +getPageInfo(String, int): Page
+            +getVersionHistory(String): List<T>
+            +getCurrentProvider(): String
+            +getProviderDescription(): String
+            +getTotalPageCount(): int
+            +getRecentChanges(): Set<Page>
+            +pageExists(String): boolean
+            +pageExists(String, int): boolean
+            +wikiPageExists(String): boolean
+            +wikiPageExists(String, int): boolean
+            +deleteVersion(Page): void
+            +deletePage(String): void
+            +deletePage(Page): void
+            #fireEvent(int, String): void
+            +actionPerformed(WikiEvent): void
+            #changeAcl(WikiPage, Principal[], Principal): boolean
+        }
+
+        class PageTimeComparator [[PageTimeComparator.html]] {
+            +compare(Page, Page): int
         }
 
         interface java.io.Serializable
         java.io.Serializable <|.. PageLock
-
-        interface java.util.Comparator<T> {
-            {abstract} +compare(T, T): int
-        }
-        java.util.Comparator <|.. PageTimeComparator
-
-        java.io.Serializable <|.. PageTimeComparator
-
-        PageManager <|.. DefaultPageManager
-
-        java.util.Comparator <|.. PageSorter
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
         }
         org.apache.wiki.event.WikiEventListener <|.. PageManager
 
-        DefaultPageManager --> "*" PageLock: activeLocks
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
+        }
+        java.util.Comparator <|.. PageSorter
 
-        DefaultPageManager --> PageSorter: pageSorter
+        PageManager <|.. DefaultPageManager
+
+        java.util.Comparator <|.. PageTimeComparator
+
+        java.io.Serializable <|.. PageTimeComparator
 
         PageManager --> "*" PageLock: activeLocks
 
         PageManager --> PageSorter: pageSorter
+
+        DefaultPageManager --> "*" PageLock: activeLocks
+
+        DefaultPageManager --> PageSorter: pageSorter
 
     }
 

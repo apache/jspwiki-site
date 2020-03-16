@@ -27,9 +27,9 @@
 <span class="sourceLineNo">019</span>package org.apache.wiki.tags;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.apache.wiki.WikiContext;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.WikiPage;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.WikiProvider;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.api.core.Engine;<a name="line.24"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.Engine;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Page;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.wiki.api.providers.WikiProvider;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import org.apache.wiki.pages.PageManager;<a name="line.25"></a>
 <span class="sourceLineNo">026</span><a name="line.26"></a>
 <span class="sourceLineNo">027</span>import javax.servlet.jsp.JspWriter;<a name="line.27"></a>
@@ -62,8 +62,8 @@
 <span class="sourceLineNo">054</span>    private String m_version    = VER_LATEST;<a name="line.54"></a>
 <span class="sourceLineNo">055</span>    private String m_newVersion = VER_LATEST;<a name="line.55"></a>
 <span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>    @Override public void initTag()<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    {<a name="line.58"></a>
+<span class="sourceLineNo">057</span>    @Override<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    public void initTag() {<a name="line.58"></a>
 <span class="sourceLineNo">059</span>        super.initTag();<a name="line.59"></a>
 <span class="sourceLineNo">060</span>        m_version = m_newVersion = VER_LATEST;<a name="line.60"></a>
 <span class="sourceLineNo">061</span>    }<a name="line.61"></a>
@@ -88,70 +88,71 @@
 <span class="sourceLineNo">080</span>        m_newVersion = arg;<a name="line.80"></a>
 <span class="sourceLineNo">081</span>    }<a name="line.81"></a>
 <span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>    @Override public final int doWikiStartTag() throws IOException {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        final Engine engine = m_wikiContext.getEngine();<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        String pageName = m_pageName;<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>        if( m_pageName == null ) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>            if( m_wikiContext.getPage() != null ) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>                pageName = m_wikiContext.getPage().getName();<a name="line.89"></a>
-<span class="sourceLineNo">090</span>            } else {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                return SKIP_BODY;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>            }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        }<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>        final JspWriter out = pageContext.getOut();<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>        int r1;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        int r2;<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>        //  In case the page does not exist, we fail silently.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        if( !engine.getManager( PageManager.class ).wikiPageExists( pageName ) ) {<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            return SKIP_BODY;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        }<a name="line.103"></a>
-<span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>        if( VER_LATEST.equals(getVersion()) ) {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            final WikiPage latest = engine.getManager( PageManager.class ).getPage( pageName, WikiProvider.LATEST_VERSION );<a name="line.106"></a>
-<span class="sourceLineNo">107</span>            if( latest == null ) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>                // This may occur if matchEnglishPlurals is on, and we access the wrong page name<a name="line.108"></a>
-<span class="sourceLineNo">109</span>                return SKIP_BODY;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>            }<a name="line.110"></a>
-<span class="sourceLineNo">111</span>            r1 = latest.getVersion();<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        } else if( VER_PREVIOUS.equals( getVersion() ) ) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>            r1 = m_wikiContext.getPage().getVersion() - 1;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            r1 = Math.max( r1, 1 );<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        } else if( VER_CURRENT.equals( getVersion() ) ) {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            r1 = m_wikiContext.getPage().getVersion();<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        } else {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>            r1 = Integer.parseInt( getVersion() );<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        }<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>        if( VER_LATEST.equals( getNewVersion() ) ) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            final WikiPage latest = engine.getManager( PageManager.class ).getPage( pageName, WikiProvider.LATEST_VERSION );<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            r2 = latest.getVersion();<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        } else if( VER_PREVIOUS.equals( getNewVersion() ) ) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            r2 = m_wikiContext.getPage().getVersion() - 1;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            r2 = Math.max( r2, 1 );<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        } else if( VER_CURRENT.equals( getNewVersion() ) ) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>            r2 = m_wikiContext.getPage().getVersion();<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        } else {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>            r2 = Integer.parseInt( getNewVersion() );<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>        final String url = m_wikiContext.getURL( WikiContext.DIFF, pageName, "r1="+r1+"&amp;amp;r2="+r2 );<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        switch( m_format ) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>          case ANCHOR:<a name="line.135"></a>
-<span class="sourceLineNo">136</span>            out.print("&lt;a href=\""+url+"\"&gt;");<a name="line.136"></a>
-<span class="sourceLineNo">137</span>            break;<a name="line.137"></a>
-<span class="sourceLineNo">138</span>          case URL:<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            out.print( url );<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            break;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        }<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>        return EVAL_BODY_INCLUDE;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    }<a name="line.144"></a>
-<span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>}<a name="line.146"></a>
+<span class="sourceLineNo">083</span>    @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    public final int doWikiStartTag() throws IOException {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        final Engine engine = m_wikiContext.getEngine();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        String pageName = m_pageName;<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>        if( m_pageName == null ) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            if( m_wikiContext.getPage() != null ) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                pageName = m_wikiContext.getPage().getName();<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            } else {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                return SKIP_BODY;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>        final JspWriter out = pageContext.getOut();<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        int r1;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        int r2;<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>        //  In case the page does not exist, we fail silently.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        if( !engine.getManager( PageManager.class ).wikiPageExists( pageName ) ) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>            return SKIP_BODY;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>        if( VER_LATEST.equals( getVersion() ) ) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            final Page latest = engine.getManager( PageManager.class ).getPage( pageName, WikiProvider.LATEST_VERSION );<a name="line.107"></a>
+<span class="sourceLineNo">108</span>            if( latest == null ) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                // This may occur if matchEnglishPlurals is on, and we access the wrong page name<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                return SKIP_BODY;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>            r1 = latest.getVersion();<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        } else if( VER_PREVIOUS.equals( getVersion() ) ) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>            r1 = m_wikiContext.getPage().getVersion() - 1;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>            r1 = Math.max( r1, 1 );<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        } else if( VER_CURRENT.equals( getVersion() ) ) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>            r1 = m_wikiContext.getPage().getVersion();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        } else {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>            r1 = Integer.parseInt( getVersion() );<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>        if( VER_LATEST.equals( getNewVersion() ) ) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            final Page latest = engine.getManager( PageManager.class ).getPage( pageName, WikiProvider.LATEST_VERSION );<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            r2 = latest.getVersion();<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        } else if( VER_PREVIOUS.equals( getNewVersion() ) ) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            r2 = m_wikiContext.getPage().getVersion() - 1;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            r2 = Math.max( r2, 1 );<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        } else if( VER_CURRENT.equals( getNewVersion() ) ) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            r2 = m_wikiContext.getPage().getVersion();<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        } else {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>            r2 = Integer.parseInt( getNewVersion() );<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>        final String url = m_wikiContext.getURL( WikiContext.DIFF, pageName, "r1="+r1+"&amp;amp;r2="+r2 );<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        switch( m_format ) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>          case ANCHOR:<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            out.print("&lt;a href=\""+url+"\"&gt;");<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            break;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>          case URL:<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            out.print( url );<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            break;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>        return EVAL_BODY_INCLUDE;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>}<a name="line.147"></a>
 
 
 

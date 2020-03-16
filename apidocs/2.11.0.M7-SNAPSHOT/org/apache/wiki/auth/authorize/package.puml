@@ -2,6 +2,56 @@
 
     namespace org.apache.wiki.auth.authorize {
 
+        class Role [[Role.html]] {
+            {static} +ALL: Role
+            {static} +ANONYMOUS: Role
+            {static} +ASSERTED: Role
+            {static} +AUTHENTICATED: Role
+            #Role()
+            +Role(String)
+            {static} +isBuiltInRole(Role): boolean
+            {static} +isReservedName(String): boolean
+            +getName(): String
+        }
+
+        class Group [[Group.html]] {
+            #Group(String, String)
+            +add(Principal): boolean
+            +clear(): void
+            +getCreated(): Date
+            +getCreator(): String
+            +getLastModified(): Date
+            +getModifier(): String
+            +getName(): String
+            +getWiki(): String
+            +isMember(Principal): boolean
+            +members(): Principal[]
+            +remove(Principal): boolean
+            +setCreated(Date): void
+            +setCreator(String): void
+            +setLastModified(Date): void
+            +setModifier(String): void
+        }
+
+        interface GroupManager [[GroupManager.html]] {
+            {static} +MESSAGES_KEY: String
+            {static} +PROP_GROUPDATABASE: String
+            +parseGroup(WikiContext, boolean): Group
+            +validateGroup(WikiContext, Group): void
+            +checkGroupName(WikiContext, String): void
+            +fireEvent(int, Object): void
+            {abstract} +getGroup(String): Group
+            {abstract} +parseGroup(String, String, boolean): Group
+            {abstract} +removeGroup(String): void
+            {abstract} +setGroup(Session, Group): void
+            {abstract} +addWikiEventListener(WikiEventListener): void
+            {abstract} +removeWikiEventListener(WikiEventListener): void
+        }
+
+        interface WebAuthorizer [[WebAuthorizer.html]] {
+            {abstract} +isUserInRole(HttpServletRequest, Principal): boolean
+        }
+
         class JDBCGroupDatabase [[JDBCGroupDatabase.html]] {
             {static} +DEFAULT_GROUPDB_DATASOURCE: String
             {static} +DEFAULT_GROUPDB_TABLE: String
@@ -28,48 +78,11 @@
             +initialize(Engine, Properties): void
         }
 
-        class WebContainerAuthorizer [[WebContainerAuthorizer.html]] {
-            #m_engine: Engine
-            #m_containerAuthorized: boolean
-            +initialize(Engine, Properties): void
-            +isUserInRole(HttpServletRequest, Principal): boolean
-            +isUserInRole(Session, Principal): boolean
-            +findRole(String): Principal
-            +isConstrained(String, Role): boolean
-            +isContainerAuthorized(): boolean
-            #getRoles(Document): Role[]
-            #getWebXml(): Document
-        }
-
-        class org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver [[WebContainerAuthorizer.LocalEntityResolver.html]] {
-            +resolveEntity(String, String): InputSource
-        }
-
-        interface GroupManager [[GroupManager.html]] {
-            {static} +MESSAGES_KEY: String
-            {static} +PROP_GROUPDATABASE: String
-            +parseGroup(WikiContext, boolean): Group
-            +validateGroup(WikiContext, Group): void
-            +checkGroupName(WikiContext, String): void
-            +fireEvent(int, Object): void
-            {abstract} +getGroup(String): Group
-            {abstract} +parseGroup(String, String, boolean): Group
-            {abstract} +removeGroup(String): void
-            {abstract} +setGroup(Session, Group): void
-            {abstract} +addWikiEventListener(WikiEventListener): void
-            {abstract} +removeWikiEventListener(WikiEventListener): void
-        }
-
-        class Role [[Role.html]] {
-            {static} +ALL: Role
-            {static} +ANONYMOUS: Role
-            {static} +ASSERTED: Role
-            {static} +AUTHENTICATED: Role
-            #Role()
-            +Role(String)
-            {static} +isBuiltInRole(Role): boolean
-            {static} +isReservedName(String): boolean
-            +getName(): String
+        interface GroupDatabase [[GroupDatabase.html]] {
+            {abstract} +delete(Group): void
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +save(Group, Principal): void
+            {abstract} +groups(): Group[]
         }
 
         class XMLGroupDatabase [[XMLGroupDatabase.html]] {
@@ -95,46 +108,30 @@
             +actionPerformed(WikiEvent): void
         }
 
-        interface WebAuthorizer [[WebAuthorizer.html]] {
-            {abstract} +isUserInRole(HttpServletRequest, Principal): boolean
+        class WebContainerAuthorizer [[WebContainerAuthorizer.html]] {
+            #m_engine: Engine
+            #m_containerAuthorized: boolean
+            +initialize(Engine, Properties): void
+            +isUserInRole(HttpServletRequest, Principal): boolean
+            +isUserInRole(Session, Principal): boolean
+            +findRole(String): Principal
+            +isConstrained(String, Role): boolean
+            +isContainerAuthorized(): boolean
+            #getRoles(Document): Role[]
+            #getWebXml(): Document
         }
 
-        class Group [[Group.html]] {
-            #Group(String, String)
-            +add(Principal): boolean
-            +clear(): void
-            +getCreated(): Date
-            +getCreator(): String
-            +getLastModified(): Date
-            +getModifier(): String
-            +getName(): String
-            +getWiki(): String
-            +isMember(Principal): boolean
-            +members(): Principal[]
-            +remove(Principal): boolean
-            +setCreated(Date): void
-            +setCreator(String): void
-            +setLastModified(Date): void
-            +setModifier(String): void
+        class org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver [[WebContainerAuthorizer.LocalEntityResolver.html]] {
+            +resolveEntity(String, String): InputSource
         }
 
-        interface GroupDatabase [[GroupDatabase.html]] {
-            {abstract} +delete(Group): void
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +save(Group, Principal): void
-            {abstract} +groups(): Group[]
+        interface java.security.Principal {
+            {abstract} +getName(): String
         }
+        java.security.Principal <|.. Role
 
-        GroupDatabase <|.. JDBCGroupDatabase
-
-        WebAuthorizer <|.. WebContainerAuthorizer
-
-        interface org.xml.sax.EntityResolver {
-            {abstract} +resolveEntity(String, String): InputSource
-        }
-        org.xml.sax.EntityResolver <|.. org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver
-
-        WebContainerAuthorizer +-- org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver
+        interface java.io.Serializable
+        java.io.Serializable <|.. Role
 
         interface org.apache.wiki.auth.Authorizer {
             {abstract} +getRoles(): Principal[]
@@ -149,13 +146,9 @@
         }
         org.apache.wiki.event.WikiEventListener <|.. GroupManager
 
-        interface java.security.Principal {
-            {abstract} +getName(): String
-        }
-        java.security.Principal <|.. Role
+        org.apache.wiki.auth.Authorizer <|.. WebAuthorizer
 
-        interface java.io.Serializable
-        java.io.Serializable <|.. Role
+        GroupDatabase <|.. JDBCGroupDatabase
 
         GroupDatabase <|.. XMLGroupDatabase
 
@@ -165,11 +158,16 @@
 
         org.apache.wiki.event.WikiEventListener <|.. DefaultGroupManager
 
-        org.apache.wiki.auth.Authorizer <|.. WebAuthorizer
+        WebAuthorizer <|.. WebContainerAuthorizer
 
-        WebContainerAuthorizer --> "*" Role: m_containerRoles
+        interface org.xml.sax.EntityResolver {
+            {abstract} +resolveEntity(String, String): InputSource
+        }
+        org.xml.sax.EntityResolver <|.. org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver
 
-        WebContainerAuthorizer --> "*" java.security.Principal: roles
+        WebContainerAuthorizer +-- org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver
+
+        Group --> java.security.Principal: principal
 
         GroupManager --> GroupDatabase: groupDatabase
 
@@ -179,7 +177,9 @@
 
         DefaultGroupManager --> "*" java.security.Principal: roles
 
-        Group --> java.security.Principal: principal
+        WebContainerAuthorizer --> "*" Role: m_containerRoles
+
+        WebContainerAuthorizer --> "*" java.security.Principal: roles
 
     }
 

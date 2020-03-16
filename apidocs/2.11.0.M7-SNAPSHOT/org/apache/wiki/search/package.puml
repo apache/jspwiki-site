@@ -2,36 +2,30 @@
 
     namespace org.apache.wiki.search {
 
-        interface SearchResult [[SearchResult.html]] {
-            {abstract} +getPage(): WikiPage
-            {abstract} +getScore(): int
-            {abstract} +getContexts(): String[]
-        }
-
-        interface SearchManager [[SearchManager.html]] {
-            {static} +DEFAULT_SEARCHPROVIDER: String
-            {static} +PROP_SEARCHPROVIDER: String
-            {static} +JSON_SEARCH: String
-            +findPages(String, WikiContext): Collection<SearchResult>
-            +pageRemoved(WikiPage): void
-            +reindexPage(WikiPage): void
-        }
-
-        class QueryItem [[QueryItem.html]] {
-            {static} +REQUIRED: int
-            {static} +FORBIDDEN: int
-            {static} +REQUESTED: int
-            +word: String
-            +type: int
-        }
-
         class BasicSearchProvider [[BasicSearchProvider.html]] {
             +initialize(Engine, Properties): void
-            +pageRemoved(WikiPage): void
-            +reindexPage(WikiPage): void
+            +pageRemoved(Page): void
+            +reindexPage(Page): void
             +parseQuery(String): QueryItem[]
-            +findPages(String, WikiContext): Collection<SearchResult>
+            +findPages(String, Context): Collection<SearchResult>
             +getProviderInfo(): String
+        }
+
+        class DefaultSearchManager [[DefaultSearchManager.html]] {
+            +DefaultSearchManager(Engine, Properties)
+            +initialize(Engine, Properties): void
+            +actionPerformed(WikiEvent): void
+        }
+
+        class org.apache.wiki.search.DefaultSearchManager.JSONSearch [[DefaultSearchManager.JSONSearch.html]] {
+            {static} +AJAX_ACTION_SUGGESTIONS: String
+            {static} +AJAX_ACTION_PAGES: String
+            {static} +DEFAULT_MAX_RESULTS: int
+            +maxResults: int
+            +getServletMapping(): String
+            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+            +getSuggestions(String, int): List<String>
+            +findPages(String, int, WikiContext): List<Map<String, Object>>
         }
 
         class LuceneSearchProvider [[LuceneSearchProvider.html]] {
@@ -53,39 +47,27 @@
             #getAttachmentContent(String, int): String
             #getAttachmentContent(Attachment): String
             #updateLuceneIndex(WikiPage, String): void
-            #luceneIndexPage(WikiPage, String, IndexWriter): Document
-            +pageRemoved(WikiPage): void
-            +reindexPage(WikiPage): void
-            +findPages(String, WikiContext): Collection<SearchResult>
-            +findPages(String, int, WikiContext): Collection<SearchResult>
+            #luceneIndexPage(Page, String, IndexWriter): Document
+            +pageRemoved(Page): void
+            +reindexPage(Page): void
+            +findPages(String, Context): Collection<SearchResult>
+            +findPages(String, int, Context): Collection<SearchResult>
             +getProviderInfo(): String
         }
 
         interface SearchProvider [[SearchProvider.html]] {
-            {abstract} +pageRemoved(WikiPage): void
-            {abstract} +reindexPage(WikiPage): void
-            {abstract} +findPages(String, WikiContext): Collection<SearchResult>
+            {abstract} +pageRemoved(Page): void
+            {abstract} +reindexPage(Page): void
+            {abstract} +findPages(String, Context): Collection<SearchResult>
         }
 
-        class SearchResultComparator [[SearchResultComparator.html]] {
-            +compare(SearchResult, SearchResult): int
-        }
-
-        class DefaultSearchManager [[DefaultSearchManager.html]] {
-            +DefaultSearchManager(Engine, Properties)
-            +initialize(Engine, Properties): void
-            +actionPerformed(WikiEvent): void
-        }
-
-        class org.apache.wiki.search.DefaultSearchManager.JSONSearch [[DefaultSearchManager.JSONSearch.html]] {
-            {static} +AJAX_ACTION_SUGGESTIONS: String
-            {static} +AJAX_ACTION_PAGES: String
-            {static} +DEFAULT_MAX_RESULTS: int
-            +maxResults: int
-            +getServletMapping(): String
-            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
-            +getSuggestions(String, int): List<String>
-            +findPages(String, int, WikiContext): List<Map<String, Object>>
+        interface SearchManager [[SearchManager.html]] {
+            {static} +DEFAULT_SEARCHPROVIDER: String
+            {static} +PROP_SEARCHPROVIDER: String
+            {static} +JSON_SEARCH: String
+            +findPages(String, Context): Collection<SearchResult>
+            +pageRemoved(Page): void
+            +reindexPage(Page): void
         }
 
         class SearchMatcher [[SearchMatcher.html]] {
@@ -100,6 +82,33 @@
             +getContexts(): String[]
         }
 
+        class SearchResultComparator [[SearchResultComparator.html]] {
+            +compare(SearchResult, SearchResult): int
+        }
+
+        SearchProvider <|.. BasicSearchProvider
+
+        class org.apache.wiki.api.filters.BasePageFilter
+        org.apache.wiki.api.filters.BasePageFilter <|-- DefaultSearchManager
+
+        SearchManager <|.. DefaultSearchManager
+
+        interface org.apache.wiki.ajax.WikiAjaxServlet {
+            {abstract} +getServletMapping(): String
+            {abstract} +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+        }
+        org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.search.DefaultSearchManager.JSONSearch
+
+        DefaultSearchManager +-- org.apache.wiki.search.DefaultSearchManager.JSONSearch
+
+        SearchProvider <|.. LuceneSearchProvider
+
+        interface org.apache.wiki.api.providers.WikiProvider {
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +getProviderInfo(): String
+        }
+        org.apache.wiki.api.providers.WikiProvider <|.. SearchProvider
+
         interface org.apache.wiki.api.filters.PageFilter {
             {abstract} +initialize(Engine, Properties): void
         }
@@ -113,15 +122,14 @@
         }
         org.apache.wiki.event.WikiEventListener <|.. SearchManager
 
-        SearchProvider <|.. BasicSearchProvider
-
-        SearchProvider <|.. LuceneSearchProvider
-
-        interface org.apache.wiki.WikiProvider {
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +getProviderInfo(): String
+        interface org.apache.wiki.api.search.SearchResult {
+            {abstract} +getPage(): Page
+            {abstract} +getScore(): int
+            {abstract} +getContexts(): String[]
         }
-        org.apache.wiki.WikiProvider <|.. SearchProvider
+        org.apache.wiki.api.search.SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
+
+        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
 
         interface java.util.Comparator<T> {
             {abstract} +compare(T, T): int
@@ -131,26 +139,9 @@
         interface java.io.Serializable
         java.io.Serializable <|.. SearchResultComparator
 
-        class org.apache.wiki.api.filters.BasicPageFilter
-        org.apache.wiki.api.filters.BasicPageFilter <|-- DefaultSearchManager
-
-        SearchManager <|.. DefaultSearchManager
-
-        interface org.apache.wiki.ajax.WikiAjaxServlet {
-            {abstract} +getServletMapping(): String
-            {abstract} +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
-        }
-        org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.search.DefaultSearchManager.JSONSearch
-
-        DefaultSearchManager +-- org.apache.wiki.search.DefaultSearchManager.JSONSearch
-
-        SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
-
-        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
+        DefaultSearchManager --> SearchProvider: searchEngine
 
         SearchManager --> SearchProvider: searchEngine
-
-        DefaultSearchManager --> SearchProvider: searchEngine
 
     }
 

@@ -30,15 +30,15 @@
 <span class="sourceLineNo">022</span>import org.apache.wiki.InternalWikiException;<a name="line.22"></a>
 <span class="sourceLineNo">023</span>import org.apache.wiki.WikiContext;<a name="line.23"></a>
 <span class="sourceLineNo">024</span>import org.apache.wiki.WikiPage;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.api.core.Engine;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.api.exceptions.ProviderException;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.attachment.Attachment;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.attachment.AttachmentManager;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.event.WikiEventManager;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.event.WikiPageRenameEvent;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.pages.PageManager;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.parser.JSPWikiMarkupParser;<a name="line.33"></a>
+<span class="sourceLineNo">025</span>import org.apache.wiki.api.core.Attachment;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.wiki.api.core.Engine;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.wiki.api.core.Page;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.wiki.api.exceptions.ProviderException;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.wiki.attachment.AttachmentManager;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.wiki.event.WikiEventManager;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.wiki.event.WikiPageRenameEvent;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.wiki.pages.PageManager;<a name="line.33"></a>
 <span class="sourceLineNo">034</span>import org.apache.wiki.parser.MarkupParser;<a name="line.34"></a>
 <span class="sourceLineNo">035</span>import org.apache.wiki.references.ReferenceManager;<a name="line.35"></a>
 <span class="sourceLineNo">036</span>import org.apache.wiki.search.SearchManager;<a name="line.36"></a>
@@ -91,11 +91,11 @@
 <span class="sourceLineNo">083</span>        <a name="line.83"></a>
 <span class="sourceLineNo">084</span>        //  Preconditions: "from" page must exist, and "to" page must not yet exist.<a name="line.84"></a>
 <span class="sourceLineNo">085</span>        final Engine engine = context.getEngine();<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        final WikiPage fromPage = engine.getManager( PageManager.class ).getPage( renameFrom );<a name="line.86"></a>
+<span class="sourceLineNo">086</span>        final Page fromPage = engine.getManager( PageManager.class ).getPage( renameFrom );<a name="line.86"></a>
 <span class="sourceLineNo">087</span>        if( fromPage == null ) {<a name="line.87"></a>
 <span class="sourceLineNo">088</span>            throw new WikiException("No such page "+renameFrom);<a name="line.88"></a>
 <span class="sourceLineNo">089</span>        }<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        WikiPage toPage = engine.getManager( PageManager.class ).getPage( renameToClean );<a name="line.90"></a>
+<span class="sourceLineNo">090</span>        Page toPage = engine.getManager( PageManager.class ).getPage( renameToClean );<a name="line.90"></a>
 <span class="sourceLineNo">091</span>        if( toPage != null ) {<a name="line.91"></a>
 <span class="sourceLineNo">092</span>            throw new WikiException( "Page already exists " + renameToClean );<a name="line.92"></a>
 <span class="sourceLineNo">093</span>        }<a name="line.93"></a>
@@ -106,7 +106,7 @@
 <span class="sourceLineNo">098</span>        //  Remove references to attachments under old name<a name="line.98"></a>
 <span class="sourceLineNo">099</span>        final List&lt; Attachment &gt; attachmentsOldName = engine.getManager( AttachmentManager.class ).listAttachments( fromPage );<a name="line.99"></a>
 <span class="sourceLineNo">100</span>        for( final Attachment att: attachmentsOldName ) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>            final WikiPage fromAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );<a name="line.101"></a>
+<span class="sourceLineNo">101</span>            final Page fromAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );<a name="line.101"></a>
 <span class="sourceLineNo">102</span>            engine.getManager( ReferenceManager.class ).pageRemoved( fromAttPage );<a name="line.102"></a>
 <span class="sourceLineNo">103</span>        }<a name="line.103"></a>
 <span class="sourceLineNo">104</span><a name="line.104"></a>
@@ -138,7 +138,7 @@
 <span class="sourceLineNo">130</span>        <a name="line.130"></a>
 <span class="sourceLineNo">131</span>        final Collection&lt; Attachment &gt; attachmentsNewName = engine.getManager( AttachmentManager.class ).listAttachments( toPage );<a name="line.131"></a>
 <span class="sourceLineNo">132</span>        for( final Attachment att:attachmentsNewName ) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            final WikiPage toAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );<a name="line.133"></a>
+<span class="sourceLineNo">133</span>            final Page toAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );<a name="line.133"></a>
 <span class="sourceLineNo">134</span>            // add reference to attachment under new page name<a name="line.134"></a>
 <span class="sourceLineNo">135</span>            engine.getManager( ReferenceManager.class ).updateReferences( toAttPage );<a name="line.135"></a>
 <span class="sourceLineNo">136</span>            engine.getManager( SearchManager.class ).reindexPage( att );<a name="line.136"></a>
@@ -171,7 +171,7 @@
 <span class="sourceLineNo">163</span>     *  @param fromPage The old page<a name="line.163"></a>
 <span class="sourceLineNo">164</span>     *  @param toPage The new page<a name="line.164"></a>
 <span class="sourceLineNo">165</span>     */<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    private void updateReferrers( final WikiContext context, final WikiPage fromPage, final WikiPage toPage, final Set&lt; String &gt; referrers ) {<a name="line.166"></a>
+<span class="sourceLineNo">166</span>    private void updateReferrers( final WikiContext context, final Page fromPage, final Page toPage, final Set&lt; String &gt; referrers ) {<a name="line.166"></a>
 <span class="sourceLineNo">167</span>        if( referrers.isEmpty() ) { // No referrers<a name="line.167"></a>
 <span class="sourceLineNo">168</span>            return;<a name="line.168"></a>
 <span class="sourceLineNo">169</span>        }<a name="line.169"></a>
@@ -183,12 +183,12 @@
 <span class="sourceLineNo">175</span>                pageName = toPage.getName();<a name="line.175"></a>
 <span class="sourceLineNo">176</span>            }<a name="line.176"></a>
 <span class="sourceLineNo">177</span>            <a name="line.177"></a>
-<span class="sourceLineNo">178</span>            final WikiPage p = engine.getManager( PageManager.class ).getPage( pageName );<a name="line.178"></a>
+<span class="sourceLineNo">178</span>            final Page p = engine.getManager( PageManager.class ).getPage( pageName );<a name="line.178"></a>
 <span class="sourceLineNo">179</span><a name="line.179"></a>
 <span class="sourceLineNo">180</span>            final String sourceText = engine.getManager( PageManager.class ).getPureText( p );<a name="line.180"></a>
 <span class="sourceLineNo">181</span>            String newText = replaceReferrerString( context, sourceText, fromPage.getName(), toPage.getName() );<a name="line.181"></a>
 <span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>            m_camelCase = TextUtil.getBooleanProperty( engine.getWikiProperties(), JSPWikiMarkupParser.PROP_CAMELCASELINKS, m_camelCase );<a name="line.183"></a>
+<span class="sourceLineNo">183</span>            m_camelCase = TextUtil.getBooleanProperty( engine.getWikiProperties(), MarkupParser.PROP_CAMELCASELINKS, m_camelCase );<a name="line.183"></a>
 <span class="sourceLineNo">184</span>            if( m_camelCase ) {<a name="line.184"></a>
 <span class="sourceLineNo">185</span>                newText = replaceCCReferrerString( context, newText, fromPage.getName(), toPage.getName() );<a name="line.185"></a>
 <span class="sourceLineNo">186</span>            }<a name="line.186"></a>
@@ -208,7 +208,7 @@
 <span class="sourceLineNo">200</span>        }<a name="line.200"></a>
 <span class="sourceLineNo">201</span>    }<a name="line.201"></a>
 <span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>    private Set&lt;String&gt; getReferencesToChange( final WikiPage fromPage, final Engine engine ) {<a name="line.203"></a>
+<span class="sourceLineNo">203</span>    private Set&lt;String&gt; getReferencesToChange( final Page fromPage, final Engine engine ) {<a name="line.203"></a>
 <span class="sourceLineNo">204</span>        final Set&lt; String &gt; referrers = new TreeSet&lt;&gt;();<a name="line.204"></a>
 <span class="sourceLineNo">205</span>        final Collection&lt; String &gt; r = engine.getManager( ReferenceManager.class ).findReferrers( fromPage.getName() );<a name="line.205"></a>
 <span class="sourceLineNo">206</span>        if( r != null ) {<a name="line.206"></a>

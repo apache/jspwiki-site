@@ -27,7 +27,7 @@
 <span class="sourceLineNo">019</span>package org.apache.wiki.ui;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.apache.log4j.Logger;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.WikiContext;<a name="line.22"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.Context;<a name="line.22"></a>
 <span class="sourceLineNo">023</span>import org.apache.wiki.i18n.InternationalizationManager;<a name="line.23"></a>
 <span class="sourceLineNo">024</span>import org.apache.wiki.modules.ModuleManager;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import org.apache.wiki.preferences.Preferences;<a name="line.25"></a>
@@ -143,7 +143,7 @@
 <span class="sourceLineNo">135</span>     *  @param name the name of the resource to fine<a name="line.135"></a>
 <span class="sourceLineNo">136</span>     *  @return the path to the resource<a name="line.136"></a>
 <span class="sourceLineNo">137</span>     */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    String findResource( WikiContext ctx, String template, String name );<a name="line.138"></a>
+<span class="sourceLineNo">138</span>    String findResource( Context ctx, String template, String name );<a name="line.138"></a>
 <span class="sourceLineNo">139</span><a name="line.139"></a>
 <span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
 <span class="sourceLineNo">141</span>     *   Lists the skins available under this template.  Returns an empty Set, if there are no extra skins available.  Note that<a name="line.141"></a>
@@ -264,7 +264,7 @@
 <span class="sourceLineNo">256</span>     *  @param type the marker<a name="line.256"></a>
 <span class="sourceLineNo">257</span>     *  @return the generated marker comment<a name="line.257"></a>
 <span class="sourceLineNo">258</span>     */<a name="line.258"></a>
-<span class="sourceLineNo">259</span>    static String getMarker( final WikiContext context, final String type ) {<a name="line.259"></a>
+<span class="sourceLineNo">259</span>    static String getMarker( final Context context, final String type ) {<a name="line.259"></a>
 <span class="sourceLineNo">260</span>        if( type.equals( RESOURCE_JSLOCALIZEDSTRINGS ) ) {<a name="line.260"></a>
 <span class="sourceLineNo">261</span>            return getJSLocalizedStrings( context );<a name="line.261"></a>
 <span class="sourceLineNo">262</span>        } else if( type.equals( RESOURCE_JSFUNCTION ) ) {<a name="line.262"></a>
@@ -276,11 +276,11 @@
 <span class="sourceLineNo">268</span>    /**<a name="line.268"></a>
 <span class="sourceLineNo">269</span>     *  Extract all i18n strings in the javascript domain. (javascript.*) Returns a javascript snippet which defines the LocalizedStings array.<a name="line.269"></a>
 <span class="sourceLineNo">270</span>     *<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     *  @param context the {@link WikiContext}<a name="line.271"></a>
+<span class="sourceLineNo">271</span>     *  @param context the {@link Context}<a name="line.271"></a>
 <span class="sourceLineNo">272</span>     *  @return Javascript snippet which defines the LocalizedStrings array<a name="line.272"></a>
 <span class="sourceLineNo">273</span>     *  @since 2.5.108<a name="line.273"></a>
 <span class="sourceLineNo">274</span>     */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    static String getJSLocalizedStrings( final WikiContext context ) {<a name="line.275"></a>
+<span class="sourceLineNo">275</span>    static String getJSLocalizedStrings( final Context context ) {<a name="line.275"></a>
 <span class="sourceLineNo">276</span>        final StringBuilder sb = new StringBuilder();<a name="line.276"></a>
 <span class="sourceLineNo">277</span>        sb.append( "var LocalizedStrings = {\n");<a name="line.277"></a>
 <span class="sourceLineNo">278</span>        final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.DEF_TEMPLATE );<a name="line.278"></a>
@@ -322,89 +322,86 @@
 <span class="sourceLineNo">314</span>     *  @param type What kind of a request should be added?<a name="line.314"></a>
 <span class="sourceLineNo">315</span>     *  @param resource The resource to add.<a name="line.315"></a>
 <span class="sourceLineNo">316</span>     */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>    @SuppressWarnings("unchecked")<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    static void addResourceRequest( final WikiContext ctx, final String type, final String resource ) {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        HashMap&lt; String, Vector&lt; String &gt; &gt; resourcemap = ( HashMap&lt; String, Vector&lt; String &gt; &gt; ) ctx.getVariable( RESOURCE_INCLUDES );<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        if( resourcemap == null ) {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            resourcemap = new HashMap&lt;&gt;();<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>        Vector&lt; String &gt; resources = resourcemap.get( type );<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        if( resources == null ) {<a name="line.325"></a>
-<span class="sourceLineNo">326</span>            resources = new Vector&lt;&gt;();<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        }<a name="line.327"></a>
-<span class="sourceLineNo">328</span><a name="line.328"></a>
-<span class="sourceLineNo">329</span>        String resourceString = null;<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        switch( type ) {<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        case RESOURCE_SCRIPT:<a name="line.331"></a>
-<span class="sourceLineNo">332</span>            resourceString = "&lt;script type='text/javascript' src='" + resource + "'&gt;&lt;/script&gt;";<a name="line.332"></a>
-<span class="sourceLineNo">333</span>            break;<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        case RESOURCE_STYLESHEET:<a name="line.334"></a>
-<span class="sourceLineNo">335</span>            resourceString = "&lt;link rel='stylesheet' type='text/css' href='" + resource + "' /&gt;";<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            break;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        case RESOURCE_INLINECSS:<a name="line.337"></a>
-<span class="sourceLineNo">338</span>            resourceString = "&lt;style type='text/css'&gt;\n" + resource + "\n&lt;/style&gt;\n";<a name="line.338"></a>
-<span class="sourceLineNo">339</span>            break;<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        case RESOURCE_JSFUNCTION:<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        case RESOURCE_HTTPHEADER:<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            resourceString = resource;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>            break;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        }<a name="line.344"></a>
-<span class="sourceLineNo">345</span><a name="line.345"></a>
-<span class="sourceLineNo">346</span>        if( resourceString != null ) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            resources.add( resourceString );<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        }<a name="line.348"></a>
-<span class="sourceLineNo">349</span><a name="line.349"></a>
-<span class="sourceLineNo">350</span>        Logger.getLogger( TemplateManager.class ).debug( "Request to add a resource: " + resourceString );<a name="line.350"></a>
-<span class="sourceLineNo">351</span><a name="line.351"></a>
-<span class="sourceLineNo">352</span>        resourcemap.put( type, resources );<a name="line.352"></a>
-<span class="sourceLineNo">353</span>        ctx.setVariable( RESOURCE_INCLUDES, resourcemap );<a name="line.353"></a>
-<span class="sourceLineNo">354</span>    }<a name="line.354"></a>
-<span class="sourceLineNo">355</span><a name="line.355"></a>
-<span class="sourceLineNo">356</span>    /**<a name="line.356"></a>
-<span class="sourceLineNo">357</span>     *  Returns resource requests for a particular type.  If there are no resources, returns an empty array.<a name="line.357"></a>
-<span class="sourceLineNo">358</span>     *<a name="line.358"></a>
-<span class="sourceLineNo">359</span>     *  @param ctx WikiContext<a name="line.359"></a>
-<span class="sourceLineNo">360</span>     *  @param type The resource request type<a name="line.360"></a>
-<span class="sourceLineNo">361</span>     *  @return a String array for the resource requests<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     */<a name="line.362"></a>
-<span class="sourceLineNo">363</span>    @SuppressWarnings("unchecked")<a name="line.363"></a>
-<span class="sourceLineNo">364</span>    static String[] getResourceRequests( final WikiContext ctx, final String type ) {<a name="line.364"></a>
-<span class="sourceLineNo">365</span>        final HashMap&lt; String, Vector&lt; String &gt; &gt; hm = ( HashMap&lt; String, Vector&lt; String &gt; &gt; ) ctx.getVariable( RESOURCE_INCLUDES );<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        if( hm == null ) {<a name="line.366"></a>
-<span class="sourceLineNo">367</span>            return new String[0];<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        }<a name="line.368"></a>
-<span class="sourceLineNo">369</span><a name="line.369"></a>
-<span class="sourceLineNo">370</span>        final Vector&lt;String&gt; resources = hm.get( type );<a name="line.370"></a>
-<span class="sourceLineNo">371</span>        if( resources == null ){<a name="line.371"></a>
-<span class="sourceLineNo">372</span>            return new String[0];<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        }<a name="line.373"></a>
-<span class="sourceLineNo">374</span><a name="line.374"></a>
-<span class="sourceLineNo">375</span>        final String[] res = new String[resources.size()];<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        return resources.toArray( res );<a name="line.376"></a>
-<span class="sourceLineNo">377</span>    }<a name="line.377"></a>
-<span class="sourceLineNo">378</span><a name="line.378"></a>
-<span class="sourceLineNo">379</span>    /**<a name="line.379"></a>
-<span class="sourceLineNo">380</span>     *  Returns all those types that have been requested so far.<a name="line.380"></a>
-<span class="sourceLineNo">381</span>     *<a name="line.381"></a>
-<span class="sourceLineNo">382</span>     * @param ctx the wiki context<a name="line.382"></a>
-<span class="sourceLineNo">383</span>     * @return the array of types requested<a name="line.383"></a>
-<span class="sourceLineNo">384</span>     */<a name="line.384"></a>
-<span class="sourceLineNo">385</span>    @SuppressWarnings("unchecked")<a name="line.385"></a>
-<span class="sourceLineNo">386</span>    static String[] getResourceTypes( final WikiContext ctx ) {<a name="line.386"></a>
-<span class="sourceLineNo">387</span>        String[] res = new String[0];<a name="line.387"></a>
-<span class="sourceLineNo">388</span>        if( ctx != null ) {<a name="line.388"></a>
-<span class="sourceLineNo">389</span>            final HashMap&lt; String, String &gt; hm = ( HashMap&lt; String, String &gt; ) ctx.getVariable( RESOURCE_INCLUDES );<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            if( hm != null ) {<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                final Set&lt; String &gt; keys = hm.keySet();<a name="line.391"></a>
-<span class="sourceLineNo">392</span>                res = keys.toArray( res );<a name="line.392"></a>
-<span class="sourceLineNo">393</span>            }<a name="line.393"></a>
-<span class="sourceLineNo">394</span>        }<a name="line.394"></a>
+<span class="sourceLineNo">317</span>    static void addResourceRequest( final Context ctx, final String type, final String resource ) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        HashMap&lt; String, Vector&lt; String &gt; &gt; resourcemap = ctx.getVariable( RESOURCE_INCLUDES );<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        if( resourcemap == null ) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            resourcemap = new HashMap&lt;&gt;();<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        }<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>        Vector&lt; String &gt; resources = resourcemap.get( type );<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        if( resources == null ) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            resources = new Vector&lt;&gt;();<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        }<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>        String resourceString = null;<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        switch( type ) {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        case RESOURCE_SCRIPT:<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            resourceString = "&lt;script type='text/javascript' src='" + resource + "'&gt;&lt;/script&gt;";<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            break;<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        case RESOURCE_STYLESHEET:<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            resourceString = "&lt;link rel='stylesheet' type='text/css' href='" + resource + "' /&gt;";<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            break;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        case RESOURCE_INLINECSS:<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            resourceString = "&lt;style type='text/css'&gt;\n" + resource + "\n&lt;/style&gt;\n";<a name="line.337"></a>
+<span class="sourceLineNo">338</span>            break;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        case RESOURCE_JSFUNCTION:<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        case RESOURCE_HTTPHEADER:<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            resourceString = resource;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            break;<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        }<a name="line.343"></a>
+<span class="sourceLineNo">344</span><a name="line.344"></a>
+<span class="sourceLineNo">345</span>        if( resourceString != null ) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            resources.add( resourceString );<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        }<a name="line.347"></a>
+<span class="sourceLineNo">348</span><a name="line.348"></a>
+<span class="sourceLineNo">349</span>        Logger.getLogger( TemplateManager.class ).debug( "Request to add a resource: " + resourceString );<a name="line.349"></a>
+<span class="sourceLineNo">350</span><a name="line.350"></a>
+<span class="sourceLineNo">351</span>        resourcemap.put( type, resources );<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        ctx.setVariable( RESOURCE_INCLUDES, resourcemap );<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    }<a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>    /**<a name="line.355"></a>
+<span class="sourceLineNo">356</span>     *  Returns resource requests for a particular type.  If there are no resources, returns an empty array.<a name="line.356"></a>
+<span class="sourceLineNo">357</span>     *<a name="line.357"></a>
+<span class="sourceLineNo">358</span>     *  @param ctx WikiContext<a name="line.358"></a>
+<span class="sourceLineNo">359</span>     *  @param type The resource request type<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     *  @return a String array for the resource requests<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     */<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    static String[] getResourceRequests( final Context ctx, final String type ) {<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        final HashMap&lt; String, Vector&lt; String &gt; &gt; hm = ctx.getVariable( RESOURCE_INCLUDES );<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        if( hm == null ) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span>            return new String[0];<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        }<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>        final Vector&lt;String&gt; resources = hm.get( type );<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        if( resources == null ){<a name="line.369"></a>
+<span class="sourceLineNo">370</span>            return new String[0];<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        }<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>        final String[] res = new String[resources.size()];<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        return resources.toArray( res );<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>    /**<a name="line.377"></a>
+<span class="sourceLineNo">378</span>     *  Returns all those types that have been requested so far.<a name="line.378"></a>
+<span class="sourceLineNo">379</span>     *<a name="line.379"></a>
+<span class="sourceLineNo">380</span>     * @param ctx the wiki context<a name="line.380"></a>
+<span class="sourceLineNo">381</span>     * @return the array of types requested<a name="line.381"></a>
+<span class="sourceLineNo">382</span>     */<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    static String[] getResourceTypes( final Context ctx ) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        String[] res = new String[0];<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        if( ctx != null ) {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            final HashMap&lt; String, String &gt; hm = ctx.getVariable( RESOURCE_INCLUDES );<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            if( hm != null ) {<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                final Set&lt; String &gt; keys = hm.keySet();<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                res = keys.toArray( res );<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            }<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>        return res;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    }<a name="line.394"></a>
 <span class="sourceLineNo">395</span><a name="line.395"></a>
-<span class="sourceLineNo">396</span>        return res;<a name="line.396"></a>
-<span class="sourceLineNo">397</span>    }<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>}<a name="line.399"></a>
+<span class="sourceLineNo">396</span>}<a name="line.396"></a>
 
 
 

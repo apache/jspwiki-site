@@ -2,25 +2,9 @@
 
     namespace org.apache.wiki.auth.login {
 
-        class PrincipalWrapper [[PrincipalWrapper.html]] {
-            +PrincipalWrapper(Principal)
-            +getName(): String
-        }
-
-        class WebContainerCallbackHandler [[WebContainerCallbackHandler.html]] {
-            +WebContainerCallbackHandler(Engine, HttpServletRequest)
-            +handle(Callback[]): void
-        }
-
-        class WikiCallbackHandler [[WikiCallbackHandler.html]] {
-            +WikiCallbackHandler(Engine, HttpServletRequest, String, String)
-            +handle(Callback[]): void
-        }
-
-        class AnonymousLoginModule [[AnonymousLoginModule.html]] {
-            {static} +PROMPT: String
-            {static} #log: Logger
-            +login(): boolean
+        class UserDatabaseCallback [[UserDatabaseCallback.html]] {
+            +getUserDatabase(): UserDatabase
+            +setUserDatabase(UserDatabase): void
         }
 
         abstract class AbstractLoginModule [[AbstractLoginModule.html]] {
@@ -35,9 +19,14 @@
             {abstract} +login(): boolean
         }
 
-        class WikiEngineCallback [[WikiEngineCallback.html]] {
-            +setEngine(Engine): void
-            +getEngine(): Engine
+        class WikiCallbackHandler [[WikiCallbackHandler.html]] {
+            +WikiCallbackHandler(Engine, HttpServletRequest, String, String)
+            +handle(Callback[]): void
+        }
+
+        class WebContainerCallbackHandler [[WebContainerCallbackHandler.html]] {
+            +WebContainerCallbackHandler(Engine, HttpServletRequest)
+            +handle(Callback[]): void
         }
 
         class CookieAssertionLoginModule [[CookieAssertionLoginModule.html]] {
@@ -47,6 +36,11 @@
             {static} +getUserCookie(HttpServletRequest): String
             {static} +setUserCookie(HttpServletResponse, String): void
             {static} +clearUserCookie(HttpServletResponse): void
+        }
+
+        class WebContainerLoginModule [[WebContainerLoginModule.html]] {
+            {static} #log: Logger
+            +login(): boolean
         }
 
         class AuthorizerCallback [[AuthorizerCallback.html]] {
@@ -71,29 +65,24 @@
             {static} +clearLoginCookie(Engine, HttpServletRequest, HttpServletResponse): void
         }
 
-        class WebContainerLoginModule [[WebContainerLoginModule.html]] {
+        class PrincipalWrapper [[PrincipalWrapper.html]] {
+            +PrincipalWrapper(Principal)
+            +getName(): String
+        }
+
+        class WikiEngineCallback [[WikiEngineCallback.html]] {
+            +setEngine(Engine): void
+            +getEngine(): Engine
+        }
+
+        class AnonymousLoginModule [[AnonymousLoginModule.html]] {
+            {static} +PROMPT: String
             {static} #log: Logger
             +login(): boolean
         }
 
-        class UserDatabaseCallback [[UserDatabaseCallback.html]] {
-            +getUserDatabase(): UserDatabase
-            +setUserDatabase(UserDatabase): void
-        }
-
-        interface java.security.Principal {
-            {abstract} +getName(): String
-        }
-        java.security.Principal <|.. PrincipalWrapper
-
-        interface javax.security.auth.callback.CallbackHandler {
-            {abstract} +handle(Callback[]): void
-        }
-        javax.security.auth.callback.CallbackHandler <|.. WebContainerCallbackHandler
-
-        javax.security.auth.callback.CallbackHandler <|.. WikiCallbackHandler
-
-        AbstractLoginModule <|-- AnonymousLoginModule
+        interface javax.security.auth.callback.Callback
+        javax.security.auth.callback.Callback <|.. UserDatabaseCallback
 
         interface javax.security.auth.spi.LoginModule {
             {abstract} +initialize(Subject, CallbackHandler, Map<String, ?>, Map<String, ?>): void
@@ -104,10 +93,16 @@
         }
         javax.security.auth.spi.LoginModule <|.. AbstractLoginModule
 
-        interface javax.security.auth.callback.Callback
-        javax.security.auth.callback.Callback <|.. WikiEngineCallback
+        interface javax.security.auth.callback.CallbackHandler {
+            {abstract} +handle(Callback[]): void
+        }
+        javax.security.auth.callback.CallbackHandler <|.. WikiCallbackHandler
+
+        javax.security.auth.callback.CallbackHandler <|.. WebContainerCallbackHandler
 
         AbstractLoginModule <|-- CookieAssertionLoginModule
+
+        AbstractLoginModule <|-- WebContainerLoginModule
 
         javax.security.auth.callback.Callback <|.. AuthorizerCallback
 
@@ -117,15 +112,20 @@
 
         AbstractLoginModule <|-- CookieAuthenticationLoginModule
 
-        AbstractLoginModule <|-- WebContainerLoginModule
+        interface java.security.Principal {
+            {abstract} +getName(): String
+        }
+        java.security.Principal <|.. PrincipalWrapper
 
-        javax.security.auth.callback.Callback <|.. UserDatabaseCallback
+        javax.security.auth.callback.Callback <|.. WikiEngineCallback
 
-        PrincipalWrapper --> java.security.Principal: principal
+        AbstractLoginModule <|-- AnonymousLoginModule
 
         AbstractLoginModule --> javax.security.auth.callback.CallbackHandler: m_handler
 
         AbstractLoginModule --> "*" java.security.Principal: m_principals
+
+        PrincipalWrapper --> java.security.Principal: principal
 
     }
 

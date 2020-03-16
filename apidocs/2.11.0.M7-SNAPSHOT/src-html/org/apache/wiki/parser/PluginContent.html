@@ -31,12 +31,12 @@
 <span class="sourceLineNo">023</span>import org.apache.oro.text.regex.PatternMatcher;<a name="line.23"></a>
 <span class="sourceLineNo">024</span>import org.apache.oro.text.regex.Perl5Matcher;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import org.apache.wiki.InternalWikiException;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.WikiContext;<a name="line.26"></a>
+<span class="sourceLineNo">026</span>import org.apache.wiki.api.core.Context;<a name="line.26"></a>
 <span class="sourceLineNo">027</span>import org.apache.wiki.api.core.Engine;<a name="line.27"></a>
 <span class="sourceLineNo">028</span>import org.apache.wiki.api.exceptions.PluginException;<a name="line.28"></a>
 <span class="sourceLineNo">029</span>import org.apache.wiki.api.plugin.ParserStagePlugin;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.api.plugin.PluginElement;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.api.plugin.WikiPlugin;<a name="line.31"></a>
+<span class="sourceLineNo">030</span>import org.apache.wiki.api.plugin.Plugin;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.wiki.api.plugin.PluginElement;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>import org.apache.wiki.plugin.PluginManager;<a name="line.32"></a>
 <span class="sourceLineNo">033</span>import org.apache.wiki.preferences.Preferences;<a name="line.33"></a>
 <span class="sourceLineNo">034</span>import org.apache.wiki.variables.VariableManager;<a name="line.34"></a>
@@ -125,7 +125,7 @@
 <span class="sourceLineNo">117</span>            return getPluginName();<a name="line.117"></a>
 <span class="sourceLineNo">118</span>        }<a name="line.118"></a>
 <span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>        final WikiContext context = doc.getContext();<a name="line.120"></a>
+<span class="sourceLineNo">120</span>        final Context context = doc.getContext();<a name="line.120"></a>
 <span class="sourceLineNo">121</span>        if( context == null ) {<a name="line.121"></a>
 <span class="sourceLineNo">122</span>            log.info( "WikiContext garbage-collected, cannot proceed" );<a name="line.122"></a>
 <span class="sourceLineNo">123</span>            return getPluginName();<a name="line.123"></a>
@@ -136,9 +136,9 @@
 <span class="sourceLineNo">128</span><a name="line.128"></a>
 <span class="sourceLineNo">129</span>    /**{@inheritDoc}*/<a name="line.129"></a>
 <span class="sourceLineNo">130</span>    @Override<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    public String invoke( final WikiContext context ) {<a name="line.131"></a>
+<span class="sourceLineNo">131</span>    public String invoke( final Context context ) {<a name="line.131"></a>
 <span class="sourceLineNo">132</span>        String result;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        final Boolean wysiwygVariable = ( Boolean )context.getVariable( WikiContext.VAR_WYSIWYG_EDITOR_MODE );<a name="line.133"></a>
+<span class="sourceLineNo">133</span>        final Boolean wysiwygVariable = context.getVariable( Context.VAR_WYSIWYG_EDITOR_MODE );<a name="line.133"></a>
 <span class="sourceLineNo">134</span>        boolean wysiwygEditorMode = false;<a name="line.134"></a>
 <span class="sourceLineNo">135</span>        if( wysiwygVariable != null ) {<a name="line.135"></a>
 <span class="sourceLineNo">136</span>            wysiwygEditorMode = wysiwygVariable;<a name="line.136"></a>
@@ -158,7 +158,7 @@
 <span class="sourceLineNo">150</span>                final String cmdLine = m_params.get( CMDLINE ).replaceAll( LINEBREAK, ELEMENT_BR );<a name="line.150"></a>
 <span class="sourceLineNo">151</span>                result = result + cmdLine + PLUGIN_END;<a name="line.151"></a>
 <span class="sourceLineNo">152</span>            } else {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>                final Boolean b = ( Boolean )context.getVariable( WikiContext.VAR_EXECUTE_PLUGINS );<a name="line.153"></a>
+<span class="sourceLineNo">153</span>                final Boolean b = context.getVariable( Context.VAR_EXECUTE_PLUGINS );<a name="line.153"></a>
 <span class="sourceLineNo">154</span>                if (b != null &amp;&amp; !b ) {<a name="line.154"></a>
 <span class="sourceLineNo">155</span>                    return BLANK;<a name="line.155"></a>
 <span class="sourceLineNo">156</span>                }<a name="line.156"></a>
@@ -180,7 +180,7 @@
 <span class="sourceLineNo">172</span>                result = "";<a name="line.172"></a>
 <span class="sourceLineNo">173</span>            } else {<a name="line.173"></a>
 <span class="sourceLineNo">174</span>                // log.info("Failed to execute plugin",e);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>                final ResourceBundle rb = Preferences.getBundle( context, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.175"></a>
+<span class="sourceLineNo">175</span>                final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE );<a name="line.175"></a>
 <span class="sourceLineNo">176</span>                result = MarkupParser.makeError( MessageFormat.format( rb.getString( "plugin.error.insertionfailed" ), <a name="line.176"></a>
 <span class="sourceLineNo">177</span>                                                                       context.getRealPage().getWiki(), <a name="line.177"></a>
 <span class="sourceLineNo">178</span>                                                                       context.getRealPage().getName(), <a name="line.178"></a>
@@ -193,12 +193,12 @@
 <span class="sourceLineNo">185</span><a name="line.185"></a>
 <span class="sourceLineNo">186</span>    /**{@inheritDoc}*/<a name="line.186"></a>
 <span class="sourceLineNo">187</span>    @Override<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    public void executeParse( final WikiContext context ) throws PluginException {<a name="line.188"></a>
+<span class="sourceLineNo">188</span>    public void executeParse( final Context context ) throws PluginException {<a name="line.188"></a>
 <span class="sourceLineNo">189</span>        final PluginManager pm = context.getEngine().getManager( PluginManager.class );<a name="line.189"></a>
 <span class="sourceLineNo">190</span>        if( pm.pluginsEnabled() ) {<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            final ResourceBundle rb = Preferences.getBundle(context, WikiPlugin.CORE_PLUGINS_RESOURCEBUNDLE);<a name="line.191"></a>
+<span class="sourceLineNo">191</span>            final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE);<a name="line.191"></a>
 <span class="sourceLineNo">192</span>            final Map&lt; String, String &gt; params = getParameters();<a name="line.192"></a>
-<span class="sourceLineNo">193</span>            final WikiPlugin plugin = pm.newWikiPlugin( getPluginName(), rb );<a name="line.193"></a>
+<span class="sourceLineNo">193</span>            final Plugin plugin = pm.newWikiPlugin( getPluginName(), rb );<a name="line.193"></a>
 <span class="sourceLineNo">194</span>            try {<a name="line.194"></a>
 <span class="sourceLineNo">195</span>                if( plugin instanceof ParserStagePlugin ) {<a name="line.195"></a>
 <span class="sourceLineNo">196</span>                    ( ( ParserStagePlugin )plugin ).executeParser(this, context, params );<a name="line.196"></a>
@@ -219,7 +219,7 @@
 <span class="sourceLineNo">211</span>     * @throws PluginException If plugin invocation is faulty<a name="line.211"></a>
 <span class="sourceLineNo">212</span>     * @since 2.10.0<a name="line.212"></a>
 <span class="sourceLineNo">213</span>     */<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    public static PluginContent parsePluginLine( final WikiContext context, final String commandline, final int pos ) throws PluginException {<a name="line.214"></a>
+<span class="sourceLineNo">214</span>    public static PluginContent parsePluginLine( final Context context, final String commandline, final int pos ) throws PluginException {<a name="line.214"></a>
 <span class="sourceLineNo">215</span>        final PatternMatcher matcher = new Perl5Matcher();<a name="line.215"></a>
 <span class="sourceLineNo">216</span><a name="line.216"></a>
 <span class="sourceLineNo">217</span>        try {<a name="line.217"></a>
