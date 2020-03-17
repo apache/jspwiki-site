@@ -7,10 +7,74 @@
             +initialize(WikiEngine, Properties): void
         }
 
+        abstract class WikiBackgroundThread [[WikiBackgroundThread.html]] {
+            +WikiBackgroundThread(Engine, int)
+            +actionPerformed(WikiEvent): void
+            +shutdown(): void
+            +run(): void
+            +shutdownTask(): void
+            +startupTask(): void
+            {abstract} +backgroundTask(): void
+        }
+
         interface Watchable [[Watchable.html]] {
             {abstract} +timeoutExceeded(String): void
             {abstract} +getName(): String
             {abstract} +isAlive(): boolean
+        }
+
+        class WikiPage [[WikiPage.html]] {
+            +WikiPage(Engine, String)
+            +getName(): String
+            +getAttribute(String): T
+            +setAttribute(String, Object): void
+            +getAttributes(): Map<String, Object>
+            +removeAttribute(String): T
+            +getLastModified(): Date
+            +setLastModified(Date): void
+            +setVersion(int): void
+            +getVersion(): int
+            +getSize(): long
+            +setSize(long): void
+            +getAcl(): Acl
+            +setAcl(Acl): void
+            +setAuthor(String): void
+            +getAuthor(): String
+            +getWiki(): String
+            +invalidateMetadata(): void
+            +hasMetadata(): boolean
+            +setHasMetadata(): void
+            +compareTo(Page): int
+        }
+
+        class WikiServlet [[WikiServlet.html]] {
+            +init(ServletConfig): void
+            +destroy(): void
+            +doPost(HttpServletRequest, HttpServletResponse): void
+            +doGet(HttpServletRequest, HttpServletResponse): void
+        }
+
+        interface StringTransmutator [[StringTransmutator.html]] {
+            {abstract} +mutate(Context, String): String
+        }
+
+        class LinkCollector [[LinkCollector.html]] {
+            +getLinks(): List<String>
+            +mutate(Context, String): String
+        }
+
+        class WatchDog [[WatchDog.html]] {
+            +WatchDog(Engine, Watchable)
+            +WatchDog(Engine, Thread)
+            {static} +getCurrentWatchDog(Engine): WatchDog
+            +enable(): void
+            +disable(): void
+            +enterState(String): void
+            +enterState(String, int): void
+            +exitState(): void
+            +exitState(String): void
+            +isStateStackNotEmpty(): boolean
+            +isWatchableAlive(): boolean
         }
 
         class TranslationsCheck [[TranslationsCheck.html]] {
@@ -81,68 +145,40 @@
             #updateCommand(String): void
         }
 
-        class WikiPage [[WikiPage.html]] {
-            +WikiPage(Engine, String)
-            +getName(): String
-            +getAttribute(String): T
-            +setAttribute(String, Object): void
-            +getAttributes(): Map<String, Object>
-            +removeAttribute(String): T
-            +getLastModified(): Date
-            +setLastModified(Date): void
-            +setVersion(int): void
-            +getVersion(): int
-            +getSize(): long
-            +setSize(long): void
-            +getAcl(): Acl
-            +setAcl(Acl): void
-            +setAuthor(String): void
-            +getAuthor(): String
-            +getWiki(): String
-            +invalidateMetadata(): void
-            +hasMetadata(): boolean
-            +setHasMetadata(): void
-            +compareTo(Page): int
-        }
-
-        abstract class WikiBackgroundThread [[WikiBackgroundThread.html]] {
-            +WikiBackgroundThread(Engine, int)
+        class WikiSession [[WikiSession.html]] {
+            #isInGroup(Group): boolean
+            +isAsserted(): boolean
+            +isAuthenticated(): boolean
+            +isAnonymous(): boolean
+            +getLoginPrincipal(): Principal
+            +getUserPrincipal(): Principal
+            +getLocale(): Locale
+            +addMessage(String): void
+            +addMessage(String, String): void
+            +clearMessages(): void
+            +clearMessages(String): void
+            +getMessages(): String[]
+            +getMessages(String): String[]
+            +getPrincipals(): Principal[]
+            +getRoles(): Principal[]
+            +hasPrincipal(Principal): boolean
             +actionPerformed(WikiEvent): void
-            +shutdown(): void
-            +run(): void
-            +shutdownTask(): void
-            +startupTask(): void
-            {abstract} +backgroundTask(): void
+            +invalidate(): void
+            #injectGroupPrincipals(): void
+            #injectUserProfilePrincipals(): void
+            +getStatus(): String
+            +getSubject(): Subject
+            {static} +removeWikiSession(Engine, HttpServletRequest): void
+            {static} +getWikiSession(Engine, HttpServletRequest): Session
+            {static} +guestSession(Engine): Session
+            {static} +sessions(Engine): int
+            {static} +userPrincipals(Engine): Principal[]
         }
 
-        class WatchDog [[WatchDog.html]] {
-            +WatchDog(Engine, Watchable)
-            +WatchDog(Engine, Thread)
-            {static} +getCurrentWatchDog(Engine): WatchDog
-            +enable(): void
-            +disable(): void
-            +enterState(String): void
-            +enterState(String, int): void
-            +exitState(): void
-            +exitState(String): void
-            +isStateStackNotEmpty(): boolean
-            +isWatchableAlive(): boolean
-        }
-
-        class WikiServlet [[WikiServlet.html]] {
-            +init(ServletConfig): void
-            +destroy(): void
-            +doPost(HttpServletRequest, HttpServletResponse): void
-            +doGet(HttpServletRequest, HttpServletResponse): void
-        }
-
-        class LinkCollector [[LinkCollector.html]] {
-            +getLinks(): List<String>
-            +mutate(Context, String): String
-        }
-
-        interface StringTransmutator [[StringTransmutator.html]] {
-            {abstract} +mutate(Context, String): String
+        class InternalWikiException [[InternalWikiException.html]] {
+            +InternalWikiException(String)
+            +InternalWikiException(String, Throwable)
+            +InternalWikiException(Throwable)
         }
 
         class WikiEngine [[WikiEngine.html]] {
@@ -210,47 +246,46 @@
             +removeAttribute(String): T
         }
 
-        class WikiSession [[WikiSession.html]] {
-            #isInGroup(Group): boolean
-            +isAsserted(): boolean
-            +isAuthenticated(): boolean
-            +isAnonymous(): boolean
-            +getLoginPrincipal(): Principal
-            +getUserPrincipal(): Principal
-            +getLocale(): Locale
-            +addMessage(String): void
-            +addMessage(String, String): void
-            +clearMessages(): void
-            +clearMessages(String): void
-            +getMessages(): String[]
-            +getMessages(String): String[]
-            +getPrincipals(): Principal[]
-            +getRoles(): Principal[]
-            +hasPrincipal(Principal): boolean
-            +actionPerformed(WikiEvent): void
-            +invalidate(): void
-            #injectGroupPrincipals(): void
-            #injectUserProfilePrincipals(): void
-            +getStatus(): String
-            +getSubject(): Subject
-            {static} +removeWikiSession(Engine, HttpServletRequest): void
-            {static} +getWikiSession(Engine, HttpServletRequest): Session
-            {static} +guestSession(Engine): Session
-            {static} +sessions(Engine): int
-            {static} +userPrincipals(Engine): Principal[]
-        }
-
-        class InternalWikiException [[InternalWikiException.html]] {
-            +InternalWikiException(String)
-            +InternalWikiException(String, Throwable)
-            +InternalWikiException(Throwable)
-        }
-
         interface org.apache.wiki.api.providers.WikiProvider {
             {abstract} +initialize(Engine, Properties): void
             {abstract} +getProviderInfo(): String
         }
         org.apache.wiki.api.providers.WikiProvider <|.. WikiProvider
+
+        class java.lang.Thread
+        java.lang.Thread <|-- WikiBackgroundThread
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. WikiBackgroundThread
+
+        interface org.apache.wiki.api.core.Page {
+            {abstract} +getName(): String
+            {abstract} +getLastModified(): Date
+            {abstract} +setLastModified(Date): void
+            {abstract} +setVersion(int): void
+            {abstract} +getVersion(): int
+            {abstract} +getSize(): long
+            {abstract} +setSize(long): void
+            {abstract} +setAuthor(String): void
+            {abstract} +getAuthor(): String
+            {abstract} +getWiki(): String
+            {abstract} +invalidateMetadata(): void
+            {abstract} +hasMetadata(): boolean
+            {abstract} +setHasMetadata(): void
+            {abstract} +getAttribute(String): T
+            {abstract} +setAttribute(String, Object): void
+            {abstract} +removeAttribute(String): T
+            {abstract} +getAttributes(): Map<String, Object>
+            {abstract} +clone(): Page
+        }
+        org.apache.wiki.api.core.Page <|.. WikiPage
+
+        abstract class javax.servlet.http.HttpServlet
+        javax.servlet.http.HttpServlet <|-- WikiServlet
+
+        StringTransmutator <|.. LinkCollector
 
         interface org.apache.wiki.api.core.Context {
             {abstract} +getPage(): Page
@@ -288,40 +323,30 @@
         }
         org.apache.wiki.api.core.Command <|.. WikiContext
 
-        interface org.apache.wiki.api.core.Page {
-            {abstract} +getName(): String
-            {abstract} +getLastModified(): Date
-            {abstract} +setLastModified(Date): void
-            {abstract} +setVersion(int): void
-            {abstract} +getVersion(): int
-            {abstract} +getSize(): long
-            {abstract} +setSize(long): void
-            {abstract} +setAuthor(String): void
-            {abstract} +getAuthor(): String
-            {abstract} +getWiki(): String
-            {abstract} +invalidateMetadata(): void
-            {abstract} +hasMetadata(): boolean
-            {abstract} +setHasMetadata(): void
-            {abstract} +getAttribute(String): T
-            {abstract} +setAttribute(String, Object): void
-            {abstract} +removeAttribute(String): T
-            {abstract} +getAttributes(): Map<String, Object>
-            {abstract} +clone(): Page
+        interface org.apache.wiki.api.core.Session {
+            {abstract} +isAsserted(): boolean
+            {abstract} +isAuthenticated(): boolean
+            {abstract} +isAnonymous(): boolean
+            {abstract} +getLoginPrincipal(): Principal
+            {abstract} +getUserPrincipal(): Principal
+            {abstract} +getLocale(): Locale
+            {abstract} +addMessage(String): void
+            {abstract} +addMessage(String, String): void
+            {abstract} +clearMessages(): void
+            {abstract} +clearMessages(String): void
+            {abstract} +getMessages(): String[]
+            {abstract} +getMessages(String): String[]
+            {abstract} +getPrincipals(): Principal[]
+            {abstract} +getRoles(): Principal[]
+            {abstract} +hasPrincipal(Principal): boolean
+            {abstract} +invalidate(): void
+            {abstract} +getStatus(): String
+            {abstract} +getSubject(): Subject
         }
-        org.apache.wiki.api.core.Page <|.. WikiPage
+        org.apache.wiki.api.core.Session <|.. WikiSession
 
-        class java.lang.Thread
-        java.lang.Thread <|-- WikiBackgroundThread
-
-        interface org.apache.wiki.event.WikiEventListener {
-            {abstract} +actionPerformed(WikiEvent): void
-        }
-        org.apache.wiki.event.WikiEventListener <|.. WikiBackgroundThread
-
-        abstract class javax.servlet.http.HttpServlet
-        javax.servlet.http.HttpServlet <|-- WikiServlet
-
-        StringTransmutator <|.. LinkCollector
+        class java.lang.RuntimeException
+        java.lang.RuntimeException <|-- InternalWikiException
 
         interface org.apache.wiki.api.core.Engine {
             {abstract} +getManager(Class<T>): T
@@ -355,30 +380,7 @@
         }
         org.apache.wiki.api.core.Engine <|.. WikiEngine
 
-        interface org.apache.wiki.api.core.Session {
-            {abstract} +isAsserted(): boolean
-            {abstract} +isAuthenticated(): boolean
-            {abstract} +isAnonymous(): boolean
-            {abstract} +getLoginPrincipal(): Principal
-            {abstract} +getUserPrincipal(): Principal
-            {abstract} +getLocale(): Locale
-            {abstract} +addMessage(String): void
-            {abstract} +addMessage(String, String): void
-            {abstract} +clearMessages(): void
-            {abstract} +clearMessages(String): void
-            {abstract} +getMessages(): String[]
-            {abstract} +getMessages(String): String[]
-            {abstract} +getPrincipals(): Principal[]
-            {abstract} +getRoles(): Principal[]
-            {abstract} +hasPrincipal(Principal): boolean
-            {abstract} +invalidate(): void
-            {abstract} +getStatus(): String
-            {abstract} +getSubject(): Subject
-        }
-        org.apache.wiki.api.core.Session <|.. WikiSession
-
-        class java.lang.RuntimeException
-        java.lang.RuntimeException <|-- InternalWikiException
+        WikiBackgroundThread --> org.apache.wiki.api.core.Engine: engine
 
         WikiContext --> org.apache.wiki.api.core.Page: realPage\npage
 
@@ -389,8 +391,6 @@
         WikiContext --> org.apache.wiki.api.core.Command: command
 
         WikiContext --> WikiSession: wikiSession
-
-        WikiBackgroundThread --> org.apache.wiki.api.core.Engine: engine
 
     }
 
