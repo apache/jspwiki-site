@@ -27,238 +27,261 @@
 <span class="sourceLineNo">019</span>package org.apache.wiki.api.core;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
 <span class="sourceLineNo">021</span>import javax.servlet.http.HttpServletRequest;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import java.security.Principal;<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">022</span>import javax.servlet.jsp.PageContext;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.security.Principal;<a name="line.23"></a>
 <span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
-<span class="sourceLineNo">026</span> *  &lt;p&gt;Provides state information throughout the processing of a page.  A Context is born when the JSP pages that are the main entry<a name="line.26"></a>
-<span class="sourceLineNo">027</span> *  points, are invoked.  The JSPWiki engine creates the new Context, which basically holds information about the page, the<a name="line.27"></a>
-<span class="sourceLineNo">028</span> *  handling engine, and in which context (view, edit, etc) the call was done.&lt;/p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> *  &lt;p&gt;A Context also provides request-specific variables, which can be used to communicate between plugins on the same page, or<a name="line.29"></a>
-<span class="sourceLineNo">030</span> *  between different instances of the same plugin. A Context variable is valid until the processing of the WikiPage has ended. For<a name="line.30"></a>
-<span class="sourceLineNo">031</span> *  an example, please see the Counter plugin.&lt;/p&gt;<a name="line.31"></a>
-<span class="sourceLineNo">032</span> *  &lt;p&gt;When a Context is created, it automatically associates a {@link Session} object with the user's<a name="line.32"></a>
-<span class="sourceLineNo">033</span> *  HttpSession. The Session contains information about the user's authentication status, and is consulted by {@link #getCurrentUser()}<a name="line.33"></a>
-<span class="sourceLineNo">034</span> *  object.&lt;/p&gt;<a name="line.34"></a>
-<span class="sourceLineNo">035</span> *  &lt;p&gt;Do not cache the WikiPage object that you get from the WikiContext; always use getPage()!&lt;/p&gt;<a name="line.35"></a>
-<span class="sourceLineNo">036</span> *<a name="line.36"></a>
-<span class="sourceLineNo">037</span> *  @see org.apache.wiki.plugin.Counter<a name="line.37"></a>
-<span class="sourceLineNo">038</span> */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>public interface Context extends Cloneable, Command {<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    String ATTR_CONTEXT = "jspwiki.context";<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    /**<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     *  Variable name which tells whether plugins should be executed or not. Value can be either {@code Boolean.TRUE} or<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     *  {@code Boolean.FALSE}. While not set it's value is {@code null}.<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     */<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    String VAR_EXECUTE_PLUGINS = "_PluginContent.execute";<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>    /** Name of the variable which is set to Boolean.TRUE or Boolean.FALSE depending on whether WYSIWYG is currently in effect. */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    String VAR_WYSIWYG_EDITOR_MODE = "WYSIWYG_EDITOR_MODE";<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     *  Returns the WikiPage that is being handled.<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     *<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     *  @return the WikiPage which was fetched.<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     */<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    Page getPage();<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    /**<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     *  Sets the WikiPage that is being handled.<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     *<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     *  @param wikiPage The wikipage<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     *  @since 2.1.37.<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    void setPage( Page wikiPage );<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     *  Gets a reference to the real WikiPage whose content is currently being rendered. If your plugin e.g. does some variable setting, be<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     *  aware that if it is embedded in the LeftMenu or some other WikiPage added with InsertPageTag, you should consider what you want to<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     *  do - do you wish to really reference the "master" WikiPage or the included page.<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     *  &lt;p&gt;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     *  For example, in the default template, there is a WikiPage called "LeftMenu". Whenever you access a page, e.g. "Main", the master<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     *  WikiPage will be Main, and that's what the getPage() will return - regardless of whether your plugin resides on the LeftMenu or on<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     *  the Main page.  However, getRealPage() will return "LeftMenu".<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     *  @return A reference to the real page.<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     *  @see org.apache.wiki.tags.InsertPageTag<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     *  @see org.apache.wiki.parser.JSPWikiMarkupParser<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    Page getRealPage();<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     *  Sets a reference to the real WikiPage whose content is currently being rendered.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     *  &lt;p&gt;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     *  Sometimes you may want to render the WikiPage using some other page's context. In those cases, it is highly recommended that you set<a name="line.85"></a>
-<span class="sourceLineNo">086</span>     *  the setRealPage() to point at the real WikiPage you are rendering.  Please see InsertPageTag for an example.<a name="line.86"></a>
-<span class="sourceLineNo">087</span>     *  &lt;p&gt;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     *  Also, if your plugin e.g. does some variable setting, be aware that if it is embedded in the LeftMenu or some other WikiPage added<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     *  with InsertPageTag, you should consider what you want to do - do you wish to really reference the "master" WikiPage or the included<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     *  page.<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     *  @param wikiPage  The real WikiPage which is being rendered.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     *  @return The previous real page<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     *  @since 2.3.14<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     *  @see org.apache.wiki.tags.InsertPageTag<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     */<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    Page setRealPage( Page wikiPagePage );<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>    /**<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *  Returns the handling engine.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     *  @return The wikiengine owning this context.<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     */<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    Engine getEngine();<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>    /**<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     *  Sets the request context.  See above for the different request contexts (VIEW, EDIT, etc.)<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     *<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     *  @param context The request context (one of the predefined contexts.)<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     */<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    void setRequestContext( String context );<a name="line.111"></a>
-<span class="sourceLineNo">112</span><a name="line.112"></a>
-<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     *  Gets a previously set variable.<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     *<a name="line.115"></a>
-<span class="sourceLineNo">116</span>     *  @param key The variable name.<a name="line.116"></a>
-<span class="sourceLineNo">117</span>     *  @return The variable contents.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     */<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    &lt; T &gt; T getVariable( String key );<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>    /**<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     *  Sets a variable.  The variable is valid while the WikiContext is valid, i.e. while WikiPage processing continues.  The variable data<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     *  is discarded once the WikiPage processing is finished.<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     *<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     *  @param key The variable name.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     *  @param data The variable value.<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     */<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    void setVariable( String key, Object data );<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>    /**<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     * This is just a simple helper method which will first check the context if there is already an override in place, and if there is not,<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * it will then check the given properties.<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * @param key What key are we searching for?<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * @param defValue Default value for the boolean<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     * @return {@code true} or {@code false}.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    boolean getBooleanWikiProperty( String key, boolean defValue );<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     *  This method will safely return any HTTP parameters that might have been defined.  You should use this method instead<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *  of peeking directly into the result of getHttpRequest(), since this method is smart enough to do all of the right things,<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     *  figure out UTF-8 encoded parameters, etc.<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     *<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     *  @since 2.0.13.<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     *  @param paramName Parameter name to look for.<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     *  @return HTTP parameter, or null, if no such parameter existed.<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    String getHttpParameter( String paramName );<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     *  If the request did originate from a HTTP request, then the HTTP request can be fetched here.  However, it the request<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     *  did NOT originate from a HTTP request, then this method will return null, and YOU SHOULD CHECK FOR IT!<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     *<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     *  @return Null, if no HTTP request was done.<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     *  @since 2.0.13.<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     */<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    HttpServletRequest getHttpRequest();<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     *  Sets the template to be used for this request.<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     *<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     *  @param dir The template name<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     *  @since 2.1.15.<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    void setTemplate( String dir );<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>    /**<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     *  Gets the template that is to be used throughout this request.<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     *<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     *  @since 2.1.15.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     *  @return template name<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     */<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    String getTemplate();<a name="line.174"></a>
-<span class="sourceLineNo">175</span><a name="line.175"></a>
-<span class="sourceLineNo">176</span>    /**<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     *  Returns the Session associated with the context. This method is guaranteed to always return a valid Session.<a name="line.177"></a>
-<span class="sourceLineNo">178</span>     *  If this context was constructed without an associated HttpServletRequest, it will return a guest session.<a name="line.178"></a>
-<span class="sourceLineNo">179</span>     *<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     *  @return The Session associate with this context.<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     */<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    Session getWikiSession();<a name="line.182"></a>
-<span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>    /**<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     *  Convenience method that gets the current user. Delegates the lookup to the Session associated with this Context.<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *  May return null, in case the current user has not yet been determined; or this is an internal system. If the Session has not<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     *  been set, &lt;em&gt;always&lt;/em&gt; returns null.<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     *<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     *  @return The current user; or maybe null in case of internal calls.<a name="line.189"></a>
-<span class="sourceLineNo">190</span>     */<a name="line.190"></a>
-<span class="sourceLineNo">191</span>    Principal getCurrentUser();<a name="line.191"></a>
-<span class="sourceLineNo">192</span><a name="line.192"></a>
-<span class="sourceLineNo">193</span>    /**<a name="line.193"></a>
-<span class="sourceLineNo">194</span>     *  Returns true, if the current user has administrative permissions (i.e. the omnipotent AllPermission).<a name="line.194"></a>
-<span class="sourceLineNo">195</span>     *<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     *  @since 2.4.46<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     *  @return true, if the user has all permissions.<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     */<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    boolean hasAdminPermissions();<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
-<span class="sourceLineNo">202</span>     *  A shortcut to generate a VIEW url.<a name="line.202"></a>
-<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
-<span class="sourceLineNo">204</span>     *  @param WikiPage The WikiPage to which to link.<a name="line.204"></a>
-<span class="sourceLineNo">205</span>     *  @return An URL to the page.  This honours the current absolute/relative setting.<a name="line.205"></a>
-<span class="sourceLineNo">206</span>     */<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    String getViewURL( String WikiPage );<a name="line.207"></a>
-<span class="sourceLineNo">208</span><a name="line.208"></a>
-<span class="sourceLineNo">209</span>    /**<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     *  Figure out to which WikiPage we are really going to.  Considers special WikiPage names from the jspwiki.properties, and possible aliases.<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     *<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     *  @return A complete URL to the new WikiPage to redirect to<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *  @since 2.2<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     */<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    String getRedirectURL();<a name="line.215"></a>
-<span class="sourceLineNo">216</span><a name="line.216"></a>
-<span class="sourceLineNo">217</span>    /**<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     * Returns the Command associated with this Context.<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     *<a name="line.219"></a>
-<span class="sourceLineNo">220</span>     * @return the command<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     */<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    Command getCommand();<a name="line.222"></a>
-<span class="sourceLineNo">223</span><a name="line.223"></a>
-<span class="sourceLineNo">224</span>    /**<a name="line.224"></a>
-<span class="sourceLineNo">225</span>     *  Creates an URL for the given request context.<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     *<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     *  @param context e.g. WikiContext.EDIT<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *  @param page The WikiPage to which to link<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     *  @return An URL to the page.<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     */<a name="line.230"></a>
-<span class="sourceLineNo">231</span>    default String getURL( final String context, final String page ) {<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        return getURL( context, page, null );<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
-<span class="sourceLineNo">234</span><a name="line.234"></a>
-<span class="sourceLineNo">235</span>    /**<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     *  Returns an URL from a page. It this Context instance was constructed with an actual HttpServletRequest, we will attempt to<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     *  construct the URL using HttpUtil, which preserves the HTTPS portion if it was used.<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     *<a name="line.238"></a>
-<span class="sourceLineNo">239</span>     *  @param context The request context (e.g. WikiContext.UPLOAD)<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     *  @param page The WikiPage to which to link<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     *  @param params A list of parameters, separated with "&amp;amp;"<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     *<a name="line.242"></a>
-<span class="sourceLineNo">243</span>     *  @return An URL to the given context and page.<a name="line.243"></a>
-<span class="sourceLineNo">244</span>     */<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    default String getURL( final String context, final String page, final String params ) {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        // FIXME: is rather slow<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        return getEngine().getURL( context, page, params );<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>    /** {@inheritDoc} */<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    Context clone();<a name="line.251"></a>
-<span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>}<a name="line.253"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *  &lt;p&gt;Provides state information throughout the processing of a page.  A Context is born when the JSP pages that are the main entry<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *  points, are invoked.  The JSPWiki engine creates the new Context, which basically holds information about the page, the<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *  handling engine, and in which context (view, edit, etc) the call was done.&lt;/p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *  &lt;p&gt;A Context also provides request-specific variables, which can be used to communicate between plugins on the same page, or<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *  between different instances of the same plugin. A Context variable is valid until the processing of the WikiPage has ended. For<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *  an example, please see the Counter plugin.&lt;/p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *  &lt;p&gt;When a Context is created, it automatically associates a {@link Session} object with the user's<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *  HttpSession. The Session contains information about the user's authentication status, and is consulted by {@link #getCurrentUser()}<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *  object.&lt;/p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *  &lt;p&gt;Do not cache the WikiPage object that you get from the WikiContext; always use getPage()!&lt;/p&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *  @see org.apache.wiki.plugin.Counter<a name="line.38"></a>
+<span class="sourceLineNo">039</span> */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>public interface Context extends Cloneable, Command {<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    String ATTR_CONTEXT = "jspwiki.context";<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    /**<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     *  Variable name which tells whether plugins should be executed or not. Value can be either {@code Boolean.TRUE} or<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     *  {@code Boolean.FALSE}. While not set it's value is {@code null}.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    String VAR_EXECUTE_PLUGINS = "_PluginContent.execute";<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /** Name of the variable which is set to Boolean.TRUE or Boolean.FALSE depending on whether WYSIWYG is currently in effect. */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    String VAR_WYSIWYG_EDITOR_MODE = "WYSIWYG_EDITOR_MODE";<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     *  Returns the WikiPage that is being handled.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     *  @return the WikiPage which was fetched.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    Page getPage();<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     *  Sets the WikiPage that is being handled.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *  @param wikiPage The wikipage<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     *  @since 2.1.37.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    void setPage( Page wikiPage );<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     *  Gets a reference to the real WikiPage whose content is currently being rendered. If your plugin e.g. does some variable setting, be<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     *  aware that if it is embedded in the LeftMenu or some other WikiPage added with InsertPageTag, you should consider what you want to<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     *  do - do you wish to really reference the "master" WikiPage or the included page.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *  &lt;p&gt;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     *  For example, in the default template, there is a WikiPage called "LeftMenu". Whenever you access a page, e.g. "Main", the master<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     *  WikiPage will be Main, and that's what the getPage() will return - regardless of whether your plugin resides on the LeftMenu or on<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *  the Main page.  However, getRealPage() will return "LeftMenu".<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     *<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *  @return A reference to the real page.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     *  @see org.apache.wiki.tags.InsertPageTag<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     *  @see org.apache.wiki.parser.JSPWikiMarkupParser<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    Page getRealPage();<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     *  Sets a reference to the real WikiPage whose content is currently being rendered.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     *  &lt;p&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     *  Sometimes you may want to render the WikiPage using some other page's context. In those cases, it is highly recommended that you set<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     *  the setRealPage() to point at the real WikiPage you are rendering.  Please see InsertPageTag for an example.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     *  &lt;p&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     *  Also, if your plugin e.g. does some variable setting, be aware that if it is embedded in the LeftMenu or some other WikiPage added<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *  with InsertPageTag, you should consider what you want to do - do you wish to really reference the "master" WikiPage or the included<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *  page.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     *  @param wikiPage  The real WikiPage which is being rendered.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     *  @return The previous real page<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     *  @since 2.3.14<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     *  @see org.apache.wiki.tags.InsertPageTag<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    Page setRealPage( Page wikiPagePage );<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>    /**<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *  Returns the handling engine.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     *<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     *  @return The wikiengine owning this context.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    Engine getEngine();<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     *  Sets the request context.  See above for the different request contexts (VIEW, EDIT, etc.)<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     *<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     *  @param context The request context (one of the predefined contexts.)<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    void setRequestContext( String context );<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     *  Gets a previously set variable.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     *  @param key The variable name.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     *  @return The variable contents.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    &lt; T &gt; T getVariable( String key );<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>    /**<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     *  Sets a variable.  The variable is valid while the WikiContext is valid, i.e. while WikiPage processing continues.  The variable data<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     *  is discarded once the WikiPage processing is finished.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     *<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     *  @param key The variable name.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *  @param data The variable value.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    void setVariable( String key, Object data );<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>    /**<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * This is just a simple helper method which will first check the context if there is already an override in place, and if there is not,<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     * it will then check the given properties.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     *<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @param key What key are we searching for?<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     * @param defValue Default value for the boolean<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     * @return {@code true} or {@code false}.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     */<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    boolean getBooleanWikiProperty( String key, boolean defValue );<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *  This method will safely return any HTTP parameters that might have been defined.  You should use this method instead<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *  of peeking directly into the result of getHttpRequest(), since this method is smart enough to do all of the right things,<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *  figure out UTF-8 encoded parameters, etc.<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     *<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     *  @since 2.0.13.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     *  @param paramName Parameter name to look for.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     *  @return HTTP parameter, or null, if no such parameter existed.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>     */<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    String getHttpParameter( String paramName );<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>    /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     *  If the request did originate from a HTTP request, then the HTTP request can be fetched here.  However, it the request<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     *  did NOT originate from a HTTP request, then this method will return null, and YOU SHOULD CHECK FOR IT!<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     *<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *  @return Null, if no HTTP request was done.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     *  @since 2.0.13.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    HttpServletRequest getHttpRequest();<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    /**<a name="line.161"></a>
+<span class="sourceLineNo">162</span>     *  Sets the template to be used for this request.<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     *<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     *  @param dir The template name<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     *  @since 2.1.15.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     */<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    void setTemplate( String dir );<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    /**<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     *  Gets the template that is to be used throughout this request.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>     *<a name="line.171"></a>
+<span class="sourceLineNo">172</span>     *  @since 2.1.15.<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     *  @return template name<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    String getTemplate();<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    /**<a name="line.177"></a>
+<span class="sourceLineNo">178</span>     *  Returns the Session associated with the context. This method is guaranteed to always return a valid Session.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>     *  If this context was constructed without an associated HttpServletRequest, it will return a guest session.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>     *<a name="line.180"></a>
+<span class="sourceLineNo">181</span>     *  @return The Session associate with this context.<a name="line.181"></a>
+<span class="sourceLineNo">182</span>     */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    Session getWikiSession();<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     *  Convenience method that gets the current user. Delegates the lookup to the Session associated with this Context.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     *  May return null, in case the current user has not yet been determined; or this is an internal system. If the Session has not<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     *  been set, &lt;em&gt;always&lt;/em&gt; returns null.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     *<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     *  @return The current user; or maybe null in case of internal calls.<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     */<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    Principal getCurrentUser();<a name="line.192"></a>
+<span class="sourceLineNo">193</span><a name="line.193"></a>
+<span class="sourceLineNo">194</span>    /**<a name="line.194"></a>
+<span class="sourceLineNo">195</span>     *  Returns true, if the current user has administrative permissions (i.e. the omnipotent AllPermission).<a name="line.195"></a>
+<span class="sourceLineNo">196</span>     *<a name="line.196"></a>
+<span class="sourceLineNo">197</span>     *  @since 2.4.46<a name="line.197"></a>
+<span class="sourceLineNo">198</span>     *  @return true, if the user has all permissions.<a name="line.198"></a>
+<span class="sourceLineNo">199</span>     */<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    boolean hasAdminPermissions();<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>    /**<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *  A shortcut to generate a VIEW url.<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     *<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     *  @param WikiPage The WikiPage to which to link.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     *  @return An URL to the page.  This honours the current absolute/relative setting.<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     */<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    String getViewURL( String WikiPage );<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>    /**<a name="line.210"></a>
+<span class="sourceLineNo">211</span>     *  Figure out to which WikiPage we are really going to.  Considers special WikiPage names from the jspwiki.properties, and possible aliases.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>     *<a name="line.212"></a>
+<span class="sourceLineNo">213</span>     *  @return A complete URL to the new WikiPage to redirect to<a name="line.213"></a>
+<span class="sourceLineNo">214</span>     *  @since 2.2<a name="line.214"></a>
+<span class="sourceLineNo">215</span>     */<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    String getRedirectURL();<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>    /**<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     * Returns the Command associated with this Context.<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     *<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     * @return the command<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     */<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    Command getCommand();<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>    /**<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     *  Creates an URL for the given request context.<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     *<a name="line.227"></a>
+<span class="sourceLineNo">228</span>     *  @param context e.g. WikiContext.EDIT<a name="line.228"></a>
+<span class="sourceLineNo">229</span>     *  @param page The WikiPage to which to link<a name="line.229"></a>
+<span class="sourceLineNo">230</span>     *  @return An URL to the page.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>     */<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    default String getURL( final String context, final String page ) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        return getURL( context, page, null );<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>    /**<a name="line.236"></a>
+<span class="sourceLineNo">237</span>     *  Returns an URL from a page. It this Context instance was constructed with an actual HttpServletRequest, we will attempt to<a name="line.237"></a>
+<span class="sourceLineNo">238</span>     *  construct the URL using HttpUtil, which preserves the HTTPS portion if it was used.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>     *<a name="line.239"></a>
+<span class="sourceLineNo">240</span>     *  @param context The request context (e.g. WikiContext.UPLOAD)<a name="line.240"></a>
+<span class="sourceLineNo">241</span>     *  @param page The WikiPage to which to link<a name="line.241"></a>
+<span class="sourceLineNo">242</span>     *  @param params A list of parameters, separated with "&amp;amp;"<a name="line.242"></a>
+<span class="sourceLineNo">243</span>     *<a name="line.243"></a>
+<span class="sourceLineNo">244</span>     *  @return An URL to the given context and page.<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     */<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    default String getURL( final String context, final String page, final String params ) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        // FIXME: is rather slow<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        return getEngine().getURL( context, page, params );<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    }<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>    /** {@inheritDoc} */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    Context clone();<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>    /**<a name="line.254"></a>
+<span class="sourceLineNo">255</span>     *  Creates a deep clone of the Context. This is useful when you want to be sure that you don't accidentally mess with page<a name="line.255"></a>
+<span class="sourceLineNo">256</span>     *  attributes, etc.<a name="line.256"></a>
+<span class="sourceLineNo">257</span>     *<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     *  @since  2.8.0<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     *  @return A deep clone of the Context.<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     */<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    Context deepClone();<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>    /**<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     *  This method can be used to find the WikiContext programmatically from a JSP PageContext. We check the request context.<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     *  The wiki context, if it exists, is looked up using the key {@link #ATTR_CONTEXT}.<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     *<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     *  @since 2.4<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     *  @param pageContext the JSP page context<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     *  @return Current WikiContext, or null, of no context exists.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    static Context findContext( final PageContext pageContext ) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        final HttpServletRequest request = ( HttpServletRequest )pageContext.getRequest();<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        return ( Context )request.getAttribute( ATTR_CONTEXT );<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    }<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>}<a name="line.276"></a>
 
 
 

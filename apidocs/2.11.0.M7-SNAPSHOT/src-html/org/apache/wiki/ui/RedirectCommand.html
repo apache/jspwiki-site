@@ -27,72 +27,83 @@
 <span class="sourceLineNo">019</span>package org.apache.wiki.ui;<a name="line.19"></a>
 <span class="sourceLineNo">020</span><a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.apache.wiki.api.core.Command;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>import java.security.Permission;<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * &lt;p&gt;Defines Commands for redirections to off-site special pages. RedirectCommands do not have associated permissions; the<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * {@link #requiredPermission()} method will always return &lt;code&gt;null&lt;/code&gt;. When combined with a supplied String url,<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * the {@link #getTarget()} method will return a String, the {@link #getURLPattern()} method will return the supplied target URL,<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * and {@link #getJSP()} method will return the "cleansed" URL.&lt;/p&gt;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> *<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * @since 2.4.22<a name="line.31"></a>
-<span class="sourceLineNo">032</span> */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>public final class RedirectCommand extends AbstractCommand {<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>    public static final Command REDIRECT = new RedirectCommand( "", "%u%n", null, null );<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>    /**<a name="line.37"></a>
-<span class="sourceLineNo">038</span>     * Constructs a new Command with a specified wiki context, URL pattern, type, and content template. The WikiPage for this action is<a name="line.38"></a>
-<span class="sourceLineNo">039</span>     * initialized to &lt;code&gt;null&lt;/code&gt;.<a name="line.39"></a>
-<span class="sourceLineNo">040</span>     *<a name="line.40"></a>
-<span class="sourceLineNo">041</span>     * @param requestContext the request context<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * @param urlPattern the URL pattern<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     * @param contentTemplate the content template; may be &lt;code&gt;null&lt;/code&gt;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>     * @param target the target of the command<a name="line.44"></a>
-<span class="sourceLineNo">045</span>     * @throws IllegalArgumentException if the request content, URL pattern, or type is &lt;code&gt;null&lt;/code&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>     */<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    private RedirectCommand( final String requestContext, final String urlPattern, final String contentTemplate, final String target ) {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>        super( requestContext, urlPattern, contentTemplate, target );<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    <a name="line.50"></a>
-<span class="sourceLineNo">051</span>    /**<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * Creates and returns a targeted Command by combining a URL (as String) with this Command. The supplied &lt;code&gt;target&lt;/code&gt;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * object must be non-&lt;code&gt;null&lt;/code&gt; and of type String. The URL passed to the constructor is actually an URL pattern, but it<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * will be converted to a JSP page if it is a partial URL. If it is a full URL (beginning with &lt;code&gt;http://&lt;/code&gt; or<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * &lt;code&gt;https://&lt;/code&gt;), it will be "passed through" without conversion, and the URL pattern will be &lt;code&gt;null&lt;/code&gt;.<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * @param target the object to combine<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     * @throws IllegalArgumentException if the target is not of the correct type<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    public Command targetedCommand( final Object target ) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        if ( !( target instanceof String ) ) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>            throw new IllegalArgumentException( "Target must non-null and of type String." );<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        }<a name="line.63"></a>
-<span class="sourceLineNo">064</span>        return new RedirectCommand( getRequestContext(), ( String )target, getContentTemplate(), ( String )target );<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    }<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    <a name="line.66"></a>
-<span class="sourceLineNo">067</span>    /**<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @see org.apache.wiki.api.core.Command#getName()<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public String getName() {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        final Object target = getTarget();<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        if ( target == null ) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            return getJSPFriendlyName();<a name="line.73"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.ContextEnum;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.security.Permission;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;p&gt;Defines Commands for redirections to off-site special pages. RedirectCommands do not have associated permissions; the<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * {@link #requiredPermission()} method will always return &lt;code&gt;null&lt;/code&gt;. When combined with a supplied String url,<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * the {@link #getTarget()} method will return a String, the {@link #getURLPattern()} method will return the supplied target URL,<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * and {@link #getJSP()} method will return the "cleansed" URL.&lt;/p&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * @since 2.4.22<a name="line.32"></a>
+<span class="sourceLineNo">033</span> */<a name="line.33"></a>
+<span class="sourceLineNo">034</span>public final class RedirectCommand extends AbstractCommand {<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    public static final Command REDIRECT = new RedirectCommand( ContextEnum.REDIRECT, null );<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>    /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * Constructs a new Command with a specified wiki context, URL pattern, type, and content template. The WikiPage for this action is<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * initialized to &lt;code&gt;null&lt;/code&gt;.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     *<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     * @param currentContext the current context.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>     * @param target the target of the command<a name="line.43"></a>
+<span class="sourceLineNo">044</span>     * @throws IllegalArgumentException if the request content, URL pattern, or type is &lt;code&gt;null&lt;/code&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>     */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    private RedirectCommand( final ContextEnum currentContext, final String target ) {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        this( currentContext.getRequestContext(), currentContext.getUrlPattern(), currentContext.getContentTemplate(), target );<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    /**<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     *<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @param requestContext the request context<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @param urlPattern the URL pattern<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * @param contentTemplate the content template; may be &lt;code&gt;null&lt;/code&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @param target the target of the command<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @throws IllegalArgumentException if the request content, URL pattern, or type is &lt;code&gt;null&lt;/code&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    private RedirectCommand( final String requestContext, final String urlPattern, final String contentTemplate, final String target ) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        super( requestContext, urlPattern, contentTemplate, target );<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    <a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * Creates and returns a targeted Command by combining a URL (as String) with this Command. The supplied &lt;code&gt;target&lt;/code&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * object must be non-&lt;code&gt;null&lt;/code&gt; and of type String. The URL passed to the constructor is actually an URL pattern, but it<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * will be converted to a JSP page if it is a partial URL. If it is a full URL (beginning with &lt;code&gt;http://&lt;/code&gt; or<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * &lt;code&gt;https://&lt;/code&gt;), it will be "passed through" without conversion, and the URL pattern will be &lt;code&gt;null&lt;/code&gt;.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @param target the object to combine<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @throws IllegalArgumentException if the target is not of the correct type<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    public Command targetedCommand( final Object target ) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        if ( !( target instanceof String ) ) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            throw new IllegalArgumentException( "Target must non-null and of type String." );<a name="line.73"></a>
 <span class="sourceLineNo">074</span>        }<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        return target.toString();<a name="line.75"></a>
+<span class="sourceLineNo">075</span>        return new RedirectCommand( getRequestContext(), ( String )target, getContentTemplate(), ( String )target );<a name="line.75"></a>
 <span class="sourceLineNo">076</span>    }<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">077</span>    <a name="line.77"></a>
 <span class="sourceLineNo">078</span>    /**<a name="line.78"></a>
-<span class="sourceLineNo">079</span>     * No-op; always returns &lt;code&gt;null&lt;/code&gt;.<a name="line.79"></a>
-<span class="sourceLineNo">080</span>     *<a name="line.80"></a>
-<span class="sourceLineNo">081</span>     * @see org.apache.wiki.api.core.Command#requiredPermission()<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public Permission requiredPermission() {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        return null;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>}<a name="line.87"></a>
+<span class="sourceLineNo">079</span>     * @see org.apache.wiki.api.core.Command#getName()<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    public String getName() {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        final Object target = getTarget();<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        if ( target == null ) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>            return getJSPFriendlyName();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        }<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        return target.toString();<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * No-op; always returns &lt;code&gt;null&lt;/code&gt;.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @see org.apache.wiki.api.core.Command#requiredPermission()<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    public Permission requiredPermission() {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        return null;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>}<a name="line.98"></a>
 
 
 
