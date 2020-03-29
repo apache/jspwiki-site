@@ -2,14 +2,18 @@
 
     namespace org.apache.wiki.event {
 
-        class WikiEventManager [[WikiEventManager.html]] {
-            {static} +getInstance(): WikiEventManager
-            {static} +addWikiEventListener(Object, WikiEventListener): boolean
-            {static} +removeWikiEventListener(Object, WikiEventListener): boolean
-            {static} +getWikiEventListeners(Object): Set<WikiEventListener>
-            {static} +removeWikiEventListener(WikiEventListener): boolean
-            {static} +isListening(Object): boolean
-            {static} +fireEvent(Object, WikiEvent): void
+        class WikiPageRenameEvent [[WikiPageRenameEvent.html]] {
+            {static} +PAGE_RENAMED: int
+            +WikiPageRenameEvent(Object, String, String)
+            +getOldPageName(): String
+            +getNewPageName(): String
+            {static} +isValidType(int): boolean
+            +eventName(): String
+            +getTypeDescription(): String
+        }
+
+        interface WikiEventListener [[WikiEventListener.html]] {
+            {abstract} +actionPerformed(WikiEvent): void
         }
 
         class WorkflowEvent [[WorkflowEvent.html]] {
@@ -32,50 +36,6 @@
             #setType(int): void
             {static} +isValidType(int): boolean
             +eventName(): String
-            +getTypeDescription(): String
-        }
-
-        interface WikiEventListener [[WikiEventListener.html]] {
-            {abstract} +actionPerformed(WikiEvent): void
-        }
-
-        abstract class WikiEvent [[WikiEvent.html]] {
-            {static} +ERROR: int
-            {static} +UNDEFINED: int
-            +WikiEvent(Object, int)
-            +getSrc(): T
-            +getWhen(): long
-            #setType(int): void
-            +getType(): int
-            +getTypeDescription(): String
-            {static} +isValidType(int): boolean
-            +eventName(): String
-        }
-
-        class WikiSecurityEvent [[WikiSecurityEvent.html]] {
-            {static} +LOGIN_INITIATED: int
-            {static} +LOGIN_ANONYMOUS: int
-            {static} +LOGIN_ASSERTED: int
-            {static} +LOGIN_AUTHENTICATED: int
-            {static} +LOGIN_ACCOUNT_EXPIRED: int
-            {static} +LOGIN_CREDENTIAL_EXPIRED: int
-            {static} +LOGIN_FAILED: int
-            {static} +LOGOUT: int
-            {static} +PRINCIPAL_ADD: int
-            {static} +SESSION_EXPIRED: int
-            {static} +GROUP_ADD: int
-            {static} +GROUP_REMOVE: int
-            {static} +GROUP_CLEAR_GROUPS: int
-            {static} +ACCESS_ALLOWED: int
-            {static} +ACCESS_DENIED: int
-            {static} +PROFILE_SAVE: int
-            {static} +PROFILE_NAME_CHANGED: int
-            {static} #log: Logger
-            +WikiSecurityEvent(Object, int, Principal, Object)
-            +WikiSecurityEvent(Object, int, Object)
-            +getPrincipal(): Object
-            +getTarget(): Object
-            +eventName(int): String
             +getTypeDescription(): String
         }
 
@@ -105,31 +65,71 @@
             +getTypeDescription(): String
         }
 
-        class WikiPageRenameEvent [[WikiPageRenameEvent.html]] {
-            {static} +PAGE_RENAMED: int
-            +WikiPageRenameEvent(Object, String, String)
-            +getOldPageName(): String
-            +getNewPageName(): String
+        abstract class WikiEvent [[WikiEvent.html]] {
+            {static} +ERROR: int
+            {static} +UNDEFINED: int
+            +WikiEvent(Object, int)
+            +getSrc(): T
+            +getWhen(): long
+            #setType(int): void
+            +getType(): int
+            +getTypeDescription(): String
             {static} +isValidType(int): boolean
             +eventName(): String
+        }
+
+        class WikiEventManager [[WikiEventManager.html]] {
+            {static} +getInstance(): WikiEventManager
+            {static} +addWikiEventListener(Object, WikiEventListener): boolean
+            {static} +removeWikiEventListener(Object, WikiEventListener): boolean
+            {static} +getWikiEventListeners(Object): Set<WikiEventListener>
+            {static} +removeWikiEventListener(WikiEventListener): boolean
+            {static} +isListening(Object): boolean
+            {static} +fireEvent(Object, WikiEvent): void
+        }
+
+        class WikiSecurityEvent [[WikiSecurityEvent.html]] {
+            {static} +LOGIN_INITIATED: int
+            {static} +LOGIN_ANONYMOUS: int
+            {static} +LOGIN_ASSERTED: int
+            {static} +LOGIN_AUTHENTICATED: int
+            {static} +LOGIN_ACCOUNT_EXPIRED: int
+            {static} +LOGIN_CREDENTIAL_EXPIRED: int
+            {static} +LOGIN_FAILED: int
+            {static} +LOGOUT: int
+            {static} +PRINCIPAL_ADD: int
+            {static} +SESSION_EXPIRED: int
+            {static} +GROUP_ADD: int
+            {static} +GROUP_REMOVE: int
+            {static} +GROUP_CLEAR_GROUPS: int
+            {static} +ACCESS_ALLOWED: int
+            {static} +ACCESS_DENIED: int
+            {static} +PROFILE_SAVE: int
+            {static} +PROFILE_NAME_CHANGED: int
+            {static} #log: Logger
+            +WikiSecurityEvent(Object, int, Principal, Object)
+            +WikiSecurityEvent(Object, int, Object)
+            +getPrincipal(): Object
+            +getTarget(): Object
+            +eventName(int): String
             +getTypeDescription(): String
         }
+
+        WikiPageEvent <|-- WikiPageRenameEvent
+
+        interface java.util.EventListener
+        java.util.EventListener <|.. WikiEventListener
 
         WikiEvent <|-- WorkflowEvent
 
         WikiEvent <|-- WikiEngineEvent
 
-        interface java.util.EventListener
-        java.util.EventListener <|.. WikiEventListener
+        WikiEvent <|-- WikiPageEvent
 
         class java.util.EventObject
         java.util.EventObject <|-- WikiEvent
 
         WikiEvent <|-- WikiSecurityEvent
-
-        WikiEvent <|-- WikiPageEvent
-
-        WikiPageEvent <|-- WikiPageRenameEvent
 
     }
 
