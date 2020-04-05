@@ -2,19 +2,10 @@
 
     namespace org.apache.wiki.filters {
 
-        class DefaultFilterManager [[DefaultFilterManager.html]] {
-            +DefaultFilterManager(Engine, Properties)
-            +addPageFilter(PageFilter, int): void
-            #initialize(Properties): void
-            +doPreTranslateFiltering(Context, String): String
-            +doPostTranslateFiltering(Context, String): String
-            +doPreSaveFiltering(Context, String): String
-            +doPostSaveFiltering(Context, String): void
-            +getFilterList(): List<PageFilter>
-            +destroy(): void
-            +fireEvent(int, Context): void
-            +modules(): Collection<WikiModuleInfo>
-            +getModuleInfo(String): DefaultFilterManager.PageFilterInfo
+        class PingWeblogsComFilter [[PingWeblogsComFilter.html]] {
+            {static} +PROP_PINGURL: String
+            +initialize(Engine, Properties): void
+            +postSave(Context, String): void
         }
 
         class PageEventFilter [[PageEventFilter.html]] {
@@ -28,10 +19,10 @@
             #fireEvent(int, Context): void
         }
 
-        class PingWeblogsComFilter [[PingWeblogsComFilter.html]] {
-            {static} +PROP_PINGURL: String
+        class CreoleFilter [[CreoleFilter.html]] {
             +initialize(Engine, Properties): void
-            +postSave(Context, String): void
+            +preSave(Context, String): String
+            +preTranslate(Context, String): String
         }
 
         class SpamFilter [[SpamFilter.html]] {
@@ -60,9 +51,22 @@
             {static} +insertInputFields(PageContext): String
         }
 
-        class CreoleFilter [[CreoleFilter.html]] {
-            +initialize(Engine, Properties): void
-            +preSave(Context, String): String
+        class DefaultFilterManager [[DefaultFilterManager.html]] {
+            +DefaultFilterManager(Engine, Properties)
+            +addPageFilter(PageFilter, int): void
+            #initialize(Properties): void
+            +doPreTranslateFiltering(Context, String): String
+            +doPostTranslateFiltering(Context, String): String
+            +doPreSaveFiltering(Context, String): String
+            +doPostSaveFiltering(Context, String): void
+            +getFilterList(): List<PageFilter>
+            +destroy(): void
+            +fireEvent(int, Context): void
+            +modules(): Collection<WikiModuleInfo>
+            +getModuleInfo(String): DefaultFilterManager.PageFilterInfo
+        }
+
+        class ProfanityFilter [[ProfanityFilter.html]] {
             +preTranslate(Context, String): String
         }
 
@@ -80,23 +84,21 @@
             {abstract} +destroy(): void
         }
 
-        class ProfanityFilter [[ProfanityFilter.html]] {
-            +preTranslate(Context, String): String
-        }
+        class org.apache.wiki.api.filters.BasePageFilter
+        org.apache.wiki.api.filters.BasePageFilter <|-- PingWeblogsComFilter
+
+        org.apache.wiki.api.filters.BasePageFilter <|-- PageEventFilter
+
+        org.apache.wiki.api.filters.BasePageFilter <|-- CreoleFilter
+
+        org.apache.wiki.api.filters.BasePageFilter <|-- SpamFilter
 
         abstract class org.apache.wiki.modules.BaseModuleManager
         org.apache.wiki.modules.BaseModuleManager <|-- DefaultFilterManager
 
         FilterManager <|.. DefaultFilterManager
 
-        class org.apache.wiki.api.filters.BasePageFilter
-        org.apache.wiki.api.filters.BasePageFilter <|-- PageEventFilter
-
-        org.apache.wiki.api.filters.BasePageFilter <|-- PingWeblogsComFilter
-
-        org.apache.wiki.api.filters.BasePageFilter <|-- SpamFilter
-
-        org.apache.wiki.api.filters.BasePageFilter <|-- CreoleFilter
+        org.apache.wiki.api.filters.BasePageFilter <|-- ProfanityFilter
 
         interface org.apache.wiki.modules.ModuleManager {
             {abstract} +checkCompatibility(WikiModuleInfo): boolean
@@ -104,8 +106,6 @@
             {abstract} +modules(): Collection<WikiModuleInfo>
         }
         org.apache.wiki.modules.ModuleManager <|.. FilterManager
-
-        org.apache.wiki.api.filters.BasePageFilter <|-- ProfanityFilter
 
     }
 
