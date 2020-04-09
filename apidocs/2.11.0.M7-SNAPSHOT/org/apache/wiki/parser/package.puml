@@ -2,6 +2,51 @@
 
     namespace org.apache.wiki.parser {
 
+        class LinkParser [[LinkParser.html]] {
+            +parse(String): LinkParser.Link
+            {static} +isSpace(String): boolean
+            {static} +isSpace(char): boolean
+        }
+
+        class org.apache.wiki.parser.LinkParser.Link [[LinkParser.Link.html]] {
+            #Link(String)
+            #Link(String, String)
+            #setText(String): void
+            +getText(): String
+            #setReference(String): void
+            +hasReference(): boolean
+            +getReference(): String
+            +isInterwikiLink(): boolean
+            +getExternalWiki(): String
+            +getExternalWikiPage(): String
+            +attributeCount(): int
+            +addAttribute(Attribute): void
+            +getAttributes(): Iterator<Attribute>
+        }
+
+        interface HeadingListener [[HeadingListener.html]] {
+            {abstract} +headingAdded(Context, Heading): void
+        }
+
+        class WikiDocument [[WikiDocument.html]] {
+            +WikiDocument(Page)
+            +setPageData(String): void
+            +getPageData(): String
+            +getPage(): Page
+            +setContext(Context): void
+            +getContext(): Context
+        }
+
+        class Heading [[Heading.html]] {
+            {static} +HEADING_SMALL: int
+            {static} +HEADING_MEDIUM: int
+            {static} +HEADING_LARGE: int
+            +m_level: int
+            +m_titleText: String
+            +m_titleAnchor: String
+            +m_titleSection: String
+        }
+
         class JSPWikiMarkupParser [[JSPWikiMarkupParser.html]] {
             {static} #READ: int
             {static} #EDIT: int
@@ -24,6 +69,37 @@
             +makeHeading(int, String, Heading): Element
             #parseToken(int): int
             +parse(): WikiDocument
+        }
+
+        class PluginContent [[PluginContent.html]] {
+            +PluginContent(String, Map<String, String>)
+            +getPluginName(): String
+            +getParameter(String): String
+            +getParameters(): Map<String, String>
+            +getValue(): String
+            +getText(): String
+            +invoke(Context): String
+            +executeParse(Context): void
+            {static} +parsePluginLine(Context, String, int): PluginContent
+        }
+
+        class ParseException [[ParseException.html]] {
+            +ParseException(String)
+        }
+
+        class CreoleToJSPWikiTranslator [[CreoleToJSPWikiTranslator.html]] {
+            {static} +VAR_VERSION: String
+            {static} +VAR_CREOLE_VERSION: String
+            {static} +VAR_LINEBREAK_BLOGLIKE: String
+            {static} +VAR_LINEBREAK_C2LIKE: String
+            +translateSignature(Properties, String, String): String
+            +translate(Properties, String): String
+        }
+
+        class VariableContent [[VariableContent.html]] {
+            +VariableContent(String)
+            +getValue(): String
+            +getText(): String
         }
 
         abstract class MarkupParser [[MarkupParser.html]] {
@@ -79,72 +155,6 @@
             {abstract} +parse(): WikiDocument
         }
 
-        class Heading [[Heading.html]] {
-            {static} +HEADING_SMALL: int
-            {static} +HEADING_MEDIUM: int
-            {static} +HEADING_LARGE: int
-            +m_level: int
-            +m_titleText: String
-            +m_titleAnchor: String
-            +m_titleSection: String
-        }
-
-        class WikiDocument [[WikiDocument.html]] {
-            +WikiDocument(Page)
-            +setPageData(String): void
-            +getPageData(): String
-            +getPage(): Page
-            +setContext(Context): void
-            +getContext(): Context
-        }
-
-        class LinkParser [[LinkParser.html]] {
-            +parse(String): LinkParser.Link
-            {static} +isSpace(String): boolean
-            {static} +isSpace(char): boolean
-        }
-
-        class org.apache.wiki.parser.LinkParser.Link [[LinkParser.Link.html]] {
-            #Link(String)
-            #Link(String, String)
-            #setText(String): void
-            +getText(): String
-            #setReference(String): void
-            +hasReference(): boolean
-            +getReference(): String
-            +isInterwikiLink(): boolean
-            +getExternalWiki(): String
-            +getExternalWikiPage(): String
-            +attributeCount(): int
-            +addAttribute(Attribute): void
-            +getAttributes(): Iterator<Attribute>
-        }
-
-        class PluginContent [[PluginContent.html]] {
-            +PluginContent(String, Map<String, String>)
-            +getPluginName(): String
-            +getParameter(String): String
-            +getParameters(): Map<String, String>
-            +getValue(): String
-            +getText(): String
-            +invoke(Context): String
-            +executeParse(Context): void
-            {static} +parsePluginLine(Context, String, int): PluginContent
-        }
-
-        interface HeadingListener [[HeadingListener.html]] {
-            {abstract} +headingAdded(Context, Heading): void
-        }
-
-        class CreoleToJSPWikiTranslator [[CreoleToJSPWikiTranslator.html]] {
-            {static} +VAR_VERSION: String
-            {static} +VAR_CREOLE_VERSION: String
-            {static} +VAR_LINEBREAK_BLOGLIKE: String
-            {static} +VAR_LINEBREAK_C2LIKE: String
-            +translateSignature(Properties, String, String): String
-            +translate(Properties, String): String
-        }
-
         class LinkParsingOperations [[LinkParsingOperations.html]] {
             +LinkParsingOperations(Context)
             +isAccessRule(String): boolean
@@ -159,22 +169,12 @@
             +linkIfExists(String): String
         }
 
-        class VariableContent [[VariableContent.html]] {
-            +VariableContent(String)
-            +getValue(): String
-            +getText(): String
-        }
-
-        class ParseException [[ParseException.html]] {
-            +ParseException(String)
-        }
-
-        MarkupParser <|-- JSPWikiMarkupParser
+        LinkParser +-- org.apache.wiki.parser.LinkParser.Link
 
         class org.jdom2.Document
         org.jdom2.Document <|-- WikiDocument
 
-        LinkParser +-- org.apache.wiki.parser.LinkParser.Link
+        MarkupParser <|-- JSPWikiMarkupParser
 
         class org.jdom2.Text
         org.jdom2.Text <|-- PluginContent
@@ -190,10 +190,10 @@
         }
         org.apache.wiki.api.plugin.PluginElement <|.. PluginContent
 
-        org.jdom2.Text <|-- VariableContent
-
         class org.apache.wiki.api.exceptions.WikiException
         org.apache.wiki.api.exceptions.WikiException <|-- ParseException
+
+        org.jdom2.Text <|-- VariableContent
 
         JSPWikiMarkupParser --> JSPWikiMarkupParser: cleanTranslator
 

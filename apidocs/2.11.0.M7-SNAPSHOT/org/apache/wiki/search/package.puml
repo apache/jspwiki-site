@@ -2,6 +2,32 @@
 
     namespace org.apache.wiki.search {
 
+        class BasicSearchProvider [[BasicSearchProvider.html]] {
+            +initialize(Engine, Properties): void
+            +pageRemoved(Page): void
+            +reindexPage(Page): void
+            +parseQuery(String): QueryItem[]
+            +findPages(String, Context): Collection<SearchResult>
+            +getProviderInfo(): String
+        }
+
+        class DefaultSearchManager [[DefaultSearchManager.html]] {
+            +DefaultSearchManager(Engine, Properties)
+            +initialize(Engine, Properties): void
+            +actionPerformed(WikiEvent): void
+        }
+
+        class org.apache.wiki.search.DefaultSearchManager.JSONSearch [[DefaultSearchManager.JSONSearch.html]] {
+            {static} +AJAX_ACTION_SUGGESTIONS: String
+            {static} +AJAX_ACTION_PAGES: String
+            {static} +DEFAULT_MAX_RESULTS: int
+            +maxResults: int
+            +getServletMapping(): String
+            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+            +getSuggestions(String, int): List<String>
+            +findPages(String, int, Context): List<Map<String, Object>>
+        }
+
         class LuceneSearchProvider [[LuceneSearchProvider.html]] {
             {static} #log: Logger
             {static} +PROP_LUCENE_ANALYZER: String
@@ -29,6 +55,12 @@
             +getProviderInfo(): String
         }
 
+        interface SearchProvider [[SearchProvider.html]] {
+            {abstract} +pageRemoved(Page): void
+            {abstract} +reindexPage(Page): void
+            {abstract} +findPages(String, Context): Collection<SearchResult>
+        }
+
         interface SearchManager [[SearchManager.html]] {
             {static} +DEFAULT_SEARCHPROVIDER: String
             {static} +PROP_SEARCHPROVIDER: String
@@ -50,43 +82,32 @@
             +getContexts(): String[]
         }
 
-        class BasicSearchProvider [[BasicSearchProvider.html]] {
-            +initialize(Engine, Properties): void
-            +pageRemoved(Page): void
-            +reindexPage(Page): void
-            +parseQuery(String): QueryItem[]
-            +findPages(String, Context): Collection<SearchResult>
-            +getProviderInfo(): String
-        }
-
-        class DefaultSearchManager [[DefaultSearchManager.html]] {
-            +DefaultSearchManager(Engine, Properties)
-            +initialize(Engine, Properties): void
-            +actionPerformed(WikiEvent): void
-        }
-
-        class org.apache.wiki.search.DefaultSearchManager.JSONSearch [[DefaultSearchManager.JSONSearch.html]] {
-            {static} +AJAX_ACTION_SUGGESTIONS: String
-            {static} +AJAX_ACTION_PAGES: String
-            {static} +DEFAULT_MAX_RESULTS: int
-            +maxResults: int
-            +getServletMapping(): String
-            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
-            +getSuggestions(String, int): List<String>
-            +findPages(String, int, Context): List<Map<String, Object>>
-        }
-
         class SearchResultComparator [[SearchResultComparator.html]] {
             +compare(SearchResult, SearchResult): int
         }
 
-        interface SearchProvider [[SearchProvider.html]] {
-            {abstract} +pageRemoved(Page): void
-            {abstract} +reindexPage(Page): void
-            {abstract} +findPages(String, Context): Collection<SearchResult>
+        SearchProvider <|.. BasicSearchProvider
+
+        class org.apache.wiki.api.filters.BasePageFilter
+        org.apache.wiki.api.filters.BasePageFilter <|-- DefaultSearchManager
+
+        SearchManager <|.. DefaultSearchManager
+
+        interface org.apache.wiki.ajax.WikiAjaxServlet {
+            {abstract} +getServletMapping(): String
+            {abstract} +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
         }
+        org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.search.DefaultSearchManager.JSONSearch
+
+        DefaultSearchManager +-- org.apache.wiki.search.DefaultSearchManager.JSONSearch
 
         SearchProvider <|.. LuceneSearchProvider
+
+        interface org.apache.wiki.api.providers.WikiProvider {
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +getProviderInfo(): String
+        }
+        org.apache.wiki.api.providers.WikiProvider <|.. SearchProvider
 
         interface org.apache.wiki.api.filters.PageFilter {
             {abstract} +initialize(Engine, Properties): void
@@ -108,21 +129,6 @@
 
         SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
 
-        SearchProvider <|.. BasicSearchProvider
-
-        class org.apache.wiki.api.filters.BasePageFilter
-        org.apache.wiki.api.filters.BasePageFilter <|-- DefaultSearchManager
-
-        SearchManager <|.. DefaultSearchManager
-
-        interface org.apache.wiki.ajax.WikiAjaxServlet {
-            {abstract} +getServletMapping(): String
-            {abstract} +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
-        }
-        org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.search.DefaultSearchManager.JSONSearch
-
-        DefaultSearchManager +-- org.apache.wiki.search.DefaultSearchManager.JSONSearch
-
         interface java.util.Comparator<T> {
             {abstract} +compare(T, T): int
         }
@@ -131,15 +137,9 @@
         interface java.io.Serializable
         java.io.Serializable <|.. SearchResultComparator
 
-        interface org.apache.wiki.api.providers.WikiProvider {
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +getProviderInfo(): String
-        }
-        org.apache.wiki.api.providers.WikiProvider <|.. SearchProvider
+        DefaultSearchManager --> SearchProvider: searchEngine
 
         SearchManager --> SearchProvider: searchEngine
-
-        DefaultSearchManager --> SearchProvider: searchEngine
 
     }
 

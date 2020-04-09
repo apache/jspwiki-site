@@ -2,10 +2,6 @@
 
     namespace org.apache.wiki.pages {
 
-        class PageBuilder [[PageBuilder.html]] {
-            +openAs(T): T
-        }
-
         interface Page [[Page.html]] {
             {static} +withUrl(String): PageBuilder
             {static} +baseUrl(): String
@@ -14,6 +10,20 @@
             +url(): String
             {abstract} +wikiTitle(): String
             {abstract} +wikiPageContent(): String
+        }
+
+        class PageBuilder [[PageBuilder.html]] {
+            +openAs(T): T
+        }
+
+        class PageLock [[PageLock.html]] {
+            +PageLock(Page, String, Date, Date)
+            +getPage(): String
+            +getLocker(): String
+            +getAcquisitionTime(): Date
+            +getExpiryTime(): Date
+            +getTimeLeft(): long
+            +isExpired(): boolean
         }
 
         interface PageManager [[PageManager.html]] {
@@ -62,10 +72,6 @@
             +sort(String[]): void
         }
 
-        class PageTimeComparator [[PageTimeComparator.html]] {
-            +compare(Page, Page): int
-        }
-
         class DefaultPageManager [[DefaultPageManager.html]] {
             #m_pageLocks: ConcurrentHashMap<String, PageLock>
             +DefaultPageManager(Engine, Properties)
@@ -100,15 +106,12 @@
             #changeAcl(Page, Principal[], Principal): boolean
         }
 
-        class PageLock [[PageLock.html]] {
-            +PageLock(Page, String, Date, Date)
-            +getPage(): String
-            +getLocker(): String
-            +getAcquisitionTime(): Date
-            +getExpiryTime(): Date
-            +getTimeLeft(): long
-            +isExpired(): boolean
+        class PageTimeComparator [[PageTimeComparator.html]] {
+            +compare(Page, Page): int
         }
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. PageLock
 
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
@@ -120,14 +123,11 @@
         }
         java.util.Comparator <|.. PageSorter
 
-        java.util.Comparator <|.. PageTimeComparator
-
-        interface java.io.Serializable
-        java.io.Serializable <|.. PageTimeComparator
-
         PageManager <|.. DefaultPageManager
 
-        java.io.Serializable <|.. PageLock
+        java.util.Comparator <|.. PageTimeComparator
+
+        java.io.Serializable <|.. PageTimeComparator
 
         PageManager --> "*" PageLock: activeLocks
 
