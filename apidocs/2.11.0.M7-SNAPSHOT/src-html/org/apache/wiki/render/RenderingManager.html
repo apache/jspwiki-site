@@ -31,225 +31,217 @@
 <span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Context;<a name="line.23"></a>
 <span class="sourceLineNo">024</span>import org.apache.wiki.api.core.Page;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import org.apache.wiki.api.engine.Initializable;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.api.providers.PageProvider;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.event.WikiEventListener;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.modules.InternalModule;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.parser.MarkupParser;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.parser.WikiDocument;<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>import java.io.IOException;<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">026</span>import org.apache.wiki.api.engine.RenderApi;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.wiki.api.providers.PageProvider;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.wiki.event.WikiEventListener;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.wiki.modules.InternalModule;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.wiki.parser.MarkupParser;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.wiki.parser.WikiDocument;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>import java.io.IOException;<a name="line.33"></a>
 <span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>/**<a name="line.35"></a>
-<span class="sourceLineNo">036</span> *  This class provides a facade towards the differing rendering routines.  You should use the routines in this manager<a name="line.36"></a>
-<span class="sourceLineNo">037</span> *  instead of the ones in Engine, if you don't want the different side effects to occur - such as WikiFilters.<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *  &lt;p&gt;<a name="line.38"></a>
-<span class="sourceLineNo">039</span> *  This class also manages a rendering cache, i.e. documents are stored between calls. You may control the cache by<a name="line.39"></a>
-<span class="sourceLineNo">040</span> *  tweaking the ehcache.xml file.<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *  &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span> *<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *  @since  2.4<a name="line.43"></a>
-<span class="sourceLineNo">044</span> */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>public interface RenderingManager extends WikiEventListener, InternalModule, Initializable {<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>    /** markup parser property. */<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    String PROP_PARSER = "jspwiki.renderingManager.markupParser";<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    /** default renderer property. */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    String PROP_RENDERER = "jspwiki.renderingManager.renderer";<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    /** default wysiwyg renderer property. */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    String PROP_WYSIWYG_RENDERER = "jspwiki.renderingManager.renderer.wysiwyg";<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    String PROP_BEAUTIFYTITLE = "jspwiki.breakTitleWithSpaces";<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    /** Name of the regular page cache. */<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    String DOCUMENTCACHE_NAME = "jspwiki.renderingCache";<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     *  Beautifies the title of the page by appending spaces in suitable places, if the user has so decreed in the properties when<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     *  constructing this Engine.  However, attachment names are only beautified by the name.<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     *<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     *  @param title The title to beautify<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *  @return A beautified title (or, if beautification is off, returns the title without modification)<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     *  @since 1.7.11, moved to PageManager on 2.11.0<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    String beautifyTitle( String title );<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>    /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     *  Beautifies the title of the page by appending non-breaking spaces in suitable places.  This is really suitable only for HTML output,<a name="line.72"></a>
-<span class="sourceLineNo">073</span>     *  as it uses the &amp;amp;nbsp; -character.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>     *<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     *  @param title The title to beautify<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     *  @return A beautified title.<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     *  @since 2.1.127<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     */<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    String beautifyTitleNoBreak( String title );<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>    /**<a name="line.81"></a>
-<span class="sourceLineNo">082</span>     *  Returns the wiki Parser<a name="line.82"></a>
-<span class="sourceLineNo">083</span>     *  @param pagedata the page data<a name="line.83"></a>
-<span class="sourceLineNo">084</span>     *  @return A MarkupParser instance.<a name="line.84"></a>
-<span class="sourceLineNo">085</span>     */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    MarkupParser getParser( Context context, String pagedata );<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     *  Returns a cached document, if one is found.<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     *<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     * @param context the wiki context<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * @param pagedata the page data<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * @return the rendered wiki document<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     */<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    WikiDocument getRenderedDocument( Context context, String pagedata );<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>    /**<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * Returns a WikiRenderer instance, initialized with the given context and doc. The object is an XHTMLRenderer,<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * unless overridden in jspwiki.properties with PROP_RENDERER.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * @param context The WikiContext<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     * @param doc The document to render<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * @return A WikiRenderer for this document, or null, if no such renderer could be instantiated.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     */<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    WikiRenderer getRenderer( Context context, WikiDocument doc );<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * Returns a WikiRenderer instance meant for WYSIWYG editing, initialized with the given<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * context and doc. The object is an WysiwygEditingRenderer, unless overridden<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * in jspwiki.properties with PROP_WYSIWYG_RENDERER.<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     *<a name="line.111"></a>
-<span class="sourceLineNo">112</span>     * @param context The WikiContext<a name="line.112"></a>
-<span class="sourceLineNo">113</span>     * @param doc The document to render<a name="line.113"></a>
-<span class="sourceLineNo">114</span>     * @return A WikiRenderer instance meant for WYSIWYG editing, for this document, or null, if no such renderer could be instantiated.<a name="line.114"></a>
-<span class="sourceLineNo">115</span>     */<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    WikiRenderer getWysiwygRenderer( Context context, WikiDocument doc );<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    /**<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     *  Simply renders a WikiDocument to a String.  This version does not get the document from the cache - in fact, it does<a name="line.119"></a>
-<span class="sourceLineNo">120</span>     *  not cache the document at all.  This is very useful, if you have something that you want to render outside the caching<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     *  routines.  Because the cache is based on full pages, and the cache keys are based on names, use this routine if you're<a name="line.121"></a>
-<span class="sourceLineNo">122</span>     *  rendering anything for yourself.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     *<a name="line.123"></a>
-<span class="sourceLineNo">124</span>     *  @param context The WikiContext to render in<a name="line.124"></a>
-<span class="sourceLineNo">125</span>     *  @param doc A proper WikiDocument<a name="line.125"></a>
-<span class="sourceLineNo">126</span>     *  @return Rendered HTML.<a name="line.126"></a>
-<span class="sourceLineNo">127</span>     *  @throws IOException If the WikiDocument is poorly formed.<a name="line.127"></a>
-<span class="sourceLineNo">128</span>     */<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    String getHTML( Context context, WikiDocument doc ) throws IOException;<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>    /**<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     *  Returns the converted HTML of the page using a different context than the default context.<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     *  @param  context A WikiContext in which you wish to render this page in.<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     *  @param  page WikiPage reference.<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     *  @return HTML-rendered version of the page.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>     */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    String getHTML( Context context, Page page );<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     *  Returns the converted HTML of the page's specific version. The version must be a positive integer, otherwise the current<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *  version is returned.<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     *<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     *  @param pagename WikiName of the page to convert.<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     *  @param version Version number to fetch<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     *  @return HTML-rendered page text.<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     */<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    String getHTML( String pagename, int version );<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>    /**<a name="line.150"></a>
-<span class="sourceLineNo">151</span>     *   Convenience method for rendering, using the default parser and renderer.  Note that you can't use this method<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     *   to do any arbitrary rendering, as the pagedata MUST be the data from the that the WikiContext refers to - this<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     *   method caches the HTML internally, and will return the cached version.  If the pagedata is different from what<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     *   was cached, will re-render and store the pagedata into the internal cache.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     *<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     *   @param context the wiki context<a name="line.156"></a>
-<span class="sourceLineNo">157</span>     *   @param pagedata the page data<a name="line.157"></a>
-<span class="sourceLineNo">158</span>     *   @return XHTML data.<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     */<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    default String getHTML( final Context context, final String pagedata ) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        try {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            final WikiDocument doc = getRenderedDocument( context, pagedata );<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            return getHTML( context, doc );<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        } catch( final IOException e ) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            Logger.getLogger( RenderingManager.class ).error("Unable to parse", e );<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        }<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>        return null;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>    /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     *  Returns the converted HTML of the page.<a name="line.172"></a>
-<span class="sourceLineNo">173</span>     *<a name="line.173"></a>
-<span class="sourceLineNo">174</span>     *  @param page WikiName of the page to convert.<a name="line.174"></a>
-<span class="sourceLineNo">175</span>     *  @return HTML-rendered version of the page.<a name="line.175"></a>
-<span class="sourceLineNo">176</span>     */<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    default String getHTML( final String page ) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        return getHTML( page, PageProvider.LATEST_VERSION );<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>    /**<a name="line.181"></a>
-<span class="sourceLineNo">182</span>     *  Converts raw page data to HTML.<a name="line.182"></a>
-<span class="sourceLineNo">183</span>     *<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     *  @param pagedata Raw page data to convert to HTML<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     *  @param context  The WikiContext in which the page is to be rendered<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *  @return Rendered page text<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     */<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    String textToHTML( Context context, String pagedata );<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>    /**<a name="line.190"></a>
-<span class="sourceLineNo">191</span>     *  Helper method for doing the HTML translation.<a name="line.191"></a>
-<span class="sourceLineNo">192</span>     *<a name="line.192"></a>
-<span class="sourceLineNo">193</span>     *  @param context The WikiContext in which to do the conversion<a name="line.193"></a>
-<span class="sourceLineNo">194</span>     *  @param pagedata The data to render<a name="line.194"></a>
-<span class="sourceLineNo">195</span>     *  @param localLinkHook Is called whenever a wiki link is found<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     *  @param extLinkHook   Is called whenever an external link is found<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     *  @param parseAccessRules Parse the access rules if we encounter them<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     *  @param justParse Just parses the pagedata, does not actually render.  In this case, this methods an empty string.<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     *  @return HTML-rendered page text.<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     */<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    String textToHTML( Context context,<a name="line.201"></a>
-<span class="sourceLineNo">202</span>                       String pagedata,<a name="line.202"></a>
-<span class="sourceLineNo">203</span>                       StringTransmutator localLinkHook,<a name="line.203"></a>
-<span class="sourceLineNo">204</span>                       StringTransmutator extLinkHook,<a name="line.204"></a>
-<span class="sourceLineNo">205</span>                       StringTransmutator attLinkHook,<a name="line.205"></a>
-<span class="sourceLineNo">206</span>                       boolean parseAccessRules,<a name="line.206"></a>
-<span class="sourceLineNo">207</span>                       boolean justParse );<a name="line.207"></a>
-<span class="sourceLineNo">208</span><a name="line.208"></a>
-<span class="sourceLineNo">209</span>    /**<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     *  Just convert WikiText to HTML.<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     *<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     *  @param context The WikiContext in which to do the conversion<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     *  @param pagedata The data to render<a name="line.213"></a>
-<span class="sourceLineNo">214</span>     *  @param localLinkHook Is called whenever a wiki link is found<a name="line.214"></a>
-<span class="sourceLineNo">215</span>     *  @param extLinkHook   Is called whenever an external link is found<a name="line.215"></a>
-<span class="sourceLineNo">216</span>     *<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     *  @return HTML-rendered page text.<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     */<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    default String textToHTML( final Context context,<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                               final String pagedata,<a name="line.220"></a>
-<span class="sourceLineNo">221</span>                               final StringTransmutator localLinkHook,<a name="line.221"></a>
-<span class="sourceLineNo">222</span>                               final StringTransmutator extLinkHook ) {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        return textToHTML( context, pagedata, localLinkHook, extLinkHook, null, true, false );<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    /**<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     *  Just convert WikiText to HTML.<a name="line.227"></a>
-<span class="sourceLineNo">228</span>     *<a name="line.228"></a>
-<span class="sourceLineNo">229</span>     *  @param context The WikiContext in which to do the conversion<a name="line.229"></a>
-<span class="sourceLineNo">230</span>     *  @param pagedata The data to render<a name="line.230"></a>
-<span class="sourceLineNo">231</span>     *  @param localLinkHook Is called whenever a wiki link is found<a name="line.231"></a>
-<span class="sourceLineNo">232</span>     *  @param extLinkHook   Is called whenever an external link is found<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     *  @param attLinkHook   Is called whenever an attachment link is found<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     *  @return HTML-rendered page text.<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     */<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    default String textToHTML( final Context context,<a name="line.236"></a>
-<span class="sourceLineNo">237</span>                               final String pagedata,<a name="line.237"></a>
-<span class="sourceLineNo">238</span>                               final StringTransmutator localLinkHook,<a name="line.238"></a>
-<span class="sourceLineNo">239</span>                               final StringTransmutator extLinkHook,<a name="line.239"></a>
-<span class="sourceLineNo">240</span>                               final StringTransmutator attLinkHook ) {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>        return textToHTML( context, pagedata, localLinkHook, extLinkHook, attLinkHook, true, false );<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    }<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>}<a name="line.244"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *  This class provides a facade towards the differing rendering routines.  You should use the routines in this manager<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *  instead of the ones in Engine, if you don't want the different side effects to occur - such as WikiFilters.<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *  &lt;p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *  This class also manages a rendering cache, i.e. documents are stored between calls. You may control the cache by<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *  tweaking the ehcache.xml file.<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *  &lt;p&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *  @since  2.4<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>public interface RenderingManager extends RenderApi, WikiEventListener, InternalModule, Initializable {<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>    /** markup parser property. */<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    String PROP_PARSER = "jspwiki.renderingManager.markupParser";<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    /** default renderer property. */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    String PROP_RENDERER = "jspwiki.renderingManager.renderer";<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>    /** default wysiwyg renderer property. */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    String PROP_WYSIWYG_RENDERER = "jspwiki.renderingManager.renderer.wysiwyg";<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    String PROP_BEAUTIFYTITLE = "jspwiki.breakTitleWithSpaces";<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>    /** Name of the regular page cache. */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    String DOCUMENTCACHE_NAME = "jspwiki.renderingCache";<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>    /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     *  Beautifies the title of the page by appending spaces in suitable places, if the user has so decreed in the properties when<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     *  constructing this Engine.  However, attachment names are only beautified by the name.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *  @param title The title to beautify<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     *  @return A beautified title (or, if beautification is off, returns the title without modification)<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     *  @since 1.7.11, moved to PageManager on 2.11.0<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    String beautifyTitle( String title );<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     *  Beautifies the title of the page by appending non-breaking spaces in suitable places.  This is really suitable only for HTML output,<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     *  as it uses the &amp;amp;nbsp; -character.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     *  @param title The title to beautify<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     *  @return A beautified title.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     *  @since 2.1.127<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    String beautifyTitleNoBreak( String title );<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    /**<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     *  Returns the wiki Parser<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     *  @param pagedata the page data<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     *  @return A MarkupParser instance.<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    MarkupParser getParser( Context context, String pagedata );<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /**<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     *  Returns a cached document, if one is found.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     *<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @param context the wiki context<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param pagedata the page data<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @return the rendered wiki document<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    WikiDocument getRenderedDocument( Context context, String pagedata );<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    /**<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * Returns a WikiRenderer instance, initialized with the given context and doc. The object is an XHTMLRenderer,<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * unless overridden in jspwiki.properties with PROP_RENDERER.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>     * @param context The WikiContext<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * @param doc The document to render<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     * @return A WikiRenderer for this document, or null, if no such renderer could be instantiated.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    WikiRenderer getRenderer( Context context, WikiDocument doc );<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>    /**<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * Returns a WikiRenderer instance meant for WYSIWYG editing, initialized with the given<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * context and doc. The object is an WysiwygEditingRenderer, unless overridden<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * in jspwiki.properties with PROP_WYSIWYG_RENDERER.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     *<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * @param context The WikiContext<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * @param doc The document to render<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * @return A WikiRenderer instance meant for WYSIWYG editing, for this document, or null, if no such renderer could be instantiated.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    WikiRenderer getWysiwygRenderer( Context context, WikiDocument doc );<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    /**<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     *  Simply renders a WikiDocument to a String.  This version does not get the document from the cache - in fact, it does<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     *  not cache the document at all.  This is very useful, if you have something that you want to render outside the caching<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     *  routines.  Because the cache is based on full pages, and the cache keys are based on names, use this routine if you're<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     *  rendering anything for yourself.<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     *<a name="line.124"></a>
+<span class="sourceLineNo">125</span>     *  @param context The WikiContext to render in<a name="line.125"></a>
+<span class="sourceLineNo">126</span>     *  @param doc A proper WikiDocument<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     *  @return Rendered HTML.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *  @throws IOException If the WikiDocument is poorly formed.<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    String getHTML( Context context, WikiDocument doc ) throws IOException;<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    /**<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *  Returns the converted HTML of the page using a different context than the default context.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     *<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     *  @param  context A WikiContext in which you wish to render this page in.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     *  @param  page WikiPage reference.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>     *  @return HTML-rendered version of the page.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>     */<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    String getHTML( Context context, Page page );<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>    /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *  Returns the converted HTML of the page's specific version. The version must be a positive integer, otherwise the current<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *  version is returned.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     *<a name="line.144"></a>
+<span class="sourceLineNo">145</span>     *  @param pagename WikiName of the page to convert.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>     *  @param version Version number to fetch<a name="line.146"></a>
+<span class="sourceLineNo">147</span>     *  @return HTML-rendered page text.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>     */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    String getHTML( String pagename, int version );<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     *   Convenience method for rendering, using the default parser and renderer.  Note that you can't use this method<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     *   to do any arbitrary rendering, as the pagedata MUST be the data from the that the WikiContext refers to - this<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     *   method caches the HTML internally, and will return the cached version.  If the pagedata is different from what<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     *   was cached, will re-render and store the pagedata into the internal cache.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     *<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     *   @param context the wiki context<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     *   @param pagedata the page data<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     *   @return XHTML data.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     */<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    default String getHTML( final Context context, final String pagedata ) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        try {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>            final WikiDocument doc = getRenderedDocument( context, pagedata );<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            return getHTML( context, doc );<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        } catch( final IOException e ) {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>            Logger.getLogger( RenderingManager.class ).error("Unable to parse", e );<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>        return null;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>    /**<a name="line.172"></a>
+<span class="sourceLineNo">173</span>     *  Returns the converted HTML of the page.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>     *<a name="line.174"></a>
+<span class="sourceLineNo">175</span>     *  @param page WikiName of the page to convert.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>     *  @return HTML-rendered version of the page.<a name="line.176"></a>
+<span class="sourceLineNo">177</span>     */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    default String getHTML( final String page ) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        return getHTML( page, PageProvider.LATEST_VERSION );<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>    /**<a name="line.182"></a>
+<span class="sourceLineNo">183</span>     *  Helper method for doing the HTML translation.<a name="line.183"></a>
+<span class="sourceLineNo">184</span>     *<a name="line.184"></a>
+<span class="sourceLineNo">185</span>     *  @param context The WikiContext in which to do the conversion<a name="line.185"></a>
+<span class="sourceLineNo">186</span>     *  @param pagedata The data to render<a name="line.186"></a>
+<span class="sourceLineNo">187</span>     *  @param localLinkHook Is called whenever a wiki link is found<a name="line.187"></a>
+<span class="sourceLineNo">188</span>     *  @param extLinkHook   Is called whenever an external link is found<a name="line.188"></a>
+<span class="sourceLineNo">189</span>     *  @param parseAccessRules Parse the access rules if we encounter them<a name="line.189"></a>
+<span class="sourceLineNo">190</span>     *  @param justParse Just parses the pagedata, does not actually render.  In this case, this methods an empty string.<a name="line.190"></a>
+<span class="sourceLineNo">191</span>     *  @return HTML-rendered page text.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>     */<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    String textToHTML( Context context,<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                       String pagedata,<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                       StringTransmutator localLinkHook,<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                       StringTransmutator extLinkHook,<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                       StringTransmutator attLinkHook,<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                       boolean parseAccessRules,<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                       boolean justParse );<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>     *  Just convert WikiText to HTML.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>     *<a name="line.203"></a>
+<span class="sourceLineNo">204</span>     *  @param context The WikiContext in which to do the conversion<a name="line.204"></a>
+<span class="sourceLineNo">205</span>     *  @param pagedata The data to render<a name="line.205"></a>
+<span class="sourceLineNo">206</span>     *  @param localLinkHook Is called whenever a wiki link is found<a name="line.206"></a>
+<span class="sourceLineNo">207</span>     *  @param extLinkHook   Is called whenever an external link is found<a name="line.207"></a>
+<span class="sourceLineNo">208</span>     *<a name="line.208"></a>
+<span class="sourceLineNo">209</span>     *  @return HTML-rendered page text.<a name="line.209"></a>
+<span class="sourceLineNo">210</span>     */<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    default String textToHTML( final Context context,<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                               final String pagedata,<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                               final StringTransmutator localLinkHook,<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                               final StringTransmutator extLinkHook ) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        return textToHTML( context, pagedata, localLinkHook, extLinkHook, null, true, false );<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    }<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>    /**<a name="line.218"></a>
+<span class="sourceLineNo">219</span>     *  Just convert WikiText to HTML.<a name="line.219"></a>
+<span class="sourceLineNo">220</span>     *<a name="line.220"></a>
+<span class="sourceLineNo">221</span>     *  @param context The WikiContext in which to do the conversion<a name="line.221"></a>
+<span class="sourceLineNo">222</span>     *  @param pagedata The data to render<a name="line.222"></a>
+<span class="sourceLineNo">223</span>     *  @param localLinkHook Is called whenever a wiki link is found<a name="line.223"></a>
+<span class="sourceLineNo">224</span>     *  @param extLinkHook   Is called whenever an external link is found<a name="line.224"></a>
+<span class="sourceLineNo">225</span>     *  @param attLinkHook   Is called whenever an attachment link is found<a name="line.225"></a>
+<span class="sourceLineNo">226</span>     *  @return HTML-rendered page text.<a name="line.226"></a>
+<span class="sourceLineNo">227</span>     */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    default String textToHTML( final Context context,<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                               final String pagedata,<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                               final StringTransmutator localLinkHook,<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                               final StringTransmutator extLinkHook,<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                               final StringTransmutator attLinkHook ) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        return textToHTML( context, pagedata, localLinkHook, extLinkHook, attLinkHook, true, false );<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>}<a name="line.236"></a>
 
 
 
