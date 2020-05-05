@@ -238,248 +238,255 @@
 <span class="sourceLineNo">230</span>    }<a name="line.230"></a>
 <span class="sourceLineNo">231</span><a name="line.231"></a>
 <span class="sourceLineNo">232</span>    /**<a name="line.232"></a>
-<span class="sourceLineNo">233</span>     *  Un-registers a WikiEventListener from any WikiEventDelegate client managed by this WikiEventManager. Since this is a one-to-one<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     *  relation, the first match will be returned upon removal; a true return value indicates the WikiEventListener was found and removed.<a name="line.234"></a>
+<span class="sourceLineNo">233</span>     * Un-registers a WikiEventListener from any WikiEventDelegate client managed by this WikiEventManager. A true return value indicates<a name="line.233"></a>
+<span class="sourceLineNo">234</span>     * the WikiEventListener was found and removed.<a name="line.234"></a>
 <span class="sourceLineNo">235</span>     *<a name="line.235"></a>
 <span class="sourceLineNo">236</span>     * @param listener the event listener<a name="line.236"></a>
 <span class="sourceLineNo">237</span>     * @return true if the listener was found and removed.<a name="line.237"></a>
 <span class="sourceLineNo">238</span>     */<a name="line.238"></a>
 <span class="sourceLineNo">239</span>    public static boolean removeWikiEventListener( final WikiEventListener listener ) {<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        // get the Map.entry object for the entire Map, then check match on entry (listener)<a name="line.240"></a>
-<span class="sourceLineNo">241</span>        final WikiEventManager mgr = getInstance();<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        final Map&lt; Object, WikiEventDelegate &gt; sources = mgr.getDelegates();<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        synchronized( sources ) {<a name="line.243"></a>
-<span class="sourceLineNo">244</span>            // get an iterator over the Map.Enty objects in the map<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            for( final Map.Entry&lt; Object, WikiEventDelegate &gt; entry : sources.entrySet() ) {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>                // the entry value is the delegate<a name="line.246"></a>
-<span class="sourceLineNo">247</span>                final WikiEventDelegate delegate = entry.getValue();<a name="line.247"></a>
-<span class="sourceLineNo">248</span><a name="line.248"></a>
-<span class="sourceLineNo">249</span>                // now see if we can remove the listener from the delegate (delegate may be null because this is a weak reference)<a name="line.249"></a>
-<span class="sourceLineNo">250</span>                if( delegate != null &amp;&amp; delegate.removeWikiEventListener( listener ) ) {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>                    return true; // was removed<a name="line.251"></a>
-<span class="sourceLineNo">252</span>                }<a name="line.252"></a>
-<span class="sourceLineNo">253</span>            }<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        }<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        return false;<a name="line.255"></a>
-<span class="sourceLineNo">256</span>    }<a name="line.256"></a>
-<span class="sourceLineNo">257</span><a name="line.257"></a>
-<span class="sourceLineNo">258</span>    /**<a name="line.258"></a>
-<span class="sourceLineNo">259</span>     *  Returns true if there are one or more listeners registered with the provided client Object (undelegated event source). This locates<a name="line.259"></a>
-<span class="sourceLineNo">260</span>     *  any delegate and checks to see if it has any listeners attached.<a name="line.260"></a>
-<span class="sourceLineNo">261</span>     *<a name="line.261"></a>
-<span class="sourceLineNo">262</span>     *  @param client the client Object<a name="line.262"></a>
-<span class="sourceLineNo">263</span>     *  @return True, if there is a listener for this client object.<a name="line.263"></a>
-<span class="sourceLineNo">264</span>     */<a name="line.264"></a>
-<span class="sourceLineNo">265</span>    public static boolean isListening( final Object client ) {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        return getInstance().getDelegateFor( client ).isListening();<a name="line.266"></a>
-<span class="sourceLineNo">267</span>    }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>    /**<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     *  Notify all listeners of the WikiEventDelegate having a registered interest in change events of the supplied WikiEvent.<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     *<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * @param client the client initiating the event.<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     * @param event  the WikiEvent to fire.<a name="line.273"></a>
-<span class="sourceLineNo">274</span>     */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    public static void fireEvent( final Object client, final WikiEvent event ) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        final WikiEventDelegate source = getInstance().getDelegateFor( client );<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        source.fireEvent( event );<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        if( c_monitor != null ) {<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            c_monitor.actionPerformed( event );<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        }<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>    // private and utility methods .............................................<a name="line.283"></a>
-<span class="sourceLineNo">284</span><a name="line.284"></a>
-<span class="sourceLineNo">285</span>    /**<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     *  Return the client-to-delegate Map.<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     */<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    private Map&lt; Object, WikiEventDelegate &gt; getDelegates() {<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        return m_delegates;<a name="line.289"></a>
-<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
-<span class="sourceLineNo">291</span><a name="line.291"></a>
-<span class="sourceLineNo">292</span>    /**<a name="line.292"></a>
-<span class="sourceLineNo">293</span>     *  Returns a WikiEventDelegate for the provided client Object. If the parameter is a class reference, will generate and return a<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     *  client-less WikiEventDelegate. If the parameter is not a Class and the delegate cache contains any objects matching the Class<a name="line.294"></a>
-<span class="sourceLineNo">295</span>     *  of any delegates in the cache, the first Class-matching delegate will be used in preference to creating a new delegate.<a name="line.295"></a>
-<span class="sourceLineNo">296</span>     *  If a null parameter is supplied, this will create a client-less delegate that will attach to the first incoming client (i.e.,<a name="line.296"></a>
-<span class="sourceLineNo">297</span>     *  there will be no Class-matching requirement).<a name="line.297"></a>
-<span class="sourceLineNo">298</span>     *<a name="line.298"></a>
-<span class="sourceLineNo">299</span>     * @param client   the client Object, or alternately a Class reference<a name="line.299"></a>
-<span class="sourceLineNo">300</span>     * @return the WikiEventDelegate.<a name="line.300"></a>
-<span class="sourceLineNo">301</span>     */<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    private WikiEventDelegate getDelegateFor( final Object client ) {<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        synchronized( m_delegates ) {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>            if( client == null || client instanceof Class ) { // then preload the cache<a name="line.304"></a>
-<span class="sourceLineNo">305</span>                final WikiEventDelegate delegate = new WikiEventDelegate( client );<a name="line.305"></a>
-<span class="sourceLineNo">306</span>                m_preloadCache.add( delegate );<a name="line.306"></a>
-<span class="sourceLineNo">307</span>                m_delegates.put( client, delegate );<a name="line.307"></a>
-<span class="sourceLineNo">308</span>                return delegate;<a name="line.308"></a>
-<span class="sourceLineNo">309</span>            } else if( !m_preloadCache.isEmpty() ) {<a name="line.309"></a>
-<span class="sourceLineNo">310</span>                // then see if any of the cached delegates match the class of the incoming client<a name="line.310"></a>
-<span class="sourceLineNo">311</span>                for( int i = m_preloadCache.size()-1 ; i &gt;= 0 ; i-- ) { // start with most-recently added<a name="line.311"></a>
-<span class="sourceLineNo">312</span>                    final WikiEventDelegate delegate = m_preloadCache.elementAt( i );<a name="line.312"></a>
-<span class="sourceLineNo">313</span>                    if( delegate.getClientClass() == null || delegate.getClientClass().equals( client.getClass() ) ) {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>                        // we have a hit, so use it, but only on a client we haven't seen before<a name="line.314"></a>
-<span class="sourceLineNo">315</span>                        if( !m_delegates.containsKey( client ) ) {<a name="line.315"></a>
-<span class="sourceLineNo">316</span>                            m_preloadCache.remove( delegate );<a name="line.316"></a>
-<span class="sourceLineNo">317</span>                            m_delegates.put( client, delegate );<a name="line.317"></a>
-<span class="sourceLineNo">318</span>                            return delegate;<a name="line.318"></a>
-<span class="sourceLineNo">319</span>                        }<a name="line.319"></a>
-<span class="sourceLineNo">320</span>                    }<a name="line.320"></a>
-<span class="sourceLineNo">321</span>                }<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            }<a name="line.322"></a>
-<span class="sourceLineNo">323</span>            // otherwise treat normally...<a name="line.323"></a>
-<span class="sourceLineNo">324</span>            WikiEventDelegate delegate = m_delegates.get( client );<a name="line.324"></a>
-<span class="sourceLineNo">325</span>            if( delegate == null ) {<a name="line.325"></a>
-<span class="sourceLineNo">326</span>                delegate = new WikiEventDelegate( client );<a name="line.326"></a>
-<span class="sourceLineNo">327</span>                m_delegates.put( client, delegate );<a name="line.327"></a>
-<span class="sourceLineNo">328</span>            }<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            return delegate;<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        }<a name="line.330"></a>
-<span class="sourceLineNo">331</span>    }<a name="line.331"></a>
-<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">240</span>        boolean removed = false;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        // get the Map.entry object for the entire Map, then check match on entry (listener)<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        final WikiEventManager mgr = getInstance();<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        final Map&lt; Object, WikiEventDelegate &gt; sources =  Collections.synchronizedMap( mgr.getDelegates() );<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        synchronized( sources ) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>            // get an iterator over the Map.Enty objects in the map<a name="line.245"></a>
+<span class="sourceLineNo">246</span>            for( final Map.Entry&lt; Object, WikiEventDelegate &gt; entry : sources.entrySet() ) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>                // the entry value is the delegate<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                final WikiEventDelegate delegate = entry.getValue();<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>                // now see if we can remove the listener from the delegate (delegate may be null because this is a weak reference)<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                if( delegate != null &amp;&amp; delegate.removeWikiEventListener( listener ) ) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                    removed = true; // was removed<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                }<a name="line.253"></a>
+<span class="sourceLineNo">254</span>            }<a name="line.254"></a>
+<span class="sourceLineNo">255</span>        }<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        return removed;<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    }<a name="line.257"></a>
+<span class="sourceLineNo">258</span><a name="line.258"></a>
+<span class="sourceLineNo">259</span>    /**<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     *  Returns true if there are one or more listeners registered with the provided client Object (undelegated event source). This locates<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     *  any delegate and checks to see if it has any listeners attached.<a name="line.261"></a>
+<span class="sourceLineNo">262</span>     *<a name="line.262"></a>
+<span class="sourceLineNo">263</span>     *  @param client the client Object<a name="line.263"></a>
+<span class="sourceLineNo">264</span>     *  @return True, if there is a listener for this client object.<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     */<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    public static boolean isListening( final Object client ) {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        return getInstance().getDelegateFor( client ).isListening();<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    }<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>    /**<a name="line.270"></a>
+<span class="sourceLineNo">271</span>     *  Notify all listeners of the WikiEventDelegate having a registered interest in change events of the supplied WikiEvent.<a name="line.271"></a>
+<span class="sourceLineNo">272</span>     *<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     * @param client the client initiating the event.<a name="line.273"></a>
+<span class="sourceLineNo">274</span>     * @param event  the WikiEvent to fire.<a name="line.274"></a>
+<span class="sourceLineNo">275</span>     */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    public static void fireEvent( final Object client, final WikiEvent event ) {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        final WikiEventDelegate source = getInstance().getDelegateFor( client );<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        source.fireEvent( event );<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        if( c_monitor != null ) {<a name="line.279"></a>
+<span class="sourceLineNo">280</span>            c_monitor.actionPerformed( event );<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        }<a name="line.281"></a>
+<span class="sourceLineNo">282</span>    }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>    // private and utility methods .............................................<a name="line.284"></a>
+<span class="sourceLineNo">285</span><a name="line.285"></a>
+<span class="sourceLineNo">286</span>    /**<a name="line.286"></a>
+<span class="sourceLineNo">287</span>     *  Return the client-to-delegate Map.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>     */<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    private Map&lt; Object, WikiEventDelegate &gt; getDelegates() {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        return m_delegates;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    }<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>    /**<a name="line.293"></a>
+<span class="sourceLineNo">294</span>     *  Returns a WikiEventDelegate for the provided client Object. If the parameter is a class reference, will generate and return a<a name="line.294"></a>
+<span class="sourceLineNo">295</span>     *  client-less WikiEventDelegate. If the parameter is not a Class and the delegate cache contains any objects matching the Class<a name="line.295"></a>
+<span class="sourceLineNo">296</span>     *  of any delegates in the cache, the first Class-matching delegate will be used in preference to creating a new delegate.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>     *  If a null parameter is supplied, this will create a client-less delegate that will attach to the first incoming client (i.e.,<a name="line.297"></a>
+<span class="sourceLineNo">298</span>     *  there will be no Class-matching requirement).<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     *<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * @param client   the client Object, or alternately a Class reference<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * @return the WikiEventDelegate.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     */<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    private WikiEventDelegate getDelegateFor( final Object client ) {<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        synchronized( m_delegates ) {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            if( client == null || client instanceof Class ) { // then preload the cache<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                final WikiEventDelegate delegate = new WikiEventDelegate( client );<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                m_preloadCache.add( delegate );<a name="line.307"></a>
+<span class="sourceLineNo">308</span>                m_delegates.put( client, delegate );<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                return delegate;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            } else if( !m_preloadCache.isEmpty() ) {<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                // then see if any of the cached delegates match the class of the incoming client<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                for( int i = m_preloadCache.size()-1 ; i &gt;= 0 ; i-- ) { // start with most-recently added<a name="line.312"></a>
+<span class="sourceLineNo">313</span>                    final WikiEventDelegate delegate = m_preloadCache.elementAt( i );<a name="line.313"></a>
+<span class="sourceLineNo">314</span>                    if( delegate.getClientClass() == null || delegate.getClientClass().equals( client.getClass() ) ) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>                        // we have a hit, so use it, but only on a client we haven't seen before<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                        if( !m_delegates.containsKey( client ) ) {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                            m_preloadCache.remove( delegate );<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                            m_delegates.put( client, delegate );<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                            return delegate;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                        }<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                    }<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                }<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            }<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            // otherwise treat normally...<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            WikiEventDelegate delegate = m_delegates.get( client );<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            if( delegate == null ) {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                delegate = new WikiEventDelegate( client );<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                m_delegates.put( client, delegate );<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            }<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            return delegate;<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        }<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    }<a name="line.332"></a>
 <span class="sourceLineNo">333</span><a name="line.333"></a>
-<span class="sourceLineNo">334</span>    // .........................................................................<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>    /**<a name="line.336"></a>
-<span class="sourceLineNo">337</span>     *  Inner delegating class that manages event listener addition and removal. Classes that generate events can obtain an instance of<a name="line.337"></a>
-<span class="sourceLineNo">338</span>     *  this class from the WikiEventManager and delegate responsibility to it. Interaction with this delegating class is done via the<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     *  methods of the {@link WikiEventDelegate} API.<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     *<a name="line.340"></a>
-<span class="sourceLineNo">341</span>     * @since 2.4.20<a name="line.341"></a>
-<span class="sourceLineNo">342</span>     */<a name="line.342"></a>
-<span class="sourceLineNo">343</span>    private static final class WikiEventDelegate {<a name="line.343"></a>
-<span class="sourceLineNo">344</span><a name="line.344"></a>
-<span class="sourceLineNo">345</span>        /* A list of event listeners for this instance. */<a name="line.345"></a>
-<span class="sourceLineNo">346</span>        private final ArrayList&lt; WeakReference&lt; WikiEventListener &gt; &gt; m_listenerList = new ArrayList&lt;&gt;();<a name="line.346"></a>
-<span class="sourceLineNo">347</span>        private Class&lt; ? &gt;  m_class  = null;<a name="line.347"></a>
-<span class="sourceLineNo">348</span><a name="line.348"></a>
-<span class="sourceLineNo">349</span>        /**<a name="line.349"></a>
-<span class="sourceLineNo">350</span>         *  Constructor for an WikiEventDelegateImpl, provided with the client Object it will service, or the Class<a name="line.350"></a>
-<span class="sourceLineNo">351</span>         *  of client, the latter when used to preload a future incoming delegate.<a name="line.351"></a>
-<span class="sourceLineNo">352</span>         */<a name="line.352"></a>
-<span class="sourceLineNo">353</span>        protected WikiEventDelegate( final Object client ) {<a name="line.353"></a>
-<span class="sourceLineNo">354</span>            if( client instanceof Class ) {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                m_class = ( Class&lt; ? &gt; )client;<a name="line.355"></a>
-<span class="sourceLineNo">356</span>            }<a name="line.356"></a>
-<span class="sourceLineNo">357</span>        }<a name="line.357"></a>
-<span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>        /**<a name="line.359"></a>
-<span class="sourceLineNo">360</span>         *  Returns the class of the client-less delegate, null if this delegate is attached to a client Object.<a name="line.360"></a>
-<span class="sourceLineNo">361</span>         */<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        protected Class&lt; ? &gt; getClientClass() {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>            return m_class;<a name="line.363"></a>
-<span class="sourceLineNo">364</span>        }<a name="line.364"></a>
-<span class="sourceLineNo">365</span><a name="line.365"></a>
-<span class="sourceLineNo">366</span>        /**<a name="line.366"></a>
-<span class="sourceLineNo">367</span>         *  Return an unmodifiable Set containing the WikiEventListeners of this WikiEventDelegateImpl. If there are no attached listeners,<a name="line.367"></a>
-<span class="sourceLineNo">368</span>         *  returns an empty Set rather than null.<a name="line.368"></a>
-<span class="sourceLineNo">369</span>         *<a name="line.369"></a>
-<span class="sourceLineNo">370</span>         * @return an unmodifiable Set containing this delegate's WikiEventListeners<a name="line.370"></a>
-<span class="sourceLineNo">371</span>         * @throws java.lang.UnsupportedOperationException  if any attempt is made to modify the Set<a name="line.371"></a>
-<span class="sourceLineNo">372</span>         */<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        public Set&lt; WikiEventListener &gt; getWikiEventListeners() {<a name="line.373"></a>
-<span class="sourceLineNo">374</span>            synchronized( m_listenerList ) {<a name="line.374"></a>
-<span class="sourceLineNo">375</span>                final TreeSet&lt; WikiEventListener &gt; set = new TreeSet&lt;&gt;( new WikiEventListenerComparator() );<a name="line.375"></a>
-<span class="sourceLineNo">376</span>                for( final WeakReference&lt; WikiEventListener &gt; wikiEventListenerWeakReference : m_listenerList ) {<a name="line.376"></a>
-<span class="sourceLineNo">377</span>                    final WikiEventListener l = wikiEventListenerWeakReference.get();<a name="line.377"></a>
-<span class="sourceLineNo">378</span>                    if( l != null ) {<a name="line.378"></a>
-<span class="sourceLineNo">379</span>                        set.add( l );<a name="line.379"></a>
-<span class="sourceLineNo">380</span>                    }<a name="line.380"></a>
-<span class="sourceLineNo">381</span>                }<a name="line.381"></a>
-<span class="sourceLineNo">382</span><a name="line.382"></a>
-<span class="sourceLineNo">383</span>                return Collections.unmodifiableSet( set );<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            }<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        }<a name="line.385"></a>
-<span class="sourceLineNo">386</span><a name="line.386"></a>
-<span class="sourceLineNo">387</span>        /**<a name="line.387"></a>
-<span class="sourceLineNo">388</span>         *  Adds &lt;tt&gt;listener&lt;/tt&gt; as a listener for events fired by the WikiEventDelegate.<a name="line.388"></a>
-<span class="sourceLineNo">389</span>         *<a name="line.389"></a>
-<span class="sourceLineNo">390</span>         * @param listener   the WikiEventListener to be added<a name="line.390"></a>
-<span class="sourceLineNo">391</span>         * @return true if the listener was added (i.e., it was not already in the list and was added)<a name="line.391"></a>
-<span class="sourceLineNo">392</span>         */<a name="line.392"></a>
-<span class="sourceLineNo">393</span>        public boolean addWikiEventListener( final WikiEventListener listener ) {<a name="line.393"></a>
-<span class="sourceLineNo">394</span>            synchronized( m_listenerList ) {<a name="line.394"></a>
-<span class="sourceLineNo">395</span>                return m_listenerList.add( new WeakReference&lt;&gt;(listener) );<a name="line.395"></a>
-<span class="sourceLineNo">396</span>            }<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        }<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>        /**<a name="line.399"></a>
-<span class="sourceLineNo">400</span>         *  Removes &lt;tt&gt;listener&lt;/tt&gt; from the WikiEventDelegate.<a name="line.400"></a>
-<span class="sourceLineNo">401</span>         *<a name="line.401"></a>
-<span class="sourceLineNo">402</span>         * @param listener   the WikiEventListener to be removed<a name="line.402"></a>
-<span class="sourceLineNo">403</span>         * @return true if the listener was removed (i.e., it was actually in the list and was removed)<a name="line.403"></a>
-<span class="sourceLineNo">404</span>         */<a name="line.404"></a>
-<span class="sourceLineNo">405</span>        public boolean removeWikiEventListener( final WikiEventListener listener ) {<a name="line.405"></a>
-<span class="sourceLineNo">406</span>            synchronized( m_listenerList ) {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>                for( final Iterator&lt; WeakReference&lt; WikiEventListener &gt; &gt; i = m_listenerList.iterator(); i.hasNext(); ) {<a name="line.407"></a>
-<span class="sourceLineNo">408</span>                    final WikiEventListener l = i.next().get();<a name="line.408"></a>
-<span class="sourceLineNo">409</span>                    if( l == listener ) {<a name="line.409"></a>
-<span class="sourceLineNo">410</span>                        i.remove();<a name="line.410"></a>
-<span class="sourceLineNo">411</span>                        return true;<a name="line.411"></a>
-<span class="sourceLineNo">412</span>                    }<a name="line.412"></a>
-<span class="sourceLineNo">413</span>                }<a name="line.413"></a>
-<span class="sourceLineNo">414</span>            }<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span>            return false;<a name="line.416"></a>
-<span class="sourceLineNo">417</span>        }<a name="line.417"></a>
-<span class="sourceLineNo">418</span><a name="line.418"></a>
-<span class="sourceLineNo">419</span>        /**<a name="line.419"></a>
-<span class="sourceLineNo">420</span>         *  Returns true if there are one or more listeners registered with this instance.<a name="line.420"></a>
-<span class="sourceLineNo">421</span>         */<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        public boolean isListening() {<a name="line.422"></a>
-<span class="sourceLineNo">423</span>            synchronized( m_listenerList ) {<a name="line.423"></a>
-<span class="sourceLineNo">424</span>                return !m_listenerList.isEmpty();<a name="line.424"></a>
-<span class="sourceLineNo">425</span>            }<a name="line.425"></a>
-<span class="sourceLineNo">426</span>        }<a name="line.426"></a>
-<span class="sourceLineNo">427</span><a name="line.427"></a>
-<span class="sourceLineNo">428</span>        /**<a name="line.428"></a>
-<span class="sourceLineNo">429</span>         *  Notify all listeners having a registered interest in change events of the supplied WikiEvent.<a name="line.429"></a>
-<span class="sourceLineNo">430</span>         */<a name="line.430"></a>
-<span class="sourceLineNo">431</span>        public void fireEvent( final WikiEvent event ) {<a name="line.431"></a>
-<span class="sourceLineNo">432</span>            boolean needsCleanup = false;<a name="line.432"></a>
-<span class="sourceLineNo">433</span>            try {<a name="line.433"></a>
-<span class="sourceLineNo">434</span>                synchronized( m_listenerList ) {<a name="line.434"></a>
-<span class="sourceLineNo">435</span>                    for( final WeakReference&lt; WikiEventListener &gt; wikiEventListenerWeakReference : m_listenerList ) {<a name="line.435"></a>
-<span class="sourceLineNo">436</span>                        final WikiEventListener listener = wikiEventListenerWeakReference.get();<a name="line.436"></a>
-<span class="sourceLineNo">437</span>                        if( listener != null ) {<a name="line.437"></a>
-<span class="sourceLineNo">438</span>                            listener.actionPerformed( event );<a name="line.438"></a>
-<span class="sourceLineNo">439</span>                        } else {<a name="line.439"></a>
-<span class="sourceLineNo">440</span>                            needsCleanup = true;<a name="line.440"></a>
-<span class="sourceLineNo">441</span>                        }<a name="line.441"></a>
-<span class="sourceLineNo">442</span>                    }<a name="line.442"></a>
-<span class="sourceLineNo">443</span><a name="line.443"></a>
-<span class="sourceLineNo">444</span>                    //  Remove all such listeners which have expired<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                    if( needsCleanup ) {<a name="line.445"></a>
-<span class="sourceLineNo">446</span>                        for( int i = 0; i &lt; m_listenerList.size(); i++ ) {<a name="line.446"></a>
-<span class="sourceLineNo">447</span>                            final WeakReference&lt; WikiEventListener &gt; w = m_listenerList.get( i );<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                            if( w.get() == null ) {<a name="line.448"></a>
-<span class="sourceLineNo">449</span>                                m_listenerList.remove(i--);<a name="line.449"></a>
-<span class="sourceLineNo">450</span>                            }<a name="line.450"></a>
-<span class="sourceLineNo">451</span>                        }<a name="line.451"></a>
-<span class="sourceLineNo">452</span>                    }<a name="line.452"></a>
-<span class="sourceLineNo">453</span><a name="line.453"></a>
-<span class="sourceLineNo">454</span>                }<a name="line.454"></a>
-<span class="sourceLineNo">455</span>            } catch( final ConcurrentModificationException e ) {<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                //  We don't die, we just don't do notifications in that case.<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                log.info( "Concurrent modification of event list; please report this.", e );<a name="line.457"></a>
-<span class="sourceLineNo">458</span>            }<a name="line.458"></a>
-<span class="sourceLineNo">459</span>        }<a name="line.459"></a>
-<span class="sourceLineNo">460</span>    }<a name="line.460"></a>
-<span class="sourceLineNo">461</span><a name="line.461"></a>
-<span class="sourceLineNo">462</span>    private static class WikiEventListenerComparator implements Comparator&lt; WikiEventListener &gt; {<a name="line.462"></a>
-<span class="sourceLineNo">463</span>        // TODO: This method is a critical performance bottleneck<a name="line.463"></a>
-<span class="sourceLineNo">464</span>        @Override<a name="line.464"></a>
-<span class="sourceLineNo">465</span>        public int compare( final WikiEventListener w0, final WikiEventListener w1 ) {<a name="line.465"></a>
-<span class="sourceLineNo">466</span>            if( w1 == w0 || w0.equals( w1 ) ) {<a name="line.466"></a>
-<span class="sourceLineNo">467</span>                return 0;<a name="line.467"></a>
-<span class="sourceLineNo">468</span>            }<a name="line.468"></a>
-<span class="sourceLineNo">469</span><a name="line.469"></a>
-<span class="sourceLineNo">470</span>            return w1.hashCode() - w0.hashCode();<a name="line.470"></a>
-<span class="sourceLineNo">471</span>        }<a name="line.471"></a>
-<span class="sourceLineNo">472</span>    }<a name="line.472"></a>
-<span class="sourceLineNo">473</span><a name="line.473"></a>
-<span class="sourceLineNo">474</span>}<a name="line.474"></a>
+<span class="sourceLineNo">334</span><a name="line.334"></a>
+<span class="sourceLineNo">335</span>    // .........................................................................<a name="line.335"></a>
+<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">337</span>    /**<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     *  Inner delegating class that manages event listener addition and removal. Classes that generate events can obtain an instance of<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     *  this class from the WikiEventManager and delegate responsibility to it. Interaction with this delegating class is done via the<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     *  methods of the {@link WikiEventDelegate} API.<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     *<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     * @since 2.4.20<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     */<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    private static final class WikiEventDelegate {<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>        /* A list of event listeners for this instance. */<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        private final ArrayList&lt; WeakReference&lt; WikiEventListener &gt; &gt; m_listenerList = new ArrayList&lt;&gt;();<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        private Class&lt; ? &gt;  m_class  = null;<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>        /**<a name="line.350"></a>
+<span class="sourceLineNo">351</span>         *  Constructor for an WikiEventDelegateImpl, provided with the client Object it will service, or the Class<a name="line.351"></a>
+<span class="sourceLineNo">352</span>         *  of client, the latter when used to preload a future incoming delegate.<a name="line.352"></a>
+<span class="sourceLineNo">353</span>         */<a name="line.353"></a>
+<span class="sourceLineNo">354</span>        protected WikiEventDelegate( final Object client ) {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>            if( client instanceof Class ) {<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                m_class = ( Class&lt; ? &gt; )client;<a name="line.356"></a>
+<span class="sourceLineNo">357</span>            }<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        }<a name="line.358"></a>
+<span class="sourceLineNo">359</span><a name="line.359"></a>
+<span class="sourceLineNo">360</span>        /**<a name="line.360"></a>
+<span class="sourceLineNo">361</span>         *  Returns the class of the client-less delegate, null if this delegate is attached to a client Object.<a name="line.361"></a>
+<span class="sourceLineNo">362</span>         */<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        protected Class&lt; ? &gt; getClientClass() {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>            return m_class;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>        /**<a name="line.367"></a>
+<span class="sourceLineNo">368</span>         *  Return an unmodifiable Set containing the WikiEventListeners of this WikiEventDelegateImpl. If there are no attached listeners,<a name="line.368"></a>
+<span class="sourceLineNo">369</span>         *  returns an empty Set rather than null.<a name="line.369"></a>
+<span class="sourceLineNo">370</span>         *<a name="line.370"></a>
+<span class="sourceLineNo">371</span>         * @return an unmodifiable Set containing this delegate's WikiEventListeners<a name="line.371"></a>
+<span class="sourceLineNo">372</span>         * @throws java.lang.UnsupportedOperationException  if any attempt is made to modify the Set<a name="line.372"></a>
+<span class="sourceLineNo">373</span>         */<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        public Set&lt; WikiEventListener &gt; getWikiEventListeners() {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            synchronized( m_listenerList ) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                final TreeSet&lt; WikiEventListener &gt; set = new TreeSet&lt;&gt;( new WikiEventListenerComparator() );<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                for( final WeakReference&lt; WikiEventListener &gt; wikiEventListenerWeakReference : m_listenerList ) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                    final WikiEventListener l = wikiEventListenerWeakReference.get();<a name="line.378"></a>
+<span class="sourceLineNo">379</span>                    if( l != null ) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>                        set.add( l );<a name="line.380"></a>
+<span class="sourceLineNo">381</span>                    }<a name="line.381"></a>
+<span class="sourceLineNo">382</span>                }<a name="line.382"></a>
+<span class="sourceLineNo">383</span><a name="line.383"></a>
+<span class="sourceLineNo">384</span>                return Collections.unmodifiableSet( set );<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            }<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        }<a name="line.386"></a>
+<span class="sourceLineNo">387</span><a name="line.387"></a>
+<span class="sourceLineNo">388</span>        /**<a name="line.388"></a>
+<span class="sourceLineNo">389</span>         *  Adds &lt;tt&gt;listener&lt;/tt&gt; as a listener for events fired by the WikiEventDelegate.<a name="line.389"></a>
+<span class="sourceLineNo">390</span>         *<a name="line.390"></a>
+<span class="sourceLineNo">391</span>         * @param listener the WikiEventListener to be added<a name="line.391"></a>
+<span class="sourceLineNo">392</span>         * @return true if the listener was added (i.e., it was not already in the list and was added)<a name="line.392"></a>
+<span class="sourceLineNo">393</span>         */<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        public boolean addWikiEventListener( final WikiEventListener listener ) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            synchronized( m_listenerList ) {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                final boolean listenerAlreadyContained = m_listenerList.stream()<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                                                                       .map( WeakReference::get )<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                                                                       .anyMatch( ref -&gt; ref == listener );<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                if( !listenerAlreadyContained ) {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                    return m_listenerList.add( new WeakReference&lt;&gt;( listener ) );<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                }<a name="line.401"></a>
+<span class="sourceLineNo">402</span>            }<a name="line.402"></a>
+<span class="sourceLineNo">403</span>            return false;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>        /**<a name="line.406"></a>
+<span class="sourceLineNo">407</span>         *  Removes &lt;tt&gt;listener&lt;/tt&gt; from the WikiEventDelegate.<a name="line.407"></a>
+<span class="sourceLineNo">408</span>         *<a name="line.408"></a>
+<span class="sourceLineNo">409</span>         * @param listener   the WikiEventListener to be removed<a name="line.409"></a>
+<span class="sourceLineNo">410</span>         * @return true if the listener was removed (i.e., it was actually in the list and was removed)<a name="line.410"></a>
+<span class="sourceLineNo">411</span>         */<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        public boolean removeWikiEventListener( final WikiEventListener listener ) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            synchronized( m_listenerList ) {<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                for( final Iterator&lt; WeakReference&lt; WikiEventListener &gt; &gt; i = m_listenerList.iterator(); i.hasNext(); ) {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                    final WikiEventListener l = i.next().get();<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                    if( l == listener ) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                        i.remove();<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                        return true;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>                    }<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                }<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            }<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>            return false;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        }<a name="line.424"></a>
+<span class="sourceLineNo">425</span><a name="line.425"></a>
+<span class="sourceLineNo">426</span>        /**<a name="line.426"></a>
+<span class="sourceLineNo">427</span>         *  Returns true if there are one or more listeners registered with this instance.<a name="line.427"></a>
+<span class="sourceLineNo">428</span>         */<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        public boolean isListening() {<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            synchronized( m_listenerList ) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>                return !m_listenerList.isEmpty();<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            }<a name="line.432"></a>
+<span class="sourceLineNo">433</span>        }<a name="line.433"></a>
+<span class="sourceLineNo">434</span><a name="line.434"></a>
+<span class="sourceLineNo">435</span>        /**<a name="line.435"></a>
+<span class="sourceLineNo">436</span>         *  Notify all listeners having a registered interest in change events of the supplied WikiEvent.<a name="line.436"></a>
+<span class="sourceLineNo">437</span>         */<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        public void fireEvent( final WikiEvent event ) {<a name="line.438"></a>
+<span class="sourceLineNo">439</span>            boolean needsCleanup = false;<a name="line.439"></a>
+<span class="sourceLineNo">440</span>            try {<a name="line.440"></a>
+<span class="sourceLineNo">441</span>                synchronized( m_listenerList ) {<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                    for( final WeakReference&lt; WikiEventListener &gt; wikiEventListenerWeakReference : m_listenerList ) {<a name="line.442"></a>
+<span class="sourceLineNo">443</span>                        final WikiEventListener listener = wikiEventListenerWeakReference.get();<a name="line.443"></a>
+<span class="sourceLineNo">444</span>                        if( listener != null ) {<a name="line.444"></a>
+<span class="sourceLineNo">445</span>                            listener.actionPerformed( event );<a name="line.445"></a>
+<span class="sourceLineNo">446</span>                        } else {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>                            needsCleanup = true;<a name="line.447"></a>
+<span class="sourceLineNo">448</span>                        }<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                    }<a name="line.449"></a>
+<span class="sourceLineNo">450</span><a name="line.450"></a>
+<span class="sourceLineNo">451</span>                    //  Remove all such listeners which have expired<a name="line.451"></a>
+<span class="sourceLineNo">452</span>                    if( needsCleanup ) {<a name="line.452"></a>
+<span class="sourceLineNo">453</span>                        for( int i = 0; i &lt; m_listenerList.size(); i++ ) {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                            final WeakReference&lt; WikiEventListener &gt; w = m_listenerList.get( i );<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                            if( w.get() == null ) {<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                                m_listenerList.remove(i--);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>                            }<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                        }<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                    }<a name="line.459"></a>
+<span class="sourceLineNo">460</span><a name="line.460"></a>
+<span class="sourceLineNo">461</span>                }<a name="line.461"></a>
+<span class="sourceLineNo">462</span>            } catch( final ConcurrentModificationException e ) {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                //  We don't die, we just don't do notifications in that case.<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                log.info( "Concurrent modification of event list; please report this.", e );<a name="line.464"></a>
+<span class="sourceLineNo">465</span>            }<a name="line.465"></a>
+<span class="sourceLineNo">466</span>        }<a name="line.466"></a>
+<span class="sourceLineNo">467</span>    }<a name="line.467"></a>
+<span class="sourceLineNo">468</span><a name="line.468"></a>
+<span class="sourceLineNo">469</span>    private static class WikiEventListenerComparator implements Comparator&lt; WikiEventListener &gt; {<a name="line.469"></a>
+<span class="sourceLineNo">470</span>        // TODO: This method is a critical performance bottleneck<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        @Override<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        public int compare( final WikiEventListener w0, final WikiEventListener w1 ) {<a name="line.472"></a>
+<span class="sourceLineNo">473</span>            if( w1 == w0 || w0.equals( w1 ) ) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                return 0;<a name="line.474"></a>
+<span class="sourceLineNo">475</span>            }<a name="line.475"></a>
+<span class="sourceLineNo">476</span><a name="line.476"></a>
+<span class="sourceLineNo">477</span>            return w1.hashCode() - w0.hashCode();<a name="line.477"></a>
+<span class="sourceLineNo">478</span>        }<a name="line.478"></a>
+<span class="sourceLineNo">479</span>    }<a name="line.479"></a>
+<span class="sourceLineNo">480</span><a name="line.480"></a>
+<span class="sourceLineNo">481</span>}<a name="line.481"></a>
 
 
 

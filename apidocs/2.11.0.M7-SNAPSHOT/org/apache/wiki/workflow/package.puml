@@ -3,7 +3,7 @@
     namespace org.apache.wiki.workflow {
 
         abstract class Decision [[Decision.html]] {
-            +Decision(Workflow, String, Principal, Outcome)
+            +Decision(int, Map<String, Serializable>, String, Principal, Outcome)
             +addFact(Fact): void
             +decide(Outcome): void
             +execute(): Outcome
@@ -14,7 +14,6 @@
         }
 
         class DefaultWorkflowManager [[DefaultWorkflowManager.html]] {
-            +start(Workflow): void
             +initialize(Engine, Properties): void
             +requiresApproval(String): boolean
             +getApprover(String): Principal
@@ -23,6 +22,8 @@
             +actionPerformed(WikiEvent): void
             #add(Workflow): void
             #remove(Workflow): void
+            #removeFromDecisionQueue(Decision): void
+            #addToDecisionQueue(Decision): void
         }
 
         class SystemPrincipal [[SystemPrincipal.html]] {
@@ -50,7 +51,7 @@
         }
 
         class SimpleNotification [[SimpleNotification.html]] {
-            +SimpleNotification(Workflow, String, Principal)
+            +SimpleNotification(int, Map<String, Serializable>, String, Principal)
             +acknowledge(): void
             +isReassignable(): boolean
         }
@@ -61,7 +62,7 @@
 
         abstract class Task [[Task.html]] {
             +Task(String)
-            +Task(Workflow, String)
+            +Task(int, Map<String, Serializable>, String)
         }
 
         class DecisionQueue [[DecisionQueue.html]] {
@@ -74,7 +75,6 @@
         }
 
         class Workflow [[Workflow.html]] {
-            {static} +TIME_NOT_SET: Date
             {static} +ID_NOT_SET: int
             {static} +COMPLETED: int
             {static} +ABORTED: int
@@ -86,6 +86,7 @@
             +addMessageArgument(Serializable): void
             +getCurrentState(): int
             +getAttribute(String): Object
+            +getAttributes(): Map<String, Serializable>
             +getEndTime(): Date
             +getId(): int
             +getMessageKey(): String
@@ -94,7 +95,7 @@
             +isCompleted(): boolean
             +isStarted(): boolean
             +restart(): void
-            +setAttribute(String, Object): void
+            +setAttribute(String, Serializable): void
             +setId(int): void
             +start(): void
             +waitstate(): void
@@ -102,9 +103,6 @@
             #complete(): void
             #previousStep(Step): Step
             #processCurrentStep(): void
-            +addWikiEventListener(WikiEventListener): void
-            +removeWikiEventListener(WikiEventListener): void
-            #fireEvent(int): void
         }
 
         class DecisionRequiredException [[DecisionRequiredException.html]] {
@@ -112,6 +110,7 @@
         }
 
         interface Step [[Step.html]] {
+            {static} +TIME_NOT_SET: Date
             {abstract} +addSuccessor(Outcome, Step): void
             {abstract} +getErrors(): List<String>
             {abstract} +execute(): Outcome
@@ -122,10 +121,11 @@
             {abstract} +isStarted(): boolean
             {abstract} +start(): void
             {abstract} +getSuccessor(Outcome): Step
+            {abstract} +setWorkflow(int, Map<String, Serializable>): void
         }
 
         class SimpleDecision [[SimpleDecision.html]] {
-            +SimpleDecision(Workflow, String, Principal)
+            +SimpleDecision(int, Map<String, Serializable>, String, Principal)
         }
 
         class WorkflowBuilder [[WorkflowBuilder.html]] {
@@ -135,7 +135,7 @@
 
         abstract class AbstractStep [[AbstractStep.html]] {
             #AbstractStep(String)
-            +AbstractStep(Workflow, String)
+            +AbstractStep(int, Map<String, Serializable>, String)
             +addSuccessor(Outcome, Step): void
             +getErrors(): List<String>
             +getEndTime(): Date
@@ -145,12 +145,14 @@
             +isStarted(): boolean
             +start(): void
             +getSuccessor(Outcome): Step
+            +setWorkflow(int, Map<String, Serializable>): void
+            +getWorkflowId(): int
+            +getWorkflowContext(): Map<String, Serializable>
             #addError(String): void
             {abstract} +execute(): Outcome
         }
 
         interface WorkflowManager [[WorkflowManager.html]] {
-            {static} +WF_WP_SAVE_ATTR_PRESAVE_WIKI_CONTEXT: String
             {static} +WF_WP_SAVE_APPROVER: String
             {static} +WF_WP_SAVE_DECISION_MESSAGE_KEY: String
             {static} +WF_WP_SAVE_REJECT_MESSAGE_KEY: String
@@ -167,7 +169,6 @@
             {static} +WF_UP_CREATE_SAVE_FACT_PREFS_FULL_NAME: String
             {static} +WF_UP_CREATE_SAVE_FACT_PREFS_EMAIL: String
             {static} +PROPERTY_APPROVER_PREFIX: String
-            {abstract} +start(Workflow): void
             {abstract} +requiresApproval(String): boolean
             {abstract} +getApprover(String): Principal
             {abstract} +getOwnerWorkflows(Session): List<Workflow>
@@ -238,29 +239,19 @@
 
         Workflow --> "*" java.io.Serializable: messageArguments
 
-        Workflow --> WorkflowManager: workflowManager
-
         Workflow --> "*" Step: history
 
         Step --> "*" Outcome: availableOutcomes
 
-        Step --> java.security.Principal: actor\nowner
-
-        Step --> "*" java.io.Serializable: messageArguments
+        Step --> java.security.Principal: actor
 
         Step --> Outcome: outcome
 
-        Step --> Workflow: workflow
-
         AbstractStep --> "*" Outcome: availableOutcomes
-
-        AbstractStep --> "*" java.io.Serializable: messageArguments
 
         AbstractStep --> Outcome: outcome
 
-        AbstractStep --> java.security.Principal: owner\nactor
-
-        AbstractStep --> Workflow: workflow
+        AbstractStep --> java.security.Principal: actor
 
         WorkflowManager --> "*" Workflow: workflows\ncompletedWorkflows
 
