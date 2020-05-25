@@ -1,0 +1,108 @@
+@startuml
+
+    namespace org.apache.wiki.attachment {
+
+        class DynamicAttachment [[DynamicAttachment.html]] {
+            +DynamicAttachment(Engine, String, String, DynamicAttachmentProvider)
+        }
+
+        interface DynamicAttachmentProvider [[DynamicAttachmentProvider.html]] {
+            {abstract} +getAttachmentData(Context, Attachment): InputStream
+        }
+
+        class Attachment [[Attachment.html]] {
+            +Attachment(Engine, String, String)
+            +getFileName(): String
+            +setFileName(String): void
+            +getParentName(): String
+            +isCacheable(): boolean
+            +setCacheable(boolean): void
+        }
+
+        class DefaultAttachmentManager [[DefaultAttachmentManager.html]] {
+            +DefaultAttachmentManager(Engine, Properties)
+            +attachmentsEnabled(): boolean
+            +getAttachmentInfoName(Context, String): String
+            +getAttachmentInfo(Context, String, int): Attachment
+            +listAttachments(Page): List<Attachment>
+            +forceDownload(String): boolean
+            +getAttachmentStream(Context, Attachment): InputStream
+            +storeDynamicAttachment(Context, DynamicAttachment): void
+            +getDynamicAttachment(String): DynamicAttachment
+            +storeAttachment(Attachment, InputStream): void
+            +getVersionHistory(String): List<Attachment>
+            +getCurrentProvider(): AttachmentProvider
+            +deleteVersion(Attachment): void
+            +deleteAttachment(Attachment): void
+        }
+
+        interface AttachmentManager [[AttachmentManager.html]] {
+            {static} +PROP_PROVIDER: String
+            {static} +PROP_MAXSIZE: String
+            {static} +PROP_ALLOWEDEXTENSIONS: String
+            {static} +PROP_FORBIDDENEXTENSIONS: String
+            {static} +PROP_FORCEDOWNLOAD: String
+            {static} +CACHE_NAME: String
+            {static} +DEFAULT_CACHECAPACITY: int
+            +getAttachmentInfo(String): Attachment
+            +getAttachmentInfo(String, int): Attachment
+            +getAttachmentInfo(Context, String): Attachment
+            +hasAttachments(Page): boolean
+            +getAttachmentStream(Attachment): InputStream
+            +storeAttachment(Attachment, File): void
+            {static} +validateFileName(String): String
+            {abstract} +attachmentsEnabled(): boolean
+            {abstract} +getAttachmentInfo(Context, String, int): Attachment
+            {abstract} +getAttachmentInfoName(Context, String): String
+            {abstract} +listAttachments(Page): List<Attachment>
+            {abstract} +forceDownload(String): boolean
+            {abstract} +getAttachmentStream(Context, Attachment): InputStream
+            {abstract} +storeDynamicAttachment(Context, DynamicAttachment): void
+            {abstract} +getDynamicAttachment(String): DynamicAttachment
+            {abstract} +storeAttachment(Attachment, InputStream): void
+            {abstract} +getVersionHistory(String): List<Attachment>
+            {abstract} +getCurrentProvider(): AttachmentProvider
+            {abstract} +deleteVersion(Attachment): void
+            {abstract} +deleteAttachment(Attachment): void
+        }
+
+        class AttachmentServlet [[AttachmentServlet.html]] {
+            {static} #DEFAULT_EXPIRY: long
+            +init(ServletConfig): void
+            #doOptions(HttpServletRequest, HttpServletResponse): void
+            +doGet(HttpServletRequest, HttpServletResponse): void
+            +doPost(HttpServletRequest, HttpServletResponse): void
+            #upload(HttpServletRequest): String
+            #executeUpload(Context, InputStream, String, String, String, String, long): boolean
+        }
+
+        Attachment <|-- DynamicAttachment
+
+        class org.apache.wiki.WikiPage
+        org.apache.wiki.WikiPage <|-- Attachment
+
+        interface org.apache.wiki.api.core.Attachment {
+            {abstract} +getFileName(): String
+            {abstract} +setFileName(String): void
+            {abstract} +getParentName(): String
+            {abstract} +isCacheable(): boolean
+            {abstract} +setCacheable(boolean): void
+        }
+        org.apache.wiki.api.core.Attachment <|.. Attachment
+
+        AttachmentManager <|.. DefaultAttachmentManager
+
+        abstract class javax.servlet.http.HttpServlet
+        javax.servlet.http.HttpServlet <|-- AttachmentServlet
+
+        DynamicAttachment --> DynamicAttachmentProvider: provider
+
+        DefaultAttachmentManager --> "*" org.apache.wiki.api.core.Attachment: allAttachments
+
+        AttachmentManager --> "*" org.apache.wiki.api.core.Attachment: allAttachments
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

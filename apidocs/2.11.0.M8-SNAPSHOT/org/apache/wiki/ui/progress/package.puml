@@ -1,0 +1,51 @@
+@startuml
+
+    namespace org.apache.wiki.ui.progress {
+
+        abstract class ProgressItem [[ProgressItem.html]] {
+            {static} +CREATED: int
+            {static} +STARTED: int
+            {static} +STOPPED: int
+            {static} +FINISHED: int
+            #m_state: int
+            +getState(): int
+            +setState(int): void
+            {abstract} +getProgress(): int
+        }
+
+        class DefaultProgressManager [[DefaultProgressManager.html]] {
+            +getNewProgressIdentifier(): String
+            +startProgress(ProgressItem, String): void
+            +stopProgress(String): void
+            +getProgress(String): int
+        }
+
+        class org.apache.wiki.ui.progress.DefaultProgressManager.JSONTracker [[DefaultProgressManager.JSONTracker.html]] {
+            +getProgress(String): int
+            +getServletMapping(): String
+            +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+        }
+
+        interface ProgressManager [[ProgressManager.html]] {
+            {static} +JSON_PROGRESSTRACKER: String
+            {abstract} +getNewProgressIdentifier(): String
+            {abstract} +startProgress(ProgressItem, String): void
+            {abstract} +stopProgress(String): void
+            {abstract} +getProgress(String): int
+        }
+
+        ProgressManager <|.. DefaultProgressManager
+
+        interface org.apache.wiki.ajax.WikiAjaxServlet {
+            {abstract} +getServletMapping(): String
+            {abstract} +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
+        }
+        org.apache.wiki.ajax.WikiAjaxServlet <|.. org.apache.wiki.ui.progress.DefaultProgressManager.JSONTracker
+
+        DefaultProgressManager +-- org.apache.wiki.ui.progress.DefaultProgressManager.JSONTracker
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

@@ -1,0 +1,129 @@
+@startuml
+
+    namespace org.apache.wiki.rss {
+
+        class RSSThread [[RSSThread.html]] {
+            +RSSThread(Engine, File, int)
+            +startupTask(): void
+            +backgroundTask(): void
+        }
+
+        interface RSSGenerator [[RSSGenerator.html]] {
+            {static} +RSS10: String
+            {static} +RSS20: String
+            {static} +ATOM: String
+            {static} +MODE_BLOG: String
+            {static} +MODE_WIKI: String
+            {static} +MODE_FULL: String
+            {static} +PROP_CHANNEL_DESCRIPTION: String
+            {static} +PROP_CHANNEL_LANGUAGE: String
+            {static} +PROP_CHANNEL_TITLE: String
+            {static} +PROP_GENERATE_RSS: String
+            {static} +PROP_RSSFILE: String
+            {static} +PROP_INTERVAL: String
+            {static} +PROP_RSS_AUTHOR: String
+            {static} +PROP_RSS_AUTHOREMAIL: String
+            {static} +format(String): String
+            {static} +getContentType(String): String
+            {abstract} +generate(): String
+            {abstract} +generateFeed(Context, List<Page>, String, String): String
+            {abstract} +isEnabled(): boolean
+            {abstract} +setEnabled(boolean): void
+            {abstract} +getRssFile(): String
+            {abstract} +generateFullWikiRSS(Context, Feed): String
+            {abstract} +generateWikiPageRSS(Context, List<Page>, Feed): String
+            {abstract} +generateBlogRSS(Context, List<Page>, Feed): String
+        }
+
+        class DefaultRSSGenerator [[DefaultRSSGenerator.html]] {
+            +DefaultRSSGenerator(Engine, Properties)
+            +initialize(Engine, Properties): void
+            +generate(): String
+            +generateFeed(Context, List<Page>, String, String): String
+            +isEnabled(): boolean
+            +setEnabled(boolean): void
+            +getRssFile(): String
+            +generateFullWikiRSS(Context, Feed): String
+            +generateWikiPageRSS(Context, List<Page>, Feed): String
+            +generateBlogRSS(Context, List<Page>, Feed): String
+        }
+
+        class AtomFeed [[AtomFeed.html]] {
+            {static} +RFC3339FORMAT: String
+            +AtomFeed(Context)
+            +getString(): String
+        }
+
+        abstract class Feed [[Feed.html]] {
+            {static} +VAR_BLOGNAME: String
+            #m_feedURL: String
+            #m_channelTitle: String
+            #m_channelDescription: String
+            #m_channelLanguage: String
+            #m_wikiContext: Context
+            #m_mode: String
+            +Feed(Context)
+            {static} +getSiteName(Context): String
+            +setMode(String): void
+            +addEntry(Entry): void
+            +getChannelDescription(): String
+            +setChannelDescription(String): void
+            +getChannelLanguage(): String
+            +setChannelLanguage(String): void
+            +getChannelTitle(): String
+            +setChannelTitle(String): void
+            +getFeedURL(): String
+            +setFeedURL(String): void
+            #getMimeType(ServletContext, String): String
+            {static} +format(String): String
+            {abstract} +getString(): String
+        }
+
+        class RSS10Feed [[RSS10Feed.html]] {
+            +RSS10Feed(Context)
+            +getString(): String
+        }
+
+        class Entry [[Entry.html]] {
+            +setAuthor(String): void
+            +getAuthor(): String
+            +getPage(): Page
+            +setPage(Page): void
+            +setTitle(String): void
+            +getTitle(): String
+            +setURL(String): void
+            +getURL(): String
+            +setContent(String): void
+            +getContent(): String
+        }
+
+        class RSS20Feed [[RSS20Feed.html]] {
+            +RSS20Feed(Context)
+            +getString(): String
+        }
+
+        abstract class org.apache.wiki.WikiBackgroundThread {
+            {abstract} +backgroundTask(): void
+        }
+        org.apache.wiki.WikiBackgroundThread <|-- RSSThread
+
+        interface org.apache.wiki.api.engine.Initializable {
+            {abstract} +initialize(Engine, Properties): void
+        }
+        org.apache.wiki.api.engine.Initializable <|.. RSSGenerator
+
+        RSSGenerator <|.. DefaultRSSGenerator
+
+        Feed <|-- AtomFeed
+
+        Feed <|-- RSS10Feed
+
+        Feed <|-- RSS20Feed
+
+        Feed --> "*" Entry: m_entries
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

@@ -1,0 +1,76 @@
+@startuml
+
+    namespace org.apache.wiki.ui.admin {
+
+        abstract class WikiFormAdminBean [[WikiFormAdminBean.html]] {
+            +doGet(Context): String
+            +handlePost(Context, HttpServletRequest, HttpServletResponse): String
+            {abstract} +getForm(Context): String
+            {abstract} +handleResponse(Context, Map<?, ?>): void
+        }
+
+        abstract class SimpleAdminBean [[SimpleAdminBean.html]] {
+            #m_engine: Engine
+            +initialize(Engine): void
+            +doGet(Context): String
+            +doPost(Context): String
+            +getId(): String
+        }
+
+        interface AdminBeanManager [[AdminBeanManager.html]] {
+            {abstract} +initialize(): void
+            {abstract} +findBean(String): AdminBean
+            {abstract} +actionPerformed(WikiEvent): void
+            {abstract} +getTypeFromString(String): int
+        }
+
+        interface AdminBean [[AdminBean.html]] {
+            {static} +UNKNOWN: int
+            {static} +CORE: int
+            {static} +EDITOR: int
+            {abstract} +initialize(Engine): void
+            {abstract} +getTitle(): String
+            {abstract} +getType(): int
+        }
+
+        class DefaultAdminBeanManager [[DefaultAdminBeanManager.html]] {
+            +DefaultAdminBeanManager(Engine)
+            +initialize(): void
+            +findBean(String): AdminBean
+            +getTypeFromString(String): int
+            +actionPerformed(WikiEvent): void
+        }
+
+        AdminBean <|.. WikiFormAdminBean
+
+        abstract class org.apache.wiki.management.SimpleMBean {
+            {abstract} +getAttributeNames(): String[]
+            {abstract} +getMethodNames(): String[]
+        }
+        org.apache.wiki.management.SimpleMBean <|-- SimpleAdminBean
+
+        AdminBean <|.. SimpleAdminBean
+
+        interface org.apache.wiki.ui.GenericHTTPHandler {
+            {abstract} +getId(): String
+            {abstract} +doGet(Context): String
+            {abstract} +doPost(Context): String
+        }
+        org.apache.wiki.ui.GenericHTTPHandler <|.. AdminBean
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. DefaultAdminBeanManager
+
+        AdminBeanManager <|.. DefaultAdminBeanManager
+
+        AdminBeanManager --> "*" AdminBean: allBeans
+
+        DefaultAdminBeanManager --> "*" AdminBean: allBeans
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
+<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
+<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
+<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
+<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
+<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
+<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
+<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
+<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
+<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
+<span class="sourceLineNo">017</span>    under the License.<a name="line.17"></a>
+<span class="sourceLineNo">018</span> */<a name="line.18"></a>
+<span class="sourceLineNo">019</span>package org.apache.wiki.auth;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.apache.wiki.api.core.Context;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.Session;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.apache.wiki.api.engine.Initializable;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.apache.wiki.auth.user.DuplicateUserException;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.apache.wiki.auth.user.UserDatabase;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.apache.wiki.auth.user.UserProfile;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.apache.wiki.event.WikiEventListener;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.wiki.event.WikiEventManager;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.wiki.event.WikiSecurityEvent;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>import java.security.Principal;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>/**<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * Provides a facade for obtaining user information.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * @since 2.3<a name="line.38"></a>
+<span class="sourceLineNo">039</span> */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>public interface UserManager extends Initializable {<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>    /** Message key for the "save profile" message. */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    String PROP_DATABASE = "jspwiki.userdatabase";<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    String JSON_USERS = "users";<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * Returns the UserDatabase employed by this Engine. The UserDatabase is lazily initialized by this method, if it does<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * not exist yet. If the initialization fails, this method will use the inner class DummyUserDatabase as a default (which<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     * is enough to get JSPWiki running).<a name="line.50"></a>
+<span class="sourceLineNo">051</span>     *<a name="line.51"></a>
+<span class="sourceLineNo">052</span>     * @return the dummy user database<a name="line.52"></a>
+<span class="sourceLineNo">053</span>     * @since 2.3<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    UserDatabase getUserDatabase();<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    /**<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * &lt;p&gt;Retrieves the {@link org.apache.wiki.auth.user.UserProfile} for the user in a session. If the user is authenticated, the<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * UserProfile returned will be the one stored in the user database; if one does not exist, a new one will be initialized and returned.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * If the user is anonymous or asserted, the UserProfile will &lt;i&gt;always&lt;/i&gt; be newly initialized to prevent spoofing of identities.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * If a UserProfile needs to be initialized, its {@link org.apache.wiki.auth.user.UserProfile#isNew()} method will return<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * &lt;code&gt;true&lt;/code&gt;, and its login name will will be set automatically if the user is authenticated. Note that this method does<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * not modify the retrieved (or newly created) profile otherwise; other fields in the user profile may be &lt;code&gt;null&lt;/code&gt;.&lt;/p&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * &lt;p&gt;If a new UserProfile was created, but its {@link org.apache.wiki.auth.user.UserProfile#isNew()} method returns<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * &lt;code&gt;false&lt;/code&gt;, this method throws an {@link IllegalStateException}. This is meant as a quality check for UserDatabase providers;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     * it should only be thrown if the implementation is faulty.&lt;/p&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @param session the session, which may not be &lt;code&gt;null&lt;/code&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @return the user's profile, which will be newly initialized if the user is anonymous or asserted, or if the user cannot be found in<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     *         the user database<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    UserProfile getUserProfile( Session session );<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * &lt;p&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * Saves the {@link org.apache.wiki.auth.user.UserProfile} for the user in a wiki session. This method verifies that a user profile to<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * be saved doesn't collide with existing profiles; that is, the login name or full name is already used by another profile. If the<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * profile collides, a &lt;code&gt;DuplicateUserException&lt;/code&gt; is thrown. After saving the profile, the user database changes are committed,<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * and the user's credential set is refreshed; if custom authentication is used, this means the user will be automatically be logged in.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * &lt;/p&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * &lt;p&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * When the user's profile is saved successfully, this method fires a {@link WikiSecurityEvent#PROFILE_SAVE} event with the Session<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * as the source and the UserProfile as target. For existing profiles, if the user's full name changes, this method also fires a<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     * "name changed" event ({@link WikiSecurityEvent#PROFILE_NAME_CHANGED}) with the Session as the source and an array containing<a name="line.84"></a>
+<span class="sourceLineNo">085</span>     * the old and new UserProfiles, respectively. The &lt;code&gt;NAME_CHANGED&lt;/code&gt; event allows the GroupManager and PageManager can change<a name="line.85"></a>
+<span class="sourceLineNo">086</span>     * group memberships and ACLs if needed.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>     * &lt;/p&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * &lt;p&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * Note that Sessions normally attach event listeners to the UserManager, so changes to the profile will automatically cause the<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * correct Principals to be reloaded into the current Session's Subject.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * &lt;/p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     * @param session the wiki session, which may not be &lt;code&gt;null&lt;/code&gt;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param profile the user profile, which may not be &lt;code&gt;null&lt;/code&gt;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @throws DuplicateUserException if the proposed profile's login name or full name collides with another<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws WikiException if the save fails for some reason. If the current user does not have<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * permission to save the profile, this will be a {@link org.apache.wiki.auth.WikiSecurityException};<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * if if the user profile must be approved before it can be saved, it will be a<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * {@link org.apache.wiki.workflow.DecisionRequiredException}. All other WikiException<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     * indicate a condition that is not normal is probably due to mis-configuration<a name="line.100"></a>
+<span class="sourceLineNo">101</span>     */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    void setUserProfile( Session session, UserProfile profile ) throws DuplicateUserException, WikiException;<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>    void startUserProfileCreationWorkflow( Session session, UserProfile profile ) throws WikiException;<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * &lt;p&gt; Extracts user profile parameters from the HTTP request and populates a UserProfile with them. The UserProfile will either be a<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     * copy of the user's existing profile (if one can be found), or a new profile (if not). The rules for populating the profile as as<a name="line.108"></a>
+<span class="sourceLineNo">109</span>     * follows: &lt;/p&gt;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>     * &lt;ul&gt;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>     * &lt;li&gt;If the &lt;code&gt;email&lt;/code&gt; or &lt;code&gt;password&lt;/code&gt; parameter values differ from those in the existing profile, the passed<a name="line.111"></a>
+<span class="sourceLineNo">112</span>     * parameters override the old values.&lt;/li&gt;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>     * &lt;li&gt;For new profiles, the user-supplied &lt;code&gt;fullname&lt;/code&gt; parameter is always used; for existing profiles the existing value is<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * used, and whatever value the user supplied is discarded. The wiki name is automatically computed by taking the full name and<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * extracting all whitespace.&lt;/li&gt;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * &lt;li&gt;In all cases, the created/last modified timestamps of the user's existing or new profile always override whatever values the user<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * supplied.&lt;/li&gt;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * &lt;li&gt;If container authentication is used, the login name property of the profile is set to the name of<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * {@link org.apache.wiki.api.core.Session#getLoginPrincipal()}. Otherwise, the value of the &lt;code&gt;loginname&lt;/code&gt; parameter is used.&lt;/li&gt;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * &lt;/ul&gt;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     *<a name="line.121"></a>
+<span class="sourceLineNo">122</span>     * @param context the current wiki context<a name="line.122"></a>
+<span class="sourceLineNo">123</span>     * @return a new, populated user profile<a name="line.123"></a>
+<span class="sourceLineNo">124</span>     */<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    UserProfile parseProfile( Context context );<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>    /**<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     * Validates a user profile, and appends any errors to the session errors list. If the profile is new, the password will be checked to<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * make sure it isn't null. Otherwise, the password is checked for length and that it matches the value of the 'password2' HTTP<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * parameter. Note that we have a special case when container-managed authentication is used and the user is not authenticated;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * this will always cause validation to fail. Any validation errors are added to the wiki session's messages collection<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * (see {@link org.apache.wiki.api.core.Session#getMessages()}.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>     * @param context the current wiki context<a name="line.134"></a>
+<span class="sourceLineNo">135</span>     * @param profile the supplied UserProfile<a name="line.135"></a>
+<span class="sourceLineNo">136</span>     */<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    void validateProfile( Context context, UserProfile profile );<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>    /**<a name="line.139"></a>
+<span class="sourceLineNo">140</span>     *  A helper method for returning all of the known WikiNames in this system.<a name="line.140"></a>
+<span class="sourceLineNo">141</span>     *<a name="line.141"></a>
+<span class="sourceLineNo">142</span>     *  @return An Array of Principals<a name="line.142"></a>
+<span class="sourceLineNo">143</span>     *  @throws WikiSecurityException If for reason the names cannot be fetched<a name="line.143"></a>
+<span class="sourceLineNo">144</span>     */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    Principal[] listWikiNames() throws WikiSecurityException;<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>    // events processing .......................................................<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    /**<a name="line.149"></a>
+<span class="sourceLineNo">150</span>     * Registers a WikiEventListener with this instance. This is a convenience method.<a name="line.150"></a>
+<span class="sourceLineNo">151</span>     *<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * @param listener the event listener<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    void addWikiEventListener( WikiEventListener listener );<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>    /**<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * Un-registers a WikiEventListener with this instance. This is a convenience method.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     *<a name="line.158"></a>
+<span class="sourceLineNo">159</span>     * @param listener the event listener<a name="line.159"></a>
+<span class="sourceLineNo">160</span>     */<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    void removeWikiEventListener( WikiEventListener listener );<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>    /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     *  Fires a WikiSecurityEvent of the provided type, Principal and target Object to all registered listeners.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     *<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * @see org.apache.wiki.event.WikiSecurityEvent<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @param type       the event type to be fired<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     * @param session    the wiki session supporting the event<a name="line.168"></a>
+<span class="sourceLineNo">169</span>     * @param profile    the user profile (or array of user profiles), which may be &lt;code&gt;null&lt;/code&gt;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>     */<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    default void fireEvent( final int type, final Session session, final Object profile ) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        if( WikiEventManager.isListening( this ) ) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>            WikiEventManager.fireEvent( this, new WikiSecurityEvent( session, type, profile ) );<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        }<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>}<a name="line.177"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+@startuml
+
+    namespace org.apache.wiki.render {
+
+        class CustomXMLOutputProcessor [[CustomXMLOutputProcessor.html]] {
+            #attributeEscapedEntitiesFilter(Writer, FormatStack, String): void
+        }
+
+        class XHTMLRenderer [[XHTMLRenderer.html]] {
+            +XHTMLRenderer(Context, WikiDocument)
+            +getString(): String
+        }
+
+        abstract class WikiRenderer [[WikiRenderer.html]] {
+            {static} +LINKS_TRANSLATION: String
+            {static} +LINKS_SOURCE: String
+            #m_context: Context
+            #m_document: WikiDocument
+            #WikiRenderer(Context, WikiDocument)
+            {abstract} +getString(): String
+        }
+
+        class DefaultRenderingManager [[DefaultRenderingManager.html]] {
+            +initialize(Engine, Properties): void
+            +beautifyTitle(String): String
+            +beautifyTitleNoBreak(String): String
+            +getParser(Context, String): MarkupParser
+            +getRenderedDocument(Context, String): WikiDocument
+            +getHTML(Context, WikiDocument): String
+            +getHTML(Context, Page): String
+            +getHTML(String, int): String
+            +textToHTML(Context, String): String
+            +textToHTML(Context, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
+            +getRenderer(Context, WikiDocument): WikiRenderer
+            +getWysiwygRenderer(Context, WikiDocument): WikiRenderer
+            +actionPerformed(WikiEvent): void
+        }
+
+        interface RenderingManager [[RenderingManager.html]] {
+            {static} +PROP_PARSER: String
+            {static} +PROP_RENDERER: String
+            {static} +PROP_WYSIWYG_RENDERER: String
+            {static} +PROP_BEAUTIFYTITLE: String
+            {static} +DOCUMENTCACHE_NAME: String
+            +getHTML(Context, String): String
+            +getHTML(String): String
+            +textToHTML(Context, String, StringTransmutator, StringTransmutator): String
+            +textToHTML(Context, String, StringTransmutator, StringTransmutator, StringTransmutator): String
+            {abstract} +beautifyTitle(String): String
+            {abstract} +beautifyTitleNoBreak(String): String
+            {abstract} +getParser(Context, String): MarkupParser
+            {abstract} +getRenderedDocument(Context, String): WikiDocument
+            {abstract} +getRenderer(Context, WikiDocument): WikiRenderer
+            {abstract} +getWysiwygRenderer(Context, WikiDocument): WikiRenderer
+            {abstract} +getHTML(Context, WikiDocument): String
+            {abstract} +getHTML(Context, Page): String
+            {abstract} +getHTML(String, int): String
+            {abstract} +textToHTML(Context, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
+        }
+
+        class CreoleRenderer [[CreoleRenderer.html]] {
+            +CreoleRenderer(Context, WikiDocument)
+            +getString(): String
+        }
+
+        class WysiwygEditingRenderer [[WysiwygEditingRenderer.html]] {
+            +WysiwygEditingRenderer(Context, WikiDocument)
+            +getString(): String
+        }
+
+        class CleanTextRenderer [[CleanTextRenderer.html]] {
+            +CleanTextRenderer(Context, WikiDocument)
+            +getString(): String
+        }
+
+        abstract class org.jdom2.output.support.AbstractXMLOutputProcessor
+        org.jdom2.output.support.AbstractXMLOutputProcessor <|-- CustomXMLOutputProcessor
+
+        WikiRenderer <|-- XHTMLRenderer
+
+        RenderingManager <|.. DefaultRenderingManager
+
+        interface org.apache.wiki.api.engine.RenderApi {
+            {abstract} +textToHTML(Context, String): String
+        }
+        org.apache.wiki.api.engine.RenderApi <|.. RenderingManager
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. RenderingManager
+
+        interface org.apache.wiki.modules.InternalModule
+        org.apache.wiki.modules.InternalModule <|.. RenderingManager
+
+        interface org.apache.wiki.api.engine.Initializable {
+            {abstract} +initialize(Engine, Properties): void
+        }
+        org.apache.wiki.api.engine.Initializable <|.. RenderingManager
+
+        WikiRenderer <|-- CreoleRenderer
+
+        WikiRenderer <|-- WysiwygEditingRenderer
+
+        WikiRenderer <|-- CleanTextRenderer
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml

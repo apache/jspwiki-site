@@ -1,0 +1,144 @@
+@startuml
+
+    namespace org.apache.wiki.pages {
+
+        interface Page [[Page.html]] {
+            {static} +withUrl(String): PageBuilder
+            {static} +baseUrl(): String
+            {static} +download(String): File
+            +title(): String
+            +url(): String
+            {abstract} +wikiTitle(): String
+            {abstract} +wikiPageContent(): String
+        }
+
+        class PageBuilder [[PageBuilder.html]] {
+            +openAs(T): T
+        }
+
+        interface PageManager [[PageManager.html]] {
+            {static} +PROP_PAGEPROVIDER: String
+            {static} +PROP_USECACHE: String
+            {static} +PROP_LOCKEXPIRY: String
+            +getPureText(Page): String
+            +getText(String): String
+            +getText(Page): String
+            +pageExists(Page): boolean
+            +wikiPageExists(Page): boolean
+            {abstract} +getProvider(): PageProvider
+            {abstract} +getAllPages(): Collection<Page>
+            {abstract} +getPageText(String, int): String
+            {abstract} +getPureText(String, int): String
+            {abstract} +getText(String, int): String
+            {abstract} +saveText(Context, String): void
+            {abstract} +putPageText(Page, String): void
+            {abstract} +lockPage(Page, String): PageLock
+            {abstract} +unlockPage(PageLock): void
+            {abstract} +getCurrentLock(Page): PageLock
+            {abstract} +getPage(String): Page
+            {abstract} +getPage(String, int): Page
+            {abstract} +getPageInfo(String, int): Page
+            {abstract} +getVersionHistory(String): List<T>
+            {abstract} +getCurrentProvider(): String
+            {abstract} +getProviderDescription(): String
+            {abstract} +getTotalPageCount(): int
+            {abstract} +getRecentChanges(): Set<Page>
+            {abstract} +pageExists(String): boolean
+            {abstract} +pageExists(String, int): boolean
+            {abstract} +wikiPageExists(String): boolean
+            {abstract} +wikiPageExists(String, int): boolean
+            {abstract} +deleteVersion(Page): void
+            {abstract} +deletePage(String): void
+            {abstract} +deletePage(Page): void
+        }
+
+        class PageLock [[PageLock.html]] {
+            +PageLock(Page, String, Date, Date)
+            +getPage(): String
+            +getLocker(): String
+            +getAcquisitionTime(): Date
+            +getExpiryTime(): Date
+            +getTimeLeft(): long
+            +isExpired(): boolean
+        }
+
+        class DefaultPageManager [[DefaultPageManager.html]] {
+            #m_pageLocks: ConcurrentHashMap<String, PageLock>
+            +DefaultPageManager(Engine, Properties)
+            +getProvider(): PageProvider
+            +getAllPages(): Collection<Page>
+            +getPageText(String, int): String
+            +getPureText(String, int): String
+            +getText(String, int): String
+            +saveText(Context, String): void
+            #getEngine(): Engine
+            +putPageText(Page, String): void
+            +lockPage(Page, String): PageLock
+            +unlockPage(PageLock): void
+            +getCurrentLock(Page): PageLock
+            +getPage(String): Page
+            +getPage(String, int): Page
+            +getPageInfo(String, int): Page
+            +getVersionHistory(String): List<T>
+            +getCurrentProvider(): String
+            +getProviderDescription(): String
+            +getTotalPageCount(): int
+            +getRecentChanges(): Set<Page>
+            +pageExists(String): boolean
+            +pageExists(String, int): boolean
+            +wikiPageExists(String): boolean
+            +wikiPageExists(String, int): boolean
+            +deleteVersion(Page): void
+            +deletePage(String): void
+            +deletePage(Page): void
+            #fireEvent(int, String): void
+            +actionPerformed(WikiEvent): void
+            #changeAcl(Page, Principal[], Principal): boolean
+        }
+
+        class PageSorter [[PageSorter.html]] {
+            {static} #PROP_PAGE_NAME_COMPARATOR: String
+            +PageSorter()
+            +PageSorter(Comparator<String>)
+            +compare(String, String): int
+            +initialize(Properties): void
+            +sort(List<String>): void
+            +sort(String[]): void
+        }
+
+        class PageTimeComparator [[PageTimeComparator.html]] {
+            +compare(Page, Page): int
+        }
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. PageManager
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. PageLock
+
+        PageManager <|.. DefaultPageManager
+
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
+        }
+        java.util.Comparator <|.. PageSorter
+
+        java.util.Comparator <|.. PageTimeComparator
+
+        java.io.Serializable <|.. PageTimeComparator
+
+        PageManager --> "*" PageLock: activeLocks
+
+        PageManager --> PageSorter: pageSorter
+
+        DefaultPageManager --> "*" PageLock: activeLocks
+
+        DefaultPageManager --> PageSorter: pageSorter
+
+    }
+
+
+    center footer UMLDoclet 1.1.4, PlantUML 1.2019.05
+@enduml
