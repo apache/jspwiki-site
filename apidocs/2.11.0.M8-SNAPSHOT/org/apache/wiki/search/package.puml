@@ -2,16 +2,13 @@
 
     namespace org.apache.wiki.search {
 
-        class SearchMatcher [[SearchMatcher.html]] {
-            +SearchMatcher(Engine, QueryItem[])
-            +matchPageContent(String, String): SearchResult
-        }
-
-        class org.apache.wiki.search.SearchMatcher.SearchResultImpl [[SearchMatcher.SearchResultImpl.html]] {
-            +SearchResultImpl(String, int)
-            +getPage(): WikiPage
-            +getScore(): int
-            +getContexts(): String[]
+        class BasicSearchProvider [[BasicSearchProvider.html]] {
+            +initialize(Engine, Properties): void
+            +pageRemoved(Page): void
+            +reindexPage(Page): void
+            +parseQuery(String): QueryItem[]
+            +findPages(String, Context): Collection<SearchResult>
+            +getProviderInfo(): String
         }
 
         class DefaultSearchManager [[DefaultSearchManager.html]] {
@@ -29,25 +26,6 @@
             +service(HttpServletRequest, HttpServletResponse, String, List<String>): void
             +getSuggestions(String, int): List<String>
             +findPages(String, int, Context): List<Map<String, Object>>
-        }
-
-        class BasicSearchProvider [[BasicSearchProvider.html]] {
-            +initialize(Engine, Properties): void
-            +pageRemoved(Page): void
-            +reindexPage(Page): void
-            +parseQuery(String): QueryItem[]
-            +findPages(String, Context): Collection<SearchResult>
-            +getProviderInfo(): String
-        }
-
-        class SearchResultComparator [[SearchResultComparator.html]] {
-            +compare(SearchResult, SearchResult): int
-        }
-
-        interface SearchProvider [[SearchProvider.html]] {
-            {abstract} +pageRemoved(Page): void
-            {abstract} +reindexPage(Page): void
-            {abstract} +findPages(String, Context): Collection<SearchResult>
         }
 
         class LuceneSearchProvider [[LuceneSearchProvider.html]] {
@@ -77,6 +55,12 @@
             +getProviderInfo(): String
         }
 
+        interface SearchProvider [[SearchProvider.html]] {
+            {abstract} +pageRemoved(Page): void
+            {abstract} +reindexPage(Page): void
+            {abstract} +findPages(String, Context): Collection<SearchResult>
+        }
+
         interface SearchManager [[SearchManager.html]] {
             {static} +DEFAULT_SEARCHPROVIDER: String
             {static} +PROP_SEARCHPROVIDER: String
@@ -86,12 +70,23 @@
             +reindexPage(Page): void
         }
 
-        interface SearchResult {
-            {abstract} + --getPage-- (): WikiPage
+        class SearchMatcher [[SearchMatcher.html]] {
+            +SearchMatcher(Engine, QueryItem[])
+            +matchPageContent(String, String): SearchResult
         }
-        SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
 
-        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
+        class org.apache.wiki.search.SearchMatcher.SearchResultImpl [[SearchMatcher.SearchResultImpl.html]] {
+            +SearchResultImpl(String, int)
+            +getPage(): WikiPage
+            +getScore(): int
+            +getContexts(): String[]
+        }
+
+        class SearchResultComparator [[SearchResultComparator.html]] {
+            +compare(SearchResult, SearchResult): int
+        }
+
+        SearchProvider <|.. BasicSearchProvider
 
         class org.apache.wiki.api.filters.BasePageFilter
         org.apache.wiki.api.filters.BasePageFilter <|-- DefaultSearchManager
@@ -106,23 +101,13 @@
 
         DefaultSearchManager +-- org.apache.wiki.search.DefaultSearchManager.JSONSearch
 
-        SearchProvider <|.. BasicSearchProvider
-
-        interface java.util.Comparator<T> {
-            {abstract} +compare(T, T): int
-        }
-        java.util.Comparator <|.. SearchResultComparator
-
-        interface java.io.Serializable
-        java.io.Serializable <|.. SearchResultComparator
+        SearchProvider <|.. LuceneSearchProvider
 
         interface org.apache.wiki.api.providers.WikiProvider {
             {abstract} +initialize(Engine, Properties): void
             {abstract} +getProviderInfo(): String
         }
         org.apache.wiki.api.providers.WikiProvider <|.. SearchProvider
-
-        SearchProvider <|.. LuceneSearchProvider
 
         interface org.apache.wiki.api.filters.PageFilter {
             {abstract} +initialize(Engine, Properties): void
@@ -136,6 +121,21 @@
             {abstract} +actionPerformed(WikiEvent): void
         }
         org.apache.wiki.event.WikiEventListener <|.. SearchManager
+
+        interface SearchResult {
+            {abstract} + --getPage-- (): WikiPage
+        }
+        SearchResult <|.. org.apache.wiki.search.SearchMatcher.SearchResultImpl
+
+        SearchMatcher +-- org.apache.wiki.search.SearchMatcher.SearchResultImpl
+
+        interface java.util.Comparator<T> {
+            {abstract} +compare(T, T): int
+        }
+        java.util.Comparator <|.. SearchResultComparator
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. SearchResultComparator
 
         DefaultSearchManager --> SearchProvider: searchEngine
 

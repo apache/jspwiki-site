@@ -2,21 +2,6 @@
 
     namespace org.apache.wiki.ui.admin {
 
-        abstract class WikiFormAdminBean [[WikiFormAdminBean.html]] {
-            +doGet(Context): String
-            +handlePost(Context, HttpServletRequest, HttpServletResponse): String
-            {abstract} +getForm(Context): String
-            {abstract} +handleResponse(Context, Map<?, ?>): void
-        }
-
-        abstract class SimpleAdminBean [[SimpleAdminBean.html]] {
-            #m_engine: Engine
-            +initialize(Engine): void
-            +doGet(Context): String
-            +doPost(Context): String
-            +getId(): String
-        }
-
         interface AdminBeanManager [[AdminBeanManager.html]] {
             {abstract} +initialize(): void
             {abstract} +findBean(String): AdminBean
@@ -33,6 +18,13 @@
             {abstract} +getType(): int
         }
 
+        abstract class WikiFormAdminBean [[WikiFormAdminBean.html]] {
+            +doGet(Context): String
+            +handlePost(Context, HttpServletRequest, HttpServletResponse): String
+            {abstract} +getForm(Context): String
+            {abstract} +handleResponse(Context, Map<?, ?>): void
+        }
+
         class DefaultAdminBeanManager [[DefaultAdminBeanManager.html]] {
             +DefaultAdminBeanManager(Engine)
             +initialize(): void
@@ -41,15 +33,13 @@
             +actionPerformed(WikiEvent): void
         }
 
-        AdminBean <|.. WikiFormAdminBean
-
-        abstract class org.apache.wiki.management.SimpleMBean {
-            {abstract} +getAttributeNames(): String[]
-            {abstract} +getMethodNames(): String[]
+        abstract class SimpleAdminBean [[SimpleAdminBean.html]] {
+            #m_engine: Engine
+            +initialize(Engine): void
+            +doGet(Context): String
+            +doPost(Context): String
+            +getId(): String
         }
-        org.apache.wiki.management.SimpleMBean <|-- SimpleAdminBean
-
-        AdminBean <|.. SimpleAdminBean
 
         interface org.apache.wiki.ui.GenericHTTPHandler {
             {abstract} +getId(): String
@@ -58,12 +48,22 @@
         }
         org.apache.wiki.ui.GenericHTTPHandler <|.. AdminBean
 
+        AdminBean <|.. WikiFormAdminBean
+
         interface org.apache.wiki.event.WikiEventListener {
             {abstract} +actionPerformed(WikiEvent): void
         }
         org.apache.wiki.event.WikiEventListener <|.. DefaultAdminBeanManager
 
         AdminBeanManager <|.. DefaultAdminBeanManager
+
+        abstract class org.apache.wiki.management.SimpleMBean {
+            {abstract} +getAttributeNames(): String[]
+            {abstract} +getMethodNames(): String[]
+        }
+        org.apache.wiki.management.SimpleMBean <|-- SimpleAdminBean
+
+        AdminBean <|.. SimpleAdminBean
 
         AdminBeanManager --> "*" AdminBean: allBeans
 
