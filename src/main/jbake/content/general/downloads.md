@@ -16,9 +16,12 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 <br/> **Release Index**
 
+* **28-May-2020**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M7ReleasedOn28052020">2.11.0.M7</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12346642 <br/>
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M7/source/jspwiki-builder-2.11.0.M7-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M7/source/jspwiki-builder-2.11.0.M7-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M7/source/jspwiki-builder-2.11.0.M7-source-release.zip.asc">signature</a></strong>
+
 * **17-Dec-2019**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M6ReleasedOn17122019">2.11.0.M6</a>. This release fixes the following issues:
-https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12346489 <br/>
-<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M6/source/jspwiki-builder-2.11.0.M6-source-release.zip.asc">signature</a></strong>
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12346489 
 
 * **18-Sep-2019**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M5ReleasedOn18092019">2.11.0.M5</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12345540 
