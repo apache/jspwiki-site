@@ -15,7 +15,6 @@ The current JSPWiki committer list:
   * Janne Jalkanen
   * Andrew Jaquith
   * Dave Koelmeyer
-  * Glen Mazza
   * Harry Metske
   * Craig Russell
   * Juan Pablo Santos
