@@ -211,7 +211,7 @@
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Building%20from%20source%20code">Get and build source</a></li>
                 <li><a class="wikipage" href="${config.site_host}/development/edit_website.html">Editing website</a></li>
                 <li><a class="external" href="https://issues.apache.org/jira/browse/JSPWIKI">Issue tracker</a><img class="outlink" src="./images/out.png" alt=""></li>
-                <li><a class="external" href="https://builds.apache.org/job/JSPWiki/">Jenkins build</a><img class="outlink" src="./images/out.png" alt=""></li>
+                <li><a class="external" href="https://ci-builds.apache.org/job/JSPWiki/">Jenkins builds</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="external" href="https://sonarcloud.io/dashboard?id=jspwiki-builder">Sonar Analysis</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="external" href="https://jspwiki.apache.org/development/changelog.html">ChangeLog</a><img class="outlink" src="./images/out.png" alt=""></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Other%20stuff">Other stuff</a></li>
