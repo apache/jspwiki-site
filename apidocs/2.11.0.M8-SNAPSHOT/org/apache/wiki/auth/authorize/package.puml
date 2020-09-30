@@ -2,15 +2,31 @@
 
     namespace org.apache.wiki.auth.authorize {
 
-        interface WebAuthorizer [[WebAuthorizer.html]] {
-            {abstract} +isUserInRole(HttpServletRequest, Principal): boolean
+        interface GroupManager [[GroupManager.html]] {
+            {static} +MESSAGES_KEY: String
+            {static} +PROP_GROUPDATABASE: String
+            +parseGroup(Context, boolean): Group
+            +fireEvent(int, Object): void
+            {abstract} +getGroup(String): Group
+            {abstract} +parseGroup(String, String, boolean): Group
+            {abstract} +removeGroup(String): void
+            {abstract} +setGroup(Session, Group): void
+            {abstract} +validateGroup(Context, Group): void
+            {abstract} +checkGroupName(Context, String): void
+            {abstract} +addWikiEventListener(WikiEventListener): void
+            {abstract} +removeWikiEventListener(WikiEventListener): void
         }
 
-        interface GroupDatabase [[GroupDatabase.html]] {
-            {abstract} +delete(Group): void
-            {abstract} +initialize(Engine, Properties): void
-            {abstract} +save(Group, Principal): void
-            {abstract} +groups(): Group[]
+        class Role [[Role.html]] {
+            {static} +ALL: Role
+            {static} +ANONYMOUS: Role
+            {static} +ASSERTED: Role
+            {static} +AUTHENTICATED: Role
+            #Role()
+            +Role(String)
+            {static} +isBuiltInRole(Role): boolean
+            {static} +isReservedName(String): boolean
+            +getName(): String
         }
 
         class WebContainerAuthorizer [[WebContainerAuthorizer.html]] {
@@ -30,19 +46,25 @@
             +resolveEntity(String, String): InputSource
         }
 
-        interface GroupManager [[GroupManager.html]] {
-            {static} +MESSAGES_KEY: String
-            {static} +PROP_GROUPDATABASE: String
-            +parseGroup(Context, boolean): Group
-            +fireEvent(int, Object): void
-            {abstract} +getGroup(String): Group
-            {abstract} +parseGroup(String, String, boolean): Group
-            {abstract} +removeGroup(String): void
-            {abstract} +setGroup(Session, Group): void
-            {abstract} +validateGroup(Context, Group): void
-            {abstract} +checkGroupName(Context, String): void
-            {abstract} +addWikiEventListener(WikiEventListener): void
-            {abstract} +removeWikiEventListener(WikiEventListener): void
+        class DefaultGroupManager [[DefaultGroupManager.html]] {
+            #m_engine: Engine
+            +findRole(String): Principal
+            +getGroup(String): Group
+            +initialize(Engine, Properties): void
+            +isUserInRole(Session, Principal): boolean
+            +parseGroup(String, String, boolean): Group
+            +removeGroup(String): void
+            +setGroup(Session, Group): void
+            +validateGroup(Context, Group): void
+            +checkGroupName(Context, String): void
+            #extractMembers(String): String[]
+            +addWikiEventListener(WikiEventListener): void
+            +removeWikiEventListener(WikiEventListener): void
+            +actionPerformed(WikiEvent): void
+        }
+
+        interface WebAuthorizer [[WebAuthorizer.html]] {
+            {abstract} +isUserInRole(HttpServletRequest, Principal): boolean
         }
 
         class JDBCGroupDatabase [[JDBCGroupDatabase.html]] {
@@ -71,33 +93,12 @@
             +initialize(Engine, Properties): void
         }
 
-        class DefaultGroupManager [[DefaultGroupManager.html]] {
-            #m_engine: Engine
-            +findRole(String): Principal
-            +getGroup(String): Group
+        class XMLGroupDatabase [[XMLGroupDatabase.html]] {
+            {static} +PROP_DATABASE: String
+            +delete(Group): void
+            +groups(): Group[]
             +initialize(Engine, Properties): void
-            +isUserInRole(Session, Principal): boolean
-            +parseGroup(String, String, boolean): Group
-            +removeGroup(String): void
-            +setGroup(Session, Group): void
-            +validateGroup(Context, Group): void
-            +checkGroupName(Context, String): void
-            #extractMembers(String): String[]
-            +addWikiEventListener(WikiEventListener): void
-            +removeWikiEventListener(WikiEventListener): void
-            +actionPerformed(WikiEvent): void
-        }
-
-        class Role [[Role.html]] {
-            {static} +ALL: Role
-            {static} +ANONYMOUS: Role
-            {static} +ASSERTED: Role
-            {static} +AUTHENTICATED: Role
-            #Role()
-            +Role(String)
-            {static} +isBuiltInRole(Role): boolean
-            {static} +isReservedName(String): boolean
-            +getName(): String
+            +save(Group, Principal): void
         }
 
         class Group [[Group.html]] {
@@ -119,13 +120,17 @@
             +setModifier(String): void
         }
 
-        class XMLGroupDatabase [[XMLGroupDatabase.html]] {
-            {static} +PROP_DATABASE: String
-            +delete(Group): void
-            +groups(): Group[]
-            +initialize(Engine, Properties): void
-            +save(Group, Principal): void
+        interface GroupDatabase [[GroupDatabase.html]] {
+            {abstract} +delete(Group): void
+            {abstract} +initialize(Engine, Properties): void
+            {abstract} +save(Group, Principal): void
+            {abstract} +groups(): Group[]
         }
+
+        interface org.apache.wiki.api.engine.Initializable {
+            {abstract} +initialize(Engine, Properties): void
+        }
+        org.apache.wiki.api.engine.Initializable <|.. GroupManager
 
         interface org.apache.wiki.auth.Authorizer {
             {abstract} +getRoles(): Principal[]
@@ -133,7 +138,20 @@
             {abstract} +initialize(Engine, Properties): void
             {abstract} +isUserInRole(Session, Principal): boolean
         }
-        org.apache.wiki.auth.Authorizer <|.. WebAuthorizer
+        org.apache.wiki.auth.Authorizer <|.. GroupManager
+
+        interface org.apache.wiki.event.WikiEventListener {
+            {abstract} +actionPerformed(WikiEvent): void
+        }
+        org.apache.wiki.event.WikiEventListener <|.. GroupManager
+
+        interface java.security.Principal {
+            {abstract} +getName(): String
+        }
+        java.security.Principal <|.. Role
+
+        interface java.io.Serializable
+        java.io.Serializable <|.. Role
 
         WebAuthorizer <|.. WebContainerAuthorizer
 
@@ -144,41 +162,23 @@
 
         WebContainerAuthorizer +-- org.apache.wiki.auth.authorize.WebContainerAuthorizer.LocalEntityResolver
 
-        interface org.apache.wiki.api.engine.Initializable {
-            {abstract} +initialize(Engine, Properties): void
-        }
-        org.apache.wiki.api.engine.Initializable <|.. GroupManager
-
-        org.apache.wiki.auth.Authorizer <|.. GroupManager
-
-        interface org.apache.wiki.event.WikiEventListener {
-            {abstract} +actionPerformed(WikiEvent): void
-        }
-        org.apache.wiki.event.WikiEventListener <|.. GroupManager
-
-        GroupDatabase <|.. JDBCGroupDatabase
-
         GroupManager <|.. DefaultGroupManager
 
         org.apache.wiki.auth.Authorizer <|.. DefaultGroupManager
 
         org.apache.wiki.event.WikiEventListener <|.. DefaultGroupManager
 
-        interface java.security.Principal {
-            {abstract} +getName(): String
-        }
-        java.security.Principal <|.. Role
+        org.apache.wiki.auth.Authorizer <|.. WebAuthorizer
 
-        interface java.io.Serializable
-        java.io.Serializable <|.. Role
+        GroupDatabase <|.. JDBCGroupDatabase
 
         GroupDatabase <|.. XMLGroupDatabase
+
+        GroupManager --> GroupDatabase: groupDatabase
 
         WebContainerAuthorizer --> "*" Role: m_containerRoles
 
         WebContainerAuthorizer --> "*" java.security.Principal: roles
-
-        GroupManager --> GroupDatabase: groupDatabase
 
         DefaultGroupManager --> org.apache.wiki.event.WikiEventListener: m_groupListener
 
