@@ -2,23 +2,10 @@
 
     namespace org.apache.wiki.rss {
 
-        class Entry [[Entry.html]] {
-            +setAuthor(String): void
-            +getAuthor(): String
-            +getPage(): Page
-            +setPage(Page): void
-            +setTitle(String): void
-            +getTitle(): String
-            +setURL(String): void
-            +getURL(): String
-            +setContent(String): void
-            +getContent(): String
-        }
-
-        class AtomFeed [[AtomFeed.html]] {
-            {static} +RFC3339FORMAT: String
-            +AtomFeed(Context)
-            +getString(): String
+        class RSSThread [[RSSThread.html]] {
+            +RSSThread(Engine, File, int)
+            +startupTask(): void
+            +backgroundTask(): void
         }
 
         interface RSSGenerator [[RSSGenerator.html]] {
@@ -46,6 +33,25 @@
             {abstract} +generateFullWikiRSS(Context, Feed): String
             {abstract} +generateWikiPageRSS(Context, List<Page>, Feed): String
             {abstract} +generateBlogRSS(Context, List<Page>, Feed): String
+        }
+
+        class DefaultRSSGenerator [[DefaultRSSGenerator.html]] {
+            +DefaultRSSGenerator(Engine, Properties)
+            +initialize(Engine, Properties): void
+            +generate(): String
+            +generateFeed(Context, List<Page>, String, String): String
+            +isEnabled(): boolean
+            +setEnabled(boolean): void
+            +getRssFile(): String
+            +generateFullWikiRSS(Context, Feed): String
+            +generateWikiPageRSS(Context, List<Page>, Feed): String
+            +generateBlogRSS(Context, List<Page>, Feed): String
+        }
+
+        class AtomFeed [[AtomFeed.html]] {
+            {static} +RFC3339FORMAT: String
+            +AtomFeed(Context)
+            +getString(): String
         }
 
         abstract class Feed [[Feed.html]] {
@@ -78,10 +84,17 @@
             +getString(): String
         }
 
-        class RSSThread [[RSSThread.html]] {
-            +RSSThread(Engine, File, int)
-            +startupTask(): void
-            +backgroundTask(): void
+        class Entry [[Entry.html]] {
+            +setAuthor(String): void
+            +getAuthor(): String
+            +getPage(): Page
+            +setPage(Page): void
+            +setTitle(String): void
+            +getTitle(): String
+            +setURL(String): void
+            +getURL(): String
+            +setContent(String): void
+            +getContent(): String
         }
 
         class RSS20Feed [[RSS20Feed.html]] {
@@ -89,36 +102,23 @@
             +getString(): String
         }
 
-        class DefaultRSSGenerator [[DefaultRSSGenerator.html]] {
-            +DefaultRSSGenerator(Engine, Properties)
-            +initialize(Engine, Properties): void
-            +generate(): String
-            +generateFeed(Context, List<Page>, String, String): String
-            +isEnabled(): boolean
-            +setEnabled(boolean): void
-            +getRssFile(): String
-            +generateFullWikiRSS(Context, Feed): String
-            +generateWikiPageRSS(Context, List<Page>, Feed): String
-            +generateBlogRSS(Context, List<Page>, Feed): String
+        abstract class org.apache.wiki.WikiBackgroundThread {
+            {abstract} +backgroundTask(): void
         }
-
-        Feed <|-- AtomFeed
+        org.apache.wiki.WikiBackgroundThread <|-- RSSThread
 
         interface org.apache.wiki.api.engine.Initializable {
             {abstract} +initialize(Engine, Properties): void
         }
         org.apache.wiki.api.engine.Initializable <|.. RSSGenerator
 
+        RSSGenerator <|.. DefaultRSSGenerator
+
+        Feed <|-- AtomFeed
+
         Feed <|-- RSS10Feed
 
-        abstract class org.apache.wiki.WikiBackgroundThread {
-            {abstract} +backgroundTask(): void
-        }
-        org.apache.wiki.WikiBackgroundThread <|-- RSSThread
-
         Feed <|-- RSS20Feed
-
-        RSSGenerator <|.. DefaultRSSGenerator
 
         Feed --> "*" Entry: m_entries
 

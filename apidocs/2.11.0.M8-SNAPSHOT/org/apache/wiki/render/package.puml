@@ -2,9 +2,38 @@
 
     namespace org.apache.wiki.render {
 
-        class CreoleRenderer [[CreoleRenderer.html]] {
-            +CreoleRenderer(Context, WikiDocument)
+        class CustomXMLOutputProcessor [[CustomXMLOutputProcessor.html]] {
+            #attributeEscapedEntitiesFilter(Writer, FormatStack, String): void
+        }
+
+        class XHTMLRenderer [[XHTMLRenderer.html]] {
+            +XHTMLRenderer(Context, WikiDocument)
             +getString(): String
+        }
+
+        abstract class WikiRenderer [[WikiRenderer.html]] {
+            {static} +LINKS_TRANSLATION: String
+            {static} +LINKS_SOURCE: String
+            #m_context: Context
+            #m_document: WikiDocument
+            #WikiRenderer(Context, WikiDocument)
+            {abstract} +getString(): String
+        }
+
+        class DefaultRenderingManager [[DefaultRenderingManager.html]] {
+            +initialize(Engine, Properties): void
+            +beautifyTitle(String): String
+            +beautifyTitleNoBreak(String): String
+            +getParser(Context, String): MarkupParser
+            +getRenderedDocument(Context, String): WikiDocument
+            +getHTML(Context, WikiDocument): String
+            +getHTML(Context, Page): String
+            +getHTML(String, int): String
+            +textToHTML(Context, String): String
+            +textToHTML(Context, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
+            +getRenderer(Context, WikiDocument): WikiRenderer
+            +getWysiwygRenderer(Context, WikiDocument): WikiRenderer
+            +actionPerformed(WikiEvent): void
         }
 
         interface RenderingManager [[RenderingManager.html]] {
@@ -29,22 +58,8 @@
             {abstract} +textToHTML(Context, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
         }
 
-        class XHTMLRenderer [[XHTMLRenderer.html]] {
-            +XHTMLRenderer(Context, WikiDocument)
-            +getString(): String
-        }
-
-        abstract class WikiRenderer [[WikiRenderer.html]] {
-            {static} +LINKS_TRANSLATION: String
-            {static} +LINKS_SOURCE: String
-            #m_context: Context
-            #m_document: WikiDocument
-            #WikiRenderer(Context, WikiDocument)
-            {abstract} +getString(): String
-        }
-
-        class CleanTextRenderer [[CleanTextRenderer.html]] {
-            +CleanTextRenderer(Context, WikiDocument)
+        class CreoleRenderer [[CreoleRenderer.html]] {
+            +CreoleRenderer(Context, WikiDocument)
             +getString(): String
         }
 
@@ -53,27 +68,17 @@
             +getString(): String
         }
 
-        class CustomXMLOutputProcessor [[CustomXMLOutputProcessor.html]] {
-            #attributeEscapedEntitiesFilter(Writer, FormatStack, String): void
+        class CleanTextRenderer [[CleanTextRenderer.html]] {
+            +CleanTextRenderer(Context, WikiDocument)
+            +getString(): String
         }
 
-        class DefaultRenderingManager [[DefaultRenderingManager.html]] {
-            +initialize(Engine, Properties): void
-            +beautifyTitle(String): String
-            +beautifyTitleNoBreak(String): String
-            +getParser(Context, String): MarkupParser
-            +getRenderedDocument(Context, String): WikiDocument
-            +getHTML(Context, WikiDocument): String
-            +getHTML(Context, Page): String
-            +getHTML(String, int): String
-            +textToHTML(Context, String): String
-            +textToHTML(Context, String, StringTransmutator, StringTransmutator, StringTransmutator, boolean, boolean): String
-            +getRenderer(Context, WikiDocument): WikiRenderer
-            +getWysiwygRenderer(Context, WikiDocument): WikiRenderer
-            +actionPerformed(WikiEvent): void
-        }
+        abstract class org.jdom2.output.support.AbstractXMLOutputProcessor
+        org.jdom2.output.support.AbstractXMLOutputProcessor <|-- CustomXMLOutputProcessor
 
-        WikiRenderer <|-- CreoleRenderer
+        WikiRenderer <|-- XHTMLRenderer
+
+        RenderingManager <|.. DefaultRenderingManager
 
         interface org.apache.wiki.api.engine.RenderApi {
             {abstract} +textToHTML(Context, String): String
@@ -93,16 +98,11 @@
         }
         org.apache.wiki.api.engine.Initializable <|.. RenderingManager
 
-        WikiRenderer <|-- XHTMLRenderer
-
-        WikiRenderer <|-- CleanTextRenderer
+        WikiRenderer <|-- CreoleRenderer
 
         WikiRenderer <|-- WysiwygEditingRenderer
 
-        abstract class org.jdom2.output.support.AbstractXMLOutputProcessor
-        org.jdom2.output.support.AbstractXMLOutputProcessor <|-- CustomXMLOutputProcessor
-
-        RenderingManager <|.. DefaultRenderingManager
+        WikiRenderer <|-- CleanTextRenderer
 
     }
 
