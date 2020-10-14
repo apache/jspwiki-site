@@ -2,40 +2,6 @@
 
     namespace org.apache.wiki.attachment {
 
-        class DynamicAttachment [[DynamicAttachment.html]] {
-            +DynamicAttachment(Engine, String, String, DynamicAttachmentProvider)
-        }
-
-        interface DynamicAttachmentProvider [[DynamicAttachmentProvider.html]] {
-            {abstract} +getAttachmentData(Context, Attachment): InputStream
-        }
-
-        class Attachment [[Attachment.html]] {
-            +Attachment(Engine, String, String)
-            +getFileName(): String
-            +setFileName(String): void
-            +getParentName(): String
-            +isCacheable(): boolean
-            +setCacheable(boolean): void
-        }
-
-        class DefaultAttachmentManager [[DefaultAttachmentManager.html]] {
-            +DefaultAttachmentManager(Engine, Properties)
-            +attachmentsEnabled(): boolean
-            +getAttachmentInfoName(Context, String): String
-            +getAttachmentInfo(Context, String, int): Attachment
-            +listAttachments(Page): List<Attachment>
-            +forceDownload(String): boolean
-            +getAttachmentStream(Context, Attachment): InputStream
-            +storeDynamicAttachment(Context, DynamicAttachment): void
-            +getDynamicAttachment(String): DynamicAttachment
-            +storeAttachment(Attachment, InputStream): void
-            +getVersionHistory(String): List<Attachment>
-            +getCurrentProvider(): AttachmentProvider
-            +deleteVersion(Attachment): void
-            +deleteAttachment(Attachment): void
-        }
-
         interface AttachmentManager [[AttachmentManager.html]] {
             {static} +PROP_PROVIDER: String
             {static} +PROP_MAXSIZE: String
@@ -66,6 +32,19 @@
             {abstract} +deleteAttachment(Attachment): void
         }
 
+        class Attachment [[Attachment.html]] {
+            +Attachment(Engine, String, String)
+            +getFileName(): String
+            +setFileName(String): void
+            +getParentName(): String
+            +isCacheable(): boolean
+            +setCacheable(boolean): void
+        }
+
+        class DynamicAttachment [[DynamicAttachment.html]] {
+            +DynamicAttachment(Engine, String, String, DynamicAttachmentProvider)
+        }
+
         class AttachmentServlet [[AttachmentServlet.html]] {
             {static} #DEFAULT_EXPIRY: long
             +init(ServletConfig): void
@@ -76,7 +55,26 @@
             #executeUpload(Context, InputStream, String, String, String, String, long): boolean
         }
 
-        Attachment <|-- DynamicAttachment
+        class DefaultAttachmentManager [[DefaultAttachmentManager.html]] {
+            +DefaultAttachmentManager(Engine, Properties)
+            +attachmentsEnabled(): boolean
+            +getAttachmentInfoName(Context, String): String
+            +getAttachmentInfo(Context, String, int): Attachment
+            +listAttachments(Page): List<Attachment>
+            +forceDownload(String): boolean
+            +getAttachmentStream(Context, Attachment): InputStream
+            +storeDynamicAttachment(Context, DynamicAttachment): void
+            +getDynamicAttachment(String): DynamicAttachment
+            +storeAttachment(Attachment, InputStream): void
+            +getVersionHistory(String): List<Attachment>
+            +getCurrentProvider(): AttachmentProvider
+            +deleteVersion(Attachment): void
+            +deleteAttachment(Attachment): void
+        }
+
+        interface DynamicAttachmentProvider [[DynamicAttachmentProvider.html]] {
+            {abstract} +getAttachmentData(Context, Attachment): InputStream
+        }
 
         class org.apache.wiki.WikiPage
         org.apache.wiki.WikiPage <|-- Attachment
@@ -90,16 +88,18 @@
         }
         org.apache.wiki.api.core.Attachment <|.. Attachment
 
-        AttachmentManager <|.. DefaultAttachmentManager
+        Attachment <|-- DynamicAttachment
 
         abstract class javax.servlet.http.HttpServlet
         javax.servlet.http.HttpServlet <|-- AttachmentServlet
 
+        AttachmentManager <|.. DefaultAttachmentManager
+
+        AttachmentManager --> "*" org.apache.wiki.api.core.Attachment: allAttachments
+
         DynamicAttachment --> DynamicAttachmentProvider: provider
 
         DefaultAttachmentManager --> "*" org.apache.wiki.api.core.Attachment: allAttachments
-
-        AttachmentManager --> "*" org.apache.wiki.api.core.Attachment: allAttachments
 
     }
 
