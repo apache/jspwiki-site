@@ -1,243 +1,244 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.auth.acl;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.log4j.Logger;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.Acl;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.AclEntry;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.api.core.Attachment;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.api.core.Context;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.api.core.Engine;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.core.Page;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.api.exceptions.ProviderException;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.api.spi.Wiki;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.auth.AuthorizationManager;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.auth.WikiSecurityException;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.auth.permissions.PagePermission;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.auth.permissions.PermissionFactory;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.wiki.pages.PageLock;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.apache.wiki.pages.PageManager;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.apache.wiki.render.RenderingManager;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.apache.wiki.util.comparators.PrincipalComparator;<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.security.Permission;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import java.security.Principal;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import java.util.ArrayList;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import java.util.Enumeration;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>import java.util.List;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>import java.util.Map;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>import java.util.NoSuchElementException;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>import java.util.Properties;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>import java.util.StringTokenizer;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>import java.util.TreeMap;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>import java.util.regex.Matcher;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>import java.util.regex.Pattern;<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>/**<a name="line.52"></a>
-<span class="sourceLineNo">053</span> * Default implementation that parses Acls from wiki page markup.<a name="line.53"></a>
-<span class="sourceLineNo">054</span> *<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * @since 2.3<a name="line.55"></a>
-<span class="sourceLineNo">056</span> */<a name="line.56"></a>
-<span class="sourceLineNo">057</span>public class DefaultAclManager implements AclManager {<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>    private static final Logger log = Logger.getLogger(DefaultAclManager.class);<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>    private AuthorizationManager m_auth = null;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    private Engine m_engine = null;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    private static final String PERM_REGEX = "("<a name="line.63"></a>
-<span class="sourceLineNo">064</span>                                              + PagePermission.COMMENT_ACTION + "|"<a name="line.64"></a>
-<span class="sourceLineNo">065</span>                                              + PagePermission.DELETE_ACTION  + "|"<a name="line.65"></a>
-<span class="sourceLineNo">066</span>                                              + PagePermission.EDIT_ACTION    + "|"<a name="line.66"></a>
-<span class="sourceLineNo">067</span>                                              + PagePermission.MODIFY_ACTION  + "|"<a name="line.67"></a>
-<span class="sourceLineNo">068</span>                                              + PagePermission.RENAME_ACTION  + "|"<a name="line.68"></a>
-<span class="sourceLineNo">069</span>                                              + PagePermission.UPLOAD_ACTION  + "|"<a name="line.69"></a>
-<span class="sourceLineNo">070</span>                                              + PagePermission.VIEW_ACTION    +<a name="line.70"></a>
-<span class="sourceLineNo">071</span>                                             ")";<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    private static final String ACL_REGEX = "\\[\\{\\s*ALLOW\\s+" + PERM_REGEX + "\\s*(.*?)\\s*\\}\\]";<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>    /**<a name="line.74"></a>
-<span class="sourceLineNo">075</span>     * Identifies ACL strings in wiki text; the first group is the action (view, edit) and<a name="line.75"></a>
-<span class="sourceLineNo">076</span>     * the second is the list of Principals separated by commas. The overall match is<a name="line.76"></a>
-<span class="sourceLineNo">077</span>     * the ACL string from [{ to }].<a name="line.77"></a>
-<span class="sourceLineNo">078</span>     */<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    public static final Pattern ACL_PATTERN = Pattern.compile( ACL_REGEX );<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>    /** {@inheritDoc} */<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    @Override<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    public void initialize( final Engine engine, final Properties props ) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        m_auth = engine.getManager( AuthorizationManager.class );<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        m_engine = engine;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    /** {@inheritDoc} */<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    @Override<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    public Acl parseAcl( final Page page, final String ruleLine ) throws WikiSecurityException {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        Acl acl = page.getAcl();<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        if (acl == null) {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            acl = Wiki.acls().acl();<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>        try {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>            final StringTokenizer fieldToks = new StringTokenizer(ruleLine);<a name="line.97"></a>
-<span class="sourceLineNo">098</span>            fieldToks.nextToken();<a name="line.98"></a>
-<span class="sourceLineNo">099</span>            final String actions = fieldToks.nextToken();<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>            while( fieldToks.hasMoreTokens() ) {<a name="line.101"></a>
-<span class="sourceLineNo">102</span>                final String principalName = fieldToks.nextToken(",").trim();<a name="line.102"></a>
-<span class="sourceLineNo">103</span>                final Principal principal = m_auth.resolvePrincipal(principalName);<a name="line.103"></a>
-<span class="sourceLineNo">104</span>                final AclEntry oldEntry = acl.getAclEntry(principal);<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>                if( oldEntry != null ) {<a name="line.106"></a>
-<span class="sourceLineNo">107</span>                    log.debug( "Adding to old acl list: " + principal + ", " + actions );<a name="line.107"></a>
-<span class="sourceLineNo">108</span>                    oldEntry.addPermission( PermissionFactory.getPagePermission( page, actions ) );<a name="line.108"></a>
-<span class="sourceLineNo">109</span>                } else {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>                    log.debug( "Adding new acl entry for " + actions );<a name="line.110"></a>
-<span class="sourceLineNo">111</span>                    final AclEntry entry = Wiki.acls().entry();<a name="line.111"></a>
-<span class="sourceLineNo">112</span>                    entry.setPrincipal( principal );<a name="line.112"></a>
-<span class="sourceLineNo">113</span>                    entry.addPermission( PermissionFactory.getPagePermission( page, actions ) );<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>                    acl.addEntry( entry );<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                }<a name="line.116"></a>
-<span class="sourceLineNo">117</span>            }<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>            page.setAcl( acl );<a name="line.119"></a>
-<span class="sourceLineNo">120</span>            log.debug( acl.toString() );<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        } catch( final NoSuchElementException nsee ) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>            log.warn( "Invalid access rule: " + ruleLine + " - defaults will be used." );<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            throw new WikiSecurityException( "Invalid access rule: " + ruleLine, nsee );<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        } catch( final IllegalArgumentException iae ) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            throw new WikiSecurityException("Invalid permission type: " + ruleLine, iae);<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        }<a name="line.126"></a>
-<span class="sourceLineNo">127</span><a name="line.127"></a>
-<span class="sourceLineNo">128</span>        return acl;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    }<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span><a name="line.131"></a>
-<span class="sourceLineNo">132</span>    /** {@inheritDoc} */<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    @Override<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    public Acl getPermissions( final Page page ) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        //  Does the page already have cached ACLs?<a name="line.135"></a>
-<span class="sourceLineNo">136</span>        Acl acl = page.getAcl();<a name="line.136"></a>
-<span class="sourceLineNo">137</span>        log.debug( "page=" + page.getName() + "\n" + acl );<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>        if( acl == null ) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            //  If null, try the parent.<a name="line.140"></a>
-<span class="sourceLineNo">141</span>            if( page instanceof Attachment ) {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>                final Page parent = m_engine.getManager( PageManager.class ).getPage( ( ( Attachment ) page ).getParentName() );<a name="line.142"></a>
-<span class="sourceLineNo">143</span>                acl = getPermissions(parent);<a name="line.143"></a>
-<span class="sourceLineNo">144</span>            } else {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>                //  Or, try parsing the page<a name="line.145"></a>
-<span class="sourceLineNo">146</span>                final Context ctx = Wiki.context().create( m_engine, page );<a name="line.146"></a>
-<span class="sourceLineNo">147</span>                ctx.setVariable( Context.VAR_EXECUTE_PLUGINS, Boolean.FALSE );<a name="line.147"></a>
-<span class="sourceLineNo">148</span>                m_engine.getManager( RenderingManager.class ).getHTML(ctx, page);<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>                if (page.getAcl() == null) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>                    page.setAcl( Wiki.acls().acl() );<a name="line.151"></a>
-<span class="sourceLineNo">152</span>                }<a name="line.152"></a>
-<span class="sourceLineNo">153</span>                acl = page.getAcl();<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            }<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
-<span class="sourceLineNo">156</span><a name="line.156"></a>
-<span class="sourceLineNo">157</span>        return acl;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    /** {@inheritDoc} */<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    @Override<a name="line.161"></a>
-<span class="sourceLineNo">162</span>    public void setPermissions( final Page page, final Acl acl ) throws WikiSecurityException {<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        final PageManager pageManager = m_engine.getManager( PageManager.class );<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>        // Forcibly expire any page locks<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        final PageLock lock = pageManager.getCurrentLock( page );<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        if( lock != null ) {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            pageManager.unlockPage( lock );<a name="line.168"></a>
-<span class="sourceLineNo">169</span>        }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>        // Remove all of the existing ACLs.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        final String pageText = m_engine.getManager( PageManager.class ).getPureText( page );<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        final Matcher matcher = DefaultAclManager.ACL_PATTERN.matcher( pageText );<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        final String cleansedText = matcher.replaceAll("" );<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        final String newText = DefaultAclManager.printAcl( page.getAcl() ) + cleansedText;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        try {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            pageManager.putPageText( page, newText );<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        } catch( final ProviderException e ) {<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            throw new WikiSecurityException( "Could not set Acl. Reason: ProviderExcpetion " + e.getMessage(), e );<a name="line.179"></a>
-<span class="sourceLineNo">180</span>        }<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>    /**<a name="line.183"></a>
-<span class="sourceLineNo">184</span>     * Generates an ACL string for inclusion in a wiki page, based on a supplied Acl object. All of the permissions in this Acl are<a name="line.184"></a>
-<span class="sourceLineNo">185</span>     * assumed to apply to the same page scope. The names of the pages are ignored; only the actions and principals matter.<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     * @param acl the ACL<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     * @return the ACL string<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     */<a name="line.189"></a>
-<span class="sourceLineNo">190</span>    protected static String printAcl( final Acl acl ) {<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        // Extract the ACL entries into a Map with keys == permissions, values == principals<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        final Map&lt; String, List&lt; Principal &gt; &gt; permissionPrincipals = new TreeMap&lt;&gt;();<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        final Enumeration&lt; AclEntry &gt; entries = acl.aclEntries();<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        while( entries.hasMoreElements() ) {<a name="line.194"></a>
-<span class="sourceLineNo">195</span>            final AclEntry entry = entries.nextElement();<a name="line.195"></a>
-<span class="sourceLineNo">196</span>            final Principal principal = entry.getPrincipal();<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            final Enumeration&lt; Permission &gt; permissions = entry.permissions();<a name="line.197"></a>
-<span class="sourceLineNo">198</span>            while( permissions.hasMoreElements() ) {<a name="line.198"></a>
-<span class="sourceLineNo">199</span>                final Permission permission = permissions.nextElement();<a name="line.199"></a>
-<span class="sourceLineNo">200</span>                List&lt; Principal &gt; principals = permissionPrincipals.get( permission.getActions() );<a name="line.200"></a>
-<span class="sourceLineNo">201</span>                if (principals == null) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>                    principals = new ArrayList&lt;&gt;();<a name="line.202"></a>
-<span class="sourceLineNo">203</span>                    final String action = permission.getActions();<a name="line.203"></a>
-<span class="sourceLineNo">204</span>                    if( action.indexOf(',') != -1 ) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>                        throw new IllegalStateException("AclEntry permission cannot have multiple targets.");<a name="line.205"></a>
-<span class="sourceLineNo">206</span>                    }<a name="line.206"></a>
-<span class="sourceLineNo">207</span>                    permissionPrincipals.put( action, principals );<a name="line.207"></a>
-<span class="sourceLineNo">208</span>                }<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                principals.add( principal );<a name="line.209"></a>
-<span class="sourceLineNo">210</span>            }<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        }<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>        // Now, iterate through each permission in the map and generate an ACL string<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        final StringBuilder s = new StringBuilder();<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        for( final Map.Entry&lt; String, List&lt; Principal &gt; &gt; entry : permissionPrincipals.entrySet() ) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            final String action = entry.getKey();<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            final List&lt; Principal &gt; principals = entry.getValue();<a name="line.217"></a>
-<span class="sourceLineNo">218</span>            principals.sort( new PrincipalComparator() );<a name="line.218"></a>
-<span class="sourceLineNo">219</span>            s.append( "[{ALLOW " ).append( action ).append( " " );<a name="line.219"></a>
-<span class="sourceLineNo">220</span>            for( int i = 0; i &lt; principals.size(); i++ ) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>                final Principal principal = principals.get( i );<a name="line.221"></a>
-<span class="sourceLineNo">222</span>                s.append( principal.getName() );<a name="line.222"></a>
-<span class="sourceLineNo">223</span>                if( i &lt; ( principals.size() - 1 ) ) {<a name="line.223"></a>
-<span class="sourceLineNo">224</span>                    s.append( "," );<a name="line.224"></a>
-<span class="sourceLineNo">225</span>                }<a name="line.225"></a>
-<span class="sourceLineNo">226</span>            }<a name="line.226"></a>
-<span class="sourceLineNo">227</span>            s.append( "}]\n" );<a name="line.227"></a>
-<span class="sourceLineNo">228</span>        }<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        return s.toString();<a name="line.229"></a>
-<span class="sourceLineNo">230</span>    }<a name="line.230"></a>
-<span class="sourceLineNo">231</span><a name="line.231"></a>
-<span class="sourceLineNo">232</span>}<a name="line.232"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth.acl;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Acl;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.AclEntry;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Attachment;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.auth.AuthorizationManager;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.auth.permissions.PagePermission;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.auth.permissions.PermissionFactory;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.pages.PageLock;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.render.RenderingManager;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.apache.wiki.util.comparators.PrincipalComparator;</a>
+<span class="sourceLineNo">038</span><a id="line.38"></a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.security.Permission;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.security.Principal;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.util.ArrayList;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.util.Enumeration;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.util.List;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.util.Map;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.util.NoSuchElementException;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import java.util.Properties;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import java.util.StringTokenizer;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import java.util.TreeMap;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import java.util.regex.Matcher;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import java.util.regex.Pattern;</a>
+<span class="sourceLineNo">051</span><a id="line.51"></a>
+<span class="sourceLineNo">052</span><a id="line.52">/**</a>
+<span class="sourceLineNo">053</span><a id="line.53"> * Default implementation that parses Acls from wiki page markup.</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *</a>
+<span class="sourceLineNo">055</span><a id="line.55"> * @since 2.3</a>
+<span class="sourceLineNo">056</span><a id="line.56"> */</a>
+<span class="sourceLineNo">057</span><a id="line.57">public class DefaultAclManager implements AclManager {</a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">    private static final Logger log = Logger.getLogger(DefaultAclManager.class);</a>
+<span class="sourceLineNo">060</span><a id="line.60"></a>
+<span class="sourceLineNo">061</span><a id="line.61">    private AuthorizationManager m_auth = null;</a>
+<span class="sourceLineNo">062</span><a id="line.62">    private Engine m_engine = null;</a>
+<span class="sourceLineNo">063</span><a id="line.63">    private static final String PERM_REGEX = "("</a>
+<span class="sourceLineNo">064</span><a id="line.64">                                              + PagePermission.COMMENT_ACTION + "|"</a>
+<span class="sourceLineNo">065</span><a id="line.65">                                              + PagePermission.DELETE_ACTION  + "|"</a>
+<span class="sourceLineNo">066</span><a id="line.66">                                              + PagePermission.EDIT_ACTION    + "|"</a>
+<span class="sourceLineNo">067</span><a id="line.67">                                              + PagePermission.MODIFY_ACTION  + "|"</a>
+<span class="sourceLineNo">068</span><a id="line.68">                                              + PagePermission.RENAME_ACTION  + "|"</a>
+<span class="sourceLineNo">069</span><a id="line.69">                                              + PagePermission.UPLOAD_ACTION  + "|"</a>
+<span class="sourceLineNo">070</span><a id="line.70">                                              + PagePermission.VIEW_ACTION    +</a>
+<span class="sourceLineNo">071</span><a id="line.71">                                             ")";</a>
+<span class="sourceLineNo">072</span><a id="line.72">    private static final String ACL_REGEX = "\\[\\{\\s*ALLOW\\s+" + PERM_REGEX + "\\s*(.*?)\\s*\\}\\]";</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">    /**</a>
+<span class="sourceLineNo">075</span><a id="line.75">     * Identifies ACL strings in wiki text; the first group is the action (view, edit) and</a>
+<span class="sourceLineNo">076</span><a id="line.76">     * the second is the list of Principals separated by commas. The overall match is</a>
+<span class="sourceLineNo">077</span><a id="line.77">     * the ACL string from [{ to }].</a>
+<span class="sourceLineNo">078</span><a id="line.78">     */</a>
+<span class="sourceLineNo">079</span><a id="line.79">    public static final Pattern ACL_PATTERN = Pattern.compile( ACL_REGEX );</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">082</span><a id="line.82">    @Override</a>
+<span class="sourceLineNo">083</span><a id="line.83">    public void initialize( final Engine engine, final Properties props ) {</a>
+<span class="sourceLineNo">084</span><a id="line.84">        m_auth = engine.getManager( AuthorizationManager.class );</a>
+<span class="sourceLineNo">085</span><a id="line.85">        m_engine = engine;</a>
+<span class="sourceLineNo">086</span><a id="line.86">    }</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">089</span><a id="line.89">    @Override</a>
+<span class="sourceLineNo">090</span><a id="line.90">    public Acl parseAcl( final Page page, final String ruleLine ) throws WikiSecurityException {</a>
+<span class="sourceLineNo">091</span><a id="line.91">        Acl acl = page.getAcl();</a>
+<span class="sourceLineNo">092</span><a id="line.92">        if (acl == null) {</a>
+<span class="sourceLineNo">093</span><a id="line.93">            acl = Wiki.acls().acl();</a>
+<span class="sourceLineNo">094</span><a id="line.94">        }</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">        try {</a>
+<span class="sourceLineNo">097</span><a id="line.97">            final StringTokenizer fieldToks = new StringTokenizer(ruleLine);</a>
+<span class="sourceLineNo">098</span><a id="line.98">            fieldToks.nextToken();</a>
+<span class="sourceLineNo">099</span><a id="line.99">            final String actions = fieldToks.nextToken();</a>
+<span class="sourceLineNo">100</span><a id="line.100"></a>
+<span class="sourceLineNo">101</span><a id="line.101">            while( fieldToks.hasMoreTokens() ) {</a>
+<span class="sourceLineNo">102</span><a id="line.102">                final String principalName = fieldToks.nextToken(",").trim();</a>
+<span class="sourceLineNo">103</span><a id="line.103">                final Principal principal = m_auth.resolvePrincipal(principalName);</a>
+<span class="sourceLineNo">104</span><a id="line.104">                final AclEntry oldEntry = acl.getAclEntry(principal);</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">                if( oldEntry != null ) {</a>
+<span class="sourceLineNo">107</span><a id="line.107">                    log.debug( "Adding to old acl list: " + principal + ", " + actions );</a>
+<span class="sourceLineNo">108</span><a id="line.108">                    oldEntry.addPermission( PermissionFactory.getPagePermission( page, actions ) );</a>
+<span class="sourceLineNo">109</span><a id="line.109">                } else {</a>
+<span class="sourceLineNo">110</span><a id="line.110">                    log.debug( "Adding new acl entry for " + actions );</a>
+<span class="sourceLineNo">111</span><a id="line.111">                    final AclEntry entry = Wiki.acls().entry();</a>
+<span class="sourceLineNo">112</span><a id="line.112">                    entry.setPrincipal( principal );</a>
+<span class="sourceLineNo">113</span><a id="line.113">                    entry.addPermission( PermissionFactory.getPagePermission( page, actions ) );</a>
+<span class="sourceLineNo">114</span><a id="line.114"></a>
+<span class="sourceLineNo">115</span><a id="line.115">                    acl.addEntry( entry );</a>
+<span class="sourceLineNo">116</span><a id="line.116">                }</a>
+<span class="sourceLineNo">117</span><a id="line.117">            }</a>
+<span class="sourceLineNo">118</span><a id="line.118"></a>
+<span class="sourceLineNo">119</span><a id="line.119">            page.setAcl( acl );</a>
+<span class="sourceLineNo">120</span><a id="line.120">            log.debug( acl.toString() );</a>
+<span class="sourceLineNo">121</span><a id="line.121">        } catch( final NoSuchElementException nsee ) {</a>
+<span class="sourceLineNo">122</span><a id="line.122">            log.warn( "Invalid access rule: " + ruleLine + " - defaults will be used." );</a>
+<span class="sourceLineNo">123</span><a id="line.123">            throw new WikiSecurityException( "Invalid access rule: " + ruleLine, nsee );</a>
+<span class="sourceLineNo">124</span><a id="line.124">        } catch( final IllegalArgumentException iae ) {</a>
+<span class="sourceLineNo">125</span><a id="line.125">            throw new WikiSecurityException("Invalid permission type: " + ruleLine, iae);</a>
+<span class="sourceLineNo">126</span><a id="line.126">        }</a>
+<span class="sourceLineNo">127</span><a id="line.127"></a>
+<span class="sourceLineNo">128</span><a id="line.128">        return acl;</a>
+<span class="sourceLineNo">129</span><a id="line.129">    }</a>
+<span class="sourceLineNo">130</span><a id="line.130"></a>
+<span class="sourceLineNo">131</span><a id="line.131"></a>
+<span class="sourceLineNo">132</span><a id="line.132">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">133</span><a id="line.133">    @Override</a>
+<span class="sourceLineNo">134</span><a id="line.134">    public Acl getPermissions( final Page page ) {</a>
+<span class="sourceLineNo">135</span><a id="line.135">        //  Does the page already have cached ACLs?</a>
+<span class="sourceLineNo">136</span><a id="line.136">        Acl acl = page.getAcl();</a>
+<span class="sourceLineNo">137</span><a id="line.137">        log.debug( "page=" + page.getName() + "\n" + acl );</a>
+<span class="sourceLineNo">138</span><a id="line.138"></a>
+<span class="sourceLineNo">139</span><a id="line.139">        if( acl == null ) {</a>
+<span class="sourceLineNo">140</span><a id="line.140">            //  If null, try the parent.</a>
+<span class="sourceLineNo">141</span><a id="line.141">            if( page instanceof Attachment ) {</a>
+<span class="sourceLineNo">142</span><a id="line.142">                final Page parent = m_engine.getManager( PageManager.class ).getPage( ( ( Attachment ) page ).getParentName() );</a>
+<span class="sourceLineNo">143</span><a id="line.143">                acl = getPermissions(parent);</a>
+<span class="sourceLineNo">144</span><a id="line.144">            } else {</a>
+<span class="sourceLineNo">145</span><a id="line.145">                //  Or, try parsing the page</a>
+<span class="sourceLineNo">146</span><a id="line.146">                final Context ctx = Wiki.context().create( m_engine, page );</a>
+<span class="sourceLineNo">147</span><a id="line.147">                ctx.setVariable( Context.VAR_EXECUTE_PLUGINS, Boolean.FALSE );</a>
+<span class="sourceLineNo">148</span><a id="line.148">                m_engine.getManager( RenderingManager.class ).getHTML(ctx, page);</a>
+<span class="sourceLineNo">149</span><a id="line.149"></a>
+<span class="sourceLineNo">150</span><a id="line.150">                if (page.getAcl() == null) {</a>
+<span class="sourceLineNo">151</span><a id="line.151">                    page.setAcl( Wiki.acls().acl() );</a>
+<span class="sourceLineNo">152</span><a id="line.152">                }</a>
+<span class="sourceLineNo">153</span><a id="line.153">                acl = page.getAcl();</a>
+<span class="sourceLineNo">154</span><a id="line.154">            }</a>
+<span class="sourceLineNo">155</span><a id="line.155">        }</a>
+<span class="sourceLineNo">156</span><a id="line.156"></a>
+<span class="sourceLineNo">157</span><a id="line.157">        return acl;</a>
+<span class="sourceLineNo">158</span><a id="line.158">    }</a>
+<span class="sourceLineNo">159</span><a id="line.159"></a>
+<span class="sourceLineNo">160</span><a id="line.160">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">161</span><a id="line.161">    @Override</a>
+<span class="sourceLineNo">162</span><a id="line.162">    public void setPermissions( final Page page, final Acl acl ) throws WikiSecurityException {</a>
+<span class="sourceLineNo">163</span><a id="line.163">        final PageManager pageManager = m_engine.getManager( PageManager.class );</a>
+<span class="sourceLineNo">164</span><a id="line.164"></a>
+<span class="sourceLineNo">165</span><a id="line.165">        // Forcibly expire any page locks</a>
+<span class="sourceLineNo">166</span><a id="line.166">        final PageLock lock = pageManager.getCurrentLock( page );</a>
+<span class="sourceLineNo">167</span><a id="line.167">        if( lock != null ) {</a>
+<span class="sourceLineNo">168</span><a id="line.168">            pageManager.unlockPage( lock );</a>
+<span class="sourceLineNo">169</span><a id="line.169">        }</a>
+<span class="sourceLineNo">170</span><a id="line.170"></a>
+<span class="sourceLineNo">171</span><a id="line.171">        // Remove all of the existing ACLs.</a>
+<span class="sourceLineNo">172</span><a id="line.172">        final String pageText = m_engine.getManager( PageManager.class ).getPureText( page );</a>
+<span class="sourceLineNo">173</span><a id="line.173">        final Matcher matcher = DefaultAclManager.ACL_PATTERN.matcher( pageText );</a>
+<span class="sourceLineNo">174</span><a id="line.174">        final String cleansedText = matcher.replaceAll("" );</a>
+<span class="sourceLineNo">175</span><a id="line.175">        final String newText = DefaultAclManager.printAcl( page.getAcl() ) + cleansedText;</a>
+<span class="sourceLineNo">176</span><a id="line.176">        try {</a>
+<span class="sourceLineNo">177</span><a id="line.177">            pageManager.putPageText( page, newText );</a>
+<span class="sourceLineNo">178</span><a id="line.178">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">179</span><a id="line.179">            throw new WikiSecurityException( "Could not set Acl. Reason: ProviderExcpetion " + e.getMessage(), e );</a>
+<span class="sourceLineNo">180</span><a id="line.180">        }</a>
+<span class="sourceLineNo">181</span><a id="line.181">    }</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">    /**</a>
+<span class="sourceLineNo">184</span><a id="line.184">     * Generates an ACL string for inclusion in a wiki page, based on a supplied Acl object. All of the permissions in this Acl are</a>
+<span class="sourceLineNo">185</span><a id="line.185">     * assumed to apply to the same page scope. The names of the pages are ignored; only the actions and principals matter.</a>
+<span class="sourceLineNo">186</span><a id="line.186">     *</a>
+<span class="sourceLineNo">187</span><a id="line.187">     * @param acl the ACL</a>
+<span class="sourceLineNo">188</span><a id="line.188">     * @return the ACL string</a>
+<span class="sourceLineNo">189</span><a id="line.189">     */</a>
+<span class="sourceLineNo">190</span><a id="line.190">    protected static String printAcl( final Acl acl ) {</a>
+<span class="sourceLineNo">191</span><a id="line.191">        // Extract the ACL entries into a Map with keys == permissions, values == principals</a>
+<span class="sourceLineNo">192</span><a id="line.192">        final Map&lt; String, List&lt; Principal &gt; &gt; permissionPrincipals = new TreeMap&lt;&gt;();</a>
+<span class="sourceLineNo">193</span><a id="line.193">        final Enumeration&lt; AclEntry &gt; entries = acl.aclEntries();</a>
+<span class="sourceLineNo">194</span><a id="line.194">        while( entries.hasMoreElements() ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">            final AclEntry entry = entries.nextElement();</a>
+<span class="sourceLineNo">196</span><a id="line.196">            final Principal principal = entry.getPrincipal();</a>
+<span class="sourceLineNo">197</span><a id="line.197">            final Enumeration&lt; Permission &gt; permissions = entry.permissions();</a>
+<span class="sourceLineNo">198</span><a id="line.198">            while( permissions.hasMoreElements() ) {</a>
+<span class="sourceLineNo">199</span><a id="line.199">                final Permission permission = permissions.nextElement();</a>
+<span class="sourceLineNo">200</span><a id="line.200">                List&lt; Principal &gt; principals = permissionPrincipals.get( permission.getActions() );</a>
+<span class="sourceLineNo">201</span><a id="line.201">                if (principals == null) {</a>
+<span class="sourceLineNo">202</span><a id="line.202">                    principals = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">203</span><a id="line.203">                    final String action = permission.getActions();</a>
+<span class="sourceLineNo">204</span><a id="line.204">                    if( action.indexOf(',') != -1 ) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">                        throw new IllegalStateException("AclEntry permission cannot have multiple targets.");</a>
+<span class="sourceLineNo">206</span><a id="line.206">                    }</a>
+<span class="sourceLineNo">207</span><a id="line.207">                    permissionPrincipals.put( action, principals );</a>
+<span class="sourceLineNo">208</span><a id="line.208">                }</a>
+<span class="sourceLineNo">209</span><a id="line.209">                principals.add( principal );</a>
+<span class="sourceLineNo">210</span><a id="line.210">            }</a>
+<span class="sourceLineNo">211</span><a id="line.211">        }</a>
+<span class="sourceLineNo">212</span><a id="line.212"></a>
+<span class="sourceLineNo">213</span><a id="line.213">        // Now, iterate through each permission in the map and generate an ACL string</a>
+<span class="sourceLineNo">214</span><a id="line.214">        final StringBuilder s = new StringBuilder();</a>
+<span class="sourceLineNo">215</span><a id="line.215">        for( final Map.Entry&lt; String, List&lt; Principal &gt; &gt; entry : permissionPrincipals.entrySet() ) {</a>
+<span class="sourceLineNo">216</span><a id="line.216">            final String action = entry.getKey();</a>
+<span class="sourceLineNo">217</span><a id="line.217">            final List&lt; Principal &gt; principals = entry.getValue();</a>
+<span class="sourceLineNo">218</span><a id="line.218">            principals.sort( new PrincipalComparator() );</a>
+<span class="sourceLineNo">219</span><a id="line.219">            s.append( "[{ALLOW " ).append( action ).append( " " );</a>
+<span class="sourceLineNo">220</span><a id="line.220">            for( int i = 0; i &lt; principals.size(); i++ ) {</a>
+<span class="sourceLineNo">221</span><a id="line.221">                final Principal principal = principals.get( i );</a>
+<span class="sourceLineNo">222</span><a id="line.222">                s.append( principal.getName() );</a>
+<span class="sourceLineNo">223</span><a id="line.223">                if( i &lt; ( principals.size() - 1 ) ) {</a>
+<span class="sourceLineNo">224</span><a id="line.224">                    s.append( "," );</a>
+<span class="sourceLineNo">225</span><a id="line.225">                }</a>
+<span class="sourceLineNo">226</span><a id="line.226">            }</a>
+<span class="sourceLineNo">227</span><a id="line.227">            s.append( "}]\n" );</a>
+<span class="sourceLineNo">228</span><a id="line.228">        }</a>
+<span class="sourceLineNo">229</span><a id="line.229">        return s.toString();</a>
+<span class="sourceLineNo">230</span><a id="line.230">    }</a>
+<span class="sourceLineNo">231</span><a id="line.231"></a>
+<span class="sourceLineNo">232</span><a id="line.232">}</a>
 
 
 
@@ -300,5 +301,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>

@@ -1,789 +1,790 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.pages;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.commons.lang3.ArrayUtils;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.log4j.Logger;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.WikiBackgroundThread;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.api.core.Acl;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.api.core.AclEntry;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.api.core.Attachment;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.core.Context;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.api.core.Engine;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.api.core.Page;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.api.exceptions.NoRequiredPropertyException;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.api.exceptions.ProviderException;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.api.providers.PageProvider;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.wiki.api.providers.WikiProvider;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.apache.wiki.api.spi.Wiki;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.apache.wiki.attachment.AttachmentManager;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.apache.wiki.auth.WikiPrincipal;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.apache.wiki.auth.WikiSecurityException;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.apache.wiki.auth.acl.AclManager;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import org.apache.wiki.auth.user.UserProfile;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import org.apache.wiki.diff.DifferenceManager;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import org.apache.wiki.event.WikiEvent;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>import org.apache.wiki.event.WikiEventManager;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>import org.apache.wiki.event.WikiPageEvent;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>import org.apache.wiki.event.WikiSecurityEvent;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>import org.apache.wiki.providers.RepositoryModifiedException;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>import org.apache.wiki.references.ReferenceManager;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>import org.apache.wiki.tasks.TasksManager;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>import org.apache.wiki.ui.CommandResolver;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>import org.apache.wiki.util.ClassUtil;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>import org.apache.wiki.util.TextUtil;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>import org.apache.wiki.workflow.Decision;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>import org.apache.wiki.workflow.DecisionRequiredException;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>import org.apache.wiki.workflow.Fact;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>import org.apache.wiki.workflow.Step;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>import org.apache.wiki.workflow.Workflow;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>import org.apache.wiki.workflow.WorkflowBuilder;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>import org.apache.wiki.workflow.WorkflowManager;<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>import java.io.IOException;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>import java.security.Permission;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>import java.security.Principal;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>import java.util.ArrayList;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>import java.util.Collection;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>import java.util.Collections;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>import java.util.Date;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>import java.util.Enumeration;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>import java.util.Iterator;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>import java.util.List;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>import java.util.NoSuchElementException;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>import java.util.Properties;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>import java.util.Set;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>import java.util.TreeSet;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>import java.util.concurrent.ConcurrentHashMap;<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>/**<a name="line.77"></a>
-<span class="sourceLineNo">078</span> * Manages the WikiPages. This class functions as an unified interface towards the page providers. It handles initialization<a name="line.78"></a>
-<span class="sourceLineNo">079</span> * and management of the providers, and provides utility methods for accessing the contents.<a name="line.79"></a>
-<span class="sourceLineNo">080</span> * &lt;p/&gt;<a name="line.80"></a>
-<span class="sourceLineNo">081</span> * Saving a page is a two-stage Task; first the pre-save operations and then the actual save. See the descriptions of the tasks<a name="line.81"></a>
-<span class="sourceLineNo">082</span> * for further information.<a name="line.82"></a>
-<span class="sourceLineNo">083</span> *<a name="line.83"></a>
-<span class="sourceLineNo">084</span> * @since 2.0<a name="line.84"></a>
-<span class="sourceLineNo">085</span> */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>public class DefaultPageManager implements PageManager {<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    private static final Logger LOG = Logger.getLogger( DefaultPageManager.class );<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    private PageProvider m_provider;<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>    private Engine m_engine;<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    protected ConcurrentHashMap&lt; String, PageLock &gt; m_pageLocks = new ConcurrentHashMap&lt;&gt;();<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    private int m_expiryTime;<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    private LockReaper m_reaper = null;<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>    private PageSorter pageSorter = new PageSorter();<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
-<span class="sourceLineNo">103</span>     * Creates a new PageManager.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * @param engine Engine instance<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     * @param props  Properties to use for initialization<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @throws NoSuchElementException {@value #PROP_PAGEPROVIDER} property not found on Engine properties<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     * @throws WikiException If anything goes wrong, you get this.<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    public DefaultPageManager(final Engine engine, final Properties props) throws NoSuchElementException, WikiException {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        m_engine = engine;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>        final String classname;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        final boolean useCache = "true".equals( props.getProperty( PROP_USECACHE ) );<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        m_expiryTime = TextUtil.parseIntParameter( props.getProperty( PROP_LOCKEXPIRY ), 60 );<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>        //  If user wants to use a cache, then we'll use the CachingProvider.<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        if( useCache ) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>            classname = "org.apache.wiki.providers.CachingProvider";<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        } else {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>            classname = TextUtil.getRequiredProperty( props, PROP_PAGEPROVIDER );<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        }<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>        pageSorter.initialize( props );<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>        try {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            LOG.debug("Page provider class: '" + classname + "'");<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            final Class&lt;?&gt; providerclass = ClassUtil.findClass("org.apache.wiki.providers", classname);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>            m_provider = ( PageProvider ) providerclass.newInstance();<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>            LOG.debug("Initializing page provider class " + m_provider);<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            m_provider.initialize(m_engine, props);<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        } catch (final ClassNotFoundException e) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            LOG.error("Unable to locate provider class '" + classname + "' (" + e.getMessage() + ")", e);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>            throw new WikiException("No provider class. (" + e.getMessage() + ")", e);<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        } catch (final InstantiationException e) {<a name="line.135"></a>
-<span class="sourceLineNo">136</span>            LOG.error("Unable to create provider class '" + classname + "' (" + e.getMessage() + ")", e);<a name="line.136"></a>
-<span class="sourceLineNo">137</span>            throw new WikiException("Faulty provider class. (" + e.getMessage() + ")", e);<a name="line.137"></a>
-<span class="sourceLineNo">138</span>        } catch (final IllegalAccessException e) {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            LOG.error("Illegal access to provider class '" + classname + "' (" + e.getMessage() + ")", e);<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            throw new WikiException("Illegal provider class. (" + e.getMessage() + ")", e);<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        } catch (final NoRequiredPropertyException e) {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            LOG.error("Provider did not found a property it was looking for: " + e.getMessage(), e);<a name="line.142"></a>
-<span class="sourceLineNo">143</span>            throw e;  // Same exception works.<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        } catch (final IOException e) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>            LOG.error("An I/O exception occurred while trying to create a new page provider: " + classname, e);<a name="line.145"></a>
-<span class="sourceLineNo">146</span>            throw new WikiException("Unable to start page provider: " + e.getMessage(), e);<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        }<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>    }<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     * {@inheritDoc}<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     * @see org.apache.wiki.pages.PageManager#getProvider()<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     */<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    @Override<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    public PageProvider getProvider() {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        return m_provider;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>    /**<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     * {@inheritDoc}<a name="line.161"></a>
-<span class="sourceLineNo">162</span>     * @see org.apache.wiki.pages.PageManager#getAllPages()<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     */<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    @Override<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    public Collection&lt; Page &gt; getAllPages() throws ProviderException {<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        return m_provider.getAllPages();<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
-<span class="sourceLineNo">168</span><a name="line.168"></a>
-<span class="sourceLineNo">169</span>    /**<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     * {@inheritDoc}<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     * @see org.apache.wiki.pages.PageManager#getPageText(java.lang.String, int)<a name="line.171"></a>
-<span class="sourceLineNo">172</span>     */<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    @Override<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    public String getPageText( final String pageName, final int version ) throws ProviderException {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        if (pageName == null || pageName.length() == 0) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            throw new ProviderException( "Illegal page name" );<a name="line.176"></a>
-<span class="sourceLineNo">177</span>        }<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        String text;<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>        try {<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            text = m_provider.getPageText( pageName, version );<a name="line.181"></a>
-<span class="sourceLineNo">182</span>        } catch ( final RepositoryModifiedException e ) {<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            //  This only occurs with the latest version.<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            LOG.info( "Repository has been modified externally while fetching page " + pageName );<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>            //  Empty the references and yay, it shall be recalculated<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            final Page p = m_provider.getPageInfo( pageName, version );<a name="line.187"></a>
-<span class="sourceLineNo">188</span><a name="line.188"></a>
-<span class="sourceLineNo">189</span>            m_engine.getManager( ReferenceManager.class ).updateReferences( p );<a name="line.189"></a>
-<span class="sourceLineNo">190</span>            fireEvent( WikiPageEvent.PAGE_REINDEX, p.getName() );<a name="line.190"></a>
-<span class="sourceLineNo">191</span>            text = m_provider.getPageText( pageName, version );<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>        return text;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
-<span class="sourceLineNo">196</span><a name="line.196"></a>
-<span class="sourceLineNo">197</span>    /**<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     * {@inheritDoc}<a name="line.198"></a>
-<span class="sourceLineNo">199</span>     * @see org.apache.wiki.pages.PageManager#getPureText(String, int)<a name="line.199"></a>
-<span class="sourceLineNo">200</span>     */<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    @Override<a name="line.201"></a>
-<span class="sourceLineNo">202</span>    public String getPureText( final String page, final int version ) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        String result = null;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        try {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            result = getPageText( page, version );<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        } catch( final ProviderException e ) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            LOG.error( "ProviderException getPureText for page " + page + " [version " + version + "]", e );<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        } finally {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            if( result == null ) {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>                result = "";<a name="line.210"></a>
-<span class="sourceLineNo">211</span>            }<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
-<span class="sourceLineNo">213</span>        return result;<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    }<a name="line.214"></a>
-<span class="sourceLineNo">215</span><a name="line.215"></a>
-<span class="sourceLineNo">216</span>    /**<a name="line.216"></a>
-<span class="sourceLineNo">217</span>     * {@inheritDoc}<a name="line.217"></a>
-<span class="sourceLineNo">218</span>     * @see org.apache.wiki.pages.PageManager#getText(String, int)<a name="line.218"></a>
-<span class="sourceLineNo">219</span>     */<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    @Override<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    public String getText( final String page, final int version ) {<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        final String result = getPureText( page, version );<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        return TextUtil.replaceEntities( result );<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span><a name="line.225"></a>
-<span class="sourceLineNo">226</span>    @Override<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    public void saveText( final Context context, final String text ) throws WikiException {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>        // Check if page data actually changed; bail if not<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        final Page page = context.getPage();<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        final String oldText = getPureText( page );<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        final String proposedText = TextUtil.normalizePostData( text );<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        if ( oldText != null &amp;&amp; oldText.equals( proposedText ) ) {<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            return;<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        }<a name="line.234"></a>
-<span class="sourceLineNo">235</span><a name="line.235"></a>
-<span class="sourceLineNo">236</span>        // Check if creation of empty pages is allowed; bail if not<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        final boolean allowEmpty = TextUtil.getBooleanProperty( m_engine.getWikiProperties(),<a name="line.237"></a>
-<span class="sourceLineNo">238</span>                                                                Engine.PROP_ALLOW_CREATION_OF_EMPTY_PAGES,<a name="line.238"></a>
-<span class="sourceLineNo">239</span>                                                         false );<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        if ( !allowEmpty &amp;&amp; !wikiPageExists( page ) &amp;&amp; text.trim().equals( "" ) ) {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>            return;<a name="line.241"></a>
-<span class="sourceLineNo">242</span>        }<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>        // Create approval workflow for page save; add the diffed, proposed and old text versions as<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        // Facts for the approver (if approval is required). If submitter is authenticated, any reject<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        // messages will appear in his/her workflow inbox.<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        final WorkflowBuilder builder = WorkflowBuilder.getBuilder( m_engine );<a name="line.247"></a>
-<span class="sourceLineNo">248</span>        final Principal submitter = context.getCurrentUser();<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        final Step prepTask = m_engine.getManager( TasksManager.class ).buildPreSaveWikiPageTask( proposedText );<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        final Step completionTask = m_engine.getManager( TasksManager.class ).buildSaveWikiPageTask();<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        final String diffText = m_engine.getManager( DifferenceManager.class ).makeDiff( context, oldText, proposedText );<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        final boolean isAuthenticated = context.getWikiSession().isAuthenticated();<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        final Fact[] facts = new Fact[ 5 ];<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        facts[ 0 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_PAGE_NAME, page.getName() );<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        facts[ 1 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_DIFF_TEXT, diffText );<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        facts[ 2 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_PROPOSED_TEXT, proposedText );<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        facts[ 3 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_CURRENT_TEXT, oldText);<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        facts[ 4 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_IS_AUTHENTICATED, isAuthenticated );<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        final String rejectKey = isAuthenticated ? WorkflowManager.WF_WP_SAVE_REJECT_MESSAGE_KEY : null;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        final Workflow workflow = builder.buildApprovalWorkflow( submitter,<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                                                                 WorkflowManager.WF_WP_SAVE_APPROVER,<a name="line.261"></a>
-<span class="sourceLineNo">262</span>                                                                 prepTask,<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                                                                 WorkflowManager.WF_WP_SAVE_DECISION_MESSAGE_KEY,<a name="line.263"></a>
-<span class="sourceLineNo">264</span>                                                                 facts,<a name="line.264"></a>
-<span class="sourceLineNo">265</span>                                                                 completionTask,<a name="line.265"></a>
-<span class="sourceLineNo">266</span>                                                                 rejectKey );<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        workflow.start( context );<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>        // Let callers know if the page-save requires approval<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        if ( workflow.getCurrentStep() instanceof Decision ) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>            throw new DecisionRequiredException( "The page contents must be approved before they become active." );<a name="line.271"></a>
-<span class="sourceLineNo">272</span>        }<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>    /**<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     * Returns the Engine to which this PageManager belongs to.<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     *<a name="line.277"></a>
-<span class="sourceLineNo">278</span>     * @return The Engine object.<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     */<a name="line.279"></a>
-<span class="sourceLineNo">280</span>    protected Engine getEngine() {<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        return m_engine;<a name="line.281"></a>
-<span class="sourceLineNo">282</span>    }<a name="line.282"></a>
-<span class="sourceLineNo">283</span><a name="line.283"></a>
-<span class="sourceLineNo">284</span>    /**<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     * {@inheritDoc}<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     * @see org.apache.wiki.pages.PageManager#putPageText(org.apache.wiki.api.core.Page, java.lang.String)<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     */<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    @Override<a name="line.288"></a>
-<span class="sourceLineNo">289</span>    public void putPageText( final Page page, final String content ) throws ProviderException {<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        if (page == null || page.getName() == null || page.getName().length() == 0) {<a name="line.290"></a>
-<span class="sourceLineNo">291</span>            throw new ProviderException("Illegal page name");<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        }<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>        m_provider.putPageText(page, content);<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
-<span class="sourceLineNo">296</span><a name="line.296"></a>
-<span class="sourceLineNo">297</span>    /**<a name="line.297"></a>
-<span class="sourceLineNo">298</span>     * {@inheritDoc}<a name="line.298"></a>
-<span class="sourceLineNo">299</span>     * @see org.apache.wiki.pages.PageManager#lockPage(org.apache.wiki.api.core.Page, java.lang.String)<a name="line.299"></a>
-<span class="sourceLineNo">300</span>     */<a name="line.300"></a>
-<span class="sourceLineNo">301</span>    @Override<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    public PageLock lockPage( final Page page, final String user ) {<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        if( m_reaper == null ) {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>            //  Start the lock reaper lazily.  We don't want to start it in the constructor, because starting threads in constructors<a name="line.304"></a>
-<span class="sourceLineNo">305</span>            //  is a bad idea when it comes to inheritance.  Besides, laziness is a virtue.<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            m_reaper = new LockReaper( m_engine );<a name="line.306"></a>
-<span class="sourceLineNo">307</span>            m_reaper.start();<a name="line.307"></a>
-<span class="sourceLineNo">308</span>        }<a name="line.308"></a>
-<span class="sourceLineNo">309</span><a name="line.309"></a>
-<span class="sourceLineNo">310</span>        fireEvent( WikiPageEvent.PAGE_LOCK, page.getName() ); // prior to or after actual lock?<a name="line.310"></a>
-<span class="sourceLineNo">311</span>        PageLock lock = m_pageLocks.get( page.getName() );<a name="line.311"></a>
-<span class="sourceLineNo">312</span><a name="line.312"></a>
-<span class="sourceLineNo">313</span>        if( lock == null ) {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>            //<a name="line.314"></a>
-<span class="sourceLineNo">315</span>            //  Lock is available, so make a lock.<a name="line.315"></a>
-<span class="sourceLineNo">316</span>            //<a name="line.316"></a>
-<span class="sourceLineNo">317</span>            final Date d = new Date();<a name="line.317"></a>
-<span class="sourceLineNo">318</span>            lock = new PageLock( page, user, d, new Date( d.getTime() + m_expiryTime * 60 * 1000L ) );<a name="line.318"></a>
-<span class="sourceLineNo">319</span>            m_pageLocks.put( page.getName(), lock );<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            LOG.debug( "Locked page " + page.getName() + " for " + user );<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        } else {<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            LOG.debug( "Page " + page.getName() + " already locked by " + lock.getLocker() );<a name="line.322"></a>
-<span class="sourceLineNo">323</span>            lock = null; // Nothing to return<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
-<span class="sourceLineNo">325</span><a name="line.325"></a>
-<span class="sourceLineNo">326</span>        return lock;<a name="line.326"></a>
-<span class="sourceLineNo">327</span>    }<a name="line.327"></a>
-<span class="sourceLineNo">328</span><a name="line.328"></a>
-<span class="sourceLineNo">329</span>    /**<a name="line.329"></a>
-<span class="sourceLineNo">330</span>     * {@inheritDoc}<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     * @see org.apache.wiki.pages.PageManager#unlockPage(org.apache.wiki.pages.PageLock)<a name="line.331"></a>
-<span class="sourceLineNo">332</span>     */<a name="line.332"></a>
-<span class="sourceLineNo">333</span>    @Override<a name="line.333"></a>
-<span class="sourceLineNo">334</span>    public void unlockPage( final PageLock lock ) {<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        if (lock == null) {<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            return;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        }<a name="line.337"></a>
-<span class="sourceLineNo">338</span><a name="line.338"></a>
-<span class="sourceLineNo">339</span>        m_pageLocks.remove( lock.getPage() );<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        LOG.debug( "Unlocked page " + lock.getPage() );<a name="line.340"></a>
-<span class="sourceLineNo">341</span><a name="line.341"></a>
-<span class="sourceLineNo">342</span>        fireEvent( WikiPageEvent.PAGE_UNLOCK, lock.getPage() );<a name="line.342"></a>
-<span class="sourceLineNo">343</span>    }<a name="line.343"></a>
-<span class="sourceLineNo">344</span><a name="line.344"></a>
-<span class="sourceLineNo">345</span>    /**<a name="line.345"></a>
-<span class="sourceLineNo">346</span>     * {@inheritDoc}<a name="line.346"></a>
-<span class="sourceLineNo">347</span>     * @see org.apache.wiki.pages.PageManager#getCurrentLock(org.apache.wiki.api.core.Page)<a name="line.347"></a>
-<span class="sourceLineNo">348</span>     */<a name="line.348"></a>
-<span class="sourceLineNo">349</span>    @Override<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    public PageLock getCurrentLock( final Page page ) {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        return m_pageLocks.get( page.getName() );<a name="line.351"></a>
-<span class="sourceLineNo">352</span>    }<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>    /**<a name="line.354"></a>
-<span class="sourceLineNo">355</span>     * {@inheritDoc}<a name="line.355"></a>
-<span class="sourceLineNo">356</span>     * @see org.apache.wiki.pages.PageManager#getActiveLocks()<a name="line.356"></a>
-<span class="sourceLineNo">357</span>     */<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    @Override<a name="line.358"></a>
-<span class="sourceLineNo">359</span>    public List&lt; PageLock &gt; getActiveLocks() {<a name="line.359"></a>
-<span class="sourceLineNo">360</span>        return  new ArrayList&lt;&gt;( m_pageLocks.values() );<a name="line.360"></a>
-<span class="sourceLineNo">361</span>    }<a name="line.361"></a>
-<span class="sourceLineNo">362</span><a name="line.362"></a>
-<span class="sourceLineNo">363</span>    /**<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     * {@inheritDoc}<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     * @see org.apache.wiki.pages.PageManager#getPage(java.lang.String)<a name="line.365"></a>
-<span class="sourceLineNo">366</span>     */<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    @Override<a name="line.367"></a>
-<span class="sourceLineNo">368</span>    public Page getPage( final String pagereq ) {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        return getPage( pagereq, PageProvider.LATEST_VERSION );<a name="line.369"></a>
-<span class="sourceLineNo">370</span>    }<a name="line.370"></a>
-<span class="sourceLineNo">371</span><a name="line.371"></a>
-<span class="sourceLineNo">372</span>    /**<a name="line.372"></a>
-<span class="sourceLineNo">373</span>     * {@inheritDoc}<a name="line.373"></a>
-<span class="sourceLineNo">374</span>     * @see org.apache.wiki.pages.PageManager#getPage(java.lang.String, int)<a name="line.374"></a>
-<span class="sourceLineNo">375</span>     */<a name="line.375"></a>
-<span class="sourceLineNo">376</span>    @Override<a name="line.376"></a>
-<span class="sourceLineNo">377</span>    public Page getPage( final String pagereq, final int version ) {<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        try {<a name="line.378"></a>
-<span class="sourceLineNo">379</span>            Page p = getPageInfo( pagereq, version );<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            if( p == null ) {<a name="line.380"></a>
-<span class="sourceLineNo">381</span>                p = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( null, pagereq );<a name="line.381"></a>
-<span class="sourceLineNo">382</span>            }<a name="line.382"></a>
-<span class="sourceLineNo">383</span><a name="line.383"></a>
-<span class="sourceLineNo">384</span>            return p;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        } catch( final ProviderException e ) {<a name="line.385"></a>
-<span class="sourceLineNo">386</span>            LOG.error( "Unable to fetch page info for " + pagereq + " [version " + version + "]", e );<a name="line.386"></a>
-<span class="sourceLineNo">387</span>            return null;<a name="line.387"></a>
-<span class="sourceLineNo">388</span>        }<a name="line.388"></a>
-<span class="sourceLineNo">389</span>    }<a name="line.389"></a>
-<span class="sourceLineNo">390</span><a name="line.390"></a>
-<span class="sourceLineNo">391</span>    /**<a name="line.391"></a>
-<span class="sourceLineNo">392</span>     * {@inheritDoc}<a name="line.392"></a>
-<span class="sourceLineNo">393</span>     * @see org.apache.wiki.pages.PageManager#getPageInfo(java.lang.String, int)<a name="line.393"></a>
-<span class="sourceLineNo">394</span>     */<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    @Override<a name="line.395"></a>
-<span class="sourceLineNo">396</span>    public Page getPageInfo( final String pageName, final int version) throws ProviderException {<a name="line.396"></a>
-<span class="sourceLineNo">397</span>        if( pageName == null || pageName.length() == 0 ) {<a name="line.397"></a>
-<span class="sourceLineNo">398</span>            throw new ProviderException( "Illegal page name '" + pageName + "'" );<a name="line.398"></a>
-<span class="sourceLineNo">399</span>        }<a name="line.399"></a>
-<span class="sourceLineNo">400</span><a name="line.400"></a>
-<span class="sourceLineNo">401</span>        Page page;<a name="line.401"></a>
-<span class="sourceLineNo">402</span><a name="line.402"></a>
-<span class="sourceLineNo">403</span>        try {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>            page = m_provider.getPageInfo( pageName, version );<a name="line.404"></a>
-<span class="sourceLineNo">405</span>        } catch( final RepositoryModifiedException e ) {<a name="line.405"></a>
-<span class="sourceLineNo">406</span>            //  This only occurs with the latest version.<a name="line.406"></a>
-<span class="sourceLineNo">407</span>            LOG.info( "Repository has been modified externally while fetching info for " + pageName );<a name="line.407"></a>
-<span class="sourceLineNo">408</span>            page = m_provider.getPageInfo( pageName, version );<a name="line.408"></a>
-<span class="sourceLineNo">409</span>            if( page != null ) {<a name="line.409"></a>
-<span class="sourceLineNo">410</span>                m_engine.getManager( ReferenceManager.class ).updateReferences( page );<a name="line.410"></a>
-<span class="sourceLineNo">411</span>            } else {<a name="line.411"></a>
-<span class="sourceLineNo">412</span>                m_engine.getManager( ReferenceManager.class ).pageRemoved( Wiki.contents().page( m_engine, pageName ) );<a name="line.412"></a>
-<span class="sourceLineNo">413</span>            }<a name="line.413"></a>
-<span class="sourceLineNo">414</span>        }<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span>        return page;<a name="line.416"></a>
-<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
-<span class="sourceLineNo">418</span><a name="line.418"></a>
-<span class="sourceLineNo">419</span>    /**<a name="line.419"></a>
-<span class="sourceLineNo">420</span>     * {@inheritDoc}<a name="line.420"></a>
-<span class="sourceLineNo">421</span>     * @see org.apache.wiki.pages.PageManager#getVersionHistory(java.lang.String)<a name="line.421"></a>
-<span class="sourceLineNo">422</span>     */<a name="line.422"></a>
-<span class="sourceLineNo">423</span>    @Override @SuppressWarnings( "unchecked" )<a name="line.423"></a>
-<span class="sourceLineNo">424</span>    public &lt; T extends Page &gt; List&lt; T &gt; getVersionHistory( final String pageName ) {<a name="line.424"></a>
-<span class="sourceLineNo">425</span>        List&lt; T &gt; c = null;<a name="line.425"></a>
-<span class="sourceLineNo">426</span><a name="line.426"></a>
-<span class="sourceLineNo">427</span>        try {<a name="line.427"></a>
-<span class="sourceLineNo">428</span>            if( pageExists( pageName ) ) {<a name="line.428"></a>
-<span class="sourceLineNo">429</span>                c = ( List&lt; T &gt; )m_provider.getVersionHistory( pageName );<a name="line.429"></a>
-<span class="sourceLineNo">430</span>            }<a name="line.430"></a>
-<span class="sourceLineNo">431</span><a name="line.431"></a>
-<span class="sourceLineNo">432</span>            if( c == null ) {<a name="line.432"></a>
-<span class="sourceLineNo">433</span>                c = ( List&lt; T &gt; )m_engine.getManager( AttachmentManager.class ).getVersionHistory( pageName );<a name="line.433"></a>
-<span class="sourceLineNo">434</span>            }<a name="line.434"></a>
-<span class="sourceLineNo">435</span>        } catch( final ProviderException e ) {<a name="line.435"></a>
-<span class="sourceLineNo">436</span>            LOG.error( "ProviderException requesting version history for " + pageName, e );<a name="line.436"></a>
-<span class="sourceLineNo">437</span>        }<a name="line.437"></a>
-<span class="sourceLineNo">438</span><a name="line.438"></a>
-<span class="sourceLineNo">439</span>        return c;<a name="line.439"></a>
-<span class="sourceLineNo">440</span>    }<a name="line.440"></a>
-<span class="sourceLineNo">441</span><a name="line.441"></a>
-<span class="sourceLineNo">442</span>    /**<a name="line.442"></a>
-<span class="sourceLineNo">443</span>     * {@inheritDoc}<a name="line.443"></a>
-<span class="sourceLineNo">444</span>     * @see org.apache.wiki.pages.PageManager#getCurrentProvider()<a name="line.444"></a>
-<span class="sourceLineNo">445</span>     */<a name="line.445"></a>
-<span class="sourceLineNo">446</span>    @Override <a name="line.446"></a>
-<span class="sourceLineNo">447</span>    public String getCurrentProvider() {<a name="line.447"></a>
-<span class="sourceLineNo">448</span>        return getProvider().getClass().getName();<a name="line.448"></a>
-<span class="sourceLineNo">449</span>    }<a name="line.449"></a>
-<span class="sourceLineNo">450</span><a name="line.450"></a>
-<span class="sourceLineNo">451</span>    /**<a name="line.451"></a>
-<span class="sourceLineNo">452</span>     * {@inheritDoc}<a name="line.452"></a>
-<span class="sourceLineNo">453</span>     *<a name="line.453"></a>
-<span class="sourceLineNo">454</span>     * @see org.apache.wiki.pages.PageManager#getProviderDescription()<a name="line.454"></a>
-<span class="sourceLineNo">455</span>     */<a name="line.455"></a>
-<span class="sourceLineNo">456</span>    @Override <a name="line.456"></a>
-<span class="sourceLineNo">457</span>    public String getProviderDescription() {<a name="line.457"></a>
-<span class="sourceLineNo">458</span>        return m_provider.getProviderInfo();<a name="line.458"></a>
-<span class="sourceLineNo">459</span>    }<a name="line.459"></a>
-<span class="sourceLineNo">460</span><a name="line.460"></a>
-<span class="sourceLineNo">461</span>    /**<a name="line.461"></a>
-<span class="sourceLineNo">462</span>     * {@inheritDoc}<a name="line.462"></a>
-<span class="sourceLineNo">463</span>     * @see org.apache.wiki.pages.PageManager#getTotalPageCount()<a name="line.463"></a>
-<span class="sourceLineNo">464</span>     */<a name="line.464"></a>
-<span class="sourceLineNo">465</span>    @Override<a name="line.465"></a>
-<span class="sourceLineNo">466</span>    public int getTotalPageCount() {<a name="line.466"></a>
-<span class="sourceLineNo">467</span>        try {<a name="line.467"></a>
-<span class="sourceLineNo">468</span>            return m_provider.getAllPages().size();<a name="line.468"></a>
-<span class="sourceLineNo">469</span>        } catch( final ProviderException e ) {<a name="line.469"></a>
-<span class="sourceLineNo">470</span>            LOG.error( "Unable to count pages: ", e );<a name="line.470"></a>
-<span class="sourceLineNo">471</span>            return -1;<a name="line.471"></a>
-<span class="sourceLineNo">472</span>        }<a name="line.472"></a>
-<span class="sourceLineNo">473</span>    }<a name="line.473"></a>
-<span class="sourceLineNo">474</span><a name="line.474"></a>
-<span class="sourceLineNo">475</span>    /**<a name="line.475"></a>
-<span class="sourceLineNo">476</span>     * {@inheritDoc}<a name="line.476"></a>
-<span class="sourceLineNo">477</span>     * @see org.apache.wiki.pages.PageManager#getRecentChanges()<a name="line.477"></a>
-<span class="sourceLineNo">478</span>     */<a name="line.478"></a>
-<span class="sourceLineNo">479</span>    @Override<a name="line.479"></a>
-<span class="sourceLineNo">480</span>    public Set&lt; Page &gt; getRecentChanges() {<a name="line.480"></a>
-<span class="sourceLineNo">481</span>        try {<a name="line.481"></a>
-<span class="sourceLineNo">482</span>            final TreeSet&lt; Page &gt; sortedPages = new TreeSet&lt;&gt;( new PageTimeComparator() );<a name="line.482"></a>
-<span class="sourceLineNo">483</span>            sortedPages.addAll( getAllPages() );<a name="line.483"></a>
-<span class="sourceLineNo">484</span>            sortedPages.addAll( m_engine.getManager( AttachmentManager.class ).getAllAttachments() );<a name="line.484"></a>
-<span class="sourceLineNo">485</span><a name="line.485"></a>
-<span class="sourceLineNo">486</span>            return sortedPages;<a name="line.486"></a>
-<span class="sourceLineNo">487</span>        } catch( final ProviderException e ) {<a name="line.487"></a>
-<span class="sourceLineNo">488</span>            LOG.error( "Unable to fetch all pages: ", e );<a name="line.488"></a>
-<span class="sourceLineNo">489</span>            return Collections.emptySet();<a name="line.489"></a>
-<span class="sourceLineNo">490</span>        }<a name="line.490"></a>
-<span class="sourceLineNo">491</span>    }<a name="line.491"></a>
-<span class="sourceLineNo">492</span><a name="line.492"></a>
-<span class="sourceLineNo">493</span>    /**<a name="line.493"></a>
-<span class="sourceLineNo">494</span>     * {@inheritDoc}<a name="line.494"></a>
-<span class="sourceLineNo">495</span>     * @see org.apache.wiki.pages.PageManager#pageExists(java.lang.String)<a name="line.495"></a>
-<span class="sourceLineNo">496</span>     */<a name="line.496"></a>
-<span class="sourceLineNo">497</span>    @Override<a name="line.497"></a>
-<span class="sourceLineNo">498</span>    public boolean pageExists( final String pageName ) throws ProviderException {<a name="line.498"></a>
-<span class="sourceLineNo">499</span>        if (pageName == null || pageName.length() == 0) {<a name="line.499"></a>
-<span class="sourceLineNo">500</span>            throw new ProviderException("Illegal page name");<a name="line.500"></a>
-<span class="sourceLineNo">501</span>        }<a name="line.501"></a>
-<span class="sourceLineNo">502</span><a name="line.502"></a>
-<span class="sourceLineNo">503</span>        return m_provider.pageExists(pageName);<a name="line.503"></a>
-<span class="sourceLineNo">504</span>    }<a name="line.504"></a>
-<span class="sourceLineNo">505</span><a name="line.505"></a>
-<span class="sourceLineNo">506</span>    /**<a name="line.506"></a>
-<span class="sourceLineNo">507</span>     * {@inheritDoc}<a name="line.507"></a>
-<span class="sourceLineNo">508</span>     * @see org.apache.wiki.pages.PageManager#pageExists(java.lang.String, int)<a name="line.508"></a>
-<span class="sourceLineNo">509</span>     */<a name="line.509"></a>
-<span class="sourceLineNo">510</span>    @Override<a name="line.510"></a>
-<span class="sourceLineNo">511</span>    public boolean pageExists( final String pageName, final int version ) throws ProviderException {<a name="line.511"></a>
-<span class="sourceLineNo">512</span>        if( pageName == null || pageName.length() == 0 ) {<a name="line.512"></a>
-<span class="sourceLineNo">513</span>            throw new ProviderException( "Illegal page name" );<a name="line.513"></a>
-<span class="sourceLineNo">514</span>        }<a name="line.514"></a>
-<span class="sourceLineNo">515</span><a name="line.515"></a>
-<span class="sourceLineNo">516</span>        if( version == WikiProvider.LATEST_VERSION ) {<a name="line.516"></a>
-<span class="sourceLineNo">517</span>            return pageExists( pageName );<a name="line.517"></a>
-<span class="sourceLineNo">518</span>        }<a name="line.518"></a>
-<span class="sourceLineNo">519</span><a name="line.519"></a>
-<span class="sourceLineNo">520</span>        return m_provider.pageExists( pageName, version );<a name="line.520"></a>
-<span class="sourceLineNo">521</span>    }<a name="line.521"></a>
-<span class="sourceLineNo">522</span><a name="line.522"></a>
-<span class="sourceLineNo">523</span>    /**<a name="line.523"></a>
-<span class="sourceLineNo">524</span>     * {@inheritDoc}<a name="line.524"></a>
-<span class="sourceLineNo">525</span>     * @see org.apache.wiki.pages.PageManager#wikiPageExists(java.lang.String)<a name="line.525"></a>
-<span class="sourceLineNo">526</span>     */<a name="line.526"></a>
-<span class="sourceLineNo">527</span>    @Override<a name="line.527"></a>
-<span class="sourceLineNo">528</span>    public boolean wikiPageExists( final String page ) {<a name="line.528"></a>
-<span class="sourceLineNo">529</span>        if( m_engine.getManager( CommandResolver.class ).getSpecialPageReference( page ) != null ) {<a name="line.529"></a>
-<span class="sourceLineNo">530</span>            return true;<a name="line.530"></a>
-<span class="sourceLineNo">531</span>        }<a name="line.531"></a>
-<span class="sourceLineNo">532</span><a name="line.532"></a>
-<span class="sourceLineNo">533</span>        Attachment att = null;<a name="line.533"></a>
-<span class="sourceLineNo">534</span>        try {<a name="line.534"></a>
-<span class="sourceLineNo">535</span>            if( m_engine.getFinalPageName( page ) != null ) {<a name="line.535"></a>
-<span class="sourceLineNo">536</span>                return true;<a name="line.536"></a>
-<span class="sourceLineNo">537</span>            }<a name="line.537"></a>
-<span class="sourceLineNo">538</span><a name="line.538"></a>
-<span class="sourceLineNo">539</span>            att = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( null, page );<a name="line.539"></a>
-<span class="sourceLineNo">540</span>        } catch( final ProviderException e ) {<a name="line.540"></a>
-<span class="sourceLineNo">541</span>            LOG.debug( "pageExists() failed to find attachments", e );<a name="line.541"></a>
-<span class="sourceLineNo">542</span>        }<a name="line.542"></a>
-<span class="sourceLineNo">543</span><a name="line.543"></a>
-<span class="sourceLineNo">544</span>        return att != null;<a name="line.544"></a>
-<span class="sourceLineNo">545</span>    }<a name="line.545"></a>
-<span class="sourceLineNo">546</span><a name="line.546"></a>
-<span class="sourceLineNo">547</span>    /**<a name="line.547"></a>
-<span class="sourceLineNo">548</span>     * {@inheritDoc}<a name="line.548"></a>
-<span class="sourceLineNo">549</span>     * @see org.apache.wiki.pages.PageManager#wikiPageExists(java.lang.String, int)<a name="line.549"></a>
-<span class="sourceLineNo">550</span>     */<a name="line.550"></a>
-<span class="sourceLineNo">551</span>    @Override<a name="line.551"></a>
-<span class="sourceLineNo">552</span>    public boolean wikiPageExists( final String page, final int version ) throws ProviderException {<a name="line.552"></a>
-<span class="sourceLineNo">553</span>        if( m_engine.getManager( CommandResolver.class ).getSpecialPageReference( page ) != null ) {<a name="line.553"></a>
-<span class="sourceLineNo">554</span>            return true;<a name="line.554"></a>
-<span class="sourceLineNo">555</span>        }<a name="line.555"></a>
-<span class="sourceLineNo">556</span><a name="line.556"></a>
-<span class="sourceLineNo">557</span>        boolean isThere = false;<a name="line.557"></a>
-<span class="sourceLineNo">558</span>        final String finalName = m_engine.getFinalPageName( page );<a name="line.558"></a>
-<span class="sourceLineNo">559</span>        if( finalName != null ) {<a name="line.559"></a>
-<span class="sourceLineNo">560</span>            isThere = pageExists( finalName, version );<a name="line.560"></a>
-<span class="sourceLineNo">561</span>        }<a name="line.561"></a>
-<span class="sourceLineNo">562</span><a name="line.562"></a>
-<span class="sourceLineNo">563</span>        if( !isThere ) {<a name="line.563"></a>
-<span class="sourceLineNo">564</span>            //  Go check if such an attachment exists.<a name="line.564"></a>
-<span class="sourceLineNo">565</span>            try {<a name="line.565"></a>
-<span class="sourceLineNo">566</span>                isThere = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( null, page, version ) != null;<a name="line.566"></a>
-<span class="sourceLineNo">567</span>            } catch( final ProviderException e ) {<a name="line.567"></a>
-<span class="sourceLineNo">568</span>                LOG.debug( "wikiPageExists() failed to find attachments", e );<a name="line.568"></a>
-<span class="sourceLineNo">569</span>            }<a name="line.569"></a>
-<span class="sourceLineNo">570</span>        }<a name="line.570"></a>
-<span class="sourceLineNo">571</span><a name="line.571"></a>
-<span class="sourceLineNo">572</span>        return isThere;<a name="line.572"></a>
-<span class="sourceLineNo">573</span>    }<a name="line.573"></a>
-<span class="sourceLineNo">574</span><a name="line.574"></a>
-<span class="sourceLineNo">575</span>    /**<a name="line.575"></a>
-<span class="sourceLineNo">576</span>     * {@inheritDoc}<a name="line.576"></a>
-<span class="sourceLineNo">577</span>     * @see org.apache.wiki.pages.PageManager#deleteVersion(org.apache.wiki.api.core.Page)<a name="line.577"></a>
-<span class="sourceLineNo">578</span>     */<a name="line.578"></a>
-<span class="sourceLineNo">579</span>    @Override<a name="line.579"></a>
-<span class="sourceLineNo">580</span>    public void deleteVersion( final Page page ) throws ProviderException {<a name="line.580"></a>
-<span class="sourceLineNo">581</span>        if( page instanceof Attachment ) {<a name="line.581"></a>
-<span class="sourceLineNo">582</span>            m_engine.getManager( AttachmentManager.class ).deleteVersion( ( Attachment )page );<a name="line.582"></a>
-<span class="sourceLineNo">583</span>        } else {<a name="line.583"></a>
-<span class="sourceLineNo">584</span>            m_provider.deleteVersion( page.getName(), page.getVersion() );<a name="line.584"></a>
-<span class="sourceLineNo">585</span>            // FIXME: If this was the latest, reindex Lucene, update RefMgr<a name="line.585"></a>
-<span class="sourceLineNo">586</span>        }<a name="line.586"></a>
-<span class="sourceLineNo">587</span>    }<a name="line.587"></a>
-<span class="sourceLineNo">588</span><a name="line.588"></a>
-<span class="sourceLineNo">589</span>    /**<a name="line.589"></a>
-<span class="sourceLineNo">590</span>     * {@inheritDoc}<a name="line.590"></a>
-<span class="sourceLineNo">591</span>     * @see org.apache.wiki.pages.PageManager#deletePage(java.lang.String)<a name="line.591"></a>
-<span class="sourceLineNo">592</span>     */<a name="line.592"></a>
-<span class="sourceLineNo">593</span>    @Override<a name="line.593"></a>
-<span class="sourceLineNo">594</span>    public void deletePage( final String pageName ) throws ProviderException {<a name="line.594"></a>
-<span class="sourceLineNo">595</span>        final Page p = getPage( pageName );<a name="line.595"></a>
-<span class="sourceLineNo">596</span>        if( p != null ) {<a name="line.596"></a>
-<span class="sourceLineNo">597</span>            if( p instanceof Attachment ) {<a name="line.597"></a>
-<span class="sourceLineNo">598</span>                m_engine.getManager( AttachmentManager.class ).deleteAttachment( ( Attachment )p );<a name="line.598"></a>
-<span class="sourceLineNo">599</span>            } else {<a name="line.599"></a>
-<span class="sourceLineNo">600</span>                final Collection&lt; String &gt; refTo = m_engine.getManager( ReferenceManager.class ).findRefersTo( pageName );<a name="line.600"></a>
-<span class="sourceLineNo">601</span>                // May return null, if the page does not exist or has not been indexed yet.<a name="line.601"></a>
-<span class="sourceLineNo">602</span><a name="line.602"></a>
-<span class="sourceLineNo">603</span>                if( m_engine.getManager( AttachmentManager.class ).hasAttachments( p ) ) {<a name="line.603"></a>
-<span class="sourceLineNo">604</span>                    final List&lt; Attachment &gt; attachments = m_engine.getManager( AttachmentManager.class ).listAttachments( p );<a name="line.604"></a>
-<span class="sourceLineNo">605</span>                    for( final Attachment attachment : attachments ) {<a name="line.605"></a>
-<span class="sourceLineNo">606</span>                        if( refTo != null ) {<a name="line.606"></a>
-<span class="sourceLineNo">607</span>                            refTo.remove( attachment.getName() );<a name="line.607"></a>
-<span class="sourceLineNo">608</span>                        }<a name="line.608"></a>
-<span class="sourceLineNo">609</span><a name="line.609"></a>
-<span class="sourceLineNo">610</span>                        m_engine.getManager( AttachmentManager.class ).deleteAttachment( attachment );<a name="line.610"></a>
-<span class="sourceLineNo">611</span>                    }<a name="line.611"></a>
-<span class="sourceLineNo">612</span>                }<a name="line.612"></a>
-<span class="sourceLineNo">613</span>                deletePage( p );<a name="line.613"></a>
-<span class="sourceLineNo">614</span>                fireEvent( WikiPageEvent.PAGE_DELETED, pageName );<a name="line.614"></a>
-<span class="sourceLineNo">615</span>            }<a name="line.615"></a>
-<span class="sourceLineNo">616</span>        }<a name="line.616"></a>
-<span class="sourceLineNo">617</span>    }<a name="line.617"></a>
-<span class="sourceLineNo">618</span><a name="line.618"></a>
-<span class="sourceLineNo">619</span>    /**<a name="line.619"></a>
-<span class="sourceLineNo">620</span>     * {@inheritDoc}<a name="line.620"></a>
-<span class="sourceLineNo">621</span>     * @see org.apache.wiki.pages.PageManager#deletePage(org.apache.wiki.api.core.Page)<a name="line.621"></a>
-<span class="sourceLineNo">622</span>     */<a name="line.622"></a>
-<span class="sourceLineNo">623</span>    @Override<a name="line.623"></a>
-<span class="sourceLineNo">624</span>    public void deletePage( final Page page ) throws ProviderException {<a name="line.624"></a>
-<span class="sourceLineNo">625</span>        fireEvent( WikiPageEvent.PAGE_DELETE_REQUEST, page.getName() );<a name="line.625"></a>
-<span class="sourceLineNo">626</span>        m_provider.deletePage( page.getName() );<a name="line.626"></a>
-<span class="sourceLineNo">627</span>        fireEvent( WikiPageEvent.PAGE_DELETED, page.getName() );<a name="line.627"></a>
-<span class="sourceLineNo">628</span>    }<a name="line.628"></a>
-<span class="sourceLineNo">629</span><a name="line.629"></a>
-<span class="sourceLineNo">630</span>    /**<a name="line.630"></a>
-<span class="sourceLineNo">631</span>     * This is a simple reaper thread that runs roughly every minute<a name="line.631"></a>
-<span class="sourceLineNo">632</span>     * or so (it's not really that important, as long as it runs),<a name="line.632"></a>
-<span class="sourceLineNo">633</span>     * and removes all locks that have expired.<a name="line.633"></a>
-<span class="sourceLineNo">634</span>     */<a name="line.634"></a>
-<span class="sourceLineNo">635</span>    private class LockReaper extends WikiBackgroundThread {<a name="line.635"></a>
-<span class="sourceLineNo">636</span>        /**<a name="line.636"></a>
-<span class="sourceLineNo">637</span>         * Create a LockReaper for a given engine.<a name="line.637"></a>
-<span class="sourceLineNo">638</span>         *<a name="line.638"></a>
-<span class="sourceLineNo">639</span>         * @param engine Engine to own this thread.<a name="line.639"></a>
-<span class="sourceLineNo">640</span>         */<a name="line.640"></a>
-<span class="sourceLineNo">641</span>        public LockReaper( final Engine engine) {<a name="line.641"></a>
-<span class="sourceLineNo">642</span>            super( engine, 60 );<a name="line.642"></a>
-<span class="sourceLineNo">643</span>            setName( "JSPWiki Lock Reaper" );<a name="line.643"></a>
-<span class="sourceLineNo">644</span>        }<a name="line.644"></a>
-<span class="sourceLineNo">645</span><a name="line.645"></a>
-<span class="sourceLineNo">646</span>        @Override<a name="line.646"></a>
-<span class="sourceLineNo">647</span>        public void backgroundTask() {<a name="line.647"></a>
-<span class="sourceLineNo">648</span>            final Collection&lt; PageLock &gt; entries = m_pageLocks.values();<a name="line.648"></a>
-<span class="sourceLineNo">649</span>            for( final Iterator&lt;PageLock&gt; i = entries.iterator(); i.hasNext(); ) {<a name="line.649"></a>
-<span class="sourceLineNo">650</span>                final PageLock p = i.next();<a name="line.650"></a>
-<span class="sourceLineNo">651</span><a name="line.651"></a>
-<span class="sourceLineNo">652</span>                if ( p.isExpired() ) {<a name="line.652"></a>
-<span class="sourceLineNo">653</span>                    i.remove();<a name="line.653"></a>
-<span class="sourceLineNo">654</span><a name="line.654"></a>
-<span class="sourceLineNo">655</span>                    LOG.debug( "Reaped lock: " + p.getPage() +<a name="line.655"></a>
-<span class="sourceLineNo">656</span>                               " by " + p.getLocker() +<a name="line.656"></a>
-<span class="sourceLineNo">657</span>                               ", acquired " + p.getAcquisitionTime() +<a name="line.657"></a>
-<span class="sourceLineNo">658</span>                               ", and expired " + p.getExpiryTime() );<a name="line.658"></a>
-<span class="sourceLineNo">659</span>                }<a name="line.659"></a>
-<span class="sourceLineNo">660</span>            }<a name="line.660"></a>
-<span class="sourceLineNo">661</span>        }<a name="line.661"></a>
-<span class="sourceLineNo">662</span>    }<a name="line.662"></a>
-<span class="sourceLineNo">663</span><a name="line.663"></a>
-<span class="sourceLineNo">664</span>    // events processing .......................................................<a name="line.664"></a>
-<span class="sourceLineNo">665</span><a name="line.665"></a>
-<span class="sourceLineNo">666</span>    /**<a name="line.666"></a>
-<span class="sourceLineNo">667</span>     * Fires a WikiPageEvent of the provided type and page name<a name="line.667"></a>
-<span class="sourceLineNo">668</span>     * to all registered listeners.<a name="line.668"></a>
-<span class="sourceLineNo">669</span>     *<a name="line.669"></a>
-<span class="sourceLineNo">670</span>     * @param type     the event type to be fired<a name="line.670"></a>
-<span class="sourceLineNo">671</span>     * @param pagename the wiki page name as a String<a name="line.671"></a>
-<span class="sourceLineNo">672</span>     * @see org.apache.wiki.event.WikiPageEvent<a name="line.672"></a>
-<span class="sourceLineNo">673</span>     */<a name="line.673"></a>
-<span class="sourceLineNo">674</span>    protected final void fireEvent( final int type, final String pagename ) {<a name="line.674"></a>
-<span class="sourceLineNo">675</span>        if( WikiEventManager.isListening( this ) ) {<a name="line.675"></a>
-<span class="sourceLineNo">676</span>            WikiEventManager.fireEvent( this, new WikiPageEvent( m_engine, type, pagename ) );<a name="line.676"></a>
-<span class="sourceLineNo">677</span>        }<a name="line.677"></a>
-<span class="sourceLineNo">678</span>    }<a name="line.678"></a>
-<span class="sourceLineNo">679</span><a name="line.679"></a>
-<span class="sourceLineNo">680</span>    /**<a name="line.680"></a>
-<span class="sourceLineNo">681</span>     * Listens for {@link org.apache.wiki.event.WikiSecurityEvent#PROFILE_NAME_CHANGED}<a name="line.681"></a>
-<span class="sourceLineNo">682</span>     * events. If a user profile's name changes, each page ACL is inspected. If an entry contains<a name="line.682"></a>
-<span class="sourceLineNo">683</span>     * a name that has changed, it is replaced with the new one. No events are emitted<a name="line.683"></a>
-<span class="sourceLineNo">684</span>     * as a consequence of this method, because the page contents are still the same; it is<a name="line.684"></a>
-<span class="sourceLineNo">685</span>     * only the representations of the names within the ACL that are changing.<a name="line.685"></a>
-<span class="sourceLineNo">686</span>     *<a name="line.686"></a>
-<span class="sourceLineNo">687</span>     * @param event The event<a name="line.687"></a>
-<span class="sourceLineNo">688</span>     */<a name="line.688"></a>
-<span class="sourceLineNo">689</span>    @Override<a name="line.689"></a>
-<span class="sourceLineNo">690</span>    public void actionPerformed( final WikiEvent event ) {<a name="line.690"></a>
-<span class="sourceLineNo">691</span>        if( !( event instanceof WikiSecurityEvent ) ) {<a name="line.691"></a>
-<span class="sourceLineNo">692</span>            return;<a name="line.692"></a>
-<span class="sourceLineNo">693</span>        }<a name="line.693"></a>
-<span class="sourceLineNo">694</span><a name="line.694"></a>
-<span class="sourceLineNo">695</span>        final WikiSecurityEvent se = ( WikiSecurityEvent ) event;<a name="line.695"></a>
-<span class="sourceLineNo">696</span>        if( se.getType() == WikiSecurityEvent.PROFILE_NAME_CHANGED ) {<a name="line.696"></a>
-<span class="sourceLineNo">697</span>            final UserProfile[] profiles = (UserProfile[]) se.getTarget();<a name="line.697"></a>
-<span class="sourceLineNo">698</span>            final Principal[] oldPrincipals = new Principal[] { new WikiPrincipal( profiles[ 0 ].getLoginName() ),<a name="line.698"></a>
-<span class="sourceLineNo">699</span>                                                                new WikiPrincipal( profiles[ 0 ].getFullname()),<a name="line.699"></a>
-<span class="sourceLineNo">700</span>                                                                new WikiPrincipal( profiles[ 0 ].getWikiName() ) };<a name="line.700"></a>
-<span class="sourceLineNo">701</span>            final Principal newPrincipal = new WikiPrincipal( profiles[ 1 ].getFullname() );<a name="line.701"></a>
-<span class="sourceLineNo">702</span><a name="line.702"></a>
-<span class="sourceLineNo">703</span>            // Examine each page ACL<a name="line.703"></a>
-<span class="sourceLineNo">704</span>            try {<a name="line.704"></a>
-<span class="sourceLineNo">705</span>                int pagesChanged = 0;<a name="line.705"></a>
-<span class="sourceLineNo">706</span>                final Collection&lt; Page &gt; pages = getAllPages();<a name="line.706"></a>
-<span class="sourceLineNo">707</span>                for( final Page page : pages ) {<a name="line.707"></a>
-<span class="sourceLineNo">708</span>                    final boolean aclChanged = changeAcl( page, oldPrincipals, newPrincipal );<a name="line.708"></a>
-<span class="sourceLineNo">709</span>                    if( aclChanged ) {<a name="line.709"></a>
-<span class="sourceLineNo">710</span>                        // If the Acl needed changing, change it now<a name="line.710"></a>
-<span class="sourceLineNo">711</span>                        try {<a name="line.711"></a>
-<span class="sourceLineNo">712</span>                            m_engine.getManager( AclManager.class ).setPermissions( page, page.getAcl() );<a name="line.712"></a>
-<span class="sourceLineNo">713</span>                        } catch( final WikiSecurityException e ) {<a name="line.713"></a>
-<span class="sourceLineNo">714</span>                            LOG.error("Could not change page ACL for page " + page.getName() + ": " + e.getMessage(), e);<a name="line.714"></a>
-<span class="sourceLineNo">715</span>                        }<a name="line.715"></a>
-<span class="sourceLineNo">716</span>                        pagesChanged++;<a name="line.716"></a>
-<span class="sourceLineNo">717</span>                    }<a name="line.717"></a>
-<span class="sourceLineNo">718</span>                }<a name="line.718"></a>
-<span class="sourceLineNo">719</span>                LOG.info( "Profile name change for '" + newPrincipal.toString() + "' caused " + pagesChanged + " page ACLs to change also." );<a name="line.719"></a>
-<span class="sourceLineNo">720</span>            } catch( final ProviderException e ) {<a name="line.720"></a>
-<span class="sourceLineNo">721</span>                // Oooo! This is really bad...<a name="line.721"></a>
-<span class="sourceLineNo">722</span>                LOG.error( "Could not change user name in Page ACLs because of Provider error:" + e.getMessage(), e );<a name="line.722"></a>
-<span class="sourceLineNo">723</span>            }<a name="line.723"></a>
-<span class="sourceLineNo">724</span>        }<a name="line.724"></a>
-<span class="sourceLineNo">725</span>    }<a name="line.725"></a>
-<span class="sourceLineNo">726</span><a name="line.726"></a>
-<span class="sourceLineNo">727</span>    /**<a name="line.727"></a>
-<span class="sourceLineNo">728</span>     * For a single wiki page, replaces all Acl entries matching a supplied array of Principals with a new Principal.<a name="line.728"></a>
-<span class="sourceLineNo">729</span>     *<a name="line.729"></a>
-<span class="sourceLineNo">730</span>     * @param page the wiki page whose Acl is to be modified<a name="line.730"></a>
-<span class="sourceLineNo">731</span>     * @param oldPrincipals an array of Principals to replace; all AclEntry objects whose {@link AclEntry#getPrincipal()} method returns<a name="line.731"></a>
-<span class="sourceLineNo">732</span>     *                      one of these Principals will be replaced<a name="line.732"></a>
-<span class="sourceLineNo">733</span>     * @param newPrincipal the Principal that should receive the old Principals' permissions<a name="line.733"></a>
-<span class="sourceLineNo">734</span>     * @return &lt;code&gt;true&lt;/code&gt; if the Acl was actually changed; &lt;code&gt;false&lt;/code&gt; otherwise<a name="line.734"></a>
-<span class="sourceLineNo">735</span>     */<a name="line.735"></a>
-<span class="sourceLineNo">736</span>    protected boolean changeAcl( final Page page, final Principal[] oldPrincipals, final Principal newPrincipal ) {<a name="line.736"></a>
-<span class="sourceLineNo">737</span>        final Acl acl = page.getAcl();<a name="line.737"></a>
-<span class="sourceLineNo">738</span>        boolean pageChanged = false;<a name="line.738"></a>
-<span class="sourceLineNo">739</span>        if( acl != null ) {<a name="line.739"></a>
-<span class="sourceLineNo">740</span>            final Enumeration&lt; AclEntry &gt; entries = acl.aclEntries();<a name="line.740"></a>
-<span class="sourceLineNo">741</span>            final Collection&lt; AclEntry &gt; entriesToAdd = new ArrayList&lt;&gt;();<a name="line.741"></a>
-<span class="sourceLineNo">742</span>            final Collection&lt; AclEntry &gt; entriesToRemove = new ArrayList&lt;&gt;();<a name="line.742"></a>
-<span class="sourceLineNo">743</span>            while( entries.hasMoreElements() ) {<a name="line.743"></a>
-<span class="sourceLineNo">744</span>                final AclEntry entry = entries.nextElement();<a name="line.744"></a>
-<span class="sourceLineNo">745</span>                if( ArrayUtils.contains( oldPrincipals, entry.getPrincipal() ) ) {<a name="line.745"></a>
-<span class="sourceLineNo">746</span>                    // Create new entry<a name="line.746"></a>
-<span class="sourceLineNo">747</span>                    final AclEntry newEntry = Wiki.acls().entry();<a name="line.747"></a>
-<span class="sourceLineNo">748</span>                    newEntry.setPrincipal( newPrincipal );<a name="line.748"></a>
-<span class="sourceLineNo">749</span>                    final Enumeration&lt; Permission &gt; permissions = entry.permissions();<a name="line.749"></a>
-<span class="sourceLineNo">750</span>                    while( permissions.hasMoreElements() ) {<a name="line.750"></a>
-<span class="sourceLineNo">751</span>                        final Permission permission = permissions.nextElement();<a name="line.751"></a>
-<span class="sourceLineNo">752</span>                        newEntry.addPermission( permission );<a name="line.752"></a>
-<span class="sourceLineNo">753</span>                    }<a name="line.753"></a>
-<span class="sourceLineNo">754</span>                    pageChanged = true;<a name="line.754"></a>
-<span class="sourceLineNo">755</span>                    entriesToRemove.add( entry );<a name="line.755"></a>
-<span class="sourceLineNo">756</span>                    entriesToAdd.add( newEntry );<a name="line.756"></a>
-<span class="sourceLineNo">757</span>                }<a name="line.757"></a>
-<span class="sourceLineNo">758</span>            }<a name="line.758"></a>
-<span class="sourceLineNo">759</span>            for( final AclEntry entry : entriesToRemove ) {<a name="line.759"></a>
-<span class="sourceLineNo">760</span>                acl.removeEntry( entry );<a name="line.760"></a>
-<span class="sourceLineNo">761</span>            }<a name="line.761"></a>
-<span class="sourceLineNo">762</span>            for( final AclEntry entry : entriesToAdd ) {<a name="line.762"></a>
-<span class="sourceLineNo">763</span>                acl.addEntry( entry );<a name="line.763"></a>
-<span class="sourceLineNo">764</span>            }<a name="line.764"></a>
-<span class="sourceLineNo">765</span>        }<a name="line.765"></a>
-<span class="sourceLineNo">766</span>        return pageChanged;<a name="line.766"></a>
-<span class="sourceLineNo">767</span>    }<a name="line.767"></a>
-<span class="sourceLineNo">768</span><a name="line.768"></a>
-<span class="sourceLineNo">769</span>    /**<a name="line.769"></a>
-<span class="sourceLineNo">770</span>     * {@inheritDoc}<a name="line.770"></a>
-<span class="sourceLineNo">771</span>     * @see org.apache.wiki.pages.PageManager#getPageSorter()<a name="line.771"></a>
-<span class="sourceLineNo">772</span>     */<a name="line.772"></a>
-<span class="sourceLineNo">773</span>    @Override<a name="line.773"></a>
-<span class="sourceLineNo">774</span>    public PageSorter getPageSorter() {<a name="line.774"></a>
-<span class="sourceLineNo">775</span>        return pageSorter;<a name="line.775"></a>
-<span class="sourceLineNo">776</span>    }<a name="line.776"></a>
-<span class="sourceLineNo">777</span><a name="line.777"></a>
-<span class="sourceLineNo">778</span>}<a name="line.778"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.pages;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.ArrayUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.WikiBackgroundThread;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Acl;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.AclEntry;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Attachment;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.api.providers.PageProvider;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.api.providers.WikiProvider;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.attachment.AttachmentManager;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.apache.wiki.auth.WikiPrincipal;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import org.apache.wiki.auth.acl.AclManager;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import org.apache.wiki.auth.user.UserProfile;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import org.apache.wiki.diff.DifferenceManager;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import org.apache.wiki.event.WikiEvent;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import org.apache.wiki.event.WikiPageEvent;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import org.apache.wiki.event.WikiSecurityEvent;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import org.apache.wiki.providers.RepositoryModifiedException;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import org.apache.wiki.references.ReferenceManager;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import org.apache.wiki.tasks.TasksManager;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import org.apache.wiki.ui.CommandResolver;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">051</span><a id="line.51">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import org.apache.wiki.workflow.Decision;</a>
+<span class="sourceLineNo">053</span><a id="line.53">import org.apache.wiki.workflow.DecisionRequiredException;</a>
+<span class="sourceLineNo">054</span><a id="line.54">import org.apache.wiki.workflow.Fact;</a>
+<span class="sourceLineNo">055</span><a id="line.55">import org.apache.wiki.workflow.Step;</a>
+<span class="sourceLineNo">056</span><a id="line.56">import org.apache.wiki.workflow.Workflow;</a>
+<span class="sourceLineNo">057</span><a id="line.57">import org.apache.wiki.workflow.WorkflowBuilder;</a>
+<span class="sourceLineNo">058</span><a id="line.58">import org.apache.wiki.workflow.WorkflowManager;</a>
+<span class="sourceLineNo">059</span><a id="line.59"></a>
+<span class="sourceLineNo">060</span><a id="line.60">import java.io.IOException;</a>
+<span class="sourceLineNo">061</span><a id="line.61">import java.security.Permission;</a>
+<span class="sourceLineNo">062</span><a id="line.62">import java.security.Principal;</a>
+<span class="sourceLineNo">063</span><a id="line.63">import java.util.ArrayList;</a>
+<span class="sourceLineNo">064</span><a id="line.64">import java.util.Collection;</a>
+<span class="sourceLineNo">065</span><a id="line.65">import java.util.Collections;</a>
+<span class="sourceLineNo">066</span><a id="line.66">import java.util.Date;</a>
+<span class="sourceLineNo">067</span><a id="line.67">import java.util.Enumeration;</a>
+<span class="sourceLineNo">068</span><a id="line.68">import java.util.Iterator;</a>
+<span class="sourceLineNo">069</span><a id="line.69">import java.util.List;</a>
+<span class="sourceLineNo">070</span><a id="line.70">import java.util.NoSuchElementException;</a>
+<span class="sourceLineNo">071</span><a id="line.71">import java.util.Properties;</a>
+<span class="sourceLineNo">072</span><a id="line.72">import java.util.Set;</a>
+<span class="sourceLineNo">073</span><a id="line.73">import java.util.TreeSet;</a>
+<span class="sourceLineNo">074</span><a id="line.74">import java.util.concurrent.ConcurrentHashMap;</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76"></a>
+<span class="sourceLineNo">077</span><a id="line.77">/**</a>
+<span class="sourceLineNo">078</span><a id="line.78"> * Manages the WikiPages. This class functions as an unified interface towards the page providers. It handles initialization</a>
+<span class="sourceLineNo">079</span><a id="line.79"> * and management of the providers, and provides utility methods for accessing the contents.</a>
+<span class="sourceLineNo">080</span><a id="line.80"> * &lt;p/&gt;</a>
+<span class="sourceLineNo">081</span><a id="line.81"> * Saving a page is a two-stage Task; first the pre-save operations and then the actual save. See the descriptions of the tasks</a>
+<span class="sourceLineNo">082</span><a id="line.82"> * for further information.</a>
+<span class="sourceLineNo">083</span><a id="line.83"> *</a>
+<span class="sourceLineNo">084</span><a id="line.84"> * @since 2.0</a>
+<span class="sourceLineNo">085</span><a id="line.85"> */</a>
+<span class="sourceLineNo">086</span><a id="line.86">public class DefaultPageManager implements PageManager {</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    private static final Logger LOG = Logger.getLogger( DefaultPageManager.class );</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">    private PageProvider m_provider;</a>
+<span class="sourceLineNo">091</span><a id="line.91"></a>
+<span class="sourceLineNo">092</span><a id="line.92">    private Engine m_engine;</a>
+<span class="sourceLineNo">093</span><a id="line.93"></a>
+<span class="sourceLineNo">094</span><a id="line.94">    protected ConcurrentHashMap&lt; String, PageLock &gt; m_pageLocks = new ConcurrentHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">    private int m_expiryTime;</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">    private LockReaper m_reaper = null;</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">    private PageSorter pageSorter = new PageSorter();</a>
+<span class="sourceLineNo">101</span><a id="line.101"></a>
+<span class="sourceLineNo">102</span><a id="line.102">    /**</a>
+<span class="sourceLineNo">103</span><a id="line.103">     * Creates a new PageManager.</a>
+<span class="sourceLineNo">104</span><a id="line.104">     *</a>
+<span class="sourceLineNo">105</span><a id="line.105">     * @param engine Engine instance</a>
+<span class="sourceLineNo">106</span><a id="line.106">     * @param props  Properties to use for initialization</a>
+<span class="sourceLineNo">107</span><a id="line.107">     * @throws NoSuchElementException {@value #PROP_PAGEPROVIDER} property not found on Engine properties</a>
+<span class="sourceLineNo">108</span><a id="line.108">     * @throws WikiException If anything goes wrong, you get this.</a>
+<span class="sourceLineNo">109</span><a id="line.109">     */</a>
+<span class="sourceLineNo">110</span><a id="line.110">    public DefaultPageManager(final Engine engine, final Properties props) throws NoSuchElementException, WikiException {</a>
+<span class="sourceLineNo">111</span><a id="line.111">        m_engine = engine;</a>
+<span class="sourceLineNo">112</span><a id="line.112">        final String classname;</a>
+<span class="sourceLineNo">113</span><a id="line.113">        final boolean useCache = "true".equals( props.getProperty( PROP_USECACHE ) );</a>
+<span class="sourceLineNo">114</span><a id="line.114">        m_expiryTime = TextUtil.parseIntParameter( props.getProperty( PROP_LOCKEXPIRY ), 60 );</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">        //  If user wants to use a cache, then we'll use the CachingProvider.</a>
+<span class="sourceLineNo">117</span><a id="line.117">        if( useCache ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">            classname = "org.apache.wiki.providers.CachingProvider";</a>
+<span class="sourceLineNo">119</span><a id="line.119">        } else {</a>
+<span class="sourceLineNo">120</span><a id="line.120">            classname = TextUtil.getRequiredProperty( props, PROP_PAGEPROVIDER );</a>
+<span class="sourceLineNo">121</span><a id="line.121">        }</a>
+<span class="sourceLineNo">122</span><a id="line.122"></a>
+<span class="sourceLineNo">123</span><a id="line.123">        pageSorter.initialize( props );</a>
+<span class="sourceLineNo">124</span><a id="line.124"></a>
+<span class="sourceLineNo">125</span><a id="line.125">        try {</a>
+<span class="sourceLineNo">126</span><a id="line.126">            LOG.debug("Page provider class: '" + classname + "'");</a>
+<span class="sourceLineNo">127</span><a id="line.127">            final Class&lt;?&gt; providerclass = ClassUtil.findClass("org.apache.wiki.providers", classname);</a>
+<span class="sourceLineNo">128</span><a id="line.128">            m_provider = ( PageProvider ) providerclass.newInstance();</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">            LOG.debug("Initializing page provider class " + m_provider);</a>
+<span class="sourceLineNo">131</span><a id="line.131">            m_provider.initialize(m_engine, props);</a>
+<span class="sourceLineNo">132</span><a id="line.132">        } catch (final ClassNotFoundException e) {</a>
+<span class="sourceLineNo">133</span><a id="line.133">            LOG.error("Unable to locate provider class '" + classname + "' (" + e.getMessage() + ")", e);</a>
+<span class="sourceLineNo">134</span><a id="line.134">            throw new WikiException("No provider class. (" + e.getMessage() + ")", e);</a>
+<span class="sourceLineNo">135</span><a id="line.135">        } catch (final InstantiationException e) {</a>
+<span class="sourceLineNo">136</span><a id="line.136">            LOG.error("Unable to create provider class '" + classname + "' (" + e.getMessage() + ")", e);</a>
+<span class="sourceLineNo">137</span><a id="line.137">            throw new WikiException("Faulty provider class. (" + e.getMessage() + ")", e);</a>
+<span class="sourceLineNo">138</span><a id="line.138">        } catch (final IllegalAccessException e) {</a>
+<span class="sourceLineNo">139</span><a id="line.139">            LOG.error("Illegal access to provider class '" + classname + "' (" + e.getMessage() + ")", e);</a>
+<span class="sourceLineNo">140</span><a id="line.140">            throw new WikiException("Illegal provider class. (" + e.getMessage() + ")", e);</a>
+<span class="sourceLineNo">141</span><a id="line.141">        } catch (final NoRequiredPropertyException e) {</a>
+<span class="sourceLineNo">142</span><a id="line.142">            LOG.error("Provider did not found a property it was looking for: " + e.getMessage(), e);</a>
+<span class="sourceLineNo">143</span><a id="line.143">            throw e;  // Same exception works.</a>
+<span class="sourceLineNo">144</span><a id="line.144">        } catch (final IOException e) {</a>
+<span class="sourceLineNo">145</span><a id="line.145">            LOG.error("An I/O exception occurred while trying to create a new page provider: " + classname, e);</a>
+<span class="sourceLineNo">146</span><a id="line.146">            throw new WikiException("Unable to start page provider: " + e.getMessage(), e);</a>
+<span class="sourceLineNo">147</span><a id="line.147">        }</a>
+<span class="sourceLineNo">148</span><a id="line.148"></a>
+<span class="sourceLineNo">149</span><a id="line.149">    }</a>
+<span class="sourceLineNo">150</span><a id="line.150"></a>
+<span class="sourceLineNo">151</span><a id="line.151">    /**</a>
+<span class="sourceLineNo">152</span><a id="line.152">     * {@inheritDoc}</a>
+<span class="sourceLineNo">153</span><a id="line.153">     * @see org.apache.wiki.pages.PageManager#getProvider()</a>
+<span class="sourceLineNo">154</span><a id="line.154">     */</a>
+<span class="sourceLineNo">155</span><a id="line.155">    @Override</a>
+<span class="sourceLineNo">156</span><a id="line.156">    public PageProvider getProvider() {</a>
+<span class="sourceLineNo">157</span><a id="line.157">        return m_provider;</a>
+<span class="sourceLineNo">158</span><a id="line.158">    }</a>
+<span class="sourceLineNo">159</span><a id="line.159"></a>
+<span class="sourceLineNo">160</span><a id="line.160">    /**</a>
+<span class="sourceLineNo">161</span><a id="line.161">     * {@inheritDoc}</a>
+<span class="sourceLineNo">162</span><a id="line.162">     * @see org.apache.wiki.pages.PageManager#getAllPages()</a>
+<span class="sourceLineNo">163</span><a id="line.163">     */</a>
+<span class="sourceLineNo">164</span><a id="line.164">    @Override</a>
+<span class="sourceLineNo">165</span><a id="line.165">    public Collection&lt; Page &gt; getAllPages() throws ProviderException {</a>
+<span class="sourceLineNo">166</span><a id="line.166">        return m_provider.getAllPages();</a>
+<span class="sourceLineNo">167</span><a id="line.167">    }</a>
+<span class="sourceLineNo">168</span><a id="line.168"></a>
+<span class="sourceLineNo">169</span><a id="line.169">    /**</a>
+<span class="sourceLineNo">170</span><a id="line.170">     * {@inheritDoc}</a>
+<span class="sourceLineNo">171</span><a id="line.171">     * @see org.apache.wiki.pages.PageManager#getPageText(java.lang.String, int)</a>
+<span class="sourceLineNo">172</span><a id="line.172">     */</a>
+<span class="sourceLineNo">173</span><a id="line.173">    @Override</a>
+<span class="sourceLineNo">174</span><a id="line.174">    public String getPageText( final String pageName, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">175</span><a id="line.175">        if (pageName == null || pageName.length() == 0) {</a>
+<span class="sourceLineNo">176</span><a id="line.176">            throw new ProviderException( "Illegal page name" );</a>
+<span class="sourceLineNo">177</span><a id="line.177">        }</a>
+<span class="sourceLineNo">178</span><a id="line.178">        String text;</a>
+<span class="sourceLineNo">179</span><a id="line.179"></a>
+<span class="sourceLineNo">180</span><a id="line.180">        try {</a>
+<span class="sourceLineNo">181</span><a id="line.181">            text = m_provider.getPageText( pageName, version );</a>
+<span class="sourceLineNo">182</span><a id="line.182">        } catch ( final RepositoryModifiedException e ) {</a>
+<span class="sourceLineNo">183</span><a id="line.183">            //  This only occurs with the latest version.</a>
+<span class="sourceLineNo">184</span><a id="line.184">            LOG.info( "Repository has been modified externally while fetching page " + pageName );</a>
+<span class="sourceLineNo">185</span><a id="line.185"></a>
+<span class="sourceLineNo">186</span><a id="line.186">            //  Empty the references and yay, it shall be recalculated</a>
+<span class="sourceLineNo">187</span><a id="line.187">            final Page p = m_provider.getPageInfo( pageName, version );</a>
+<span class="sourceLineNo">188</span><a id="line.188"></a>
+<span class="sourceLineNo">189</span><a id="line.189">            m_engine.getManager( ReferenceManager.class ).updateReferences( p );</a>
+<span class="sourceLineNo">190</span><a id="line.190">            fireEvent( WikiPageEvent.PAGE_REINDEX, p.getName() );</a>
+<span class="sourceLineNo">191</span><a id="line.191">            text = m_provider.getPageText( pageName, version );</a>
+<span class="sourceLineNo">192</span><a id="line.192">        }</a>
+<span class="sourceLineNo">193</span><a id="line.193"></a>
+<span class="sourceLineNo">194</span><a id="line.194">        return text;</a>
+<span class="sourceLineNo">195</span><a id="line.195">    }</a>
+<span class="sourceLineNo">196</span><a id="line.196"></a>
+<span class="sourceLineNo">197</span><a id="line.197">    /**</a>
+<span class="sourceLineNo">198</span><a id="line.198">     * {@inheritDoc}</a>
+<span class="sourceLineNo">199</span><a id="line.199">     * @see org.apache.wiki.pages.PageManager#getPureText(String, int)</a>
+<span class="sourceLineNo">200</span><a id="line.200">     */</a>
+<span class="sourceLineNo">201</span><a id="line.201">    @Override</a>
+<span class="sourceLineNo">202</span><a id="line.202">    public String getPureText( final String page, final int version ) {</a>
+<span class="sourceLineNo">203</span><a id="line.203">        String result = null;</a>
+<span class="sourceLineNo">204</span><a id="line.204">        try {</a>
+<span class="sourceLineNo">205</span><a id="line.205">            result = getPageText( page, version );</a>
+<span class="sourceLineNo">206</span><a id="line.206">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">207</span><a id="line.207">            LOG.error( "ProviderException getPureText for page " + page + " [version " + version + "]", e );</a>
+<span class="sourceLineNo">208</span><a id="line.208">        } finally {</a>
+<span class="sourceLineNo">209</span><a id="line.209">            if( result == null ) {</a>
+<span class="sourceLineNo">210</span><a id="line.210">                result = "";</a>
+<span class="sourceLineNo">211</span><a id="line.211">            }</a>
+<span class="sourceLineNo">212</span><a id="line.212">        }</a>
+<span class="sourceLineNo">213</span><a id="line.213">        return result;</a>
+<span class="sourceLineNo">214</span><a id="line.214">    }</a>
+<span class="sourceLineNo">215</span><a id="line.215"></a>
+<span class="sourceLineNo">216</span><a id="line.216">    /**</a>
+<span class="sourceLineNo">217</span><a id="line.217">     * {@inheritDoc}</a>
+<span class="sourceLineNo">218</span><a id="line.218">     * @see org.apache.wiki.pages.PageManager#getText(String, int)</a>
+<span class="sourceLineNo">219</span><a id="line.219">     */</a>
+<span class="sourceLineNo">220</span><a id="line.220">    @Override</a>
+<span class="sourceLineNo">221</span><a id="line.221">    public String getText( final String page, final int version ) {</a>
+<span class="sourceLineNo">222</span><a id="line.222">        final String result = getPureText( page, version );</a>
+<span class="sourceLineNo">223</span><a id="line.223">        return TextUtil.replaceEntities( result );</a>
+<span class="sourceLineNo">224</span><a id="line.224">    }</a>
+<span class="sourceLineNo">225</span><a id="line.225"></a>
+<span class="sourceLineNo">226</span><a id="line.226">    @Override</a>
+<span class="sourceLineNo">227</span><a id="line.227">    public void saveText( final Context context, final String text ) throws WikiException {</a>
+<span class="sourceLineNo">228</span><a id="line.228">        // Check if page data actually changed; bail if not</a>
+<span class="sourceLineNo">229</span><a id="line.229">        final Page page = context.getPage();</a>
+<span class="sourceLineNo">230</span><a id="line.230">        final String oldText = getPureText( page );</a>
+<span class="sourceLineNo">231</span><a id="line.231">        final String proposedText = TextUtil.normalizePostData( text );</a>
+<span class="sourceLineNo">232</span><a id="line.232">        if ( oldText != null &amp;&amp; oldText.equals( proposedText ) ) {</a>
+<span class="sourceLineNo">233</span><a id="line.233">            return;</a>
+<span class="sourceLineNo">234</span><a id="line.234">        }</a>
+<span class="sourceLineNo">235</span><a id="line.235"></a>
+<span class="sourceLineNo">236</span><a id="line.236">        // Check if creation of empty pages is allowed; bail if not</a>
+<span class="sourceLineNo">237</span><a id="line.237">        final boolean allowEmpty = TextUtil.getBooleanProperty( m_engine.getWikiProperties(),</a>
+<span class="sourceLineNo">238</span><a id="line.238">                                                                Engine.PROP_ALLOW_CREATION_OF_EMPTY_PAGES,</a>
+<span class="sourceLineNo">239</span><a id="line.239">                                                         false );</a>
+<span class="sourceLineNo">240</span><a id="line.240">        if ( !allowEmpty &amp;&amp; !wikiPageExists( page ) &amp;&amp; text.trim().equals( "" ) ) {</a>
+<span class="sourceLineNo">241</span><a id="line.241">            return;</a>
+<span class="sourceLineNo">242</span><a id="line.242">        }</a>
+<span class="sourceLineNo">243</span><a id="line.243"></a>
+<span class="sourceLineNo">244</span><a id="line.244">        // Create approval workflow for page save; add the diffed, proposed and old text versions as</a>
+<span class="sourceLineNo">245</span><a id="line.245">        // Facts for the approver (if approval is required). If submitter is authenticated, any reject</a>
+<span class="sourceLineNo">246</span><a id="line.246">        // messages will appear in his/her workflow inbox.</a>
+<span class="sourceLineNo">247</span><a id="line.247">        final WorkflowBuilder builder = WorkflowBuilder.getBuilder( m_engine );</a>
+<span class="sourceLineNo">248</span><a id="line.248">        final Principal submitter = context.getCurrentUser();</a>
+<span class="sourceLineNo">249</span><a id="line.249">        final Step prepTask = m_engine.getManager( TasksManager.class ).buildPreSaveWikiPageTask( proposedText );</a>
+<span class="sourceLineNo">250</span><a id="line.250">        final Step completionTask = m_engine.getManager( TasksManager.class ).buildSaveWikiPageTask();</a>
+<span class="sourceLineNo">251</span><a id="line.251">        final String diffText = m_engine.getManager( DifferenceManager.class ).makeDiff( context, oldText, proposedText );</a>
+<span class="sourceLineNo">252</span><a id="line.252">        final boolean isAuthenticated = context.getWikiSession().isAuthenticated();</a>
+<span class="sourceLineNo">253</span><a id="line.253">        final Fact[] facts = new Fact[ 5 ];</a>
+<span class="sourceLineNo">254</span><a id="line.254">        facts[ 0 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_PAGE_NAME, page.getName() );</a>
+<span class="sourceLineNo">255</span><a id="line.255">        facts[ 1 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_DIFF_TEXT, diffText );</a>
+<span class="sourceLineNo">256</span><a id="line.256">        facts[ 2 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_PROPOSED_TEXT, proposedText );</a>
+<span class="sourceLineNo">257</span><a id="line.257">        facts[ 3 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_CURRENT_TEXT, oldText);</a>
+<span class="sourceLineNo">258</span><a id="line.258">        facts[ 4 ] = new Fact( WorkflowManager.WF_WP_SAVE_FACT_IS_AUTHENTICATED, isAuthenticated );</a>
+<span class="sourceLineNo">259</span><a id="line.259">        final String rejectKey = isAuthenticated ? WorkflowManager.WF_WP_SAVE_REJECT_MESSAGE_KEY : null;</a>
+<span class="sourceLineNo">260</span><a id="line.260">        final Workflow workflow = builder.buildApprovalWorkflow( submitter,</a>
+<span class="sourceLineNo">261</span><a id="line.261">                                                                 WorkflowManager.WF_WP_SAVE_APPROVER,</a>
+<span class="sourceLineNo">262</span><a id="line.262">                                                                 prepTask,</a>
+<span class="sourceLineNo">263</span><a id="line.263">                                                                 WorkflowManager.WF_WP_SAVE_DECISION_MESSAGE_KEY,</a>
+<span class="sourceLineNo">264</span><a id="line.264">                                                                 facts,</a>
+<span class="sourceLineNo">265</span><a id="line.265">                                                                 completionTask,</a>
+<span class="sourceLineNo">266</span><a id="line.266">                                                                 rejectKey );</a>
+<span class="sourceLineNo">267</span><a id="line.267">        workflow.start( context );</a>
+<span class="sourceLineNo">268</span><a id="line.268"></a>
+<span class="sourceLineNo">269</span><a id="line.269">        // Let callers know if the page-save requires approval</a>
+<span class="sourceLineNo">270</span><a id="line.270">        if ( workflow.getCurrentStep() instanceof Decision ) {</a>
+<span class="sourceLineNo">271</span><a id="line.271">            throw new DecisionRequiredException( "The page contents must be approved before they become active." );</a>
+<span class="sourceLineNo">272</span><a id="line.272">        }</a>
+<span class="sourceLineNo">273</span><a id="line.273">    }</a>
+<span class="sourceLineNo">274</span><a id="line.274"></a>
+<span class="sourceLineNo">275</span><a id="line.275">    /**</a>
+<span class="sourceLineNo">276</span><a id="line.276">     * Returns the Engine to which this PageManager belongs to.</a>
+<span class="sourceLineNo">277</span><a id="line.277">     *</a>
+<span class="sourceLineNo">278</span><a id="line.278">     * @return The Engine object.</a>
+<span class="sourceLineNo">279</span><a id="line.279">     */</a>
+<span class="sourceLineNo">280</span><a id="line.280">    protected Engine getEngine() {</a>
+<span class="sourceLineNo">281</span><a id="line.281">        return m_engine;</a>
+<span class="sourceLineNo">282</span><a id="line.282">    }</a>
+<span class="sourceLineNo">283</span><a id="line.283"></a>
+<span class="sourceLineNo">284</span><a id="line.284">    /**</a>
+<span class="sourceLineNo">285</span><a id="line.285">     * {@inheritDoc}</a>
+<span class="sourceLineNo">286</span><a id="line.286">     * @see org.apache.wiki.pages.PageManager#putPageText(org.apache.wiki.api.core.Page, java.lang.String)</a>
+<span class="sourceLineNo">287</span><a id="line.287">     */</a>
+<span class="sourceLineNo">288</span><a id="line.288">    @Override</a>
+<span class="sourceLineNo">289</span><a id="line.289">    public void putPageText( final Page page, final String content ) throws ProviderException {</a>
+<span class="sourceLineNo">290</span><a id="line.290">        if (page == null || page.getName() == null || page.getName().length() == 0) {</a>
+<span class="sourceLineNo">291</span><a id="line.291">            throw new ProviderException("Illegal page name");</a>
+<span class="sourceLineNo">292</span><a id="line.292">        }</a>
+<span class="sourceLineNo">293</span><a id="line.293"></a>
+<span class="sourceLineNo">294</span><a id="line.294">        m_provider.putPageText(page, content);</a>
+<span class="sourceLineNo">295</span><a id="line.295">    }</a>
+<span class="sourceLineNo">296</span><a id="line.296"></a>
+<span class="sourceLineNo">297</span><a id="line.297">    /**</a>
+<span class="sourceLineNo">298</span><a id="line.298">     * {@inheritDoc}</a>
+<span class="sourceLineNo">299</span><a id="line.299">     * @see org.apache.wiki.pages.PageManager#lockPage(org.apache.wiki.api.core.Page, java.lang.String)</a>
+<span class="sourceLineNo">300</span><a id="line.300">     */</a>
+<span class="sourceLineNo">301</span><a id="line.301">    @Override</a>
+<span class="sourceLineNo">302</span><a id="line.302">    public PageLock lockPage( final Page page, final String user ) {</a>
+<span class="sourceLineNo">303</span><a id="line.303">        if( m_reaper == null ) {</a>
+<span class="sourceLineNo">304</span><a id="line.304">            //  Start the lock reaper lazily.  We don't want to start it in the constructor, because starting threads in constructors</a>
+<span class="sourceLineNo">305</span><a id="line.305">            //  is a bad idea when it comes to inheritance.  Besides, laziness is a virtue.</a>
+<span class="sourceLineNo">306</span><a id="line.306">            m_reaper = new LockReaper( m_engine );</a>
+<span class="sourceLineNo">307</span><a id="line.307">            m_reaper.start();</a>
+<span class="sourceLineNo">308</span><a id="line.308">        }</a>
+<span class="sourceLineNo">309</span><a id="line.309"></a>
+<span class="sourceLineNo">310</span><a id="line.310">        fireEvent( WikiPageEvent.PAGE_LOCK, page.getName() ); // prior to or after actual lock?</a>
+<span class="sourceLineNo">311</span><a id="line.311">        PageLock lock = m_pageLocks.get( page.getName() );</a>
+<span class="sourceLineNo">312</span><a id="line.312"></a>
+<span class="sourceLineNo">313</span><a id="line.313">        if( lock == null ) {</a>
+<span class="sourceLineNo">314</span><a id="line.314">            //</a>
+<span class="sourceLineNo">315</span><a id="line.315">            //  Lock is available, so make a lock.</a>
+<span class="sourceLineNo">316</span><a id="line.316">            //</a>
+<span class="sourceLineNo">317</span><a id="line.317">            final Date d = new Date();</a>
+<span class="sourceLineNo">318</span><a id="line.318">            lock = new PageLock( page, user, d, new Date( d.getTime() + m_expiryTime * 60 * 1000L ) );</a>
+<span class="sourceLineNo">319</span><a id="line.319">            m_pageLocks.put( page.getName(), lock );</a>
+<span class="sourceLineNo">320</span><a id="line.320">            LOG.debug( "Locked page " + page.getName() + " for " + user );</a>
+<span class="sourceLineNo">321</span><a id="line.321">        } else {</a>
+<span class="sourceLineNo">322</span><a id="line.322">            LOG.debug( "Page " + page.getName() + " already locked by " + lock.getLocker() );</a>
+<span class="sourceLineNo">323</span><a id="line.323">            lock = null; // Nothing to return</a>
+<span class="sourceLineNo">324</span><a id="line.324">        }</a>
+<span class="sourceLineNo">325</span><a id="line.325"></a>
+<span class="sourceLineNo">326</span><a id="line.326">        return lock;</a>
+<span class="sourceLineNo">327</span><a id="line.327">    }</a>
+<span class="sourceLineNo">328</span><a id="line.328"></a>
+<span class="sourceLineNo">329</span><a id="line.329">    /**</a>
+<span class="sourceLineNo">330</span><a id="line.330">     * {@inheritDoc}</a>
+<span class="sourceLineNo">331</span><a id="line.331">     * @see org.apache.wiki.pages.PageManager#unlockPage(org.apache.wiki.pages.PageLock)</a>
+<span class="sourceLineNo">332</span><a id="line.332">     */</a>
+<span class="sourceLineNo">333</span><a id="line.333">    @Override</a>
+<span class="sourceLineNo">334</span><a id="line.334">    public void unlockPage( final PageLock lock ) {</a>
+<span class="sourceLineNo">335</span><a id="line.335">        if (lock == null) {</a>
+<span class="sourceLineNo">336</span><a id="line.336">            return;</a>
+<span class="sourceLineNo">337</span><a id="line.337">        }</a>
+<span class="sourceLineNo">338</span><a id="line.338"></a>
+<span class="sourceLineNo">339</span><a id="line.339">        m_pageLocks.remove( lock.getPage() );</a>
+<span class="sourceLineNo">340</span><a id="line.340">        LOG.debug( "Unlocked page " + lock.getPage() );</a>
+<span class="sourceLineNo">341</span><a id="line.341"></a>
+<span class="sourceLineNo">342</span><a id="line.342">        fireEvent( WikiPageEvent.PAGE_UNLOCK, lock.getPage() );</a>
+<span class="sourceLineNo">343</span><a id="line.343">    }</a>
+<span class="sourceLineNo">344</span><a id="line.344"></a>
+<span class="sourceLineNo">345</span><a id="line.345">    /**</a>
+<span class="sourceLineNo">346</span><a id="line.346">     * {@inheritDoc}</a>
+<span class="sourceLineNo">347</span><a id="line.347">     * @see org.apache.wiki.pages.PageManager#getCurrentLock(org.apache.wiki.api.core.Page)</a>
+<span class="sourceLineNo">348</span><a id="line.348">     */</a>
+<span class="sourceLineNo">349</span><a id="line.349">    @Override</a>
+<span class="sourceLineNo">350</span><a id="line.350">    public PageLock getCurrentLock( final Page page ) {</a>
+<span class="sourceLineNo">351</span><a id="line.351">        return m_pageLocks.get( page.getName() );</a>
+<span class="sourceLineNo">352</span><a id="line.352">    }</a>
+<span class="sourceLineNo">353</span><a id="line.353"></a>
+<span class="sourceLineNo">354</span><a id="line.354">    /**</a>
+<span class="sourceLineNo">355</span><a id="line.355">     * {@inheritDoc}</a>
+<span class="sourceLineNo">356</span><a id="line.356">     * @see org.apache.wiki.pages.PageManager#getActiveLocks()</a>
+<span class="sourceLineNo">357</span><a id="line.357">     */</a>
+<span class="sourceLineNo">358</span><a id="line.358">    @Override</a>
+<span class="sourceLineNo">359</span><a id="line.359">    public List&lt; PageLock &gt; getActiveLocks() {</a>
+<span class="sourceLineNo">360</span><a id="line.360">        return  new ArrayList&lt;&gt;( m_pageLocks.values() );</a>
+<span class="sourceLineNo">361</span><a id="line.361">    }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">    /**</a>
+<span class="sourceLineNo">364</span><a id="line.364">     * {@inheritDoc}</a>
+<span class="sourceLineNo">365</span><a id="line.365">     * @see org.apache.wiki.pages.PageManager#getPage(java.lang.String)</a>
+<span class="sourceLineNo">366</span><a id="line.366">     */</a>
+<span class="sourceLineNo">367</span><a id="line.367">    @Override</a>
+<span class="sourceLineNo">368</span><a id="line.368">    public Page getPage( final String pagereq ) {</a>
+<span class="sourceLineNo">369</span><a id="line.369">        return getPage( pagereq, PageProvider.LATEST_VERSION );</a>
+<span class="sourceLineNo">370</span><a id="line.370">    }</a>
+<span class="sourceLineNo">371</span><a id="line.371"></a>
+<span class="sourceLineNo">372</span><a id="line.372">    /**</a>
+<span class="sourceLineNo">373</span><a id="line.373">     * {@inheritDoc}</a>
+<span class="sourceLineNo">374</span><a id="line.374">     * @see org.apache.wiki.pages.PageManager#getPage(java.lang.String, int)</a>
+<span class="sourceLineNo">375</span><a id="line.375">     */</a>
+<span class="sourceLineNo">376</span><a id="line.376">    @Override</a>
+<span class="sourceLineNo">377</span><a id="line.377">    public Page getPage( final String pagereq, final int version ) {</a>
+<span class="sourceLineNo">378</span><a id="line.378">        try {</a>
+<span class="sourceLineNo">379</span><a id="line.379">            Page p = getPageInfo( pagereq, version );</a>
+<span class="sourceLineNo">380</span><a id="line.380">            if( p == null ) {</a>
+<span class="sourceLineNo">381</span><a id="line.381">                p = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( null, pagereq );</a>
+<span class="sourceLineNo">382</span><a id="line.382">            }</a>
+<span class="sourceLineNo">383</span><a id="line.383"></a>
+<span class="sourceLineNo">384</span><a id="line.384">            return p;</a>
+<span class="sourceLineNo">385</span><a id="line.385">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">386</span><a id="line.386">            LOG.error( "Unable to fetch page info for " + pagereq + " [version " + version + "]", e );</a>
+<span class="sourceLineNo">387</span><a id="line.387">            return null;</a>
+<span class="sourceLineNo">388</span><a id="line.388">        }</a>
+<span class="sourceLineNo">389</span><a id="line.389">    }</a>
+<span class="sourceLineNo">390</span><a id="line.390"></a>
+<span class="sourceLineNo">391</span><a id="line.391">    /**</a>
+<span class="sourceLineNo">392</span><a id="line.392">     * {@inheritDoc}</a>
+<span class="sourceLineNo">393</span><a id="line.393">     * @see org.apache.wiki.pages.PageManager#getPageInfo(java.lang.String, int)</a>
+<span class="sourceLineNo">394</span><a id="line.394">     */</a>
+<span class="sourceLineNo">395</span><a id="line.395">    @Override</a>
+<span class="sourceLineNo">396</span><a id="line.396">    public Page getPageInfo( final String pageName, final int version) throws ProviderException {</a>
+<span class="sourceLineNo">397</span><a id="line.397">        if( pageName == null || pageName.length() == 0 ) {</a>
+<span class="sourceLineNo">398</span><a id="line.398">            throw new ProviderException( "Illegal page name '" + pageName + "'" );</a>
+<span class="sourceLineNo">399</span><a id="line.399">        }</a>
+<span class="sourceLineNo">400</span><a id="line.400"></a>
+<span class="sourceLineNo">401</span><a id="line.401">        Page page;</a>
+<span class="sourceLineNo">402</span><a id="line.402"></a>
+<span class="sourceLineNo">403</span><a id="line.403">        try {</a>
+<span class="sourceLineNo">404</span><a id="line.404">            page = m_provider.getPageInfo( pageName, version );</a>
+<span class="sourceLineNo">405</span><a id="line.405">        } catch( final RepositoryModifiedException e ) {</a>
+<span class="sourceLineNo">406</span><a id="line.406">            //  This only occurs with the latest version.</a>
+<span class="sourceLineNo">407</span><a id="line.407">            LOG.info( "Repository has been modified externally while fetching info for " + pageName );</a>
+<span class="sourceLineNo">408</span><a id="line.408">            page = m_provider.getPageInfo( pageName, version );</a>
+<span class="sourceLineNo">409</span><a id="line.409">            if( page != null ) {</a>
+<span class="sourceLineNo">410</span><a id="line.410">                m_engine.getManager( ReferenceManager.class ).updateReferences( page );</a>
+<span class="sourceLineNo">411</span><a id="line.411">            } else {</a>
+<span class="sourceLineNo">412</span><a id="line.412">                m_engine.getManager( ReferenceManager.class ).pageRemoved( Wiki.contents().page( m_engine, pageName ) );</a>
+<span class="sourceLineNo">413</span><a id="line.413">            }</a>
+<span class="sourceLineNo">414</span><a id="line.414">        }</a>
+<span class="sourceLineNo">415</span><a id="line.415"></a>
+<span class="sourceLineNo">416</span><a id="line.416">        return page;</a>
+<span class="sourceLineNo">417</span><a id="line.417">    }</a>
+<span class="sourceLineNo">418</span><a id="line.418"></a>
+<span class="sourceLineNo">419</span><a id="line.419">    /**</a>
+<span class="sourceLineNo">420</span><a id="line.420">     * {@inheritDoc}</a>
+<span class="sourceLineNo">421</span><a id="line.421">     * @see org.apache.wiki.pages.PageManager#getVersionHistory(java.lang.String)</a>
+<span class="sourceLineNo">422</span><a id="line.422">     */</a>
+<span class="sourceLineNo">423</span><a id="line.423">    @Override @SuppressWarnings( "unchecked" )</a>
+<span class="sourceLineNo">424</span><a id="line.424">    public &lt; T extends Page &gt; List&lt; T &gt; getVersionHistory( final String pageName ) {</a>
+<span class="sourceLineNo">425</span><a id="line.425">        List&lt; T &gt; c = null;</a>
+<span class="sourceLineNo">426</span><a id="line.426"></a>
+<span class="sourceLineNo">427</span><a id="line.427">        try {</a>
+<span class="sourceLineNo">428</span><a id="line.428">            if( pageExists( pageName ) ) {</a>
+<span class="sourceLineNo">429</span><a id="line.429">                c = ( List&lt; T &gt; )m_provider.getVersionHistory( pageName );</a>
+<span class="sourceLineNo">430</span><a id="line.430">            }</a>
+<span class="sourceLineNo">431</span><a id="line.431"></a>
+<span class="sourceLineNo">432</span><a id="line.432">            if( c == null ) {</a>
+<span class="sourceLineNo">433</span><a id="line.433">                c = ( List&lt; T &gt; )m_engine.getManager( AttachmentManager.class ).getVersionHistory( pageName );</a>
+<span class="sourceLineNo">434</span><a id="line.434">            }</a>
+<span class="sourceLineNo">435</span><a id="line.435">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">436</span><a id="line.436">            LOG.error( "ProviderException requesting version history for " + pageName, e );</a>
+<span class="sourceLineNo">437</span><a id="line.437">        }</a>
+<span class="sourceLineNo">438</span><a id="line.438"></a>
+<span class="sourceLineNo">439</span><a id="line.439">        return c;</a>
+<span class="sourceLineNo">440</span><a id="line.440">    }</a>
+<span class="sourceLineNo">441</span><a id="line.441"></a>
+<span class="sourceLineNo">442</span><a id="line.442">    /**</a>
+<span class="sourceLineNo">443</span><a id="line.443">     * {@inheritDoc}</a>
+<span class="sourceLineNo">444</span><a id="line.444">     * @see org.apache.wiki.pages.PageManager#getCurrentProvider()</a>
+<span class="sourceLineNo">445</span><a id="line.445">     */</a>
+<span class="sourceLineNo">446</span><a id="line.446">    @Override </a>
+<span class="sourceLineNo">447</span><a id="line.447">    public String getCurrentProvider() {</a>
+<span class="sourceLineNo">448</span><a id="line.448">        return getProvider().getClass().getName();</a>
+<span class="sourceLineNo">449</span><a id="line.449">    }</a>
+<span class="sourceLineNo">450</span><a id="line.450"></a>
+<span class="sourceLineNo">451</span><a id="line.451">    /**</a>
+<span class="sourceLineNo">452</span><a id="line.452">     * {@inheritDoc}</a>
+<span class="sourceLineNo">453</span><a id="line.453">     *</a>
+<span class="sourceLineNo">454</span><a id="line.454">     * @see org.apache.wiki.pages.PageManager#getProviderDescription()</a>
+<span class="sourceLineNo">455</span><a id="line.455">     */</a>
+<span class="sourceLineNo">456</span><a id="line.456">    @Override </a>
+<span class="sourceLineNo">457</span><a id="line.457">    public String getProviderDescription() {</a>
+<span class="sourceLineNo">458</span><a id="line.458">        return m_provider.getProviderInfo();</a>
+<span class="sourceLineNo">459</span><a id="line.459">    }</a>
+<span class="sourceLineNo">460</span><a id="line.460"></a>
+<span class="sourceLineNo">461</span><a id="line.461">    /**</a>
+<span class="sourceLineNo">462</span><a id="line.462">     * {@inheritDoc}</a>
+<span class="sourceLineNo">463</span><a id="line.463">     * @see org.apache.wiki.pages.PageManager#getTotalPageCount()</a>
+<span class="sourceLineNo">464</span><a id="line.464">     */</a>
+<span class="sourceLineNo">465</span><a id="line.465">    @Override</a>
+<span class="sourceLineNo">466</span><a id="line.466">    public int getTotalPageCount() {</a>
+<span class="sourceLineNo">467</span><a id="line.467">        try {</a>
+<span class="sourceLineNo">468</span><a id="line.468">            return m_provider.getAllPages().size();</a>
+<span class="sourceLineNo">469</span><a id="line.469">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">470</span><a id="line.470">            LOG.error( "Unable to count pages: ", e );</a>
+<span class="sourceLineNo">471</span><a id="line.471">            return -1;</a>
+<span class="sourceLineNo">472</span><a id="line.472">        }</a>
+<span class="sourceLineNo">473</span><a id="line.473">    }</a>
+<span class="sourceLineNo">474</span><a id="line.474"></a>
+<span class="sourceLineNo">475</span><a id="line.475">    /**</a>
+<span class="sourceLineNo">476</span><a id="line.476">     * {@inheritDoc}</a>
+<span class="sourceLineNo">477</span><a id="line.477">     * @see org.apache.wiki.pages.PageManager#getRecentChanges()</a>
+<span class="sourceLineNo">478</span><a id="line.478">     */</a>
+<span class="sourceLineNo">479</span><a id="line.479">    @Override</a>
+<span class="sourceLineNo">480</span><a id="line.480">    public Set&lt; Page &gt; getRecentChanges() {</a>
+<span class="sourceLineNo">481</span><a id="line.481">        try {</a>
+<span class="sourceLineNo">482</span><a id="line.482">            final TreeSet&lt; Page &gt; sortedPages = new TreeSet&lt;&gt;( new PageTimeComparator() );</a>
+<span class="sourceLineNo">483</span><a id="line.483">            sortedPages.addAll( getAllPages() );</a>
+<span class="sourceLineNo">484</span><a id="line.484">            sortedPages.addAll( m_engine.getManager( AttachmentManager.class ).getAllAttachments() );</a>
+<span class="sourceLineNo">485</span><a id="line.485"></a>
+<span class="sourceLineNo">486</span><a id="line.486">            return sortedPages;</a>
+<span class="sourceLineNo">487</span><a id="line.487">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">488</span><a id="line.488">            LOG.error( "Unable to fetch all pages: ", e );</a>
+<span class="sourceLineNo">489</span><a id="line.489">            return Collections.emptySet();</a>
+<span class="sourceLineNo">490</span><a id="line.490">        }</a>
+<span class="sourceLineNo">491</span><a id="line.491">    }</a>
+<span class="sourceLineNo">492</span><a id="line.492"></a>
+<span class="sourceLineNo">493</span><a id="line.493">    /**</a>
+<span class="sourceLineNo">494</span><a id="line.494">     * {@inheritDoc}</a>
+<span class="sourceLineNo">495</span><a id="line.495">     * @see org.apache.wiki.pages.PageManager#pageExists(java.lang.String)</a>
+<span class="sourceLineNo">496</span><a id="line.496">     */</a>
+<span class="sourceLineNo">497</span><a id="line.497">    @Override</a>
+<span class="sourceLineNo">498</span><a id="line.498">    public boolean pageExists( final String pageName ) throws ProviderException {</a>
+<span class="sourceLineNo">499</span><a id="line.499">        if (pageName == null || pageName.length() == 0) {</a>
+<span class="sourceLineNo">500</span><a id="line.500">            throw new ProviderException("Illegal page name");</a>
+<span class="sourceLineNo">501</span><a id="line.501">        }</a>
+<span class="sourceLineNo">502</span><a id="line.502"></a>
+<span class="sourceLineNo">503</span><a id="line.503">        return m_provider.pageExists(pageName);</a>
+<span class="sourceLineNo">504</span><a id="line.504">    }</a>
+<span class="sourceLineNo">505</span><a id="line.505"></a>
+<span class="sourceLineNo">506</span><a id="line.506">    /**</a>
+<span class="sourceLineNo">507</span><a id="line.507">     * {@inheritDoc}</a>
+<span class="sourceLineNo">508</span><a id="line.508">     * @see org.apache.wiki.pages.PageManager#pageExists(java.lang.String, int)</a>
+<span class="sourceLineNo">509</span><a id="line.509">     */</a>
+<span class="sourceLineNo">510</span><a id="line.510">    @Override</a>
+<span class="sourceLineNo">511</span><a id="line.511">    public boolean pageExists( final String pageName, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">512</span><a id="line.512">        if( pageName == null || pageName.length() == 0 ) {</a>
+<span class="sourceLineNo">513</span><a id="line.513">            throw new ProviderException( "Illegal page name" );</a>
+<span class="sourceLineNo">514</span><a id="line.514">        }</a>
+<span class="sourceLineNo">515</span><a id="line.515"></a>
+<span class="sourceLineNo">516</span><a id="line.516">        if( version == WikiProvider.LATEST_VERSION ) {</a>
+<span class="sourceLineNo">517</span><a id="line.517">            return pageExists( pageName );</a>
+<span class="sourceLineNo">518</span><a id="line.518">        }</a>
+<span class="sourceLineNo">519</span><a id="line.519"></a>
+<span class="sourceLineNo">520</span><a id="line.520">        return m_provider.pageExists( pageName, version );</a>
+<span class="sourceLineNo">521</span><a id="line.521">    }</a>
+<span class="sourceLineNo">522</span><a id="line.522"></a>
+<span class="sourceLineNo">523</span><a id="line.523">    /**</a>
+<span class="sourceLineNo">524</span><a id="line.524">     * {@inheritDoc}</a>
+<span class="sourceLineNo">525</span><a id="line.525">     * @see org.apache.wiki.pages.PageManager#wikiPageExists(java.lang.String)</a>
+<span class="sourceLineNo">526</span><a id="line.526">     */</a>
+<span class="sourceLineNo">527</span><a id="line.527">    @Override</a>
+<span class="sourceLineNo">528</span><a id="line.528">    public boolean wikiPageExists( final String page ) {</a>
+<span class="sourceLineNo">529</span><a id="line.529">        if( m_engine.getManager( CommandResolver.class ).getSpecialPageReference( page ) != null ) {</a>
+<span class="sourceLineNo">530</span><a id="line.530">            return true;</a>
+<span class="sourceLineNo">531</span><a id="line.531">        }</a>
+<span class="sourceLineNo">532</span><a id="line.532"></a>
+<span class="sourceLineNo">533</span><a id="line.533">        Attachment att = null;</a>
+<span class="sourceLineNo">534</span><a id="line.534">        try {</a>
+<span class="sourceLineNo">535</span><a id="line.535">            if( m_engine.getFinalPageName( page ) != null ) {</a>
+<span class="sourceLineNo">536</span><a id="line.536">                return true;</a>
+<span class="sourceLineNo">537</span><a id="line.537">            }</a>
+<span class="sourceLineNo">538</span><a id="line.538"></a>
+<span class="sourceLineNo">539</span><a id="line.539">            att = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( null, page );</a>
+<span class="sourceLineNo">540</span><a id="line.540">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">541</span><a id="line.541">            LOG.debug( "pageExists() failed to find attachments", e );</a>
+<span class="sourceLineNo">542</span><a id="line.542">        }</a>
+<span class="sourceLineNo">543</span><a id="line.543"></a>
+<span class="sourceLineNo">544</span><a id="line.544">        return att != null;</a>
+<span class="sourceLineNo">545</span><a id="line.545">    }</a>
+<span class="sourceLineNo">546</span><a id="line.546"></a>
+<span class="sourceLineNo">547</span><a id="line.547">    /**</a>
+<span class="sourceLineNo">548</span><a id="line.548">     * {@inheritDoc}</a>
+<span class="sourceLineNo">549</span><a id="line.549">     * @see org.apache.wiki.pages.PageManager#wikiPageExists(java.lang.String, int)</a>
+<span class="sourceLineNo">550</span><a id="line.550">     */</a>
+<span class="sourceLineNo">551</span><a id="line.551">    @Override</a>
+<span class="sourceLineNo">552</span><a id="line.552">    public boolean wikiPageExists( final String page, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">553</span><a id="line.553">        if( m_engine.getManager( CommandResolver.class ).getSpecialPageReference( page ) != null ) {</a>
+<span class="sourceLineNo">554</span><a id="line.554">            return true;</a>
+<span class="sourceLineNo">555</span><a id="line.555">        }</a>
+<span class="sourceLineNo">556</span><a id="line.556"></a>
+<span class="sourceLineNo">557</span><a id="line.557">        boolean isThere = false;</a>
+<span class="sourceLineNo">558</span><a id="line.558">        final String finalName = m_engine.getFinalPageName( page );</a>
+<span class="sourceLineNo">559</span><a id="line.559">        if( finalName != null ) {</a>
+<span class="sourceLineNo">560</span><a id="line.560">            isThere = pageExists( finalName, version );</a>
+<span class="sourceLineNo">561</span><a id="line.561">        }</a>
+<span class="sourceLineNo">562</span><a id="line.562"></a>
+<span class="sourceLineNo">563</span><a id="line.563">        if( !isThere ) {</a>
+<span class="sourceLineNo">564</span><a id="line.564">            //  Go check if such an attachment exists.</a>
+<span class="sourceLineNo">565</span><a id="line.565">            try {</a>
+<span class="sourceLineNo">566</span><a id="line.566">                isThere = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( null, page, version ) != null;</a>
+<span class="sourceLineNo">567</span><a id="line.567">            } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">568</span><a id="line.568">                LOG.debug( "wikiPageExists() failed to find attachments", e );</a>
+<span class="sourceLineNo">569</span><a id="line.569">            }</a>
+<span class="sourceLineNo">570</span><a id="line.570">        }</a>
+<span class="sourceLineNo">571</span><a id="line.571"></a>
+<span class="sourceLineNo">572</span><a id="line.572">        return isThere;</a>
+<span class="sourceLineNo">573</span><a id="line.573">    }</a>
+<span class="sourceLineNo">574</span><a id="line.574"></a>
+<span class="sourceLineNo">575</span><a id="line.575">    /**</a>
+<span class="sourceLineNo">576</span><a id="line.576">     * {@inheritDoc}</a>
+<span class="sourceLineNo">577</span><a id="line.577">     * @see org.apache.wiki.pages.PageManager#deleteVersion(org.apache.wiki.api.core.Page)</a>
+<span class="sourceLineNo">578</span><a id="line.578">     */</a>
+<span class="sourceLineNo">579</span><a id="line.579">    @Override</a>
+<span class="sourceLineNo">580</span><a id="line.580">    public void deleteVersion( final Page page ) throws ProviderException {</a>
+<span class="sourceLineNo">581</span><a id="line.581">        if( page instanceof Attachment ) {</a>
+<span class="sourceLineNo">582</span><a id="line.582">            m_engine.getManager( AttachmentManager.class ).deleteVersion( ( Attachment )page );</a>
+<span class="sourceLineNo">583</span><a id="line.583">        } else {</a>
+<span class="sourceLineNo">584</span><a id="line.584">            m_provider.deleteVersion( page.getName(), page.getVersion() );</a>
+<span class="sourceLineNo">585</span><a id="line.585">            // FIXME: If this was the latest, reindex Lucene, update RefMgr</a>
+<span class="sourceLineNo">586</span><a id="line.586">        }</a>
+<span class="sourceLineNo">587</span><a id="line.587">    }</a>
+<span class="sourceLineNo">588</span><a id="line.588"></a>
+<span class="sourceLineNo">589</span><a id="line.589">    /**</a>
+<span class="sourceLineNo">590</span><a id="line.590">     * {@inheritDoc}</a>
+<span class="sourceLineNo">591</span><a id="line.591">     * @see org.apache.wiki.pages.PageManager#deletePage(java.lang.String)</a>
+<span class="sourceLineNo">592</span><a id="line.592">     */</a>
+<span class="sourceLineNo">593</span><a id="line.593">    @Override</a>
+<span class="sourceLineNo">594</span><a id="line.594">    public void deletePage( final String pageName ) throws ProviderException {</a>
+<span class="sourceLineNo">595</span><a id="line.595">        final Page p = getPage( pageName );</a>
+<span class="sourceLineNo">596</span><a id="line.596">        if( p != null ) {</a>
+<span class="sourceLineNo">597</span><a id="line.597">            if( p instanceof Attachment ) {</a>
+<span class="sourceLineNo">598</span><a id="line.598">                m_engine.getManager( AttachmentManager.class ).deleteAttachment( ( Attachment )p );</a>
+<span class="sourceLineNo">599</span><a id="line.599">            } else {</a>
+<span class="sourceLineNo">600</span><a id="line.600">                final Collection&lt; String &gt; refTo = m_engine.getManager( ReferenceManager.class ).findRefersTo( pageName );</a>
+<span class="sourceLineNo">601</span><a id="line.601">                // May return null, if the page does not exist or has not been indexed yet.</a>
+<span class="sourceLineNo">602</span><a id="line.602"></a>
+<span class="sourceLineNo">603</span><a id="line.603">                if( m_engine.getManager( AttachmentManager.class ).hasAttachments( p ) ) {</a>
+<span class="sourceLineNo">604</span><a id="line.604">                    final List&lt; Attachment &gt; attachments = m_engine.getManager( AttachmentManager.class ).listAttachments( p );</a>
+<span class="sourceLineNo">605</span><a id="line.605">                    for( final Attachment attachment : attachments ) {</a>
+<span class="sourceLineNo">606</span><a id="line.606">                        if( refTo != null ) {</a>
+<span class="sourceLineNo">607</span><a id="line.607">                            refTo.remove( attachment.getName() );</a>
+<span class="sourceLineNo">608</span><a id="line.608">                        }</a>
+<span class="sourceLineNo">609</span><a id="line.609"></a>
+<span class="sourceLineNo">610</span><a id="line.610">                        m_engine.getManager( AttachmentManager.class ).deleteAttachment( attachment );</a>
+<span class="sourceLineNo">611</span><a id="line.611">                    }</a>
+<span class="sourceLineNo">612</span><a id="line.612">                }</a>
+<span class="sourceLineNo">613</span><a id="line.613">                deletePage( p );</a>
+<span class="sourceLineNo">614</span><a id="line.614">                fireEvent( WikiPageEvent.PAGE_DELETED, pageName );</a>
+<span class="sourceLineNo">615</span><a id="line.615">            }</a>
+<span class="sourceLineNo">616</span><a id="line.616">        }</a>
+<span class="sourceLineNo">617</span><a id="line.617">    }</a>
+<span class="sourceLineNo">618</span><a id="line.618"></a>
+<span class="sourceLineNo">619</span><a id="line.619">    /**</a>
+<span class="sourceLineNo">620</span><a id="line.620">     * {@inheritDoc}</a>
+<span class="sourceLineNo">621</span><a id="line.621">     * @see org.apache.wiki.pages.PageManager#deletePage(org.apache.wiki.api.core.Page)</a>
+<span class="sourceLineNo">622</span><a id="line.622">     */</a>
+<span class="sourceLineNo">623</span><a id="line.623">    @Override</a>
+<span class="sourceLineNo">624</span><a id="line.624">    public void deletePage( final Page page ) throws ProviderException {</a>
+<span class="sourceLineNo">625</span><a id="line.625">        fireEvent( WikiPageEvent.PAGE_DELETE_REQUEST, page.getName() );</a>
+<span class="sourceLineNo">626</span><a id="line.626">        m_provider.deletePage( page.getName() );</a>
+<span class="sourceLineNo">627</span><a id="line.627">        fireEvent( WikiPageEvent.PAGE_DELETED, page.getName() );</a>
+<span class="sourceLineNo">628</span><a id="line.628">    }</a>
+<span class="sourceLineNo">629</span><a id="line.629"></a>
+<span class="sourceLineNo">630</span><a id="line.630">    /**</a>
+<span class="sourceLineNo">631</span><a id="line.631">     * This is a simple reaper thread that runs roughly every minute</a>
+<span class="sourceLineNo">632</span><a id="line.632">     * or so (it's not really that important, as long as it runs),</a>
+<span class="sourceLineNo">633</span><a id="line.633">     * and removes all locks that have expired.</a>
+<span class="sourceLineNo">634</span><a id="line.634">     */</a>
+<span class="sourceLineNo">635</span><a id="line.635">    private class LockReaper extends WikiBackgroundThread {</a>
+<span class="sourceLineNo">636</span><a id="line.636">        /**</a>
+<span class="sourceLineNo">637</span><a id="line.637">         * Create a LockReaper for a given engine.</a>
+<span class="sourceLineNo">638</span><a id="line.638">         *</a>
+<span class="sourceLineNo">639</span><a id="line.639">         * @param engine Engine to own this thread.</a>
+<span class="sourceLineNo">640</span><a id="line.640">         */</a>
+<span class="sourceLineNo">641</span><a id="line.641">        public LockReaper( final Engine engine) {</a>
+<span class="sourceLineNo">642</span><a id="line.642">            super( engine, 60 );</a>
+<span class="sourceLineNo">643</span><a id="line.643">            setName( "JSPWiki Lock Reaper" );</a>
+<span class="sourceLineNo">644</span><a id="line.644">        }</a>
+<span class="sourceLineNo">645</span><a id="line.645"></a>
+<span class="sourceLineNo">646</span><a id="line.646">        @Override</a>
+<span class="sourceLineNo">647</span><a id="line.647">        public void backgroundTask() {</a>
+<span class="sourceLineNo">648</span><a id="line.648">            final Collection&lt; PageLock &gt; entries = m_pageLocks.values();</a>
+<span class="sourceLineNo">649</span><a id="line.649">            for( final Iterator&lt;PageLock&gt; i = entries.iterator(); i.hasNext(); ) {</a>
+<span class="sourceLineNo">650</span><a id="line.650">                final PageLock p = i.next();</a>
+<span class="sourceLineNo">651</span><a id="line.651"></a>
+<span class="sourceLineNo">652</span><a id="line.652">                if ( p.isExpired() ) {</a>
+<span class="sourceLineNo">653</span><a id="line.653">                    i.remove();</a>
+<span class="sourceLineNo">654</span><a id="line.654"></a>
+<span class="sourceLineNo">655</span><a id="line.655">                    LOG.debug( "Reaped lock: " + p.getPage() +</a>
+<span class="sourceLineNo">656</span><a id="line.656">                               " by " + p.getLocker() +</a>
+<span class="sourceLineNo">657</span><a id="line.657">                               ", acquired " + p.getAcquisitionTime() +</a>
+<span class="sourceLineNo">658</span><a id="line.658">                               ", and expired " + p.getExpiryTime() );</a>
+<span class="sourceLineNo">659</span><a id="line.659">                }</a>
+<span class="sourceLineNo">660</span><a id="line.660">            }</a>
+<span class="sourceLineNo">661</span><a id="line.661">        }</a>
+<span class="sourceLineNo">662</span><a id="line.662">    }</a>
+<span class="sourceLineNo">663</span><a id="line.663"></a>
+<span class="sourceLineNo">664</span><a id="line.664">    // events processing .......................................................</a>
+<span class="sourceLineNo">665</span><a id="line.665"></a>
+<span class="sourceLineNo">666</span><a id="line.666">    /**</a>
+<span class="sourceLineNo">667</span><a id="line.667">     * Fires a WikiPageEvent of the provided type and page name</a>
+<span class="sourceLineNo">668</span><a id="line.668">     * to all registered listeners.</a>
+<span class="sourceLineNo">669</span><a id="line.669">     *</a>
+<span class="sourceLineNo">670</span><a id="line.670">     * @param type     the event type to be fired</a>
+<span class="sourceLineNo">671</span><a id="line.671">     * @param pagename the wiki page name as a String</a>
+<span class="sourceLineNo">672</span><a id="line.672">     * @see org.apache.wiki.event.WikiPageEvent</a>
+<span class="sourceLineNo">673</span><a id="line.673">     */</a>
+<span class="sourceLineNo">674</span><a id="line.674">    protected final void fireEvent( final int type, final String pagename ) {</a>
+<span class="sourceLineNo">675</span><a id="line.675">        if( WikiEventManager.isListening( this ) ) {</a>
+<span class="sourceLineNo">676</span><a id="line.676">            WikiEventManager.fireEvent( this, new WikiPageEvent( m_engine, type, pagename ) );</a>
+<span class="sourceLineNo">677</span><a id="line.677">        }</a>
+<span class="sourceLineNo">678</span><a id="line.678">    }</a>
+<span class="sourceLineNo">679</span><a id="line.679"></a>
+<span class="sourceLineNo">680</span><a id="line.680">    /**</a>
+<span class="sourceLineNo">681</span><a id="line.681">     * Listens for {@link org.apache.wiki.event.WikiSecurityEvent#PROFILE_NAME_CHANGED}</a>
+<span class="sourceLineNo">682</span><a id="line.682">     * events. If a user profile's name changes, each page ACL is inspected. If an entry contains</a>
+<span class="sourceLineNo">683</span><a id="line.683">     * a name that has changed, it is replaced with the new one. No events are emitted</a>
+<span class="sourceLineNo">684</span><a id="line.684">     * as a consequence of this method, because the page contents are still the same; it is</a>
+<span class="sourceLineNo">685</span><a id="line.685">     * only the representations of the names within the ACL that are changing.</a>
+<span class="sourceLineNo">686</span><a id="line.686">     *</a>
+<span class="sourceLineNo">687</span><a id="line.687">     * @param event The event</a>
+<span class="sourceLineNo">688</span><a id="line.688">     */</a>
+<span class="sourceLineNo">689</span><a id="line.689">    @Override</a>
+<span class="sourceLineNo">690</span><a id="line.690">    public void actionPerformed( final WikiEvent event ) {</a>
+<span class="sourceLineNo">691</span><a id="line.691">        if( !( event instanceof WikiSecurityEvent ) ) {</a>
+<span class="sourceLineNo">692</span><a id="line.692">            return;</a>
+<span class="sourceLineNo">693</span><a id="line.693">        }</a>
+<span class="sourceLineNo">694</span><a id="line.694"></a>
+<span class="sourceLineNo">695</span><a id="line.695">        final WikiSecurityEvent se = ( WikiSecurityEvent ) event;</a>
+<span class="sourceLineNo">696</span><a id="line.696">        if( se.getType() == WikiSecurityEvent.PROFILE_NAME_CHANGED ) {</a>
+<span class="sourceLineNo">697</span><a id="line.697">            final UserProfile[] profiles = (UserProfile[]) se.getTarget();</a>
+<span class="sourceLineNo">698</span><a id="line.698">            final Principal[] oldPrincipals = new Principal[] { new WikiPrincipal( profiles[ 0 ].getLoginName() ),</a>
+<span class="sourceLineNo">699</span><a id="line.699">                                                                new WikiPrincipal( profiles[ 0 ].getFullname()),</a>
+<span class="sourceLineNo">700</span><a id="line.700">                                                                new WikiPrincipal( profiles[ 0 ].getWikiName() ) };</a>
+<span class="sourceLineNo">701</span><a id="line.701">            final Principal newPrincipal = new WikiPrincipal( profiles[ 1 ].getFullname() );</a>
+<span class="sourceLineNo">702</span><a id="line.702"></a>
+<span class="sourceLineNo">703</span><a id="line.703">            // Examine each page ACL</a>
+<span class="sourceLineNo">704</span><a id="line.704">            try {</a>
+<span class="sourceLineNo">705</span><a id="line.705">                int pagesChanged = 0;</a>
+<span class="sourceLineNo">706</span><a id="line.706">                final Collection&lt; Page &gt; pages = getAllPages();</a>
+<span class="sourceLineNo">707</span><a id="line.707">                for( final Page page : pages ) {</a>
+<span class="sourceLineNo">708</span><a id="line.708">                    final boolean aclChanged = changeAcl( page, oldPrincipals, newPrincipal );</a>
+<span class="sourceLineNo">709</span><a id="line.709">                    if( aclChanged ) {</a>
+<span class="sourceLineNo">710</span><a id="line.710">                        // If the Acl needed changing, change it now</a>
+<span class="sourceLineNo">711</span><a id="line.711">                        try {</a>
+<span class="sourceLineNo">712</span><a id="line.712">                            m_engine.getManager( AclManager.class ).setPermissions( page, page.getAcl() );</a>
+<span class="sourceLineNo">713</span><a id="line.713">                        } catch( final WikiSecurityException e ) {</a>
+<span class="sourceLineNo">714</span><a id="line.714">                            LOG.error("Could not change page ACL for page " + page.getName() + ": " + e.getMessage(), e);</a>
+<span class="sourceLineNo">715</span><a id="line.715">                        }</a>
+<span class="sourceLineNo">716</span><a id="line.716">                        pagesChanged++;</a>
+<span class="sourceLineNo">717</span><a id="line.717">                    }</a>
+<span class="sourceLineNo">718</span><a id="line.718">                }</a>
+<span class="sourceLineNo">719</span><a id="line.719">                LOG.info( "Profile name change for '" + newPrincipal.toString() + "' caused " + pagesChanged + " page ACLs to change also." );</a>
+<span class="sourceLineNo">720</span><a id="line.720">            } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">721</span><a id="line.721">                // Oooo! This is really bad...</a>
+<span class="sourceLineNo">722</span><a id="line.722">                LOG.error( "Could not change user name in Page ACLs because of Provider error:" + e.getMessage(), e );</a>
+<span class="sourceLineNo">723</span><a id="line.723">            }</a>
+<span class="sourceLineNo">724</span><a id="line.724">        }</a>
+<span class="sourceLineNo">725</span><a id="line.725">    }</a>
+<span class="sourceLineNo">726</span><a id="line.726"></a>
+<span class="sourceLineNo">727</span><a id="line.727">    /**</a>
+<span class="sourceLineNo">728</span><a id="line.728">     * For a single wiki page, replaces all Acl entries matching a supplied array of Principals with a new Principal.</a>
+<span class="sourceLineNo">729</span><a id="line.729">     *</a>
+<span class="sourceLineNo">730</span><a id="line.730">     * @param page the wiki page whose Acl is to be modified</a>
+<span class="sourceLineNo">731</span><a id="line.731">     * @param oldPrincipals an array of Principals to replace; all AclEntry objects whose {@link AclEntry#getPrincipal()} method returns</a>
+<span class="sourceLineNo">732</span><a id="line.732">     *                      one of these Principals will be replaced</a>
+<span class="sourceLineNo">733</span><a id="line.733">     * @param newPrincipal the Principal that should receive the old Principals' permissions</a>
+<span class="sourceLineNo">734</span><a id="line.734">     * @return &lt;code&gt;true&lt;/code&gt; if the Acl was actually changed; &lt;code&gt;false&lt;/code&gt; otherwise</a>
+<span class="sourceLineNo">735</span><a id="line.735">     */</a>
+<span class="sourceLineNo">736</span><a id="line.736">    protected boolean changeAcl( final Page page, final Principal[] oldPrincipals, final Principal newPrincipal ) {</a>
+<span class="sourceLineNo">737</span><a id="line.737">        final Acl acl = page.getAcl();</a>
+<span class="sourceLineNo">738</span><a id="line.738">        boolean pageChanged = false;</a>
+<span class="sourceLineNo">739</span><a id="line.739">        if( acl != null ) {</a>
+<span class="sourceLineNo">740</span><a id="line.740">            final Enumeration&lt; AclEntry &gt; entries = acl.aclEntries();</a>
+<span class="sourceLineNo">741</span><a id="line.741">            final Collection&lt; AclEntry &gt; entriesToAdd = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">742</span><a id="line.742">            final Collection&lt; AclEntry &gt; entriesToRemove = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">743</span><a id="line.743">            while( entries.hasMoreElements() ) {</a>
+<span class="sourceLineNo">744</span><a id="line.744">                final AclEntry entry = entries.nextElement();</a>
+<span class="sourceLineNo">745</span><a id="line.745">                if( ArrayUtils.contains( oldPrincipals, entry.getPrincipal() ) ) {</a>
+<span class="sourceLineNo">746</span><a id="line.746">                    // Create new entry</a>
+<span class="sourceLineNo">747</span><a id="line.747">                    final AclEntry newEntry = Wiki.acls().entry();</a>
+<span class="sourceLineNo">748</span><a id="line.748">                    newEntry.setPrincipal( newPrincipal );</a>
+<span class="sourceLineNo">749</span><a id="line.749">                    final Enumeration&lt; Permission &gt; permissions = entry.permissions();</a>
+<span class="sourceLineNo">750</span><a id="line.750">                    while( permissions.hasMoreElements() ) {</a>
+<span class="sourceLineNo">751</span><a id="line.751">                        final Permission permission = permissions.nextElement();</a>
+<span class="sourceLineNo">752</span><a id="line.752">                        newEntry.addPermission( permission );</a>
+<span class="sourceLineNo">753</span><a id="line.753">                    }</a>
+<span class="sourceLineNo">754</span><a id="line.754">                    pageChanged = true;</a>
+<span class="sourceLineNo">755</span><a id="line.755">                    entriesToRemove.add( entry );</a>
+<span class="sourceLineNo">756</span><a id="line.756">                    entriesToAdd.add( newEntry );</a>
+<span class="sourceLineNo">757</span><a id="line.757">                }</a>
+<span class="sourceLineNo">758</span><a id="line.758">            }</a>
+<span class="sourceLineNo">759</span><a id="line.759">            for( final AclEntry entry : entriesToRemove ) {</a>
+<span class="sourceLineNo">760</span><a id="line.760">                acl.removeEntry( entry );</a>
+<span class="sourceLineNo">761</span><a id="line.761">            }</a>
+<span class="sourceLineNo">762</span><a id="line.762">            for( final AclEntry entry : entriesToAdd ) {</a>
+<span class="sourceLineNo">763</span><a id="line.763">                acl.addEntry( entry );</a>
+<span class="sourceLineNo">764</span><a id="line.764">            }</a>
+<span class="sourceLineNo">765</span><a id="line.765">        }</a>
+<span class="sourceLineNo">766</span><a id="line.766">        return pageChanged;</a>
+<span class="sourceLineNo">767</span><a id="line.767">    }</a>
+<span class="sourceLineNo">768</span><a id="line.768"></a>
+<span class="sourceLineNo">769</span><a id="line.769">    /**</a>
+<span class="sourceLineNo">770</span><a id="line.770">     * {@inheritDoc}</a>
+<span class="sourceLineNo">771</span><a id="line.771">     * @see org.apache.wiki.pages.PageManager#getPageSorter()</a>
+<span class="sourceLineNo">772</span><a id="line.772">     */</a>
+<span class="sourceLineNo">773</span><a id="line.773">    @Override</a>
+<span class="sourceLineNo">774</span><a id="line.774">    public PageSorter getPageSorter() {</a>
+<span class="sourceLineNo">775</span><a id="line.775">        return pageSorter;</a>
+<span class="sourceLineNo">776</span><a id="line.776">    }</a>
+<span class="sourceLineNo">777</span><a id="line.777"></a>
+<span class="sourceLineNo">778</span><a id="line.778">}</a>
 
 
 
@@ -846,5 +847,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>

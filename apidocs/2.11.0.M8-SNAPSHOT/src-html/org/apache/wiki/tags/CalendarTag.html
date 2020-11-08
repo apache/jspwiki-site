@@ -1,339 +1,340 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/* <a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.  <a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.tags;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.log4j.Logger;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.ContextEnum;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Engine;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.api.core.Page;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.pages.PageManager;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.util.HttpUtil;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.util.TextUtil;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>import javax.servlet.http.HttpServletRequest;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import javax.servlet.jsp.JspWriter;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import java.io.IOException;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import java.text.ParseException;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import java.text.SimpleDateFormat;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import java.util.Calendar;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.util.Date;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
-<span class="sourceLineNo">039</span> *  Provides a nice calendar.  Responds to the following HTTP parameters:<a name="line.39"></a>
-<span class="sourceLineNo">040</span> *  &lt;ul&gt;<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *  &lt;li&gt;calendar.date - If this parameter exists, then the calendar<a name="line.41"></a>
-<span class="sourceLineNo">042</span> *  date is taken from the month and year.  The date must be in ddMMyy<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *  format.<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *  &lt;li&gt;weblog.startDate - If calendar.date parameter does not exist,<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *  we then check this date.<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *  &lt;/ul&gt;<a name="line.46"></a>
-<span class="sourceLineNo">047</span> *<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *  If neither calendar.date nor weblog.startDate parameters exist,<a name="line.48"></a>
-<span class="sourceLineNo">049</span> *  then the calendar will default to the current month.<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *<a name="line.50"></a>
-<span class="sourceLineNo">051</span> *  @since 2.0<a name="line.51"></a>
-<span class="sourceLineNo">052</span> */<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>// FIXME: This class is extraordinarily lacking.<a name="line.54"></a>
-<span class="sourceLineNo">055</span>public class CalendarTag extends WikiTagBase {<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>    private static final long serialVersionUID = 0L;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    private static final Logger log = Logger.getLogger( CalendarTag.class );<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    <a name="line.59"></a>
-<span class="sourceLineNo">060</span>    private SimpleDateFormat m_pageFormat = null;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    private SimpleDateFormat m_urlFormat = null;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    private SimpleDateFormat m_monthUrlFormat = null;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    private SimpleDateFormat m_dateFormat = new SimpleDateFormat( "ddMMyy" );<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    /**<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *  {@inheritDoc}<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    @Override<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    public void initTag()<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        super.initTag();<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        m_pageFormat = m_urlFormat = m_monthUrlFormat = null;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        m_dateFormat = new SimpleDateFormat( "ddMMyy" );<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    /*<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    public void setYear( String year )<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        m_year = year;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>    public void setMonth( String month )<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        m_month = month;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    */<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    /**<a name="line.88"></a>
-<span class="sourceLineNo">089</span>     *  Sets the page format.  If a page corresponding to the format is found when<a name="line.89"></a>
-<span class="sourceLineNo">090</span>     *  the calendar is being rendered, a link to that page is created.  E.g. if the<a name="line.90"></a>
-<span class="sourceLineNo">091</span>     *  format is set to &lt;tt&gt;'Main_blogentry_'ddMMyy&lt;/tt&gt;, it works nicely in<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     *  conjuction to the WeblogPlugin.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     *  <a name="line.93"></a>
-<span class="sourceLineNo">094</span>     *  @param format The format in the SimpleDateFormat fashion.<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     *  <a name="line.95"></a>
-<span class="sourceLineNo">096</span>     *  @see SimpleDateFormat<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     *  @see org.apache.wiki.plugin.WeblogPlugin<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     */<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    public void setPageformat( final String format )<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        m_pageFormat = new SimpleDateFormat( format );<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     *  Set the URL format.  If the pageformat is not set, all dates are<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *  links to pages according to this format.  The pageformat<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     *  takes precedence.<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     *  <a name="line.108"></a>
-<span class="sourceLineNo">109</span>     *  @param format The URL format in the SimpleDateFormat fashion.<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     *  @see SimpleDateFormat<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    public void setUrlformat( final String format )<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        m_urlFormat = new SimpleDateFormat( format );<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>    /**<a name="line.117"></a>
-<span class="sourceLineNo">118</span>     *  Set the format to be used for links for the months.<a name="line.118"></a>
-<span class="sourceLineNo">119</span>     *  <a name="line.119"></a>
-<span class="sourceLineNo">120</span>     *  @param format The format to set in the SimpleDateFormat fashion.<a name="line.120"></a>
-<span class="sourceLineNo">121</span>     *  <a name="line.121"></a>
-<span class="sourceLineNo">122</span>     *  @see SimpleDateFormat<a name="line.122"></a>
-<span class="sourceLineNo">123</span>     */<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    public void setMonthurlformat( final String format )<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        m_monthUrlFormat = new SimpleDateFormat( format );<a name="line.126"></a>
-<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>    private String format( final String txt ) {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        final Page p = m_wikiContext.getPage();<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        if( p != null ) {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            return TextUtil.replaceString( txt, "%p", p.getName() );<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        }<a name="line.133"></a>
-<span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span>        return txt;<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     *  Returns a link to the given day.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     */<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    private String getDayLink( final Calendar day ) {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>        final Engine engine = m_wikiContext.getEngine();<a name="line.142"></a>
-<span class="sourceLineNo">143</span>        final String result;<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>        if( m_pageFormat != null ) {<a name="line.145"></a>
-<span class="sourceLineNo">146</span>            final String pagename = m_pageFormat.format( day.getTime() );<a name="line.146"></a>
-<span class="sourceLineNo">147</span>            <a name="line.147"></a>
-<span class="sourceLineNo">148</span>            if( engine.getManager( PageManager.class ).wikiPageExists( pagename ) ) {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>                if( m_urlFormat != null ) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>                    final String url = m_urlFormat.format( day.getTime() );<a name="line.150"></a>
-<span class="sourceLineNo">151</span>                    result = "&lt;td class=\"link\"&gt;&lt;a href=\""+url+"\"&gt;"+day.get( Calendar.DATE )+"&lt;/a&gt;&lt;/td&gt;";<a name="line.151"></a>
-<span class="sourceLineNo">152</span>                } else {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>                    result = "&lt;td class=\"link\"&gt;&lt;a href=\""+m_wikiContext.getViewURL( pagename )+"\"&gt;"+<a name="line.153"></a>
-<span class="sourceLineNo">154</span>                             day.get( Calendar.DATE )+"&lt;/a&gt;&lt;/td&gt;";<a name="line.154"></a>
-<span class="sourceLineNo">155</span>                }<a name="line.155"></a>
-<span class="sourceLineNo">156</span>            } else {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>                result = "&lt;td class=\"days\"&gt;"+day.get(Calendar.DATE)+"&lt;/td&gt;";<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            }<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        } else if( m_urlFormat != null ) {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            final String url = m_urlFormat.format( day.getTime() );<a name="line.160"></a>
-<span class="sourceLineNo">161</span>            result = "&lt;td&gt;&lt;a href=\""+url+"\"&gt;"+day.get( Calendar.DATE )+"&lt;/a&gt;&lt;/td&gt;";<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        } else {<a name="line.162"></a>
-<span class="sourceLineNo">163</span>            result = "&lt;td class=\"days\"&gt;"+day.get(Calendar.DATE)+"&lt;/td&gt;";<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        }<a name="line.164"></a>
-<span class="sourceLineNo">165</span><a name="line.165"></a>
-<span class="sourceLineNo">166</span>        return format( result );<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
-<span class="sourceLineNo">168</span><a name="line.168"></a>
-<span class="sourceLineNo">169</span>    private String getMonthLink( final Calendar day ) {<a name="line.169"></a>
-<span class="sourceLineNo">170</span>        final SimpleDateFormat monthfmt = new SimpleDateFormat( "MMMM yyyy" );<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        final String result;<a name="line.171"></a>
-<span class="sourceLineNo">172</span><a name="line.172"></a>
-<span class="sourceLineNo">173</span>        if( m_monthUrlFormat == null ) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>            result = monthfmt.format( day.getTime() );<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        } else {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            final Calendar cal = (Calendar)day.clone();<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            final int firstDay = cal.getActualMinimum( Calendar.DATE );<a name="line.177"></a>
-<span class="sourceLineNo">178</span>            final int lastDay  = cal.getActualMaximum( Calendar.DATE );<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>            cal.set( Calendar.DATE, lastDay );<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            String url = m_monthUrlFormat.format( cal.getTime() );<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>            url = TextUtil.replaceString( url, "%d", Integer.toString( lastDay - firstDay + 1 ) );<a name="line.183"></a>
-<span class="sourceLineNo">184</span><a name="line.184"></a>
-<span class="sourceLineNo">185</span>            result = "&lt;a href=\""+url+"\"&gt;"+monthfmt.format(cal.getTime())+"&lt;/a&gt;";<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        }<a name="line.186"></a>
-<span class="sourceLineNo">187</span><a name="line.187"></a>
-<span class="sourceLineNo">188</span>        return format( result );<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    }<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>    private String getMonthNaviLink( final Calendar day, final String txt, String queryString ) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        final String result;<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        queryString = TextUtil.replaceEntities( queryString );<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        final Calendar nextMonth = Calendar.getInstance();<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        nextMonth.set( Calendar.DATE, 1 );  <a name="line.195"></a>
-<span class="sourceLineNo">196</span>        nextMonth.add( Calendar.DATE, -1);<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        nextMonth.add( Calendar.MONTH, 1 ); // Now move to 1st day of next month<a name="line.197"></a>
-<span class="sourceLineNo">198</span><a name="line.198"></a>
-<span class="sourceLineNo">199</span>        if ( day.before( nextMonth ) ) {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>            final Page thePage = m_wikiContext.getPage();<a name="line.200"></a>
-<span class="sourceLineNo">201</span>            final String pageName = thePage.getName();<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>            final String calendarDate = m_dateFormat.format( day.getTime() );<a name="line.203"></a>
-<span class="sourceLineNo">204</span>            String url = m_wikiContext.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), pageName,"calendar.date="+calendarDate );<a name="line.204"></a>
-<span class="sourceLineNo">205</span><a name="line.205"></a>
-<span class="sourceLineNo">206</span>            if( queryString != null &amp;&amp; queryString.length() &gt; 0 ) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>                //<a name="line.207"></a>
-<span class="sourceLineNo">208</span>                // Ensure that the 'calendar.date=ddMMyy' has been removed from the queryString<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                //<a name="line.209"></a>
-<span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>                // FIXME: Might be useful to have an entire library of <a name="line.211"></a>
-<span class="sourceLineNo">212</span>                //        routines for this.  Will fail if it's not calendar.date <a name="line.212"></a>
-<span class="sourceLineNo">213</span>                //        but something else.<a name="line.213"></a>
-<span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>                final int pos1 = queryString.indexOf("calendar.date=");<a name="line.215"></a>
-<span class="sourceLineNo">216</span>                if( pos1 &gt;= 0 ) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>                    String tmp = queryString.substring( 0, pos1 );<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                    // FIXME: Will this fail when we use &amp; instead of &amp;amp?<a name="line.218"></a>
-<span class="sourceLineNo">219</span>                    // FIXME: should use some parsing routine<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                    final int pos2 = queryString.indexOf("&amp;", pos1 ) + 1;<a name="line.220"></a>
-<span class="sourceLineNo">221</span>                    if ( ( pos2 &gt; 0 ) &amp;&amp; ( pos2 &lt; queryString.length() ) ) {<a name="line.221"></a>
-<span class="sourceLineNo">222</span>                        tmp = tmp + queryString.substring(pos2);<a name="line.222"></a>
-<span class="sourceLineNo">223</span>                    }<a name="line.223"></a>
-<span class="sourceLineNo">224</span>                    queryString = tmp;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>                }<a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>                if( queryString.length() &gt; 0 ) {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>                    url = url + "&amp;amp;" + queryString;<a name="line.228"></a>
-<span class="sourceLineNo">229</span>                }<a name="line.229"></a>
-<span class="sourceLineNo">230</span>            }<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            result = "&lt;td&gt;&lt;a href=\""+url+"\"&gt;"+txt+"&lt;/a&gt;&lt;/td&gt;";<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        } else {<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            result="&lt;td&gt; &lt;/td&gt;";<a name="line.233"></a>
-<span class="sourceLineNo">234</span>        }    <a name="line.234"></a>
-<span class="sourceLineNo">235</span><a name="line.235"></a>
-<span class="sourceLineNo">236</span>        return format( result );<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    }<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>    /**<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     *  {@inheritDoc}<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     */<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    @Override<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    public final int doWikiStartTag() throws IOException {<a name="line.243"></a>
-<span class="sourceLineNo">244</span>        final Engine engine = m_wikiContext.getEngine();<a name="line.244"></a>
-<span class="sourceLineNo">245</span>        final JspWriter out = pageContext.getOut();<a name="line.245"></a>
-<span class="sourceLineNo">246</span>        final Calendar cal = Calendar.getInstance();<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        final Calendar prevCal = Calendar.getInstance();<a name="line.247"></a>
-<span class="sourceLineNo">248</span>        final Calendar nextCal = Calendar.getInstance();<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>        //<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        //  Check if there is a parameter in the request to set the date.<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        //<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        String calendarDate = pageContext.getRequest().getParameter( "calendar.date" );<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        if( calendarDate == null ) {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>            calendarDate = pageContext.getRequest().getParameter( "weblog.startDate" );<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        }<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        <a name="line.257"></a>
-<span class="sourceLineNo">258</span>        if( calendarDate != null ) {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>            try {<a name="line.259"></a>
-<span class="sourceLineNo">260</span>                final Date d = m_dateFormat.parse( calendarDate );<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                cal.setTime( d );<a name="line.261"></a>
-<span class="sourceLineNo">262</span>                prevCal.setTime( d );<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                nextCal.setTime( d );<a name="line.263"></a>
-<span class="sourceLineNo">264</span>            } catch( final ParseException e ) {<a name="line.264"></a>
-<span class="sourceLineNo">265</span>                log.warn( "date format wrong: " + calendarDate );<a name="line.265"></a>
-<span class="sourceLineNo">266</span>            }<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>        cal.set( Calendar.DATE, 1 );     // First, set to first day of month<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        prevCal.set( Calendar.DATE, 1 );<a name="line.270"></a>
-<span class="sourceLineNo">271</span>        nextCal.set( Calendar.DATE, 1 );<a name="line.271"></a>
-<span class="sourceLineNo">272</span><a name="line.272"></a>
-<span class="sourceLineNo">273</span>        prevCal.add(Calendar.MONTH, -1); // Now move to first day of previous month<a name="line.273"></a>
-<span class="sourceLineNo">274</span>        nextCal.add(Calendar.MONTH, 1);  // Now move to first day of next month<a name="line.274"></a>
-<span class="sourceLineNo">275</span><a name="line.275"></a>
-<span class="sourceLineNo">276</span>        out.write( "&lt;table class=\"calendar\"&gt;\n" );<a name="line.276"></a>
-<span class="sourceLineNo">277</span><a name="line.277"></a>
-<span class="sourceLineNo">278</span>        final HttpServletRequest httpServletRequest = m_wikiContext.getHttpRequest();<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        final String queryString = HttpUtil.safeGetQueryString( httpServletRequest, engine.getContentEncoding() );<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        out.write( "&lt;tr&gt;"+<a name="line.280"></a>
-<span class="sourceLineNo">281</span>                   getMonthNaviLink(prevCal,"&amp;lt;&amp;lt;", queryString)+<a name="line.281"></a>
-<span class="sourceLineNo">282</span>                   "&lt;td colspan=5 class=\"month\"&gt;"+<a name="line.282"></a>
-<span class="sourceLineNo">283</span>                   getMonthLink( cal )+<a name="line.283"></a>
-<span class="sourceLineNo">284</span>                   "&lt;/td&gt;"+<a name="line.284"></a>
-<span class="sourceLineNo">285</span>                   getMonthNaviLink(nextCal,"&amp;gt;&amp;gt;", queryString)+ <a name="line.285"></a>
-<span class="sourceLineNo">286</span>                   "&lt;/tr&gt;\n"<a name="line.286"></a>
-<span class="sourceLineNo">287</span>                 );<a name="line.287"></a>
-<span class="sourceLineNo">288</span><a name="line.288"></a>
-<span class="sourceLineNo">289</span>        final int month = cal.get( Calendar.MONTH );<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        cal.set( Calendar.DAY_OF_WEEK, Calendar.MONDAY ); // Then, find the first day of the week.<a name="line.290"></a>
-<span class="sourceLineNo">291</span><a name="line.291"></a>
-<span class="sourceLineNo">292</span>        out.write( "&lt;tr&gt;&lt;td class=\"weekdays\"&gt;Mon&lt;/td&gt;"+<a name="line.292"></a>
-<span class="sourceLineNo">293</span>                   "&lt;td class=\"weekdays\"&gt;Tue&lt;/td&gt;"+<a name="line.293"></a>
-<span class="sourceLineNo">294</span>                   "&lt;td class=\"weekdays\"&gt;Wed&lt;/td&gt;"+<a name="line.294"></a>
-<span class="sourceLineNo">295</span>                   "&lt;td class=\"weekdays\"&gt;Thu&lt;/td&gt;"+<a name="line.295"></a>
-<span class="sourceLineNo">296</span>                   "&lt;td class=\"weekdays\"&gt;Fri&lt;/td&gt;"+<a name="line.296"></a>
-<span class="sourceLineNo">297</span>                   "&lt;td class=\"weekdays\"&gt;Sat&lt;/td&gt;"+<a name="line.297"></a>
-<span class="sourceLineNo">298</span>                   "&lt;td class=\"weekdays\"&gt;Sun&lt;/td&gt;&lt;/tr&gt;\n" );<a name="line.298"></a>
-<span class="sourceLineNo">299</span><a name="line.299"></a>
-<span class="sourceLineNo">300</span>        boolean noMoreDates = false;<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        while( !noMoreDates ) {<a name="line.301"></a>
-<span class="sourceLineNo">302</span>            out.write( "&lt;tr&gt;" );<a name="line.302"></a>
-<span class="sourceLineNo">303</span>            <a name="line.303"></a>
-<span class="sourceLineNo">304</span>            for( int i = 0; i &lt; 7; i++ ) {<a name="line.304"></a>
-<span class="sourceLineNo">305</span>                final int mth = cal.get( Calendar.MONTH );<a name="line.305"></a>
-<span class="sourceLineNo">306</span><a name="line.306"></a>
-<span class="sourceLineNo">307</span>                if( mth != month ) {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>                    out.write("&lt;td class=\"othermonth\"&gt;"+cal.get(Calendar.DATE)+"&lt;/td&gt;");<a name="line.308"></a>
-<span class="sourceLineNo">309</span>                } else {<a name="line.309"></a>
-<span class="sourceLineNo">310</span>                    out.write( getDayLink(cal) );<a name="line.310"></a>
-<span class="sourceLineNo">311</span>                }<a name="line.311"></a>
-<span class="sourceLineNo">312</span><a name="line.312"></a>
-<span class="sourceLineNo">313</span>                cal.add( Calendar.DATE, 1 );<a name="line.313"></a>
-<span class="sourceLineNo">314</span>            }<a name="line.314"></a>
-<span class="sourceLineNo">315</span><a name="line.315"></a>
-<span class="sourceLineNo">316</span>            if( cal.get( Calendar.MONTH ) != month ) {<a name="line.316"></a>
-<span class="sourceLineNo">317</span>                noMoreDates = true;<a name="line.317"></a>
-<span class="sourceLineNo">318</span>            }<a name="line.318"></a>
-<span class="sourceLineNo">319</span><a name="line.319"></a>
-<span class="sourceLineNo">320</span>            out.write( "&lt;/tr&gt;\n" );<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        }<a name="line.321"></a>
-<span class="sourceLineNo">322</span><a name="line.322"></a>
-<span class="sourceLineNo">323</span>        out.write( "&lt;/table&gt;\n" );<a name="line.323"></a>
-<span class="sourceLineNo">324</span><a name="line.324"></a>
-<span class="sourceLineNo">325</span>        return EVAL_BODY_INCLUDE;<a name="line.325"></a>
-<span class="sourceLineNo">326</span>    }<a name="line.326"></a>
-<span class="sourceLineNo">327</span><a name="line.327"></a>
-<span class="sourceLineNo">328</span>}<a name="line.328"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.tags;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.util.HttpUtil;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">028</span><a id="line.28"></a>
+<span class="sourceLineNo">029</span><a id="line.29">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import javax.servlet.jsp.JspWriter;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import java.io.IOException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import java.text.ParseException;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.text.SimpleDateFormat;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import java.util.Calendar;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.util.Date;</a>
+<span class="sourceLineNo">036</span><a id="line.36"></a>
+<span class="sourceLineNo">037</span><a id="line.37"></a>
+<span class="sourceLineNo">038</span><a id="line.38">/**</a>
+<span class="sourceLineNo">039</span><a id="line.39"> *  Provides a nice calendar.  Responds to the following HTTP parameters:</a>
+<span class="sourceLineNo">040</span><a id="line.40"> *  &lt;ul&gt;</a>
+<span class="sourceLineNo">041</span><a id="line.41"> *  &lt;li&gt;calendar.date - If this parameter exists, then the calendar</a>
+<span class="sourceLineNo">042</span><a id="line.42"> *  date is taken from the month and year.  The date must be in ddMMyy</a>
+<span class="sourceLineNo">043</span><a id="line.43"> *  format.</a>
+<span class="sourceLineNo">044</span><a id="line.44"> *  &lt;li&gt;weblog.startDate - If calendar.date parameter does not exist,</a>
+<span class="sourceLineNo">045</span><a id="line.45"> *  we then check this date.</a>
+<span class="sourceLineNo">046</span><a id="line.46"> *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">047</span><a id="line.47"> *</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *  If neither calendar.date nor weblog.startDate parameters exist,</a>
+<span class="sourceLineNo">049</span><a id="line.49"> *  then the calendar will default to the current month.</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *  @since 2.0</a>
+<span class="sourceLineNo">052</span><a id="line.52"> */</a>
+<span class="sourceLineNo">053</span><a id="line.53"></a>
+<span class="sourceLineNo">054</span><a id="line.54">// FIXME: This class is extraordinarily lacking.</a>
+<span class="sourceLineNo">055</span><a id="line.55">public class CalendarTag extends WikiTagBase {</a>
+<span class="sourceLineNo">056</span><a id="line.56"></a>
+<span class="sourceLineNo">057</span><a id="line.57">    private static final long serialVersionUID = 0L;</a>
+<span class="sourceLineNo">058</span><a id="line.58">    private static final Logger log = Logger.getLogger( CalendarTag.class );</a>
+<span class="sourceLineNo">059</span><a id="line.59">    </a>
+<span class="sourceLineNo">060</span><a id="line.60">    private SimpleDateFormat m_pageFormat = null;</a>
+<span class="sourceLineNo">061</span><a id="line.61">    private SimpleDateFormat m_urlFormat = null;</a>
+<span class="sourceLineNo">062</span><a id="line.62">    private SimpleDateFormat m_monthUrlFormat = null;</a>
+<span class="sourceLineNo">063</span><a id="line.63">    private SimpleDateFormat m_dateFormat = new SimpleDateFormat( "ddMMyy" );</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    /**</a>
+<span class="sourceLineNo">066</span><a id="line.66">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">067</span><a id="line.67">     */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    @Override</a>
+<span class="sourceLineNo">069</span><a id="line.69">    public void initTag()</a>
+<span class="sourceLineNo">070</span><a id="line.70">    {</a>
+<span class="sourceLineNo">071</span><a id="line.71">        super.initTag();</a>
+<span class="sourceLineNo">072</span><a id="line.72">        m_pageFormat = m_urlFormat = m_monthUrlFormat = null;</a>
+<span class="sourceLineNo">073</span><a id="line.73">        m_dateFormat = new SimpleDateFormat( "ddMMyy" );</a>
+<span class="sourceLineNo">074</span><a id="line.74">    }</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    /*</a>
+<span class="sourceLineNo">077</span><a id="line.77">    public void setYear( String year )</a>
+<span class="sourceLineNo">078</span><a id="line.78">    {</a>
+<span class="sourceLineNo">079</span><a id="line.79">        m_year = year;</a>
+<span class="sourceLineNo">080</span><a id="line.80">    }</a>
+<span class="sourceLineNo">081</span><a id="line.81"></a>
+<span class="sourceLineNo">082</span><a id="line.82">    public void setMonth( String month )</a>
+<span class="sourceLineNo">083</span><a id="line.83">    {</a>
+<span class="sourceLineNo">084</span><a id="line.84">        m_month = month;</a>
+<span class="sourceLineNo">085</span><a id="line.85">    }</a>
+<span class="sourceLineNo">086</span><a id="line.86">    */</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    /**</a>
+<span class="sourceLineNo">089</span><a id="line.89">     *  Sets the page format.  If a page corresponding to the format is found when</a>
+<span class="sourceLineNo">090</span><a id="line.90">     *  the calendar is being rendered, a link to that page is created.  E.g. if the</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *  format is set to &lt;tt&gt;'Main_blogentry_'ddMMyy&lt;/tt&gt;, it works nicely in</a>
+<span class="sourceLineNo">092</span><a id="line.92">     *  conjuction to the WeblogPlugin.</a>
+<span class="sourceLineNo">093</span><a id="line.93">     *  </a>
+<span class="sourceLineNo">094</span><a id="line.94">     *  @param format The format in the SimpleDateFormat fashion.</a>
+<span class="sourceLineNo">095</span><a id="line.95">     *  </a>
+<span class="sourceLineNo">096</span><a id="line.96">     *  @see SimpleDateFormat</a>
+<span class="sourceLineNo">097</span><a id="line.97">     *  @see org.apache.wiki.plugin.WeblogPlugin</a>
+<span class="sourceLineNo">098</span><a id="line.98">     */</a>
+<span class="sourceLineNo">099</span><a id="line.99">    public void setPageformat( final String format )</a>
+<span class="sourceLineNo">100</span><a id="line.100">    {</a>
+<span class="sourceLineNo">101</span><a id="line.101">        m_pageFormat = new SimpleDateFormat( format );</a>
+<span class="sourceLineNo">102</span><a id="line.102">    }</a>
+<span class="sourceLineNo">103</span><a id="line.103"></a>
+<span class="sourceLineNo">104</span><a id="line.104">    /**</a>
+<span class="sourceLineNo">105</span><a id="line.105">     *  Set the URL format.  If the pageformat is not set, all dates are</a>
+<span class="sourceLineNo">106</span><a id="line.106">     *  links to pages according to this format.  The pageformat</a>
+<span class="sourceLineNo">107</span><a id="line.107">     *  takes precedence.</a>
+<span class="sourceLineNo">108</span><a id="line.108">     *  </a>
+<span class="sourceLineNo">109</span><a id="line.109">     *  @param format The URL format in the SimpleDateFormat fashion.</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *  @see SimpleDateFormat</a>
+<span class="sourceLineNo">111</span><a id="line.111">     */</a>
+<span class="sourceLineNo">112</span><a id="line.112">    public void setUrlformat( final String format )</a>
+<span class="sourceLineNo">113</span><a id="line.113">    {</a>
+<span class="sourceLineNo">114</span><a id="line.114">        m_urlFormat = new SimpleDateFormat( format );</a>
+<span class="sourceLineNo">115</span><a id="line.115">    }</a>
+<span class="sourceLineNo">116</span><a id="line.116"></a>
+<span class="sourceLineNo">117</span><a id="line.117">    /**</a>
+<span class="sourceLineNo">118</span><a id="line.118">     *  Set the format to be used for links for the months.</a>
+<span class="sourceLineNo">119</span><a id="line.119">     *  </a>
+<span class="sourceLineNo">120</span><a id="line.120">     *  @param format The format to set in the SimpleDateFormat fashion.</a>
+<span class="sourceLineNo">121</span><a id="line.121">     *  </a>
+<span class="sourceLineNo">122</span><a id="line.122">     *  @see SimpleDateFormat</a>
+<span class="sourceLineNo">123</span><a id="line.123">     */</a>
+<span class="sourceLineNo">124</span><a id="line.124">    public void setMonthurlformat( final String format )</a>
+<span class="sourceLineNo">125</span><a id="line.125">    {</a>
+<span class="sourceLineNo">126</span><a id="line.126">        m_monthUrlFormat = new SimpleDateFormat( format );</a>
+<span class="sourceLineNo">127</span><a id="line.127">    }</a>
+<span class="sourceLineNo">128</span><a id="line.128"></a>
+<span class="sourceLineNo">129</span><a id="line.129">    private String format( final String txt ) {</a>
+<span class="sourceLineNo">130</span><a id="line.130">        final Page p = m_wikiContext.getPage();</a>
+<span class="sourceLineNo">131</span><a id="line.131">        if( p != null ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">            return TextUtil.replaceString( txt, "%p", p.getName() );</a>
+<span class="sourceLineNo">133</span><a id="line.133">        }</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">        return txt;</a>
+<span class="sourceLineNo">136</span><a id="line.136">    }</a>
+<span class="sourceLineNo">137</span><a id="line.137"></a>
+<span class="sourceLineNo">138</span><a id="line.138">    /**</a>
+<span class="sourceLineNo">139</span><a id="line.139">     *  Returns a link to the given day.</a>
+<span class="sourceLineNo">140</span><a id="line.140">     */</a>
+<span class="sourceLineNo">141</span><a id="line.141">    private String getDayLink( final Calendar day ) {</a>
+<span class="sourceLineNo">142</span><a id="line.142">        final Engine engine = m_wikiContext.getEngine();</a>
+<span class="sourceLineNo">143</span><a id="line.143">        final String result;</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">        if( m_pageFormat != null ) {</a>
+<span class="sourceLineNo">146</span><a id="line.146">            final String pagename = m_pageFormat.format( day.getTime() );</a>
+<span class="sourceLineNo">147</span><a id="line.147">            </a>
+<span class="sourceLineNo">148</span><a id="line.148">            if( engine.getManager( PageManager.class ).wikiPageExists( pagename ) ) {</a>
+<span class="sourceLineNo">149</span><a id="line.149">                if( m_urlFormat != null ) {</a>
+<span class="sourceLineNo">150</span><a id="line.150">                    final String url = m_urlFormat.format( day.getTime() );</a>
+<span class="sourceLineNo">151</span><a id="line.151">                    result = "&lt;td class=\"link\"&gt;&lt;a href=\""+url+"\"&gt;"+day.get( Calendar.DATE )+"&lt;/a&gt;&lt;/td&gt;";</a>
+<span class="sourceLineNo">152</span><a id="line.152">                } else {</a>
+<span class="sourceLineNo">153</span><a id="line.153">                    result = "&lt;td class=\"link\"&gt;&lt;a href=\""+m_wikiContext.getViewURL( pagename )+"\"&gt;"+</a>
+<span class="sourceLineNo">154</span><a id="line.154">                             day.get( Calendar.DATE )+"&lt;/a&gt;&lt;/td&gt;";</a>
+<span class="sourceLineNo">155</span><a id="line.155">                }</a>
+<span class="sourceLineNo">156</span><a id="line.156">            } else {</a>
+<span class="sourceLineNo">157</span><a id="line.157">                result = "&lt;td class=\"days\"&gt;"+day.get(Calendar.DATE)+"&lt;/td&gt;";</a>
+<span class="sourceLineNo">158</span><a id="line.158">            }</a>
+<span class="sourceLineNo">159</span><a id="line.159">        } else if( m_urlFormat != null ) {</a>
+<span class="sourceLineNo">160</span><a id="line.160">            final String url = m_urlFormat.format( day.getTime() );</a>
+<span class="sourceLineNo">161</span><a id="line.161">            result = "&lt;td&gt;&lt;a href=\""+url+"\"&gt;"+day.get( Calendar.DATE )+"&lt;/a&gt;&lt;/td&gt;";</a>
+<span class="sourceLineNo">162</span><a id="line.162">        } else {</a>
+<span class="sourceLineNo">163</span><a id="line.163">            result = "&lt;td class=\"days\"&gt;"+day.get(Calendar.DATE)+"&lt;/td&gt;";</a>
+<span class="sourceLineNo">164</span><a id="line.164">        }</a>
+<span class="sourceLineNo">165</span><a id="line.165"></a>
+<span class="sourceLineNo">166</span><a id="line.166">        return format( result );</a>
+<span class="sourceLineNo">167</span><a id="line.167">    }</a>
+<span class="sourceLineNo">168</span><a id="line.168"></a>
+<span class="sourceLineNo">169</span><a id="line.169">    private String getMonthLink( final Calendar day ) {</a>
+<span class="sourceLineNo">170</span><a id="line.170">        final SimpleDateFormat monthfmt = new SimpleDateFormat( "MMMM yyyy" );</a>
+<span class="sourceLineNo">171</span><a id="line.171">        final String result;</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">        if( m_monthUrlFormat == null ) {</a>
+<span class="sourceLineNo">174</span><a id="line.174">            result = monthfmt.format( day.getTime() );</a>
+<span class="sourceLineNo">175</span><a id="line.175">        } else {</a>
+<span class="sourceLineNo">176</span><a id="line.176">            final Calendar cal = (Calendar)day.clone();</a>
+<span class="sourceLineNo">177</span><a id="line.177">            final int firstDay = cal.getActualMinimum( Calendar.DATE );</a>
+<span class="sourceLineNo">178</span><a id="line.178">            final int lastDay  = cal.getActualMaximum( Calendar.DATE );</a>
+<span class="sourceLineNo">179</span><a id="line.179"></a>
+<span class="sourceLineNo">180</span><a id="line.180">            cal.set( Calendar.DATE, lastDay );</a>
+<span class="sourceLineNo">181</span><a id="line.181">            String url = m_monthUrlFormat.format( cal.getTime() );</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">            url = TextUtil.replaceString( url, "%d", Integer.toString( lastDay - firstDay + 1 ) );</a>
+<span class="sourceLineNo">184</span><a id="line.184"></a>
+<span class="sourceLineNo">185</span><a id="line.185">            result = "&lt;a href=\""+url+"\"&gt;"+monthfmt.format(cal.getTime())+"&lt;/a&gt;";</a>
+<span class="sourceLineNo">186</span><a id="line.186">        }</a>
+<span class="sourceLineNo">187</span><a id="line.187"></a>
+<span class="sourceLineNo">188</span><a id="line.188">        return format( result );</a>
+<span class="sourceLineNo">189</span><a id="line.189">    }</a>
+<span class="sourceLineNo">190</span><a id="line.190"></a>
+<span class="sourceLineNo">191</span><a id="line.191">    private String getMonthNaviLink( final Calendar day, final String txt, String queryString ) {</a>
+<span class="sourceLineNo">192</span><a id="line.192">        final String result;</a>
+<span class="sourceLineNo">193</span><a id="line.193">        queryString = TextUtil.replaceEntities( queryString );</a>
+<span class="sourceLineNo">194</span><a id="line.194">        final Calendar nextMonth = Calendar.getInstance();</a>
+<span class="sourceLineNo">195</span><a id="line.195">        nextMonth.set( Calendar.DATE, 1 );  </a>
+<span class="sourceLineNo">196</span><a id="line.196">        nextMonth.add( Calendar.DATE, -1);</a>
+<span class="sourceLineNo">197</span><a id="line.197">        nextMonth.add( Calendar.MONTH, 1 ); // Now move to 1st day of next month</a>
+<span class="sourceLineNo">198</span><a id="line.198"></a>
+<span class="sourceLineNo">199</span><a id="line.199">        if ( day.before( nextMonth ) ) {</a>
+<span class="sourceLineNo">200</span><a id="line.200">            final Page thePage = m_wikiContext.getPage();</a>
+<span class="sourceLineNo">201</span><a id="line.201">            final String pageName = thePage.getName();</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">            final String calendarDate = m_dateFormat.format( day.getTime() );</a>
+<span class="sourceLineNo">204</span><a id="line.204">            String url = m_wikiContext.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), pageName,"calendar.date="+calendarDate );</a>
+<span class="sourceLineNo">205</span><a id="line.205"></a>
+<span class="sourceLineNo">206</span><a id="line.206">            if( queryString != null &amp;&amp; queryString.length() &gt; 0 ) {</a>
+<span class="sourceLineNo">207</span><a id="line.207">                //</a>
+<span class="sourceLineNo">208</span><a id="line.208">                // Ensure that the 'calendar.date=ddMMyy' has been removed from the queryString</a>
+<span class="sourceLineNo">209</span><a id="line.209">                //</a>
+<span class="sourceLineNo">210</span><a id="line.210"></a>
+<span class="sourceLineNo">211</span><a id="line.211">                // FIXME: Might be useful to have an entire library of </a>
+<span class="sourceLineNo">212</span><a id="line.212">                //        routines for this.  Will fail if it's not calendar.date </a>
+<span class="sourceLineNo">213</span><a id="line.213">                //        but something else.</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">                final int pos1 = queryString.indexOf("calendar.date=");</a>
+<span class="sourceLineNo">216</span><a id="line.216">                if( pos1 &gt;= 0 ) {</a>
+<span class="sourceLineNo">217</span><a id="line.217">                    String tmp = queryString.substring( 0, pos1 );</a>
+<span class="sourceLineNo">218</span><a id="line.218">                    // FIXME: Will this fail when we use &amp; instead of &amp;amp?</a>
+<span class="sourceLineNo">219</span><a id="line.219">                    // FIXME: should use some parsing routine</a>
+<span class="sourceLineNo">220</span><a id="line.220">                    final int pos2 = queryString.indexOf("&amp;", pos1 ) + 1;</a>
+<span class="sourceLineNo">221</span><a id="line.221">                    if ( ( pos2 &gt; 0 ) &amp;&amp; ( pos2 &lt; queryString.length() ) ) {</a>
+<span class="sourceLineNo">222</span><a id="line.222">                        tmp = tmp + queryString.substring(pos2);</a>
+<span class="sourceLineNo">223</span><a id="line.223">                    }</a>
+<span class="sourceLineNo">224</span><a id="line.224">                    queryString = tmp;</a>
+<span class="sourceLineNo">225</span><a id="line.225">                }</a>
+<span class="sourceLineNo">226</span><a id="line.226"></a>
+<span class="sourceLineNo">227</span><a id="line.227">                if( queryString.length() &gt; 0 ) {</a>
+<span class="sourceLineNo">228</span><a id="line.228">                    url = url + "&amp;amp;" + queryString;</a>
+<span class="sourceLineNo">229</span><a id="line.229">                }</a>
+<span class="sourceLineNo">230</span><a id="line.230">            }</a>
+<span class="sourceLineNo">231</span><a id="line.231">            result = "&lt;td&gt;&lt;a href=\""+url+"\"&gt;"+txt+"&lt;/a&gt;&lt;/td&gt;";</a>
+<span class="sourceLineNo">232</span><a id="line.232">        } else {</a>
+<span class="sourceLineNo">233</span><a id="line.233">            result="&lt;td&gt; &lt;/td&gt;";</a>
+<span class="sourceLineNo">234</span><a id="line.234">        }    </a>
+<span class="sourceLineNo">235</span><a id="line.235"></a>
+<span class="sourceLineNo">236</span><a id="line.236">        return format( result );</a>
+<span class="sourceLineNo">237</span><a id="line.237">    }</a>
+<span class="sourceLineNo">238</span><a id="line.238"></a>
+<span class="sourceLineNo">239</span><a id="line.239">    /**</a>
+<span class="sourceLineNo">240</span><a id="line.240">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">241</span><a id="line.241">     */</a>
+<span class="sourceLineNo">242</span><a id="line.242">    @Override</a>
+<span class="sourceLineNo">243</span><a id="line.243">    public final int doWikiStartTag() throws IOException {</a>
+<span class="sourceLineNo">244</span><a id="line.244">        final Engine engine = m_wikiContext.getEngine();</a>
+<span class="sourceLineNo">245</span><a id="line.245">        final JspWriter out = pageContext.getOut();</a>
+<span class="sourceLineNo">246</span><a id="line.246">        final Calendar cal = Calendar.getInstance();</a>
+<span class="sourceLineNo">247</span><a id="line.247">        final Calendar prevCal = Calendar.getInstance();</a>
+<span class="sourceLineNo">248</span><a id="line.248">        final Calendar nextCal = Calendar.getInstance();</a>
+<span class="sourceLineNo">249</span><a id="line.249"></a>
+<span class="sourceLineNo">250</span><a id="line.250">        //</a>
+<span class="sourceLineNo">251</span><a id="line.251">        //  Check if there is a parameter in the request to set the date.</a>
+<span class="sourceLineNo">252</span><a id="line.252">        //</a>
+<span class="sourceLineNo">253</span><a id="line.253">        String calendarDate = pageContext.getRequest().getParameter( "calendar.date" );</a>
+<span class="sourceLineNo">254</span><a id="line.254">        if( calendarDate == null ) {</a>
+<span class="sourceLineNo">255</span><a id="line.255">            calendarDate = pageContext.getRequest().getParameter( "weblog.startDate" );</a>
+<span class="sourceLineNo">256</span><a id="line.256">        }</a>
+<span class="sourceLineNo">257</span><a id="line.257">        </a>
+<span class="sourceLineNo">258</span><a id="line.258">        if( calendarDate != null ) {</a>
+<span class="sourceLineNo">259</span><a id="line.259">            try {</a>
+<span class="sourceLineNo">260</span><a id="line.260">                final Date d = m_dateFormat.parse( calendarDate );</a>
+<span class="sourceLineNo">261</span><a id="line.261">                cal.setTime( d );</a>
+<span class="sourceLineNo">262</span><a id="line.262">                prevCal.setTime( d );</a>
+<span class="sourceLineNo">263</span><a id="line.263">                nextCal.setTime( d );</a>
+<span class="sourceLineNo">264</span><a id="line.264">            } catch( final ParseException e ) {</a>
+<span class="sourceLineNo">265</span><a id="line.265">                log.warn( "date format wrong: " + calendarDate );</a>
+<span class="sourceLineNo">266</span><a id="line.266">            }</a>
+<span class="sourceLineNo">267</span><a id="line.267">        }</a>
+<span class="sourceLineNo">268</span><a id="line.268"></a>
+<span class="sourceLineNo">269</span><a id="line.269">        cal.set( Calendar.DATE, 1 );     // First, set to first day of month</a>
+<span class="sourceLineNo">270</span><a id="line.270">        prevCal.set( Calendar.DATE, 1 );</a>
+<span class="sourceLineNo">271</span><a id="line.271">        nextCal.set( Calendar.DATE, 1 );</a>
+<span class="sourceLineNo">272</span><a id="line.272"></a>
+<span class="sourceLineNo">273</span><a id="line.273">        prevCal.add(Calendar.MONTH, -1); // Now move to first day of previous month</a>
+<span class="sourceLineNo">274</span><a id="line.274">        nextCal.add(Calendar.MONTH, 1);  // Now move to first day of next month</a>
+<span class="sourceLineNo">275</span><a id="line.275"></a>
+<span class="sourceLineNo">276</span><a id="line.276">        out.write( "&lt;table class=\"calendar\"&gt;\n" );</a>
+<span class="sourceLineNo">277</span><a id="line.277"></a>
+<span class="sourceLineNo">278</span><a id="line.278">        final HttpServletRequest httpServletRequest = m_wikiContext.getHttpRequest();</a>
+<span class="sourceLineNo">279</span><a id="line.279">        final String queryString = HttpUtil.safeGetQueryString( httpServletRequest, engine.getContentEncoding() );</a>
+<span class="sourceLineNo">280</span><a id="line.280">        out.write( "&lt;tr&gt;"+</a>
+<span class="sourceLineNo">281</span><a id="line.281">                   getMonthNaviLink(prevCal,"&amp;lt;&amp;lt;", queryString)+</a>
+<span class="sourceLineNo">282</span><a id="line.282">                   "&lt;td colspan=5 class=\"month\"&gt;"+</a>
+<span class="sourceLineNo">283</span><a id="line.283">                   getMonthLink( cal )+</a>
+<span class="sourceLineNo">284</span><a id="line.284">                   "&lt;/td&gt;"+</a>
+<span class="sourceLineNo">285</span><a id="line.285">                   getMonthNaviLink(nextCal,"&amp;gt;&amp;gt;", queryString)+ </a>
+<span class="sourceLineNo">286</span><a id="line.286">                   "&lt;/tr&gt;\n"</a>
+<span class="sourceLineNo">287</span><a id="line.287">                 );</a>
+<span class="sourceLineNo">288</span><a id="line.288"></a>
+<span class="sourceLineNo">289</span><a id="line.289">        final int month = cal.get( Calendar.MONTH );</a>
+<span class="sourceLineNo">290</span><a id="line.290">        cal.set( Calendar.DAY_OF_WEEK, Calendar.MONDAY ); // Then, find the first day of the week.</a>
+<span class="sourceLineNo">291</span><a id="line.291"></a>
+<span class="sourceLineNo">292</span><a id="line.292">        out.write( "&lt;tr&gt;&lt;td class=\"weekdays\"&gt;Mon&lt;/td&gt;"+</a>
+<span class="sourceLineNo">293</span><a id="line.293">                   "&lt;td class=\"weekdays\"&gt;Tue&lt;/td&gt;"+</a>
+<span class="sourceLineNo">294</span><a id="line.294">                   "&lt;td class=\"weekdays\"&gt;Wed&lt;/td&gt;"+</a>
+<span class="sourceLineNo">295</span><a id="line.295">                   "&lt;td class=\"weekdays\"&gt;Thu&lt;/td&gt;"+</a>
+<span class="sourceLineNo">296</span><a id="line.296">                   "&lt;td class=\"weekdays\"&gt;Fri&lt;/td&gt;"+</a>
+<span class="sourceLineNo">297</span><a id="line.297">                   "&lt;td class=\"weekdays\"&gt;Sat&lt;/td&gt;"+</a>
+<span class="sourceLineNo">298</span><a id="line.298">                   "&lt;td class=\"weekdays\"&gt;Sun&lt;/td&gt;&lt;/tr&gt;\n" );</a>
+<span class="sourceLineNo">299</span><a id="line.299"></a>
+<span class="sourceLineNo">300</span><a id="line.300">        boolean noMoreDates = false;</a>
+<span class="sourceLineNo">301</span><a id="line.301">        while( !noMoreDates ) {</a>
+<span class="sourceLineNo">302</span><a id="line.302">            out.write( "&lt;tr&gt;" );</a>
+<span class="sourceLineNo">303</span><a id="line.303">            </a>
+<span class="sourceLineNo">304</span><a id="line.304">            for( int i = 0; i &lt; 7; i++ ) {</a>
+<span class="sourceLineNo">305</span><a id="line.305">                final int mth = cal.get( Calendar.MONTH );</a>
+<span class="sourceLineNo">306</span><a id="line.306"></a>
+<span class="sourceLineNo">307</span><a id="line.307">                if( mth != month ) {</a>
+<span class="sourceLineNo">308</span><a id="line.308">                    out.write("&lt;td class=\"othermonth\"&gt;"+cal.get(Calendar.DATE)+"&lt;/td&gt;");</a>
+<span class="sourceLineNo">309</span><a id="line.309">                } else {</a>
+<span class="sourceLineNo">310</span><a id="line.310">                    out.write( getDayLink(cal) );</a>
+<span class="sourceLineNo">311</span><a id="line.311">                }</a>
+<span class="sourceLineNo">312</span><a id="line.312"></a>
+<span class="sourceLineNo">313</span><a id="line.313">                cal.add( Calendar.DATE, 1 );</a>
+<span class="sourceLineNo">314</span><a id="line.314">            }</a>
+<span class="sourceLineNo">315</span><a id="line.315"></a>
+<span class="sourceLineNo">316</span><a id="line.316">            if( cal.get( Calendar.MONTH ) != month ) {</a>
+<span class="sourceLineNo">317</span><a id="line.317">                noMoreDates = true;</a>
+<span class="sourceLineNo">318</span><a id="line.318">            }</a>
+<span class="sourceLineNo">319</span><a id="line.319"></a>
+<span class="sourceLineNo">320</span><a id="line.320">            out.write( "&lt;/tr&gt;\n" );</a>
+<span class="sourceLineNo">321</span><a id="line.321">        }</a>
+<span class="sourceLineNo">322</span><a id="line.322"></a>
+<span class="sourceLineNo">323</span><a id="line.323">        out.write( "&lt;/table&gt;\n" );</a>
+<span class="sourceLineNo">324</span><a id="line.324"></a>
+<span class="sourceLineNo">325</span><a id="line.325">        return EVAL_BODY_INCLUDE;</a>
+<span class="sourceLineNo">326</span><a id="line.326">    }</a>
+<span class="sourceLineNo">327</span><a id="line.327"></a>
+<span class="sourceLineNo">328</span><a id="line.328">}</a>
 
 
 
@@ -396,5 +397,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>

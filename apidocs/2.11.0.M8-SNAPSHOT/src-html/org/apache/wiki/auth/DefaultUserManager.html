@@ -1,493 +1,494 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.auth;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.commons.lang3.StringUtils;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.log4j.Logger;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.ajax.AjaxUtil;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.ajax.WikiAjaxDispatcherServlet;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.ajax.WikiAjaxServlet;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.api.core.Context;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.core.Engine;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.api.core.Session;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.api.exceptions.NoRequiredPropertyException;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.api.filters.PageFilter;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.auth.permissions.AllPermission;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.auth.permissions.WikiPermission;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.wiki.auth.user.DummyUserDatabase;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.apache.wiki.auth.user.DuplicateUserException;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.apache.wiki.auth.user.UserDatabase;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.apache.wiki.auth.user.UserProfile;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.apache.wiki.event.WikiEventListener;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.apache.wiki.event.WikiEventManager;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import org.apache.wiki.event.WikiSecurityEvent;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import org.apache.wiki.filters.FilterManager;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import org.apache.wiki.filters.SpamFilter;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>import org.apache.wiki.i18n.InternationalizationManager;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>import org.apache.wiki.pages.PageManager;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>import org.apache.wiki.preferences.Preferences;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>import org.apache.wiki.tasks.TasksManager;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>import org.apache.wiki.ui.InputValidator;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>import org.apache.wiki.util.ClassUtil;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>import org.apache.wiki.util.TextUtil;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>import org.apache.wiki.workflow.Decision;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>import org.apache.wiki.workflow.DecisionRequiredException;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>import org.apache.wiki.workflow.Fact;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>import org.apache.wiki.workflow.Step;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>import org.apache.wiki.workflow.Workflow;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>import org.apache.wiki.workflow.WorkflowBuilder;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>import org.apache.wiki.workflow.WorkflowManager;<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>import javax.servlet.ServletException;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>import javax.servlet.http.HttpServletRequest;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>import javax.servlet.http.HttpServletResponse;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>import java.io.IOException;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>import java.security.Permission;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>import java.security.Principal;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>import java.text.MessageFormat;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>import java.util.List;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>import java.util.Map;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>import java.util.NoSuchElementException;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>import java.util.Properties;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>import java.util.ResourceBundle;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>import java.util.WeakHashMap;<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>/**<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * Default implementation for {@link UserManager}.<a name="line.74"></a>
-<span class="sourceLineNo">075</span> *<a name="line.75"></a>
-<span class="sourceLineNo">076</span> * @since 2.3<a name="line.76"></a>
-<span class="sourceLineNo">077</span> */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>public class DefaultUserManager implements UserManager {<a name="line.78"></a>
-<span class="sourceLineNo">079</span><a name="line.79"></a>
-<span class="sourceLineNo">080</span>    private static final String USERDATABASE_PACKAGE = "org.apache.wiki.auth.user";<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    private static final String SESSION_MESSAGES = "profile";<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    private static final String PARAM_EMAIL = "email";<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    private static final String PARAM_FULLNAME = "fullname";<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    private static final String PARAM_PASSWORD = "password";<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    private static final String PARAM_LOGINNAME = "loginname";<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    private static final String UNKNOWN_CLASS = "&lt;unknown&gt;";<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>    private Engine m_engine;<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>    private static final Logger log = Logger.getLogger( DefaultUserManager.class);<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>    /** Associates wiki sessions with profiles */<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    private final Map&lt; Session, UserProfile &gt; m_profiles = new WeakHashMap&lt;&gt;();<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>    /** The user database loads, manages and persists user identities */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    private UserDatabase m_database;<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    /** {@inheritDoc} */<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    @Override<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    public void initialize( final Engine engine, final Properties props ) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        m_engine = engine;<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>        // Attach the PageManager as a listener<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        // TODO: it would be better if we did this in PageManager directly<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        addWikiEventListener( engine.getManager( PageManager.class ) );<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>        //TODO: Replace with custom annotations. See JSPWIKI-566<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        WikiAjaxDispatcherServlet.registerServlet( JSON_USERS, new JSONUserModule(this), new AllPermission(null));<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>    /** {@inheritDoc} */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    @Override<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    public UserDatabase getUserDatabase() {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        if( m_database != null ) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>            return m_database;<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>        String dbClassName = UNKNOWN_CLASS;<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>        try {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>            dbClassName = TextUtil.getRequiredProperty( m_engine.getWikiProperties(), PROP_DATABASE );<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>            log.info( "Attempting to load user database class " + dbClassName );<a name="line.123"></a>
-<span class="sourceLineNo">124</span>            final Class&lt;?&gt; dbClass = ClassUtil.findClass( USERDATABASE_PACKAGE, dbClassName );<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            m_database = (UserDatabase) dbClass.newInstance();<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            m_database.initialize( m_engine, m_engine.getWikiProperties() );<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            log.info("UserDatabase initialized.");<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        } catch( final NoSuchElementException | NoRequiredPropertyException e ) {<a name="line.128"></a>
-<span class="sourceLineNo">129</span>            log.error( "You have not set the '"+PROP_DATABASE+"'. You need to do this if you want to enable user management by JSPWiki.", e );<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        } catch( final ClassNotFoundException e ) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            log.error( "UserDatabase class " + dbClassName + " cannot be found", e );<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        } catch( final InstantiationException e ) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            log.error( "UserDatabase class " + dbClassName + " cannot be created", e );<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        } catch( final IllegalAccessException e ) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>            log.error( "You are not allowed to access this user database class", e );<a name="line.135"></a>
-<span class="sourceLineNo">136</span>        } catch( final WikiSecurityException e ) {<a name="line.136"></a>
-<span class="sourceLineNo">137</span>            log.error( "Exception initializing user database: " + e.getMessage(), e );<a name="line.137"></a>
-<span class="sourceLineNo">138</span>        } finally {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            if( m_database == null ) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>                log.info("I could not create a database object you specified (or didn't specify), so I am falling back to a default.");<a name="line.140"></a>
-<span class="sourceLineNo">141</span>                m_database = new DummyUserDatabase();<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            }<a name="line.142"></a>
-<span class="sourceLineNo">143</span>        }<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>        return m_database;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
-<span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>    /** {@inheritDoc} */<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    @Override<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    public UserProfile getUserProfile( final Session session ) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        // Look up cached user profile<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        UserProfile profile = m_profiles.get( session );<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        boolean newProfile = profile == null;<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        Principal user = null;<a name="line.154"></a>
-<span class="sourceLineNo">155</span><a name="line.155"></a>
-<span class="sourceLineNo">156</span>        // If user is authenticated, figure out if this is an existing profile<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        if ( session.isAuthenticated() ) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            user = session.getUserPrincipal();<a name="line.158"></a>
-<span class="sourceLineNo">159</span>            try {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>                profile = getUserDatabase().find( user.getName() );<a name="line.160"></a>
-<span class="sourceLineNo">161</span>                newProfile = false;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>            } catch( final NoSuchPrincipalException e ) { }<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        }<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>        if ( newProfile ) {<a name="line.165"></a>
-<span class="sourceLineNo">166</span>            profile = getUserDatabase().newProfile();<a name="line.166"></a>
-<span class="sourceLineNo">167</span>            if ( user != null ) {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>                profile.setLoginName( user.getName() );<a name="line.168"></a>
-<span class="sourceLineNo">169</span>            }<a name="line.169"></a>
-<span class="sourceLineNo">170</span>            if ( !profile.isNew() ) {<a name="line.170"></a>
-<span class="sourceLineNo">171</span>                throw new IllegalStateException( "New profile should be marked 'new'. Check your UserProfile implementation." );<a name="line.171"></a>
-<span class="sourceLineNo">172</span>            }<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        }<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>        // Stash the profile for next time<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        m_profiles.put( session, profile );<a name="line.176"></a>
-<span class="sourceLineNo">177</span>        return profile;<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>    /** {@inheritDoc} */<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    @Override<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    public void setUserProfile( final Context context, final UserProfile profile ) throws DuplicateUserException, WikiException {<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        final Session session = context.getWikiSession();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        // Verify user is allowed to save profile!<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        final Permission p = new WikiPermission( m_engine.getApplicationName(), WikiPermission.EDIT_PROFILE_ACTION );<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        if ( !m_engine.getManager( AuthorizationManager.class ).checkPermission( session, p ) ) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            throw new WikiSecurityException( "You are not allowed to save wiki profiles." );<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>        // Check if profile is new, and see if container allows creation<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        final boolean newProfile = profile.isNew();<a name="line.191"></a>
-<span class="sourceLineNo">192</span><a name="line.192"></a>
-<span class="sourceLineNo">193</span>        // Check if another user profile already has the fullname or loginname<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        final UserProfile oldProfile = getUserProfile( session );<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        final boolean nameChanged = ( oldProfile != null &amp;&amp; oldProfile.getFullname() != null ) &amp;&amp;<a name="line.195"></a>
-<span class="sourceLineNo">196</span>                                    !( oldProfile.getFullname().equals( profile.getFullname() ) &amp;&amp;<a name="line.196"></a>
-<span class="sourceLineNo">197</span>                                    oldProfile.getLoginName().equals( profile.getLoginName() ) );<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        UserProfile otherProfile;<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        try {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>            otherProfile = getUserDatabase().findByLoginName( profile.getLoginName() );<a name="line.200"></a>
-<span class="sourceLineNo">201</span>            if( otherProfile != null &amp;&amp; !otherProfile.equals( oldProfile ) ) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>                throw new DuplicateUserException( "security.error.login.taken", profile.getLoginName() );<a name="line.202"></a>
-<span class="sourceLineNo">203</span>            }<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        } catch( final NoSuchPrincipalException e ) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        }<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        try {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            otherProfile = getUserDatabase().findByFullName( profile.getFullname() );<a name="line.207"></a>
-<span class="sourceLineNo">208</span>            if( otherProfile != null &amp;&amp; !otherProfile.equals( oldProfile ) ) {<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                throw new DuplicateUserException( "security.error.fullname.taken", profile.getFullname() );<a name="line.209"></a>
-<span class="sourceLineNo">210</span>            }<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        } catch( final NoSuchPrincipalException e ) {<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
-<span class="sourceLineNo">213</span><a name="line.213"></a>
-<span class="sourceLineNo">214</span>        // For new accounts, create approval workflow for user profile save.<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        if( newProfile &amp;&amp; oldProfile != null &amp;&amp; oldProfile.isNew() ) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            startUserProfileCreationWorkflow( context, profile );<a name="line.216"></a>
-<span class="sourceLineNo">217</span><a name="line.217"></a>
-<span class="sourceLineNo">218</span>            // If the profile doesn't need approval, then just log the user in<a name="line.218"></a>
-<span class="sourceLineNo">219</span><a name="line.219"></a>
-<span class="sourceLineNo">220</span>            try {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>                final AuthenticationManager mgr = m_engine.getManager( AuthenticationManager.class );<a name="line.221"></a>
-<span class="sourceLineNo">222</span>                if( !mgr.isContainerAuthenticated() ) {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>                    mgr.login( session, null, profile.getLoginName(), profile.getPassword() );<a name="line.223"></a>
-<span class="sourceLineNo">224</span>                }<a name="line.224"></a>
-<span class="sourceLineNo">225</span>            } catch( final WikiException e ) {<a name="line.225"></a>
-<span class="sourceLineNo">226</span>                throw new WikiSecurityException( e.getMessage(), e );<a name="line.226"></a>
-<span class="sourceLineNo">227</span>            }<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>            // Alert all listeners that the profile changed...<a name="line.229"></a>
-<span class="sourceLineNo">230</span>            // ...this will cause credentials to be reloaded in the wiki session<a name="line.230"></a>
-<span class="sourceLineNo">231</span>            fireEvent( WikiSecurityEvent.PROFILE_SAVE, session, profile );<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        } else { // For existing accounts, just save the profile<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            // If login name changed, rename it first<a name="line.233"></a>
-<span class="sourceLineNo">234</span>            if( nameChanged &amp;&amp; !oldProfile.getLoginName().equals( profile.getLoginName() ) ) {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>                getUserDatabase().rename( oldProfile.getLoginName(), profile.getLoginName() );<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            }<a name="line.236"></a>
-<span class="sourceLineNo">237</span><a name="line.237"></a>
-<span class="sourceLineNo">238</span>            // Now, save the profile (userdatabase will take care of timestamps for us)<a name="line.238"></a>
-<span class="sourceLineNo">239</span>            getUserDatabase().save( profile );<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>            if( nameChanged ) {<a name="line.241"></a>
-<span class="sourceLineNo">242</span>                // Fire an event if the login name or full name changed<a name="line.242"></a>
-<span class="sourceLineNo">243</span>                final UserProfile[] profiles = new UserProfile[] { oldProfile, profile };<a name="line.243"></a>
-<span class="sourceLineNo">244</span>                fireEvent( WikiSecurityEvent.PROFILE_NAME_CHANGED, session, profiles );<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            } else {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>                // Fire an event that says we have new a new profile (new principals)<a name="line.246"></a>
-<span class="sourceLineNo">247</span>                fireEvent( WikiSecurityEvent.PROFILE_SAVE, session, profile );<a name="line.247"></a>
-<span class="sourceLineNo">248</span>            }<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        }<a name="line.249"></a>
-<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
-<span class="sourceLineNo">251</span><a name="line.251"></a>
-<span class="sourceLineNo">252</span>    /** {@inheritDoc} */<a name="line.252"></a>
-<span class="sourceLineNo">253</span>    @Override<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    public void startUserProfileCreationWorkflow( final Context context, final UserProfile profile ) throws WikiException {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        final WorkflowBuilder builder = WorkflowBuilder.getBuilder( m_engine );<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        final Principal submitter = context.getWikiSession().getUserPrincipal();<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        final Step completionTask = m_engine.getManager( TasksManager.class ).buildSaveUserProfileTask( context.getWikiSession().getLocale() );<a name="line.257"></a>
-<span class="sourceLineNo">258</span><a name="line.258"></a>
-<span class="sourceLineNo">259</span>        // Add user profile attribute as Facts for the approver (if required)<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        final boolean hasEmail = profile.getEmail() != null;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        final Fact[] facts = new Fact[ hasEmail ? 4 : 3 ];<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        facts[ 0 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_PREFS_FULL_NAME, profile.getFullname() );<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        facts[ 1 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_PREFS_LOGIN_NAME, profile.getLoginName() );<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        facts[ 2 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_SUBMITTER, submitter.getName() );<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        if ( hasEmail ) {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>            facts[ 3 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_PREFS_EMAIL, profile.getEmail() );<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        }<a name="line.267"></a>
-<span class="sourceLineNo">268</span>        final Workflow workflow = builder.buildApprovalWorkflow( submitter,<a name="line.268"></a>
-<span class="sourceLineNo">269</span>                                                                 WorkflowManager.WF_UP_CREATE_SAVE_APPROVER,<a name="line.269"></a>
-<span class="sourceLineNo">270</span>                                                                 null,<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                                                                 WorkflowManager.WF_UP_CREATE_SAVE_DECISION_MESSAGE_KEY,<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                                                                 facts,<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                                                                 completionTask,<a name="line.273"></a>
-<span class="sourceLineNo">274</span>                                                                 null );<a name="line.274"></a>
-<span class="sourceLineNo">275</span><a name="line.275"></a>
-<span class="sourceLineNo">276</span>        workflow.setAttribute( WorkflowManager.WF_UP_CREATE_SAVE_ATTR_SAVED_PROFILE, profile );<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        workflow.start( context );<a name="line.277"></a>
-<span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>        final boolean approvalRequired = workflow.getCurrentStep() instanceof Decision;<a name="line.279"></a>
-<span class="sourceLineNo">280</span><a name="line.280"></a>
-<span class="sourceLineNo">281</span>        // If the profile requires approval, redirect user to message page<a name="line.281"></a>
-<span class="sourceLineNo">282</span>        if ( approvalRequired ) {<a name="line.282"></a>
-<span class="sourceLineNo">283</span>            throw new DecisionRequiredException( "This profile must be approved before it becomes active" );<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        }<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    }<a name="line.285"></a>
-<span class="sourceLineNo">286</span><a name="line.286"></a>
-<span class="sourceLineNo">287</span>    /** {@inheritDoc} */<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    @Override<a name="line.288"></a>
-<span class="sourceLineNo">289</span>    public UserProfile parseProfile( final Context context ) {<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        // Retrieve the user's profile (may have been previously cached)<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        final UserProfile profile = getUserProfile( context.getWikiSession() );<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        final HttpServletRequest request = context.getHttpRequest();<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>        // Extract values from request stream (cleanse whitespace as needed)<a name="line.294"></a>
-<span class="sourceLineNo">295</span>        String loginName = request.getParameter( PARAM_LOGINNAME );<a name="line.295"></a>
-<span class="sourceLineNo">296</span>        String password = request.getParameter( PARAM_PASSWORD );<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        String fullname = request.getParameter( PARAM_FULLNAME );<a name="line.297"></a>
-<span class="sourceLineNo">298</span>        String email = request.getParameter( PARAM_EMAIL );<a name="line.298"></a>
-<span class="sourceLineNo">299</span>        loginName = InputValidator.isBlank( loginName ) ? null : loginName;<a name="line.299"></a>
-<span class="sourceLineNo">300</span>        password = InputValidator.isBlank( password ) ? null : password;<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        fullname = InputValidator.isBlank( fullname ) ? null : fullname;<a name="line.301"></a>
-<span class="sourceLineNo">302</span>        email = InputValidator.isBlank( email ) ? null : email;<a name="line.302"></a>
-<span class="sourceLineNo">303</span><a name="line.303"></a>
-<span class="sourceLineNo">304</span>        // A special case if we have container authentication: if authenticated, login name is always taken from container<a name="line.304"></a>
-<span class="sourceLineNo">305</span>        if ( m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated() &amp;&amp; context.getWikiSession().isAuthenticated() ) {<a name="line.305"></a>
-<span class="sourceLineNo">306</span>            loginName = context.getWikiSession().getLoginPrincipal().getName();<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        }<a name="line.307"></a>
-<span class="sourceLineNo">308</span><a name="line.308"></a>
-<span class="sourceLineNo">309</span>        // Set the profile fields!<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        profile.setLoginName( loginName );<a name="line.310"></a>
-<span class="sourceLineNo">311</span>        profile.setEmail( email );<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        profile.setFullname( fullname );<a name="line.312"></a>
-<span class="sourceLineNo">313</span>        profile.setPassword( password );<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        return profile;<a name="line.314"></a>
-<span class="sourceLineNo">315</span>    }<a name="line.315"></a>
-<span class="sourceLineNo">316</span><a name="line.316"></a>
-<span class="sourceLineNo">317</span>    /** {@inheritDoc} */<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    @Override<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    public void validateProfile( final Context context, final UserProfile profile ) {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        final boolean isNew = profile.isNew();<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        final Session session = context.getWikiSession();<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        final InputValidator validator = new InputValidator( SESSION_MESSAGES, context );<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE );<a name="line.323"></a>
-<span class="sourceLineNo">324</span><a name="line.324"></a>
-<span class="sourceLineNo">325</span>        //  Query the SpamFilter first<a name="line.325"></a>
-<span class="sourceLineNo">326</span>        final FilterManager fm = m_engine.getManager( FilterManager.class );<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        final List&lt; PageFilter &gt; ls = fm.getFilterList();<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        for( final PageFilter pf : ls ) {<a name="line.328"></a>
-<span class="sourceLineNo">329</span>            if( pf instanceof SpamFilter ) {<a name="line.329"></a>
-<span class="sourceLineNo">330</span>                if( !( ( SpamFilter )pf ).isValidUserProfile( context, profile ) ) {<a name="line.330"></a>
-<span class="sourceLineNo">331</span>                    session.addMessage( SESSION_MESSAGES, "Invalid userprofile" );<a name="line.331"></a>
-<span class="sourceLineNo">332</span>                    return;<a name="line.332"></a>
-<span class="sourceLineNo">333</span>                }<a name="line.333"></a>
-<span class="sourceLineNo">334</span>                break;<a name="line.334"></a>
-<span class="sourceLineNo">335</span>            }<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        }<a name="line.336"></a>
-<span class="sourceLineNo">337</span><a name="line.337"></a>
-<span class="sourceLineNo">338</span>        // If container-managed auth and user not logged in, throw an error<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        if ( m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated()<a name="line.339"></a>
-<span class="sourceLineNo">340</span>             &amp;&amp; !context.getWikiSession().isAuthenticated() ) {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            session.addMessage( SESSION_MESSAGES, rb.getString("security.error.createprofilebeforelogin") );<a name="line.341"></a>
-<span class="sourceLineNo">342</span>        }<a name="line.342"></a>
-<span class="sourceLineNo">343</span><a name="line.343"></a>
-<span class="sourceLineNo">344</span>        validator.validateNotNull( profile.getLoginName(), rb.getString("security.user.loginname") );<a name="line.344"></a>
-<span class="sourceLineNo">345</span>        validator.validateNotNull( profile.getFullname(), rb.getString("security.user.fullname") );<a name="line.345"></a>
-<span class="sourceLineNo">346</span>        validator.validate( profile.getEmail(), rb.getString("security.user.email"), InputValidator.EMAIL );<a name="line.346"></a>
-<span class="sourceLineNo">347</span><a name="line.347"></a>
-<span class="sourceLineNo">348</span>        // If new profile, passwords must match and can't be null<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        if( !m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated() ) {<a name="line.349"></a>
-<span class="sourceLineNo">350</span>            final String password = profile.getPassword();<a name="line.350"></a>
-<span class="sourceLineNo">351</span>            if( password == null ) {<a name="line.351"></a>
-<span class="sourceLineNo">352</span>                if( isNew ) {<a name="line.352"></a>
-<span class="sourceLineNo">353</span>                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.blankpassword" ) );<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                }<a name="line.354"></a>
-<span class="sourceLineNo">355</span>            } else {<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                final HttpServletRequest request = context.getHttpRequest();<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                final String password2 = ( request == null ) ? null : request.getParameter( "password2" );<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                if( !password.equals( password2 ) ) {<a name="line.358"></a>
-<span class="sourceLineNo">359</span>                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.passwordnomatch" ) );<a name="line.359"></a>
-<span class="sourceLineNo">360</span>                }<a name="line.360"></a>
-<span class="sourceLineNo">361</span>            }<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        }<a name="line.362"></a>
-<span class="sourceLineNo">363</span><a name="line.363"></a>
-<span class="sourceLineNo">364</span>        UserProfile otherProfile;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>        final String fullName = profile.getFullname();<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        final String loginName = profile.getLoginName();<a name="line.366"></a>
-<span class="sourceLineNo">367</span>        final String email = profile.getEmail();<a name="line.367"></a>
-<span class="sourceLineNo">368</span><a name="line.368"></a>
-<span class="sourceLineNo">369</span>        // It's illegal to use as a full name someone else's login name<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        try {<a name="line.370"></a>
-<span class="sourceLineNo">371</span>            otherProfile = getUserDatabase().find( fullName );<a name="line.371"></a>
-<span class="sourceLineNo">372</span>            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !fullName.equals( otherProfile.getFullname() ) ) {<a name="line.372"></a>
-<span class="sourceLineNo">373</span>                final Object[] args = { fullName };<a name="line.373"></a>
-<span class="sourceLineNo">374</span>                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalfullname" ), args ) );<a name="line.374"></a>
-<span class="sourceLineNo">375</span>            }<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>        // It's illegal to use as a login name someone else's full name<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        try {<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            otherProfile = getUserDatabase().find( loginName );<a name="line.380"></a>
-<span class="sourceLineNo">381</span>            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !loginName.equals( otherProfile.getLoginName() ) ) {<a name="line.381"></a>
-<span class="sourceLineNo">382</span>                final Object[] args = { loginName };<a name="line.382"></a>
-<span class="sourceLineNo">383</span>                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalloginname" ), args ) );<a name="line.383"></a>
-<span class="sourceLineNo">384</span>            }<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }<a name="line.385"></a>
-<span class="sourceLineNo">386</span><a name="line.386"></a>
-<span class="sourceLineNo">387</span>        // It's illegal to use multiple accounts with the same email<a name="line.387"></a>
-<span class="sourceLineNo">388</span>        try {<a name="line.388"></a>
-<span class="sourceLineNo">389</span>            otherProfile = getUserDatabase().findByEmail( email );<a name="line.389"></a>
-<span class="sourceLineNo">390</span>            if( otherProfile != null &amp;&amp; !profile.getUid().equals( otherProfile.getUid() ) // Issue JSPWIKI-1042<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                    &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; StringUtils.lowerCase( email )<a name="line.391"></a>
-<span class="sourceLineNo">392</span>                    .equals( StringUtils.lowerCase( otherProfile.getEmail() ) ) ) {<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                final Object[] args = { email };<a name="line.393"></a>
-<span class="sourceLineNo">394</span>                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.email.taken" ), args ) );<a name="line.394"></a>
-<span class="sourceLineNo">395</span>            }<a name="line.395"></a>
-<span class="sourceLineNo">396</span>        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }<a name="line.396"></a>
-<span class="sourceLineNo">397</span>    }<a name="line.397"></a>
-<span class="sourceLineNo">398</span><a name="line.398"></a>
-<span class="sourceLineNo">399</span>    /** {@inheritDoc} */<a name="line.399"></a>
-<span class="sourceLineNo">400</span>    @Override<a name="line.400"></a>
-<span class="sourceLineNo">401</span>    public Principal[] listWikiNames() throws WikiSecurityException {<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        return getUserDatabase().getWikiNames();<a name="line.402"></a>
-<span class="sourceLineNo">403</span>    }<a name="line.403"></a>
-<span class="sourceLineNo">404</span><a name="line.404"></a>
-<span class="sourceLineNo">405</span>    // events processing .......................................................<a name="line.405"></a>
-<span class="sourceLineNo">406</span><a name="line.406"></a>
-<span class="sourceLineNo">407</span>    /**<a name="line.407"></a>
-<span class="sourceLineNo">408</span>     * Registers a WikiEventListener with this instance.<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     * This is a convenience method.<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     * @param listener the event listener<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     */<a name="line.411"></a>
-<span class="sourceLineNo">412</span>    @Override public synchronized void addWikiEventListener( final WikiEventListener listener ) {<a name="line.412"></a>
-<span class="sourceLineNo">413</span>        WikiEventManager.addWikiEventListener( this, listener );<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    }<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span>    /**<a name="line.416"></a>
-<span class="sourceLineNo">417</span>     * Un-registers a WikiEventListener with this instance.<a name="line.417"></a>
-<span class="sourceLineNo">418</span>     * This is a convenience method.<a name="line.418"></a>
-<span class="sourceLineNo">419</span>     * @param listener the event listener<a name="line.419"></a>
-<span class="sourceLineNo">420</span>     */<a name="line.420"></a>
-<span class="sourceLineNo">421</span>    @Override public synchronized void removeWikiEventListener( final WikiEventListener listener ) {<a name="line.421"></a>
-<span class="sourceLineNo">422</span>        WikiEventManager.removeWikiEventListener( this, listener );<a name="line.422"></a>
-<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
-<span class="sourceLineNo">424</span><a name="line.424"></a>
-<span class="sourceLineNo">425</span>    /**<a name="line.425"></a>
-<span class="sourceLineNo">426</span>     *  Implements the JSON API for usermanager.<a name="line.426"></a>
-<span class="sourceLineNo">427</span>     *  &lt;p&gt;<a name="line.427"></a>
-<span class="sourceLineNo">428</span>     *  Even though this gets serialized whenever container shuts down/restarts, this gets reinstalled to the session when JSPWiki starts.<a name="line.428"></a>
-<span class="sourceLineNo">429</span>     *  This means that it's not actually necessary to save anything.<a name="line.429"></a>
-<span class="sourceLineNo">430</span>     */<a name="line.430"></a>
-<span class="sourceLineNo">431</span>    public static final class JSONUserModule implements WikiAjaxServlet {<a name="line.431"></a>
-<span class="sourceLineNo">432</span><a name="line.432"></a>
-<span class="sourceLineNo">433</span>        private volatile DefaultUserManager m_manager;<a name="line.433"></a>
-<span class="sourceLineNo">434</span><a name="line.434"></a>
-<span class="sourceLineNo">435</span>        /**<a name="line.435"></a>
-<span class="sourceLineNo">436</span>         *  Create a new JSONUserModule.<a name="line.436"></a>
-<span class="sourceLineNo">437</span>         *  @param mgr Manager<a name="line.437"></a>
-<span class="sourceLineNo">438</span>         */<a name="line.438"></a>
-<span class="sourceLineNo">439</span>        public JSONUserModule( final DefaultUserManager mgr )<a name="line.439"></a>
-<span class="sourceLineNo">440</span>        {<a name="line.440"></a>
-<span class="sourceLineNo">441</span>            m_manager = mgr;<a name="line.441"></a>
-<span class="sourceLineNo">442</span>        }<a name="line.442"></a>
-<span class="sourceLineNo">443</span><a name="line.443"></a>
-<span class="sourceLineNo">444</span>        @Override<a name="line.444"></a>
-<span class="sourceLineNo">445</span>        public String getServletMapping() {<a name="line.445"></a>
-<span class="sourceLineNo">446</span>            return JSON_USERS;<a name="line.446"></a>
-<span class="sourceLineNo">447</span>        }<a name="line.447"></a>
-<span class="sourceLineNo">448</span><a name="line.448"></a>
-<span class="sourceLineNo">449</span>        @Override<a name="line.449"></a>
-<span class="sourceLineNo">450</span>        public void service( final HttpServletRequest req, final HttpServletResponse resp, final String actionName, final List&lt;String&gt; params) throws ServletException, IOException {<a name="line.450"></a>
-<span class="sourceLineNo">451</span>            try {<a name="line.451"></a>
-<span class="sourceLineNo">452</span>                if( params.size() &lt; 1 ) {<a name="line.452"></a>
-<span class="sourceLineNo">453</span>                    return;<a name="line.453"></a>
-<span class="sourceLineNo">454</span>                }<a name="line.454"></a>
-<span class="sourceLineNo">455</span>                final String uid = params.get(0);<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                log.debug("uid="+uid);<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                if (StringUtils.isNotBlank(uid)) {<a name="line.457"></a>
-<span class="sourceLineNo">458</span>                    final UserProfile prof = getUserInfo(uid);<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                    resp.getWriter().write(AjaxUtil.toJson(prof));<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                }<a name="line.460"></a>
-<span class="sourceLineNo">461</span>            } catch (final NoSuchPrincipalException e) {<a name="line.461"></a>
-<span class="sourceLineNo">462</span>                throw new ServletException(e);<a name="line.462"></a>
-<span class="sourceLineNo">463</span>            }<a name="line.463"></a>
-<span class="sourceLineNo">464</span>        }<a name="line.464"></a>
-<span class="sourceLineNo">465</span><a name="line.465"></a>
-<span class="sourceLineNo">466</span>        /**<a name="line.466"></a>
-<span class="sourceLineNo">467</span>         *  Directly returns the UserProfile object attached to an uid.<a name="line.467"></a>
-<span class="sourceLineNo">468</span>         *<a name="line.468"></a>
-<span class="sourceLineNo">469</span>         *  @param uid The user id (e.g. WikiName)<a name="line.469"></a>
-<span class="sourceLineNo">470</span>         *  @return A UserProfile object<a name="line.470"></a>
-<span class="sourceLineNo">471</span>         *  @throws NoSuchPrincipalException If such a name does not exist.<a name="line.471"></a>
-<span class="sourceLineNo">472</span>         */<a name="line.472"></a>
-<span class="sourceLineNo">473</span>        public UserProfile getUserInfo( final String uid ) throws NoSuchPrincipalException {<a name="line.473"></a>
-<span class="sourceLineNo">474</span>            if( m_manager != null ) {<a name="line.474"></a>
-<span class="sourceLineNo">475</span>                return m_manager.getUserDatabase().find( uid );<a name="line.475"></a>
-<span class="sourceLineNo">476</span>            }<a name="line.476"></a>
-<span class="sourceLineNo">477</span><a name="line.477"></a>
-<span class="sourceLineNo">478</span>            throw new IllegalStateException( "The manager is offline." );<a name="line.478"></a>
-<span class="sourceLineNo">479</span>        }<a name="line.479"></a>
-<span class="sourceLineNo">480</span>    }<a name="line.480"></a>
-<span class="sourceLineNo">481</span><a name="line.481"></a>
-<span class="sourceLineNo">482</span>}<a name="line.482"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.ajax.AjaxUtil;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.ajax.WikiAjaxDispatcherServlet;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.ajax.WikiAjaxServlet;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.core.Session;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.filters.PageFilter;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.auth.permissions.AllPermission;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.auth.permissions.WikiPermission;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.auth.user.DummyUserDatabase;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.auth.user.DuplicateUserException;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.auth.user.UserDatabase;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.apache.wiki.auth.user.UserProfile;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import org.apache.wiki.event.WikiSecurityEvent;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import org.apache.wiki.filters.FilterManager;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import org.apache.wiki.filters.SpamFilter;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import org.apache.wiki.i18n.InternationalizationManager;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import org.apache.wiki.preferences.Preferences;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import org.apache.wiki.tasks.TasksManager;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import org.apache.wiki.ui.InputValidator;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import org.apache.wiki.workflow.Decision;</a>
+<span class="sourceLineNo">051</span><a id="line.51">import org.apache.wiki.workflow.DecisionRequiredException;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import org.apache.wiki.workflow.Fact;</a>
+<span class="sourceLineNo">053</span><a id="line.53">import org.apache.wiki.workflow.Step;</a>
+<span class="sourceLineNo">054</span><a id="line.54">import org.apache.wiki.workflow.Workflow;</a>
+<span class="sourceLineNo">055</span><a id="line.55">import org.apache.wiki.workflow.WorkflowBuilder;</a>
+<span class="sourceLineNo">056</span><a id="line.56">import org.apache.wiki.workflow.WorkflowManager;</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">import javax.servlet.ServletException;</a>
+<span class="sourceLineNo">059</span><a id="line.59">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">060</span><a id="line.60">import javax.servlet.http.HttpServletResponse;</a>
+<span class="sourceLineNo">061</span><a id="line.61">import java.io.IOException;</a>
+<span class="sourceLineNo">062</span><a id="line.62">import java.security.Permission;</a>
+<span class="sourceLineNo">063</span><a id="line.63">import java.security.Principal;</a>
+<span class="sourceLineNo">064</span><a id="line.64">import java.text.MessageFormat;</a>
+<span class="sourceLineNo">065</span><a id="line.65">import java.util.List;</a>
+<span class="sourceLineNo">066</span><a id="line.66">import java.util.Map;</a>
+<span class="sourceLineNo">067</span><a id="line.67">import java.util.NoSuchElementException;</a>
+<span class="sourceLineNo">068</span><a id="line.68">import java.util.Properties;</a>
+<span class="sourceLineNo">069</span><a id="line.69">import java.util.ResourceBundle;</a>
+<span class="sourceLineNo">070</span><a id="line.70">import java.util.WeakHashMap;</a>
+<span class="sourceLineNo">071</span><a id="line.71"></a>
+<span class="sourceLineNo">072</span><a id="line.72"></a>
+<span class="sourceLineNo">073</span><a id="line.73">/**</a>
+<span class="sourceLineNo">074</span><a id="line.74"> * Default implementation for {@link UserManager}.</a>
+<span class="sourceLineNo">075</span><a id="line.75"> *</a>
+<span class="sourceLineNo">076</span><a id="line.76"> * @since 2.3</a>
+<span class="sourceLineNo">077</span><a id="line.77"> */</a>
+<span class="sourceLineNo">078</span><a id="line.78">public class DefaultUserManager implements UserManager {</a>
+<span class="sourceLineNo">079</span><a id="line.79"></a>
+<span class="sourceLineNo">080</span><a id="line.80">    private static final String USERDATABASE_PACKAGE = "org.apache.wiki.auth.user";</a>
+<span class="sourceLineNo">081</span><a id="line.81">    private static final String SESSION_MESSAGES = "profile";</a>
+<span class="sourceLineNo">082</span><a id="line.82">    private static final String PARAM_EMAIL = "email";</a>
+<span class="sourceLineNo">083</span><a id="line.83">    private static final String PARAM_FULLNAME = "fullname";</a>
+<span class="sourceLineNo">084</span><a id="line.84">    private static final String PARAM_PASSWORD = "password";</a>
+<span class="sourceLineNo">085</span><a id="line.85">    private static final String PARAM_LOGINNAME = "loginname";</a>
+<span class="sourceLineNo">086</span><a id="line.86">    private static final String UNKNOWN_CLASS = "&lt;unknown&gt;";</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    private Engine m_engine;</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">    private static final Logger log = Logger.getLogger( DefaultUserManager.class);</a>
+<span class="sourceLineNo">091</span><a id="line.91"></a>
+<span class="sourceLineNo">092</span><a id="line.92">    /** Associates wiki sessions with profiles */</a>
+<span class="sourceLineNo">093</span><a id="line.93">    private final Map&lt; Session, UserProfile &gt; m_profiles = new WeakHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">094</span><a id="line.94"></a>
+<span class="sourceLineNo">095</span><a id="line.95">    /** The user database loads, manages and persists user identities */</a>
+<span class="sourceLineNo">096</span><a id="line.96">    private UserDatabase m_database;</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">099</span><a id="line.99">    @Override</a>
+<span class="sourceLineNo">100</span><a id="line.100">    public void initialize( final Engine engine, final Properties props ) {</a>
+<span class="sourceLineNo">101</span><a id="line.101">        m_engine = engine;</a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">        // Attach the PageManager as a listener</a>
+<span class="sourceLineNo">104</span><a id="line.104">        // TODO: it would be better if we did this in PageManager directly</a>
+<span class="sourceLineNo">105</span><a id="line.105">        addWikiEventListener( engine.getManager( PageManager.class ) );</a>
+<span class="sourceLineNo">106</span><a id="line.106"></a>
+<span class="sourceLineNo">107</span><a id="line.107">        //TODO: Replace with custom annotations. See JSPWIKI-566</a>
+<span class="sourceLineNo">108</span><a id="line.108">        WikiAjaxDispatcherServlet.registerServlet( JSON_USERS, new JSONUserModule(this), new AllPermission(null));</a>
+<span class="sourceLineNo">109</span><a id="line.109">    }</a>
+<span class="sourceLineNo">110</span><a id="line.110"></a>
+<span class="sourceLineNo">111</span><a id="line.111">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">112</span><a id="line.112">    @Override</a>
+<span class="sourceLineNo">113</span><a id="line.113">    public UserDatabase getUserDatabase() {</a>
+<span class="sourceLineNo">114</span><a id="line.114">        if( m_database != null ) {</a>
+<span class="sourceLineNo">115</span><a id="line.115">            return m_database;</a>
+<span class="sourceLineNo">116</span><a id="line.116">        }</a>
+<span class="sourceLineNo">117</span><a id="line.117"></a>
+<span class="sourceLineNo">118</span><a id="line.118">        String dbClassName = UNKNOWN_CLASS;</a>
+<span class="sourceLineNo">119</span><a id="line.119"></a>
+<span class="sourceLineNo">120</span><a id="line.120">        try {</a>
+<span class="sourceLineNo">121</span><a id="line.121">            dbClassName = TextUtil.getRequiredProperty( m_engine.getWikiProperties(), PROP_DATABASE );</a>
+<span class="sourceLineNo">122</span><a id="line.122"></a>
+<span class="sourceLineNo">123</span><a id="line.123">            log.info( "Attempting to load user database class " + dbClassName );</a>
+<span class="sourceLineNo">124</span><a id="line.124">            final Class&lt;?&gt; dbClass = ClassUtil.findClass( USERDATABASE_PACKAGE, dbClassName );</a>
+<span class="sourceLineNo">125</span><a id="line.125">            m_database = (UserDatabase) dbClass.newInstance();</a>
+<span class="sourceLineNo">126</span><a id="line.126">            m_database.initialize( m_engine, m_engine.getWikiProperties() );</a>
+<span class="sourceLineNo">127</span><a id="line.127">            log.info("UserDatabase initialized.");</a>
+<span class="sourceLineNo">128</span><a id="line.128">        } catch( final NoSuchElementException | NoRequiredPropertyException e ) {</a>
+<span class="sourceLineNo">129</span><a id="line.129">            log.error( "You have not set the '"+PROP_DATABASE+"'. You need to do this if you want to enable user management by JSPWiki.", e );</a>
+<span class="sourceLineNo">130</span><a id="line.130">        } catch( final ClassNotFoundException e ) {</a>
+<span class="sourceLineNo">131</span><a id="line.131">            log.error( "UserDatabase class " + dbClassName + " cannot be found", e );</a>
+<span class="sourceLineNo">132</span><a id="line.132">        } catch( final InstantiationException e ) {</a>
+<span class="sourceLineNo">133</span><a id="line.133">            log.error( "UserDatabase class " + dbClassName + " cannot be created", e );</a>
+<span class="sourceLineNo">134</span><a id="line.134">        } catch( final IllegalAccessException e ) {</a>
+<span class="sourceLineNo">135</span><a id="line.135">            log.error( "You are not allowed to access this user database class", e );</a>
+<span class="sourceLineNo">136</span><a id="line.136">        } catch( final WikiSecurityException e ) {</a>
+<span class="sourceLineNo">137</span><a id="line.137">            log.error( "Exception initializing user database: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">138</span><a id="line.138">        } finally {</a>
+<span class="sourceLineNo">139</span><a id="line.139">            if( m_database == null ) {</a>
+<span class="sourceLineNo">140</span><a id="line.140">                log.info("I could not create a database object you specified (or didn't specify), so I am falling back to a default.");</a>
+<span class="sourceLineNo">141</span><a id="line.141">                m_database = new DummyUserDatabase();</a>
+<span class="sourceLineNo">142</span><a id="line.142">            }</a>
+<span class="sourceLineNo">143</span><a id="line.143">        }</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">        return m_database;</a>
+<span class="sourceLineNo">146</span><a id="line.146">    }</a>
+<span class="sourceLineNo">147</span><a id="line.147"></a>
+<span class="sourceLineNo">148</span><a id="line.148">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">149</span><a id="line.149">    @Override</a>
+<span class="sourceLineNo">150</span><a id="line.150">    public UserProfile getUserProfile( final Session session ) {</a>
+<span class="sourceLineNo">151</span><a id="line.151">        // Look up cached user profile</a>
+<span class="sourceLineNo">152</span><a id="line.152">        UserProfile profile = m_profiles.get( session );</a>
+<span class="sourceLineNo">153</span><a id="line.153">        boolean newProfile = profile == null;</a>
+<span class="sourceLineNo">154</span><a id="line.154">        Principal user = null;</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">        // If user is authenticated, figure out if this is an existing profile</a>
+<span class="sourceLineNo">157</span><a id="line.157">        if ( session.isAuthenticated() ) {</a>
+<span class="sourceLineNo">158</span><a id="line.158">            user = session.getUserPrincipal();</a>
+<span class="sourceLineNo">159</span><a id="line.159">            try {</a>
+<span class="sourceLineNo">160</span><a id="line.160">                profile = getUserDatabase().find( user.getName() );</a>
+<span class="sourceLineNo">161</span><a id="line.161">                newProfile = false;</a>
+<span class="sourceLineNo">162</span><a id="line.162">            } catch( final NoSuchPrincipalException e ) { }</a>
+<span class="sourceLineNo">163</span><a id="line.163">        }</a>
+<span class="sourceLineNo">164</span><a id="line.164"></a>
+<span class="sourceLineNo">165</span><a id="line.165">        if ( newProfile ) {</a>
+<span class="sourceLineNo">166</span><a id="line.166">            profile = getUserDatabase().newProfile();</a>
+<span class="sourceLineNo">167</span><a id="line.167">            if ( user != null ) {</a>
+<span class="sourceLineNo">168</span><a id="line.168">                profile.setLoginName( user.getName() );</a>
+<span class="sourceLineNo">169</span><a id="line.169">            }</a>
+<span class="sourceLineNo">170</span><a id="line.170">            if ( !profile.isNew() ) {</a>
+<span class="sourceLineNo">171</span><a id="line.171">                throw new IllegalStateException( "New profile should be marked 'new'. Check your UserProfile implementation." );</a>
+<span class="sourceLineNo">172</span><a id="line.172">            }</a>
+<span class="sourceLineNo">173</span><a id="line.173">        }</a>
+<span class="sourceLineNo">174</span><a id="line.174"></a>
+<span class="sourceLineNo">175</span><a id="line.175">        // Stash the profile for next time</a>
+<span class="sourceLineNo">176</span><a id="line.176">        m_profiles.put( session, profile );</a>
+<span class="sourceLineNo">177</span><a id="line.177">        return profile;</a>
+<span class="sourceLineNo">178</span><a id="line.178">    }</a>
+<span class="sourceLineNo">179</span><a id="line.179"></a>
+<span class="sourceLineNo">180</span><a id="line.180">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">181</span><a id="line.181">    @Override</a>
+<span class="sourceLineNo">182</span><a id="line.182">    public void setUserProfile( final Context context, final UserProfile profile ) throws DuplicateUserException, WikiException {</a>
+<span class="sourceLineNo">183</span><a id="line.183">        final Session session = context.getWikiSession();</a>
+<span class="sourceLineNo">184</span><a id="line.184">        // Verify user is allowed to save profile!</a>
+<span class="sourceLineNo">185</span><a id="line.185">        final Permission p = new WikiPermission( m_engine.getApplicationName(), WikiPermission.EDIT_PROFILE_ACTION );</a>
+<span class="sourceLineNo">186</span><a id="line.186">        if ( !m_engine.getManager( AuthorizationManager.class ).checkPermission( session, p ) ) {</a>
+<span class="sourceLineNo">187</span><a id="line.187">            throw new WikiSecurityException( "You are not allowed to save wiki profiles." );</a>
+<span class="sourceLineNo">188</span><a id="line.188">        }</a>
+<span class="sourceLineNo">189</span><a id="line.189"></a>
+<span class="sourceLineNo">190</span><a id="line.190">        // Check if profile is new, and see if container allows creation</a>
+<span class="sourceLineNo">191</span><a id="line.191">        final boolean newProfile = profile.isNew();</a>
+<span class="sourceLineNo">192</span><a id="line.192"></a>
+<span class="sourceLineNo">193</span><a id="line.193">        // Check if another user profile already has the fullname or loginname</a>
+<span class="sourceLineNo">194</span><a id="line.194">        final UserProfile oldProfile = getUserProfile( session );</a>
+<span class="sourceLineNo">195</span><a id="line.195">        final boolean nameChanged = ( oldProfile != null &amp;&amp; oldProfile.getFullname() != null ) &amp;&amp;</a>
+<span class="sourceLineNo">196</span><a id="line.196">                                    !( oldProfile.getFullname().equals( profile.getFullname() ) &amp;&amp;</a>
+<span class="sourceLineNo">197</span><a id="line.197">                                    oldProfile.getLoginName().equals( profile.getLoginName() ) );</a>
+<span class="sourceLineNo">198</span><a id="line.198">        UserProfile otherProfile;</a>
+<span class="sourceLineNo">199</span><a id="line.199">        try {</a>
+<span class="sourceLineNo">200</span><a id="line.200">            otherProfile = getUserDatabase().findByLoginName( profile.getLoginName() );</a>
+<span class="sourceLineNo">201</span><a id="line.201">            if( otherProfile != null &amp;&amp; !otherProfile.equals( oldProfile ) ) {</a>
+<span class="sourceLineNo">202</span><a id="line.202">                throw new DuplicateUserException( "security.error.login.taken", profile.getLoginName() );</a>
+<span class="sourceLineNo">203</span><a id="line.203">            }</a>
+<span class="sourceLineNo">204</span><a id="line.204">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">        }</a>
+<span class="sourceLineNo">206</span><a id="line.206">        try {</a>
+<span class="sourceLineNo">207</span><a id="line.207">            otherProfile = getUserDatabase().findByFullName( profile.getFullname() );</a>
+<span class="sourceLineNo">208</span><a id="line.208">            if( otherProfile != null &amp;&amp; !otherProfile.equals( oldProfile ) ) {</a>
+<span class="sourceLineNo">209</span><a id="line.209">                throw new DuplicateUserException( "security.error.fullname.taken", profile.getFullname() );</a>
+<span class="sourceLineNo">210</span><a id="line.210">            }</a>
+<span class="sourceLineNo">211</span><a id="line.211">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">212</span><a id="line.212">        }</a>
+<span class="sourceLineNo">213</span><a id="line.213"></a>
+<span class="sourceLineNo">214</span><a id="line.214">        // For new accounts, create approval workflow for user profile save.</a>
+<span class="sourceLineNo">215</span><a id="line.215">        if( newProfile &amp;&amp; oldProfile != null &amp;&amp; oldProfile.isNew() ) {</a>
+<span class="sourceLineNo">216</span><a id="line.216">            startUserProfileCreationWorkflow( context, profile );</a>
+<span class="sourceLineNo">217</span><a id="line.217"></a>
+<span class="sourceLineNo">218</span><a id="line.218">            // If the profile doesn't need approval, then just log the user in</a>
+<span class="sourceLineNo">219</span><a id="line.219"></a>
+<span class="sourceLineNo">220</span><a id="line.220">            try {</a>
+<span class="sourceLineNo">221</span><a id="line.221">                final AuthenticationManager mgr = m_engine.getManager( AuthenticationManager.class );</a>
+<span class="sourceLineNo">222</span><a id="line.222">                if( !mgr.isContainerAuthenticated() ) {</a>
+<span class="sourceLineNo">223</span><a id="line.223">                    mgr.login( session, null, profile.getLoginName(), profile.getPassword() );</a>
+<span class="sourceLineNo">224</span><a id="line.224">                }</a>
+<span class="sourceLineNo">225</span><a id="line.225">            } catch( final WikiException e ) {</a>
+<span class="sourceLineNo">226</span><a id="line.226">                throw new WikiSecurityException( e.getMessage(), e );</a>
+<span class="sourceLineNo">227</span><a id="line.227">            }</a>
+<span class="sourceLineNo">228</span><a id="line.228"></a>
+<span class="sourceLineNo">229</span><a id="line.229">            // Alert all listeners that the profile changed...</a>
+<span class="sourceLineNo">230</span><a id="line.230">            // ...this will cause credentials to be reloaded in the wiki session</a>
+<span class="sourceLineNo">231</span><a id="line.231">            fireEvent( WikiSecurityEvent.PROFILE_SAVE, session, profile );</a>
+<span class="sourceLineNo">232</span><a id="line.232">        } else { // For existing accounts, just save the profile</a>
+<span class="sourceLineNo">233</span><a id="line.233">            // If login name changed, rename it first</a>
+<span class="sourceLineNo">234</span><a id="line.234">            if( nameChanged &amp;&amp; !oldProfile.getLoginName().equals( profile.getLoginName() ) ) {</a>
+<span class="sourceLineNo">235</span><a id="line.235">                getUserDatabase().rename( oldProfile.getLoginName(), profile.getLoginName() );</a>
+<span class="sourceLineNo">236</span><a id="line.236">            }</a>
+<span class="sourceLineNo">237</span><a id="line.237"></a>
+<span class="sourceLineNo">238</span><a id="line.238">            // Now, save the profile (userdatabase will take care of timestamps for us)</a>
+<span class="sourceLineNo">239</span><a id="line.239">            getUserDatabase().save( profile );</a>
+<span class="sourceLineNo">240</span><a id="line.240"></a>
+<span class="sourceLineNo">241</span><a id="line.241">            if( nameChanged ) {</a>
+<span class="sourceLineNo">242</span><a id="line.242">                // Fire an event if the login name or full name changed</a>
+<span class="sourceLineNo">243</span><a id="line.243">                final UserProfile[] profiles = new UserProfile[] { oldProfile, profile };</a>
+<span class="sourceLineNo">244</span><a id="line.244">                fireEvent( WikiSecurityEvent.PROFILE_NAME_CHANGED, session, profiles );</a>
+<span class="sourceLineNo">245</span><a id="line.245">            } else {</a>
+<span class="sourceLineNo">246</span><a id="line.246">                // Fire an event that says we have new a new profile (new principals)</a>
+<span class="sourceLineNo">247</span><a id="line.247">                fireEvent( WikiSecurityEvent.PROFILE_SAVE, session, profile );</a>
+<span class="sourceLineNo">248</span><a id="line.248">            }</a>
+<span class="sourceLineNo">249</span><a id="line.249">        }</a>
+<span class="sourceLineNo">250</span><a id="line.250">    }</a>
+<span class="sourceLineNo">251</span><a id="line.251"></a>
+<span class="sourceLineNo">252</span><a id="line.252">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">253</span><a id="line.253">    @Override</a>
+<span class="sourceLineNo">254</span><a id="line.254">    public void startUserProfileCreationWorkflow( final Context context, final UserProfile profile ) throws WikiException {</a>
+<span class="sourceLineNo">255</span><a id="line.255">        final WorkflowBuilder builder = WorkflowBuilder.getBuilder( m_engine );</a>
+<span class="sourceLineNo">256</span><a id="line.256">        final Principal submitter = context.getWikiSession().getUserPrincipal();</a>
+<span class="sourceLineNo">257</span><a id="line.257">        final Step completionTask = m_engine.getManager( TasksManager.class ).buildSaveUserProfileTask( context.getWikiSession().getLocale() );</a>
+<span class="sourceLineNo">258</span><a id="line.258"></a>
+<span class="sourceLineNo">259</span><a id="line.259">        // Add user profile attribute as Facts for the approver (if required)</a>
+<span class="sourceLineNo">260</span><a id="line.260">        final boolean hasEmail = profile.getEmail() != null;</a>
+<span class="sourceLineNo">261</span><a id="line.261">        final Fact[] facts = new Fact[ hasEmail ? 4 : 3 ];</a>
+<span class="sourceLineNo">262</span><a id="line.262">        facts[ 0 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_PREFS_FULL_NAME, profile.getFullname() );</a>
+<span class="sourceLineNo">263</span><a id="line.263">        facts[ 1 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_PREFS_LOGIN_NAME, profile.getLoginName() );</a>
+<span class="sourceLineNo">264</span><a id="line.264">        facts[ 2 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_SUBMITTER, submitter.getName() );</a>
+<span class="sourceLineNo">265</span><a id="line.265">        if ( hasEmail ) {</a>
+<span class="sourceLineNo">266</span><a id="line.266">            facts[ 3 ] = new Fact( WorkflowManager.WF_UP_CREATE_SAVE_FACT_PREFS_EMAIL, profile.getEmail() );</a>
+<span class="sourceLineNo">267</span><a id="line.267">        }</a>
+<span class="sourceLineNo">268</span><a id="line.268">        final Workflow workflow = builder.buildApprovalWorkflow( submitter,</a>
+<span class="sourceLineNo">269</span><a id="line.269">                                                                 WorkflowManager.WF_UP_CREATE_SAVE_APPROVER,</a>
+<span class="sourceLineNo">270</span><a id="line.270">                                                                 null,</a>
+<span class="sourceLineNo">271</span><a id="line.271">                                                                 WorkflowManager.WF_UP_CREATE_SAVE_DECISION_MESSAGE_KEY,</a>
+<span class="sourceLineNo">272</span><a id="line.272">                                                                 facts,</a>
+<span class="sourceLineNo">273</span><a id="line.273">                                                                 completionTask,</a>
+<span class="sourceLineNo">274</span><a id="line.274">                                                                 null );</a>
+<span class="sourceLineNo">275</span><a id="line.275"></a>
+<span class="sourceLineNo">276</span><a id="line.276">        workflow.setAttribute( WorkflowManager.WF_UP_CREATE_SAVE_ATTR_SAVED_PROFILE, profile );</a>
+<span class="sourceLineNo">277</span><a id="line.277">        workflow.start( context );</a>
+<span class="sourceLineNo">278</span><a id="line.278"></a>
+<span class="sourceLineNo">279</span><a id="line.279">        final boolean approvalRequired = workflow.getCurrentStep() instanceof Decision;</a>
+<span class="sourceLineNo">280</span><a id="line.280"></a>
+<span class="sourceLineNo">281</span><a id="line.281">        // If the profile requires approval, redirect user to message page</a>
+<span class="sourceLineNo">282</span><a id="line.282">        if ( approvalRequired ) {</a>
+<span class="sourceLineNo">283</span><a id="line.283">            throw new DecisionRequiredException( "This profile must be approved before it becomes active" );</a>
+<span class="sourceLineNo">284</span><a id="line.284">        }</a>
+<span class="sourceLineNo">285</span><a id="line.285">    }</a>
+<span class="sourceLineNo">286</span><a id="line.286"></a>
+<span class="sourceLineNo">287</span><a id="line.287">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">288</span><a id="line.288">    @Override</a>
+<span class="sourceLineNo">289</span><a id="line.289">    public UserProfile parseProfile( final Context context ) {</a>
+<span class="sourceLineNo">290</span><a id="line.290">        // Retrieve the user's profile (may have been previously cached)</a>
+<span class="sourceLineNo">291</span><a id="line.291">        final UserProfile profile = getUserProfile( context.getWikiSession() );</a>
+<span class="sourceLineNo">292</span><a id="line.292">        final HttpServletRequest request = context.getHttpRequest();</a>
+<span class="sourceLineNo">293</span><a id="line.293"></a>
+<span class="sourceLineNo">294</span><a id="line.294">        // Extract values from request stream (cleanse whitespace as needed)</a>
+<span class="sourceLineNo">295</span><a id="line.295">        String loginName = request.getParameter( PARAM_LOGINNAME );</a>
+<span class="sourceLineNo">296</span><a id="line.296">        String password = request.getParameter( PARAM_PASSWORD );</a>
+<span class="sourceLineNo">297</span><a id="line.297">        String fullname = request.getParameter( PARAM_FULLNAME );</a>
+<span class="sourceLineNo">298</span><a id="line.298">        String email = request.getParameter( PARAM_EMAIL );</a>
+<span class="sourceLineNo">299</span><a id="line.299">        loginName = InputValidator.isBlank( loginName ) ? null : loginName;</a>
+<span class="sourceLineNo">300</span><a id="line.300">        password = InputValidator.isBlank( password ) ? null : password;</a>
+<span class="sourceLineNo">301</span><a id="line.301">        fullname = InputValidator.isBlank( fullname ) ? null : fullname;</a>
+<span class="sourceLineNo">302</span><a id="line.302">        email = InputValidator.isBlank( email ) ? null : email;</a>
+<span class="sourceLineNo">303</span><a id="line.303"></a>
+<span class="sourceLineNo">304</span><a id="line.304">        // A special case if we have container authentication: if authenticated, login name is always taken from container</a>
+<span class="sourceLineNo">305</span><a id="line.305">        if ( m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated() &amp;&amp; context.getWikiSession().isAuthenticated() ) {</a>
+<span class="sourceLineNo">306</span><a id="line.306">            loginName = context.getWikiSession().getLoginPrincipal().getName();</a>
+<span class="sourceLineNo">307</span><a id="line.307">        }</a>
+<span class="sourceLineNo">308</span><a id="line.308"></a>
+<span class="sourceLineNo">309</span><a id="line.309">        // Set the profile fields!</a>
+<span class="sourceLineNo">310</span><a id="line.310">        profile.setLoginName( loginName );</a>
+<span class="sourceLineNo">311</span><a id="line.311">        profile.setEmail( email );</a>
+<span class="sourceLineNo">312</span><a id="line.312">        profile.setFullname( fullname );</a>
+<span class="sourceLineNo">313</span><a id="line.313">        profile.setPassword( password );</a>
+<span class="sourceLineNo">314</span><a id="line.314">        return profile;</a>
+<span class="sourceLineNo">315</span><a id="line.315">    }</a>
+<span class="sourceLineNo">316</span><a id="line.316"></a>
+<span class="sourceLineNo">317</span><a id="line.317">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">318</span><a id="line.318">    @Override</a>
+<span class="sourceLineNo">319</span><a id="line.319">    public void validateProfile( final Context context, final UserProfile profile ) {</a>
+<span class="sourceLineNo">320</span><a id="line.320">        final boolean isNew = profile.isNew();</a>
+<span class="sourceLineNo">321</span><a id="line.321">        final Session session = context.getWikiSession();</a>
+<span class="sourceLineNo">322</span><a id="line.322">        final InputValidator validator = new InputValidator( SESSION_MESSAGES, context );</a>
+<span class="sourceLineNo">323</span><a id="line.323">        final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE );</a>
+<span class="sourceLineNo">324</span><a id="line.324"></a>
+<span class="sourceLineNo">325</span><a id="line.325">        //  Query the SpamFilter first</a>
+<span class="sourceLineNo">326</span><a id="line.326">        final FilterManager fm = m_engine.getManager( FilterManager.class );</a>
+<span class="sourceLineNo">327</span><a id="line.327">        final List&lt; PageFilter &gt; ls = fm.getFilterList();</a>
+<span class="sourceLineNo">328</span><a id="line.328">        for( final PageFilter pf : ls ) {</a>
+<span class="sourceLineNo">329</span><a id="line.329">            if( pf instanceof SpamFilter ) {</a>
+<span class="sourceLineNo">330</span><a id="line.330">                if( !( ( SpamFilter )pf ).isValidUserProfile( context, profile ) ) {</a>
+<span class="sourceLineNo">331</span><a id="line.331">                    session.addMessage( SESSION_MESSAGES, "Invalid userprofile" );</a>
+<span class="sourceLineNo">332</span><a id="line.332">                    return;</a>
+<span class="sourceLineNo">333</span><a id="line.333">                }</a>
+<span class="sourceLineNo">334</span><a id="line.334">                break;</a>
+<span class="sourceLineNo">335</span><a id="line.335">            }</a>
+<span class="sourceLineNo">336</span><a id="line.336">        }</a>
+<span class="sourceLineNo">337</span><a id="line.337"></a>
+<span class="sourceLineNo">338</span><a id="line.338">        // If container-managed auth and user not logged in, throw an error</a>
+<span class="sourceLineNo">339</span><a id="line.339">        if ( m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated()</a>
+<span class="sourceLineNo">340</span><a id="line.340">             &amp;&amp; !context.getWikiSession().isAuthenticated() ) {</a>
+<span class="sourceLineNo">341</span><a id="line.341">            session.addMessage( SESSION_MESSAGES, rb.getString("security.error.createprofilebeforelogin") );</a>
+<span class="sourceLineNo">342</span><a id="line.342">        }</a>
+<span class="sourceLineNo">343</span><a id="line.343"></a>
+<span class="sourceLineNo">344</span><a id="line.344">        validator.validateNotNull( profile.getLoginName(), rb.getString("security.user.loginname") );</a>
+<span class="sourceLineNo">345</span><a id="line.345">        validator.validateNotNull( profile.getFullname(), rb.getString("security.user.fullname") );</a>
+<span class="sourceLineNo">346</span><a id="line.346">        validator.validate( profile.getEmail(), rb.getString("security.user.email"), InputValidator.EMAIL );</a>
+<span class="sourceLineNo">347</span><a id="line.347"></a>
+<span class="sourceLineNo">348</span><a id="line.348">        // If new profile, passwords must match and can't be null</a>
+<span class="sourceLineNo">349</span><a id="line.349">        if( !m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated() ) {</a>
+<span class="sourceLineNo">350</span><a id="line.350">            final String password = profile.getPassword();</a>
+<span class="sourceLineNo">351</span><a id="line.351">            if( password == null ) {</a>
+<span class="sourceLineNo">352</span><a id="line.352">                if( isNew ) {</a>
+<span class="sourceLineNo">353</span><a id="line.353">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.blankpassword" ) );</a>
+<span class="sourceLineNo">354</span><a id="line.354">                }</a>
+<span class="sourceLineNo">355</span><a id="line.355">            } else {</a>
+<span class="sourceLineNo">356</span><a id="line.356">                final HttpServletRequest request = context.getHttpRequest();</a>
+<span class="sourceLineNo">357</span><a id="line.357">                final String password2 = ( request == null ) ? null : request.getParameter( "password2" );</a>
+<span class="sourceLineNo">358</span><a id="line.358">                if( !password.equals( password2 ) ) {</a>
+<span class="sourceLineNo">359</span><a id="line.359">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.passwordnomatch" ) );</a>
+<span class="sourceLineNo">360</span><a id="line.360">                }</a>
+<span class="sourceLineNo">361</span><a id="line.361">            }</a>
+<span class="sourceLineNo">362</span><a id="line.362">        }</a>
+<span class="sourceLineNo">363</span><a id="line.363"></a>
+<span class="sourceLineNo">364</span><a id="line.364">        UserProfile otherProfile;</a>
+<span class="sourceLineNo">365</span><a id="line.365">        final String fullName = profile.getFullname();</a>
+<span class="sourceLineNo">366</span><a id="line.366">        final String loginName = profile.getLoginName();</a>
+<span class="sourceLineNo">367</span><a id="line.367">        final String email = profile.getEmail();</a>
+<span class="sourceLineNo">368</span><a id="line.368"></a>
+<span class="sourceLineNo">369</span><a id="line.369">        // It's illegal to use as a full name someone else's login name</a>
+<span class="sourceLineNo">370</span><a id="line.370">        try {</a>
+<span class="sourceLineNo">371</span><a id="line.371">            otherProfile = getUserDatabase().find( fullName );</a>
+<span class="sourceLineNo">372</span><a id="line.372">            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !fullName.equals( otherProfile.getFullname() ) ) {</a>
+<span class="sourceLineNo">373</span><a id="line.373">                final Object[] args = { fullName };</a>
+<span class="sourceLineNo">374</span><a id="line.374">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalfullname" ), args ) );</a>
+<span class="sourceLineNo">375</span><a id="line.375">            }</a>
+<span class="sourceLineNo">376</span><a id="line.376">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
+<span class="sourceLineNo">377</span><a id="line.377"></a>
+<span class="sourceLineNo">378</span><a id="line.378">        // It's illegal to use as a login name someone else's full name</a>
+<span class="sourceLineNo">379</span><a id="line.379">        try {</a>
+<span class="sourceLineNo">380</span><a id="line.380">            otherProfile = getUserDatabase().find( loginName );</a>
+<span class="sourceLineNo">381</span><a id="line.381">            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !loginName.equals( otherProfile.getLoginName() ) ) {</a>
+<span class="sourceLineNo">382</span><a id="line.382">                final Object[] args = { loginName };</a>
+<span class="sourceLineNo">383</span><a id="line.383">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalloginname" ), args ) );</a>
+<span class="sourceLineNo">384</span><a id="line.384">            }</a>
+<span class="sourceLineNo">385</span><a id="line.385">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
+<span class="sourceLineNo">386</span><a id="line.386"></a>
+<span class="sourceLineNo">387</span><a id="line.387">        // It's illegal to use multiple accounts with the same email</a>
+<span class="sourceLineNo">388</span><a id="line.388">        try {</a>
+<span class="sourceLineNo">389</span><a id="line.389">            otherProfile = getUserDatabase().findByEmail( email );</a>
+<span class="sourceLineNo">390</span><a id="line.390">            if( otherProfile != null &amp;&amp; !profile.getUid().equals( otherProfile.getUid() ) // Issue JSPWIKI-1042</a>
+<span class="sourceLineNo">391</span><a id="line.391">                    &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; StringUtils.lowerCase( email )</a>
+<span class="sourceLineNo">392</span><a id="line.392">                    .equals( StringUtils.lowerCase( otherProfile.getEmail() ) ) ) {</a>
+<span class="sourceLineNo">393</span><a id="line.393">                final Object[] args = { email };</a>
+<span class="sourceLineNo">394</span><a id="line.394">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.email.taken" ), args ) );</a>
+<span class="sourceLineNo">395</span><a id="line.395">            }</a>
+<span class="sourceLineNo">396</span><a id="line.396">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
+<span class="sourceLineNo">397</span><a id="line.397">    }</a>
+<span class="sourceLineNo">398</span><a id="line.398"></a>
+<span class="sourceLineNo">399</span><a id="line.399">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">400</span><a id="line.400">    @Override</a>
+<span class="sourceLineNo">401</span><a id="line.401">    public Principal[] listWikiNames() throws WikiSecurityException {</a>
+<span class="sourceLineNo">402</span><a id="line.402">        return getUserDatabase().getWikiNames();</a>
+<span class="sourceLineNo">403</span><a id="line.403">    }</a>
+<span class="sourceLineNo">404</span><a id="line.404"></a>
+<span class="sourceLineNo">405</span><a id="line.405">    // events processing .......................................................</a>
+<span class="sourceLineNo">406</span><a id="line.406"></a>
+<span class="sourceLineNo">407</span><a id="line.407">    /**</a>
+<span class="sourceLineNo">408</span><a id="line.408">     * Registers a WikiEventListener with this instance.</a>
+<span class="sourceLineNo">409</span><a id="line.409">     * This is a convenience method.</a>
+<span class="sourceLineNo">410</span><a id="line.410">     * @param listener the event listener</a>
+<span class="sourceLineNo">411</span><a id="line.411">     */</a>
+<span class="sourceLineNo">412</span><a id="line.412">    @Override public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">413</span><a id="line.413">        WikiEventManager.addWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">414</span><a id="line.414">    }</a>
+<span class="sourceLineNo">415</span><a id="line.415"></a>
+<span class="sourceLineNo">416</span><a id="line.416">    /**</a>
+<span class="sourceLineNo">417</span><a id="line.417">     * Un-registers a WikiEventListener with this instance.</a>
+<span class="sourceLineNo">418</span><a id="line.418">     * This is a convenience method.</a>
+<span class="sourceLineNo">419</span><a id="line.419">     * @param listener the event listener</a>
+<span class="sourceLineNo">420</span><a id="line.420">     */</a>
+<span class="sourceLineNo">421</span><a id="line.421">    @Override public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">422</span><a id="line.422">        WikiEventManager.removeWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">423</span><a id="line.423">    }</a>
+<span class="sourceLineNo">424</span><a id="line.424"></a>
+<span class="sourceLineNo">425</span><a id="line.425">    /**</a>
+<span class="sourceLineNo">426</span><a id="line.426">     *  Implements the JSON API for usermanager.</a>
+<span class="sourceLineNo">427</span><a id="line.427">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">428</span><a id="line.428">     *  Even though this gets serialized whenever container shuts down/restarts, this gets reinstalled to the session when JSPWiki starts.</a>
+<span class="sourceLineNo">429</span><a id="line.429">     *  This means that it's not actually necessary to save anything.</a>
+<span class="sourceLineNo">430</span><a id="line.430">     */</a>
+<span class="sourceLineNo">431</span><a id="line.431">    public static final class JSONUserModule implements WikiAjaxServlet {</a>
+<span class="sourceLineNo">432</span><a id="line.432"></a>
+<span class="sourceLineNo">433</span><a id="line.433">        private volatile DefaultUserManager m_manager;</a>
+<span class="sourceLineNo">434</span><a id="line.434"></a>
+<span class="sourceLineNo">435</span><a id="line.435">        /**</a>
+<span class="sourceLineNo">436</span><a id="line.436">         *  Create a new JSONUserModule.</a>
+<span class="sourceLineNo">437</span><a id="line.437">         *  @param mgr Manager</a>
+<span class="sourceLineNo">438</span><a id="line.438">         */</a>
+<span class="sourceLineNo">439</span><a id="line.439">        public JSONUserModule( final DefaultUserManager mgr )</a>
+<span class="sourceLineNo">440</span><a id="line.440">        {</a>
+<span class="sourceLineNo">441</span><a id="line.441">            m_manager = mgr;</a>
+<span class="sourceLineNo">442</span><a id="line.442">        }</a>
+<span class="sourceLineNo">443</span><a id="line.443"></a>
+<span class="sourceLineNo">444</span><a id="line.444">        @Override</a>
+<span class="sourceLineNo">445</span><a id="line.445">        public String getServletMapping() {</a>
+<span class="sourceLineNo">446</span><a id="line.446">            return JSON_USERS;</a>
+<span class="sourceLineNo">447</span><a id="line.447">        }</a>
+<span class="sourceLineNo">448</span><a id="line.448"></a>
+<span class="sourceLineNo">449</span><a id="line.449">        @Override</a>
+<span class="sourceLineNo">450</span><a id="line.450">        public void service( final HttpServletRequest req, final HttpServletResponse resp, final String actionName, final List&lt;String&gt; params) throws ServletException, IOException {</a>
+<span class="sourceLineNo">451</span><a id="line.451">            try {</a>
+<span class="sourceLineNo">452</span><a id="line.452">                if( params.size() &lt; 1 ) {</a>
+<span class="sourceLineNo">453</span><a id="line.453">                    return;</a>
+<span class="sourceLineNo">454</span><a id="line.454">                }</a>
+<span class="sourceLineNo">455</span><a id="line.455">                final String uid = params.get(0);</a>
+<span class="sourceLineNo">456</span><a id="line.456">                log.debug("uid="+uid);</a>
+<span class="sourceLineNo">457</span><a id="line.457">                if (StringUtils.isNotBlank(uid)) {</a>
+<span class="sourceLineNo">458</span><a id="line.458">                    final UserProfile prof = getUserInfo(uid);</a>
+<span class="sourceLineNo">459</span><a id="line.459">                    resp.getWriter().write(AjaxUtil.toJson(prof));</a>
+<span class="sourceLineNo">460</span><a id="line.460">                }</a>
+<span class="sourceLineNo">461</span><a id="line.461">            } catch (final NoSuchPrincipalException e) {</a>
+<span class="sourceLineNo">462</span><a id="line.462">                throw new ServletException(e);</a>
+<span class="sourceLineNo">463</span><a id="line.463">            }</a>
+<span class="sourceLineNo">464</span><a id="line.464">        }</a>
+<span class="sourceLineNo">465</span><a id="line.465"></a>
+<span class="sourceLineNo">466</span><a id="line.466">        /**</a>
+<span class="sourceLineNo">467</span><a id="line.467">         *  Directly returns the UserProfile object attached to an uid.</a>
+<span class="sourceLineNo">468</span><a id="line.468">         *</a>
+<span class="sourceLineNo">469</span><a id="line.469">         *  @param uid The user id (e.g. WikiName)</a>
+<span class="sourceLineNo">470</span><a id="line.470">         *  @return A UserProfile object</a>
+<span class="sourceLineNo">471</span><a id="line.471">         *  @throws NoSuchPrincipalException If such a name does not exist.</a>
+<span class="sourceLineNo">472</span><a id="line.472">         */</a>
+<span class="sourceLineNo">473</span><a id="line.473">        public UserProfile getUserInfo( final String uid ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">474</span><a id="line.474">            if( m_manager != null ) {</a>
+<span class="sourceLineNo">475</span><a id="line.475">                return m_manager.getUserDatabase().find( uid );</a>
+<span class="sourceLineNo">476</span><a id="line.476">            }</a>
+<span class="sourceLineNo">477</span><a id="line.477"></a>
+<span class="sourceLineNo">478</span><a id="line.478">            throw new IllegalStateException( "The manager is offline." );</a>
+<span class="sourceLineNo">479</span><a id="line.479">        }</a>
+<span class="sourceLineNo">480</span><a id="line.480">    }</a>
+<span class="sourceLineNo">481</span><a id="line.481"></a>
+<span class="sourceLineNo">482</span><a id="line.482">}</a>
 
 
 
@@ -550,5 +551,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>

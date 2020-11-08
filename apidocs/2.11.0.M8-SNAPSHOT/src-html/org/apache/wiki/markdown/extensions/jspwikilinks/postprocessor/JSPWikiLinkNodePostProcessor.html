@@ -1,128 +1,129 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.markdown.extensions.jspwikilinks.postprocessor;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import com.vladsch.flexmark.ast.Link;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import com.vladsch.flexmark.parser.PostProcessor;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import com.vladsch.flexmark.parser.block.NodePostProcessor;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import com.vladsch.flexmark.util.ast.Document;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import com.vladsch.flexmark.util.ast.Node;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import com.vladsch.flexmark.util.ast.NodeTracker;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.commons.lang3.StringUtils;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.oro.text.regex.Pattern;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.api.core.Context;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.markdown.nodes.JSPWikiLink;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.parser.LinkParsingOperations;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.parser.MarkupParser;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.util.TextUtil;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.util.List;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * {@link NodePostProcessor} to convert {@link Link}s into {@link JSPWikiLink}s.<a name="line.39"></a>
-<span class="sourceLineNo">040</span> *<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * Acts as a factory of {@link NodePostProcessorState}, which are the classes generating the extra markup for each concrete type of link.<a name="line.41"></a>
-<span class="sourceLineNo">042</span> */<a name="line.42"></a>
-<span class="sourceLineNo">043</span>public class JSPWikiLinkNodePostProcessor extends NodePostProcessor {<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>    protected final Context m_context;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    protected final LinkParsingOperations linkOperations;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    private final boolean isImageInlining;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    private final List&lt; Pattern &gt; inlineImagePatterns;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    protected boolean m_useOutlinkImage = true;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    protected final Document document;<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>    public JSPWikiLinkNodePostProcessor( final Context m_context,<a name="line.52"></a>
-<span class="sourceLineNo">053</span>                                         final Document document,<a name="line.53"></a>
-<span class="sourceLineNo">054</span>                                         final boolean isImageInlining,<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                                         final List&lt; Pattern &gt; inlineImagePatterns ) {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        this.m_context = m_context;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        this.document = document;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        linkOperations = new LinkParsingOperations( m_context );<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        this.isImageInlining = isImageInlining;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        this.inlineImagePatterns = inlineImagePatterns;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        m_useOutlinkImage = m_context.getBooleanWikiProperty( MarkupParser.PROP_USEOUTLINKIMAGE, m_useOutlinkImage );<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     * {@inheritDoc}<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     * @see PostProcessor#process(NodeTracker, Node)<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    @Override<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    public void process( final NodeTracker state, final Node node ) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        if( node instanceof Link ) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>            final JSPWikiLink link = replaceLinkWithJSPWikiLink( state, node );<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>            final NodePostProcessorState&lt; JSPWikiLink &gt; linkPostProcessor;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>            if( linkOperations.isAccessRule( link.getUrl().toString() ) ) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>                linkPostProcessor = new AccessRuleLinkNodePostProcessorState( m_context );<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            } else if( linkOperations.isMetadata( link.getUrl().toString() ) ) {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                linkPostProcessor = new MetadataLinkNodePostProcessorState( m_context );<a name="line.78"></a>
-<span class="sourceLineNo">079</span>            } else if( linkOperations.isPluginLink( link.getUrl().toString() ) ) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>                linkPostProcessor = new PluginLinkNodePostProcessorState( m_context );<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            } else if( linkOperations.isVariableLink( link.getUrl().toString() ) ) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                linkPostProcessor = new VariableLinkNodePostProcessorState( m_context );<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            } else if( linkOperations.isExternalLink( link.getUrl().toString() ) ) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>                linkPostProcessor = new ExternalLinkNodePostProcessorState( m_context, isImageInlining, inlineImagePatterns );<a name="line.84"></a>
-<span class="sourceLineNo">085</span>            } else if( linkOperations.isInterWikiLink( link.getUrl().toString() ) ) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>                linkPostProcessor = new InterWikiLinkNodePostProcessorState( m_context, document, isImageInlining, inlineImagePatterns );<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            } else if( StringUtils.startsWith( link.getUrl().toString(), "#" ) ) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>                linkPostProcessor = new LocalFootnoteLinkNodePostProcessorState( m_context );<a name="line.88"></a>
-<span class="sourceLineNo">089</span>            } else if( TextUtil.isNumber( link.getUrl().toString() ) ) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                linkPostProcessor = new LocalFootnoteRefLinkNodePostProcessorState( m_context );<a name="line.90"></a>
-<span class="sourceLineNo">091</span>            } else {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                linkPostProcessor = new LocalLinkNodePostProcessorState( m_context, isImageInlining, inlineImagePatterns );<a name="line.92"></a>
-<span class="sourceLineNo">093</span>            }<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            linkPostProcessor.process( state, link );<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        }<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>    JSPWikiLink replaceLinkWithJSPWikiLink( final NodeTracker state, final Node node ) {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        final JSPWikiLink link = new JSPWikiLink( ( Link )node );<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        final Node previous = node.getPrevious();<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        final Node parent = node.getParent();<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>        link.takeChildren( node );<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        node.unlink();<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>        if( previous != null ) {<a name="line.106"></a>
-<span class="sourceLineNo">107</span>            previous.insertAfter( link );<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        } else if( parent != null ) {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>            parent.appendChild( link );<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>        state.nodeRemoved( node );<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        state.nodeAddedWithChildren( link );<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        return link;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>}<a name="line.117"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.markdown.extensions.jspwikilinks.postprocessor;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import com.vladsch.flexmark.ast.Link;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import com.vladsch.flexmark.parser.PostProcessor;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import com.vladsch.flexmark.parser.block.NodePostProcessor;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import com.vladsch.flexmark.util.ast.Document;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import com.vladsch.flexmark.util.ast.Node;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import com.vladsch.flexmark.util.ast.NodeTracker;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.oro.text.regex.Pattern;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.markdown.nodes.JSPWikiLink;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.parser.LinkParsingOperations;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.parser.MarkupParser;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">034</span><a id="line.34"></a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.util.List;</a>
+<span class="sourceLineNo">036</span><a id="line.36"></a>
+<span class="sourceLineNo">037</span><a id="line.37"></a>
+<span class="sourceLineNo">038</span><a id="line.38">/**</a>
+<span class="sourceLineNo">039</span><a id="line.39"> * {@link NodePostProcessor} to convert {@link Link}s into {@link JSPWikiLink}s.</a>
+<span class="sourceLineNo">040</span><a id="line.40"> *</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * Acts as a factory of {@link NodePostProcessorState}, which are the classes generating the extra markup for each concrete type of link.</a>
+<span class="sourceLineNo">042</span><a id="line.42"> */</a>
+<span class="sourceLineNo">043</span><a id="line.43">public class JSPWikiLinkNodePostProcessor extends NodePostProcessor {</a>
+<span class="sourceLineNo">044</span><a id="line.44"></a>
+<span class="sourceLineNo">045</span><a id="line.45">    protected final Context m_context;</a>
+<span class="sourceLineNo">046</span><a id="line.46">    protected final LinkParsingOperations linkOperations;</a>
+<span class="sourceLineNo">047</span><a id="line.47">    private final boolean isImageInlining;</a>
+<span class="sourceLineNo">048</span><a id="line.48">    private final List&lt; Pattern &gt; inlineImagePatterns;</a>
+<span class="sourceLineNo">049</span><a id="line.49">    protected boolean m_useOutlinkImage = true;</a>
+<span class="sourceLineNo">050</span><a id="line.50">    protected final Document document;</a>
+<span class="sourceLineNo">051</span><a id="line.51"></a>
+<span class="sourceLineNo">052</span><a id="line.52">    public JSPWikiLinkNodePostProcessor( final Context m_context,</a>
+<span class="sourceLineNo">053</span><a id="line.53">                                         final Document document,</a>
+<span class="sourceLineNo">054</span><a id="line.54">                                         final boolean isImageInlining,</a>
+<span class="sourceLineNo">055</span><a id="line.55">                                         final List&lt; Pattern &gt; inlineImagePatterns ) {</a>
+<span class="sourceLineNo">056</span><a id="line.56">        this.m_context = m_context;</a>
+<span class="sourceLineNo">057</span><a id="line.57">        this.document = document;</a>
+<span class="sourceLineNo">058</span><a id="line.58">        linkOperations = new LinkParsingOperations( m_context );</a>
+<span class="sourceLineNo">059</span><a id="line.59">        this.isImageInlining = isImageInlining;</a>
+<span class="sourceLineNo">060</span><a id="line.60">        this.inlineImagePatterns = inlineImagePatterns;</a>
+<span class="sourceLineNo">061</span><a id="line.61">        m_useOutlinkImage = m_context.getBooleanWikiProperty( MarkupParser.PROP_USEOUTLINKIMAGE, m_useOutlinkImage );</a>
+<span class="sourceLineNo">062</span><a id="line.62">    }</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">    /**</a>
+<span class="sourceLineNo">065</span><a id="line.65">     * {@inheritDoc}</a>
+<span class="sourceLineNo">066</span><a id="line.66">     *</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * @see PostProcessor#process(NodeTracker, Node)</a>
+<span class="sourceLineNo">068</span><a id="line.68">     */</a>
+<span class="sourceLineNo">069</span><a id="line.69">    @Override</a>
+<span class="sourceLineNo">070</span><a id="line.70">    public void process( final NodeTracker state, final Node node ) {</a>
+<span class="sourceLineNo">071</span><a id="line.71">        if( node instanceof Link ) {</a>
+<span class="sourceLineNo">072</span><a id="line.72">            final JSPWikiLink link = replaceLinkWithJSPWikiLink( state, node );</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">            final NodePostProcessorState&lt; JSPWikiLink &gt; linkPostProcessor;</a>
+<span class="sourceLineNo">075</span><a id="line.75">            if( linkOperations.isAccessRule( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">076</span><a id="line.76">                linkPostProcessor = new AccessRuleLinkNodePostProcessorState( m_context );</a>
+<span class="sourceLineNo">077</span><a id="line.77">            } else if( linkOperations.isMetadata( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">078</span><a id="line.78">                linkPostProcessor = new MetadataLinkNodePostProcessorState( m_context );</a>
+<span class="sourceLineNo">079</span><a id="line.79">            } else if( linkOperations.isPluginLink( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">080</span><a id="line.80">                linkPostProcessor = new PluginLinkNodePostProcessorState( m_context );</a>
+<span class="sourceLineNo">081</span><a id="line.81">            } else if( linkOperations.isVariableLink( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">082</span><a id="line.82">                linkPostProcessor = new VariableLinkNodePostProcessorState( m_context );</a>
+<span class="sourceLineNo">083</span><a id="line.83">            } else if( linkOperations.isExternalLink( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">084</span><a id="line.84">                linkPostProcessor = new ExternalLinkNodePostProcessorState( m_context, isImageInlining, inlineImagePatterns );</a>
+<span class="sourceLineNo">085</span><a id="line.85">            } else if( linkOperations.isInterWikiLink( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">086</span><a id="line.86">                linkPostProcessor = new InterWikiLinkNodePostProcessorState( m_context, document, isImageInlining, inlineImagePatterns );</a>
+<span class="sourceLineNo">087</span><a id="line.87">            } else if( StringUtils.startsWith( link.getUrl().toString(), "#" ) ) {</a>
+<span class="sourceLineNo">088</span><a id="line.88">                linkPostProcessor = new LocalFootnoteLinkNodePostProcessorState( m_context );</a>
+<span class="sourceLineNo">089</span><a id="line.89">            } else if( TextUtil.isNumber( link.getUrl().toString() ) ) {</a>
+<span class="sourceLineNo">090</span><a id="line.90">                linkPostProcessor = new LocalFootnoteRefLinkNodePostProcessorState( m_context );</a>
+<span class="sourceLineNo">091</span><a id="line.91">            } else {</a>
+<span class="sourceLineNo">092</span><a id="line.92">                linkPostProcessor = new LocalLinkNodePostProcessorState( m_context, isImageInlining, inlineImagePatterns );</a>
+<span class="sourceLineNo">093</span><a id="line.93">            }</a>
+<span class="sourceLineNo">094</span><a id="line.94">            linkPostProcessor.process( state, link );</a>
+<span class="sourceLineNo">095</span><a id="line.95">        }</a>
+<span class="sourceLineNo">096</span><a id="line.96">    }</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">    JSPWikiLink replaceLinkWithJSPWikiLink( final NodeTracker state, final Node node ) {</a>
+<span class="sourceLineNo">099</span><a id="line.99">        final JSPWikiLink link = new JSPWikiLink( ( Link )node );</a>
+<span class="sourceLineNo">100</span><a id="line.100">        final Node previous = node.getPrevious();</a>
+<span class="sourceLineNo">101</span><a id="line.101">        final Node parent = node.getParent();</a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">        link.takeChildren( node );</a>
+<span class="sourceLineNo">104</span><a id="line.104">        node.unlink();</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">        if( previous != null ) {</a>
+<span class="sourceLineNo">107</span><a id="line.107">            previous.insertAfter( link );</a>
+<span class="sourceLineNo">108</span><a id="line.108">        } else if( parent != null ) {</a>
+<span class="sourceLineNo">109</span><a id="line.109">            parent.appendChild( link );</a>
+<span class="sourceLineNo">110</span><a id="line.110">        }</a>
+<span class="sourceLineNo">111</span><a id="line.111"></a>
+<span class="sourceLineNo">112</span><a id="line.112">        state.nodeRemoved( node );</a>
+<span class="sourceLineNo">113</span><a id="line.113">        state.nodeAddedWithChildren( link );</a>
+<span class="sourceLineNo">114</span><a id="line.114">        return link;</a>
+<span class="sourceLineNo">115</span><a id="line.115">    }</a>
+<span class="sourceLineNo">116</span><a id="line.116"></a>
+<span class="sourceLineNo">117</span><a id="line.117">}</a>
 
 
 
@@ -185,5 +186,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>

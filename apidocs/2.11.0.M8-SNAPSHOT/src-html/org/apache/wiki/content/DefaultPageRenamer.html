@@ -1,364 +1,365 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/* <a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.  <a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.content;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.log4j.Logger;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.wiki.api.core.Attachment;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.wiki.api.core.Context;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.wiki.api.core.Engine;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.wiki.api.core.Page;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.api.exceptions.ProviderException;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.exceptions.WikiException;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.attachment.AttachmentManager;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.event.WikiEventManager;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.wiki.event.WikiPageRenameEvent;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.wiki.pages.PageManager;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.wiki.parser.MarkupParser;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.wiki.references.ReferenceManager;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.wiki.search.SearchManager;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.apache.wiki.util.TextUtil;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.util.Collection;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.util.List;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.util.Set;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import java.util.TreeSet;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>import java.util.regex.Matcher;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>import java.util.regex.Pattern;<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>/**<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * Provides page renaming functionality. Note that there used to be a similarly named class in 2.6, but due to unclear copyright, the<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * class was completely rewritten from scratch for 2.8.<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * @since 2.8<a name="line.49"></a>
-<span class="sourceLineNo">050</span> */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>public class DefaultPageRenamer implements PageRenamer {<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    private static final Logger log = Logger.getLogger( DefaultPageRenamer.class );<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    <a name="line.54"></a>
-<span class="sourceLineNo">055</span>    private boolean m_camelCase = false;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    <a name="line.56"></a>
-<span class="sourceLineNo">057</span>    /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     *  Renames a page.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     *  <a name="line.59"></a>
-<span class="sourceLineNo">060</span>     *  @param context The current context.<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     *  @param renameFrom The name from which to rename.<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     *  @param renameTo The new name.<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     *  @param changeReferrers If true, also changes all the referrers.<a name="line.63"></a>
-<span class="sourceLineNo">064</span>     *  @return The final new name (in case it had to be modified)<a name="line.64"></a>
-<span class="sourceLineNo">065</span>     *  @throws WikiException If the page cannot be renamed.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    @Override<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    public String renamePage( final Context context, final String renameFrom, final String renameTo, final boolean changeReferrers ) throws WikiException {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        //  Sanity checks first<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        if( renameFrom == null || renameFrom.length() == 0 ) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            throw new WikiException( "From name may not be null or empty" );<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        }<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        if( renameTo == null || renameTo.length() == 0 ) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            throw new WikiException( "To name may not be null or empty" );<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        }<a name="line.75"></a>
-<span class="sourceLineNo">076</span>       <a name="line.76"></a>
-<span class="sourceLineNo">077</span>        //  Clean up the "to" -name so that it does not contain anything illegal<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        final String renameToClean = MarkupParser.cleanLink( renameTo.trim() );<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        if( renameToClean.equals( renameFrom ) ) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>            throw new WikiException( "You cannot rename the page to itself" );<a name="line.80"></a>
-<span class="sourceLineNo">081</span>        }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>        <a name="line.82"></a>
-<span class="sourceLineNo">083</span>        //  Preconditions: "from" page must exist, and "to" page must not yet exist.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        final Engine engine = context.getEngine();<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        final Page fromPage = engine.getManager( PageManager.class ).getPage( renameFrom );<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        if( fromPage == null ) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>            throw new WikiException("No such page "+renameFrom);<a name="line.87"></a>
-<span class="sourceLineNo">088</span>        }<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        Page toPage = engine.getManager( PageManager.class ).getPage( renameToClean );<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        if( toPage != null ) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>            throw new WikiException( "Page already exists " + renameToClean );<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        <a name="line.93"></a>
-<span class="sourceLineNo">094</span>        final Set&lt; String &gt; referrers = getReferencesToChange( fromPage, engine );<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>        //  Do the actual rename by changing from the frompage to the topage, including all of the attachments<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        //  Remove references to attachments under old name<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        final List&lt; Attachment &gt; attachmentsOldName = engine.getManager( AttachmentManager.class ).listAttachments( fromPage );<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        for( final Attachment att: attachmentsOldName ) {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>            final Page fromAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );<a name="line.100"></a>
-<span class="sourceLineNo">101</span>            engine.getManager( ReferenceManager.class ).pageRemoved( fromAttPage );<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>        engine.getManager( PageManager.class ).getProvider().movePage( renameFrom, renameToClean );<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        if( engine.getManager( AttachmentManager.class ).attachmentsEnabled() ) {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            engine.getManager( AttachmentManager.class ).getCurrentProvider().moveAttachmentsForPage( renameFrom, renameToClean );<a name="line.106"></a>
-<span class="sourceLineNo">107</span>        }<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        <a name="line.108"></a>
-<span class="sourceLineNo">109</span>        //  Add a comment to the page notifying what changed.  This adds a new revision to the repo with no actual change.<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        toPage = engine.getManager( PageManager.class ).getPage( renameToClean );<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        if( toPage == null ) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            throw new ProviderException( "Rename seems to have failed for some strange reason - please check logs!" );<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        toPage.setAttribute( Page.CHANGENOTE, fromPage.getName() + " ==&gt; " + toPage.getName() );<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        toPage.setAuthor( context.getCurrentUser().getName() );<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        engine.getManager( PageManager.class ).putPageText( toPage, engine.getManager( PageManager.class ).getPureText( toPage ) );<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>        //  Update the references<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        engine.getManager( ReferenceManager.class ).pageRemoved( fromPage );<a name="line.119"></a>
-<span class="sourceLineNo">120</span>        engine.getManager( ReferenceManager.class ).updateReferences( toPage );<a name="line.120"></a>
-<span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>        //  Update referrers<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        if( changeReferrers ) {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>            updateReferrers( context, fromPage, toPage, referrers );<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>        //  re-index the page including its attachments<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        engine.getManager( SearchManager.class ).reindexPage( toPage );<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        <a name="line.129"></a>
-<span class="sourceLineNo">130</span>        final Collection&lt; Attachment &gt; attachmentsNewName = engine.getManager( AttachmentManager.class ).listAttachments( toPage );<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        for( final Attachment att:attachmentsNewName ) {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            final Page toAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            // add reference to attachment under new page name<a name="line.133"></a>
-<span class="sourceLineNo">134</span>            engine.getManager( ReferenceManager.class ).updateReferences( toAttPage );<a name="line.134"></a>
-<span class="sourceLineNo">135</span>            engine.getManager( SearchManager.class ).reindexPage( att );<a name="line.135"></a>
-<span class="sourceLineNo">136</span>        }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>        firePageRenameEvent( renameFrom, renameToClean );<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>        //  Done, return the new name.<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        return renameToClean;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
-<span class="sourceLineNo">143</span><a name="line.143"></a>
-<span class="sourceLineNo">144</span>    /**<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * Fires a WikiPageRenameEvent to all registered listeners. Currently not used internally by JSPWiki itself, but you can use it for<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     * something else.<a name="line.146"></a>
-<span class="sourceLineNo">147</span>     *<a name="line.147"></a>
-<span class="sourceLineNo">148</span>     * @param oldName the former page name<a name="line.148"></a>
-<span class="sourceLineNo">149</span>     * @param newName the new page name<a name="line.149"></a>
-<span class="sourceLineNo">150</span>     */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    @Override<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    public void firePageRenameEvent( final String oldName, final String newName ) {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        if( WikiEventManager.isListening(this) ) {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>            WikiEventManager.fireEvent(this, new WikiPageRenameEvent(this, oldName, newName ) );<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>    /**<a name="line.158"></a>
-<span class="sourceLineNo">159</span>     *  This method finds all the pages which have anything to do with the fromPage and<a name="line.159"></a>
-<span class="sourceLineNo">160</span>     *  change any referrers it can figure out in that page.<a name="line.160"></a>
-<span class="sourceLineNo">161</span>     *  <a name="line.161"></a>
-<span class="sourceLineNo">162</span>     *  @param context WikiContext in which we operate<a name="line.162"></a>
-<span class="sourceLineNo">163</span>     *  @param fromPage The old page<a name="line.163"></a>
-<span class="sourceLineNo">164</span>     *  @param toPage The new page<a name="line.164"></a>
-<span class="sourceLineNo">165</span>     */<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    private void updateReferrers( final Context context, final Page fromPage, final Page toPage, final Set&lt; String &gt; referrers ) {<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        if( referrers.isEmpty() ) { // No referrers<a name="line.167"></a>
-<span class="sourceLineNo">168</span>            return;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>        }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>        final Engine engine = context.getEngine();<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        for( String pageName : referrers ) {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>            //  In case the page was just changed from under us, let's do this small kludge.<a name="line.173"></a>
-<span class="sourceLineNo">174</span>            if( pageName.equals( fromPage.getName() ) ) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>                pageName = toPage.getName();<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            }<a name="line.176"></a>
-<span class="sourceLineNo">177</span>            <a name="line.177"></a>
-<span class="sourceLineNo">178</span>            final Page p = engine.getManager( PageManager.class ).getPage( pageName );<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>            final String sourceText = engine.getManager( PageManager.class ).getPureText( p );<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            String newText = replaceReferrerString( context, sourceText, fromPage.getName(), toPage.getName() );<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>            m_camelCase = TextUtil.getBooleanProperty( engine.getWikiProperties(), MarkupParser.PROP_CAMELCASELINKS, m_camelCase );<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            if( m_camelCase ) {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>                newText = replaceCCReferrerString( context, newText, fromPage.getName(), toPage.getName() );<a name="line.185"></a>
-<span class="sourceLineNo">186</span>            }<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            <a name="line.187"></a>
-<span class="sourceLineNo">188</span>            if( !sourceText.equals( newText ) ) {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>                p.setAttribute( Page.CHANGENOTE, fromPage.getName()+" ==&gt; "+toPage.getName() );<a name="line.189"></a>
-<span class="sourceLineNo">190</span>                p.setAuthor( context.getCurrentUser().getName() );<a name="line.190"></a>
-<span class="sourceLineNo">191</span>         <a name="line.191"></a>
-<span class="sourceLineNo">192</span>                try {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>                    engine.getManager( PageManager.class ).putPageText( p, newText );<a name="line.193"></a>
-<span class="sourceLineNo">194</span>                    engine.getManager( ReferenceManager.class ).updateReferences( p );<a name="line.194"></a>
-<span class="sourceLineNo">195</span>                } catch( final ProviderException e ) {<a name="line.195"></a>
-<span class="sourceLineNo">196</span>                    //  We fail with an error, but we will try to continue to rename other referrers as well.<a name="line.196"></a>
-<span class="sourceLineNo">197</span>                    log.error("Unable to perform rename.",e);<a name="line.197"></a>
-<span class="sourceLineNo">198</span>                }<a name="line.198"></a>
-<span class="sourceLineNo">199</span>            }<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        }<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    }<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>    private Set&lt;String&gt; getReferencesToChange( final Page fromPage, final Engine engine ) {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        final Set&lt; String &gt; referrers = new TreeSet&lt;&gt;();<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        final Collection&lt; String &gt; r = engine.getManager( ReferenceManager.class ).findReferrers( fromPage.getName() );<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        if( r != null ) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>            referrers.addAll( r );<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        }<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        <a name="line.209"></a>
-<span class="sourceLineNo">210</span>        try {<a name="line.210"></a>
-<span class="sourceLineNo">211</span>            final List&lt; Attachment &gt; attachments = engine.getManager( AttachmentManager.class ).listAttachments( fromPage );<a name="line.211"></a>
-<span class="sourceLineNo">212</span>            for( final Attachment att : attachments  ) {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>                final Collection&lt; String &gt; c = engine.getManager( ReferenceManager.class ).findReferrers( att.getName() );<a name="line.213"></a>
-<span class="sourceLineNo">214</span>                if( c != null ) {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>                    referrers.addAll( c );<a name="line.215"></a>
-<span class="sourceLineNo">216</span>                }<a name="line.216"></a>
-<span class="sourceLineNo">217</span>            }<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        } catch( final ProviderException e ) {<a name="line.218"></a>
-<span class="sourceLineNo">219</span>            // We will continue despite this error<a name="line.219"></a>
-<span class="sourceLineNo">220</span>            log.error( "Provider error while fetching attachments for rename", e );<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>        return referrers;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
-<span class="sourceLineNo">225</span>    /**<a name="line.225"></a>
-<span class="sourceLineNo">226</span>     *  Replaces camelcase links.<a name="line.226"></a>
-<span class="sourceLineNo">227</span>     */<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    private String replaceCCReferrerString( final Context context, final String sourceText, final String from, final String to ) {<a name="line.228"></a>
-<span class="sourceLineNo">229</span>        final StringBuilder sb = new StringBuilder( sourceText.length()+32 );<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        final Pattern linkPattern = Pattern.compile( "\\p{Lu}+\\p{Ll}+\\p{Lu}+[\\p{L}\\p{Digit}]*" );<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        final Matcher matcher = linkPattern.matcher( sourceText );<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        int start = 0;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        <a name="line.233"></a>
-<span class="sourceLineNo">234</span>        while( matcher.find( start ) ) {<a name="line.234"></a>
-<span class="sourceLineNo">235</span>            final String match = matcher.group();<a name="line.235"></a>
-<span class="sourceLineNo">236</span>            sb.append( sourceText.substring( start, matcher.start() ) );<a name="line.236"></a>
-<span class="sourceLineNo">237</span>            final int lastOpenBrace = sourceText.lastIndexOf( '[', matcher.start() );<a name="line.237"></a>
-<span class="sourceLineNo">238</span>            final int lastCloseBrace = sourceText.lastIndexOf( ']', matcher.start() );<a name="line.238"></a>
-<span class="sourceLineNo">239</span>            <a name="line.239"></a>
-<span class="sourceLineNo">240</span>            if( match.equals( from ) &amp;&amp; lastCloseBrace &gt;= lastOpenBrace ) {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>                sb.append( to );<a name="line.241"></a>
-<span class="sourceLineNo">242</span>            } else {<a name="line.242"></a>
-<span class="sourceLineNo">243</span>                sb.append( match );<a name="line.243"></a>
-<span class="sourceLineNo">244</span>            }<a name="line.244"></a>
-<span class="sourceLineNo">245</span>            <a name="line.245"></a>
-<span class="sourceLineNo">246</span>            start = matcher.end();<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        }<a name="line.247"></a>
-<span class="sourceLineNo">248</span>        <a name="line.248"></a>
-<span class="sourceLineNo">249</span>        sb.append( sourceText.substring( start ) );<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        <a name="line.250"></a>
-<span class="sourceLineNo">251</span>        return sb.toString();<a name="line.251"></a>
-<span class="sourceLineNo">252</span>    }<a name="line.252"></a>
-<span class="sourceLineNo">253</span><a name="line.253"></a>
-<span class="sourceLineNo">254</span>    private String replaceReferrerString( final Context context, final String sourceText, final String from, final String to ) {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        final StringBuilder sb = new StringBuilder( sourceText.length()+32 );<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        <a name="line.256"></a>
-<span class="sourceLineNo">257</span>        // This monstrosity just looks for a JSPWiki link pattern.  But it is pretty cool for a regexp, isn't it?  If you can<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        // understand this in a single reading, you have way too much time in your hands.<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        final Pattern linkPattern = Pattern.compile( "([\\[\\~]?)\\[([^\\|\\]]*)(\\|)?([^\\|\\]]*)(\\|)?([^\\|\\]]*)\\]" );<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        final Matcher matcher = linkPattern.matcher( sourceText );<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        int start = 0;<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        <a name="line.262"></a>
-<span class="sourceLineNo">263</span>        while( matcher.find( start ) ) {<a name="line.263"></a>
-<span class="sourceLineNo">264</span>            char charBefore = (char)-1;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>            <a name="line.265"></a>
-<span class="sourceLineNo">266</span>            if( matcher.start() &gt; 0 ) {<a name="line.266"></a>
-<span class="sourceLineNo">267</span>                charBefore = sourceText.charAt( matcher.start() - 1 );<a name="line.267"></a>
-<span class="sourceLineNo">268</span>            }<a name="line.268"></a>
-<span class="sourceLineNo">269</span>            <a name="line.269"></a>
-<span class="sourceLineNo">270</span>            if( matcher.group(1).length() &gt; 0 || charBefore == '~' || charBefore == '[' ) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                //  Found an escape character, so I am escaping.<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                sb.append( sourceText.substring( start, matcher.end() ) );<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                start = matcher.end();<a name="line.273"></a>
-<span class="sourceLineNo">274</span>                continue;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>            }<a name="line.275"></a>
-<span class="sourceLineNo">276</span><a name="line.276"></a>
-<span class="sourceLineNo">277</span>            String text = matcher.group(2);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>            String link = matcher.group(4);<a name="line.278"></a>
-<span class="sourceLineNo">279</span>            final String attr = matcher.group(6);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>             <a name="line.280"></a>
-<span class="sourceLineNo">281</span>            if( link.length() == 0 ) {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>                text = replaceSingleLink( context, text, from, to );<a name="line.282"></a>
-<span class="sourceLineNo">283</span>            } else {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>                link = replaceSingleLink( context, link, from, to );<a name="line.284"></a>
-<span class="sourceLineNo">285</span>                <a name="line.285"></a>
-<span class="sourceLineNo">286</span>                //  A very simple substitution, but should work for quite a few cases.<a name="line.286"></a>
-<span class="sourceLineNo">287</span>                text = TextUtil.replaceString( text, from, to );<a name="line.287"></a>
-<span class="sourceLineNo">288</span>            }<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        <a name="line.289"></a>
-<span class="sourceLineNo">290</span>            //<a name="line.290"></a>
-<span class="sourceLineNo">291</span>            //  Construct the new string<a name="line.291"></a>
-<span class="sourceLineNo">292</span>            //<a name="line.292"></a>
-<span class="sourceLineNo">293</span>            sb.append( sourceText.substring( start, matcher.start() ) );<a name="line.293"></a>
-<span class="sourceLineNo">294</span>            sb.append( "[" ).append( text );<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            if( link.length() &gt; 0 ) {<a name="line.295"></a>
-<span class="sourceLineNo">296</span>                sb.append( "|" ).append( link );<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            }<a name="line.297"></a>
-<span class="sourceLineNo">298</span>            if( attr.length() &gt; 0 ) {<a name="line.298"></a>
-<span class="sourceLineNo">299</span>                sb.append( "|" ).append( attr );<a name="line.299"></a>
-<span class="sourceLineNo">300</span>            }<a name="line.300"></a>
-<span class="sourceLineNo">301</span>            sb.append( "]" );<a name="line.301"></a>
-<span class="sourceLineNo">302</span>            <a name="line.302"></a>
-<span class="sourceLineNo">303</span>            start = matcher.end();<a name="line.303"></a>
-<span class="sourceLineNo">304</span>        }<a name="line.304"></a>
-<span class="sourceLineNo">305</span>        <a name="line.305"></a>
-<span class="sourceLineNo">306</span>        sb.append( sourceText.substring( start ) );<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        <a name="line.307"></a>
-<span class="sourceLineNo">308</span>        return sb.toString();<a name="line.308"></a>
-<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
-<span class="sourceLineNo">310</span><a name="line.310"></a>
-<span class="sourceLineNo">311</span>    /**<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     *  This method does a correct replacement of a single link, taking into account anchors and attachments.<a name="line.312"></a>
-<span class="sourceLineNo">313</span>     */<a name="line.313"></a>
-<span class="sourceLineNo">314</span>    private String replaceSingleLink( final Context context, final String original, final String from, final String newlink ) {<a name="line.314"></a>
-<span class="sourceLineNo">315</span>        final int hash = original.indexOf( '#' );<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        final int slash = original.indexOf( '/' );<a name="line.316"></a>
-<span class="sourceLineNo">317</span>        String realLink = original;<a name="line.317"></a>
-<span class="sourceLineNo">318</span><a name="line.318"></a>
-<span class="sourceLineNo">319</span>        if( hash != -1 ) {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>            realLink = original.substring( 0, hash );<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        }<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        if( slash != -1 ) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>            realLink = original.substring( 0,slash );<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
-<span class="sourceLineNo">325</span><a name="line.325"></a>
-<span class="sourceLineNo">326</span>        realLink = MarkupParser.cleanLink( realLink );<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        final String oldStyleRealLink = MarkupParser.wikifyLink( realLink );<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        <a name="line.328"></a>
-<span class="sourceLineNo">329</span>        //WikiPage realPage  = context.getEngine().getPage( reallink );<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        // WikiPage p2 = context.getEngine().getPage( from );<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        <a name="line.331"></a>
-<span class="sourceLineNo">332</span>        // System.out.println("   "+reallink+" :: "+ from);<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        // System.out.println("   "+p+" :: "+p2);<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        <a name="line.334"></a>
-<span class="sourceLineNo">335</span>        //<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        //  Yes, these point to the same page.<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        //<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        if( realLink.equals( from ) || original.equals( from ) || oldStyleRealLink.equals( from ) ) {<a name="line.338"></a>
-<span class="sourceLineNo">339</span>            //<a name="line.339"></a>
-<span class="sourceLineNo">340</span>            //  if the original contains blanks, then we should introduce a link, for example:  [My Page]  =&gt;  [My Page|My Renamed Page]<a name="line.340"></a>
-<span class="sourceLineNo">341</span>            final int blank = realLink.indexOf( " ");<a name="line.341"></a>
-<span class="sourceLineNo">342</span>            <a name="line.342"></a>
-<span class="sourceLineNo">343</span>            if( blank != -1 ) {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                return original + "|" + newlink;<a name="line.344"></a>
-<span class="sourceLineNo">345</span>            }<a name="line.345"></a>
-<span class="sourceLineNo">346</span>            <a name="line.346"></a>
-<span class="sourceLineNo">347</span>            return newlink + ( ( hash &gt; 0 ) ? original.substring( hash ) : "" ) + ( ( slash &gt; 0 ) ? original.substring( slash ) : "" ) ;<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        }<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        <a name="line.349"></a>
-<span class="sourceLineNo">350</span>        return original;<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    }<a name="line.351"></a>
-<span class="sourceLineNo">352</span><a name="line.352"></a>
-<span class="sourceLineNo">353</span>}<a name="line.353"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.content;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Attachment;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.attachment.AttachmentManager;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.event.WikiPageRenameEvent;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.parser.MarkupParser;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.references.ReferenceManager;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.search.SearchManager;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">036</span><a id="line.36"></a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.util.Collection;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.List;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.Set;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.TreeSet;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.util.regex.Matcher;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.util.regex.Pattern;</a>
+<span class="sourceLineNo">043</span><a id="line.43"></a>
+<span class="sourceLineNo">044</span><a id="line.44"></a>
+<span class="sourceLineNo">045</span><a id="line.45">/**</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * Provides page renaming functionality. Note that there used to be a similarly named class in 2.6, but due to unclear copyright, the</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * class was completely rewritten from scratch for 2.8.</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * @since 2.8</a>
+<span class="sourceLineNo">050</span><a id="line.50"> */</a>
+<span class="sourceLineNo">051</span><a id="line.51">public class DefaultPageRenamer implements PageRenamer {</a>
+<span class="sourceLineNo">052</span><a id="line.52"></a>
+<span class="sourceLineNo">053</span><a id="line.53">    private static final Logger log = Logger.getLogger( DefaultPageRenamer.class );</a>
+<span class="sourceLineNo">054</span><a id="line.54">    </a>
+<span class="sourceLineNo">055</span><a id="line.55">    private boolean m_camelCase = false;</a>
+<span class="sourceLineNo">056</span><a id="line.56">    </a>
+<span class="sourceLineNo">057</span><a id="line.57">    /**</a>
+<span class="sourceLineNo">058</span><a id="line.58">     *  Renames a page.</a>
+<span class="sourceLineNo">059</span><a id="line.59">     *  </a>
+<span class="sourceLineNo">060</span><a id="line.60">     *  @param context The current context.</a>
+<span class="sourceLineNo">061</span><a id="line.61">     *  @param renameFrom The name from which to rename.</a>
+<span class="sourceLineNo">062</span><a id="line.62">     *  @param renameTo The new name.</a>
+<span class="sourceLineNo">063</span><a id="line.63">     *  @param changeReferrers If true, also changes all the referrers.</a>
+<span class="sourceLineNo">064</span><a id="line.64">     *  @return The final new name (in case it had to be modified)</a>
+<span class="sourceLineNo">065</span><a id="line.65">     *  @throws WikiException If the page cannot be renamed.</a>
+<span class="sourceLineNo">066</span><a id="line.66">     */</a>
+<span class="sourceLineNo">067</span><a id="line.67">    @Override</a>
+<span class="sourceLineNo">068</span><a id="line.68">    public String renamePage( final Context context, final String renameFrom, final String renameTo, final boolean changeReferrers ) throws WikiException {</a>
+<span class="sourceLineNo">069</span><a id="line.69">        //  Sanity checks first</a>
+<span class="sourceLineNo">070</span><a id="line.70">        if( renameFrom == null || renameFrom.length() == 0 ) {</a>
+<span class="sourceLineNo">071</span><a id="line.71">            throw new WikiException( "From name may not be null or empty" );</a>
+<span class="sourceLineNo">072</span><a id="line.72">        }</a>
+<span class="sourceLineNo">073</span><a id="line.73">        if( renameTo == null || renameTo.length() == 0 ) {</a>
+<span class="sourceLineNo">074</span><a id="line.74">            throw new WikiException( "To name may not be null or empty" );</a>
+<span class="sourceLineNo">075</span><a id="line.75">        }</a>
+<span class="sourceLineNo">076</span><a id="line.76">       </a>
+<span class="sourceLineNo">077</span><a id="line.77">        //  Clean up the "to" -name so that it does not contain anything illegal</a>
+<span class="sourceLineNo">078</span><a id="line.78">        final String renameToClean = MarkupParser.cleanLink( renameTo.trim() );</a>
+<span class="sourceLineNo">079</span><a id="line.79">        if( renameToClean.equals( renameFrom ) ) {</a>
+<span class="sourceLineNo">080</span><a id="line.80">            throw new WikiException( "You cannot rename the page to itself" );</a>
+<span class="sourceLineNo">081</span><a id="line.81">        }</a>
+<span class="sourceLineNo">082</span><a id="line.82">        </a>
+<span class="sourceLineNo">083</span><a id="line.83">        //  Preconditions: "from" page must exist, and "to" page must not yet exist.</a>
+<span class="sourceLineNo">084</span><a id="line.84">        final Engine engine = context.getEngine();</a>
+<span class="sourceLineNo">085</span><a id="line.85">        final Page fromPage = engine.getManager( PageManager.class ).getPage( renameFrom );</a>
+<span class="sourceLineNo">086</span><a id="line.86">        if( fromPage == null ) {</a>
+<span class="sourceLineNo">087</span><a id="line.87">            throw new WikiException("No such page "+renameFrom);</a>
+<span class="sourceLineNo">088</span><a id="line.88">        }</a>
+<span class="sourceLineNo">089</span><a id="line.89">        Page toPage = engine.getManager( PageManager.class ).getPage( renameToClean );</a>
+<span class="sourceLineNo">090</span><a id="line.90">        if( toPage != null ) {</a>
+<span class="sourceLineNo">091</span><a id="line.91">            throw new WikiException( "Page already exists " + renameToClean );</a>
+<span class="sourceLineNo">092</span><a id="line.92">        }</a>
+<span class="sourceLineNo">093</span><a id="line.93">        </a>
+<span class="sourceLineNo">094</span><a id="line.94">        final Set&lt; String &gt; referrers = getReferencesToChange( fromPage, engine );</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">        //  Do the actual rename by changing from the frompage to the topage, including all of the attachments</a>
+<span class="sourceLineNo">097</span><a id="line.97">        //  Remove references to attachments under old name</a>
+<span class="sourceLineNo">098</span><a id="line.98">        final List&lt; Attachment &gt; attachmentsOldName = engine.getManager( AttachmentManager.class ).listAttachments( fromPage );</a>
+<span class="sourceLineNo">099</span><a id="line.99">        for( final Attachment att: attachmentsOldName ) {</a>
+<span class="sourceLineNo">100</span><a id="line.100">            final Page fromAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );</a>
+<span class="sourceLineNo">101</span><a id="line.101">            engine.getManager( ReferenceManager.class ).pageRemoved( fromAttPage );</a>
+<span class="sourceLineNo">102</span><a id="line.102">        }</a>
+<span class="sourceLineNo">103</span><a id="line.103"></a>
+<span class="sourceLineNo">104</span><a id="line.104">        engine.getManager( PageManager.class ).getProvider().movePage( renameFrom, renameToClean );</a>
+<span class="sourceLineNo">105</span><a id="line.105">        if( engine.getManager( AttachmentManager.class ).attachmentsEnabled() ) {</a>
+<span class="sourceLineNo">106</span><a id="line.106">            engine.getManager( AttachmentManager.class ).getCurrentProvider().moveAttachmentsForPage( renameFrom, renameToClean );</a>
+<span class="sourceLineNo">107</span><a id="line.107">        }</a>
+<span class="sourceLineNo">108</span><a id="line.108">        </a>
+<span class="sourceLineNo">109</span><a id="line.109">        //  Add a comment to the page notifying what changed.  This adds a new revision to the repo with no actual change.</a>
+<span class="sourceLineNo">110</span><a id="line.110">        toPage = engine.getManager( PageManager.class ).getPage( renameToClean );</a>
+<span class="sourceLineNo">111</span><a id="line.111">        if( toPage == null ) {</a>
+<span class="sourceLineNo">112</span><a id="line.112">            throw new ProviderException( "Rename seems to have failed for some strange reason - please check logs!" );</a>
+<span class="sourceLineNo">113</span><a id="line.113">        }</a>
+<span class="sourceLineNo">114</span><a id="line.114">        toPage.setAttribute( Page.CHANGENOTE, fromPage.getName() + " ==&gt; " + toPage.getName() );</a>
+<span class="sourceLineNo">115</span><a id="line.115">        toPage.setAuthor( context.getCurrentUser().getName() );</a>
+<span class="sourceLineNo">116</span><a id="line.116">        engine.getManager( PageManager.class ).putPageText( toPage, engine.getManager( PageManager.class ).getPureText( toPage ) );</a>
+<span class="sourceLineNo">117</span><a id="line.117"></a>
+<span class="sourceLineNo">118</span><a id="line.118">        //  Update the references</a>
+<span class="sourceLineNo">119</span><a id="line.119">        engine.getManager( ReferenceManager.class ).pageRemoved( fromPage );</a>
+<span class="sourceLineNo">120</span><a id="line.120">        engine.getManager( ReferenceManager.class ).updateReferences( toPage );</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">        //  Update referrers</a>
+<span class="sourceLineNo">123</span><a id="line.123">        if( changeReferrers ) {</a>
+<span class="sourceLineNo">124</span><a id="line.124">            updateReferrers( context, fromPage, toPage, referrers );</a>
+<span class="sourceLineNo">125</span><a id="line.125">        }</a>
+<span class="sourceLineNo">126</span><a id="line.126"></a>
+<span class="sourceLineNo">127</span><a id="line.127">        //  re-index the page including its attachments</a>
+<span class="sourceLineNo">128</span><a id="line.128">        engine.getManager( SearchManager.class ).reindexPage( toPage );</a>
+<span class="sourceLineNo">129</span><a id="line.129">        </a>
+<span class="sourceLineNo">130</span><a id="line.130">        final Collection&lt; Attachment &gt; attachmentsNewName = engine.getManager( AttachmentManager.class ).listAttachments( toPage );</a>
+<span class="sourceLineNo">131</span><a id="line.131">        for( final Attachment att:attachmentsNewName ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">            final Page toAttPage = engine.getManager( PageManager.class ).getPage( att.getName() );</a>
+<span class="sourceLineNo">133</span><a id="line.133">            // add reference to attachment under new page name</a>
+<span class="sourceLineNo">134</span><a id="line.134">            engine.getManager( ReferenceManager.class ).updateReferences( toAttPage );</a>
+<span class="sourceLineNo">135</span><a id="line.135">            engine.getManager( SearchManager.class ).reindexPage( att );</a>
+<span class="sourceLineNo">136</span><a id="line.136">        }</a>
+<span class="sourceLineNo">137</span><a id="line.137"></a>
+<span class="sourceLineNo">138</span><a id="line.138">        firePageRenameEvent( renameFrom, renameToClean );</a>
+<span class="sourceLineNo">139</span><a id="line.139"></a>
+<span class="sourceLineNo">140</span><a id="line.140">        //  Done, return the new name.</a>
+<span class="sourceLineNo">141</span><a id="line.141">        return renameToClean;</a>
+<span class="sourceLineNo">142</span><a id="line.142">    }</a>
+<span class="sourceLineNo">143</span><a id="line.143"></a>
+<span class="sourceLineNo">144</span><a id="line.144">    /**</a>
+<span class="sourceLineNo">145</span><a id="line.145">     * Fires a WikiPageRenameEvent to all registered listeners. Currently not used internally by JSPWiki itself, but you can use it for</a>
+<span class="sourceLineNo">146</span><a id="line.146">     * something else.</a>
+<span class="sourceLineNo">147</span><a id="line.147">     *</a>
+<span class="sourceLineNo">148</span><a id="line.148">     * @param oldName the former page name</a>
+<span class="sourceLineNo">149</span><a id="line.149">     * @param newName the new page name</a>
+<span class="sourceLineNo">150</span><a id="line.150">     */</a>
+<span class="sourceLineNo">151</span><a id="line.151">    @Override</a>
+<span class="sourceLineNo">152</span><a id="line.152">    public void firePageRenameEvent( final String oldName, final String newName ) {</a>
+<span class="sourceLineNo">153</span><a id="line.153">        if( WikiEventManager.isListening(this) ) {</a>
+<span class="sourceLineNo">154</span><a id="line.154">            WikiEventManager.fireEvent(this, new WikiPageRenameEvent(this, oldName, newName ) );</a>
+<span class="sourceLineNo">155</span><a id="line.155">        }</a>
+<span class="sourceLineNo">156</span><a id="line.156">    }</a>
+<span class="sourceLineNo">157</span><a id="line.157"></a>
+<span class="sourceLineNo">158</span><a id="line.158">    /**</a>
+<span class="sourceLineNo">159</span><a id="line.159">     *  This method finds all the pages which have anything to do with the fromPage and</a>
+<span class="sourceLineNo">160</span><a id="line.160">     *  change any referrers it can figure out in that page.</a>
+<span class="sourceLineNo">161</span><a id="line.161">     *  </a>
+<span class="sourceLineNo">162</span><a id="line.162">     *  @param context WikiContext in which we operate</a>
+<span class="sourceLineNo">163</span><a id="line.163">     *  @param fromPage The old page</a>
+<span class="sourceLineNo">164</span><a id="line.164">     *  @param toPage The new page</a>
+<span class="sourceLineNo">165</span><a id="line.165">     */</a>
+<span class="sourceLineNo">166</span><a id="line.166">    private void updateReferrers( final Context context, final Page fromPage, final Page toPage, final Set&lt; String &gt; referrers ) {</a>
+<span class="sourceLineNo">167</span><a id="line.167">        if( referrers.isEmpty() ) { // No referrers</a>
+<span class="sourceLineNo">168</span><a id="line.168">            return;</a>
+<span class="sourceLineNo">169</span><a id="line.169">        }</a>
+<span class="sourceLineNo">170</span><a id="line.170"></a>
+<span class="sourceLineNo">171</span><a id="line.171">        final Engine engine = context.getEngine();</a>
+<span class="sourceLineNo">172</span><a id="line.172">        for( String pageName : referrers ) {</a>
+<span class="sourceLineNo">173</span><a id="line.173">            //  In case the page was just changed from under us, let's do this small kludge.</a>
+<span class="sourceLineNo">174</span><a id="line.174">            if( pageName.equals( fromPage.getName() ) ) {</a>
+<span class="sourceLineNo">175</span><a id="line.175">                pageName = toPage.getName();</a>
+<span class="sourceLineNo">176</span><a id="line.176">            }</a>
+<span class="sourceLineNo">177</span><a id="line.177">            </a>
+<span class="sourceLineNo">178</span><a id="line.178">            final Page p = engine.getManager( PageManager.class ).getPage( pageName );</a>
+<span class="sourceLineNo">179</span><a id="line.179"></a>
+<span class="sourceLineNo">180</span><a id="line.180">            final String sourceText = engine.getManager( PageManager.class ).getPureText( p );</a>
+<span class="sourceLineNo">181</span><a id="line.181">            String newText = replaceReferrerString( context, sourceText, fromPage.getName(), toPage.getName() );</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">            m_camelCase = TextUtil.getBooleanProperty( engine.getWikiProperties(), MarkupParser.PROP_CAMELCASELINKS, m_camelCase );</a>
+<span class="sourceLineNo">184</span><a id="line.184">            if( m_camelCase ) {</a>
+<span class="sourceLineNo">185</span><a id="line.185">                newText = replaceCCReferrerString( context, newText, fromPage.getName(), toPage.getName() );</a>
+<span class="sourceLineNo">186</span><a id="line.186">            }</a>
+<span class="sourceLineNo">187</span><a id="line.187">            </a>
+<span class="sourceLineNo">188</span><a id="line.188">            if( !sourceText.equals( newText ) ) {</a>
+<span class="sourceLineNo">189</span><a id="line.189">                p.setAttribute( Page.CHANGENOTE, fromPage.getName()+" ==&gt; "+toPage.getName() );</a>
+<span class="sourceLineNo">190</span><a id="line.190">                p.setAuthor( context.getCurrentUser().getName() );</a>
+<span class="sourceLineNo">191</span><a id="line.191">         </a>
+<span class="sourceLineNo">192</span><a id="line.192">                try {</a>
+<span class="sourceLineNo">193</span><a id="line.193">                    engine.getManager( PageManager.class ).putPageText( p, newText );</a>
+<span class="sourceLineNo">194</span><a id="line.194">                    engine.getManager( ReferenceManager.class ).updateReferences( p );</a>
+<span class="sourceLineNo">195</span><a id="line.195">                } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">196</span><a id="line.196">                    //  We fail with an error, but we will try to continue to rename other referrers as well.</a>
+<span class="sourceLineNo">197</span><a id="line.197">                    log.error("Unable to perform rename.",e);</a>
+<span class="sourceLineNo">198</span><a id="line.198">                }</a>
+<span class="sourceLineNo">199</span><a id="line.199">            }</a>
+<span class="sourceLineNo">200</span><a id="line.200">        }</a>
+<span class="sourceLineNo">201</span><a id="line.201">    }</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">    private Set&lt;String&gt; getReferencesToChange( final Page fromPage, final Engine engine ) {</a>
+<span class="sourceLineNo">204</span><a id="line.204">        final Set&lt; String &gt; referrers = new TreeSet&lt;&gt;();</a>
+<span class="sourceLineNo">205</span><a id="line.205">        final Collection&lt; String &gt; r = engine.getManager( ReferenceManager.class ).findReferrers( fromPage.getName() );</a>
+<span class="sourceLineNo">206</span><a id="line.206">        if( r != null ) {</a>
+<span class="sourceLineNo">207</span><a id="line.207">            referrers.addAll( r );</a>
+<span class="sourceLineNo">208</span><a id="line.208">        }</a>
+<span class="sourceLineNo">209</span><a id="line.209">        </a>
+<span class="sourceLineNo">210</span><a id="line.210">        try {</a>
+<span class="sourceLineNo">211</span><a id="line.211">            final List&lt; Attachment &gt; attachments = engine.getManager( AttachmentManager.class ).listAttachments( fromPage );</a>
+<span class="sourceLineNo">212</span><a id="line.212">            for( final Attachment att : attachments  ) {</a>
+<span class="sourceLineNo">213</span><a id="line.213">                final Collection&lt; String &gt; c = engine.getManager( ReferenceManager.class ).findReferrers( att.getName() );</a>
+<span class="sourceLineNo">214</span><a id="line.214">                if( c != null ) {</a>
+<span class="sourceLineNo">215</span><a id="line.215">                    referrers.addAll( c );</a>
+<span class="sourceLineNo">216</span><a id="line.216">                }</a>
+<span class="sourceLineNo">217</span><a id="line.217">            }</a>
+<span class="sourceLineNo">218</span><a id="line.218">        } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">219</span><a id="line.219">            // We will continue despite this error</a>
+<span class="sourceLineNo">220</span><a id="line.220">            log.error( "Provider error while fetching attachments for rename", e );</a>
+<span class="sourceLineNo">221</span><a id="line.221">        }</a>
+<span class="sourceLineNo">222</span><a id="line.222">        return referrers;</a>
+<span class="sourceLineNo">223</span><a id="line.223">    }</a>
+<span class="sourceLineNo">224</span><a id="line.224"></a>
+<span class="sourceLineNo">225</span><a id="line.225">    /**</a>
+<span class="sourceLineNo">226</span><a id="line.226">     *  Replaces camelcase links.</a>
+<span class="sourceLineNo">227</span><a id="line.227">     */</a>
+<span class="sourceLineNo">228</span><a id="line.228">    private String replaceCCReferrerString( final Context context, final String sourceText, final String from, final String to ) {</a>
+<span class="sourceLineNo">229</span><a id="line.229">        final StringBuilder sb = new StringBuilder( sourceText.length()+32 );</a>
+<span class="sourceLineNo">230</span><a id="line.230">        final Pattern linkPattern = Pattern.compile( "\\p{Lu}+\\p{Ll}+\\p{Lu}+[\\p{L}\\p{Digit}]*" );</a>
+<span class="sourceLineNo">231</span><a id="line.231">        final Matcher matcher = linkPattern.matcher( sourceText );</a>
+<span class="sourceLineNo">232</span><a id="line.232">        int start = 0;</a>
+<span class="sourceLineNo">233</span><a id="line.233">        </a>
+<span class="sourceLineNo">234</span><a id="line.234">        while( matcher.find( start ) ) {</a>
+<span class="sourceLineNo">235</span><a id="line.235">            final String match = matcher.group();</a>
+<span class="sourceLineNo">236</span><a id="line.236">            sb.append( sourceText.substring( start, matcher.start() ) );</a>
+<span class="sourceLineNo">237</span><a id="line.237">            final int lastOpenBrace = sourceText.lastIndexOf( '[', matcher.start() );</a>
+<span class="sourceLineNo">238</span><a id="line.238">            final int lastCloseBrace = sourceText.lastIndexOf( ']', matcher.start() );</a>
+<span class="sourceLineNo">239</span><a id="line.239">            </a>
+<span class="sourceLineNo">240</span><a id="line.240">            if( match.equals( from ) &amp;&amp; lastCloseBrace &gt;= lastOpenBrace ) {</a>
+<span class="sourceLineNo">241</span><a id="line.241">                sb.append( to );</a>
+<span class="sourceLineNo">242</span><a id="line.242">            } else {</a>
+<span class="sourceLineNo">243</span><a id="line.243">                sb.append( match );</a>
+<span class="sourceLineNo">244</span><a id="line.244">            }</a>
+<span class="sourceLineNo">245</span><a id="line.245">            </a>
+<span class="sourceLineNo">246</span><a id="line.246">            start = matcher.end();</a>
+<span class="sourceLineNo">247</span><a id="line.247">        }</a>
+<span class="sourceLineNo">248</span><a id="line.248">        </a>
+<span class="sourceLineNo">249</span><a id="line.249">        sb.append( sourceText.substring( start ) );</a>
+<span class="sourceLineNo">250</span><a id="line.250">        </a>
+<span class="sourceLineNo">251</span><a id="line.251">        return sb.toString();</a>
+<span class="sourceLineNo">252</span><a id="line.252">    }</a>
+<span class="sourceLineNo">253</span><a id="line.253"></a>
+<span class="sourceLineNo">254</span><a id="line.254">    private String replaceReferrerString( final Context context, final String sourceText, final String from, final String to ) {</a>
+<span class="sourceLineNo">255</span><a id="line.255">        final StringBuilder sb = new StringBuilder( sourceText.length()+32 );</a>
+<span class="sourceLineNo">256</span><a id="line.256">        </a>
+<span class="sourceLineNo">257</span><a id="line.257">        // This monstrosity just looks for a JSPWiki link pattern.  But it is pretty cool for a regexp, isn't it?  If you can</a>
+<span class="sourceLineNo">258</span><a id="line.258">        // understand this in a single reading, you have way too much time in your hands.</a>
+<span class="sourceLineNo">259</span><a id="line.259">        final Pattern linkPattern = Pattern.compile( "([\\[\\~]?)\\[([^\\|\\]]*)(\\|)?([^\\|\\]]*)(\\|)?([^\\|\\]]*)\\]" );</a>
+<span class="sourceLineNo">260</span><a id="line.260">        final Matcher matcher = linkPattern.matcher( sourceText );</a>
+<span class="sourceLineNo">261</span><a id="line.261">        int start = 0;</a>
+<span class="sourceLineNo">262</span><a id="line.262">        </a>
+<span class="sourceLineNo">263</span><a id="line.263">        while( matcher.find( start ) ) {</a>
+<span class="sourceLineNo">264</span><a id="line.264">            char charBefore = (char)-1;</a>
+<span class="sourceLineNo">265</span><a id="line.265">            </a>
+<span class="sourceLineNo">266</span><a id="line.266">            if( matcher.start() &gt; 0 ) {</a>
+<span class="sourceLineNo">267</span><a id="line.267">                charBefore = sourceText.charAt( matcher.start() - 1 );</a>
+<span class="sourceLineNo">268</span><a id="line.268">            }</a>
+<span class="sourceLineNo">269</span><a id="line.269">            </a>
+<span class="sourceLineNo">270</span><a id="line.270">            if( matcher.group(1).length() &gt; 0 || charBefore == '~' || charBefore == '[' ) {</a>
+<span class="sourceLineNo">271</span><a id="line.271">                //  Found an escape character, so I am escaping.</a>
+<span class="sourceLineNo">272</span><a id="line.272">                sb.append( sourceText.substring( start, matcher.end() ) );</a>
+<span class="sourceLineNo">273</span><a id="line.273">                start = matcher.end();</a>
+<span class="sourceLineNo">274</span><a id="line.274">                continue;</a>
+<span class="sourceLineNo">275</span><a id="line.275">            }</a>
+<span class="sourceLineNo">276</span><a id="line.276"></a>
+<span class="sourceLineNo">277</span><a id="line.277">            String text = matcher.group(2);</a>
+<span class="sourceLineNo">278</span><a id="line.278">            String link = matcher.group(4);</a>
+<span class="sourceLineNo">279</span><a id="line.279">            final String attr = matcher.group(6);</a>
+<span class="sourceLineNo">280</span><a id="line.280">             </a>
+<span class="sourceLineNo">281</span><a id="line.281">            if( link.length() == 0 ) {</a>
+<span class="sourceLineNo">282</span><a id="line.282">                text = replaceSingleLink( context, text, from, to );</a>
+<span class="sourceLineNo">283</span><a id="line.283">            } else {</a>
+<span class="sourceLineNo">284</span><a id="line.284">                link = replaceSingleLink( context, link, from, to );</a>
+<span class="sourceLineNo">285</span><a id="line.285">                </a>
+<span class="sourceLineNo">286</span><a id="line.286">                //  A very simple substitution, but should work for quite a few cases.</a>
+<span class="sourceLineNo">287</span><a id="line.287">                text = TextUtil.replaceString( text, from, to );</a>
+<span class="sourceLineNo">288</span><a id="line.288">            }</a>
+<span class="sourceLineNo">289</span><a id="line.289">        </a>
+<span class="sourceLineNo">290</span><a id="line.290">            //</a>
+<span class="sourceLineNo">291</span><a id="line.291">            //  Construct the new string</a>
+<span class="sourceLineNo">292</span><a id="line.292">            //</a>
+<span class="sourceLineNo">293</span><a id="line.293">            sb.append( sourceText.substring( start, matcher.start() ) );</a>
+<span class="sourceLineNo">294</span><a id="line.294">            sb.append( "[" ).append( text );</a>
+<span class="sourceLineNo">295</span><a id="line.295">            if( link.length() &gt; 0 ) {</a>
+<span class="sourceLineNo">296</span><a id="line.296">                sb.append( "|" ).append( link );</a>
+<span class="sourceLineNo">297</span><a id="line.297">            }</a>
+<span class="sourceLineNo">298</span><a id="line.298">            if( attr.length() &gt; 0 ) {</a>
+<span class="sourceLineNo">299</span><a id="line.299">                sb.append( "|" ).append( attr );</a>
+<span class="sourceLineNo">300</span><a id="line.300">            }</a>
+<span class="sourceLineNo">301</span><a id="line.301">            sb.append( "]" );</a>
+<span class="sourceLineNo">302</span><a id="line.302">            </a>
+<span class="sourceLineNo">303</span><a id="line.303">            start = matcher.end();</a>
+<span class="sourceLineNo">304</span><a id="line.304">        }</a>
+<span class="sourceLineNo">305</span><a id="line.305">        </a>
+<span class="sourceLineNo">306</span><a id="line.306">        sb.append( sourceText.substring( start ) );</a>
+<span class="sourceLineNo">307</span><a id="line.307">        </a>
+<span class="sourceLineNo">308</span><a id="line.308">        return sb.toString();</a>
+<span class="sourceLineNo">309</span><a id="line.309">    }</a>
+<span class="sourceLineNo">310</span><a id="line.310"></a>
+<span class="sourceLineNo">311</span><a id="line.311">    /**</a>
+<span class="sourceLineNo">312</span><a id="line.312">     *  This method does a correct replacement of a single link, taking into account anchors and attachments.</a>
+<span class="sourceLineNo">313</span><a id="line.313">     */</a>
+<span class="sourceLineNo">314</span><a id="line.314">    private String replaceSingleLink( final Context context, final String original, final String from, final String newlink ) {</a>
+<span class="sourceLineNo">315</span><a id="line.315">        final int hash = original.indexOf( '#' );</a>
+<span class="sourceLineNo">316</span><a id="line.316">        final int slash = original.indexOf( '/' );</a>
+<span class="sourceLineNo">317</span><a id="line.317">        String realLink = original;</a>
+<span class="sourceLineNo">318</span><a id="line.318"></a>
+<span class="sourceLineNo">319</span><a id="line.319">        if( hash != -1 ) {</a>
+<span class="sourceLineNo">320</span><a id="line.320">            realLink = original.substring( 0, hash );</a>
+<span class="sourceLineNo">321</span><a id="line.321">        }</a>
+<span class="sourceLineNo">322</span><a id="line.322">        if( slash != -1 ) {</a>
+<span class="sourceLineNo">323</span><a id="line.323">            realLink = original.substring( 0,slash );</a>
+<span class="sourceLineNo">324</span><a id="line.324">        }</a>
+<span class="sourceLineNo">325</span><a id="line.325"></a>
+<span class="sourceLineNo">326</span><a id="line.326">        realLink = MarkupParser.cleanLink( realLink );</a>
+<span class="sourceLineNo">327</span><a id="line.327">        final String oldStyleRealLink = MarkupParser.wikifyLink( realLink );</a>
+<span class="sourceLineNo">328</span><a id="line.328">        </a>
+<span class="sourceLineNo">329</span><a id="line.329">        //WikiPage realPage  = context.getEngine().getPage( reallink );</a>
+<span class="sourceLineNo">330</span><a id="line.330">        // WikiPage p2 = context.getEngine().getPage( from );</a>
+<span class="sourceLineNo">331</span><a id="line.331">        </a>
+<span class="sourceLineNo">332</span><a id="line.332">        // System.out.println("   "+reallink+" :: "+ from);</a>
+<span class="sourceLineNo">333</span><a id="line.333">        // System.out.println("   "+p+" :: "+p2);</a>
+<span class="sourceLineNo">334</span><a id="line.334">        </a>
+<span class="sourceLineNo">335</span><a id="line.335">        //</a>
+<span class="sourceLineNo">336</span><a id="line.336">        //  Yes, these point to the same page.</a>
+<span class="sourceLineNo">337</span><a id="line.337">        //</a>
+<span class="sourceLineNo">338</span><a id="line.338">        if( realLink.equals( from ) || original.equals( from ) || oldStyleRealLink.equals( from ) ) {</a>
+<span class="sourceLineNo">339</span><a id="line.339">            //</a>
+<span class="sourceLineNo">340</span><a id="line.340">            //  if the original contains blanks, then we should introduce a link, for example:  [My Page]  =&gt;  [My Page|My Renamed Page]</a>
+<span class="sourceLineNo">341</span><a id="line.341">            final int blank = realLink.indexOf( " ");</a>
+<span class="sourceLineNo">342</span><a id="line.342">            </a>
+<span class="sourceLineNo">343</span><a id="line.343">            if( blank != -1 ) {</a>
+<span class="sourceLineNo">344</span><a id="line.344">                return original + "|" + newlink;</a>
+<span class="sourceLineNo">345</span><a id="line.345">            }</a>
+<span class="sourceLineNo">346</span><a id="line.346">            </a>
+<span class="sourceLineNo">347</span><a id="line.347">            return newlink + ( ( hash &gt; 0 ) ? original.substring( hash ) : "" ) + ( ( slash &gt; 0 ) ? original.substring( slash ) : "" ) ;</a>
+<span class="sourceLineNo">348</span><a id="line.348">        }</a>
+<span class="sourceLineNo">349</span><a id="line.349">        </a>
+<span class="sourceLineNo">350</span><a id="line.350">        return original;</a>
+<span class="sourceLineNo">351</span><a id="line.351">    }</a>
+<span class="sourceLineNo">352</span><a id="line.352"></a>
+<span class="sourceLineNo">353</span><a id="line.353">}</a>
 
 
 
@@ -421,5 +422,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>

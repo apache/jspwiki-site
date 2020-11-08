@@ -1,375 +1,376 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
 <title>Source code</title>
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 </head>
 <body>
+<main role="main">
 <div class="sourceContainer">
-<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
-<span class="sourceLineNo">002</span>    Licensed to the Apache Software Foundation (ASF) under one<a name="line.2"></a>
-<span class="sourceLineNo">003</span>    or more contributor license agreements.  See the NOTICE file<a name="line.3"></a>
-<span class="sourceLineNo">004</span>    distributed with this work for additional information<a name="line.4"></a>
-<span class="sourceLineNo">005</span>    regarding copyright ownership.  The ASF licenses this file<a name="line.5"></a>
-<span class="sourceLineNo">006</span>    to you under the Apache License, Version 2.0 (the<a name="line.6"></a>
-<span class="sourceLineNo">007</span>    "License"); you may not use this file except in compliance<a name="line.7"></a>
-<span class="sourceLineNo">008</span>    with the License.  You may obtain a copy of the License at<a name="line.8"></a>
-<span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>       http://www.apache.org/licenses/LICENSE-2.0<a name="line.10"></a>
-<span class="sourceLineNo">011</span><a name="line.11"></a>
-<span class="sourceLineNo">012</span>    Unless required by applicable law or agreed to in writing,<a name="line.12"></a>
-<span class="sourceLineNo">013</span>    software distributed under the License is distributed on an<a name="line.13"></a>
-<span class="sourceLineNo">014</span>    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY<a name="line.14"></a>
-<span class="sourceLineNo">015</span>    KIND, either express or implied.  See the License for the<a name="line.15"></a>
-<span class="sourceLineNo">016</span>    specific language governing permissions and limitations<a name="line.16"></a>
-<span class="sourceLineNo">017</span>    under the License.<a name="line.17"></a>
-<span class="sourceLineNo">018</span>*/<a name="line.18"></a>
-<span class="sourceLineNo">019</span>package org.apache.wiki.parser;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.apache.log4j.Logger;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.apache.oro.text.GlobCompiler;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.apache.oro.text.regex.MalformedPatternException;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.apache.oro.text.regex.Pattern;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.apache.oro.text.regex.PatternCompiler;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.apache.wiki.StringTransmutator;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.apache.wiki.api.core.Context;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.wiki.api.core.Engine;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.wiki.util.TextUtil;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jdom2.Element;<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>import java.io.BufferedReader;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import java.io.IOException;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import java.io.PushbackReader;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import java.io.Reader;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.util.ArrayList;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.util.Collection;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.util.Collections;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.util.List;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
-<span class="sourceLineNo">042</span> *   Provides an abstract class for the parser instances.<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *   @since  2.4<a name="line.44"></a>
-<span class="sourceLineNo">045</span> */<a name="line.45"></a>
-<span class="sourceLineNo">046</span>public abstract class MarkupParser {<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    /** Allow this many characters to be pushed back in the stream.  In effect, this limits the size of a single line.  */<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    protected static final int PUSHBACK_BUFFER_SIZE = 10*1024;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    protected PushbackReader m_in;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    private int m_pos = -1; // current position in reader stream<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>    protected Engine m_engine;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    protected Context m_context;<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    /** Optionally stores internal wikilinks */<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    protected ArrayList&lt; StringTransmutator &gt; m_localLinkMutatorChain = new ArrayList&lt;&gt;();<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    protected ArrayList&lt; StringTransmutator &gt; m_externalLinkMutatorChain = new ArrayList&lt;&gt;();<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    protected ArrayList&lt; StringTransmutator &gt; m_attachmentLinkMutatorChain = new ArrayList&lt;&gt;();<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    protected ArrayList&lt; StringTransmutator &gt; m_linkMutators = new ArrayList&lt;&gt;();<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    protected ArrayList&lt; HeadingListener &gt; m_headingListenerChain = new ArrayList&lt;&gt;();<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    protected boolean m_inlineImages = true;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    protected boolean m_parseAccessRules = true;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    /** Keeps image regexp Patterns */<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    protected List&lt; Pattern &gt; m_inlineImagePatterns = null;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    protected LinkParsingOperations m_linkParsingOperations;<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>    private static final Logger log = Logger.getLogger( MarkupParser.class );<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>    /** If set to "true", allows using raw HTML within Wiki text.  Be warned, this is a VERY dangerous option to set -<a name="line.71"></a>
-<span class="sourceLineNo">072</span>       never turn this on in a publicly allowable Wiki, unless you are absolutely certain of what you're doing. */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    public static final String PROP_ALLOWHTML = "jspwiki.translatorReader.allowHTML";<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>    /** If set to "true", enables plugins during parsing */<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    public static final String PROP_RUNPLUGINS = "jspwiki.translatorReader.runPlugins";<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>    /** If true, all outward links (external links) have a small link image appended. */<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    public static final String PROP_USEOUTLINKIMAGE = "jspwiki.translatorReader.useOutlinkImage";<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>    /** If set to "true", all external links are tagged with 'rel="nofollow"' */<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    public static final String PROP_USERELNOFOLLOW = "jspwiki.translatorReader.useRelNofollow";<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>    /** If true, consider CamelCase hyperlinks as well. */<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    public static final String PROP_CAMELCASELINKS = "jspwiki.translatorReader.camelCaseLinks";<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>    /** If true, all hyperlinks are translated as well, regardless whether they<a name="line.87"></a>
-<span class="sourceLineNo">088</span>     are surrounded by brackets. */<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    public static final String PROP_PLAINURIS = "jspwiki.translatorReader.plainUris";<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    /** If true, all outward attachment info links have a small link image appended. */<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    public static final String PROP_USEATTACHMENTIMAGE = "jspwiki.translatorReader.useAttachmentImage";<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>    public static final String HASHLINK = "hashlink";<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    /** Name of the outlink image; relative path to the JSPWiki directory. */<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    public static final String OUTLINK_IMAGE = "images/out.png";<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    /** Outlink css class. */<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    public static final String OUTLINK = "outlink";<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>    private static final String INLINE_IMAGE_PATTERNS = "JSPWikiMarkupParser.inlineImagePatterns";<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>    /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for wiki page (normal) links. The value is "wikipage". */<a name="line.103"></a>
-<span class="sourceLineNo">104</span>   public static final String CLASS_WIKIPAGE = "wikipage";<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for edit page links. The value is "createpage". */<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   public static final String CLASS_EDITPAGE = "createpage";<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
-<span class="sourceLineNo">109</span>   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for interwiki page links. The value is "interwiki". */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   public static final String CLASS_INTERWIKI = "interwiki";<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for footnote links. The value is "footnote". */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   public static final String CLASS_FOOTNOTE = "footnote";<a name="line.113"></a>
-<span class="sourceLineNo">114</span><a name="line.114"></a>
-<span class="sourceLineNo">115</span>   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for footnote links. The value is "footnote". */<a name="line.115"></a>
-<span class="sourceLineNo">116</span>   public static final String CLASS_FOOTNOTE_REF = "footnoteref";<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for external links. The value is "external". */<a name="line.118"></a>
-<span class="sourceLineNo">119</span>   public static final String CLASS_EXTERNAL = "external";<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for attachments. The value is "attachment". */<a name="line.121"></a>
-<span class="sourceLineNo">122</span>   public static final String CLASS_ATTACHMENT = "attachment";<a name="line.122"></a>
-<span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>   public static final String[] CLASS_TYPES = {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>      CLASS_WIKIPAGE,<a name="line.125"></a>
-<span class="sourceLineNo">126</span>      CLASS_EDITPAGE,<a name="line.126"></a>
-<span class="sourceLineNo">127</span>      "",<a name="line.127"></a>
-<span class="sourceLineNo">128</span>      CLASS_FOOTNOTE,<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      CLASS_FOOTNOTE_REF,<a name="line.129"></a>
-<span class="sourceLineNo">130</span>      "",<a name="line.130"></a>
-<span class="sourceLineNo">131</span>      CLASS_EXTERNAL,<a name="line.131"></a>
-<span class="sourceLineNo">132</span>      CLASS_INTERWIKI,<a name="line.132"></a>
-<span class="sourceLineNo">133</span>      CLASS_EXTERNAL,<a name="line.133"></a>
-<span class="sourceLineNo">134</span>      CLASS_WIKIPAGE,<a name="line.134"></a>
-<span class="sourceLineNo">135</span>      CLASS_ATTACHMENT<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   };<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>     *  Constructs a MarkupParser.  The subclass must call this constructor to set up the necessary bits and pieces.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>     *<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     *  @param context The WikiContext.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *  @param in The reader from which we are reading the bytes from.<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     */<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    protected MarkupParser( final Context context, final Reader in ) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        m_engine = context.getEngine();<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        m_context = context;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        m_linkParsingOperations = new LinkParsingOperations( m_context );<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        setInputReader( in );<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    }<a name="line.149"></a>
-<span class="sourceLineNo">150</span><a name="line.150"></a>
-<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
-<span class="sourceLineNo">152</span>     *  Replaces the current input character stream with a new one.<a name="line.152"></a>
-<span class="sourceLineNo">153</span>     *<a name="line.153"></a>
-<span class="sourceLineNo">154</span>     *  @param in New source for input.  If null, this method does nothing.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>     *  @return the old stream<a name="line.155"></a>
-<span class="sourceLineNo">156</span>     */<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    public Reader setInputReader( final Reader in ) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        final Reader old = m_in;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>        if( in != null ) {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>            m_in = new PushbackReader( new BufferedReader( in ), PUSHBACK_BUFFER_SIZE );<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
-<span class="sourceLineNo">162</span><a name="line.162"></a>
-<span class="sourceLineNo">163</span>        return old;<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
-<span class="sourceLineNo">165</span><a name="line.165"></a>
-<span class="sourceLineNo">166</span>    /**<a name="line.166"></a>
-<span class="sourceLineNo">167</span>     *  Adds a hook for processing link texts.  This hook is called when the link text is written into the output stream, and<a name="line.167"></a>
-<span class="sourceLineNo">168</span>     *  you may use it to modify the text.  It does not affect the actual link, only the user-visible text.<a name="line.168"></a>
-<span class="sourceLineNo">169</span>     *<a name="line.169"></a>
-<span class="sourceLineNo">170</span>     *  @param mutator The hook to call.  Null is safe.<a name="line.170"></a>
-<span class="sourceLineNo">171</span>     */<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    public void addLinkTransmutator( final StringTransmutator mutator ) {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>        addLinkHook( m_linkMutators, mutator );<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
-<span class="sourceLineNo">175</span><a name="line.175"></a>
-<span class="sourceLineNo">176</span>    /**<a name="line.176"></a>
-<span class="sourceLineNo">177</span>     *  Adds a hook for processing local links.  The engine transforms both non-existing and existing page links.<a name="line.177"></a>
-<span class="sourceLineNo">178</span>     *<a name="line.178"></a>
-<span class="sourceLineNo">179</span>     *  @param mutator The hook to call.  Null is safe.<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     */<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    public void addLocalLinkHook( final StringTransmutator mutator ) {<a name="line.181"></a>
-<span class="sourceLineNo">182</span>        addLinkHook( m_localLinkMutatorChain, mutator );<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    }<a name="line.183"></a>
-<span class="sourceLineNo">184</span><a name="line.184"></a>
-<span class="sourceLineNo">185</span>    /**<a name="line.185"></a>
-<span class="sourceLineNo">186</span>     *  Adds a hook for processing external links.  This includes all http:// ftp://, etc. links, including inlined images.<a name="line.186"></a>
-<span class="sourceLineNo">187</span>     *<a name="line.187"></a>
-<span class="sourceLineNo">188</span>     *  @param mutator The hook to call.  Null is safe.<a name="line.188"></a>
-<span class="sourceLineNo">189</span>     */<a name="line.189"></a>
-<span class="sourceLineNo">190</span>    public void addExternalLinkHook( final StringTransmutator mutator ) {<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        addLinkHook( m_externalLinkMutatorChain, mutator );<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>    /**<a name="line.194"></a>
-<span class="sourceLineNo">195</span>     *  Adds a hook for processing attachment links.<a name="line.195"></a>
-<span class="sourceLineNo">196</span>     *<a name="line.196"></a>
-<span class="sourceLineNo">197</span>     *  @param mutator The hook to call.  Null is safe.<a name="line.197"></a>
-<span class="sourceLineNo">198</span>     */<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    public void addAttachmentLinkHook( final StringTransmutator mutator ) {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        addLinkHook( m_attachmentLinkMutatorChain, mutator );<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    }<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>    void addLinkHook( final List&lt; StringTransmutator &gt; mutatorChain, final StringTransmutator mutator ) {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        if( mutator != null ) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            mutatorChain.add( mutator );<a name="line.205"></a>
-<span class="sourceLineNo">206</span>        }<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
-<span class="sourceLineNo">208</span><a name="line.208"></a>
-<span class="sourceLineNo">209</span>    /**<a name="line.209"></a>
-<span class="sourceLineNo">210</span>     *  Adds a HeadingListener to the parser chain.  It will be called whenever a parsed header is found.<a name="line.210"></a>
-<span class="sourceLineNo">211</span>     *<a name="line.211"></a>
-<span class="sourceLineNo">212</span>     *  @param listener The listener to add.<a name="line.212"></a>
-<span class="sourceLineNo">213</span>     */<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    public void addHeadingListener( final HeadingListener listener ) {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        if( listener != null ) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>            m_headingListenerChain.add( listener );<a name="line.216"></a>
-<span class="sourceLineNo">217</span>        }<a name="line.217"></a>
-<span class="sourceLineNo">218</span>    }<a name="line.218"></a>
-<span class="sourceLineNo">219</span><a name="line.219"></a>
-<span class="sourceLineNo">220</span>    /**<a name="line.220"></a>
-<span class="sourceLineNo">221</span>     *  Disables access rule parsing.<a name="line.221"></a>
-<span class="sourceLineNo">222</span>     */<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    public void disableAccessRules()<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    {<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        m_parseAccessRules = false;<a name="line.225"></a>
-<span class="sourceLineNo">226</span>    }<a name="line.226"></a>
-<span class="sourceLineNo">227</span><a name="line.227"></a>
-<span class="sourceLineNo">228</span>    public boolean isParseAccessRules()<a name="line.228"></a>
-<span class="sourceLineNo">229</span>    {<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        return m_parseAccessRules;<a name="line.230"></a>
-<span class="sourceLineNo">231</span>    }<a name="line.231"></a>
-<span class="sourceLineNo">232</span><a name="line.232"></a>
-<span class="sourceLineNo">233</span>    /**<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     *  Use this to turn on or off image inlining.<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     *<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     *  @param toggle If true, images are inlined (as per set in jspwiki.properties)<a name="line.236"></a>
-<span class="sourceLineNo">237</span>     *                If false, then images won't be inlined; instead, they will be<a name="line.237"></a>
-<span class="sourceLineNo">238</span>     *                treated as standard hyperlinks.<a name="line.238"></a>
-<span class="sourceLineNo">239</span>     *  @since 2.2.9<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     */<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    public void enableImageInlining( final boolean toggle )<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    {<a name="line.242"></a>
-<span class="sourceLineNo">243</span>        m_inlineImages = toggle;<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    }<a name="line.244"></a>
-<span class="sourceLineNo">245</span><a name="line.245"></a>
-<span class="sourceLineNo">246</span>    public boolean isImageInlining() {<a name="line.246"></a>
-<span class="sourceLineNo">247</span>        return m_inlineImages;<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>    protected final void initInlineImagePatterns() {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        final PatternCompiler compiler = new GlobCompiler();<a name="line.251"></a>
-<span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>        //  We cache compiled patterns in the engine, since their creation is really expensive<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        List&lt; Pattern &gt; compiledpatterns = m_engine.getAttribute( INLINE_IMAGE_PATTERNS );<a name="line.254"></a>
-<span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>        if( compiledpatterns == null ) {<a name="line.256"></a>
-<span class="sourceLineNo">257</span>            compiledpatterns = new ArrayList&lt; &gt;( 20 );<a name="line.257"></a>
-<span class="sourceLineNo">258</span>            final Collection&lt; String &gt; ptrns = m_engine.getAllInlinedImagePatterns();<a name="line.258"></a>
-<span class="sourceLineNo">259</span><a name="line.259"></a>
-<span class="sourceLineNo">260</span>            //  Make them into Regexp Patterns.  Unknown patterns are ignored.<a name="line.260"></a>
-<span class="sourceLineNo">261</span>            for( final String pattern : ptrns ) {<a name="line.261"></a>
-<span class="sourceLineNo">262</span>                try {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                    compiledpatterns.add( compiler.compile( pattern, GlobCompiler.DEFAULT_MASK | GlobCompiler.READ_ONLY_MASK ) );<a name="line.263"></a>
-<span class="sourceLineNo">264</span>                } catch( final MalformedPatternException e ) {<a name="line.264"></a>
-<span class="sourceLineNo">265</span>                    log.error( "Malformed pattern [" + pattern + "] in properties: ", e );<a name="line.265"></a>
-<span class="sourceLineNo">266</span>                }<a name="line.266"></a>
-<span class="sourceLineNo">267</span>            }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>            m_engine.setAttribute( INLINE_IMAGE_PATTERNS, compiledpatterns );<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        }<a name="line.270"></a>
-<span class="sourceLineNo">271</span><a name="line.271"></a>
-<span class="sourceLineNo">272</span>        m_inlineImagePatterns = Collections.unmodifiableList( compiledpatterns );<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>    public List&lt; Pattern &gt; getInlineImagePatterns() {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        if( m_inlineImagePatterns == null ) {<a name="line.276"></a>
-<span class="sourceLineNo">277</span>            initInlineImagePatterns();<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        }<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        return m_inlineImagePatterns;<a name="line.279"></a>
-<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
-<span class="sourceLineNo">281</span><a name="line.281"></a>
-<span class="sourceLineNo">282</span>    /**<a name="line.282"></a>
-<span class="sourceLineNo">283</span>     *  Parses the document.<a name="line.283"></a>
-<span class="sourceLineNo">284</span>     *<a name="line.284"></a>
-<span class="sourceLineNo">285</span>     *  @return the parsed document, as a WikiDocument<a name="line.285"></a>
-<span class="sourceLineNo">286</span>     *  @throws IOException If something goes wrong.<a name="line.286"></a>
-<span class="sourceLineNo">287</span>     */<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    public abstract WikiDocument parse() throws IOException;<a name="line.288"></a>
-<span class="sourceLineNo">289</span><a name="line.289"></a>
-<span class="sourceLineNo">290</span>    /**<a name="line.290"></a>
-<span class="sourceLineNo">291</span>     *  Return the current position in the reader stream. The value will be -1 prior to reading.<a name="line.291"></a>
-<span class="sourceLineNo">292</span>     *<a name="line.292"></a>
-<span class="sourceLineNo">293</span>     * @return the reader position as an int.<a name="line.293"></a>
-<span class="sourceLineNo">294</span>     */<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    public int getPosition()<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    {<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        return m_pos;<a name="line.297"></a>
-<span class="sourceLineNo">298</span>    }<a name="line.298"></a>
-<span class="sourceLineNo">299</span><a name="line.299"></a>
-<span class="sourceLineNo">300</span>    /**<a name="line.300"></a>
-<span class="sourceLineNo">301</span>     * Returns the next token in the stream.  This is the most called method in the entire parser, so it needs to be lean and mean.<a name="line.301"></a>
-<span class="sourceLineNo">302</span>     *<a name="line.302"></a>
-<span class="sourceLineNo">303</span>     * @return The next token in the stream; or, if the stream is ended, -1.<a name="line.303"></a>
-<span class="sourceLineNo">304</span>     * @throws IOException If something bad happens<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     * @throws NullPointerException If you have not yet created an input document.<a name="line.305"></a>
-<span class="sourceLineNo">306</span>     */<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    protected final int nextToken() throws IOException, NullPointerException {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>        // if( m_in == null ) return -1;<a name="line.308"></a>
-<span class="sourceLineNo">309</span>        m_pos++;<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        return m_in.read();<a name="line.310"></a>
-<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
-<span class="sourceLineNo">312</span><a name="line.312"></a>
-<span class="sourceLineNo">313</span>    /**<a name="line.313"></a>
-<span class="sourceLineNo">314</span>     *  Push back any character to the current input.  Does not push back a read EOF, though.<a name="line.314"></a>
-<span class="sourceLineNo">315</span>     *<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     *  @param c Character to push back.<a name="line.316"></a>
-<span class="sourceLineNo">317</span>     *  @throws IOException In case the character cannot be pushed back.<a name="line.317"></a>
-<span class="sourceLineNo">318</span>     */<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    protected void pushBack( final int c ) throws IOException {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        if( c != -1 &amp;&amp; m_in != null ) {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>            m_pos--;<a name="line.321"></a>
-<span class="sourceLineNo">322</span>            m_in.unread( c );<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        }<a name="line.323"></a>
-<span class="sourceLineNo">324</span>    }<a name="line.324"></a>
-<span class="sourceLineNo">325</span><a name="line.325"></a>
-<span class="sourceLineNo">326</span>    /**<a name="line.326"></a>
-<span class="sourceLineNo">327</span>     *  Writes HTML for error message.  Does not add it to the document, you have to do it yourself.<a name="line.327"></a>
-<span class="sourceLineNo">328</span>     *<a name="line.328"></a>
-<span class="sourceLineNo">329</span>     *  @param error The error string.<a name="line.329"></a>
-<span class="sourceLineNo">330</span>     *  @return An Element containing the error.<a name="line.330"></a>
-<span class="sourceLineNo">331</span>     */<a name="line.331"></a>
-<span class="sourceLineNo">332</span>    public static Element makeError( final String error ) {<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        return new Element( "span" ).setAttribute( "class", "error" ).addContent( error );<a name="line.333"></a>
-<span class="sourceLineNo">334</span>    }<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>    /**<a name="line.336"></a>
-<span class="sourceLineNo">337</span>     *  Cleans a Wiki name.  The functionality of this method was changed in 2.6 so that the list of allowed characters is much larger.<a name="line.337"></a>
-<span class="sourceLineNo">338</span>     *  Use {@link #wikifyLink(String)} to get the legacy behaviour.<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     *  &lt;P&gt;<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     *  [ This is a link ] -&amp;gt; This is a link<a name="line.340"></a>
-<span class="sourceLineNo">341</span>     *<a name="line.341"></a>
-<span class="sourceLineNo">342</span>     *  @param link Link to be cleared. Null is safe, and causes this to return null.<a name="line.342"></a>
-<span class="sourceLineNo">343</span>     *  @return A cleaned link.<a name="line.343"></a>
-<span class="sourceLineNo">344</span>     *<a name="line.344"></a>
-<span class="sourceLineNo">345</span>     *  @since 2.0<a name="line.345"></a>
-<span class="sourceLineNo">346</span>     */<a name="line.346"></a>
-<span class="sourceLineNo">347</span>    public static String cleanLink( final String link ) {<a name="line.347"></a>
-<span class="sourceLineNo">348</span>        return TextUtil.cleanString( link, TextUtil.PUNCTUATION_CHARS_ALLOWED );<a name="line.348"></a>
-<span class="sourceLineNo">349</span>    }<a name="line.349"></a>
-<span class="sourceLineNo">350</span><a name="line.350"></a>
-<span class="sourceLineNo">351</span>    /**<a name="line.351"></a>
-<span class="sourceLineNo">352</span>     *  Cleans away extra legacy characters.  This method functions exactly like pre-2.6 cleanLink()<a name="line.352"></a>
-<span class="sourceLineNo">353</span>     *  &lt;P&gt;<a name="line.353"></a>
-<span class="sourceLineNo">354</span>     *  [ This is a link ] -&amp;gt; ThisIsALink<a name="line.354"></a>
-<span class="sourceLineNo">355</span>     *<a name="line.355"></a>
-<span class="sourceLineNo">356</span>     *  @param link Link to be cleared. Null is safe, and causes this to return null.<a name="line.356"></a>
-<span class="sourceLineNo">357</span>     *  @return A cleaned link.<a name="line.357"></a>
-<span class="sourceLineNo">358</span>     *  @since 2.6<a name="line.358"></a>
-<span class="sourceLineNo">359</span>     */<a name="line.359"></a>
-<span class="sourceLineNo">360</span>    public static String wikifyLink( final String link ) {<a name="line.360"></a>
-<span class="sourceLineNo">361</span>        return TextUtil.cleanString( link, TextUtil.LEGACY_CHARS_ALLOWED );<a name="line.361"></a>
-<span class="sourceLineNo">362</span>    }<a name="line.362"></a>
-<span class="sourceLineNo">363</span><a name="line.363"></a>
-<span class="sourceLineNo">364</span>}<a name="line.364"></a>
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18">*/</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.parser;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.oro.text.GlobCompiler;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.oro.text.regex.MalformedPatternException;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.oro.text.regex.Pattern;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.oro.text.regex.PatternCompiler;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.StringTransmutator;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.jdom2.Element;</a>
+<span class="sourceLineNo">031</span><a id="line.31"></a>
+<span class="sourceLineNo">032</span><a id="line.32">import java.io.BufferedReader;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.io.IOException;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import java.io.PushbackReader;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.io.Reader;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.util.ArrayList;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.util.Collection;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Collections;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.List;</a>
+<span class="sourceLineNo">040</span><a id="line.40"></a>
+<span class="sourceLineNo">041</span><a id="line.41">/**</a>
+<span class="sourceLineNo">042</span><a id="line.42"> *   Provides an abstract class for the parser instances.</a>
+<span class="sourceLineNo">043</span><a id="line.43"> *</a>
+<span class="sourceLineNo">044</span><a id="line.44"> *   @since  2.4</a>
+<span class="sourceLineNo">045</span><a id="line.45"> */</a>
+<span class="sourceLineNo">046</span><a id="line.46">public abstract class MarkupParser {</a>
+<span class="sourceLineNo">047</span><a id="line.47"></a>
+<span class="sourceLineNo">048</span><a id="line.48">    /** Allow this many characters to be pushed back in the stream.  In effect, this limits the size of a single line.  */</a>
+<span class="sourceLineNo">049</span><a id="line.49">    protected static final int PUSHBACK_BUFFER_SIZE = 10*1024;</a>
+<span class="sourceLineNo">050</span><a id="line.50">    protected PushbackReader m_in;</a>
+<span class="sourceLineNo">051</span><a id="line.51">    private int m_pos = -1; // current position in reader stream</a>
+<span class="sourceLineNo">052</span><a id="line.52"></a>
+<span class="sourceLineNo">053</span><a id="line.53">    protected Engine m_engine;</a>
+<span class="sourceLineNo">054</span><a id="line.54">    protected Context m_context;</a>
+<span class="sourceLineNo">055</span><a id="line.55"></a>
+<span class="sourceLineNo">056</span><a id="line.56">    /** Optionally stores internal wikilinks */</a>
+<span class="sourceLineNo">057</span><a id="line.57">    protected ArrayList&lt; StringTransmutator &gt; m_localLinkMutatorChain = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">058</span><a id="line.58">    protected ArrayList&lt; StringTransmutator &gt; m_externalLinkMutatorChain = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">059</span><a id="line.59">    protected ArrayList&lt; StringTransmutator &gt; m_attachmentLinkMutatorChain = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">060</span><a id="line.60">    protected ArrayList&lt; StringTransmutator &gt; m_linkMutators = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">061</span><a id="line.61">    protected ArrayList&lt; HeadingListener &gt; m_headingListenerChain = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">062</span><a id="line.62"></a>
+<span class="sourceLineNo">063</span><a id="line.63">    protected boolean m_inlineImages = true;</a>
+<span class="sourceLineNo">064</span><a id="line.64">    protected boolean m_parseAccessRules = true;</a>
+<span class="sourceLineNo">065</span><a id="line.65">    /** Keeps image regexp Patterns */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    protected List&lt; Pattern &gt; m_inlineImagePatterns = null;</a>
+<span class="sourceLineNo">067</span><a id="line.67">    protected LinkParsingOperations m_linkParsingOperations;</a>
+<span class="sourceLineNo">068</span><a id="line.68"></a>
+<span class="sourceLineNo">069</span><a id="line.69">    private static final Logger log = Logger.getLogger( MarkupParser.class );</a>
+<span class="sourceLineNo">070</span><a id="line.70"></a>
+<span class="sourceLineNo">071</span><a id="line.71">    /** If set to "true", allows using raw HTML within Wiki text.  Be warned, this is a VERY dangerous option to set -</a>
+<span class="sourceLineNo">072</span><a id="line.72">       never turn this on in a publicly allowable Wiki, unless you are absolutely certain of what you're doing. */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    public static final String PROP_ALLOWHTML = "jspwiki.translatorReader.allowHTML";</a>
+<span class="sourceLineNo">074</span><a id="line.74"></a>
+<span class="sourceLineNo">075</span><a id="line.75">    /** If set to "true", enables plugins during parsing */</a>
+<span class="sourceLineNo">076</span><a id="line.76">    public static final String PROP_RUNPLUGINS = "jspwiki.translatorReader.runPlugins";</a>
+<span class="sourceLineNo">077</span><a id="line.77"></a>
+<span class="sourceLineNo">078</span><a id="line.78">    /** If true, all outward links (external links) have a small link image appended. */</a>
+<span class="sourceLineNo">079</span><a id="line.79">    public static final String PROP_USEOUTLINKIMAGE = "jspwiki.translatorReader.useOutlinkImage";</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">    /** If set to "true", all external links are tagged with 'rel="nofollow"' */</a>
+<span class="sourceLineNo">082</span><a id="line.82">    public static final String PROP_USERELNOFOLLOW = "jspwiki.translatorReader.useRelNofollow";</a>
+<span class="sourceLineNo">083</span><a id="line.83"></a>
+<span class="sourceLineNo">084</span><a id="line.84">    /** If true, consider CamelCase hyperlinks as well. */</a>
+<span class="sourceLineNo">085</span><a id="line.85">    public static final String PROP_CAMELCASELINKS = "jspwiki.translatorReader.camelCaseLinks";</a>
+<span class="sourceLineNo">086</span><a id="line.86"></a>
+<span class="sourceLineNo">087</span><a id="line.87">    /** If true, all hyperlinks are translated as well, regardless whether they</a>
+<span class="sourceLineNo">088</span><a id="line.88">     are surrounded by brackets. */</a>
+<span class="sourceLineNo">089</span><a id="line.89">    public static final String PROP_PLAINURIS = "jspwiki.translatorReader.plainUris";</a>
+<span class="sourceLineNo">090</span><a id="line.90"></a>
+<span class="sourceLineNo">091</span><a id="line.91">    /** If true, all outward attachment info links have a small link image appended. */</a>
+<span class="sourceLineNo">092</span><a id="line.92">    public static final String PROP_USEATTACHMENTIMAGE = "jspwiki.translatorReader.useAttachmentImage";</a>
+<span class="sourceLineNo">093</span><a id="line.93"></a>
+<span class="sourceLineNo">094</span><a id="line.94">    public static final String HASHLINK = "hashlink";</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">    /** Name of the outlink image; relative path to the JSPWiki directory. */</a>
+<span class="sourceLineNo">097</span><a id="line.97">    public static final String OUTLINK_IMAGE = "images/out.png";</a>
+<span class="sourceLineNo">098</span><a id="line.98">    /** Outlink css class. */</a>
+<span class="sourceLineNo">099</span><a id="line.99">    public static final String OUTLINK = "outlink";</a>
+<span class="sourceLineNo">100</span><a id="line.100"></a>
+<span class="sourceLineNo">101</span><a id="line.101">    private static final String INLINE_IMAGE_PATTERNS = "JSPWikiMarkupParser.inlineImagePatterns";</a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">    /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for wiki page (normal) links. The value is "wikipage". */</a>
+<span class="sourceLineNo">104</span><a id="line.104">   public static final String CLASS_WIKIPAGE = "wikipage";</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for edit page links. The value is "createpage". */</a>
+<span class="sourceLineNo">107</span><a id="line.107">   public static final String CLASS_EDITPAGE = "createpage";</a>
+<span class="sourceLineNo">108</span><a id="line.108"></a>
+<span class="sourceLineNo">109</span><a id="line.109">   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for interwiki page links. The value is "interwiki". */</a>
+<span class="sourceLineNo">110</span><a id="line.110">   public static final String CLASS_INTERWIKI = "interwiki";</a>
+<span class="sourceLineNo">111</span><a id="line.111"></a>
+<span class="sourceLineNo">112</span><a id="line.112">   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for footnote links. The value is "footnote". */</a>
+<span class="sourceLineNo">113</span><a id="line.113">   public static final String CLASS_FOOTNOTE = "footnote";</a>
+<span class="sourceLineNo">114</span><a id="line.114"></a>
+<span class="sourceLineNo">115</span><a id="line.115">   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for footnote links. The value is "footnote". */</a>
+<span class="sourceLineNo">116</span><a id="line.116">   public static final String CLASS_FOOTNOTE_REF = "footnoteref";</a>
+<span class="sourceLineNo">117</span><a id="line.117"></a>
+<span class="sourceLineNo">118</span><a id="line.118">   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for external links. The value is "external". */</a>
+<span class="sourceLineNo">119</span><a id="line.119">   public static final String CLASS_EXTERNAL = "external";</a>
+<span class="sourceLineNo">120</span><a id="line.120"></a>
+<span class="sourceLineNo">121</span><a id="line.121">   /** The value for anchor element &lt;tt&gt;class&lt;/tt&gt; attributes when used for attachments. The value is "attachment". */</a>
+<span class="sourceLineNo">122</span><a id="line.122">   public static final String CLASS_ATTACHMENT = "attachment";</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">   public static final String[] CLASS_TYPES = {</a>
+<span class="sourceLineNo">125</span><a id="line.125">      CLASS_WIKIPAGE,</a>
+<span class="sourceLineNo">126</span><a id="line.126">      CLASS_EDITPAGE,</a>
+<span class="sourceLineNo">127</span><a id="line.127">      "",</a>
+<span class="sourceLineNo">128</span><a id="line.128">      CLASS_FOOTNOTE,</a>
+<span class="sourceLineNo">129</span><a id="line.129">      CLASS_FOOTNOTE_REF,</a>
+<span class="sourceLineNo">130</span><a id="line.130">      "",</a>
+<span class="sourceLineNo">131</span><a id="line.131">      CLASS_EXTERNAL,</a>
+<span class="sourceLineNo">132</span><a id="line.132">      CLASS_INTERWIKI,</a>
+<span class="sourceLineNo">133</span><a id="line.133">      CLASS_EXTERNAL,</a>
+<span class="sourceLineNo">134</span><a id="line.134">      CLASS_WIKIPAGE,</a>
+<span class="sourceLineNo">135</span><a id="line.135">      CLASS_ATTACHMENT</a>
+<span class="sourceLineNo">136</span><a id="line.136">   };</a>
+<span class="sourceLineNo">137</span><a id="line.137"></a>
+<span class="sourceLineNo">138</span><a id="line.138">    /**</a>
+<span class="sourceLineNo">139</span><a id="line.139">     *  Constructs a MarkupParser.  The subclass must call this constructor to set up the necessary bits and pieces.</a>
+<span class="sourceLineNo">140</span><a id="line.140">     *</a>
+<span class="sourceLineNo">141</span><a id="line.141">     *  @param context The WikiContext.</a>
+<span class="sourceLineNo">142</span><a id="line.142">     *  @param in The reader from which we are reading the bytes from.</a>
+<span class="sourceLineNo">143</span><a id="line.143">     */</a>
+<span class="sourceLineNo">144</span><a id="line.144">    protected MarkupParser( final Context context, final Reader in ) {</a>
+<span class="sourceLineNo">145</span><a id="line.145">        m_engine = context.getEngine();</a>
+<span class="sourceLineNo">146</span><a id="line.146">        m_context = context;</a>
+<span class="sourceLineNo">147</span><a id="line.147">        m_linkParsingOperations = new LinkParsingOperations( m_context );</a>
+<span class="sourceLineNo">148</span><a id="line.148">        setInputReader( in );</a>
+<span class="sourceLineNo">149</span><a id="line.149">    }</a>
+<span class="sourceLineNo">150</span><a id="line.150"></a>
+<span class="sourceLineNo">151</span><a id="line.151">    /**</a>
+<span class="sourceLineNo">152</span><a id="line.152">     *  Replaces the current input character stream with a new one.</a>
+<span class="sourceLineNo">153</span><a id="line.153">     *</a>
+<span class="sourceLineNo">154</span><a id="line.154">     *  @param in New source for input.  If null, this method does nothing.</a>
+<span class="sourceLineNo">155</span><a id="line.155">     *  @return the old stream</a>
+<span class="sourceLineNo">156</span><a id="line.156">     */</a>
+<span class="sourceLineNo">157</span><a id="line.157">    public Reader setInputReader( final Reader in ) {</a>
+<span class="sourceLineNo">158</span><a id="line.158">        final Reader old = m_in;</a>
+<span class="sourceLineNo">159</span><a id="line.159">        if( in != null ) {</a>
+<span class="sourceLineNo">160</span><a id="line.160">            m_in = new PushbackReader( new BufferedReader( in ), PUSHBACK_BUFFER_SIZE );</a>
+<span class="sourceLineNo">161</span><a id="line.161">        }</a>
+<span class="sourceLineNo">162</span><a id="line.162"></a>
+<span class="sourceLineNo">163</span><a id="line.163">        return old;</a>
+<span class="sourceLineNo">164</span><a id="line.164">    }</a>
+<span class="sourceLineNo">165</span><a id="line.165"></a>
+<span class="sourceLineNo">166</span><a id="line.166">    /**</a>
+<span class="sourceLineNo">167</span><a id="line.167">     *  Adds a hook for processing link texts.  This hook is called when the link text is written into the output stream, and</a>
+<span class="sourceLineNo">168</span><a id="line.168">     *  you may use it to modify the text.  It does not affect the actual link, only the user-visible text.</a>
+<span class="sourceLineNo">169</span><a id="line.169">     *</a>
+<span class="sourceLineNo">170</span><a id="line.170">     *  @param mutator The hook to call.  Null is safe.</a>
+<span class="sourceLineNo">171</span><a id="line.171">     */</a>
+<span class="sourceLineNo">172</span><a id="line.172">    public void addLinkTransmutator( final StringTransmutator mutator ) {</a>
+<span class="sourceLineNo">173</span><a id="line.173">        addLinkHook( m_linkMutators, mutator );</a>
+<span class="sourceLineNo">174</span><a id="line.174">    }</a>
+<span class="sourceLineNo">175</span><a id="line.175"></a>
+<span class="sourceLineNo">176</span><a id="line.176">    /**</a>
+<span class="sourceLineNo">177</span><a id="line.177">     *  Adds a hook for processing local links.  The engine transforms both non-existing and existing page links.</a>
+<span class="sourceLineNo">178</span><a id="line.178">     *</a>
+<span class="sourceLineNo">179</span><a id="line.179">     *  @param mutator The hook to call.  Null is safe.</a>
+<span class="sourceLineNo">180</span><a id="line.180">     */</a>
+<span class="sourceLineNo">181</span><a id="line.181">    public void addLocalLinkHook( final StringTransmutator mutator ) {</a>
+<span class="sourceLineNo">182</span><a id="line.182">        addLinkHook( m_localLinkMutatorChain, mutator );</a>
+<span class="sourceLineNo">183</span><a id="line.183">    }</a>
+<span class="sourceLineNo">184</span><a id="line.184"></a>
+<span class="sourceLineNo">185</span><a id="line.185">    /**</a>
+<span class="sourceLineNo">186</span><a id="line.186">     *  Adds a hook for processing external links.  This includes all http:// ftp://, etc. links, including inlined images.</a>
+<span class="sourceLineNo">187</span><a id="line.187">     *</a>
+<span class="sourceLineNo">188</span><a id="line.188">     *  @param mutator The hook to call.  Null is safe.</a>
+<span class="sourceLineNo">189</span><a id="line.189">     */</a>
+<span class="sourceLineNo">190</span><a id="line.190">    public void addExternalLinkHook( final StringTransmutator mutator ) {</a>
+<span class="sourceLineNo">191</span><a id="line.191">        addLinkHook( m_externalLinkMutatorChain, mutator );</a>
+<span class="sourceLineNo">192</span><a id="line.192">    }</a>
+<span class="sourceLineNo">193</span><a id="line.193"></a>
+<span class="sourceLineNo">194</span><a id="line.194">    /**</a>
+<span class="sourceLineNo">195</span><a id="line.195">     *  Adds a hook for processing attachment links.</a>
+<span class="sourceLineNo">196</span><a id="line.196">     *</a>
+<span class="sourceLineNo">197</span><a id="line.197">     *  @param mutator The hook to call.  Null is safe.</a>
+<span class="sourceLineNo">198</span><a id="line.198">     */</a>
+<span class="sourceLineNo">199</span><a id="line.199">    public void addAttachmentLinkHook( final StringTransmutator mutator ) {</a>
+<span class="sourceLineNo">200</span><a id="line.200">        addLinkHook( m_attachmentLinkMutatorChain, mutator );</a>
+<span class="sourceLineNo">201</span><a id="line.201">    }</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">    void addLinkHook( final List&lt; StringTransmutator &gt; mutatorChain, final StringTransmutator mutator ) {</a>
+<span class="sourceLineNo">204</span><a id="line.204">        if( mutator != null ) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">            mutatorChain.add( mutator );</a>
+<span class="sourceLineNo">206</span><a id="line.206">        }</a>
+<span class="sourceLineNo">207</span><a id="line.207">    }</a>
+<span class="sourceLineNo">208</span><a id="line.208"></a>
+<span class="sourceLineNo">209</span><a id="line.209">    /**</a>
+<span class="sourceLineNo">210</span><a id="line.210">     *  Adds a HeadingListener to the parser chain.  It will be called whenever a parsed header is found.</a>
+<span class="sourceLineNo">211</span><a id="line.211">     *</a>
+<span class="sourceLineNo">212</span><a id="line.212">     *  @param listener The listener to add.</a>
+<span class="sourceLineNo">213</span><a id="line.213">     */</a>
+<span class="sourceLineNo">214</span><a id="line.214">    public void addHeadingListener( final HeadingListener listener ) {</a>
+<span class="sourceLineNo">215</span><a id="line.215">        if( listener != null ) {</a>
+<span class="sourceLineNo">216</span><a id="line.216">            m_headingListenerChain.add( listener );</a>
+<span class="sourceLineNo">217</span><a id="line.217">        }</a>
+<span class="sourceLineNo">218</span><a id="line.218">    }</a>
+<span class="sourceLineNo">219</span><a id="line.219"></a>
+<span class="sourceLineNo">220</span><a id="line.220">    /**</a>
+<span class="sourceLineNo">221</span><a id="line.221">     *  Disables access rule parsing.</a>
+<span class="sourceLineNo">222</span><a id="line.222">     */</a>
+<span class="sourceLineNo">223</span><a id="line.223">    public void disableAccessRules()</a>
+<span class="sourceLineNo">224</span><a id="line.224">    {</a>
+<span class="sourceLineNo">225</span><a id="line.225">        m_parseAccessRules = false;</a>
+<span class="sourceLineNo">226</span><a id="line.226">    }</a>
+<span class="sourceLineNo">227</span><a id="line.227"></a>
+<span class="sourceLineNo">228</span><a id="line.228">    public boolean isParseAccessRules()</a>
+<span class="sourceLineNo">229</span><a id="line.229">    {</a>
+<span class="sourceLineNo">230</span><a id="line.230">        return m_parseAccessRules;</a>
+<span class="sourceLineNo">231</span><a id="line.231">    }</a>
+<span class="sourceLineNo">232</span><a id="line.232"></a>
+<span class="sourceLineNo">233</span><a id="line.233">    /**</a>
+<span class="sourceLineNo">234</span><a id="line.234">     *  Use this to turn on or off image inlining.</a>
+<span class="sourceLineNo">235</span><a id="line.235">     *</a>
+<span class="sourceLineNo">236</span><a id="line.236">     *  @param toggle If true, images are inlined (as per set in jspwiki.properties)</a>
+<span class="sourceLineNo">237</span><a id="line.237">     *                If false, then images won't be inlined; instead, they will be</a>
+<span class="sourceLineNo">238</span><a id="line.238">     *                treated as standard hyperlinks.</a>
+<span class="sourceLineNo">239</span><a id="line.239">     *  @since 2.2.9</a>
+<span class="sourceLineNo">240</span><a id="line.240">     */</a>
+<span class="sourceLineNo">241</span><a id="line.241">    public void enableImageInlining( final boolean toggle )</a>
+<span class="sourceLineNo">242</span><a id="line.242">    {</a>
+<span class="sourceLineNo">243</span><a id="line.243">        m_inlineImages = toggle;</a>
+<span class="sourceLineNo">244</span><a id="line.244">    }</a>
+<span class="sourceLineNo">245</span><a id="line.245"></a>
+<span class="sourceLineNo">246</span><a id="line.246">    public boolean isImageInlining() {</a>
+<span class="sourceLineNo">247</span><a id="line.247">        return m_inlineImages;</a>
+<span class="sourceLineNo">248</span><a id="line.248">    }</a>
+<span class="sourceLineNo">249</span><a id="line.249"></a>
+<span class="sourceLineNo">250</span><a id="line.250">    protected final void initInlineImagePatterns() {</a>
+<span class="sourceLineNo">251</span><a id="line.251">        final PatternCompiler compiler = new GlobCompiler();</a>
+<span class="sourceLineNo">252</span><a id="line.252"></a>
+<span class="sourceLineNo">253</span><a id="line.253">        //  We cache compiled patterns in the engine, since their creation is really expensive</a>
+<span class="sourceLineNo">254</span><a id="line.254">        List&lt; Pattern &gt; compiledpatterns = m_engine.getAttribute( INLINE_IMAGE_PATTERNS );</a>
+<span class="sourceLineNo">255</span><a id="line.255"></a>
+<span class="sourceLineNo">256</span><a id="line.256">        if( compiledpatterns == null ) {</a>
+<span class="sourceLineNo">257</span><a id="line.257">            compiledpatterns = new ArrayList&lt; &gt;( 20 );</a>
+<span class="sourceLineNo">258</span><a id="line.258">            final Collection&lt; String &gt; ptrns = m_engine.getAllInlinedImagePatterns();</a>
+<span class="sourceLineNo">259</span><a id="line.259"></a>
+<span class="sourceLineNo">260</span><a id="line.260">            //  Make them into Regexp Patterns.  Unknown patterns are ignored.</a>
+<span class="sourceLineNo">261</span><a id="line.261">            for( final String pattern : ptrns ) {</a>
+<span class="sourceLineNo">262</span><a id="line.262">                try {</a>
+<span class="sourceLineNo">263</span><a id="line.263">                    compiledpatterns.add( compiler.compile( pattern, GlobCompiler.DEFAULT_MASK | GlobCompiler.READ_ONLY_MASK ) );</a>
+<span class="sourceLineNo">264</span><a id="line.264">                } catch( final MalformedPatternException e ) {</a>
+<span class="sourceLineNo">265</span><a id="line.265">                    log.error( "Malformed pattern [" + pattern + "] in properties: ", e );</a>
+<span class="sourceLineNo">266</span><a id="line.266">                }</a>
+<span class="sourceLineNo">267</span><a id="line.267">            }</a>
+<span class="sourceLineNo">268</span><a id="line.268"></a>
+<span class="sourceLineNo">269</span><a id="line.269">            m_engine.setAttribute( INLINE_IMAGE_PATTERNS, compiledpatterns );</a>
+<span class="sourceLineNo">270</span><a id="line.270">        }</a>
+<span class="sourceLineNo">271</span><a id="line.271"></a>
+<span class="sourceLineNo">272</span><a id="line.272">        m_inlineImagePatterns = Collections.unmodifiableList( compiledpatterns );</a>
+<span class="sourceLineNo">273</span><a id="line.273">    }</a>
+<span class="sourceLineNo">274</span><a id="line.274"></a>
+<span class="sourceLineNo">275</span><a id="line.275">    public List&lt; Pattern &gt; getInlineImagePatterns() {</a>
+<span class="sourceLineNo">276</span><a id="line.276">        if( m_inlineImagePatterns == null ) {</a>
+<span class="sourceLineNo">277</span><a id="line.277">            initInlineImagePatterns();</a>
+<span class="sourceLineNo">278</span><a id="line.278">        }</a>
+<span class="sourceLineNo">279</span><a id="line.279">        return m_inlineImagePatterns;</a>
+<span class="sourceLineNo">280</span><a id="line.280">    }</a>
+<span class="sourceLineNo">281</span><a id="line.281"></a>
+<span class="sourceLineNo">282</span><a id="line.282">    /**</a>
+<span class="sourceLineNo">283</span><a id="line.283">     *  Parses the document.</a>
+<span class="sourceLineNo">284</span><a id="line.284">     *</a>
+<span class="sourceLineNo">285</span><a id="line.285">     *  @return the parsed document, as a WikiDocument</a>
+<span class="sourceLineNo">286</span><a id="line.286">     *  @throws IOException If something goes wrong.</a>
+<span class="sourceLineNo">287</span><a id="line.287">     */</a>
+<span class="sourceLineNo">288</span><a id="line.288">    public abstract WikiDocument parse() throws IOException;</a>
+<span class="sourceLineNo">289</span><a id="line.289"></a>
+<span class="sourceLineNo">290</span><a id="line.290">    /**</a>
+<span class="sourceLineNo">291</span><a id="line.291">     *  Return the current position in the reader stream. The value will be -1 prior to reading.</a>
+<span class="sourceLineNo">292</span><a id="line.292">     *</a>
+<span class="sourceLineNo">293</span><a id="line.293">     * @return the reader position as an int.</a>
+<span class="sourceLineNo">294</span><a id="line.294">     */</a>
+<span class="sourceLineNo">295</span><a id="line.295">    public int getPosition()</a>
+<span class="sourceLineNo">296</span><a id="line.296">    {</a>
+<span class="sourceLineNo">297</span><a id="line.297">        return m_pos;</a>
+<span class="sourceLineNo">298</span><a id="line.298">    }</a>
+<span class="sourceLineNo">299</span><a id="line.299"></a>
+<span class="sourceLineNo">300</span><a id="line.300">    /**</a>
+<span class="sourceLineNo">301</span><a id="line.301">     * Returns the next token in the stream.  This is the most called method in the entire parser, so it needs to be lean and mean.</a>
+<span class="sourceLineNo">302</span><a id="line.302">     *</a>
+<span class="sourceLineNo">303</span><a id="line.303">     * @return The next token in the stream; or, if the stream is ended, -1.</a>
+<span class="sourceLineNo">304</span><a id="line.304">     * @throws IOException If something bad happens</a>
+<span class="sourceLineNo">305</span><a id="line.305">     * @throws NullPointerException If you have not yet created an input document.</a>
+<span class="sourceLineNo">306</span><a id="line.306">     */</a>
+<span class="sourceLineNo">307</span><a id="line.307">    protected final int nextToken() throws IOException, NullPointerException {</a>
+<span class="sourceLineNo">308</span><a id="line.308">        // if( m_in == null ) return -1;</a>
+<span class="sourceLineNo">309</span><a id="line.309">        m_pos++;</a>
+<span class="sourceLineNo">310</span><a id="line.310">        return m_in.read();</a>
+<span class="sourceLineNo">311</span><a id="line.311">    }</a>
+<span class="sourceLineNo">312</span><a id="line.312"></a>
+<span class="sourceLineNo">313</span><a id="line.313">    /**</a>
+<span class="sourceLineNo">314</span><a id="line.314">     *  Push back any character to the current input.  Does not push back a read EOF, though.</a>
+<span class="sourceLineNo">315</span><a id="line.315">     *</a>
+<span class="sourceLineNo">316</span><a id="line.316">     *  @param c Character to push back.</a>
+<span class="sourceLineNo">317</span><a id="line.317">     *  @throws IOException In case the character cannot be pushed back.</a>
+<span class="sourceLineNo">318</span><a id="line.318">     */</a>
+<span class="sourceLineNo">319</span><a id="line.319">    protected void pushBack( final int c ) throws IOException {</a>
+<span class="sourceLineNo">320</span><a id="line.320">        if( c != -1 &amp;&amp; m_in != null ) {</a>
+<span class="sourceLineNo">321</span><a id="line.321">            m_pos--;</a>
+<span class="sourceLineNo">322</span><a id="line.322">            m_in.unread( c );</a>
+<span class="sourceLineNo">323</span><a id="line.323">        }</a>
+<span class="sourceLineNo">324</span><a id="line.324">    }</a>
+<span class="sourceLineNo">325</span><a id="line.325"></a>
+<span class="sourceLineNo">326</span><a id="line.326">    /**</a>
+<span class="sourceLineNo">327</span><a id="line.327">     *  Writes HTML for error message.  Does not add it to the document, you have to do it yourself.</a>
+<span class="sourceLineNo">328</span><a id="line.328">     *</a>
+<span class="sourceLineNo">329</span><a id="line.329">     *  @param error The error string.</a>
+<span class="sourceLineNo">330</span><a id="line.330">     *  @return An Element containing the error.</a>
+<span class="sourceLineNo">331</span><a id="line.331">     */</a>
+<span class="sourceLineNo">332</span><a id="line.332">    public static Element makeError( final String error ) {</a>
+<span class="sourceLineNo">333</span><a id="line.333">        return new Element( "span" ).setAttribute( "class", "error" ).addContent( error );</a>
+<span class="sourceLineNo">334</span><a id="line.334">    }</a>
+<span class="sourceLineNo">335</span><a id="line.335"></a>
+<span class="sourceLineNo">336</span><a id="line.336">    /**</a>
+<span class="sourceLineNo">337</span><a id="line.337">     *  Cleans a Wiki name.  The functionality of this method was changed in 2.6 so that the list of allowed characters is much larger.</a>
+<span class="sourceLineNo">338</span><a id="line.338">     *  Use {@link #wikifyLink(String)} to get the legacy behaviour.</a>
+<span class="sourceLineNo">339</span><a id="line.339">     *  &lt;P&gt;</a>
+<span class="sourceLineNo">340</span><a id="line.340">     *  [ This is a link ] -&amp;gt; This is a link</a>
+<span class="sourceLineNo">341</span><a id="line.341">     *</a>
+<span class="sourceLineNo">342</span><a id="line.342">     *  @param link Link to be cleared. Null is safe, and causes this to return null.</a>
+<span class="sourceLineNo">343</span><a id="line.343">     *  @return A cleaned link.</a>
+<span class="sourceLineNo">344</span><a id="line.344">     *</a>
+<span class="sourceLineNo">345</span><a id="line.345">     *  @since 2.0</a>
+<span class="sourceLineNo">346</span><a id="line.346">     */</a>
+<span class="sourceLineNo">347</span><a id="line.347">    public static String cleanLink( final String link ) {</a>
+<span class="sourceLineNo">348</span><a id="line.348">        return TextUtil.cleanString( link, TextUtil.PUNCTUATION_CHARS_ALLOWED );</a>
+<span class="sourceLineNo">349</span><a id="line.349">    }</a>
+<span class="sourceLineNo">350</span><a id="line.350"></a>
+<span class="sourceLineNo">351</span><a id="line.351">    /**</a>
+<span class="sourceLineNo">352</span><a id="line.352">     *  Cleans away extra legacy characters.  This method functions exactly like pre-2.6 cleanLink()</a>
+<span class="sourceLineNo">353</span><a id="line.353">     *  &lt;P&gt;</a>
+<span class="sourceLineNo">354</span><a id="line.354">     *  [ This is a link ] -&amp;gt; ThisIsALink</a>
+<span class="sourceLineNo">355</span><a id="line.355">     *</a>
+<span class="sourceLineNo">356</span><a id="line.356">     *  @param link Link to be cleared. Null is safe, and causes this to return null.</a>
+<span class="sourceLineNo">357</span><a id="line.357">     *  @return A cleaned link.</a>
+<span class="sourceLineNo">358</span><a id="line.358">     *  @since 2.6</a>
+<span class="sourceLineNo">359</span><a id="line.359">     */</a>
+<span class="sourceLineNo">360</span><a id="line.360">    public static String wikifyLink( final String link ) {</a>
+<span class="sourceLineNo">361</span><a id="line.361">        return TextUtil.cleanString( link, TextUtil.LEGACY_CHARS_ALLOWED );</a>
+<span class="sourceLineNo">362</span><a id="line.362">    }</a>
+<span class="sourceLineNo">363</span><a id="line.363"></a>
+<span class="sourceLineNo">364</span><a id="line.364">}</a>
 
 
 
@@ -432,5 +433,6 @@
 
 </pre>
 </div>
+</main>
 </body>
 </html>
