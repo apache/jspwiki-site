@@ -1,0 +1,489 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.filters;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.exceptions.FilterException;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.filters.PageFilter;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.event.WikiPageEvent;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.modules.BaseModuleManager;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.modules.WikiModuleInfo;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.util.PriorityList;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.util.XmlUtil;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.jdom2.Element;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.io.File;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.io.FileInputStream;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.io.IOException;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.io.InputStream;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.Collection;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.util.HashMap;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.util.List;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.util.Map;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.util.Properties;</a>
+<span class="sourceLineNo">045</span><a id="line.45"></a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">/**</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *  Manages the page filters.  Page filters are components that can be executed at certain places:</a>
+<span class="sourceLineNo">049</span><a id="line.49"> *  &lt;ul&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *    &lt;li&gt;Before the page is translated into HTML.</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *    &lt;li&gt;After the page has been translated into HTML.</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *    &lt;li&gt;Before the page is saved.</a>
+<span class="sourceLineNo">053</span><a id="line.53"> *    &lt;li&gt;After the page has been saved.</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">055</span><a id="line.55"> *</a>
+<span class="sourceLineNo">056</span><a id="line.56"> *  Using page filters allows you to modify the page data on-the-fly, and do things like adding your own custom WikiMarkup.</a>
+<span class="sourceLineNo">057</span><a id="line.57"> *</a>
+<span class="sourceLineNo">058</span><a id="line.58"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">059</span><a id="line.59"> *  The initial page filter configuration is kept in a file called "filters.xml".  The format is really very simple:</a>
+<span class="sourceLineNo">060</span><a id="line.60"> *  &lt;pre&gt;</a>
+<span class="sourceLineNo">061</span><a id="line.61"> *  &lt;?xml version="1.0"?&gt;</a>
+<span class="sourceLineNo">062</span><a id="line.62"> *  &amp;lt;pagefilters&gt;</a>
+<span class="sourceLineNo">063</span><a id="line.63"> *</a>
+<span class="sourceLineNo">064</span><a id="line.64"> *    &amp;lt;filter&gt;</a>
+<span class="sourceLineNo">065</span><a id="line.65"> *      &amp;lt;class&gt;org.apache.wiki.filters.ProfanityFilter&amp;lt;/class&gt;</a>
+<span class="sourceLineNo">066</span><a id="line.66"> *    &amp;lt;filter&gt;</a>
+<span class="sourceLineNo">067</span><a id="line.67"> *</a>
+<span class="sourceLineNo">068</span><a id="line.68"> *    &amp;lt;filter&gt;</a>
+<span class="sourceLineNo">069</span><a id="line.69"> *      &amp;lt;class&gt;org.apache.wiki.filters.TestFilter&amp;lt;/class&gt;</a>
+<span class="sourceLineNo">070</span><a id="line.70"> *</a>
+<span class="sourceLineNo">071</span><a id="line.71"> *      &amp;lt;param&gt;</a>
+<span class="sourceLineNo">072</span><a id="line.72"> *        &amp;lt;name&gt;foobar&amp;lt;/name&gt;</a>
+<span class="sourceLineNo">073</span><a id="line.73"> *        &amp;lt;value&gt;Zippadippadai&amp;lt;/value&gt;</a>
+<span class="sourceLineNo">074</span><a id="line.74"> *      &amp;lt;/param&gt;</a>
+<span class="sourceLineNo">075</span><a id="line.75"> *</a>
+<span class="sourceLineNo">076</span><a id="line.76"> *      &amp;lt;param&gt;</a>
+<span class="sourceLineNo">077</span><a id="line.77"> *        &amp;lt;name&gt;blatblaa&amp;lt;/name&gt;</a>
+<span class="sourceLineNo">078</span><a id="line.78"> *        &amp;lt;value&gt;5&amp;lt;/value&gt;</a>
+<span class="sourceLineNo">079</span><a id="line.79"> *      &amp;lt;/param&gt;</a>
+<span class="sourceLineNo">080</span><a id="line.80"> *</a>
+<span class="sourceLineNo">081</span><a id="line.81"> *    &amp;lt;/filter&gt;</a>
+<span class="sourceLineNo">082</span><a id="line.82"> *  &amp;lt;/pagefilters&gt;</a>
+<span class="sourceLineNo">083</span><a id="line.83"> *  &lt;/pre&gt;</a>
+<span class="sourceLineNo">084</span><a id="line.84"> *</a>
+<span class="sourceLineNo">085</span><a id="line.85"> *  The &amp;lt;filter&gt; -sections define the filters.  For more information, please see the PageFilterConfiguration page in the JSPWiki distribution.</a>
+<span class="sourceLineNo">086</span><a id="line.86"> */</a>
+<span class="sourceLineNo">087</span><a id="line.87">public class DefaultFilterManager extends BaseModuleManager implements FilterManager {</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">    private PriorityList&lt; PageFilter &gt; m_pageFilters = new PriorityList&lt;&gt;();</a>
+<span class="sourceLineNo">090</span><a id="line.90"></a>
+<span class="sourceLineNo">091</span><a id="line.91">    private Map&lt; String, PageFilterInfo &gt; m_filterClassMap = new HashMap&lt;&gt;();</a>
+<span class="sourceLineNo">092</span><a id="line.92"></a>
+<span class="sourceLineNo">093</span><a id="line.93">    private static final Logger log = Logger.getLogger(DefaultFilterManager.class);</a>
+<span class="sourceLineNo">094</span><a id="line.94"></a>
+<span class="sourceLineNo">095</span><a id="line.95">    /**</a>
+<span class="sourceLineNo">096</span><a id="line.96">     *  Constructs a new FilterManager object.</a>
+<span class="sourceLineNo">097</span><a id="line.97">     *</a>
+<span class="sourceLineNo">098</span><a id="line.98">     *  @param engine The Engine which owns the FilterManager</a>
+<span class="sourceLineNo">099</span><a id="line.99">     *  @param props Properties to initialize the FilterManager with</a>
+<span class="sourceLineNo">100</span><a id="line.100">     *  @throws WikiException If something goes wrong.</a>
+<span class="sourceLineNo">101</span><a id="line.101">     */</a>
+<span class="sourceLineNo">102</span><a id="line.102">    public DefaultFilterManager( final Engine engine, final Properties props ) throws WikiException {</a>
+<span class="sourceLineNo">103</span><a id="line.103">        super( engine );</a>
+<span class="sourceLineNo">104</span><a id="line.104">        initialize( props );</a>
+<span class="sourceLineNo">105</span><a id="line.105">    }</a>
+<span class="sourceLineNo">106</span><a id="line.106"></a>
+<span class="sourceLineNo">107</span><a id="line.107">    /**</a>
+<span class="sourceLineNo">108</span><a id="line.108">     *  Adds a page filter to the queue.  The priority defines in which order the page filters are run, the highest priority filters go</a>
+<span class="sourceLineNo">109</span><a id="line.109">     *  in the queue first.</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">111</span><a id="line.111">     *  In case two filters have the same priority, their execution order is the insertion order.</a>
+<span class="sourceLineNo">112</span><a id="line.112">     *</a>
+<span class="sourceLineNo">113</span><a id="line.113">     *  @since 2.1.44.</a>
+<span class="sourceLineNo">114</span><a id="line.114">     *  @param f PageFilter to add</a>
+<span class="sourceLineNo">115</span><a id="line.115">     *  @param priority The priority in which position to add it in.</a>
+<span class="sourceLineNo">116</span><a id="line.116">     *  @throws IllegalArgumentException If the PageFilter is null or invalid.</a>
+<span class="sourceLineNo">117</span><a id="line.117">     */</a>
+<span class="sourceLineNo">118</span><a id="line.118">    @Override</a>
+<span class="sourceLineNo">119</span><a id="line.119">    public void addPageFilter( final PageFilter f, final int priority ) throws IllegalArgumentException {</a>
+<span class="sourceLineNo">120</span><a id="line.120">        if( f == null ) {</a>
+<span class="sourceLineNo">121</span><a id="line.121">            throw new IllegalArgumentException("Attempt to provide a null filter - this should never happen.  Please check your configuration (or if you're a developer, check your own code.)");</a>
+<span class="sourceLineNo">122</span><a id="line.122">        }</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">        m_pageFilters.add( f, priority );</a>
+<span class="sourceLineNo">125</span><a id="line.125">    }</a>
+<span class="sourceLineNo">126</span><a id="line.126"></a>
+<span class="sourceLineNo">127</span><a id="line.127">    private void initPageFilter( final String className, final Properties props ) {</a>
+<span class="sourceLineNo">128</span><a id="line.128">        try {</a>
+<span class="sourceLineNo">129</span><a id="line.129">            final PageFilterInfo info = m_filterClassMap.get( className );</a>
+<span class="sourceLineNo">130</span><a id="line.130">            if( info != null &amp;&amp; !checkCompatibility( info ) ) {</a>
+<span class="sourceLineNo">131</span><a id="line.131">                log.warn( "Filter '" + info.getName() + "' not compatible with this version of JSPWiki" );</a>
+<span class="sourceLineNo">132</span><a id="line.132">                return;</a>
+<span class="sourceLineNo">133</span><a id="line.133">            }</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">            final int priority = 0; // FIXME: Currently fixed.</a>
+<span class="sourceLineNo">136</span><a id="line.136">            final Class&lt; ? &gt; cl = ClassUtil.findClass( "org.apache.wiki.filters", className );</a>
+<span class="sourceLineNo">137</span><a id="line.137">            final PageFilter filter = (PageFilter)cl.newInstance();</a>
+<span class="sourceLineNo">138</span><a id="line.138">            filter.initialize( m_engine, props );</a>
+<span class="sourceLineNo">139</span><a id="line.139"></a>
+<span class="sourceLineNo">140</span><a id="line.140">            addPageFilter( filter, priority );</a>
+<span class="sourceLineNo">141</span><a id="line.141">            log.info("Added page filter "+cl.getName()+" with priority "+priority);</a>
+<span class="sourceLineNo">142</span><a id="line.142">        } catch( final ClassNotFoundException e ) {</a>
+<span class="sourceLineNo">143</span><a id="line.143">            log.error("Unable to find the filter class: "+className);</a>
+<span class="sourceLineNo">144</span><a id="line.144">        } catch( final InstantiationException e ) {</a>
+<span class="sourceLineNo">145</span><a id="line.145">            log.error("Cannot create filter class: "+className);</a>
+<span class="sourceLineNo">146</span><a id="line.146">        } catch( final IllegalAccessException e ) {</a>
+<span class="sourceLineNo">147</span><a id="line.147">            log.error("You are not allowed to access class: "+className);</a>
+<span class="sourceLineNo">148</span><a id="line.148">        } catch( final ClassCastException e ) {</a>
+<span class="sourceLineNo">149</span><a id="line.149">            log.error("Suggested class is not a PageFilter: "+className);</a>
+<span class="sourceLineNo">150</span><a id="line.150">        } catch( final FilterException e ) {</a>
+<span class="sourceLineNo">151</span><a id="line.151">            log.error("Filter "+className+" failed to initialize itself.", e);</a>
+<span class="sourceLineNo">152</span><a id="line.152">        }</a>
+<span class="sourceLineNo">153</span><a id="line.153">    }</a>
+<span class="sourceLineNo">154</span><a id="line.154"></a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">    /**</a>
+<span class="sourceLineNo">157</span><a id="line.157">     *  Initializes the filters from an XML file.</a>
+<span class="sourceLineNo">158</span><a id="line.158">     *</a>
+<span class="sourceLineNo">159</span><a id="line.159">     *  @param props The list of properties.  Typically jspwiki.properties</a>
+<span class="sourceLineNo">160</span><a id="line.160">     *  @throws WikiException If something goes wrong.</a>
+<span class="sourceLineNo">161</span><a id="line.161">     */</a>
+<span class="sourceLineNo">162</span><a id="line.162">    protected void initialize( final Properties props ) throws WikiException {</a>
+<span class="sourceLineNo">163</span><a id="line.163">        InputStream xmlStream = null;</a>
+<span class="sourceLineNo">164</span><a id="line.164">        final String xmlFile = props.getProperty( PROP_FILTERXML ) ;</a>
+<span class="sourceLineNo">165</span><a id="line.165"></a>
+<span class="sourceLineNo">166</span><a id="line.166">        try {</a>
+<span class="sourceLineNo">167</span><a id="line.167">            registerFilters();</a>
+<span class="sourceLineNo">168</span><a id="line.168"></a>
+<span class="sourceLineNo">169</span><a id="line.169">            if( m_engine.getServletContext() != null ) {</a>
+<span class="sourceLineNo">170</span><a id="line.170">                log.debug( "Attempting to locate " + DEFAULT_XMLFILE + " from servlet context." );</a>
+<span class="sourceLineNo">171</span><a id="line.171">                if( xmlFile == null ) {</a>
+<span class="sourceLineNo">172</span><a id="line.172">                    xmlStream = m_engine.getServletContext().getResourceAsStream( DEFAULT_XMLFILE );</a>
+<span class="sourceLineNo">173</span><a id="line.173">                } else {</a>
+<span class="sourceLineNo">174</span><a id="line.174">                    xmlStream = m_engine.getServletContext().getResourceAsStream( xmlFile );</a>
+<span class="sourceLineNo">175</span><a id="line.175">                }</a>
+<span class="sourceLineNo">176</span><a id="line.176">            }</a>
+<span class="sourceLineNo">177</span><a id="line.177"></a>
+<span class="sourceLineNo">178</span><a id="line.178">            if( xmlStream == null ) {</a>
+<span class="sourceLineNo">179</span><a id="line.179">                // just a fallback element to the old behaviour prior to 2.5.8</a>
+<span class="sourceLineNo">180</span><a id="line.180">                log.debug( "Attempting to locate filters.xml from class path." );</a>
+<span class="sourceLineNo">181</span><a id="line.181"></a>
+<span class="sourceLineNo">182</span><a id="line.182">                if( xmlFile == null ) {</a>
+<span class="sourceLineNo">183</span><a id="line.183">                    xmlStream = getClass().getResourceAsStream( "/filters.xml" );</a>
+<span class="sourceLineNo">184</span><a id="line.184">                } else {</a>
+<span class="sourceLineNo">185</span><a id="line.185">                    xmlStream = getClass().getResourceAsStream( xmlFile );</a>
+<span class="sourceLineNo">186</span><a id="line.186">                }</a>
+<span class="sourceLineNo">187</span><a id="line.187">            }</a>
+<span class="sourceLineNo">188</span><a id="line.188"></a>
+<span class="sourceLineNo">189</span><a id="line.189">            if( (xmlStream == null) &amp;&amp; (xmlFile != null) ) {</a>
+<span class="sourceLineNo">190</span><a id="line.190">                log.debug("Attempting to load property file "+xmlFile);</a>
+<span class="sourceLineNo">191</span><a id="line.191">                xmlStream = new FileInputStream( new File(xmlFile) );</a>
+<span class="sourceLineNo">192</span><a id="line.192">            }</a>
+<span class="sourceLineNo">193</span><a id="line.193"></a>
+<span class="sourceLineNo">194</span><a id="line.194">            if( xmlStream == null ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">                log.info( "Cannot find property file for filters (this is okay, expected to find it as: '" + DEFAULT_XMLFILE + "')" );</a>
+<span class="sourceLineNo">196</span><a id="line.196">                return;</a>
+<span class="sourceLineNo">197</span><a id="line.197">            }</a>
+<span class="sourceLineNo">198</span><a id="line.198"></a>
+<span class="sourceLineNo">199</span><a id="line.199">            parseConfigFile( xmlStream );</a>
+<span class="sourceLineNo">200</span><a id="line.200">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">201</span><a id="line.201">            log.error("Unable to read property file", e);</a>
+<span class="sourceLineNo">202</span><a id="line.202">        } finally {</a>
+<span class="sourceLineNo">203</span><a id="line.203">            try {</a>
+<span class="sourceLineNo">204</span><a id="line.204">                if( xmlStream != null ) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">                    xmlStream.close();</a>
+<span class="sourceLineNo">206</span><a id="line.206">                }</a>
+<span class="sourceLineNo">207</span><a id="line.207">            } catch( final IOException ioe ) {</a>
+<span class="sourceLineNo">208</span><a id="line.208">                // ignore</a>
+<span class="sourceLineNo">209</span><a id="line.209">            }</a>
+<span class="sourceLineNo">210</span><a id="line.210">        }</a>
+<span class="sourceLineNo">211</span><a id="line.211">    }</a>
+<span class="sourceLineNo">212</span><a id="line.212"></a>
+<span class="sourceLineNo">213</span><a id="line.213">    /**</a>
+<span class="sourceLineNo">214</span><a id="line.214">     *  Parses the XML filters configuration file.</a>
+<span class="sourceLineNo">215</span><a id="line.215">     *</a>
+<span class="sourceLineNo">216</span><a id="line.216">     * @param xmlStream stream to parse</a>
+<span class="sourceLineNo">217</span><a id="line.217">     */</a>
+<span class="sourceLineNo">218</span><a id="line.218">    private void parseConfigFile( final InputStream xmlStream ) {</a>
+<span class="sourceLineNo">219</span><a id="line.219">        final List&lt; Element &gt; pageFilters = XmlUtil.parse( xmlStream, "/pagefilters/filter" );</a>
+<span class="sourceLineNo">220</span><a id="line.220">        for( final Element f : pageFilters ) {</a>
+<span class="sourceLineNo">221</span><a id="line.221">            final String filterClass = f.getChildText( "class" );</a>
+<span class="sourceLineNo">222</span><a id="line.222">            final Properties props = new Properties();</a>
+<span class="sourceLineNo">223</span><a id="line.223">            final List&lt;Element&gt; params = f.getChildren( "param" );</a>
+<span class="sourceLineNo">224</span><a id="line.224">            for( final Element p : params ) {</a>
+<span class="sourceLineNo">225</span><a id="line.225">                props.setProperty( p.getChildText( "name" ), p.getChildText( "value" ) );</a>
+<span class="sourceLineNo">226</span><a id="line.226">            }</a>
+<span class="sourceLineNo">227</span><a id="line.227"></a>
+<span class="sourceLineNo">228</span><a id="line.228">            initPageFilter( filterClass, props );</a>
+<span class="sourceLineNo">229</span><a id="line.229">        }</a>
+<span class="sourceLineNo">230</span><a id="line.230">    }</a>
+<span class="sourceLineNo">231</span><a id="line.231"></a>
+<span class="sourceLineNo">232</span><a id="line.232"></a>
+<span class="sourceLineNo">233</span><a id="line.233">    /**</a>
+<span class="sourceLineNo">234</span><a id="line.234">     *  Does the filtering before a translation.</a>
+<span class="sourceLineNo">235</span><a id="line.235">     *</a>
+<span class="sourceLineNo">236</span><a id="line.236">     *  @param context The WikiContext</a>
+<span class="sourceLineNo">237</span><a id="line.237">     *  @param pageData WikiMarkup data to be passed through the preTranslate chain.</a>
+<span class="sourceLineNo">238</span><a id="line.238">     *  @throws FilterException If any of the filters throws a FilterException</a>
+<span class="sourceLineNo">239</span><a id="line.239">     *  @return The modified WikiMarkup</a>
+<span class="sourceLineNo">240</span><a id="line.240">     *</a>
+<span class="sourceLineNo">241</span><a id="line.241">     *  @see PageFilter#preTranslate(Context, String)</a>
+<span class="sourceLineNo">242</span><a id="line.242">     */</a>
+<span class="sourceLineNo">243</span><a id="line.243">    @Override</a>
+<span class="sourceLineNo">244</span><a id="line.244">    public String doPreTranslateFiltering( final Context context, String pageData ) throws FilterException {</a>
+<span class="sourceLineNo">245</span><a id="line.245">        fireEvent( WikiPageEvent.PRE_TRANSLATE_BEGIN, context );</a>
+<span class="sourceLineNo">246</span><a id="line.246">        for( final PageFilter f : m_pageFilters ) {</a>
+<span class="sourceLineNo">247</span><a id="line.247">            pageData = f.preTranslate( context, pageData );</a>
+<span class="sourceLineNo">248</span><a id="line.248">        }</a>
+<span class="sourceLineNo">249</span><a id="line.249"></a>
+<span class="sourceLineNo">250</span><a id="line.250">        fireEvent( WikiPageEvent.PRE_TRANSLATE_END, context );</a>
+<span class="sourceLineNo">251</span><a id="line.251"></a>
+<span class="sourceLineNo">252</span><a id="line.252">        return pageData;</a>
+<span class="sourceLineNo">253</span><a id="line.253">    }</a>
+<span class="sourceLineNo">254</span><a id="line.254"></a>
+<span class="sourceLineNo">255</span><a id="line.255">    /**</a>
+<span class="sourceLineNo">256</span><a id="line.256">     *  Does the filtering after HTML translation.</a>
+<span class="sourceLineNo">257</span><a id="line.257">     *</a>
+<span class="sourceLineNo">258</span><a id="line.258">     *  @param context The WikiContext</a>
+<span class="sourceLineNo">259</span><a id="line.259">     *  @param htmlData HTML data to be passed through the postTranslate</a>
+<span class="sourceLineNo">260</span><a id="line.260">     *  @throws FilterException If any of the filters throws a FilterException</a>
+<span class="sourceLineNo">261</span><a id="line.261">     *  @return The modified HTML</a>
+<span class="sourceLineNo">262</span><a id="line.262">     *  @see PageFilter#postTranslate(Context, String)</a>
+<span class="sourceLineNo">263</span><a id="line.263">     */</a>
+<span class="sourceLineNo">264</span><a id="line.264">    @Override</a>
+<span class="sourceLineNo">265</span><a id="line.265">    public String doPostTranslateFiltering( final Context context, String htmlData ) throws FilterException {</a>
+<span class="sourceLineNo">266</span><a id="line.266">        fireEvent( WikiPageEvent.POST_TRANSLATE_BEGIN, context );</a>
+<span class="sourceLineNo">267</span><a id="line.267">        for( final PageFilter f : m_pageFilters ) {</a>
+<span class="sourceLineNo">268</span><a id="line.268">            htmlData = f.postTranslate( context, htmlData );</a>
+<span class="sourceLineNo">269</span><a id="line.269">        }</a>
+<span class="sourceLineNo">270</span><a id="line.270"></a>
+<span class="sourceLineNo">271</span><a id="line.271">        fireEvent( WikiPageEvent.POST_TRANSLATE_END, context );</a>
+<span class="sourceLineNo">272</span><a id="line.272"></a>
+<span class="sourceLineNo">273</span><a id="line.273">        return htmlData;</a>
+<span class="sourceLineNo">274</span><a id="line.274">    }</a>
+<span class="sourceLineNo">275</span><a id="line.275"></a>
+<span class="sourceLineNo">276</span><a id="line.276">    /**</a>
+<span class="sourceLineNo">277</span><a id="line.277">     *  Does the filtering before a save to the page repository.</a>
+<span class="sourceLineNo">278</span><a id="line.278">     *</a>
+<span class="sourceLineNo">279</span><a id="line.279">     *  @param context The WikiContext</a>
+<span class="sourceLineNo">280</span><a id="line.280">     *  @param pageData WikiMarkup data to be passed through the preSave chain.</a>
+<span class="sourceLineNo">281</span><a id="line.281">     *  @throws FilterException If any of the filters throws a FilterException</a>
+<span class="sourceLineNo">282</span><a id="line.282">     *  @return The modified WikiMarkup</a>
+<span class="sourceLineNo">283</span><a id="line.283">     *  @see PageFilter#preSave(Context, String)</a>
+<span class="sourceLineNo">284</span><a id="line.284">     */</a>
+<span class="sourceLineNo">285</span><a id="line.285">    @Override</a>
+<span class="sourceLineNo">286</span><a id="line.286">    public String doPreSaveFiltering( final Context context, String pageData ) throws FilterException {</a>
+<span class="sourceLineNo">287</span><a id="line.287">        fireEvent( WikiPageEvent.PRE_SAVE_BEGIN, context );</a>
+<span class="sourceLineNo">288</span><a id="line.288">        for( final PageFilter f : m_pageFilters ) {</a>
+<span class="sourceLineNo">289</span><a id="line.289">            pageData = f.preSave( context, pageData );</a>
+<span class="sourceLineNo">290</span><a id="line.290">        }</a>
+<span class="sourceLineNo">291</span><a id="line.291"></a>
+<span class="sourceLineNo">292</span><a id="line.292">        fireEvent( WikiPageEvent.PRE_SAVE_END, context );</a>
+<span class="sourceLineNo">293</span><a id="line.293"></a>
+<span class="sourceLineNo">294</span><a id="line.294">        return pageData;</a>
+<span class="sourceLineNo">295</span><a id="line.295">    }</a>
+<span class="sourceLineNo">296</span><a id="line.296"></a>
+<span class="sourceLineNo">297</span><a id="line.297">    /**</a>
+<span class="sourceLineNo">298</span><a id="line.298">     *  Does the page filtering after the page has been saved.</a>
+<span class="sourceLineNo">299</span><a id="line.299">     *</a>
+<span class="sourceLineNo">300</span><a id="line.300">     *  @param context The WikiContext</a>
+<span class="sourceLineNo">301</span><a id="line.301">     *  @param pageData WikiMarkup data to be passed through the postSave chain.</a>
+<span class="sourceLineNo">302</span><a id="line.302">     *  @throws FilterException If any of the filters throws a FilterException</a>
+<span class="sourceLineNo">303</span><a id="line.303">     *</a>
+<span class="sourceLineNo">304</span><a id="line.304">     *  @see PageFilter#postSave(Context, String)</a>
+<span class="sourceLineNo">305</span><a id="line.305">     */</a>
+<span class="sourceLineNo">306</span><a id="line.306">    @Override</a>
+<span class="sourceLineNo">307</span><a id="line.307">    public void doPostSaveFiltering( final Context context, final String pageData ) throws FilterException {</a>
+<span class="sourceLineNo">308</span><a id="line.308">        fireEvent( WikiPageEvent.POST_SAVE_BEGIN, context );</a>
+<span class="sourceLineNo">309</span><a id="line.309">        for( final PageFilter f : m_pageFilters ) {</a>
+<span class="sourceLineNo">310</span><a id="line.310">            // log.info("POSTSAVE: "+f.toString() );</a>
+<span class="sourceLineNo">311</span><a id="line.311">            f.postSave( context, pageData );</a>
+<span class="sourceLineNo">312</span><a id="line.312">        }</a>
+<span class="sourceLineNo">313</span><a id="line.313"></a>
+<span class="sourceLineNo">314</span><a id="line.314">        fireEvent( WikiPageEvent.POST_SAVE_END, context );</a>
+<span class="sourceLineNo">315</span><a id="line.315">    }</a>
+<span class="sourceLineNo">316</span><a id="line.316"></a>
+<span class="sourceLineNo">317</span><a id="line.317">    /**</a>
+<span class="sourceLineNo">318</span><a id="line.318">     *  Returns the list of filters currently installed.  Note that this is not</a>
+<span class="sourceLineNo">319</span><a id="line.319">     *  a copy, but the actual list.  So be careful with it.</a>
+<span class="sourceLineNo">320</span><a id="line.320">     *</a>
+<span class="sourceLineNo">321</span><a id="line.321">     *  @return A List of PageFilter objects</a>
+<span class="sourceLineNo">322</span><a id="line.322">     */</a>
+<span class="sourceLineNo">323</span><a id="line.323">    @Override</a>
+<span class="sourceLineNo">324</span><a id="line.324">    public List&lt; PageFilter &gt; getFilterList()</a>
+<span class="sourceLineNo">325</span><a id="line.325">    {</a>
+<span class="sourceLineNo">326</span><a id="line.326">        return m_pageFilters;</a>
+<span class="sourceLineNo">327</span><a id="line.327">    }</a>
+<span class="sourceLineNo">328</span><a id="line.328"></a>
+<span class="sourceLineNo">329</span><a id="line.329">    /**</a>
+<span class="sourceLineNo">330</span><a id="line.330">     *</a>
+<span class="sourceLineNo">331</span><a id="line.331">     * Notifies PageFilters to clean up their ressources.</a>
+<span class="sourceLineNo">332</span><a id="line.332">     *</a>
+<span class="sourceLineNo">333</span><a id="line.333">     */</a>
+<span class="sourceLineNo">334</span><a id="line.334">    @Override</a>
+<span class="sourceLineNo">335</span><a id="line.335">    public void destroy() {</a>
+<span class="sourceLineNo">336</span><a id="line.336">        for( final PageFilter f : m_pageFilters ) {</a>
+<span class="sourceLineNo">337</span><a id="line.337">            f.destroy( m_engine );</a>
+<span class="sourceLineNo">338</span><a id="line.338">        }</a>
+<span class="sourceLineNo">339</span><a id="line.339">    }</a>
+<span class="sourceLineNo">340</span><a id="line.340"></a>
+<span class="sourceLineNo">341</span><a id="line.341">    // events processing .......................................................</a>
+<span class="sourceLineNo">342</span><a id="line.342"></a>
+<span class="sourceLineNo">343</span><a id="line.343">    /**</a>
+<span class="sourceLineNo">344</span><a id="line.344">     *  Fires a WikiPageEvent of the provided type and WikiContext. Invalid WikiPageEvent types are ignored.</a>
+<span class="sourceLineNo">345</span><a id="line.345">     *</a>
+<span class="sourceLineNo">346</span><a id="line.346">     * @see org.apache.wiki.event.WikiPageEvent</a>
+<span class="sourceLineNo">347</span><a id="line.347">     * @param type      the WikiPageEvent type to be fired.</a>
+<span class="sourceLineNo">348</span><a id="line.348">     * @param context   the WikiContext of the event.</a>
+<span class="sourceLineNo">349</span><a id="line.349">     */</a>
+<span class="sourceLineNo">350</span><a id="line.350">    public void fireEvent( final int type, final Context context ) {</a>
+<span class="sourceLineNo">351</span><a id="line.351">        if( WikiEventManager.isListening(this ) &amp;&amp; WikiPageEvent.isValidType( type ) )  {</a>
+<span class="sourceLineNo">352</span><a id="line.352">            WikiEventManager.fireEvent(this, new WikiPageEvent( m_engine, type, context.getPage().getName() ) );</a>
+<span class="sourceLineNo">353</span><a id="line.353">        }</a>
+<span class="sourceLineNo">354</span><a id="line.354">    }</a>
+<span class="sourceLineNo">355</span><a id="line.355"></a>
+<span class="sourceLineNo">356</span><a id="line.356">    /**</a>
+<span class="sourceLineNo">357</span><a id="line.357">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">358</span><a id="line.358">     */</a>
+<span class="sourceLineNo">359</span><a id="line.359">    @Override</a>
+<span class="sourceLineNo">360</span><a id="line.360">    public Collection&lt; WikiModuleInfo &gt; modules() {</a>
+<span class="sourceLineNo">361</span><a id="line.361">        return modules( m_filterClassMap.values().iterator() );</a>
+<span class="sourceLineNo">362</span><a id="line.362">    }</a>
+<span class="sourceLineNo">363</span><a id="line.363"></a>
+<span class="sourceLineNo">364</span><a id="line.364">    /**</a>
+<span class="sourceLineNo">365</span><a id="line.365">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">366</span><a id="line.366">     */</a>
+<span class="sourceLineNo">367</span><a id="line.367">    @Override</a>
+<span class="sourceLineNo">368</span><a id="line.368">    public PageFilterInfo getModuleInfo( final String moduleName ) {</a>
+<span class="sourceLineNo">369</span><a id="line.369">        return m_filterClassMap.get(moduleName);</a>
+<span class="sourceLineNo">370</span><a id="line.370">    }</a>
+<span class="sourceLineNo">371</span><a id="line.371"></a>
+<span class="sourceLineNo">372</span><a id="line.372">    private void registerFilters() {</a>
+<span class="sourceLineNo">373</span><a id="line.373">        log.info( "Registering filters" );</a>
+<span class="sourceLineNo">374</span><a id="line.374">        final List&lt; Element &gt; filters = XmlUtil.parse( PLUGIN_RESOURCE_LOCATION, "/modules/filter" );</a>
+<span class="sourceLineNo">375</span><a id="line.375"></a>
+<span class="sourceLineNo">376</span><a id="line.376">        //</a>
+<span class="sourceLineNo">377</span><a id="line.377">        // Register all filters which have created a resource containing its properties.</a>
+<span class="sourceLineNo">378</span><a id="line.378">        //</a>
+<span class="sourceLineNo">379</span><a id="line.379">        // Get all resources of all plugins.</a>
+<span class="sourceLineNo">380</span><a id="line.380">        //</a>
+<span class="sourceLineNo">381</span><a id="line.381">        for( final Element pluginEl : filters ) {</a>
+<span class="sourceLineNo">382</span><a id="line.382">            final String className = pluginEl.getAttributeValue( "class" );</a>
+<span class="sourceLineNo">383</span><a id="line.383">            final PageFilterInfo filterInfo = PageFilterInfo.newInstance( className, pluginEl );</a>
+<span class="sourceLineNo">384</span><a id="line.384">            if( filterInfo != null ) {</a>
+<span class="sourceLineNo">385</span><a id="line.385">                registerFilter( filterInfo );</a>
+<span class="sourceLineNo">386</span><a id="line.386">            }</a>
+<span class="sourceLineNo">387</span><a id="line.387">        }</a>
+<span class="sourceLineNo">388</span><a id="line.388">    }</a>
+<span class="sourceLineNo">389</span><a id="line.389"></a>
+<span class="sourceLineNo">390</span><a id="line.390">    private void registerFilter( final PageFilterInfo pluginInfo ) {</a>
+<span class="sourceLineNo">391</span><a id="line.391">        m_filterClassMap.put( pluginInfo.getName(), pluginInfo );</a>
+<span class="sourceLineNo">392</span><a id="line.392">    }</a>
+<span class="sourceLineNo">393</span><a id="line.393"></a>
+<span class="sourceLineNo">394</span><a id="line.394">    /**</a>
+<span class="sourceLineNo">395</span><a id="line.395">     *  Stores information about the filters.</a>
+<span class="sourceLineNo">396</span><a id="line.396">     *</a>
+<span class="sourceLineNo">397</span><a id="line.397">     *  @since 2.6.1</a>
+<span class="sourceLineNo">398</span><a id="line.398">     */</a>
+<span class="sourceLineNo">399</span><a id="line.399">    private static final class PageFilterInfo extends WikiModuleInfo {</a>
+<span class="sourceLineNo">400</span><a id="line.400">        private PageFilterInfo( final String name ) {</a>
+<span class="sourceLineNo">401</span><a id="line.401">            super( name );</a>
+<span class="sourceLineNo">402</span><a id="line.402">        }</a>
+<span class="sourceLineNo">403</span><a id="line.403"></a>
+<span class="sourceLineNo">404</span><a id="line.404">        protected static PageFilterInfo newInstance( final String className, final Element pluginEl ) {</a>
+<span class="sourceLineNo">405</span><a id="line.405">            if( className == null || className.length() == 0 ) {</a>
+<span class="sourceLineNo">406</span><a id="line.406">                return null;</a>
+<span class="sourceLineNo">407</span><a id="line.407">            }</a>
+<span class="sourceLineNo">408</span><a id="line.408">            final PageFilterInfo info = new PageFilterInfo( className );</a>
+<span class="sourceLineNo">409</span><a id="line.409"></a>
+<span class="sourceLineNo">410</span><a id="line.410">            info.initializeFromXML( pluginEl );</a>
+<span class="sourceLineNo">411</span><a id="line.411">            return info;</a>
+<span class="sourceLineNo">412</span><a id="line.412">        }</a>
+<span class="sourceLineNo">413</span><a id="line.413">    }</a>
+<span class="sourceLineNo">414</span><a id="line.414"></a>
+<span class="sourceLineNo">415</span><a id="line.415">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

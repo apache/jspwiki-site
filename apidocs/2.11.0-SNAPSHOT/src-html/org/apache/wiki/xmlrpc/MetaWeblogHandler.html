@@ -1,0 +1,401 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.xmlrpc;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Attachment;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.attachment.AttachmentManager;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.auth.AuthenticationManager;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.auth.AuthorizationManager;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.auth.permissions.PermissionFactory;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.pages.PageTimeComparator;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.plugin.WeblogEntryPlugin;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.plugin.WeblogPlugin;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.apache.xmlrpc.XmlRpcException;</a>
+<span class="sourceLineNo">038</span><a id="line.38"></a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.io.ByteArrayInputStream;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.Date;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.util.Hashtable;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.util.Iterator;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.util.List;</a>
+<span class="sourceLineNo">044</span><a id="line.44"></a>
+<span class="sourceLineNo">045</span><a id="line.45">/**</a>
+<span class="sourceLineNo">046</span><a id="line.46"> *  Provides handlers for all RPC routines of the MetaWeblog API.</a>
+<span class="sourceLineNo">047</span><a id="line.47"> *  &lt;P&gt;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *  JSPWiki does not support categories, and therefore we always return</a>
+<span class="sourceLineNo">049</span><a id="line.49"> *  an empty list for getCategories().  Note also that this API is not</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *  suitable for general Wiki editing, since JSPWiki formats the entries</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *  in a wiki-compatible manner.  And you cannot choose your page names</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *  either.  Since 2.1.94 the entire MetaWeblog API is supported.</a>
+<span class="sourceLineNo">053</span><a id="line.53"> *</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *  @since 2.1.7</a>
+<span class="sourceLineNo">055</span><a id="line.55"> */</a>
+<span class="sourceLineNo">056</span><a id="line.56"></a>
+<span class="sourceLineNo">057</span><a id="line.57">public class MetaWeblogHandler implements WikiRPCHandler {</a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">    private static final Logger log = Logger.getLogger( MetaWeblogHandler.class );</a>
+<span class="sourceLineNo">060</span><a id="line.60"></a>
+<span class="sourceLineNo">061</span><a id="line.61">    private Context m_context;</a>
+<span class="sourceLineNo">062</span><a id="line.62"></a>
+<span class="sourceLineNo">063</span><a id="line.63">    /**</a>
+<span class="sourceLineNo">064</span><a id="line.64">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">065</span><a id="line.65">     */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    @Override</a>
+<span class="sourceLineNo">067</span><a id="line.67">    public void initialize( final Context context )</a>
+<span class="sourceLineNo">068</span><a id="line.68">    {</a>
+<span class="sourceLineNo">069</span><a id="line.69">        m_context = context;</a>
+<span class="sourceLineNo">070</span><a id="line.70">    }</a>
+<span class="sourceLineNo">071</span><a id="line.71"></a>
+<span class="sourceLineNo">072</span><a id="line.72">    /**</a>
+<span class="sourceLineNo">073</span><a id="line.73">     *  Does a quick check against the current user</a>
+<span class="sourceLineNo">074</span><a id="line.74">     *  and does he have permissions to do the stuff</a>
+<span class="sourceLineNo">075</span><a id="line.75">     *  that he really wants to.</a>
+<span class="sourceLineNo">076</span><a id="line.76">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">077</span><a id="line.77">     *  If there is no authentication enabled, returns normally.</a>
+<span class="sourceLineNo">078</span><a id="line.78">     *</a>
+<span class="sourceLineNo">079</span><a id="line.79">     *  @throws XmlRpcException with the correct error message, if auth fails.</a>
+<span class="sourceLineNo">080</span><a id="line.80">     */</a>
+<span class="sourceLineNo">081</span><a id="line.81">    private void checkPermissions( final Page page,</a>
+<span class="sourceLineNo">082</span><a id="line.82">                                   final String username,</a>
+<span class="sourceLineNo">083</span><a id="line.83">                                   final String password,</a>
+<span class="sourceLineNo">084</span><a id="line.84">                                   final String permission ) throws XmlRpcException {</a>
+<span class="sourceLineNo">085</span><a id="line.85">        try {</a>
+<span class="sourceLineNo">086</span><a id="line.86">            final AuthenticationManager amm = m_context.getEngine().getManager( AuthenticationManager.class );</a>
+<span class="sourceLineNo">087</span><a id="line.87">            final AuthorizationManager mgr = m_context.getEngine().getManager( AuthorizationManager.class );</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">            if( amm.login( m_context.getWikiSession(), m_context.getHttpRequest(), username, password ) ) {</a>
+<span class="sourceLineNo">090</span><a id="line.90">                if( !mgr.checkPermission( m_context.getWikiSession(), PermissionFactory.getPagePermission( page, permission ) ) ) {</a>
+<span class="sourceLineNo">091</span><a id="line.91">                    throw new XmlRpcException( 1, "No permission" );</a>
+<span class="sourceLineNo">092</span><a id="line.92">                }</a>
+<span class="sourceLineNo">093</span><a id="line.93">            } else {</a>
+<span class="sourceLineNo">094</span><a id="line.94">                throw new XmlRpcException( 1, "Unknown login" );</a>
+<span class="sourceLineNo">095</span><a id="line.95">            }</a>
+<span class="sourceLineNo">096</span><a id="line.96">        } catch( final WikiSecurityException e ) {</a>
+<span class="sourceLineNo">097</span><a id="line.97">            throw new XmlRpcException( 1, e.getMessage(), e );</a>
+<span class="sourceLineNo">098</span><a id="line.98">        }</a>
+<span class="sourceLineNo">099</span><a id="line.99">    }</a>
+<span class="sourceLineNo">100</span><a id="line.100"></a>
+<span class="sourceLineNo">101</span><a id="line.101">    /**</a>
+<span class="sourceLineNo">102</span><a id="line.102">     *  JSPWiki does not support categories, therefore JSPWiki always returns an empty list for categories.</a>
+<span class="sourceLineNo">103</span><a id="line.103">     *</a>
+<span class="sourceLineNo">104</span><a id="line.104">     *  @param blogid The id of the blog.</a>
+<span class="sourceLineNo">105</span><a id="line.105">     *  @param username The username to use</a>
+<span class="sourceLineNo">106</span><a id="line.106">     *  @param password The password</a>
+<span class="sourceLineNo">107</span><a id="line.107">     *  @throws XmlRpcException If something goes wrong</a>
+<span class="sourceLineNo">108</span><a id="line.108">     *  @return An empty hashtable.</a>
+<span class="sourceLineNo">109</span><a id="line.109">     */</a>
+<span class="sourceLineNo">110</span><a id="line.110">    public Hashtable&lt; Object, Object &gt; getCategories( final String blogid, final String username, final String password )  throws XmlRpcException {</a>
+<span class="sourceLineNo">111</span><a id="line.111">        final Page page = m_context.getEngine().getManager( PageManager.class ).getPage( blogid );</a>
+<span class="sourceLineNo">112</span><a id="line.112">        checkPermissions( page, username, password, "view" );</a>
+<span class="sourceLineNo">113</span><a id="line.113">        return new Hashtable&lt;&gt;();</a>
+<span class="sourceLineNo">114</span><a id="line.114">    }</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">    private String getURL( final String page ) {</a>
+<span class="sourceLineNo">117</span><a id="line.117">        return m_context.getEngine().getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page,null );</a>
+<span class="sourceLineNo">118</span><a id="line.118">    }</a>
+<span class="sourceLineNo">119</span><a id="line.119"></a>
+<span class="sourceLineNo">120</span><a id="line.120">    /**</a>
+<span class="sourceLineNo">121</span><a id="line.121">     *  Takes a wiki page, and creates a metaWeblog struct out of it.</a>
+<span class="sourceLineNo">122</span><a id="line.122">     *</a>
+<span class="sourceLineNo">123</span><a id="line.123">     *  @param page The actual entry page</a>
+<span class="sourceLineNo">124</span><a id="line.124">     *  @return A metaWeblog entry struct.</a>
+<span class="sourceLineNo">125</span><a id="line.125">     */</a>
+<span class="sourceLineNo">126</span><a id="line.126">    private Hashtable&lt; String,Object &gt; makeEntry( final Page page ) {</a>
+<span class="sourceLineNo">127</span><a id="line.127">        final Page firstVersion = m_context.getEngine().getManager( PageManager.class ).getPage( page.getName(), 1 );</a>
+<span class="sourceLineNo">128</span><a id="line.128">        final Hashtable&lt; String, Object &gt; ht = new Hashtable&lt;&gt;();</a>
+<span class="sourceLineNo">129</span><a id="line.129">        ht.put( "dateCreated", firstVersion.getLastModified() );</a>
+<span class="sourceLineNo">130</span><a id="line.130">        ht.put( "link", getURL(page.getName() ) );</a>
+<span class="sourceLineNo">131</span><a id="line.131">        ht.put( "permaLink", getURL(page.getName() ) );</a>
+<span class="sourceLineNo">132</span><a id="line.132">        ht.put( "postid", page.getName() );</a>
+<span class="sourceLineNo">133</span><a id="line.133">        ht.put( "userid", page.getAuthor() );</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">        final String pageText = m_context.getEngine().getManager( PageManager.class ).getText(page.getName());</a>
+<span class="sourceLineNo">136</span><a id="line.136">        final int firstLine = pageText.indexOf('\n');</a>
+<span class="sourceLineNo">137</span><a id="line.137"></a>
+<span class="sourceLineNo">138</span><a id="line.138">        String title = "";</a>
+<span class="sourceLineNo">139</span><a id="line.139">        if( firstLine &gt; 0 ) {</a>
+<span class="sourceLineNo">140</span><a id="line.140">            title = pageText.substring( 0, firstLine );</a>
+<span class="sourceLineNo">141</span><a id="line.141">        }</a>
+<span class="sourceLineNo">142</span><a id="line.142"></a>
+<span class="sourceLineNo">143</span><a id="line.143">        if( title.trim().length() == 0 ) {</a>
+<span class="sourceLineNo">144</span><a id="line.144">            title = page.getName();</a>
+<span class="sourceLineNo">145</span><a id="line.145">        }</a>
+<span class="sourceLineNo">146</span><a id="line.146"></a>
+<span class="sourceLineNo">147</span><a id="line.147">        // Remove wiki formatting</a>
+<span class="sourceLineNo">148</span><a id="line.148">        while( title.startsWith("!") ) {</a>
+<span class="sourceLineNo">149</span><a id="line.149">            title = title.substring(1);</a>
+<span class="sourceLineNo">150</span><a id="line.150">        }</a>
+<span class="sourceLineNo">151</span><a id="line.151"></a>
+<span class="sourceLineNo">152</span><a id="line.152">        ht.put("title", title);</a>
+<span class="sourceLineNo">153</span><a id="line.153">        ht.put("description", pageText);</a>
+<span class="sourceLineNo">154</span><a id="line.154"></a>
+<span class="sourceLineNo">155</span><a id="line.155">        return ht;</a>
+<span class="sourceLineNo">156</span><a id="line.156">    }</a>
+<span class="sourceLineNo">157</span><a id="line.157"></a>
+<span class="sourceLineNo">158</span><a id="line.158">    /**</a>
+<span class="sourceLineNo">159</span><a id="line.159">     *  Returns a list of the recent posts to this weblog.</a>
+<span class="sourceLineNo">160</span><a id="line.160">     *</a>
+<span class="sourceLineNo">161</span><a id="line.161">     *  @param blogid The id of the blog.</a>
+<span class="sourceLineNo">162</span><a id="line.162">     *  @param username The username to use</a>
+<span class="sourceLineNo">163</span><a id="line.163">     *  @param password The password</a>
+<span class="sourceLineNo">164</span><a id="line.164">     *  @param numberOfPosts How many posts to find</a>
+<span class="sourceLineNo">165</span><a id="line.165">     *  @throws XmlRpcException If something goes wrong</a>
+<span class="sourceLineNo">166</span><a id="line.166">     *  @return As per MetaweblogAPI specification</a>
+<span class="sourceLineNo">167</span><a id="line.167">     */</a>
+<span class="sourceLineNo">168</span><a id="line.168">    // FIXME: The implementation is suboptimal, as it goes through all of the blog entries.</a>
+<span class="sourceLineNo">169</span><a id="line.169">    public Hashtable getRecentPosts( final String blogid, final String username, final String password, final int numberOfPosts ) throws XmlRpcException {</a>
+<span class="sourceLineNo">170</span><a id="line.170">        final Hashtable&lt;String, Hashtable&lt;String, Object&gt;&gt; result = new Hashtable&lt;&gt;();</a>
+<span class="sourceLineNo">171</span><a id="line.171">        log.info( "metaWeblog.getRecentPosts() called");</a>
+<span class="sourceLineNo">172</span><a id="line.172">        final Page page = m_context.getEngine().getManager( PageManager.class ).getPage( blogid );</a>
+<span class="sourceLineNo">173</span><a id="line.173">        checkPermissions( page, username, password, "view" );</a>
+<span class="sourceLineNo">174</span><a id="line.174"></a>
+<span class="sourceLineNo">175</span><a id="line.175">        final WeblogPlugin plugin = new WeblogPlugin();</a>
+<span class="sourceLineNo">176</span><a id="line.176">        final List&lt; Page &gt; changed = plugin.findBlogEntries( m_context.getEngine(), blogid, new Date( 0L ), new Date() );</a>
+<span class="sourceLineNo">177</span><a id="line.177">        changed.sort( new PageTimeComparator() );</a>
+<span class="sourceLineNo">178</span><a id="line.178"></a>
+<span class="sourceLineNo">179</span><a id="line.179">        int items = 0;</a>
+<span class="sourceLineNo">180</span><a id="line.180">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; numberOfPosts; items++ ) {</a>
+<span class="sourceLineNo">181</span><a id="line.181">            final Page p = i.next();</a>
+<span class="sourceLineNo">182</span><a id="line.182">            result.put( "entry", makeEntry( p ) );</a>
+<span class="sourceLineNo">183</span><a id="line.183">        }</a>
+<span class="sourceLineNo">184</span><a id="line.184"></a>
+<span class="sourceLineNo">185</span><a id="line.185">        return result;</a>
+<span class="sourceLineNo">186</span><a id="line.186">    }</a>
+<span class="sourceLineNo">187</span><a id="line.187"></a>
+<span class="sourceLineNo">188</span><a id="line.188">    /**</a>
+<span class="sourceLineNo">189</span><a id="line.189">     *  Adds a new post to the blog.</a>
+<span class="sourceLineNo">190</span><a id="line.190">     *</a>
+<span class="sourceLineNo">191</span><a id="line.191">     *  @param blogid The id of the blog.</a>
+<span class="sourceLineNo">192</span><a id="line.192">     *  @param username The username to use</a>
+<span class="sourceLineNo">193</span><a id="line.193">     *  @param password The password</a>
+<span class="sourceLineNo">194</span><a id="line.194">     *  @param content As per Metaweblogapi contract</a>
+<span class="sourceLineNo">195</span><a id="line.195">     *  @param publish This parameter is ignored for JSPWiki.</a>
+<span class="sourceLineNo">196</span><a id="line.196">     *  @return Returns an empty string</a>
+<span class="sourceLineNo">197</span><a id="line.197">     *  @throws XmlRpcException If something goes wrong</a>
+<span class="sourceLineNo">198</span><a id="line.198">     */</a>
+<span class="sourceLineNo">199</span><a id="line.199">    public String newPost( final String blogid,</a>
+<span class="sourceLineNo">200</span><a id="line.200">                           final String username,</a>
+<span class="sourceLineNo">201</span><a id="line.201">                           final String password,</a>
+<span class="sourceLineNo">202</span><a id="line.202">                           final Hashtable&lt; String, Object &gt; content,</a>
+<span class="sourceLineNo">203</span><a id="line.203">                           final boolean publish ) throws XmlRpcException {</a>
+<span class="sourceLineNo">204</span><a id="line.204">        log.info("metaWeblog.newPost() called");</a>
+<span class="sourceLineNo">205</span><a id="line.205">        final Engine engine = m_context.getEngine();</a>
+<span class="sourceLineNo">206</span><a id="line.206">        final Page page = engine.getManager( PageManager.class ).getPage( blogid );</a>
+<span class="sourceLineNo">207</span><a id="line.207">        checkPermissions( page, username, password, "createPages" );</a>
+<span class="sourceLineNo">208</span><a id="line.208"></a>
+<span class="sourceLineNo">209</span><a id="line.209">        try {</a>
+<span class="sourceLineNo">210</span><a id="line.210">            final WeblogEntryPlugin plugin = new WeblogEntryPlugin();</a>
+<span class="sourceLineNo">211</span><a id="line.211">            final String pageName = plugin.getNewEntryPage( engine, blogid );</a>
+<span class="sourceLineNo">212</span><a id="line.212">            final Page entryPage = Wiki.contents().page( engine, pageName );</a>
+<span class="sourceLineNo">213</span><a id="line.213">            entryPage.setAuthor( username );</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">            final Context context = Wiki.context().create( engine, entryPage );</a>
+<span class="sourceLineNo">216</span><a id="line.216">            final StringBuilder text = new StringBuilder();</a>
+<span class="sourceLineNo">217</span><a id="line.217">            text.append( "!" ).append( content.get( "title" ) );</a>
+<span class="sourceLineNo">218</span><a id="line.218">            text.append( "\n\n" );</a>
+<span class="sourceLineNo">219</span><a id="line.219">            text.append( content.get("description") );</a>
+<span class="sourceLineNo">220</span><a id="line.220"></a>
+<span class="sourceLineNo">221</span><a id="line.221">            log.debug("Writing entry: "+text);</a>
+<span class="sourceLineNo">222</span><a id="line.222"></a>
+<span class="sourceLineNo">223</span><a id="line.223">            engine.getManager( PageManager.class ).saveText( context, text.toString() );</a>
+<span class="sourceLineNo">224</span><a id="line.224">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">225</span><a id="line.225">            log.error("Failed to create weblog entry",e);</a>
+<span class="sourceLineNo">226</span><a id="line.226">            throw new XmlRpcException( 0, "Failed to create weblog entry: "+e.getMessage() );</a>
+<span class="sourceLineNo">227</span><a id="line.227">        }</a>
+<span class="sourceLineNo">228</span><a id="line.228"></a>
+<span class="sourceLineNo">229</span><a id="line.229">        return ""; // FIXME:</a>
+<span class="sourceLineNo">230</span><a id="line.230">    }</a>
+<span class="sourceLineNo">231</span><a id="line.231"></a>
+<span class="sourceLineNo">232</span><a id="line.232">    /**</a>
+<span class="sourceLineNo">233</span><a id="line.233">     *  Creates an attachment and adds it to the blog.  The attachment</a>
+<span class="sourceLineNo">234</span><a id="line.234">     *  is created into the main blog page, not the actual post page,</a>
+<span class="sourceLineNo">235</span><a id="line.235">     *  because we do not know it at this point.</a>
+<span class="sourceLineNo">236</span><a id="line.236">     *</a>
+<span class="sourceLineNo">237</span><a id="line.237">     *  @param blogid The id of the blog.</a>
+<span class="sourceLineNo">238</span><a id="line.238">     *  @param username The username to use</a>
+<span class="sourceLineNo">239</span><a id="line.239">     *  @param password The password</a>
+<span class="sourceLineNo">240</span><a id="line.240">     *  @param content As per the MetaweblogAPI contract</a>
+<span class="sourceLineNo">241</span><a id="line.241">     *  @return As per the MetaweblogAPI contract</a>
+<span class="sourceLineNo">242</span><a id="line.242">     *  @throws XmlRpcException If something goes wrong</a>
+<span class="sourceLineNo">243</span><a id="line.243">     */</a>
+<span class="sourceLineNo">244</span><a id="line.244">    public Hashtable&lt; String, Object &gt; newMediaObject( final String blogid,</a>
+<span class="sourceLineNo">245</span><a id="line.245">                                                       final String username,</a>
+<span class="sourceLineNo">246</span><a id="line.246">                                                       final String password,</a>
+<span class="sourceLineNo">247</span><a id="line.247">                                                       final Hashtable&lt; String, Object &gt; content ) throws XmlRpcException {</a>
+<span class="sourceLineNo">248</span><a id="line.248">        final Engine engine = m_context.getEngine();</a>
+<span class="sourceLineNo">249</span><a id="line.249">        final String url;</a>
+<span class="sourceLineNo">250</span><a id="line.250"></a>
+<span class="sourceLineNo">251</span><a id="line.251">        log.info( "metaWeblog.newMediaObject() called" );</a>
+<span class="sourceLineNo">252</span><a id="line.252"></a>
+<span class="sourceLineNo">253</span><a id="line.253">        final Page page = engine.getManager( PageManager.class ).getPage( blogid );</a>
+<span class="sourceLineNo">254</span><a id="line.254">        checkPermissions( page, username, password, "upload" );</a>
+<span class="sourceLineNo">255</span><a id="line.255"></a>
+<span class="sourceLineNo">256</span><a id="line.256">        final String name = (String) content.get( "name" );</a>
+<span class="sourceLineNo">257</span><a id="line.257">        final byte[] data = (byte[]) content.get( "bits" );</a>
+<span class="sourceLineNo">258</span><a id="line.258"></a>
+<span class="sourceLineNo">259</span><a id="line.259">        final AttachmentManager attmgr = engine.getManager( AttachmentManager.class );</a>
+<span class="sourceLineNo">260</span><a id="line.260"></a>
+<span class="sourceLineNo">261</span><a id="line.261">        try {</a>
+<span class="sourceLineNo">262</span><a id="line.262">            final Attachment att = Wiki.contents().attachment( engine, blogid, name );</a>
+<span class="sourceLineNo">263</span><a id="line.263">            att.setAuthor( username );</a>
+<span class="sourceLineNo">264</span><a id="line.264">            attmgr.storeAttachment( att, new ByteArrayInputStream( data ) );</a>
+<span class="sourceLineNo">265</span><a id="line.265"></a>
+<span class="sourceLineNo">266</span><a id="line.266">            url = engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), att.getName(), null );</a>
+<span class="sourceLineNo">267</span><a id="line.267">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">268</span><a id="line.268">            log.error( "Failed to upload attachment", e );</a>
+<span class="sourceLineNo">269</span><a id="line.269">            throw new XmlRpcException( 0, "Failed to upload media object: "+e.getMessage() );</a>
+<span class="sourceLineNo">270</span><a id="line.270">        }</a>
+<span class="sourceLineNo">271</span><a id="line.271"></a>
+<span class="sourceLineNo">272</span><a id="line.272">        final Hashtable&lt; String, Object &gt; result = new Hashtable&lt;&gt;();</a>
+<span class="sourceLineNo">273</span><a id="line.273">        result.put("url", url);</a>
+<span class="sourceLineNo">274</span><a id="line.274"></a>
+<span class="sourceLineNo">275</span><a id="line.275">        return result;</a>
+<span class="sourceLineNo">276</span><a id="line.276">    }</a>
+<span class="sourceLineNo">277</span><a id="line.277"></a>
+<span class="sourceLineNo">278</span><a id="line.278"></a>
+<span class="sourceLineNo">279</span><a id="line.279">    /**</a>
+<span class="sourceLineNo">280</span><a id="line.280">     *  Allows the user to edit a post.  It does not allow general editability of wiki pages, because of the limitations of the metaWeblog API.</a>
+<span class="sourceLineNo">281</span><a id="line.281">     */</a>
+<span class="sourceLineNo">282</span><a id="line.282">    boolean editPost( final String postid,</a>
+<span class="sourceLineNo">283</span><a id="line.283">                      final String username,</a>
+<span class="sourceLineNo">284</span><a id="line.284">                      final String password,</a>
+<span class="sourceLineNo">285</span><a id="line.285">                      final Hashtable&lt; String,Object &gt; content,</a>
+<span class="sourceLineNo">286</span><a id="line.286">                      final boolean publish ) throws XmlRpcException {</a>
+<span class="sourceLineNo">287</span><a id="line.287">        final Engine engine = m_context.getEngine();</a>
+<span class="sourceLineNo">288</span><a id="line.288">        log.info("metaWeblog.editPost("+postid+") called");</a>
+<span class="sourceLineNo">289</span><a id="line.289"></a>
+<span class="sourceLineNo">290</span><a id="line.290">        // FIXME: Is postid correct?  Should we determine it from the page name?</a>
+<span class="sourceLineNo">291</span><a id="line.291">        final Page page = engine.getManager( PageManager.class ).getPage( postid );</a>
+<span class="sourceLineNo">292</span><a id="line.292">        checkPermissions( page, username, password, "edit" );</a>
+<span class="sourceLineNo">293</span><a id="line.293"></a>
+<span class="sourceLineNo">294</span><a id="line.294">        try {</a>
+<span class="sourceLineNo">295</span><a id="line.295">            final Page entryPage = page.clone();</a>
+<span class="sourceLineNo">296</span><a id="line.296">            entryPage.setAuthor( username );</a>
+<span class="sourceLineNo">297</span><a id="line.297"></a>
+<span class="sourceLineNo">298</span><a id="line.298">            final Context context = Wiki.context().create( engine, entryPage );</a>
+<span class="sourceLineNo">299</span><a id="line.299"></a>
+<span class="sourceLineNo">300</span><a id="line.300">            final StringBuilder text = new StringBuilder();</a>
+<span class="sourceLineNo">301</span><a id="line.301">            text.append( "!" ).append( content.get( "title" ) );</a>
+<span class="sourceLineNo">302</span><a id="line.302">            text.append( "\n\n" );</a>
+<span class="sourceLineNo">303</span><a id="line.303">            text.append( content.get("description") );</a>
+<span class="sourceLineNo">304</span><a id="line.304"></a>
+<span class="sourceLineNo">305</span><a id="line.305">            log.debug("Updating entry: "+text);</a>
+<span class="sourceLineNo">306</span><a id="line.306"></a>
+<span class="sourceLineNo">307</span><a id="line.307">            engine.getManager( PageManager.class ).saveText( context, text.toString() );</a>
+<span class="sourceLineNo">308</span><a id="line.308">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">309</span><a id="line.309">            log.error("Failed to create weblog entry",e);</a>
+<span class="sourceLineNo">310</span><a id="line.310">            throw new XmlRpcException( 0, "Failed to update weblog entry: "+e.getMessage() );</a>
+<span class="sourceLineNo">311</span><a id="line.311">        }</a>
+<span class="sourceLineNo">312</span><a id="line.312"></a>
+<span class="sourceLineNo">313</span><a id="line.313">        return true;</a>
+<span class="sourceLineNo">314</span><a id="line.314">    }</a>
+<span class="sourceLineNo">315</span><a id="line.315"></a>
+<span class="sourceLineNo">316</span><a id="line.316">    /**</a>
+<span class="sourceLineNo">317</span><a id="line.317">     *  Gets the text of any page.  The title of the page is parsed</a>
+<span class="sourceLineNo">318</span><a id="line.318">     *  (if any is provided).</a>
+<span class="sourceLineNo">319</span><a id="line.319">     */</a>
+<span class="sourceLineNo">320</span><a id="line.320">    Hashtable&lt; String, Object &gt; getPost( final String postid, final String username, final String password ) throws XmlRpcException {</a>
+<span class="sourceLineNo">321</span><a id="line.321">        final String wikiname = "FIXME";</a>
+<span class="sourceLineNo">322</span><a id="line.322">        final Page page = m_context.getEngine().getManager( PageManager.class ).getPage( wikiname );</a>
+<span class="sourceLineNo">323</span><a id="line.323">        checkPermissions( page, username, password, "view" );</a>
+<span class="sourceLineNo">324</span><a id="line.324">        return makeEntry( page );</a>
+<span class="sourceLineNo">325</span><a id="line.325">    }</a>
+<span class="sourceLineNo">326</span><a id="line.326"></a>
+<span class="sourceLineNo">327</span><a id="line.327">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

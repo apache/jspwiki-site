@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.plugin;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.exceptions.PluginException;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.plugin.Plugin;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.auth.AuthorizationManager;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.auth.permissions.PermissionFactory;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.preferences.Preferences;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.render.RenderingManager;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.util.HttpUtil;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.util.ArrayList;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.util.List;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Map;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.ResourceBundle;</a>
+<span class="sourceLineNo">040</span><a id="line.40"></a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42">/**</a>
+<span class="sourceLineNo">043</span><a id="line.43"> *  Inserts page contents.  Muchos thanks to Scott Hurlbert for the initial code.</a>
+<span class="sourceLineNo">044</span><a id="line.44"> *</a>
+<span class="sourceLineNo">045</span><a id="line.45"> *  &lt;p&gt;Parameters : &lt;/p&gt;</a>
+<span class="sourceLineNo">046</span><a id="line.46"> *  &lt;ul&gt;</a>
+<span class="sourceLineNo">047</span><a id="line.47"> *  &lt;li&gt;&lt;b&gt;page&lt;/b&gt; - the name of the page to be inserted&lt;/li&gt;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *  &lt;li&gt;&lt;b&gt;style&lt;/b&gt; - the style to use&lt;/li&gt;</a>
+<span class="sourceLineNo">049</span><a id="line.49"> *  &lt;li&gt;&lt;b&gt;maxlength&lt;/b&gt; - the maximum length of the page to be inserted (page contents)&lt;/li&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *  &lt;li&gt;&lt;b&gt;class&lt;/b&gt; - the class to use&lt;/li&gt;</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *  &lt;li&gt;&lt;b&gt;section&lt;/b&gt; - the section of the page that has to be inserted (separated by "----"&lt;/li&gt;</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *  &lt;li&gt;&lt;b&gt;default&lt;/b&gt; - the text to insert if the requested page does not exist&lt;/li&gt;</a>
+<span class="sourceLineNo">053</span><a id="line.53"> *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *</a>
+<span class="sourceLineNo">055</span><a id="line.55"> *  @since 2.1.37</a>
+<span class="sourceLineNo">056</span><a id="line.56"> */</a>
+<span class="sourceLineNo">057</span><a id="line.57">public class InsertPage implements Plugin {</a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">    /** Parameter name for setting the page.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">060</span><a id="line.60">    public static final String PARAM_PAGENAME  = "page";</a>
+<span class="sourceLineNo">061</span><a id="line.61">    /** Parameter name for setting the style.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">062</span><a id="line.62">    public static final String PARAM_STYLE     = "style";</a>
+<span class="sourceLineNo">063</span><a id="line.63">    /** Parameter name for setting the maxlength.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">064</span><a id="line.64">    public static final String PARAM_MAXLENGTH = "maxlength";</a>
+<span class="sourceLineNo">065</span><a id="line.65">    /** Parameter name for setting the class.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    public static final String PARAM_CLASS     = "class";</a>
+<span class="sourceLineNo">067</span><a id="line.67">    /** Parameter name for setting the show option.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    public static final String PARAM_SHOW   = "show";</a>
+<span class="sourceLineNo">069</span><a id="line.69">    /** Parameter name for setting the section.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">070</span><a id="line.70">    public static final String PARAM_SECTION   = "section";</a>
+<span class="sourceLineNo">071</span><a id="line.71">    /** Parameter name for setting the default.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">072</span><a id="line.72">    public static final String PARAM_DEFAULT   = "default";</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">    private static final String DEFAULT_STYLE = "";</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    private static final String ONCE_COOKIE = "JSPWiki.Once.";</a>
+<span class="sourceLineNo">077</span><a id="line.77"></a>
+<span class="sourceLineNo">078</span><a id="line.78">    /** This attribute is stashed in the WikiContext to make sure that we don't have circular references. */</a>
+<span class="sourceLineNo">079</span><a id="line.79">    public static final String ATTR_RECURSE    = "org.apache.wiki.plugin.InsertPage.recurseCheck";</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">    /**</a>
+<span class="sourceLineNo">082</span><a id="line.82">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">083</span><a id="line.83">     */</a>
+<span class="sourceLineNo">084</span><a id="line.84">    @Override @SuppressWarnings("unchecked")</a>
+<span class="sourceLineNo">085</span><a id="line.85">    public String execute( final Context context, final Map&lt;String, String&gt; params ) throws PluginException {</a>
+<span class="sourceLineNo">086</span><a id="line.86">        final Engine engine = context.getEngine();</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">        final StringBuilder res = new StringBuilder();</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">        final String clazz        = params.get( PARAM_CLASS );</a>
+<span class="sourceLineNo">091</span><a id="line.91">        final String includedPage = params.get( PARAM_PAGENAME );</a>
+<span class="sourceLineNo">092</span><a id="line.92">        String style              = params.get( PARAM_STYLE );</a>
+<span class="sourceLineNo">093</span><a id="line.93">        final boolean showOnce    = "once".equals( params.get( PARAM_SHOW ) );</a>
+<span class="sourceLineNo">094</span><a id="line.94">        final String defaultstr   = params.get( PARAM_DEFAULT );</a>
+<span class="sourceLineNo">095</span><a id="line.95">        final int section         = TextUtil.parseIntParameter(params.get( PARAM_SECTION ), -1 );</a>
+<span class="sourceLineNo">096</span><a id="line.96">        int maxlen                = TextUtil.parseIntParameter(params.get( PARAM_MAXLENGTH ), -1 );</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">        final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE );</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">        if( style == null ) {</a>
+<span class="sourceLineNo">101</span><a id="line.101">            style = DEFAULT_STYLE;</a>
+<span class="sourceLineNo">102</span><a id="line.102">        }</a>
+<span class="sourceLineNo">103</span><a id="line.103"></a>
+<span class="sourceLineNo">104</span><a id="line.104">        if( maxlen == -1 ) {</a>
+<span class="sourceLineNo">105</span><a id="line.105">            maxlen = Integer.MAX_VALUE;</a>
+<span class="sourceLineNo">106</span><a id="line.106">        }</a>
+<span class="sourceLineNo">107</span><a id="line.107"></a>
+<span class="sourceLineNo">108</span><a id="line.108">        if( includedPage != null ) {</a>
+<span class="sourceLineNo">109</span><a id="line.109">            final Page page;</a>
+<span class="sourceLineNo">110</span><a id="line.110">            try {</a>
+<span class="sourceLineNo">111</span><a id="line.111">                final String pageName = engine.getFinalPageName( includedPage );</a>
+<span class="sourceLineNo">112</span><a id="line.112">                if( pageName != null ) {</a>
+<span class="sourceLineNo">113</span><a id="line.113">                    page = engine.getManager( PageManager.class ).getPage( pageName );</a>
+<span class="sourceLineNo">114</span><a id="line.114">                } else {</a>
+<span class="sourceLineNo">115</span><a id="line.115">                    page = engine.getManager( PageManager.class ).getPage( includedPage );</a>
+<span class="sourceLineNo">116</span><a id="line.116">                }</a>
+<span class="sourceLineNo">117</span><a id="line.117">            } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">                res.append( "&lt;span class=\"error\"&gt;Page could not be found by the page provider.&lt;/span&gt;" );</a>
+<span class="sourceLineNo">119</span><a id="line.119">                return res.toString();</a>
+<span class="sourceLineNo">120</span><a id="line.120">            }</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">            if( page != null ) {</a>
+<span class="sourceLineNo">123</span><a id="line.123">                //  Check for recursivity</a>
+<span class="sourceLineNo">124</span><a id="line.124">                List&lt;String&gt; previousIncludes = context.getVariable( ATTR_RECURSE );</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">                if( previousIncludes != null ) {</a>
+<span class="sourceLineNo">127</span><a id="line.127">                    if( previousIncludes.contains( page.getName() ) ) {</a>
+<span class="sourceLineNo">128</span><a id="line.128">                        return "&lt;span class=\"error\"&gt;Error: Circular reference - you can't include a page in itself!&lt;/span&gt;";</a>
+<span class="sourceLineNo">129</span><a id="line.129">                    }</a>
+<span class="sourceLineNo">130</span><a id="line.130">                } else {</a>
+<span class="sourceLineNo">131</span><a id="line.131">                    previousIncludes = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">132</span><a id="line.132">                }</a>
+<span class="sourceLineNo">133</span><a id="line.133"></a>
+<span class="sourceLineNo">134</span><a id="line.134">                // Check for permissions</a>
+<span class="sourceLineNo">135</span><a id="line.135">                final AuthorizationManager mgr = engine.getManager( AuthorizationManager.class );</a>
+<span class="sourceLineNo">136</span><a id="line.136"></a>
+<span class="sourceLineNo">137</span><a id="line.137">                if( !mgr.checkPermission( context.getWikiSession(), PermissionFactory.getPagePermission( page, "view") ) ) {</a>
+<span class="sourceLineNo">138</span><a id="line.138">                    res.append("&lt;span class=\"error\"&gt;You do not have permission to view this included page.&lt;/span&gt;");</a>
+<span class="sourceLineNo">139</span><a id="line.139">                    return res.toString();</a>
+<span class="sourceLineNo">140</span><a id="line.140">                }</a>
+<span class="sourceLineNo">141</span><a id="line.141"></a>
+<span class="sourceLineNo">142</span><a id="line.142">                // Show Once</a>
+<span class="sourceLineNo">143</span><a id="line.143">                // Check for page-cookie, only include page if cookie is not yet set</a>
+<span class="sourceLineNo">144</span><a id="line.144">                String cookieName = "";</a>
+<span class="sourceLineNo">145</span><a id="line.145"></a>
+<span class="sourceLineNo">146</span><a id="line.146">                if( showOnce ) {</a>
+<span class="sourceLineNo">147</span><a id="line.147">                    cookieName = ONCE_COOKIE + TextUtil.urlEncodeUTF8( page.getName() ).replaceAll( "\\+", "%20" );</a>
+<span class="sourceLineNo">148</span><a id="line.148"></a>
+<span class="sourceLineNo">149</span><a id="line.149">                    if( HttpUtil.retrieveCookieValue( context.getHttpRequest(), cookieName ) != null ) {</a>
+<span class="sourceLineNo">150</span><a id="line.150">                        return "";  //silent exit</a>
+<span class="sourceLineNo">151</span><a id="line.151">                    }</a>
+<span class="sourceLineNo">152</span><a id="line.152"></a>
+<span class="sourceLineNo">153</span><a id="line.153">                }</a>
+<span class="sourceLineNo">154</span><a id="line.154"></a>
+<span class="sourceLineNo">155</span><a id="line.155">                // move here, after premature exit points (permissions, page-cookie)</a>
+<span class="sourceLineNo">156</span><a id="line.156">                previousIncludes.add( page.getName() );</a>
+<span class="sourceLineNo">157</span><a id="line.157">                context.setVariable( ATTR_RECURSE, previousIncludes );</a>
+<span class="sourceLineNo">158</span><a id="line.158"></a>
+<span class="sourceLineNo">159</span><a id="line.159">                /**</a>
+<span class="sourceLineNo">160</span><a id="line.160">                 *  We want inclusion to occur within the context of</a>
+<span class="sourceLineNo">161</span><a id="line.161">                 *  its own page, because we need the links to be correct.</a>
+<span class="sourceLineNo">162</span><a id="line.162">                 */</a>
+<span class="sourceLineNo">163</span><a id="line.163"></a>
+<span class="sourceLineNo">164</span><a id="line.164">                final Context includedContext = context.clone();</a>
+<span class="sourceLineNo">165</span><a id="line.165">                includedContext.setPage( page );</a>
+<span class="sourceLineNo">166</span><a id="line.166"></a>
+<span class="sourceLineNo">167</span><a id="line.167">                String pageData = engine.getManager( PageManager.class ).getPureText( page );</a>
+<span class="sourceLineNo">168</span><a id="line.168">                String moreLink = "";</a>
+<span class="sourceLineNo">169</span><a id="line.169"></a>
+<span class="sourceLineNo">170</span><a id="line.170">                if( section != -1 ) {</a>
+<span class="sourceLineNo">171</span><a id="line.171">                    try {</a>
+<span class="sourceLineNo">172</span><a id="line.172">                        pageData = TextUtil.getSection( pageData, section );</a>
+<span class="sourceLineNo">173</span><a id="line.173">                    } catch( final IllegalArgumentException e ) {</a>
+<span class="sourceLineNo">174</span><a id="line.174">                        throw new PluginException( e.getMessage() );</a>
+<span class="sourceLineNo">175</span><a id="line.175">                    }</a>
+<span class="sourceLineNo">176</span><a id="line.176">                }</a>
+<span class="sourceLineNo">177</span><a id="line.177"></a>
+<span class="sourceLineNo">178</span><a id="line.178">                if( pageData.length() &gt; maxlen ) {</a>
+<span class="sourceLineNo">179</span><a id="line.179">                    pageData = pageData.substring( 0, maxlen )+" ...";</a>
+<span class="sourceLineNo">180</span><a id="line.180">                    moreLink = "&lt;p&gt;&lt;a href=\""+context.getURL( ContextEnum.PAGE_VIEW.getRequestContext(),includedPage)+"\"&gt;"+rb.getString("insertpage.more")+"&lt;/a&gt;&lt;/p&gt;";</a>
+<span class="sourceLineNo">181</span><a id="line.181">                }</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">                res.append("&lt;div class=\"inserted-page ");</a>
+<span class="sourceLineNo">184</span><a id="line.184">                if( clazz != null ) res.append( clazz );</a>
+<span class="sourceLineNo">185</span><a id="line.185">                if( !style.equals(DEFAULT_STYLE) ) res.append("\" style=\""+style );</a>
+<span class="sourceLineNo">186</span><a id="line.186">                if( showOnce ) res.append("\" data-once=\""+cookieName );</a>
+<span class="sourceLineNo">187</span><a id="line.187">                res.append("\" &gt;");</a>
+<span class="sourceLineNo">188</span><a id="line.188"></a>
+<span class="sourceLineNo">189</span><a id="line.189">                res.append( engine.getManager( RenderingManager.class ).textToHTML( includedContext, pageData ) );</a>
+<span class="sourceLineNo">190</span><a id="line.190">                res.append( moreLink );</a>
+<span class="sourceLineNo">191</span><a id="line.191"></a>
+<span class="sourceLineNo">192</span><a id="line.192">                res.append("&lt;/div&gt;");</a>
+<span class="sourceLineNo">193</span><a id="line.193"></a>
+<span class="sourceLineNo">194</span><a id="line.194">                //</a>
+<span class="sourceLineNo">195</span><a id="line.195">                //  Remove the name from the stack; we're now done with this.</a>
+<span class="sourceLineNo">196</span><a id="line.196">                //</a>
+<span class="sourceLineNo">197</span><a id="line.197">                previousIncludes.remove( page.getName() );</a>
+<span class="sourceLineNo">198</span><a id="line.198">                context.setVariable( ATTR_RECURSE, previousIncludes );</a>
+<span class="sourceLineNo">199</span><a id="line.199">            } else {</a>
+<span class="sourceLineNo">200</span><a id="line.200">                if( defaultstr != null ) {</a>
+<span class="sourceLineNo">201</span><a id="line.201">                    res.append( defaultstr );</a>
+<span class="sourceLineNo">202</span><a id="line.202">                } else {</a>
+<span class="sourceLineNo">203</span><a id="line.203">                    res.append( "There is no page called '" + includedPage + "'.  Would you like to " );</a>
+<span class="sourceLineNo">204</span><a id="line.204">                    res.append( "&lt;a href=\"" + context.getURL( ContextEnum.PAGE_EDIT.getRequestContext(), includedPage ) + "\"&gt;create it?&lt;/a&gt;" );</a>
+<span class="sourceLineNo">205</span><a id="line.205">                }</a>
+<span class="sourceLineNo">206</span><a id="line.206">            }</a>
+<span class="sourceLineNo">207</span><a id="line.207">        } else {</a>
+<span class="sourceLineNo">208</span><a id="line.208">            res.append( "&lt;span class=\"error\"&gt;" );</a>
+<span class="sourceLineNo">209</span><a id="line.209">            res.append( "You have to define a page!" );</a>
+<span class="sourceLineNo">210</span><a id="line.210">            res.append( "&lt;/span&gt;" );</a>
+<span class="sourceLineNo">211</span><a id="line.211">        }</a>
+<span class="sourceLineNo">212</span><a id="line.212">        return res.toString();</a>
+<span class="sourceLineNo">213</span><a id="line.213">    }</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.api.core;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">022</span><a id="line.22"></a>
+<span class="sourceLineNo">023</span><a id="line.23">import javax.security.auth.Subject;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import java.security.AccessControlException;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import java.security.Principal;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import java.security.PrivilegedAction;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import java.util.Locale;</a>
+<span class="sourceLineNo">028</span><a id="line.28"></a>
+<span class="sourceLineNo">029</span><a id="line.29"></a>
+<span class="sourceLineNo">030</span><a id="line.30">/**</a>
+<span class="sourceLineNo">031</span><a id="line.31"> * &lt;p&gt;Represents a long-running wiki session, with an associated user Principal, user Subject, and authentication status. The sesion</a>
+<span class="sourceLineNo">032</span><a id="line.32"> * is initialized with minimal, default-deny values: authentication is set to &lt;code&gt;false&lt;/code&gt;, and the user principal is set to</a>
+<span class="sourceLineNo">033</span><a id="line.33"> * &lt;code&gt;null&lt;/code&gt;.&lt;/p&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> * &lt;p&gt;The Session allows callers to:&lt;/p&gt;</a>
+<span class="sourceLineNo">035</span><a id="line.35"> * &lt;ul&gt;</a>
+<span class="sourceLineNo">036</span><a id="line.36"> *   &lt;li&gt;Obtain the authentication status of the user via</a>
+<span class="sourceLineNo">037</span><a id="line.37"> *     {@link #isAnonymous()} and {@link #isAuthenticated()}&lt;/li&gt;</a>
+<span class="sourceLineNo">038</span><a id="line.38"> *   &lt;li&gt;Query the session for Principals representing the</a>
+<span class="sourceLineNo">039</span><a id="line.39"> *     user's identity via {@link #getLoginPrincipal()},</a>
+<span class="sourceLineNo">040</span><a id="line.40"> *     {@link #getUserPrincipal()} and {@link #getPrincipals()}&lt;/li&gt;</a>
+<span class="sourceLineNo">041</span><a id="line.41"> *   &lt;li&gt;Store, retrieve and clear UI messages via</a>
+<span class="sourceLineNo">042</span><a id="line.42"> *     {@link #addMessage(String)}, {@link #getMessages(String)}</a>
+<span class="sourceLineNo">043</span><a id="line.43"> *     and {@link #clearMessages(String)}&lt;/li&gt;</a>
+<span class="sourceLineNo">044</span><a id="line.44"> * &lt;/ul&gt;</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * &lt;p&gt;To keep track of the Principals each user posseses, each Session stores a JAAS Subject. Various login processes add or</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * remove Principals when users authenticate or log out.&lt;/p&gt;</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * &lt;p&gt;Session extends the {@link org.apache.wiki.event.WikiEventListener} interface and listens for group add/change/delete</a>
+<span class="sourceLineNo">048</span><a id="line.48"> * events fired by event sources the Session is registered with: {@link org.apache.wiki.auth.AuthenticationManager},</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * {@link org.apache.wiki.auth.UserManager} and {@link org.apache.wiki.auth.authorize.GroupManager}, so it can catch group events. Thus,</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * when a user is added to a {@link org.apache.wiki.auth.authorize.Group}, a corresponding {@link org.apache.wiki.auth.GroupPrincipal} is</a>
+<span class="sourceLineNo">051</span><a id="line.51"> * injected into the Subject's Principal set. Likewise, when the user is removed from the Group or the Group is deleted, the</a>
+<span class="sourceLineNo">052</span><a id="line.52"> * GroupPrincipal is removed from the Subject. The effect that this strategy produces is extremely beneficial: when someone adds a user</a>
+<span class="sourceLineNo">053</span><a id="line.53"> * to a wiki group, that user &lt;em&gt;immediately&lt;/em&gt; gains the privileges associated with that group; he or she does not need to</a>
+<span class="sourceLineNo">054</span><a id="line.54"> * re-authenticate.</a>
+<span class="sourceLineNo">055</span><a id="line.55"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">056</span><a id="line.56"> * &lt;p&gt;In addition to methods for examining individual &lt;code&gt;Session&lt;/code&gt; objects, this class also contains a number of static</a>
+<span class="sourceLineNo">057</span><a id="line.57"> * methods for managing Sessions for an entire wiki. These methods allow callers to find, query and remove Session objects, and</a>
+<span class="sourceLineNo">058</span><a id="line.58"> * to obtain a list of the current wiki session users.&lt;/p&gt;</a>
+<span class="sourceLineNo">059</span><a id="line.59"> */</a>
+<span class="sourceLineNo">060</span><a id="line.60">public interface Session extends WikiEventListener {</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">    /** An anonymous user's session status. */</a>
+<span class="sourceLineNo">063</span><a id="line.63">    String  ANONYMOUS = "anonymous";</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    /** An asserted user's session status. */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    String  ASSERTED = "asserted";</a>
+<span class="sourceLineNo">067</span><a id="line.67"></a>
+<span class="sourceLineNo">068</span><a id="line.68">    /** An authenticated user's session status. */</a>
+<span class="sourceLineNo">069</span><a id="line.69">    String  AUTHENTICATED = "authenticated";</a>
+<span class="sourceLineNo">070</span><a id="line.70"></a>
+<span class="sourceLineNo">071</span><a id="line.71">    /**</a>
+<span class="sourceLineNo">072</span><a id="line.72">     * Returns &lt;code&gt;true&lt;/code&gt; if the user is considered asserted via a session cookie; that is, the Subject contains the Principal</a>
+<span class="sourceLineNo">073</span><a id="line.73">     * Role.ASSERTED.</a>
+<span class="sourceLineNo">074</span><a id="line.74">     *</a>
+<span class="sourceLineNo">075</span><a id="line.75">     * @return Returns &lt;code&gt;true&lt;/code&gt; if the user is asserted</a>
+<span class="sourceLineNo">076</span><a id="line.76">     */</a>
+<span class="sourceLineNo">077</span><a id="line.77">    boolean isAsserted();</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    /**</a>
+<span class="sourceLineNo">080</span><a id="line.80">     * Returns the authentication status of the user's session. The user is considered authenticated if the Subject contains the</a>
+<span class="sourceLineNo">081</span><a id="line.81">     * Principal Role.AUTHENTICATED. If this method determines that an earlier LoginModule did not inject Role.AUTHENTICATED, it</a>
+<span class="sourceLineNo">082</span><a id="line.82">     * will inject one if the user is not anonymous &lt;em&gt;and&lt;/em&gt; not asserted.</a>
+<span class="sourceLineNo">083</span><a id="line.83">     *</a>
+<span class="sourceLineNo">084</span><a id="line.84">     * @return Returns &lt;code&gt;true&lt;/code&gt; if the user is authenticated</a>
+<span class="sourceLineNo">085</span><a id="line.85">     */</a>
+<span class="sourceLineNo">086</span><a id="line.86">    boolean isAuthenticated();</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    /**</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * &lt;p&gt;Determines whether the current session is anonymous. This will be true if any of these conditions are true:&lt;/p&gt;</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * &lt;ul&gt;</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *   &lt;li&gt;The session's Principal set contains {@link org.apache.wiki.auth.authorize.Role#ANONYMOUS}&lt;/li&gt;</a>
+<span class="sourceLineNo">092</span><a id="line.92">     *   &lt;li&gt;The session's Principal set contains {@link org.apache.wiki.auth.WikiPrincipal#GUEST}&lt;/li&gt;</a>
+<span class="sourceLineNo">093</span><a id="line.93">     *   &lt;li&gt;The Principal returned by {@link #getUserPrincipal()} evaluates to an IP address.&lt;/li&gt;</a>
+<span class="sourceLineNo">094</span><a id="line.94">     * &lt;/ul&gt;</a>
+<span class="sourceLineNo">095</span><a id="line.95">     * &lt;p&gt;The criteria above are listed in the order in which they are evaluated.&lt;/p&gt;</a>
+<span class="sourceLineNo">096</span><a id="line.96">     * @return whether the current user's identity is equivalent to an IP address</a>
+<span class="sourceLineNo">097</span><a id="line.97">     */</a>
+<span class="sourceLineNo">098</span><a id="line.98">    boolean isAnonymous();</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">    /**</a>
+<span class="sourceLineNo">101</span><a id="line.101">     * &lt;p&gt; Returns the Principal used to log in to an authenticated session. The login principal is determined by examining the</a>
+<span class="sourceLineNo">102</span><a id="line.102">     * Subject's Principal set for PrincipalWrappers or WikiPrincipals with type designator &lt;code&gt;LOGIN_NAME&lt;/code&gt;; the first one</a>
+<span class="sourceLineNo">103</span><a id="line.103">     * found is the login principal. If one is not found, this method returns the first principal that isn't of type Role or</a>
+<span class="sourceLineNo">104</span><a id="line.104">     * GroupPrincipal. If neither of these conditions hold, this method returns</a>
+<span class="sourceLineNo">105</span><a id="line.105">     * {@link org.apache.wiki.auth.WikiPrincipal#GUEST}.</a>
+<span class="sourceLineNo">106</span><a id="line.106">     *</a>
+<span class="sourceLineNo">107</span><a id="line.107">     * @return the login Principal. If it is a PrincipalWrapper containing an externally-provided Principal, the object returned is the</a>
+<span class="sourceLineNo">108</span><a id="line.108">     * Principal, not the wrapper around it.</a>
+<span class="sourceLineNo">109</span><a id="line.109">     */</a>
+<span class="sourceLineNo">110</span><a id="line.110">    Principal getLoginPrincipal();</a>
+<span class="sourceLineNo">111</span><a id="line.111"></a>
+<span class="sourceLineNo">112</span><a id="line.112">    /**</a>
+<span class="sourceLineNo">113</span><a id="line.113">     * &lt;p&gt;Returns the primary user Principal associated with this session. The primary user principal is determined as follows:&lt;/p&gt;</a>
+<span class="sourceLineNo">114</span><a id="line.114">     * &lt;ol&gt;</a>
+<span class="sourceLineNo">115</span><a id="line.115">     *     &lt;li&gt;If the Subject's Principal set contains WikiPrincipals, the first WikiPrincipal with type designator</a>
+<span class="sourceLineNo">116</span><a id="line.116">     *         &lt;code&gt;WIKI_NAME&lt;/code&gt; or (alternatively) &lt;code&gt;FULL_NAME&lt;/code&gt; is the primary Principal.&lt;/li&gt;</a>
+<span class="sourceLineNo">117</span><a id="line.117">     *     &lt;li&gt;For all other cases, the first Principal in the Subject's principal collection that that isn't of type Role or</a>
+<span class="sourceLineNo">118</span><a id="line.118">     *         GroupPrincipal is the primary.&lt;/li&gt;</a>
+<span class="sourceLineNo">119</span><a id="line.119">     * &lt;/ol&gt;</a>
+<span class="sourceLineNo">120</span><a id="line.120">     * If no primary user Principal is found, this method returns {@link org.apache.wiki.auth.WikiPrincipal#GUEST}.</a>
+<span class="sourceLineNo">121</span><a id="line.121">     *</a>
+<span class="sourceLineNo">122</span><a id="line.122">     * @return the primary user Principal</a>
+<span class="sourceLineNo">123</span><a id="line.123">     */</a>
+<span class="sourceLineNo">124</span><a id="line.124">    Principal getUserPrincipal();</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">    /**</a>
+<span class="sourceLineNo">127</span><a id="line.127">     *  Returns a cached Locale object for this user.  It's better to use WikiContext's corresponding getBundle() method, since that</a>
+<span class="sourceLineNo">128</span><a id="line.128">     *  will actually react if the user changes the locale in the middle, but if that's not available (or, for some reason, you need</a>
+<span class="sourceLineNo">129</span><a id="line.129">     *  the speed), this method can also be used.  The Locale expires when the Session expires, and currently there is no way to</a>
+<span class="sourceLineNo">130</span><a id="line.130">     *  reset the Locale.</a>
+<span class="sourceLineNo">131</span><a id="line.131">     *</a>
+<span class="sourceLineNo">132</span><a id="line.132">     *  @return A cached Locale object</a>
+<span class="sourceLineNo">133</span><a id="line.133">     *  @since 2.5.96</a>
+<span class="sourceLineNo">134</span><a id="line.134">     */</a>
+<span class="sourceLineNo">135</span><a id="line.135">    Locale getLocale();</a>
+<span class="sourceLineNo">136</span><a id="line.136"></a>
+<span class="sourceLineNo">137</span><a id="line.137">    /**</a>
+<span class="sourceLineNo">138</span><a id="line.138">     * Adds a message to the generic list of messages associated with the session. These messages retain their order of insertion and</a>
+<span class="sourceLineNo">139</span><a id="line.139">     * remain until the {@link #clearMessages()} method is called.</a>
+<span class="sourceLineNo">140</span><a id="line.140">     *</a>
+<span class="sourceLineNo">141</span><a id="line.141">     * @param message the message to add; if &lt;code&gt;null&lt;/code&gt; it is ignored.</a>
+<span class="sourceLineNo">142</span><a id="line.142">     */</a>
+<span class="sourceLineNo">143</span><a id="line.143">    void addMessage( String message );</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">    /**</a>
+<span class="sourceLineNo">146</span><a id="line.146">     * Adds a message to the specific set of messages associated with the session. These messages retain their order of insertion and</a>
+<span class="sourceLineNo">147</span><a id="line.147">     * remain until the {@link #clearMessages()} method is called.</a>
+<span class="sourceLineNo">148</span><a id="line.148">     *</a>
+<span class="sourceLineNo">149</span><a id="line.149">     * @param topic the topic to associate the message to;</a>
+<span class="sourceLineNo">150</span><a id="line.150">     * @param message the message to add</a>
+<span class="sourceLineNo">151</span><a id="line.151">     */</a>
+<span class="sourceLineNo">152</span><a id="line.152">    void addMessage( String topic, String message );</a>
+<span class="sourceLineNo">153</span><a id="line.153"></a>
+<span class="sourceLineNo">154</span><a id="line.154">    /**</a>
+<span class="sourceLineNo">155</span><a id="line.155">     * Clears all messages associated with this session.</a>
+<span class="sourceLineNo">156</span><a id="line.156">     */</a>
+<span class="sourceLineNo">157</span><a id="line.157">    void clearMessages();</a>
+<span class="sourceLineNo">158</span><a id="line.158"></a>
+<span class="sourceLineNo">159</span><a id="line.159">    /**</a>
+<span class="sourceLineNo">160</span><a id="line.160">     * Clears all messages associated with a session topic.</a>
+<span class="sourceLineNo">161</span><a id="line.161">     *</a>
+<span class="sourceLineNo">162</span><a id="line.162">     * @param topic the topic whose messages should be cleared.</a>
+<span class="sourceLineNo">163</span><a id="line.163">     */</a>
+<span class="sourceLineNo">164</span><a id="line.164">    void clearMessages( String topic );</a>
+<span class="sourceLineNo">165</span><a id="line.165"></a>
+<span class="sourceLineNo">166</span><a id="line.166">    /**</a>
+<span class="sourceLineNo">167</span><a id="line.167">     * Returns all generic messages associated with this session. The messages stored with the session persist throughout the</a>
+<span class="sourceLineNo">168</span><a id="line.168">     * session unless they have been reset with {@link #clearMessages()}.</a>
+<span class="sourceLineNo">169</span><a id="line.169">     *</a>
+<span class="sourceLineNo">170</span><a id="line.170">     * @return the current messages.</a>
+<span class="sourceLineNo">171</span><a id="line.171">     */</a>
+<span class="sourceLineNo">172</span><a id="line.172">    String[] getMessages();</a>
+<span class="sourceLineNo">173</span><a id="line.173"></a>
+<span class="sourceLineNo">174</span><a id="line.174">    /**</a>
+<span class="sourceLineNo">175</span><a id="line.175">     * Returns all messages associated with a session topic. The messages stored with the session persist throughout the</a>
+<span class="sourceLineNo">176</span><a id="line.176">     * session unless they have been reset with {@link #clearMessages(String)}.</a>
+<span class="sourceLineNo">177</span><a id="line.177">     *</a>
+<span class="sourceLineNo">178</span><a id="line.178">     * @return the current messages.</a>
+<span class="sourceLineNo">179</span><a id="line.179">     * @param topic The topic</a>
+<span class="sourceLineNo">180</span><a id="line.180">     */</a>
+<span class="sourceLineNo">181</span><a id="line.181">    String[] getMessages( String topic );</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">    /**</a>
+<span class="sourceLineNo">184</span><a id="line.184">     * Returns all user Principals associated with this session. User principals are those in the Subject's principal collection that</a>
+<span class="sourceLineNo">185</span><a id="line.185">     * aren't of type Role or of type GroupPrincipal. This is a defensive copy.</a>
+<span class="sourceLineNo">186</span><a id="line.186">     *</a>
+<span class="sourceLineNo">187</span><a id="line.187">     * @return Returns the user principal</a>
+<span class="sourceLineNo">188</span><a id="line.188">     * @see org.apache.wiki.auth.AuthenticationManager#isUserPrincipal(Principal)</a>
+<span class="sourceLineNo">189</span><a id="line.189">     */</a>
+<span class="sourceLineNo">190</span><a id="line.190">    Principal[] getPrincipals();</a>
+<span class="sourceLineNo">191</span><a id="line.191"></a>
+<span class="sourceLineNo">192</span><a id="line.192">    /**</a>
+<span class="sourceLineNo">193</span><a id="line.193">     * Returns an array of Principal objects that represents the groups and roles that the user associated with a Session possesses.</a>
+<span class="sourceLineNo">194</span><a id="line.194">     * The array is built by iterating through the Subject's Principal set and extracting all Role and GroupPrincipal objects into a</a>
+<span class="sourceLineNo">195</span><a id="line.195">     * list. The list is returned as an array sorted in the natural order implied by each Principal's &lt;code&gt;getName&lt;/code&gt; method. Note</a>
+<span class="sourceLineNo">196</span><a id="line.196">     * that this method does &lt;em&gt;not&lt;/em&gt; consult the external Authorizer or GroupManager; it relies on the Principals that have been</a>
+<span class="sourceLineNo">197</span><a id="line.197">     * injected into the user's Subject at login time, or after group creation/modification/deletion.</a>
+<span class="sourceLineNo">198</span><a id="line.198">     *</a>
+<span class="sourceLineNo">199</span><a id="line.199">     * @return an array of Principal objects corresponding to the roles the Subject possesses</a>
+<span class="sourceLineNo">200</span><a id="line.200">     */</a>
+<span class="sourceLineNo">201</span><a id="line.201">    Principal[] getRoles();</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">    /**</a>
+<span class="sourceLineNo">204</span><a id="line.204">     * Returns &lt;code&gt;true&lt;/code&gt; if the Session's Subject possess a supplied Principal. This method eliminates the need to externally</a>
+<span class="sourceLineNo">205</span><a id="line.205">     * request and inspect the JAAS subject.</a>
+<span class="sourceLineNo">206</span><a id="line.206">     *</a>
+<span class="sourceLineNo">207</span><a id="line.207">     * @param principal the Principal to test</a>
+<span class="sourceLineNo">208</span><a id="line.208">     * @return the result</a>
+<span class="sourceLineNo">209</span><a id="line.209">     */</a>
+<span class="sourceLineNo">210</span><a id="line.210">    boolean hasPrincipal( Principal principal );</a>
+<span class="sourceLineNo">211</span><a id="line.211"></a>
+<span class="sourceLineNo">212</span><a id="line.212">    /** Invalidates the Session and resets its Subject's Principals to the equivalent of a "guest session". */</a>
+<span class="sourceLineNo">213</span><a id="line.213">    void invalidate();</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">    /**</a>
+<span class="sourceLineNo">216</span><a id="line.216">     * &lt;p&gt;Returns the status of the wiki session as a text string. Valid values are:&lt;/p&gt;</a>
+<span class="sourceLineNo">217</span><a id="line.217">     * &lt;ul&gt;</a>
+<span class="sourceLineNo">218</span><a id="line.218">     *   &lt;li&gt;{@link #AUTHENTICATED}&lt;/li&gt;</a>
+<span class="sourceLineNo">219</span><a id="line.219">     *   &lt;li&gt;{@link #ASSERTED}&lt;/li&gt;</a>
+<span class="sourceLineNo">220</span><a id="line.220">     *   &lt;li&gt;{@link #ANONYMOUS}&lt;/li&gt;</a>
+<span class="sourceLineNo">221</span><a id="line.221">     * &lt;/ul&gt;</a>
+<span class="sourceLineNo">222</span><a id="line.222">     *</a>
+<span class="sourceLineNo">223</span><a id="line.223">     * @return the user's session status</a>
+<span class="sourceLineNo">224</span><a id="line.224">     */</a>
+<span class="sourceLineNo">225</span><a id="line.225">    String getStatus();</a>
+<span class="sourceLineNo">226</span><a id="line.226"></a>
+<span class="sourceLineNo">227</span><a id="line.227">    /**</a>
+<span class="sourceLineNo">228</span><a id="line.228">     * Returns the {@link Subject} associated to the session.</a>
+<span class="sourceLineNo">229</span><a id="line.229">     *</a>
+<span class="sourceLineNo">230</span><a id="line.230">     * @return {@link Subject} associated to the session.</a>
+<span class="sourceLineNo">231</span><a id="line.231">     */</a>
+<span class="sourceLineNo">232</span><a id="line.232">    Subject getSubject();</a>
+<span class="sourceLineNo">233</span><a id="line.233"></a>
+<span class="sourceLineNo">234</span><a id="line.234">    /**</a>
+<span class="sourceLineNo">235</span><a id="line.235">     * Wrapper for {@link Subject#doAsPrivileged(Subject, PrivilegedAction, java.security.AccessControlContext)}</a>
+<span class="sourceLineNo">236</span><a id="line.236">     * that executes an action with the privileges posssessed by a Session's Subject. The action executes with a &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">237</span><a id="line.237">     * AccessControlContext, which has the effect of running it "cleanly" without the AccessControlContexts of the caller.</a>
+<span class="sourceLineNo">238</span><a id="line.238">     *</a>
+<span class="sourceLineNo">239</span><a id="line.239">     * @param session the wiki session</a>
+<span class="sourceLineNo">240</span><a id="line.240">     * @param action the privileged action</a>
+<span class="sourceLineNo">241</span><a id="line.241">     * @return the result of the privileged action; may be &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">242</span><a id="line.242">     * @throws java.security.AccessControlException if the action is not permitted by the security policy</a>
+<span class="sourceLineNo">243</span><a id="line.243">     */</a>
+<span class="sourceLineNo">244</span><a id="line.244">    static Object doPrivileged( final Session session, final PrivilegedAction&lt;?&gt; action ) throws AccessControlException {</a>
+<span class="sourceLineNo">245</span><a id="line.245">        return Subject.doAsPrivileged( session.getSubject(), action, null );</a>
+<span class="sourceLineNo">246</span><a id="line.246">    }</a>
+<span class="sourceLineNo">247</span><a id="line.247"></a>
+<span class="sourceLineNo">248</span><a id="line.248">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

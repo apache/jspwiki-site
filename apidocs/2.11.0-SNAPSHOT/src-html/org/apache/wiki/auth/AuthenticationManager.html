@@ -1,0 +1,302 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.    </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Session;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.engine.Initializable;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.auth.authorize.Role;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.event.WikiSecurityEvent;</a>
+<span class="sourceLineNo">027</span><a id="line.27"></a>
+<span class="sourceLineNo">028</span><a id="line.28">import javax.security.auth.Subject;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import javax.security.auth.callback.CallbackHandler;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import javax.security.auth.spi.LoginModule;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import java.security.Principal;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.util.Map;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import java.util.Set;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36"></a>
+<span class="sourceLineNo">037</span><a id="line.37">/**</a>
+<span class="sourceLineNo">038</span><a id="line.38"> * Manages authentication activities for a Engine: user login, logout, and credential refreshes. This class uses JAAS to determine how</a>
+<span class="sourceLineNo">039</span><a id="line.39"> * users log in.</a>
+<span class="sourceLineNo">040</span><a id="line.40"> * &lt;p&gt;</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * The login procedure is protected in addition by a mechanism which prevents a hacker to try and force-guess passwords by slowing down</a>
+<span class="sourceLineNo">042</span><a id="line.42"> * attempts to log in into the same account.  Every login attempt is recorded, and stored for a while (currently ten minutes), and each</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * login attempt during that time incurs a penalty of 2^login attempts milliseconds - that is, 10 login attempts incur a login penalty</a>
+<span class="sourceLineNo">044</span><a id="line.44"> * of 1.024 seconds. The delay is currently capped to 20 seconds.</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * </a>
+<span class="sourceLineNo">046</span><a id="line.46"> * @since 2.3</a>
+<span class="sourceLineNo">047</span><a id="line.47"> */</a>
+<span class="sourceLineNo">048</span><a id="line.48">public interface AuthenticationManager extends Initializable {</a>
+<span class="sourceLineNo">049</span><a id="line.49"></a>
+<span class="sourceLineNo">050</span><a id="line.50">    /** If this jspwiki.properties property is &lt;code&gt;true&lt;/code&gt;, logs the IP address of the editor on saving. */</a>
+<span class="sourceLineNo">051</span><a id="line.51">    String PROP_STOREIPADDRESS = "jspwiki.storeIPAddress";</a>
+<span class="sourceLineNo">052</span><a id="line.52">    </a>
+<span class="sourceLineNo">053</span><a id="line.53">    /** If this jspwiki.properties property is &lt;code&gt;true&lt;/code&gt;, allow cookies to be used for authentication. */</a>
+<span class="sourceLineNo">054</span><a id="line.54">    String PROP_ALLOW_COOKIE_AUTH = "jspwiki.cookieAuthentication";</a>
+<span class="sourceLineNo">055</span><a id="line.55">    </a>
+<span class="sourceLineNo">056</span><a id="line.56">    /** Whether logins should be throttled to limit brute-forcing attempts. Defaults to true. */</a>
+<span class="sourceLineNo">057</span><a id="line.57">    String PROP_LOGIN_THROTTLING = "jspwiki.login.throttling";</a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">    /** Prefix for LoginModule options key/value pairs. */</a>
+<span class="sourceLineNo">060</span><a id="line.60">    String PREFIX_LOGIN_MODULE_OPTIONS = "jspwiki.loginModule.options.";</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">    /** If this jspwiki.properties property is &lt;code&gt;true&lt;/code&gt;, allow cookies to be used to assert identities. */</a>
+<span class="sourceLineNo">063</span><a id="line.63">    String PROP_ALLOW_COOKIE_ASSERTIONS = "jspwiki.cookieAssertions";</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    /** The {@link LoginModule} to use for custom authentication. */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    String PROP_LOGIN_MODULE = "jspwiki.loginModule.class";</a>
+<span class="sourceLineNo">067</span><a id="line.67"></a>
+<span class="sourceLineNo">068</span><a id="line.68">    /**</a>
+<span class="sourceLineNo">069</span><a id="line.69">     * Returns true if this Engine uses container-managed authentication. This method is used primarily for cosmetic purposes in the</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * JSP tier, and performs no meaningful security function per se. Delegates to</a>
+<span class="sourceLineNo">071</span><a id="line.71">     * {@link org.apache.wiki.auth.authorize.WebContainerAuthorizer#isContainerAuthorized()},</a>
+<span class="sourceLineNo">072</span><a id="line.72">     * if used as the external authorizer; otherwise, returns &lt;code&gt;false&lt;/code&gt;.</a>
+<span class="sourceLineNo">073</span><a id="line.73">     *</a>
+<span class="sourceLineNo">074</span><a id="line.74">     * @return &lt;code&gt;true&lt;/code&gt; if the wiki's authentication is managed by the container, &lt;code&gt;false&lt;/code&gt; otherwise</a>
+<span class="sourceLineNo">075</span><a id="line.75">     */</a>
+<span class="sourceLineNo">076</span><a id="line.76">    boolean isContainerAuthenticated();</a>
+<span class="sourceLineNo">077</span><a id="line.77"></a>
+<span class="sourceLineNo">078</span><a id="line.78">    /**</a>
+<span class="sourceLineNo">079</span><a id="line.79">     * &lt;p&gt;Logs in the user by attempting to populate a Session Subject from a web servlet request by examining the request</a>
+<span class="sourceLineNo">080</span><a id="line.80">     *  for the presence of container credentials and user cookies. The processing logic is as follows:</a>
+<span class="sourceLineNo">081</span><a id="line.81">     * &lt;/p&gt;</a>
+<span class="sourceLineNo">082</span><a id="line.82">     * &lt;ul&gt;</a>
+<span class="sourceLineNo">083</span><a id="line.83">     * &lt;li&gt;If the Session had previously been unauthenticated, check to see if user has subsequently authenticated. To be considered</a>
+<span class="sourceLineNo">084</span><a id="line.84">     * "authenticated," the request must supply one of the following (in order of preference): the container &lt;code&gt;userPrincipal&lt;/code&gt;,</a>
+<span class="sourceLineNo">085</span><a id="line.85">     * container &lt;code&gt;remoteUser&lt;/code&gt;, or authentication cookie. If the user is authenticated, this method fires event</a>
+<span class="sourceLineNo">086</span><a id="line.86">     * {@link org.apache.wiki.event.WikiSecurityEvent#LOGIN_AUTHENTICATED} with two parameters: a Principal representing the login principal,</a>
+<span class="sourceLineNo">087</span><a id="line.87">     * and the current Session. In addition, if the authorizer is of type WebContainerAuthorizer, this method iterates through the</a>
+<span class="sourceLineNo">088</span><a id="line.88">     * container roles returned by {@link org.apache.wiki.auth.authorize.WebContainerAuthorizer#getRoles()}, tests for membership in each</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * one, and adds those that pass to the Subject's principal set.&lt;/li&gt;</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * &lt;li&gt;If, after checking for authentication, the Session is still Anonymous, this method next checks to see if the user has</a>
+<span class="sourceLineNo">091</span><a id="line.91">     * "asserted" an identity by supplying an assertion cookie. If the user is found to be asserted, this method fires event</a>
+<span class="sourceLineNo">092</span><a id="line.92">     * {@link org.apache.wiki.event.WikiSecurityEvent#LOGIN_ASSERTED} with two parameters: &lt;code&gt;WikiPrincipal(&lt;em&gt;cookievalue&lt;/em&gt;)&lt;/code&gt;,</a>
+<span class="sourceLineNo">093</span><a id="line.93">     * and the current Session.&lt;/li&gt;</a>
+<span class="sourceLineNo">094</span><a id="line.94">     * &lt;li&gt;If, after checking for authenticated and asserted status, the  Session is &lt;em&gt;still&lt;/em&gt; anonymous, this method fires event</a>
+<span class="sourceLineNo">095</span><a id="line.95">     * {@link org.apache.wiki.event.WikiSecurityEvent#LOGIN_ANONYMOUS} with two parameters: &lt;code&gt;WikiPrincipal(&lt;em&gt;remoteAddress&lt;/em&gt;)&lt;/code&gt;,</a>
+<span class="sourceLineNo">096</span><a id="line.96">     * and the current Session &lt;/li&gt;</a>
+<span class="sourceLineNo">097</span><a id="line.97">     * &lt;/ul&gt;</a>
+<span class="sourceLineNo">098</span><a id="line.98">     *</a>
+<span class="sourceLineNo">099</span><a id="line.99">     * @param request servlet request for this user</a>
+<span class="sourceLineNo">100</span><a id="line.100">     * @return always returns &lt;code&gt;true&lt;/code&gt; (because anonymous login, at least, will always succeed)</a>
+<span class="sourceLineNo">101</span><a id="line.101">     * @throws org.apache.wiki.auth.WikiSecurityException if the user cannot be logged in for any reason</a>
+<span class="sourceLineNo">102</span><a id="line.102">     * @since 2.3</a>
+<span class="sourceLineNo">103</span><a id="line.103">     */</a>
+<span class="sourceLineNo">104</span><a id="line.104">    boolean login( HttpServletRequest request ) throws WikiSecurityException;</a>
+<span class="sourceLineNo">105</span><a id="line.105">    </a>
+<span class="sourceLineNo">106</span><a id="line.106">    /**</a>
+<span class="sourceLineNo">107</span><a id="line.107">     * Attempts to perform a Session login for the given username/password combination using JSPWiki's custom authentication mode. In</a>
+<span class="sourceLineNo">108</span><a id="line.108">     * order to log in, the JAAS LoginModule supplied by the Engine property {@link #PROP_LOGIN_MODULE} will be instantiated, and its</a>
+<span class="sourceLineNo">109</span><a id="line.109">     * {@link javax.security.auth.spi.LoginModule#initialize(Subject, CallbackHandler, Map, Map)} method will be invoked. By default,</a>
+<span class="sourceLineNo">110</span><a id="line.110">     * the {@link org.apache.wiki.auth.login.UserDatabaseLoginModule} class will be used. When the LoginModule's &lt;code&gt;initialize&lt;/code&gt;</a>
+<span class="sourceLineNo">111</span><a id="line.111">     * method is invoked, an options Map populated by properties keys prefixed by {@link #PREFIX_LOGIN_MODULE_OPTIONS} will be passed as a</a>
+<span class="sourceLineNo">112</span><a id="line.112">     * parameter.</a>
+<span class="sourceLineNo">113</span><a id="line.113">     *</a>
+<span class="sourceLineNo">114</span><a id="line.114">     * @param session the current wiki session; may not be &lt;code&gt;null&lt;/code&gt;.</a>
+<span class="sourceLineNo">115</span><a id="line.115">     * @param request the user's HTTP request. This parameter may be &lt;code&gt;null&lt;/code&gt;, but the configured LoginModule will not have access</a>
+<span class="sourceLineNo">116</span><a id="line.116">     *                to the HTTP request in this case.</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * @param username The user name. This is a login name, not a WikiName. In most cases they are the same, but in some cases, they might not be.</a>
+<span class="sourceLineNo">118</span><a id="line.118">     * @param password the password</a>
+<span class="sourceLineNo">119</span><a id="line.119">     * @return true, if the username/password is valid</a>
+<span class="sourceLineNo">120</span><a id="line.120">     * @throws org.apache.wiki.auth.WikiSecurityException if the Authorizer or UserManager cannot be obtained</a>
+<span class="sourceLineNo">121</span><a id="line.121">     */</a>
+<span class="sourceLineNo">122</span><a id="line.122">    boolean login( Session session, HttpServletRequest request, String username, String password ) throws WikiSecurityException;</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">    /**</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * Logs the user out by retrieving the Session associated with the HttpServletRequest and unbinding all of the Subject's Principals,</a>
+<span class="sourceLineNo">126</span><a id="line.126">     * except for {@link Role#ALL}, {@link Role#ANONYMOUS}. is a cheap-and-cheerful way to do it without invoking JAAS LoginModules.</a>
+<span class="sourceLineNo">127</span><a id="line.127">     * The logout operation will also flush the JSESSIONID cookie from the user's browser session, if it was set.</a>
+<span class="sourceLineNo">128</span><a id="line.128">     *</a>
+<span class="sourceLineNo">129</span><a id="line.129">     * @param request the current HTTP request</a>
+<span class="sourceLineNo">130</span><a id="line.130">     */</a>
+<span class="sourceLineNo">131</span><a id="line.131">    void logout( HttpServletRequest request );</a>
+<span class="sourceLineNo">132</span><a id="line.132"></a>
+<span class="sourceLineNo">133</span><a id="line.133">    /**</a>
+<span class="sourceLineNo">134</span><a id="line.134">     * Determines whether this Engine allows users to assert identities using cookies instead of passwords. This is determined by inspecting</a>
+<span class="sourceLineNo">135</span><a id="line.135">     * the Engine property {@link #PROP_ALLOW_COOKIE_ASSERTIONS}.</a>
+<span class="sourceLineNo">136</span><a id="line.136">     *</a>
+<span class="sourceLineNo">137</span><a id="line.137">     * @return &lt;code&gt;true&lt;/code&gt; if cookies are allowed</a>
+<span class="sourceLineNo">138</span><a id="line.138">     */</a>
+<span class="sourceLineNo">139</span><a id="line.139">    boolean allowsCookieAssertions();</a>
+<span class="sourceLineNo">140</span><a id="line.140"></a>
+<span class="sourceLineNo">141</span><a id="line.141">    /**</a>
+<span class="sourceLineNo">142</span><a id="line.142">     * Determines whether this Engine allows users to authenticate using cookies instead of passwords. This is determined by inspecting</a>
+<span class="sourceLineNo">143</span><a id="line.143">     * the Engine property {@link #PROP_ALLOW_COOKIE_AUTH}.</a>
+<span class="sourceLineNo">144</span><a id="line.144">     *</a>
+<span class="sourceLineNo">145</span><a id="line.145">     *  @return &lt;code&gt;true&lt;/code&gt; if cookies are allowed for authentication</a>
+<span class="sourceLineNo">146</span><a id="line.146">     *  @since 2.5.62</a>
+<span class="sourceLineNo">147</span><a id="line.147">     */</a>
+<span class="sourceLineNo">148</span><a id="line.148">    boolean allowsCookieAuthentication();</a>
+<span class="sourceLineNo">149</span><a id="line.149"></a>
+<span class="sourceLineNo">150</span><a id="line.150">    /**</a>
+<span class="sourceLineNo">151</span><a id="line.151">     * Instantiates and executes a single JAAS {@link LoginModule}, and returns a Set of Principals that results from a successful login.</a>
+<span class="sourceLineNo">152</span><a id="line.152">     * The LoginModule is instantiated, then its {@link LoginModule#initialize(Subject, CallbackHandler, Map, Map)} method is called. The</a>
+<span class="sourceLineNo">153</span><a id="line.153">     * parameters passed to &lt;code&gt;initialize&lt;/code&gt; is a dummy Subject, an empty shared-state Map, and an options Map the caller supplies.</a>
+<span class="sourceLineNo">154</span><a id="line.154">     *</a>
+<span class="sourceLineNo">155</span><a id="line.155">     * @param clazz the LoginModule class to instantiate</a>
+<span class="sourceLineNo">156</span><a id="line.156">     * @param handler the callback handler to supply to the LoginModule</a>
+<span class="sourceLineNo">157</span><a id="line.157">     * @param options a Map of key/value strings for initializing the LoginModule</a>
+<span class="sourceLineNo">158</span><a id="line.158">     * @return the set of Principals returned by the JAAS method {@link Subject#getPrincipals()}</a>
+<span class="sourceLineNo">159</span><a id="line.159">     * @throws WikiSecurityException if the LoginModule could not be instantiated for any reason</a>
+<span class="sourceLineNo">160</span><a id="line.160">     */</a>
+<span class="sourceLineNo">161</span><a id="line.161">    Set&lt; Principal &gt; doJAASLogin( Class&lt; ? extends LoginModule &gt; clazz, CallbackHandler handler, Map&lt; String, String &gt; options) throws WikiSecurityException;</a>
+<span class="sourceLineNo">162</span><a id="line.162">    </a>
+<span class="sourceLineNo">163</span><a id="line.163">    /**</a>
+<span class="sourceLineNo">164</span><a id="line.164">     * Determines whether the supplied Principal is a "role principal".</a>
+<span class="sourceLineNo">165</span><a id="line.165">     *</a>
+<span class="sourceLineNo">166</span><a id="line.166">     * @param principal the principal to test</a>
+<span class="sourceLineNo">167</span><a id="line.167">     * @return {@code true} if the Principal is of type {@link GroupPrincipal} or {@link Role}, {@code false} otherwise.</a>
+<span class="sourceLineNo">168</span><a id="line.168">     */</a>
+<span class="sourceLineNo">169</span><a id="line.169">    static boolean isRolePrincipal( final Principal principal ) {</a>
+<span class="sourceLineNo">170</span><a id="line.170">        return principal instanceof Role || principal instanceof GroupPrincipal;</a>
+<span class="sourceLineNo">171</span><a id="line.171">    }</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">    /**</a>
+<span class="sourceLineNo">174</span><a id="line.174">     * Determines whether the supplied Principal is a "user principal".</a>
+<span class="sourceLineNo">175</span><a id="line.175">     *</a>
+<span class="sourceLineNo">176</span><a id="line.176">     * @param principal the principal to test</a>
+<span class="sourceLineNo">177</span><a id="line.177">     * @return {@code false} if the Principal is of type {@link GroupPrincipal} or {@link Role}, {@code true} otherwise.</a>
+<span class="sourceLineNo">178</span><a id="line.178">     */</a>
+<span class="sourceLineNo">179</span><a id="line.179">    static boolean isUserPrincipal( final Principal principal ) {</a>
+<span class="sourceLineNo">180</span><a id="line.180">        return !isRolePrincipal( principal );</a>
+<span class="sourceLineNo">181</span><a id="line.181">    }</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">    /**</a>
+<span class="sourceLineNo">184</span><a id="line.184">     * Returns the first Principal in a set that isn't a {@link Role} or {@link GroupPrincipal}.</a>
+<span class="sourceLineNo">185</span><a id="line.185">     *</a>
+<span class="sourceLineNo">186</span><a id="line.186">     * @param principals the principal set</a>
+<span class="sourceLineNo">187</span><a id="line.187">     * @return the login principal</a>
+<span class="sourceLineNo">188</span><a id="line.188">     */</a>
+<span class="sourceLineNo">189</span><a id="line.189">    default Principal getLoginPrincipal( final Set&lt; Principal &gt; principals ) {</a>
+<span class="sourceLineNo">190</span><a id="line.190">        for( final Principal principal : principals ) {</a>
+<span class="sourceLineNo">191</span><a id="line.191">            if ( isUserPrincipal( principal ) ) {</a>
+<span class="sourceLineNo">192</span><a id="line.192">                return principal;</a>
+<span class="sourceLineNo">193</span><a id="line.193">            }</a>
+<span class="sourceLineNo">194</span><a id="line.194">        }</a>
+<span class="sourceLineNo">195</span><a id="line.195">        return null;</a>
+<span class="sourceLineNo">196</span><a id="line.196">    }</a>
+<span class="sourceLineNo">197</span><a id="line.197"></a>
+<span class="sourceLineNo">198</span><a id="line.198">    // events processing .......................................................</a>
+<span class="sourceLineNo">199</span><a id="line.199"></a>
+<span class="sourceLineNo">200</span><a id="line.200">    /**</a>
+<span class="sourceLineNo">201</span><a id="line.201">     * Registers a WikiEventListener with this instance. This is a convenience method.</a>
+<span class="sourceLineNo">202</span><a id="line.202">     *</a>
+<span class="sourceLineNo">203</span><a id="line.203">     * @param listener the event listener</a>
+<span class="sourceLineNo">204</span><a id="line.204">     */</a>
+<span class="sourceLineNo">205</span><a id="line.205">    void addWikiEventListener( WikiEventListener listener );</a>
+<span class="sourceLineNo">206</span><a id="line.206"></a>
+<span class="sourceLineNo">207</span><a id="line.207">    /**</a>
+<span class="sourceLineNo">208</span><a id="line.208">     * Un-registers a WikiEventListener with this instance. This is a convenience method.</a>
+<span class="sourceLineNo">209</span><a id="line.209">     *</a>
+<span class="sourceLineNo">210</span><a id="line.210">     * @param listener the event listener</a>
+<span class="sourceLineNo">211</span><a id="line.211">     */</a>
+<span class="sourceLineNo">212</span><a id="line.212">    void removeWikiEventListener( final WikiEventListener listener );</a>
+<span class="sourceLineNo">213</span><a id="line.213"></a>
+<span class="sourceLineNo">214</span><a id="line.214">    /**</a>
+<span class="sourceLineNo">215</span><a id="line.215">     *  Fires a WikiSecurityEvent of the provided type, Principal and target Object to all registered listeners.</a>
+<span class="sourceLineNo">216</span><a id="line.216">     *</a>
+<span class="sourceLineNo">217</span><a id="line.217">     * @see org.apache.wiki.event.WikiSecurityEvent</a>
+<span class="sourceLineNo">218</span><a id="line.218">     * @param type       the event type to be fired</a>
+<span class="sourceLineNo">219</span><a id="line.219">     * @param principal  the subject of the event, which may be &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">220</span><a id="line.220">     * @param target     the changed Object, which may be &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">221</span><a id="line.221">     */</a>
+<span class="sourceLineNo">222</span><a id="line.222">    default void fireEvent( final int type, final Principal principal, final Object target ) {</a>
+<span class="sourceLineNo">223</span><a id="line.223">        if ( WikiEventManager.isListening( this ) ) {</a>
+<span class="sourceLineNo">224</span><a id="line.224">            WikiEventManager.fireEvent( this, new WikiSecurityEvent( this, type, principal, target ) );</a>
+<span class="sourceLineNo">225</span><a id="line.225">        }</a>
+<span class="sourceLineNo">226</span><a id="line.226">    }</a>
+<span class="sourceLineNo">227</span><a id="line.227"></a>
+<span class="sourceLineNo">228</span><a id="line.228">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
