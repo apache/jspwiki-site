@@ -24,10 +24,10 @@ try {
     def jbake = 'jbake'
 
     node( 'ubuntu' ) {
-        def JAVA_JDK_8=tool name: 'JDK 1.8 (latest)', type: 'hudson.model.JDK'
+        def JAVA_JDK_8=tool name: 'jdk_1.8_latest', type: 'hudson.model.JDK'
         echo "Will use Java $JAVA_JDK_8"
         
-        def MAVEN_3_LATEST=tool name: 'Maven 3 (latest)', type: 'hudson.tasks.Maven$MavenInstallation'
+        def MAVEN_3_LATEST=tool name: 'maven_3_latest', type: 'hudson.tasks.Maven$MavenInstallation'
         echo "Will use Maven $MAVEN_3_LATEST"
         
         stage( "clone $jbake branch" ) {
