@@ -27,6 +27,8 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **13-Dec-2020**: Official [Apache JSPWiki 2.11.0.M8 release][] release is out!
+
   * **28-May-2020**: Official [Apache JSPWiki 2.11.0.M7 release][] release is out!
 
   * **17-Dec-2019**: Official [Apache JSPWiki 2.11.0.M6 release][] is out!
@@ -38,8 +40,6 @@ JSPWiki is open-source software that is released under the Apache Public License
   * **19-May-2019:** Apache JSPWiki [CVE-2019-10076][], [CVE-2019-10077][] and [CVE-2019-10078][] vulnerability disclosures
 
   * **18-May-2019:** Official [Apache JSPWiki 2.11.0.M4 release][] is out!
-
-  * **25-Mar-2019:** Apache JSPWiki [CVE-2019-0224][] and [CVE-2019-0225][] vulnerability disclosures
 
 [Apache JSPWiki]: https://jspwiki.apache.org
 [WikiWiki]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiWiki
@@ -53,12 +53,11 @@ JSPWiki is open-source software that is released under the Apache Public License
 [JSPWiki today]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiSites
 [WikiMatrix]: http://www.wikimatrix.org/show/JSPWiki
 [Getting Involved]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Getting%20Involved
-[Apache JSPWiki 2.11.0.M7 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M7ReleasedOn28052020
-[Apache JSPWiki 2.11.0.M6 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M6ReleasedOn17122019
-[Apache JSPWiki 2.11.0.M5 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M5ReleasedOn18092019
-[Apache JSPWiki 2.11.0.M4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-SectionNewIn2.11NewInJSPWiki2.11.0.M4ReleasedOn18052019
-[CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
-[CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
+[Apache JSPWiki 2.11.0.M8 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M8ReleasedOn13122020
+[Apache JSPWiki 2.11.0.M7 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M7ReleasedOn28052020
+[Apache JSPWiki 2.11.0.M6 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M6ReleasedOn17122019
+[Apache JSPWiki 2.11.0.M5 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M5ReleasedOn18092019
+[Apache JSPWiki 2.11.0.M4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M4ReleasedOn18052019
 [CVE-2019-10076]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10076
 [CVE-2019-10077]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10077
 [CVE-2019-10078]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10078
