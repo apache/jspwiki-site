@@ -208,143 +208,144 @@
 <span class="sourceLineNo">199</span><a id="line.199">            String variant  = "";</a>
 <span class="sourceLineNo">200</span><a id="line.200"></a>
 <span class="sourceLineNo">201</span><a id="line.201">            final String[] res = StringUtils.split( langSetting, "-_" );</a>
-<span class="sourceLineNo">202</span><a id="line.202">            if( res.length &gt; 2 ) {</a>
-<span class="sourceLineNo">203</span><a id="line.203">                variant = res[ 2 ];</a>
-<span class="sourceLineNo">204</span><a id="line.204">            }</a>
-<span class="sourceLineNo">205</span><a id="line.205">            if( res.length &gt; 1 ) {</a>
-<span class="sourceLineNo">206</span><a id="line.206">                country = res[ 1 ];</a>
-<span class="sourceLineNo">207</span><a id="line.207">            }</a>
-<span class="sourceLineNo">208</span><a id="line.208">            if( res.length &gt; 0 ) {</a>
-<span class="sourceLineNo">209</span><a id="line.209">                language = res[ 0 ];</a>
-<span class="sourceLineNo">210</span><a id="line.210">                loc = new Locale( language, country, variant );</a>
-<span class="sourceLineNo">211</span><a id="line.211">            }</a>
-<span class="sourceLineNo">212</span><a id="line.212">        }</a>
-<span class="sourceLineNo">213</span><a id="line.213"></a>
-<span class="sourceLineNo">214</span><a id="line.214">        // see if default locale is set server side</a>
-<span class="sourceLineNo">215</span><a id="line.215">        if( loc == null ) {</a>
-<span class="sourceLineNo">216</span><a id="line.216">            final String locale = context.getEngine().getWikiProperties().getProperty( "jspwiki.preferences.default-locale" );</a>
-<span class="sourceLineNo">217</span><a id="line.217">            try {</a>
-<span class="sourceLineNo">218</span><a id="line.218">                loc = LocaleUtils.toLocale( locale );</a>
-<span class="sourceLineNo">219</span><a id="line.219">            } catch( final IllegalArgumentException iae ) {</a>
-<span class="sourceLineNo">220</span><a id="line.220">                log.error( iae.getMessage() );</a>
-<span class="sourceLineNo">221</span><a id="line.221">            }</a>
-<span class="sourceLineNo">222</span><a id="line.222">        }</a>
-<span class="sourceLineNo">223</span><a id="line.223"></a>
-<span class="sourceLineNo">224</span><a id="line.224">        // otherwise try to find out the browser's preferred language setting, or use the JVM's default</a>
-<span class="sourceLineNo">225</span><a id="line.225">        if( loc == null ) {</a>
-<span class="sourceLineNo">226</span><a id="line.226">            final HttpServletRequest request = context.getHttpRequest();</a>
-<span class="sourceLineNo">227</span><a id="line.227">            loc = ( request != null ) ? request.getLocale() : Locale.getDefault();</a>
-<span class="sourceLineNo">228</span><a id="line.228">        }</a>
-<span class="sourceLineNo">229</span><a id="line.229"></a>
-<span class="sourceLineNo">230</span><a id="line.230">        log.debug( "using locale " + loc.toString() );</a>
-<span class="sourceLineNo">231</span><a id="line.231">        return loc;</a>
-<span class="sourceLineNo">232</span><a id="line.232">    }</a>
-<span class="sourceLineNo">233</span><a id="line.233"></a>
-<span class="sourceLineNo">234</span><a id="line.234">    /**</a>
-<span class="sourceLineNo">235</span><a id="line.235">     * Locates the i18n ResourceBundle given.  This method interprets the request locale, and uses that to figure out which language the</a>
-<span class="sourceLineNo">236</span><a id="line.236">     * user wants.</a>
-<span class="sourceLineNo">237</span><a id="line.237">     *</a>
-<span class="sourceLineNo">238</span><a id="line.238">     * @param context {@link Context} holding the user's locale</a>
-<span class="sourceLineNo">239</span><a id="line.239">     * @param bundle  The name of the bundle you are looking for.</a>
-<span class="sourceLineNo">240</span><a id="line.240">     * @return A localized string (or from the default language, if not found)</a>
-<span class="sourceLineNo">241</span><a id="line.241">     * @throws MissingResourceException If the bundle cannot be found</a>
-<span class="sourceLineNo">242</span><a id="line.242">     * @see org.apache.wiki.i18n.InternationalizationManager</a>
-<span class="sourceLineNo">243</span><a id="line.243">     */</a>
-<span class="sourceLineNo">244</span><a id="line.244">    public static ResourceBundle getBundle( final Context context, final String bundle ) throws MissingResourceException {</a>
-<span class="sourceLineNo">245</span><a id="line.245">        final Locale loc = getLocale( context );</a>
-<span class="sourceLineNo">246</span><a id="line.246">        final InternationalizationManager i18n = context.getEngine().getManager( InternationalizationManager.class );</a>
-<span class="sourceLineNo">247</span><a id="line.247">        return i18n.getBundle( bundle, loc );</a>
-<span class="sourceLineNo">248</span><a id="line.248">    }</a>
-<span class="sourceLineNo">249</span><a id="line.249"></a>
-<span class="sourceLineNo">250</span><a id="line.250">    /**</a>
-<span class="sourceLineNo">251</span><a id="line.251">     * Get SimpleTimeFormat according to user browser locale and preferred time formats. If not found, it will revert to whichever format</a>
-<span class="sourceLineNo">252</span><a id="line.252">     * is set for the default.</a>
-<span class="sourceLineNo">253</span><a id="line.253">     *</a>
-<span class="sourceLineNo">254</span><a id="line.254">     * @param context WikiContext to use for rendering.</a>
-<span class="sourceLineNo">255</span><a id="line.255">     * @param tf Which version of the dateformat you are looking for?</a>
-<span class="sourceLineNo">256</span><a id="line.256">     * @return A SimpleTimeFormat object which you can use to render</a>
-<span class="sourceLineNo">257</span><a id="line.257">     * @since 2.8</a>
-<span class="sourceLineNo">258</span><a id="line.258">     */</a>
-<span class="sourceLineNo">259</span><a id="line.259">    public static SimpleDateFormat getDateFormat( final Context context, final TimeFormat tf ) {</a>
-<span class="sourceLineNo">260</span><a id="line.260">        final InternationalizationManager imgr = context.getEngine().getManager( InternationalizationManager.class );</a>
-<span class="sourceLineNo">261</span><a id="line.261">        final Locale clientLocale = getLocale( context );</a>
-<span class="sourceLineNo">262</span><a id="line.262">        final String prefTimeZone = getPreference( context, "TimeZone" );</a>
-<span class="sourceLineNo">263</span><a id="line.263">        String prefDateFormat;</a>
-<span class="sourceLineNo">264</span><a id="line.264"></a>
-<span class="sourceLineNo">265</span><a id="line.265">        log.debug("Checking for preferences...");</a>
-<span class="sourceLineNo">266</span><a id="line.266">        switch( tf ) {</a>
-<span class="sourceLineNo">267</span><a id="line.267">            case DATETIME:</a>
-<span class="sourceLineNo">268</span><a id="line.268">                prefDateFormat = getPreference( context, "DateFormat" );</a>
-<span class="sourceLineNo">269</span><a id="line.269">                log.debug("Preferences fmt = "+prefDateFormat);</a>
-<span class="sourceLineNo">270</span><a id="line.270">                if( prefDateFormat == null ) {</a>
-<span class="sourceLineNo">271</span><a id="line.271">                    prefDateFormat = imgr.get( InternationalizationManager.CORE_BUNDLE, clientLocale,"common.datetimeformat" );</a>
-<span class="sourceLineNo">272</span><a id="line.272">                    log.debug("Using locale-format = "+prefDateFormat);</a>
-<span class="sourceLineNo">273</span><a id="line.273">                }</a>
-<span class="sourceLineNo">274</span><a id="line.274">                break;</a>
-<span class="sourceLineNo">275</span><a id="line.275"></a>
-<span class="sourceLineNo">276</span><a id="line.276">            case TIME:</a>
-<span class="sourceLineNo">277</span><a id="line.277">                prefDateFormat = imgr.get( "common.timeformat" );</a>
-<span class="sourceLineNo">278</span><a id="line.278">                break;</a>
-<span class="sourceLineNo">279</span><a id="line.279"></a>
-<span class="sourceLineNo">280</span><a id="line.280">            case DATE:</a>
-<span class="sourceLineNo">281</span><a id="line.281">                prefDateFormat = imgr.get( "common.dateformat" );</a>
-<span class="sourceLineNo">282</span><a id="line.282">                break;</a>
-<span class="sourceLineNo">283</span><a id="line.283"></a>
-<span class="sourceLineNo">284</span><a id="line.284">            default:</a>
-<span class="sourceLineNo">285</span><a id="line.285">                throw new InternalWikiException( "Got a TimeFormat for which we have no value!" );</a>
-<span class="sourceLineNo">286</span><a id="line.286">        }</a>
-<span class="sourceLineNo">287</span><a id="line.287"></a>
-<span class="sourceLineNo">288</span><a id="line.288">        try {</a>
-<span class="sourceLineNo">289</span><a id="line.289">            final SimpleDateFormat fmt = new SimpleDateFormat( prefDateFormat, clientLocale );</a>
-<span class="sourceLineNo">290</span><a id="line.290">            if( prefTimeZone != null ) {</a>
-<span class="sourceLineNo">291</span><a id="line.291">                final TimeZone tz = TimeZone.getTimeZone( prefTimeZone );</a>
-<span class="sourceLineNo">292</span><a id="line.292">                // TimeZone tz = TimeZone.getDefault();</a>
-<span class="sourceLineNo">293</span><a id="line.293">                // tz.setRawOffset(Integer.parseInt(prefTimeZone));</a>
-<span class="sourceLineNo">294</span><a id="line.294">                fmt.setTimeZone( tz );</a>
-<span class="sourceLineNo">295</span><a id="line.295">            }</a>
-<span class="sourceLineNo">296</span><a id="line.296"></a>
-<span class="sourceLineNo">297</span><a id="line.297">            return fmt;</a>
-<span class="sourceLineNo">298</span><a id="line.298">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">299</span><a id="line.299">            return null;</a>
-<span class="sourceLineNo">300</span><a id="line.300">        }</a>
-<span class="sourceLineNo">301</span><a id="line.301">    }</a>
-<span class="sourceLineNo">302</span><a id="line.302"></a>
-<span class="sourceLineNo">303</span><a id="line.303">    /**</a>
-<span class="sourceLineNo">304</span><a id="line.304">     * A simple helper function to render a date based on the user preferences. This is useful for example for all plugins.</a>
-<span class="sourceLineNo">305</span><a id="line.305">     *</a>
-<span class="sourceLineNo">306</span><a id="line.306">     * @param context  The context which is used to get the preferences</a>
-<span class="sourceLineNo">307</span><a id="line.307">     * @param date     The date to render.</a>
-<span class="sourceLineNo">308</span><a id="line.308">     * @param tf       In which format the date should be rendered.</a>
-<span class="sourceLineNo">309</span><a id="line.309">     * @return A ready-rendered date.</a>
-<span class="sourceLineNo">310</span><a id="line.310">     * @since 2.8</a>
-<span class="sourceLineNo">311</span><a id="line.311">     */</a>
-<span class="sourceLineNo">312</span><a id="line.312">    public static String renderDate( final Context context, final Date date, final TimeFormat tf ) {</a>
-<span class="sourceLineNo">313</span><a id="line.313">        final DateFormat df = getDateFormat( context, tf );</a>
-<span class="sourceLineNo">314</span><a id="line.314">        return df.format( date );</a>
-<span class="sourceLineNo">315</span><a id="line.315">    }</a>
-<span class="sourceLineNo">316</span><a id="line.316"></a>
-<span class="sourceLineNo">317</span><a id="line.317">    /**</a>
-<span class="sourceLineNo">318</span><a id="line.318">     *  Is used to choose between the different date formats that JSPWiki supports.</a>
-<span class="sourceLineNo">319</span><a id="line.319">     *  &lt;ul&gt;</a>
-<span class="sourceLineNo">320</span><a id="line.320">     *   &lt;li&gt;TIME: A time format, without  date&lt;/li&gt;</a>
-<span class="sourceLineNo">321</span><a id="line.321">     *   &lt;li&gt;DATE: A date format, without a time&lt;/li&gt;</a>
-<span class="sourceLineNo">322</span><a id="line.322">     *   &lt;li&gt;DATETIME: A date format, with a time&lt;/li&gt;</a>
-<span class="sourceLineNo">323</span><a id="line.323">     *  &lt;/ul&gt;</a>
-<span class="sourceLineNo">324</span><a id="line.324">     *</a>
-<span class="sourceLineNo">325</span><a id="line.325">     *  @since 2.8</a>
-<span class="sourceLineNo">326</span><a id="line.326">     */</a>
-<span class="sourceLineNo">327</span><a id="line.327">    public enum TimeFormat {</a>
-<span class="sourceLineNo">328</span><a id="line.328">        /** A time format, no date. */</a>
-<span class="sourceLineNo">329</span><a id="line.329">        TIME,</a>
-<span class="sourceLineNo">330</span><a id="line.330"></a>
-<span class="sourceLineNo">331</span><a id="line.331">        /** A date format, no time. */</a>
-<span class="sourceLineNo">332</span><a id="line.332">        DATE,</a>
-<span class="sourceLineNo">333</span><a id="line.333"></a>
-<span class="sourceLineNo">334</span><a id="line.334">        /** A date+time format. */</a>
-<span class="sourceLineNo">335</span><a id="line.335">        DATETIME</a>
-<span class="sourceLineNo">336</span><a id="line.336">    }</a>
-<span class="sourceLineNo">337</span><a id="line.337"></a>
-<span class="sourceLineNo">338</span><a id="line.338">}</a>
+<span class="sourceLineNo">202</span><a id="line.202">            final int resLength = res.length;</a>
+<span class="sourceLineNo">203</span><a id="line.203">            if( resLength &gt; 2 ) {</a>
+<span class="sourceLineNo">204</span><a id="line.204">                variant = res[ 2 ];</a>
+<span class="sourceLineNo">205</span><a id="line.205">            }</a>
+<span class="sourceLineNo">206</span><a id="line.206">            if( resLength &gt; 1 ) {</a>
+<span class="sourceLineNo">207</span><a id="line.207">                country = res[ 1 ];</a>
+<span class="sourceLineNo">208</span><a id="line.208">            }</a>
+<span class="sourceLineNo">209</span><a id="line.209">            if( resLength &gt; 0 ) {</a>
+<span class="sourceLineNo">210</span><a id="line.210">                language = res[ 0 ];</a>
+<span class="sourceLineNo">211</span><a id="line.211">                loc = new Locale( language, country, variant );</a>
+<span class="sourceLineNo">212</span><a id="line.212">            }</a>
+<span class="sourceLineNo">213</span><a id="line.213">        }</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">        // see if default locale is set server side</a>
+<span class="sourceLineNo">216</span><a id="line.216">        if( loc == null ) {</a>
+<span class="sourceLineNo">217</span><a id="line.217">            final String locale = context.getEngine().getWikiProperties().getProperty( "jspwiki.preferences.default-locale" );</a>
+<span class="sourceLineNo">218</span><a id="line.218">            try {</a>
+<span class="sourceLineNo">219</span><a id="line.219">                loc = LocaleUtils.toLocale( locale );</a>
+<span class="sourceLineNo">220</span><a id="line.220">            } catch( final IllegalArgumentException iae ) {</a>
+<span class="sourceLineNo">221</span><a id="line.221">                log.error( iae.getMessage() );</a>
+<span class="sourceLineNo">222</span><a id="line.222">            }</a>
+<span class="sourceLineNo">223</span><a id="line.223">        }</a>
+<span class="sourceLineNo">224</span><a id="line.224"></a>
+<span class="sourceLineNo">225</span><a id="line.225">        // otherwise try to find out the browser's preferred language setting, or use the JVM's default</a>
+<span class="sourceLineNo">226</span><a id="line.226">        if( loc == null ) {</a>
+<span class="sourceLineNo">227</span><a id="line.227">            final HttpServletRequest request = context.getHttpRequest();</a>
+<span class="sourceLineNo">228</span><a id="line.228">            loc = ( request != null ) ? request.getLocale() : Locale.getDefault();</a>
+<span class="sourceLineNo">229</span><a id="line.229">        }</a>
+<span class="sourceLineNo">230</span><a id="line.230"></a>
+<span class="sourceLineNo">231</span><a id="line.231">        log.debug( "using locale " + loc.toString() );</a>
+<span class="sourceLineNo">232</span><a id="line.232">        return loc;</a>
+<span class="sourceLineNo">233</span><a id="line.233">    }</a>
+<span class="sourceLineNo">234</span><a id="line.234"></a>
+<span class="sourceLineNo">235</span><a id="line.235">    /**</a>
+<span class="sourceLineNo">236</span><a id="line.236">     * Locates the i18n ResourceBundle given.  This method interprets the request locale, and uses that to figure out which language the</a>
+<span class="sourceLineNo">237</span><a id="line.237">     * user wants.</a>
+<span class="sourceLineNo">238</span><a id="line.238">     *</a>
+<span class="sourceLineNo">239</span><a id="line.239">     * @param context {@link Context} holding the user's locale</a>
+<span class="sourceLineNo">240</span><a id="line.240">     * @param bundle  The name of the bundle you are looking for.</a>
+<span class="sourceLineNo">241</span><a id="line.241">     * @return A localized string (or from the default language, if not found)</a>
+<span class="sourceLineNo">242</span><a id="line.242">     * @throws MissingResourceException If the bundle cannot be found</a>
+<span class="sourceLineNo">243</span><a id="line.243">     * @see org.apache.wiki.i18n.InternationalizationManager</a>
+<span class="sourceLineNo">244</span><a id="line.244">     */</a>
+<span class="sourceLineNo">245</span><a id="line.245">    public static ResourceBundle getBundle( final Context context, final String bundle ) throws MissingResourceException {</a>
+<span class="sourceLineNo">246</span><a id="line.246">        final Locale loc = getLocale( context );</a>
+<span class="sourceLineNo">247</span><a id="line.247">        final InternationalizationManager i18n = context.getEngine().getManager( InternationalizationManager.class );</a>
+<span class="sourceLineNo">248</span><a id="line.248">        return i18n.getBundle( bundle, loc );</a>
+<span class="sourceLineNo">249</span><a id="line.249">    }</a>
+<span class="sourceLineNo">250</span><a id="line.250"></a>
+<span class="sourceLineNo">251</span><a id="line.251">    /**</a>
+<span class="sourceLineNo">252</span><a id="line.252">     * Get SimpleTimeFormat according to user browser locale and preferred time formats. If not found, it will revert to whichever format</a>
+<span class="sourceLineNo">253</span><a id="line.253">     * is set for the default.</a>
+<span class="sourceLineNo">254</span><a id="line.254">     *</a>
+<span class="sourceLineNo">255</span><a id="line.255">     * @param context WikiContext to use for rendering.</a>
+<span class="sourceLineNo">256</span><a id="line.256">     * @param tf Which version of the dateformat you are looking for?</a>
+<span class="sourceLineNo">257</span><a id="line.257">     * @return A SimpleTimeFormat object which you can use to render</a>
+<span class="sourceLineNo">258</span><a id="line.258">     * @since 2.8</a>
+<span class="sourceLineNo">259</span><a id="line.259">     */</a>
+<span class="sourceLineNo">260</span><a id="line.260">    public static SimpleDateFormat getDateFormat( final Context context, final TimeFormat tf ) {</a>
+<span class="sourceLineNo">261</span><a id="line.261">        final InternationalizationManager imgr = context.getEngine().getManager( InternationalizationManager.class );</a>
+<span class="sourceLineNo">262</span><a id="line.262">        final Locale clientLocale = getLocale( context );</a>
+<span class="sourceLineNo">263</span><a id="line.263">        final String prefTimeZone = getPreference( context, "TimeZone" );</a>
+<span class="sourceLineNo">264</span><a id="line.264">        String prefDateFormat;</a>
+<span class="sourceLineNo">265</span><a id="line.265"></a>
+<span class="sourceLineNo">266</span><a id="line.266">        log.debug("Checking for preferences...");</a>
+<span class="sourceLineNo">267</span><a id="line.267">        switch( tf ) {</a>
+<span class="sourceLineNo">268</span><a id="line.268">            case DATETIME:</a>
+<span class="sourceLineNo">269</span><a id="line.269">                prefDateFormat = getPreference( context, "DateFormat" );</a>
+<span class="sourceLineNo">270</span><a id="line.270">                log.debug("Preferences fmt = "+prefDateFormat);</a>
+<span class="sourceLineNo">271</span><a id="line.271">                if( prefDateFormat == null ) {</a>
+<span class="sourceLineNo">272</span><a id="line.272">                    prefDateFormat = imgr.get( InternationalizationManager.CORE_BUNDLE, clientLocale,"common.datetimeformat" );</a>
+<span class="sourceLineNo">273</span><a id="line.273">                    log.debug("Using locale-format = "+prefDateFormat);</a>
+<span class="sourceLineNo">274</span><a id="line.274">                }</a>
+<span class="sourceLineNo">275</span><a id="line.275">                break;</a>
+<span class="sourceLineNo">276</span><a id="line.276"></a>
+<span class="sourceLineNo">277</span><a id="line.277">            case TIME:</a>
+<span class="sourceLineNo">278</span><a id="line.278">                prefDateFormat = imgr.get( "common.timeformat" );</a>
+<span class="sourceLineNo">279</span><a id="line.279">                break;</a>
+<span class="sourceLineNo">280</span><a id="line.280"></a>
+<span class="sourceLineNo">281</span><a id="line.281">            case DATE:</a>
+<span class="sourceLineNo">282</span><a id="line.282">                prefDateFormat = imgr.get( "common.dateformat" );</a>
+<span class="sourceLineNo">283</span><a id="line.283">                break;</a>
+<span class="sourceLineNo">284</span><a id="line.284"></a>
+<span class="sourceLineNo">285</span><a id="line.285">            default:</a>
+<span class="sourceLineNo">286</span><a id="line.286">                throw new InternalWikiException( "Got a TimeFormat for which we have no value!" );</a>
+<span class="sourceLineNo">287</span><a id="line.287">        }</a>
+<span class="sourceLineNo">288</span><a id="line.288"></a>
+<span class="sourceLineNo">289</span><a id="line.289">        try {</a>
+<span class="sourceLineNo">290</span><a id="line.290">            final SimpleDateFormat fmt = new SimpleDateFormat( prefDateFormat, clientLocale );</a>
+<span class="sourceLineNo">291</span><a id="line.291">            if( prefTimeZone != null ) {</a>
+<span class="sourceLineNo">292</span><a id="line.292">                final TimeZone tz = TimeZone.getTimeZone( prefTimeZone );</a>
+<span class="sourceLineNo">293</span><a id="line.293">                // TimeZone tz = TimeZone.getDefault();</a>
+<span class="sourceLineNo">294</span><a id="line.294">                // tz.setRawOffset(Integer.parseInt(prefTimeZone));</a>
+<span class="sourceLineNo">295</span><a id="line.295">                fmt.setTimeZone( tz );</a>
+<span class="sourceLineNo">296</span><a id="line.296">            }</a>
+<span class="sourceLineNo">297</span><a id="line.297"></a>
+<span class="sourceLineNo">298</span><a id="line.298">            return fmt;</a>
+<span class="sourceLineNo">299</span><a id="line.299">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">300</span><a id="line.300">            return null;</a>
+<span class="sourceLineNo">301</span><a id="line.301">        }</a>
+<span class="sourceLineNo">302</span><a id="line.302">    }</a>
+<span class="sourceLineNo">303</span><a id="line.303"></a>
+<span class="sourceLineNo">304</span><a id="line.304">    /**</a>
+<span class="sourceLineNo">305</span><a id="line.305">     * A simple helper function to render a date based on the user preferences. This is useful for example for all plugins.</a>
+<span class="sourceLineNo">306</span><a id="line.306">     *</a>
+<span class="sourceLineNo">307</span><a id="line.307">     * @param context  The context which is used to get the preferences</a>
+<span class="sourceLineNo">308</span><a id="line.308">     * @param date     The date to render.</a>
+<span class="sourceLineNo">309</span><a id="line.309">     * @param tf       In which format the date should be rendered.</a>
+<span class="sourceLineNo">310</span><a id="line.310">     * @return A ready-rendered date.</a>
+<span class="sourceLineNo">311</span><a id="line.311">     * @since 2.8</a>
+<span class="sourceLineNo">312</span><a id="line.312">     */</a>
+<span class="sourceLineNo">313</span><a id="line.313">    public static String renderDate( final Context context, final Date date, final TimeFormat tf ) {</a>
+<span class="sourceLineNo">314</span><a id="line.314">        final DateFormat df = getDateFormat( context, tf );</a>
+<span class="sourceLineNo">315</span><a id="line.315">        return df.format( date );</a>
+<span class="sourceLineNo">316</span><a id="line.316">    }</a>
+<span class="sourceLineNo">317</span><a id="line.317"></a>
+<span class="sourceLineNo">318</span><a id="line.318">    /**</a>
+<span class="sourceLineNo">319</span><a id="line.319">     *  Is used to choose between the different date formats that JSPWiki supports.</a>
+<span class="sourceLineNo">320</span><a id="line.320">     *  &lt;ul&gt;</a>
+<span class="sourceLineNo">321</span><a id="line.321">     *   &lt;li&gt;TIME: A time format, without  date&lt;/li&gt;</a>
+<span class="sourceLineNo">322</span><a id="line.322">     *   &lt;li&gt;DATE: A date format, without a time&lt;/li&gt;</a>
+<span class="sourceLineNo">323</span><a id="line.323">     *   &lt;li&gt;DATETIME: A date format, with a time&lt;/li&gt;</a>
+<span class="sourceLineNo">324</span><a id="line.324">     *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">325</span><a id="line.325">     *</a>
+<span class="sourceLineNo">326</span><a id="line.326">     *  @since 2.8</a>
+<span class="sourceLineNo">327</span><a id="line.327">     */</a>
+<span class="sourceLineNo">328</span><a id="line.328">    public enum TimeFormat {</a>
+<span class="sourceLineNo">329</span><a id="line.329">        /** A time format, no date. */</a>
+<span class="sourceLineNo">330</span><a id="line.330">        TIME,</a>
+<span class="sourceLineNo">331</span><a id="line.331"></a>
+<span class="sourceLineNo">332</span><a id="line.332">        /** A date format, no time. */</a>
+<span class="sourceLineNo">333</span><a id="line.333">        DATE,</a>
+<span class="sourceLineNo">334</span><a id="line.334"></a>
+<span class="sourceLineNo">335</span><a id="line.335">        /** A date+time format. */</a>
+<span class="sourceLineNo">336</span><a id="line.336">        DATETIME</a>
+<span class="sourceLineNo">337</span><a id="line.337">    }</a>
+<span class="sourceLineNo">338</span><a id="line.338"></a>
+<span class="sourceLineNo">339</span><a id="line.339">}</a>
 
 
 
