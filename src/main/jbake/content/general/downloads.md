@@ -4,7 +4,7 @@ title=Downloads
 type=page
 ~~~~~~
 
-**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M6/">Apache mirrors</a>.
+**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M8/">Apache mirrors</a>.
 
 Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://downloads.apache.org/jspwiki. Find here the <a class="external" href="https://downloads.apache.org/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
 
