@@ -436,7 +436,7 @@
 <span class="sourceLineNo">427</span><a id="line.427">        {</a>
 <span class="sourceLineNo">428</span><a id="line.428">            String protectedMarkup = matcher.group(0);</a>
 <span class="sourceLineNo">429</span><a id="line.429">            final String paramsField = matcher.group(groupPos);</a>
-<span class="sourceLineNo">430</span><a id="line.430">            String paramsString = "";</a>
+<span class="sourceLineNo">430</span><a id="line.430">            StringBuilder paramsString = new StringBuilder();</a>
 <span class="sourceLineNo">431</span><a id="line.431"></a>
 <span class="sourceLineNo">432</span><a id="line.432">            if (paramsField != null)</a>
 <span class="sourceLineNo">433</span><a id="line.433">            {</a>
@@ -455,7 +455,7 @@
 <span class="sourceLineNo">446</span><a id="line.446">                        String code = param.replaceAll("(?i)([0-9]+)" + key, value + "&lt;check&gt;" + "$1" + "&lt;/check&gt;");</a>
 <span class="sourceLineNo">447</span><a id="line.447">                        code = code.replaceAll("(.*?)%(.*?)&lt;check&gt;(.*?)&lt;/check&gt;", "$1$3$2");</a>
 <span class="sourceLineNo">448</span><a id="line.448">                        if (!code.equals(param)) {</a>
-<span class="sourceLineNo">449</span><a id="line.449">                            paramsString += code;</a>
+<span class="sourceLineNo">449</span><a id="line.449">                            paramsString.append(code);</a>
 <span class="sourceLineNo">450</span><a id="line.450">                        }</a>
 <span class="sourceLineNo">451</span><a id="line.451">                    }</a>
 <span class="sourceLineNo">452</span><a id="line.452"></a>
@@ -463,111 +463,110 @@
 <span class="sourceLineNo">454</span><a id="line.454">                    try</a>
 <span class="sourceLineNo">455</span><a id="line.455">                    {</a>
 <span class="sourceLineNo">456</span><a id="line.456">                        Integer.parseInt(param);</a>
-<span class="sourceLineNo">457</span><a id="line.457">                        paramsString += " width='" + param + "px'";</a>
+<span class="sourceLineNo">457</span><a id="line.457">                        paramsString.append(" width='").append(param).append("px'");</a>
 <span class="sourceLineNo">458</span><a id="line.458">                    }</a>
 <span class="sourceLineNo">459</span><a id="line.459">                    catch (final Exception e)</a>
 <span class="sourceLineNo">460</span><a id="line.460">                    {</a>
 <span class="sourceLineNo">461</span><a id="line.461"></a>
 <span class="sourceLineNo">462</span><a id="line.462">                        if (wikiProps.getProperty("creole.imagePlugin.para." + param) != null)</a>
-<span class="sourceLineNo">463</span><a id="line.463">                            paramsString += " "</a>
-<span class="sourceLineNo">464</span><a id="line.464">                                            + wikiProps.getProperty("creole.imagePlugin.para." + param)</a>
-<span class="sourceLineNo">465</span><a id="line.465">                                                .replaceAll("^(\"|')(.*)(\"|')$", "$2");</a>
-<span class="sourceLineNo">466</span><a id="line.466">                    }</a>
-<span class="sourceLineNo">467</span><a id="line.467">                }</a>
-<span class="sourceLineNo">468</span><a id="line.468">            }</a>
-<span class="sourceLineNo">469</span><a id="line.469">            final String temp = protectedMarkup;</a>
-<span class="sourceLineNo">470</span><a id="line.470"></a>
-<span class="sourceLineNo">471</span><a id="line.471">            protectedMarkup = translateElement(protectedMarkup, markupRegex, replaceContent);</a>
-<span class="sourceLineNo">472</span><a id="line.472">            protectedMarkup = protectedMarkup.replaceAll("\u2015", paramsString);</a>
-<span class="sourceLineNo">473</span><a id="line.473">            protectedMarkup = protectedMarkup.replaceAll("\u2016", imagePlugin);</a>
-<span class="sourceLineNo">474</span><a id="line.474">            protectedMarkup = protectedMarkup.replaceAll("caption=''", "");</a>
-<span class="sourceLineNo">475</span><a id="line.475">            protectedMarkup = protectedMarkup.replaceAll("\\s+", " ");</a>
-<span class="sourceLineNo">476</span><a id="line.476"></a>
-<span class="sourceLineNo">477</span><a id="line.477">            final int pos = contentCopy.indexOf(temp);</a>
-<span class="sourceLineNo">478</span><a id="line.478">            contentCopy = contentCopy.substring(0, pos) + protectedMarkup</a>
-<span class="sourceLineNo">479</span><a id="line.479">                          + contentCopy.substring(pos + temp.length(), contentCopy.length());</a>
-<span class="sourceLineNo">480</span><a id="line.480">        }</a>
-<span class="sourceLineNo">481</span><a id="line.481">        return contentCopy;</a>
-<span class="sourceLineNo">482</span><a id="line.482">    }</a>
-<span class="sourceLineNo">483</span><a id="line.483"></a>
-<span class="sourceLineNo">484</span><a id="line.484">    private String replaceArea(final String content, final String markupRegex, final String replaceSource, final String replaceTarget)</a>
-<span class="sourceLineNo">485</span><a id="line.485">    {</a>
-<span class="sourceLineNo">486</span><a id="line.486">        final Matcher matcher = Pattern.compile(markupRegex, Pattern.MULTILINE | Pattern.DOTALL).matcher(content);</a>
-<span class="sourceLineNo">487</span><a id="line.487">        String contentCopy = content;</a>
-<span class="sourceLineNo">488</span><a id="line.488"></a>
-<span class="sourceLineNo">489</span><a id="line.489">        while (matcher.find())</a>
-<span class="sourceLineNo">490</span><a id="line.490">        {</a>
-<span class="sourceLineNo">491</span><a id="line.491">            String protectedMarkup = matcher.group(0);</a>
-<span class="sourceLineNo">492</span><a id="line.492">            final String temp = protectedMarkup;</a>
-<span class="sourceLineNo">493</span><a id="line.493">            protectedMarkup = protectedMarkup.replaceAll(replaceSource, replaceTarget);</a>
-<span class="sourceLineNo">494</span><a id="line.494">            final int pos = contentCopy.indexOf(temp);</a>
-<span class="sourceLineNo">495</span><a id="line.495">            contentCopy = contentCopy.substring(0, pos) + protectedMarkup</a>
-<span class="sourceLineNo">496</span><a id="line.496">                          + contentCopy.substring(pos + temp.length(), contentCopy.length());</a>
-<span class="sourceLineNo">497</span><a id="line.497">        }</a>
-<span class="sourceLineNo">498</span><a id="line.498">        return contentCopy;</a>
-<span class="sourceLineNo">499</span><a id="line.499">    }</a>
-<span class="sourceLineNo">500</span><a id="line.500"></a>
-<span class="sourceLineNo">501</span><a id="line.501">    /**</a>
-<span class="sourceLineNo">502</span><a id="line.502">     * Protects a specific markup</a>
-<span class="sourceLineNo">503</span><a id="line.503">     *</a>
-<span class="sourceLineNo">504</span><a id="line.504">     * @see #protectMarkup(String)</a>
-<span class="sourceLineNo">505</span><a id="line.505">     */</a>
-<span class="sourceLineNo">506</span><a id="line.506">    private String protectMarkup(final String content, final String markupRegex, final String replaceSource, final String replaceTarget)</a>
-<span class="sourceLineNo">507</span><a id="line.507">    {</a>
-<span class="sourceLineNo">508</span><a id="line.508">        final Matcher matcher = Pattern.compile(markupRegex, Pattern.MULTILINE | Pattern.DOTALL).matcher(content);</a>
-<span class="sourceLineNo">509</span><a id="line.509">        final StringBuffer result = new StringBuffer();</a>
-<span class="sourceLineNo">510</span><a id="line.510">        while (matcher.find())</a>
-<span class="sourceLineNo">511</span><a id="line.511">        {</a>
-<span class="sourceLineNo">512</span><a id="line.512">            String protectedMarkup = matcher.group();</a>
-<span class="sourceLineNo">513</span><a id="line.513">            protectedMarkup = protectedMarkup.replaceAll(replaceSource, replaceTarget);</a>
-<span class="sourceLineNo">514</span><a id="line.514">            try</a>
-<span class="sourceLineNo">515</span><a id="line.515">            {</a>
-<span class="sourceLineNo">516</span><a id="line.516">                final MessageDigest digest = MessageDigest.getInstance("MD5");</a>
-<span class="sourceLineNo">517</span><a id="line.517">                digest.reset();</a>
-<span class="sourceLineNo">518</span><a id="line.518">                digest.update(protectedMarkup.getBytes(StandardCharsets.UTF_8.name()));</a>
-<span class="sourceLineNo">519</span><a id="line.519">                final String hash = bytesToHash(digest.digest());</a>
-<span class="sourceLineNo">520</span><a id="line.520">                matcher.appendReplacement(result, hash);</a>
-<span class="sourceLineNo">521</span><a id="line.521">                c_protectionMap.put(hash, protectedMarkup);</a>
-<span class="sourceLineNo">522</span><a id="line.522">                m_hashList.add(hash);</a>
-<span class="sourceLineNo">523</span><a id="line.523">            }</a>
-<span class="sourceLineNo">524</span><a id="line.524">            catch (final NoSuchAlgorithmException e)</a>
-<span class="sourceLineNo">525</span><a id="line.525">            {</a>
-<span class="sourceLineNo">526</span><a id="line.526">                // FIXME: Should log properly</a>
-<span class="sourceLineNo">527</span><a id="line.527">                e.printStackTrace();</a>
-<span class="sourceLineNo">528</span><a id="line.528">            }</a>
-<span class="sourceLineNo">529</span><a id="line.529">            catch (final UnsupportedEncodingException e)</a>
-<span class="sourceLineNo">530</span><a id="line.530">            {</a>
-<span class="sourceLineNo">531</span><a id="line.531">                // FIXME: Auto-generated catch block</a>
-<span class="sourceLineNo">532</span><a id="line.532">                e.printStackTrace();</a>
-<span class="sourceLineNo">533</span><a id="line.533">            }</a>
-<span class="sourceLineNo">534</span><a id="line.534">        }</a>
-<span class="sourceLineNo">535</span><a id="line.535">        matcher.appendTail(result);</a>
-<span class="sourceLineNo">536</span><a id="line.536">        return result.toString();</a>
-<span class="sourceLineNo">537</span><a id="line.537">    }</a>
-<span class="sourceLineNo">538</span><a id="line.538"></a>
-<span class="sourceLineNo">539</span><a id="line.539">    private String bytesToHash(final byte[] b)</a>
-<span class="sourceLineNo">540</span><a id="line.540">    {</a>
-<span class="sourceLineNo">541</span><a id="line.541">        String hash = "";</a>
-<span class="sourceLineNo">542</span><a id="line.542">        for (int i = 0; i &lt; b.length; i++)</a>
-<span class="sourceLineNo">543</span><a id="line.543">        {</a>
-<span class="sourceLineNo">544</span><a id="line.544">            hash += Integer.toString((b[i] &amp; 0xff) + 0x100, 16).substring(1);</a>
-<span class="sourceLineNo">545</span><a id="line.545">        }</a>
-<span class="sourceLineNo">546</span><a id="line.546">        return hash;</a>
-<span class="sourceLineNo">547</span><a id="line.547">    }</a>
-<span class="sourceLineNo">548</span><a id="line.548"></a>
-<span class="sourceLineNo">549</span><a id="line.549">    private String translateElement(final String content, final String fromMarkup, final String toMarkup)</a>
-<span class="sourceLineNo">550</span><a id="line.550">    {</a>
-<span class="sourceLineNo">551</span><a id="line.551">        final Matcher matcher = Pattern.compile(fromMarkup, Pattern.MULTILINE).matcher(content);</a>
-<span class="sourceLineNo">552</span><a id="line.552">        final StringBuffer result = new StringBuffer();</a>
-<span class="sourceLineNo">553</span><a id="line.553"></a>
-<span class="sourceLineNo">554</span><a id="line.554">        while (matcher.find())</a>
-<span class="sourceLineNo">555</span><a id="line.555">        {</a>
-<span class="sourceLineNo">556</span><a id="line.556">            matcher.appendReplacement(result, toMarkup);</a>
-<span class="sourceLineNo">557</span><a id="line.557">        }</a>
-<span class="sourceLineNo">558</span><a id="line.558">        matcher.appendTail(result);</a>
-<span class="sourceLineNo">559</span><a id="line.559">        return result.toString();</a>
-<span class="sourceLineNo">560</span><a id="line.560">    }</a>
-<span class="sourceLineNo">561</span><a id="line.561">}</a>
+<span class="sourceLineNo">463</span><a id="line.463">                            paramsString.append(" ").append(wikiProps.getProperty("creole.imagePlugin.para." + param)</a>
+<span class="sourceLineNo">464</span><a id="line.464">                                    .replaceAll("^(\"|')(.*)(\"|')$", "$2"));</a>
+<span class="sourceLineNo">465</span><a id="line.465">                    }</a>
+<span class="sourceLineNo">466</span><a id="line.466">                }</a>
+<span class="sourceLineNo">467</span><a id="line.467">            }</a>
+<span class="sourceLineNo">468</span><a id="line.468">            final String temp = protectedMarkup;</a>
+<span class="sourceLineNo">469</span><a id="line.469"></a>
+<span class="sourceLineNo">470</span><a id="line.470">            protectedMarkup = translateElement(protectedMarkup, markupRegex, replaceContent);</a>
+<span class="sourceLineNo">471</span><a id="line.471">            protectedMarkup = protectedMarkup.replaceAll("\u2015", paramsString.toString());</a>
+<span class="sourceLineNo">472</span><a id="line.472">            protectedMarkup = protectedMarkup.replaceAll("\u2016", imagePlugin);</a>
+<span class="sourceLineNo">473</span><a id="line.473">            protectedMarkup = protectedMarkup.replaceAll("caption=''", "");</a>
+<span class="sourceLineNo">474</span><a id="line.474">            protectedMarkup = protectedMarkup.replaceAll("\\s+", " ");</a>
+<span class="sourceLineNo">475</span><a id="line.475"></a>
+<span class="sourceLineNo">476</span><a id="line.476">            final int pos = contentCopy.indexOf(temp);</a>
+<span class="sourceLineNo">477</span><a id="line.477">            contentCopy = contentCopy.substring(0, pos) + protectedMarkup</a>
+<span class="sourceLineNo">478</span><a id="line.478">                          + contentCopy.substring(pos + temp.length(), contentCopy.length());</a>
+<span class="sourceLineNo">479</span><a id="line.479">        }</a>
+<span class="sourceLineNo">480</span><a id="line.480">        return contentCopy;</a>
+<span class="sourceLineNo">481</span><a id="line.481">    }</a>
+<span class="sourceLineNo">482</span><a id="line.482"></a>
+<span class="sourceLineNo">483</span><a id="line.483">    private String replaceArea(final String content, final String markupRegex, final String replaceSource, final String replaceTarget)</a>
+<span class="sourceLineNo">484</span><a id="line.484">    {</a>
+<span class="sourceLineNo">485</span><a id="line.485">        final Matcher matcher = Pattern.compile(markupRegex, Pattern.MULTILINE | Pattern.DOTALL).matcher(content);</a>
+<span class="sourceLineNo">486</span><a id="line.486">        String contentCopy = content;</a>
+<span class="sourceLineNo">487</span><a id="line.487"></a>
+<span class="sourceLineNo">488</span><a id="line.488">        while (matcher.find())</a>
+<span class="sourceLineNo">489</span><a id="line.489">        {</a>
+<span class="sourceLineNo">490</span><a id="line.490">            String protectedMarkup = matcher.group(0);</a>
+<span class="sourceLineNo">491</span><a id="line.491">            final String temp = protectedMarkup;</a>
+<span class="sourceLineNo">492</span><a id="line.492">            protectedMarkup = protectedMarkup.replaceAll(replaceSource, replaceTarget);</a>
+<span class="sourceLineNo">493</span><a id="line.493">            final int pos = contentCopy.indexOf(temp);</a>
+<span class="sourceLineNo">494</span><a id="line.494">            contentCopy = contentCopy.substring(0, pos) + protectedMarkup</a>
+<span class="sourceLineNo">495</span><a id="line.495">                          + contentCopy.substring(pos + temp.length(), contentCopy.length());</a>
+<span class="sourceLineNo">496</span><a id="line.496">        }</a>
+<span class="sourceLineNo">497</span><a id="line.497">        return contentCopy;</a>
+<span class="sourceLineNo">498</span><a id="line.498">    }</a>
+<span class="sourceLineNo">499</span><a id="line.499"></a>
+<span class="sourceLineNo">500</span><a id="line.500">    /**</a>
+<span class="sourceLineNo">501</span><a id="line.501">     * Protects a specific markup</a>
+<span class="sourceLineNo">502</span><a id="line.502">     *</a>
+<span class="sourceLineNo">503</span><a id="line.503">     * @see #protectMarkup(String)</a>
+<span class="sourceLineNo">504</span><a id="line.504">     */</a>
+<span class="sourceLineNo">505</span><a id="line.505">    private String protectMarkup(final String content, final String markupRegex, final String replaceSource, final String replaceTarget)</a>
+<span class="sourceLineNo">506</span><a id="line.506">    {</a>
+<span class="sourceLineNo">507</span><a id="line.507">        final Matcher matcher = Pattern.compile(markupRegex, Pattern.MULTILINE | Pattern.DOTALL).matcher(content);</a>
+<span class="sourceLineNo">508</span><a id="line.508">        final StringBuffer result = new StringBuffer();</a>
+<span class="sourceLineNo">509</span><a id="line.509">        while (matcher.find())</a>
+<span class="sourceLineNo">510</span><a id="line.510">        {</a>
+<span class="sourceLineNo">511</span><a id="line.511">            String protectedMarkup = matcher.group();</a>
+<span class="sourceLineNo">512</span><a id="line.512">            protectedMarkup = protectedMarkup.replaceAll(replaceSource, replaceTarget);</a>
+<span class="sourceLineNo">513</span><a id="line.513">            try</a>
+<span class="sourceLineNo">514</span><a id="line.514">            {</a>
+<span class="sourceLineNo">515</span><a id="line.515">                final MessageDigest digest = MessageDigest.getInstance("MD5");</a>
+<span class="sourceLineNo">516</span><a id="line.516">                digest.reset();</a>
+<span class="sourceLineNo">517</span><a id="line.517">                digest.update(protectedMarkup.getBytes(StandardCharsets.UTF_8.name()));</a>
+<span class="sourceLineNo">518</span><a id="line.518">                final String hash = bytesToHash(digest.digest());</a>
+<span class="sourceLineNo">519</span><a id="line.519">                matcher.appendReplacement(result, hash);</a>
+<span class="sourceLineNo">520</span><a id="line.520">                c_protectionMap.put(hash, protectedMarkup);</a>
+<span class="sourceLineNo">521</span><a id="line.521">                m_hashList.add(hash);</a>
+<span class="sourceLineNo">522</span><a id="line.522">            }</a>
+<span class="sourceLineNo">523</span><a id="line.523">            catch (final NoSuchAlgorithmException e)</a>
+<span class="sourceLineNo">524</span><a id="line.524">            {</a>
+<span class="sourceLineNo">525</span><a id="line.525">                // FIXME: Should log properly</a>
+<span class="sourceLineNo">526</span><a id="line.526">                e.printStackTrace();</a>
+<span class="sourceLineNo">527</span><a id="line.527">            }</a>
+<span class="sourceLineNo">528</span><a id="line.528">            catch (final UnsupportedEncodingException e)</a>
+<span class="sourceLineNo">529</span><a id="line.529">            {</a>
+<span class="sourceLineNo">530</span><a id="line.530">                // FIXME: Auto-generated catch block</a>
+<span class="sourceLineNo">531</span><a id="line.531">                e.printStackTrace();</a>
+<span class="sourceLineNo">532</span><a id="line.532">            }</a>
+<span class="sourceLineNo">533</span><a id="line.533">        }</a>
+<span class="sourceLineNo">534</span><a id="line.534">        matcher.appendTail(result);</a>
+<span class="sourceLineNo">535</span><a id="line.535">        return result.toString();</a>
+<span class="sourceLineNo">536</span><a id="line.536">    }</a>
+<span class="sourceLineNo">537</span><a id="line.537"></a>
+<span class="sourceLineNo">538</span><a id="line.538">    private String bytesToHash(final byte[] b)</a>
+<span class="sourceLineNo">539</span><a id="line.539">    {</a>
+<span class="sourceLineNo">540</span><a id="line.540">        StringBuilder hash = new StringBuilder();</a>
+<span class="sourceLineNo">541</span><a id="line.541">        for (int i = 0; i &lt; b.length; i++)</a>
+<span class="sourceLineNo">542</span><a id="line.542">        {</a>
+<span class="sourceLineNo">543</span><a id="line.543">            hash.append(Integer.toString((b[i] &amp; 0xff) + 0x100, 16).substring(1));</a>
+<span class="sourceLineNo">544</span><a id="line.544">        }</a>
+<span class="sourceLineNo">545</span><a id="line.545">        return hash.toString();</a>
+<span class="sourceLineNo">546</span><a id="line.546">    }</a>
+<span class="sourceLineNo">547</span><a id="line.547"></a>
+<span class="sourceLineNo">548</span><a id="line.548">    private String translateElement(final String content, final String fromMarkup, final String toMarkup)</a>
+<span class="sourceLineNo">549</span><a id="line.549">    {</a>
+<span class="sourceLineNo">550</span><a id="line.550">        final Matcher matcher = Pattern.compile(fromMarkup, Pattern.MULTILINE).matcher(content);</a>
+<span class="sourceLineNo">551</span><a id="line.551">        final StringBuffer result = new StringBuffer();</a>
+<span class="sourceLineNo">552</span><a id="line.552"></a>
+<span class="sourceLineNo">553</span><a id="line.553">        while (matcher.find())</a>
+<span class="sourceLineNo">554</span><a id="line.554">        {</a>
+<span class="sourceLineNo">555</span><a id="line.555">            matcher.appendReplacement(result, toMarkup);</a>
+<span class="sourceLineNo">556</span><a id="line.556">        }</a>
+<span class="sourceLineNo">557</span><a id="line.557">        matcher.appendTail(result);</a>
+<span class="sourceLineNo">558</span><a id="line.558">        return result.toString();</a>
+<span class="sourceLineNo">559</span><a id="line.559">    }</a>
+<span class="sourceLineNo">560</span><a id="line.560">}</a>
 
 
 
