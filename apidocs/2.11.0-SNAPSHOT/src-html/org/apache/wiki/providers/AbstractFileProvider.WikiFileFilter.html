@@ -28,514 +28,515 @@
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.providers;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
 <span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
-<span class="sourceLineNo">022</span><a id="line.22">import org.apache.log4j.Logger;</a>
-<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Engine;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Page;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.ProviderException;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.providers.PageProvider;</a>
-<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.providers.WikiProvider;</a>
-<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.search.QueryItem;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.search.SearchResult;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.spi.Wiki;</a>
-<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.search.SearchMatcher;</a>
-<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.search.SearchResultComparator;</a>
-<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.util.FileUtil;</a>
-<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.util.TextUtil;</a>
-<span class="sourceLineNo">036</span><a id="line.36"></a>
-<span class="sourceLineNo">037</span><a id="line.37">import java.io.File;</a>
-<span class="sourceLineNo">038</span><a id="line.38">import java.io.FileInputStream;</a>
-<span class="sourceLineNo">039</span><a id="line.39">import java.io.FileNotFoundException;</a>
-<span class="sourceLineNo">040</span><a id="line.40">import java.io.FileOutputStream;</a>
-<span class="sourceLineNo">041</span><a id="line.41">import java.io.FilenameFilter;</a>
-<span class="sourceLineNo">042</span><a id="line.42">import java.io.IOException;</a>
-<span class="sourceLineNo">043</span><a id="line.43">import java.io.InputStream;</a>
-<span class="sourceLineNo">044</span><a id="line.44">import java.io.OutputStreamWriter;</a>
-<span class="sourceLineNo">045</span><a id="line.45">import java.io.PrintWriter;</a>
-<span class="sourceLineNo">046</span><a id="line.46">import java.nio.charset.StandardCharsets;</a>
-<span class="sourceLineNo">047</span><a id="line.47">import java.util.ArrayList;</a>
-<span class="sourceLineNo">048</span><a id="line.48">import java.util.Collection;</a>
-<span class="sourceLineNo">049</span><a id="line.49">import java.util.Date;</a>
-<span class="sourceLineNo">050</span><a id="line.50">import java.util.Enumeration;</a>
-<span class="sourceLineNo">051</span><a id="line.51">import java.util.List;</a>
-<span class="sourceLineNo">052</span><a id="line.52">import java.util.Map;</a>
-<span class="sourceLineNo">053</span><a id="line.53">import java.util.Properties;</a>
-<span class="sourceLineNo">054</span><a id="line.54">import java.util.TreeSet;</a>
-<span class="sourceLineNo">055</span><a id="line.55"></a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.providers.PageProvider;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.providers.WikiProvider;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.search.QueryItem;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.search.SearchResult;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.search.SearchMatcher;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.search.SearchResultComparator;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.util.FileUtil;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">037</span><a id="line.37"></a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.io.File;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.io.FileInputStream;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.io.FileNotFoundException;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.io.FileOutputStream;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.io.FilenameFilter;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.io.IOException;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.io.InputStream;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.io.OutputStreamWriter;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import java.io.PrintWriter;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import java.nio.charset.StandardCharsets;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import java.util.ArrayList;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import java.util.Collection;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import java.util.Date;</a>
+<span class="sourceLineNo">051</span><a id="line.51">import java.util.Enumeration;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import java.util.List;</a>
+<span class="sourceLineNo">053</span><a id="line.53">import java.util.Map;</a>
+<span class="sourceLineNo">054</span><a id="line.54">import java.util.Properties;</a>
+<span class="sourceLineNo">055</span><a id="line.55">import java.util.TreeSet;</a>
 <span class="sourceLineNo">056</span><a id="line.56"></a>
-<span class="sourceLineNo">057</span><a id="line.57">/**</a>
-<span class="sourceLineNo">058</span><a id="line.58"> *  Provides a simple directory based repository for Wiki pages.</a>
-<span class="sourceLineNo">059</span><a id="line.59"> *  &lt;P&gt;</a>
-<span class="sourceLineNo">060</span><a id="line.60"> *  All files have ".txt" appended to make life easier for those who insist on using Windows or other software which makes assumptions</a>
-<span class="sourceLineNo">061</span><a id="line.61"> *  on the files contents based on its name.</a>
-<span class="sourceLineNo">062</span><a id="line.62"> *  &lt;p&gt;</a>
-<span class="sourceLineNo">063</span><a id="line.63"> *  This class functions as a superclass to all file based providers.</a>
-<span class="sourceLineNo">064</span><a id="line.64"> *</a>
-<span class="sourceLineNo">065</span><a id="line.65"> *  @since 2.1.21.</a>
-<span class="sourceLineNo">066</span><a id="line.66"> */</a>
-<span class="sourceLineNo">067</span><a id="line.67">public abstract class AbstractFileProvider implements PageProvider {</a>
-<span class="sourceLineNo">068</span><a id="line.68"></a>
-<span class="sourceLineNo">069</span><a id="line.69">    private static final Logger log = Logger.getLogger(AbstractFileProvider.class);</a>
-<span class="sourceLineNo">070</span><a id="line.70">    private String m_pageDirectory = "/tmp/";</a>
-<span class="sourceLineNo">071</span><a id="line.71">    protected String m_encoding;</a>
-<span class="sourceLineNo">072</span><a id="line.72"></a>
-<span class="sourceLineNo">073</span><a id="line.73">    protected Engine m_engine;</a>
-<span class="sourceLineNo">074</span><a id="line.74"></a>
-<span class="sourceLineNo">075</span><a id="line.75">    public static final String PROP_CUSTOMPROP_MAXLIMIT = "custom.pageproperty.max.allowed";</a>
-<span class="sourceLineNo">076</span><a id="line.76">    public static final String PROP_CUSTOMPROP_MAXKEYLENGTH = "custom.pageproperty.key.length";</a>
-<span class="sourceLineNo">077</span><a id="line.77">    public static final String PROP_CUSTOMPROP_MAXVALUELENGTH = "custom.pageproperty.value.length";</a>
-<span class="sourceLineNo">078</span><a id="line.78"></a>
-<span class="sourceLineNo">079</span><a id="line.79">    public static final int DEFAULT_MAX_PROPLIMIT = 200;</a>
-<span class="sourceLineNo">080</span><a id="line.80">    public static final int DEFAULT_MAX_PROPKEYLENGTH = 255;</a>
-<span class="sourceLineNo">081</span><a id="line.81">    public static final int DEFAULT_MAX_PROPVALUELENGTH = 4096;</a>
-<span class="sourceLineNo">082</span><a id="line.82"></a>
-<span class="sourceLineNo">083</span><a id="line.83">    /** This parameter limits the number of custom page properties allowed on a page */</a>
-<span class="sourceLineNo">084</span><a id="line.84">    public static int MAX_PROPLIMIT = DEFAULT_MAX_PROPLIMIT;</a>
-<span class="sourceLineNo">085</span><a id="line.85"></a>
-<span class="sourceLineNo">086</span><a id="line.86">    /**</a>
-<span class="sourceLineNo">087</span><a id="line.87">     * This number limits the length of a custom page property key length. The default value here designed with future JDBC providers in mind.</a>
-<span class="sourceLineNo">088</span><a id="line.88">     */</a>
-<span class="sourceLineNo">089</span><a id="line.89">    public static int MAX_PROPKEYLENGTH = DEFAULT_MAX_PROPKEYLENGTH;</a>
-<span class="sourceLineNo">090</span><a id="line.90"></a>
-<span class="sourceLineNo">091</span><a id="line.91">    /**</a>
-<span class="sourceLineNo">092</span><a id="line.92">     * This number limits the length of a custom page property value length. The default value here designed with future JDBC providers in mind.</a>
-<span class="sourceLineNo">093</span><a id="line.93">     */</a>
-<span class="sourceLineNo">094</span><a id="line.94">    public static int MAX_PROPVALUELENGTH = DEFAULT_MAX_PROPVALUELENGTH;</a>
-<span class="sourceLineNo">095</span><a id="line.95"></a>
-<span class="sourceLineNo">096</span><a id="line.96">    /** Name of the property that defines where page directories are. */</a>
-<span class="sourceLineNo">097</span><a id="line.97">    public static final String PROP_PAGEDIR = "jspwiki.fileSystemProvider.pageDir";</a>
-<span class="sourceLineNo">098</span><a id="line.98"></a>
-<span class="sourceLineNo">099</span><a id="line.99">    /**</a>
-<span class="sourceLineNo">100</span><a id="line.100">     *  All files should have this extension to be recognized as JSPWiki files. We default to .txt, because that is probably easiest for</a>
-<span class="sourceLineNo">101</span><a id="line.101">     *  Windows users, and guarantees correct handling.</a>
-<span class="sourceLineNo">102</span><a id="line.102">     */</a>
-<span class="sourceLineNo">103</span><a id="line.103">    public static final String FILE_EXT = ".txt";</a>
-<span class="sourceLineNo">104</span><a id="line.104"></a>
-<span class="sourceLineNo">105</span><a id="line.105">    /** The default encoding. */</a>
-<span class="sourceLineNo">106</span><a id="line.106">    public static final String DEFAULT_ENCODING = StandardCharsets.ISO_8859_1.toString();</a>
-<span class="sourceLineNo">107</span><a id="line.107"></a>
-<span class="sourceLineNo">108</span><a id="line.108">    private boolean m_windowsHackNeeded;</a>
-<span class="sourceLineNo">109</span><a id="line.109"></a>
-<span class="sourceLineNo">110</span><a id="line.110">    /**</a>
-<span class="sourceLineNo">111</span><a id="line.111">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">112</span><a id="line.112">     *  @throws FileNotFoundException If the specified page directory does not exist.</a>
-<span class="sourceLineNo">113</span><a id="line.113">     *  @throws IOException In case the specified page directory is a file, not a directory.</a>
-<span class="sourceLineNo">114</span><a id="line.114">     */</a>
-<span class="sourceLineNo">115</span><a id="line.115">    @Override</a>
-<span class="sourceLineNo">116</span><a id="line.116">    public void initialize( final Engine engine, final Properties properties ) throws NoRequiredPropertyException, IOException, FileNotFoundException {</a>
-<span class="sourceLineNo">117</span><a id="line.117">        log.debug( "Initing FileSystemProvider" );</a>
-<span class="sourceLineNo">118</span><a id="line.118">        m_pageDirectory = TextUtil.getCanonicalFilePathProperty( properties, PROP_PAGEDIR,</a>
-<span class="sourceLineNo">119</span><a id="line.119">                                                          System.getProperty( "user.home" ) + File.separator + "jspwiki-files" );</a>
-<span class="sourceLineNo">120</span><a id="line.120"></a>
-<span class="sourceLineNo">121</span><a id="line.121">        final File f = new File( m_pageDirectory );</a>
-<span class="sourceLineNo">122</span><a id="line.122"></a>
-<span class="sourceLineNo">123</span><a id="line.123">        if( !f.exists() ) {</a>
-<span class="sourceLineNo">124</span><a id="line.124">            if( !f.mkdirs() ) {</a>
-<span class="sourceLineNo">125</span><a id="line.125">                throw new IOException( "Failed to create page directory " + f.getAbsolutePath() + " , please check property " + PROP_PAGEDIR );</a>
-<span class="sourceLineNo">126</span><a id="line.126">            }</a>
-<span class="sourceLineNo">127</span><a id="line.127">        } else {</a>
-<span class="sourceLineNo">128</span><a id="line.128">            if( !f.isDirectory() ) {</a>
-<span class="sourceLineNo">129</span><a id="line.129">                throw new IOException( "Page directory is not a directory: " + f.getAbsolutePath() );</a>
-<span class="sourceLineNo">130</span><a id="line.130">            }</a>
-<span class="sourceLineNo">131</span><a id="line.131">            if( !f.canWrite() ) {</a>
-<span class="sourceLineNo">132</span><a id="line.132">                throw new IOException( "Page directory is not writable: " + f.getAbsolutePath() );</a>
-<span class="sourceLineNo">133</span><a id="line.133">            }</a>
-<span class="sourceLineNo">134</span><a id="line.134">        }</a>
-<span class="sourceLineNo">135</span><a id="line.135"></a>
-<span class="sourceLineNo">136</span><a id="line.136">        m_engine = engine;</a>
-<span class="sourceLineNo">137</span><a id="line.137">        m_encoding = properties.getProperty( Engine.PROP_ENCODING, DEFAULT_ENCODING );</a>
-<span class="sourceLineNo">138</span><a id="line.138">        final String os = System.getProperty( "os.name" ).toLowerCase();</a>
-<span class="sourceLineNo">139</span><a id="line.139">        if( os.startsWith( "windows" ) || os.equals( "nt" ) ) {</a>
-<span class="sourceLineNo">140</span><a id="line.140">            m_windowsHackNeeded = true;</a>
-<span class="sourceLineNo">141</span><a id="line.141">        }</a>
-<span class="sourceLineNo">142</span><a id="line.142"></a>
-<span class="sourceLineNo">143</span><a id="line.143">        MAX_PROPLIMIT = TextUtil.getIntegerProperty( properties, PROP_CUSTOMPROP_MAXLIMIT, DEFAULT_MAX_PROPLIMIT );</a>
-<span class="sourceLineNo">144</span><a id="line.144">        MAX_PROPKEYLENGTH = TextUtil.getIntegerProperty( properties, PROP_CUSTOMPROP_MAXKEYLENGTH, DEFAULT_MAX_PROPKEYLENGTH );</a>
-<span class="sourceLineNo">145</span><a id="line.145">        MAX_PROPVALUELENGTH = TextUtil.getIntegerProperty( properties, PROP_CUSTOMPROP_MAXVALUELENGTH, DEFAULT_MAX_PROPVALUELENGTH );</a>
-<span class="sourceLineNo">146</span><a id="line.146"></a>
-<span class="sourceLineNo">147</span><a id="line.147">        log.info( "Wikipages are read from '" + m_pageDirectory + "'" );</a>
-<span class="sourceLineNo">148</span><a id="line.148">    }</a>
-<span class="sourceLineNo">149</span><a id="line.149"></a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">/**</a>
+<span class="sourceLineNo">059</span><a id="line.59"> *  Provides a simple directory based repository for Wiki pages.</a>
+<span class="sourceLineNo">060</span><a id="line.60"> *  &lt;P&gt;</a>
+<span class="sourceLineNo">061</span><a id="line.61"> *  All files have ".txt" appended to make life easier for those who insist on using Windows or other software which makes assumptions</a>
+<span class="sourceLineNo">062</span><a id="line.62"> *  on the files contents based on its name.</a>
+<span class="sourceLineNo">063</span><a id="line.63"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">064</span><a id="line.64"> *  This class functions as a superclass to all file based providers.</a>
+<span class="sourceLineNo">065</span><a id="line.65"> *</a>
+<span class="sourceLineNo">066</span><a id="line.66"> *  @since 2.1.21.</a>
+<span class="sourceLineNo">067</span><a id="line.67"> */</a>
+<span class="sourceLineNo">068</span><a id="line.68">public abstract class AbstractFileProvider implements PageProvider {</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">    private static final Logger log = LogManager.getLogger(AbstractFileProvider.class);</a>
+<span class="sourceLineNo">071</span><a id="line.71">    private String m_pageDirectory = "/tmp/";</a>
+<span class="sourceLineNo">072</span><a id="line.72">    protected String m_encoding;</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">    protected Engine m_engine;</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    public static final String PROP_CUSTOMPROP_MAXLIMIT = "custom.pageproperty.max.allowed";</a>
+<span class="sourceLineNo">077</span><a id="line.77">    public static final String PROP_CUSTOMPROP_MAXKEYLENGTH = "custom.pageproperty.key.length";</a>
+<span class="sourceLineNo">078</span><a id="line.78">    public static final String PROP_CUSTOMPROP_MAXVALUELENGTH = "custom.pageproperty.value.length";</a>
+<span class="sourceLineNo">079</span><a id="line.79"></a>
+<span class="sourceLineNo">080</span><a id="line.80">    public static final int DEFAULT_MAX_PROPLIMIT = 200;</a>
+<span class="sourceLineNo">081</span><a id="line.81">    public static final int DEFAULT_MAX_PROPKEYLENGTH = 255;</a>
+<span class="sourceLineNo">082</span><a id="line.82">    public static final int DEFAULT_MAX_PROPVALUELENGTH = 4096;</a>
+<span class="sourceLineNo">083</span><a id="line.83"></a>
+<span class="sourceLineNo">084</span><a id="line.84">    /** This parameter limits the number of custom page properties allowed on a page */</a>
+<span class="sourceLineNo">085</span><a id="line.85">    public static int MAX_PROPLIMIT = DEFAULT_MAX_PROPLIMIT;</a>
+<span class="sourceLineNo">086</span><a id="line.86"></a>
+<span class="sourceLineNo">087</span><a id="line.87">    /**</a>
+<span class="sourceLineNo">088</span><a id="line.88">     * This number limits the length of a custom page property key length. The default value here designed with future JDBC providers in mind.</a>
+<span class="sourceLineNo">089</span><a id="line.89">     */</a>
+<span class="sourceLineNo">090</span><a id="line.90">    public static int MAX_PROPKEYLENGTH = DEFAULT_MAX_PROPKEYLENGTH;</a>
+<span class="sourceLineNo">091</span><a id="line.91"></a>
+<span class="sourceLineNo">092</span><a id="line.92">    /**</a>
+<span class="sourceLineNo">093</span><a id="line.93">     * This number limits the length of a custom page property value length. The default value here designed with future JDBC providers in mind.</a>
+<span class="sourceLineNo">094</span><a id="line.94">     */</a>
+<span class="sourceLineNo">095</span><a id="line.95">    public static int MAX_PROPVALUELENGTH = DEFAULT_MAX_PROPVALUELENGTH;</a>
+<span class="sourceLineNo">096</span><a id="line.96"></a>
+<span class="sourceLineNo">097</span><a id="line.97">    /** Name of the property that defines where page directories are. */</a>
+<span class="sourceLineNo">098</span><a id="line.98">    public static final String PROP_PAGEDIR = "jspwiki.fileSystemProvider.pageDir";</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">    /**</a>
+<span class="sourceLineNo">101</span><a id="line.101">     *  All files should have this extension to be recognized as JSPWiki files. We default to .txt, because that is probably easiest for</a>
+<span class="sourceLineNo">102</span><a id="line.102">     *  Windows users, and guarantees correct handling.</a>
+<span class="sourceLineNo">103</span><a id="line.103">     */</a>
+<span class="sourceLineNo">104</span><a id="line.104">    public static final String FILE_EXT = ".txt";</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">    /** The default encoding. */</a>
+<span class="sourceLineNo">107</span><a id="line.107">    public static final String DEFAULT_ENCODING = StandardCharsets.ISO_8859_1.toString();</a>
+<span class="sourceLineNo">108</span><a id="line.108"></a>
+<span class="sourceLineNo">109</span><a id="line.109">    private boolean m_windowsHackNeeded;</a>
+<span class="sourceLineNo">110</span><a id="line.110"></a>
+<span class="sourceLineNo">111</span><a id="line.111">    /**</a>
+<span class="sourceLineNo">112</span><a id="line.112">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">113</span><a id="line.113">     *  @throws FileNotFoundException If the specified page directory does not exist.</a>
+<span class="sourceLineNo">114</span><a id="line.114">     *  @throws IOException In case the specified page directory is a file, not a directory.</a>
+<span class="sourceLineNo">115</span><a id="line.115">     */</a>
+<span class="sourceLineNo">116</span><a id="line.116">    @Override</a>
+<span class="sourceLineNo">117</span><a id="line.117">    public void initialize( final Engine engine, final Properties properties ) throws NoRequiredPropertyException, IOException, FileNotFoundException {</a>
+<span class="sourceLineNo">118</span><a id="line.118">        log.debug( "Initing FileSystemProvider" );</a>
+<span class="sourceLineNo">119</span><a id="line.119">        m_pageDirectory = TextUtil.getCanonicalFilePathProperty( properties, PROP_PAGEDIR,</a>
+<span class="sourceLineNo">120</span><a id="line.120">                                                          System.getProperty( "user.home" ) + File.separator + "jspwiki-files" );</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">        final File f = new File( m_pageDirectory );</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">        if( !f.exists() ) {</a>
+<span class="sourceLineNo">125</span><a id="line.125">            if( !f.mkdirs() ) {</a>
+<span class="sourceLineNo">126</span><a id="line.126">                throw new IOException( "Failed to create page directory " + f.getAbsolutePath() + " , please check property " + PROP_PAGEDIR );</a>
+<span class="sourceLineNo">127</span><a id="line.127">            }</a>
+<span class="sourceLineNo">128</span><a id="line.128">        } else {</a>
+<span class="sourceLineNo">129</span><a id="line.129">            if( !f.isDirectory() ) {</a>
+<span class="sourceLineNo">130</span><a id="line.130">                throw new IOException( "Page directory is not a directory: " + f.getAbsolutePath() );</a>
+<span class="sourceLineNo">131</span><a id="line.131">            }</a>
+<span class="sourceLineNo">132</span><a id="line.132">            if( !f.canWrite() ) {</a>
+<span class="sourceLineNo">133</span><a id="line.133">                throw new IOException( "Page directory is not writable: " + f.getAbsolutePath() );</a>
+<span class="sourceLineNo">134</span><a id="line.134">            }</a>
+<span class="sourceLineNo">135</span><a id="line.135">        }</a>
+<span class="sourceLineNo">136</span><a id="line.136"></a>
+<span class="sourceLineNo">137</span><a id="line.137">        m_engine = engine;</a>
+<span class="sourceLineNo">138</span><a id="line.138">        m_encoding = properties.getProperty( Engine.PROP_ENCODING, DEFAULT_ENCODING );</a>
+<span class="sourceLineNo">139</span><a id="line.139">        final String os = System.getProperty( "os.name" ).toLowerCase();</a>
+<span class="sourceLineNo">140</span><a id="line.140">        if( os.startsWith( "windows" ) || os.equals( "nt" ) ) {</a>
+<span class="sourceLineNo">141</span><a id="line.141">            m_windowsHackNeeded = true;</a>
+<span class="sourceLineNo">142</span><a id="line.142">        }</a>
+<span class="sourceLineNo">143</span><a id="line.143"></a>
+<span class="sourceLineNo">144</span><a id="line.144">        MAX_PROPLIMIT = TextUtil.getIntegerProperty( properties, PROP_CUSTOMPROP_MAXLIMIT, DEFAULT_MAX_PROPLIMIT );</a>
+<span class="sourceLineNo">145</span><a id="line.145">        MAX_PROPKEYLENGTH = TextUtil.getIntegerProperty( properties, PROP_CUSTOMPROP_MAXKEYLENGTH, DEFAULT_MAX_PROPKEYLENGTH );</a>
+<span class="sourceLineNo">146</span><a id="line.146">        MAX_PROPVALUELENGTH = TextUtil.getIntegerProperty( properties, PROP_CUSTOMPROP_MAXVALUELENGTH, DEFAULT_MAX_PROPVALUELENGTH );</a>
+<span class="sourceLineNo">147</span><a id="line.147"></a>
+<span class="sourceLineNo">148</span><a id="line.148">        log.info( "Wikipages are read from '" + m_pageDirectory + "'" );</a>
+<span class="sourceLineNo">149</span><a id="line.149">    }</a>
 <span class="sourceLineNo">150</span><a id="line.150"></a>
-<span class="sourceLineNo">151</span><a id="line.151">    String getPageDirectory()</a>
-<span class="sourceLineNo">152</span><a id="line.152">    {</a>
-<span class="sourceLineNo">153</span><a id="line.153">        return m_pageDirectory;</a>
-<span class="sourceLineNo">154</span><a id="line.154">    }</a>
-<span class="sourceLineNo">155</span><a id="line.155"></a>
-<span class="sourceLineNo">156</span><a id="line.156">    private static final String[] WINDOWS_DEVICE_NAMES = {</a>
-<span class="sourceLineNo">157</span><a id="line.157">        "con", "prn", "nul", "aux", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",</a>
-<span class="sourceLineNo">158</span><a id="line.158">        "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9"</a>
-<span class="sourceLineNo">159</span><a id="line.159">    };</a>
-<span class="sourceLineNo">160</span><a id="line.160"></a>
-<span class="sourceLineNo">161</span><a id="line.161">    /**</a>
-<span class="sourceLineNo">162</span><a id="line.162">     *  This makes sure that the queried page name is still readable by the file system.  For example, all XML entities</a>
-<span class="sourceLineNo">163</span><a id="line.163">     *  and slashes are encoded with the percent notation.</a>
-<span class="sourceLineNo">164</span><a id="line.164">     *</a>
-<span class="sourceLineNo">165</span><a id="line.165">     *  @param pagename The name to mangle</a>
-<span class="sourceLineNo">166</span><a id="line.166">     *  @return The mangled name.</a>
-<span class="sourceLineNo">167</span><a id="line.167">     */</a>
-<span class="sourceLineNo">168</span><a id="line.168">    protected String mangleName( String pagename ) {</a>
-<span class="sourceLineNo">169</span><a id="line.169">        pagename = TextUtil.urlEncode( pagename, m_encoding );</a>
-<span class="sourceLineNo">170</span><a id="line.170">        pagename = TextUtil.replaceString( pagename, "/", "%2F" );</a>
-<span class="sourceLineNo">171</span><a id="line.171"></a>
-<span class="sourceLineNo">172</span><a id="line.172">        //  Names which start with a dot must be escaped to prevent problems. Since we use URL encoding, this is invisible in our unescaping.</a>
-<span class="sourceLineNo">173</span><a id="line.173">        if( pagename.startsWith( "." ) ) {</a>
-<span class="sourceLineNo">174</span><a id="line.174">            pagename = "%2E" + pagename.substring( 1 );</a>
-<span class="sourceLineNo">175</span><a id="line.175">        }</a>
-<span class="sourceLineNo">176</span><a id="line.176"></a>
-<span class="sourceLineNo">177</span><a id="line.177">        if( m_windowsHackNeeded ) {</a>
-<span class="sourceLineNo">178</span><a id="line.178">            final String pn = pagename.toLowerCase();</a>
-<span class="sourceLineNo">179</span><a id="line.179">            final StringBuilder pagenameBuilder = new StringBuilder(pagename);</a>
-<span class="sourceLineNo">180</span><a id="line.180">            for( final String windowsDeviceName : WINDOWS_DEVICE_NAMES ) {</a>
-<span class="sourceLineNo">181</span><a id="line.181">                if( windowsDeviceName.equals( pn ) ) {</a>
-<span class="sourceLineNo">182</span><a id="line.182">                    pagenameBuilder.insert(0, "$$$");</a>
-<span class="sourceLineNo">183</span><a id="line.183">                }</a>
-<span class="sourceLineNo">184</span><a id="line.184">            }</a>
-<span class="sourceLineNo">185</span><a id="line.185">            pagename = pagenameBuilder.toString();</a>
-<span class="sourceLineNo">186</span><a id="line.186">        }</a>
-<span class="sourceLineNo">187</span><a id="line.187"></a>
-<span class="sourceLineNo">188</span><a id="line.188">        return pagename;</a>
-<span class="sourceLineNo">189</span><a id="line.189">    }</a>
-<span class="sourceLineNo">190</span><a id="line.190"></a>
-<span class="sourceLineNo">191</span><a id="line.191">    /**</a>
-<span class="sourceLineNo">192</span><a id="line.192">     *  This makes the reverse of mangleName.</a>
-<span class="sourceLineNo">193</span><a id="line.193">     *</a>
-<span class="sourceLineNo">194</span><a id="line.194">     *  @param filename The filename to unmangle</a>
-<span class="sourceLineNo">195</span><a id="line.195">     *  @return The unmangled name.</a>
-<span class="sourceLineNo">196</span><a id="line.196">     */</a>
-<span class="sourceLineNo">197</span><a id="line.197">    protected String unmangleName( String filename ) {</a>
-<span class="sourceLineNo">198</span><a id="line.198">        // The exception should never happen.</a>
-<span class="sourceLineNo">199</span><a id="line.199">        if( m_windowsHackNeeded &amp;&amp; filename.startsWith( "$$$" ) &amp;&amp; filename.length() &gt; 3 ) {</a>
-<span class="sourceLineNo">200</span><a id="line.200">            filename = filename.substring( 3 );</a>
-<span class="sourceLineNo">201</span><a id="line.201">        }</a>
-<span class="sourceLineNo">202</span><a id="line.202"></a>
-<span class="sourceLineNo">203</span><a id="line.203">        return TextUtil.urlDecode( filename, m_encoding );</a>
-<span class="sourceLineNo">204</span><a id="line.204">    }</a>
-<span class="sourceLineNo">205</span><a id="line.205"></a>
-<span class="sourceLineNo">206</span><a id="line.206">    /**</a>
-<span class="sourceLineNo">207</span><a id="line.207">     *  Finds a Wiki page from the page repository.</a>
-<span class="sourceLineNo">208</span><a id="line.208">     *</a>
-<span class="sourceLineNo">209</span><a id="line.209">     *  @param page The name of the page.</a>
-<span class="sourceLineNo">210</span><a id="line.210">     *  @return A File to the page.  May be null.</a>
-<span class="sourceLineNo">211</span><a id="line.211">     */</a>
-<span class="sourceLineNo">212</span><a id="line.212">    protected File findPage( final String page ) {</a>
-<span class="sourceLineNo">213</span><a id="line.213">        return new File( m_pageDirectory, mangleName( page ) + FILE_EXT );</a>
-<span class="sourceLineNo">214</span><a id="line.214">    }</a>
-<span class="sourceLineNo">215</span><a id="line.215"></a>
-<span class="sourceLineNo">216</span><a id="line.216">    /**</a>
-<span class="sourceLineNo">217</span><a id="line.217">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">218</span><a id="line.218">     */</a>
-<span class="sourceLineNo">219</span><a id="line.219">    @Override</a>
-<span class="sourceLineNo">220</span><a id="line.220">    public boolean pageExists( final String page ) {</a>
-<span class="sourceLineNo">221</span><a id="line.221">        return findPage( page ).exists();</a>
-<span class="sourceLineNo">222</span><a id="line.222">    }</a>
-<span class="sourceLineNo">223</span><a id="line.223"></a>
-<span class="sourceLineNo">224</span><a id="line.224">    /**</a>
-<span class="sourceLineNo">225</span><a id="line.225">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">226</span><a id="line.226">     */</a>
-<span class="sourceLineNo">227</span><a id="line.227">    @Override</a>
-<span class="sourceLineNo">228</span><a id="line.228">    public boolean pageExists( final String page, final int version ) {</a>
-<span class="sourceLineNo">229</span><a id="line.229">        return pageExists( page );</a>
-<span class="sourceLineNo">230</span><a id="line.230">    }</a>
-<span class="sourceLineNo">231</span><a id="line.231"></a>
-<span class="sourceLineNo">232</span><a id="line.232">    /**</a>
-<span class="sourceLineNo">233</span><a id="line.233">     *  This implementation just returns the current version, as filesystem does not provide versioning information for now.</a>
-<span class="sourceLineNo">234</span><a id="line.234">     *</a>
-<span class="sourceLineNo">235</span><a id="line.235">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">236</span><a id="line.236">     */</a>
-<span class="sourceLineNo">237</span><a id="line.237">    @Override</a>
-<span class="sourceLineNo">238</span><a id="line.238">    public String getPageText( final String page, final int version ) throws ProviderException {</a>
-<span class="sourceLineNo">239</span><a id="line.239">        return getPageText( page );</a>
-<span class="sourceLineNo">240</span><a id="line.240">    }</a>
-<span class="sourceLineNo">241</span><a id="line.241"></a>
-<span class="sourceLineNo">242</span><a id="line.242">    /**</a>
-<span class="sourceLineNo">243</span><a id="line.243">     *  Read the text directly from the correct file.</a>
-<span class="sourceLineNo">244</span><a id="line.244">     */</a>
-<span class="sourceLineNo">245</span><a id="line.245">    private String getPageText( final String page ) {</a>
-<span class="sourceLineNo">246</span><a id="line.246">        String result  = null;</a>
-<span class="sourceLineNo">247</span><a id="line.247">        final File pagedata = findPage( page );</a>
-<span class="sourceLineNo">248</span><a id="line.248">        if( pagedata.exists() ) {</a>
-<span class="sourceLineNo">249</span><a id="line.249">            if( pagedata.canRead() ) {</a>
-<span class="sourceLineNo">250</span><a id="line.250">                try( final InputStream in = new FileInputStream( pagedata ) ) {</a>
-<span class="sourceLineNo">251</span><a id="line.251">                    result = FileUtil.readContents( in, m_encoding );</a>
-<span class="sourceLineNo">252</span><a id="line.252">                } catch( final IOException e ) {</a>
-<span class="sourceLineNo">253</span><a id="line.253">                    log.error( "Failed to read", e );</a>
-<span class="sourceLineNo">254</span><a id="line.254">                }</a>
-<span class="sourceLineNo">255</span><a id="line.255">            } else {</a>
-<span class="sourceLineNo">256</span><a id="line.256">                log.warn( "Failed to read page '" + page + "' from '" + pagedata.getAbsolutePath() + "', possibly a permissions problem" );</a>
-<span class="sourceLineNo">257</span><a id="line.257">            }</a>
-<span class="sourceLineNo">258</span><a id="line.258">        } else {</a>
-<span class="sourceLineNo">259</span><a id="line.259">            // This is okay.</a>
-<span class="sourceLineNo">260</span><a id="line.260">            log.info( "New page '" + page + "'" );</a>
-<span class="sourceLineNo">261</span><a id="line.261">        }</a>
-<span class="sourceLineNo">262</span><a id="line.262"></a>
-<span class="sourceLineNo">263</span><a id="line.263">        return result;</a>
-<span class="sourceLineNo">264</span><a id="line.264">    }</a>
-<span class="sourceLineNo">265</span><a id="line.265"></a>
-<span class="sourceLineNo">266</span><a id="line.266">    /**</a>
-<span class="sourceLineNo">267</span><a id="line.267">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">268</span><a id="line.268">     */</a>
-<span class="sourceLineNo">269</span><a id="line.269">    @Override</a>
-<span class="sourceLineNo">270</span><a id="line.270">    public void putPageText( final Page page, final String text ) throws ProviderException {</a>
-<span class="sourceLineNo">271</span><a id="line.271">        final File file = findPage( page.getName() );</a>
-<span class="sourceLineNo">272</span><a id="line.272">        try( final PrintWriter out = new PrintWriter( new OutputStreamWriter( new FileOutputStream( file ), m_encoding ) ) ) {</a>
-<span class="sourceLineNo">273</span><a id="line.273">            out.print( text );</a>
-<span class="sourceLineNo">274</span><a id="line.274">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">275</span><a id="line.275">            log.error( "Saving failed", e );</a>
-<span class="sourceLineNo">276</span><a id="line.276">        }</a>
-<span class="sourceLineNo">277</span><a id="line.277">    }</a>
-<span class="sourceLineNo">278</span><a id="line.278"></a>
-<span class="sourceLineNo">279</span><a id="line.279">    /**</a>
-<span class="sourceLineNo">280</span><a id="line.280">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">281</span><a id="line.281">     */</a>
-<span class="sourceLineNo">282</span><a id="line.282">    @Override</a>
-<span class="sourceLineNo">283</span><a id="line.283">    public Collection&lt; Page &gt; getAllPages()  throws ProviderException {</a>
-<span class="sourceLineNo">284</span><a id="line.284">        log.debug("Getting all pages...");</a>
-<span class="sourceLineNo">285</span><a id="line.285">        final ArrayList&lt; Page &gt; set = new ArrayList&lt;&gt;();</a>
-<span class="sourceLineNo">286</span><a id="line.286">        final File wikipagedir = new File( m_pageDirectory );</a>
-<span class="sourceLineNo">287</span><a id="line.287">        final File[] wikipages = wikipagedir.listFiles( new WikiFileFilter() );</a>
-<span class="sourceLineNo">288</span><a id="line.288"></a>
-<span class="sourceLineNo">289</span><a id="line.289">        if( wikipages == null ) {</a>
-<span class="sourceLineNo">290</span><a id="line.290">            log.error("Wikipages directory '" + m_pageDirectory + "' does not exist! Please check " + PROP_PAGEDIR + " in jspwiki.properties.");</a>
-<span class="sourceLineNo">291</span><a id="line.291">            throw new ProviderException( "Page directory does not exist" );</a>
-<span class="sourceLineNo">292</span><a id="line.292">        }</a>
-<span class="sourceLineNo">293</span><a id="line.293"></a>
-<span class="sourceLineNo">294</span><a id="line.294">        for( final File wikipage : wikipages ) {</a>
-<span class="sourceLineNo">295</span><a id="line.295">            final String wikiname = wikipage.getName();</a>
-<span class="sourceLineNo">296</span><a id="line.296">            final int cutpoint = wikiname.lastIndexOf( FILE_EXT );</a>
-<span class="sourceLineNo">297</span><a id="line.297">            final Page page = getPageInfo( unmangleName( wikiname.substring( 0, cutpoint ) ), PageProvider.LATEST_VERSION );</a>
-<span class="sourceLineNo">298</span><a id="line.298">            if( page == null ) {</a>
-<span class="sourceLineNo">299</span><a id="line.299">                // This should not really happen.</a>
-<span class="sourceLineNo">300</span><a id="line.300">                // FIXME: Should we throw an exception here?</a>
-<span class="sourceLineNo">301</span><a id="line.301">                log.error( "Page " + wikiname + " was found in directory listing, but could not be located individually." );</a>
-<span class="sourceLineNo">302</span><a id="line.302">                continue;</a>
-<span class="sourceLineNo">303</span><a id="line.303">            }</a>
-<span class="sourceLineNo">304</span><a id="line.304"></a>
-<span class="sourceLineNo">305</span><a id="line.305">            set.add( page );</a>
-<span class="sourceLineNo">306</span><a id="line.306">        }</a>
-<span class="sourceLineNo">307</span><a id="line.307"></a>
-<span class="sourceLineNo">308</span><a id="line.308">        return set;</a>
-<span class="sourceLineNo">309</span><a id="line.309">    }</a>
-<span class="sourceLineNo">310</span><a id="line.310"></a>
-<span class="sourceLineNo">311</span><a id="line.311">    /**</a>
-<span class="sourceLineNo">312</span><a id="line.312">     *  Does not work.</a>
-<span class="sourceLineNo">313</span><a id="line.313">     *</a>
-<span class="sourceLineNo">314</span><a id="line.314">     *  @param date {@inheritDoc}</a>
-<span class="sourceLineNo">315</span><a id="line.315">     *  @return {@inheritDoc}</a>
-<span class="sourceLineNo">316</span><a id="line.316">     */</a>
-<span class="sourceLineNo">317</span><a id="line.317">    @Override</a>
-<span class="sourceLineNo">318</span><a id="line.318">    public Collection&lt; Page &gt; getAllChangedSince( final Date date )</a>
-<span class="sourceLineNo">319</span><a id="line.319">    {</a>
-<span class="sourceLineNo">320</span><a id="line.320">        return new ArrayList&lt;&gt;(); // FIXME</a>
-<span class="sourceLineNo">321</span><a id="line.321">    }</a>
-<span class="sourceLineNo">322</span><a id="line.322"></a>
-<span class="sourceLineNo">323</span><a id="line.323">    /**</a>
-<span class="sourceLineNo">324</span><a id="line.324">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">325</span><a id="line.325">     */</a>
-<span class="sourceLineNo">326</span><a id="line.326">    @Override</a>
-<span class="sourceLineNo">327</span><a id="line.327">    public int getPageCount() {</a>
-<span class="sourceLineNo">328</span><a id="line.328">        final File wikipagedir = new File( m_pageDirectory );</a>
-<span class="sourceLineNo">329</span><a id="line.329">        final File[] wikipages = wikipagedir.listFiles( new WikiFileFilter() );</a>
-<span class="sourceLineNo">330</span><a id="line.330">        return wikipages != null ? wikipages.length : 0;</a>
-<span class="sourceLineNo">331</span><a id="line.331">    }</a>
-<span class="sourceLineNo">332</span><a id="line.332"></a>
-<span class="sourceLineNo">333</span><a id="line.333">    /**</a>
-<span class="sourceLineNo">334</span><a id="line.334">     * Iterates through all WikiPages, matches them against the given query, and returns a Collection of SearchResult objects.</a>
-<span class="sourceLineNo">335</span><a id="line.335">     *</a>
-<span class="sourceLineNo">336</span><a id="line.336">     * {@inheritDoc}</a>
-<span class="sourceLineNo">337</span><a id="line.337">     */</a>
-<span class="sourceLineNo">338</span><a id="line.338">    @Override</a>
-<span class="sourceLineNo">339</span><a id="line.339">    public Collection&lt; SearchResult &gt; findPages( final QueryItem[] query ) {</a>
-<span class="sourceLineNo">340</span><a id="line.340">        final File wikipagedir = new File( m_pageDirectory );</a>
-<span class="sourceLineNo">341</span><a id="line.341">        final TreeSet&lt; SearchResult &gt; res = new TreeSet&lt;&gt;( new SearchResultComparator() );</a>
-<span class="sourceLineNo">342</span><a id="line.342">        final SearchMatcher matcher = new SearchMatcher( m_engine, query );</a>
-<span class="sourceLineNo">343</span><a id="line.343">        final File[] wikipages = wikipagedir.listFiles( new WikiFileFilter() );</a>
-<span class="sourceLineNo">344</span><a id="line.344"></a>
-<span class="sourceLineNo">345</span><a id="line.345">        if( wikipages != null ) {</a>
-<span class="sourceLineNo">346</span><a id="line.346">            for( final File wikipage : wikipages ) {</a>
-<span class="sourceLineNo">347</span><a id="line.347">                final String filename = wikipage.getName();</a>
-<span class="sourceLineNo">348</span><a id="line.348">                final int cutpoint = filename.lastIndexOf( FILE_EXT );</a>
-<span class="sourceLineNo">349</span><a id="line.349">                final String wikiname = unmangleName( filename.substring( 0, cutpoint ) );</a>
-<span class="sourceLineNo">350</span><a id="line.350">                try( final FileInputStream input = new FileInputStream( wikipage ) ) {</a>
-<span class="sourceLineNo">351</span><a id="line.351">                    final String pagetext = FileUtil.readContents( input, m_encoding );</a>
-<span class="sourceLineNo">352</span><a id="line.352">                    final SearchResult comparison = matcher.matchPageContent( wikiname, pagetext );</a>
-<span class="sourceLineNo">353</span><a id="line.353">                    if( comparison != null ) {</a>
-<span class="sourceLineNo">354</span><a id="line.354">                        res.add( comparison );</a>
-<span class="sourceLineNo">355</span><a id="line.355">                    }</a>
-<span class="sourceLineNo">356</span><a id="line.356">                } catch( final IOException e ) {</a>
-<span class="sourceLineNo">357</span><a id="line.357">                    log.error( "Failed to read " + filename, e );</a>
-<span class="sourceLineNo">358</span><a id="line.358">                }</a>
-<span class="sourceLineNo">359</span><a id="line.359">            }</a>
-<span class="sourceLineNo">360</span><a id="line.360">        }</a>
-<span class="sourceLineNo">361</span><a id="line.361"></a>
-<span class="sourceLineNo">362</span><a id="line.362">        return res;</a>
-<span class="sourceLineNo">363</span><a id="line.363">    }</a>
-<span class="sourceLineNo">364</span><a id="line.364"></a>
-<span class="sourceLineNo">365</span><a id="line.365">    /**</a>
-<span class="sourceLineNo">366</span><a id="line.366">     *  Always returns the latest version, since FileSystemProvider</a>
-<span class="sourceLineNo">367</span><a id="line.367">     *  does not support versioning.</a>
-<span class="sourceLineNo">368</span><a id="line.368">     *</a>
-<span class="sourceLineNo">369</span><a id="line.369">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">370</span><a id="line.370">     */</a>
-<span class="sourceLineNo">371</span><a id="line.371">    @Override</a>
-<span class="sourceLineNo">372</span><a id="line.372">    public Page getPageInfo( final String page, final int version ) throws ProviderException {</a>
-<span class="sourceLineNo">373</span><a id="line.373">        final File file = findPage( page );</a>
-<span class="sourceLineNo">374</span><a id="line.374">        if( !file.exists() ) {</a>
-<span class="sourceLineNo">375</span><a id="line.375">            return null;</a>
-<span class="sourceLineNo">376</span><a id="line.376">        }</a>
-<span class="sourceLineNo">377</span><a id="line.377"></a>
-<span class="sourceLineNo">378</span><a id="line.378">        final Page p = Wiki.contents().page( m_engine, page );</a>
-<span class="sourceLineNo">379</span><a id="line.379">        p.setLastModified( new Date( file.lastModified() ) );</a>
-<span class="sourceLineNo">380</span><a id="line.380"></a>
-<span class="sourceLineNo">381</span><a id="line.381">        return p;</a>
-<span class="sourceLineNo">382</span><a id="line.382">    }</a>
-<span class="sourceLineNo">383</span><a id="line.383"></a>
-<span class="sourceLineNo">384</span><a id="line.384">    /**</a>
-<span class="sourceLineNo">385</span><a id="line.385">     *  The FileSystemProvider provides only one version.</a>
-<span class="sourceLineNo">386</span><a id="line.386">     *</a>
-<span class="sourceLineNo">387</span><a id="line.387">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">388</span><a id="line.388">     */</a>
-<span class="sourceLineNo">389</span><a id="line.389">    @Override</a>
-<span class="sourceLineNo">390</span><a id="line.390">    public List&lt; Page &gt; getVersionHistory( final String page ) throws ProviderException {</a>
-<span class="sourceLineNo">391</span><a id="line.391">        final ArrayList&lt; Page &gt; list = new ArrayList&lt;&gt;();</a>
-<span class="sourceLineNo">392</span><a id="line.392">        list.add( getPageInfo( page, PageProvider.LATEST_VERSION ) );</a>
-<span class="sourceLineNo">393</span><a id="line.393"></a>
-<span class="sourceLineNo">394</span><a id="line.394">        return list;</a>
-<span class="sourceLineNo">395</span><a id="line.395">    }</a>
-<span class="sourceLineNo">396</span><a id="line.396"></a>
-<span class="sourceLineNo">397</span><a id="line.397">    /**</a>
-<span class="sourceLineNo">398</span><a id="line.398">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">399</span><a id="line.399">     */</a>
-<span class="sourceLineNo">400</span><a id="line.400">    @Override</a>
-<span class="sourceLineNo">401</span><a id="line.401">    public String getProviderInfo()</a>
-<span class="sourceLineNo">402</span><a id="line.402">    {</a>
-<span class="sourceLineNo">403</span><a id="line.403">        return "";</a>
-<span class="sourceLineNo">404</span><a id="line.404">    }</a>
-<span class="sourceLineNo">405</span><a id="line.405"></a>
-<span class="sourceLineNo">406</span><a id="line.406">    /**</a>
-<span class="sourceLineNo">407</span><a id="line.407">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">408</span><a id="line.408">     */</a>
-<span class="sourceLineNo">409</span><a id="line.409">    @Override</a>
-<span class="sourceLineNo">410</span><a id="line.410">    public void deleteVersion( final String pageName, final int version ) throws ProviderException {</a>
-<span class="sourceLineNo">411</span><a id="line.411">        if( version == WikiProvider.LATEST_VERSION ) {</a>
-<span class="sourceLineNo">412</span><a id="line.412">            final File f = findPage( pageName );</a>
-<span class="sourceLineNo">413</span><a id="line.413">            f.delete();</a>
-<span class="sourceLineNo">414</span><a id="line.414">        }</a>
-<span class="sourceLineNo">415</span><a id="line.415">    }</a>
-<span class="sourceLineNo">416</span><a id="line.416"></a>
-<span class="sourceLineNo">417</span><a id="line.417">    /**</a>
-<span class="sourceLineNo">418</span><a id="line.418">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">419</span><a id="line.419">     */</a>
-<span class="sourceLineNo">420</span><a id="line.420">    @Override</a>
-<span class="sourceLineNo">421</span><a id="line.421">    public void deletePage( final String pageName ) throws ProviderException {</a>
-<span class="sourceLineNo">422</span><a id="line.422">        final File f = findPage( pageName );</a>
-<span class="sourceLineNo">423</span><a id="line.423">        f.delete();</a>
-<span class="sourceLineNo">424</span><a id="line.424">    }</a>
-<span class="sourceLineNo">425</span><a id="line.425"></a>
-<span class="sourceLineNo">426</span><a id="line.426">    /**</a>
-<span class="sourceLineNo">427</span><a id="line.427">     * Set the custom properties provided into the given page.</a>
-<span class="sourceLineNo">428</span><a id="line.428">     *</a>
-<span class="sourceLineNo">429</span><a id="line.429">     * @since 2.10.2</a>
-<span class="sourceLineNo">430</span><a id="line.430">     */</a>
-<span class="sourceLineNo">431</span><a id="line.431">    protected void setCustomProperties( final Page page, final Properties properties ) {</a>
-<span class="sourceLineNo">432</span><a id="line.432">        final Enumeration&lt; ? &gt; propertyNames = properties.propertyNames();</a>
-<span class="sourceLineNo">433</span><a id="line.433">        while( propertyNames.hasMoreElements() ) {</a>
-<span class="sourceLineNo">434</span><a id="line.434">            final String key = ( String )propertyNames.nextElement();</a>
-<span class="sourceLineNo">435</span><a id="line.435">            if( !key.equals( Page.AUTHOR ) &amp;&amp; !key.equals( Page.CHANGENOTE ) &amp;&amp; !key.equals( Page.VIEWCOUNT ) ) {</a>
-<span class="sourceLineNo">436</span><a id="line.436">                page.setAttribute( key, properties.get( key ) );</a>
-<span class="sourceLineNo">437</span><a id="line.437">            }</a>
-<span class="sourceLineNo">438</span><a id="line.438">        }</a>
-<span class="sourceLineNo">439</span><a id="line.439">    }</a>
-<span class="sourceLineNo">440</span><a id="line.440"></a>
-<span class="sourceLineNo">441</span><a id="line.441">    /**</a>
-<span class="sourceLineNo">442</span><a id="line.442">     * Get custom properties using {@link #addCustomProperties(Page, Properties)}, validate them using {@link #validateCustomPageProperties(Properties)}</a>
-<span class="sourceLineNo">443</span><a id="line.443">     * and add them to default properties provided</a>
-<span class="sourceLineNo">444</span><a id="line.444">     *</a>
-<span class="sourceLineNo">445</span><a id="line.445">     * @since 2.10.2</a>
-<span class="sourceLineNo">446</span><a id="line.446">     */</a>
-<span class="sourceLineNo">447</span><a id="line.447">    protected void getCustomProperties( final Page page, final Properties defaultProperties ) throws IOException {</a>
-<span class="sourceLineNo">448</span><a id="line.448">        final Properties customPageProperties = addCustomProperties( page, defaultProperties );</a>
-<span class="sourceLineNo">449</span><a id="line.449">        validateCustomPageProperties( customPageProperties );</a>
-<span class="sourceLineNo">450</span><a id="line.450">        defaultProperties.putAll( customPageProperties );</a>
-<span class="sourceLineNo">451</span><a id="line.451">    }</a>
-<span class="sourceLineNo">452</span><a id="line.452"></a>
-<span class="sourceLineNo">453</span><a id="line.453">    /**</a>
-<span class="sourceLineNo">454</span><a id="line.454">     * By default all page attributes that start with "@" are returned as custom properties.</a>
-<span class="sourceLineNo">455</span><a id="line.455">     * This can be overwritten by custom FileSystemProviders to save additional properties.</a>
-<span class="sourceLineNo">456</span><a id="line.456">     * CustomPageProperties are validated by {@link #validateCustomPageProperties(Properties)}</a>
-<span class="sourceLineNo">457</span><a id="line.457">     *</a>
-<span class="sourceLineNo">458</span><a id="line.458">     * @since 2.10.2</a>
-<span class="sourceLineNo">459</span><a id="line.459">     * @param page the current page</a>
-<span class="sourceLineNo">460</span><a id="line.460">     * @param props the default properties of this page</a>
-<span class="sourceLineNo">461</span><a id="line.461">     * @return default implementation returns empty Properties.</a>
-<span class="sourceLineNo">462</span><a id="line.462">     */</a>
-<span class="sourceLineNo">463</span><a id="line.463">    protected Properties addCustomProperties( final Page page, final Properties props ) {</a>
-<span class="sourceLineNo">464</span><a id="line.464">        final Properties customProperties = new Properties();</a>
-<span class="sourceLineNo">465</span><a id="line.465">        if( page != null ) {</a>
-<span class="sourceLineNo">466</span><a id="line.466">            final Map&lt; String, Object &gt; atts = page.getAttributes();</a>
-<span class="sourceLineNo">467</span><a id="line.467">            for( final String key : atts.keySet() ) {</a>
-<span class="sourceLineNo">468</span><a id="line.468">                final Object value = atts.get( key );</a>
-<span class="sourceLineNo">469</span><a id="line.469">                if( key.startsWith( "@" ) &amp;&amp; value != null ) {</a>
-<span class="sourceLineNo">470</span><a id="line.470">                    customProperties.put( key, value.toString() );</a>
-<span class="sourceLineNo">471</span><a id="line.471">                }</a>
-<span class="sourceLineNo">472</span><a id="line.472">            }</a>
-<span class="sourceLineNo">473</span><a id="line.473"></a>
-<span class="sourceLineNo">474</span><a id="line.474">        }</a>
-<span class="sourceLineNo">475</span><a id="line.475">        return customProperties;</a>
-<span class="sourceLineNo">476</span><a id="line.476">    }</a>
-<span class="sourceLineNo">477</span><a id="line.477"></a>
-<span class="sourceLineNo">478</span><a id="line.478">    /**</a>
-<span class="sourceLineNo">479</span><a id="line.479">     * Default validation, validates that key and value is ASCII &lt;code&gt;StringUtils.isAsciiPrintable()&lt;/code&gt; and within lengths set up in jspwiki-custom.properties.</a>
-<span class="sourceLineNo">480</span><a id="line.480">     * This can be overwritten by custom FileSystemProviders to validate additional properties</a>
-<span class="sourceLineNo">481</span><a id="line.481">     * See https://issues.apache.org/jira/browse/JSPWIKI-856</a>
-<span class="sourceLineNo">482</span><a id="line.482">     * @since 2.10.2</a>
-<span class="sourceLineNo">483</span><a id="line.483">     * @param customProperties the custom page properties being added</a>
-<span class="sourceLineNo">484</span><a id="line.484">     */</a>
-<span class="sourceLineNo">485</span><a id="line.485">    protected void validateCustomPageProperties( final Properties customProperties ) throws IOException {</a>
-<span class="sourceLineNo">486</span><a id="line.486">        // Default validation rules</a>
-<span class="sourceLineNo">487</span><a id="line.487">        if( customProperties != null &amp;&amp; !customProperties.isEmpty() ) {</a>
-<span class="sourceLineNo">488</span><a id="line.488">            if( customProperties.size() &gt; MAX_PROPLIMIT ) {</a>
-<span class="sourceLineNo">489</span><a id="line.489">                throw new IOException( "Too many custom properties. You are adding " + customProperties.size() + ", but max limit is " + MAX_PROPLIMIT );</a>
-<span class="sourceLineNo">490</span><a id="line.490">            }</a>
-<span class="sourceLineNo">491</span><a id="line.491">            final Enumeration&lt; ? &gt; propertyNames = customProperties.propertyNames();</a>
-<span class="sourceLineNo">492</span><a id="line.492">            while( propertyNames.hasMoreElements() ) {</a>
-<span class="sourceLineNo">493</span><a id="line.493">                final String key = ( String )propertyNames.nextElement();</a>
-<span class="sourceLineNo">494</span><a id="line.494">                final String value = ( String )customProperties.get( key );</a>
-<span class="sourceLineNo">495</span><a id="line.495">                if( key != null ) {</a>
-<span class="sourceLineNo">496</span><a id="line.496">                    if( key.length() &gt; MAX_PROPKEYLENGTH ) {</a>
-<span class="sourceLineNo">497</span><a id="line.497">                        throw new IOException( "Custom property key " + key + " is too long. Max allowed length is " + MAX_PROPKEYLENGTH );</a>
-<span class="sourceLineNo">498</span><a id="line.498">                    }</a>
-<span class="sourceLineNo">499</span><a id="line.499">                    if( !StringUtils.isAsciiPrintable( key ) ) {</a>
-<span class="sourceLineNo">500</span><a id="line.500">                        throw new IOException( "Custom property key " + key + " is not simple ASCII!" );</a>
-<span class="sourceLineNo">501</span><a id="line.501">                    }</a>
-<span class="sourceLineNo">502</span><a id="line.502">                }</a>
-<span class="sourceLineNo">503</span><a id="line.503">                if( value != null ) {</a>
-<span class="sourceLineNo">504</span><a id="line.504">                    if( value.length() &gt; MAX_PROPVALUELENGTH ) {</a>
-<span class="sourceLineNo">505</span><a id="line.505">                        throw new IOException( "Custom property key " + key + " has value that is too long. Value=" + value + ". Max allowed length is " + MAX_PROPVALUELENGTH );</a>
-<span class="sourceLineNo">506</span><a id="line.506">                    }</a>
-<span class="sourceLineNo">507</span><a id="line.507">                    if( !StringUtils.isAsciiPrintable( value ) ) {</a>
-<span class="sourceLineNo">508</span><a id="line.508">                        throw new IOException( "Custom property key " + key + " has value that is not simple ASCII! Value=" + value );</a>
-<span class="sourceLineNo">509</span><a id="line.509">                    }</a>
-<span class="sourceLineNo">510</span><a id="line.510">                }</a>
-<span class="sourceLineNo">511</span><a id="line.511">            }</a>
-<span class="sourceLineNo">512</span><a id="line.512">        }</a>
-<span class="sourceLineNo">513</span><a id="line.513">    }</a>
-<span class="sourceLineNo">514</span><a id="line.514"></a>
-<span class="sourceLineNo">515</span><a id="line.515">    /**</a>
-<span class="sourceLineNo">516</span><a id="line.516">     *  A simple filter which filters only those filenames which correspond to the</a>
-<span class="sourceLineNo">517</span><a id="line.517">     *  file extension used.</a>
-<span class="sourceLineNo">518</span><a id="line.518">     */</a>
-<span class="sourceLineNo">519</span><a id="line.519">    public static class WikiFileFilter implements FilenameFilter {</a>
-<span class="sourceLineNo">520</span><a id="line.520">        /**</a>
-<span class="sourceLineNo">521</span><a id="line.521">         *  {@inheritDoc}</a>
-<span class="sourceLineNo">522</span><a id="line.522">         */</a>
-<span class="sourceLineNo">523</span><a id="line.523">        @Override</a>
-<span class="sourceLineNo">524</span><a id="line.524">        public boolean accept( final File dir, final String name ) {</a>
-<span class="sourceLineNo">525</span><a id="line.525">            return name.endsWith( FILE_EXT );</a>
-<span class="sourceLineNo">526</span><a id="line.526">        }</a>
-<span class="sourceLineNo">527</span><a id="line.527">    }</a>
-<span class="sourceLineNo">528</span><a id="line.528"></a>
-<span class="sourceLineNo">529</span><a id="line.529">}</a>
+<span class="sourceLineNo">151</span><a id="line.151"></a>
+<span class="sourceLineNo">152</span><a id="line.152">    String getPageDirectory()</a>
+<span class="sourceLineNo">153</span><a id="line.153">    {</a>
+<span class="sourceLineNo">154</span><a id="line.154">        return m_pageDirectory;</a>
+<span class="sourceLineNo">155</span><a id="line.155">    }</a>
+<span class="sourceLineNo">156</span><a id="line.156"></a>
+<span class="sourceLineNo">157</span><a id="line.157">    private static final String[] WINDOWS_DEVICE_NAMES = {</a>
+<span class="sourceLineNo">158</span><a id="line.158">        "con", "prn", "nul", "aux", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",</a>
+<span class="sourceLineNo">159</span><a id="line.159">        "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9"</a>
+<span class="sourceLineNo">160</span><a id="line.160">    };</a>
+<span class="sourceLineNo">161</span><a id="line.161"></a>
+<span class="sourceLineNo">162</span><a id="line.162">    /**</a>
+<span class="sourceLineNo">163</span><a id="line.163">     *  This makes sure that the queried page name is still readable by the file system.  For example, all XML entities</a>
+<span class="sourceLineNo">164</span><a id="line.164">     *  and slashes are encoded with the percent notation.</a>
+<span class="sourceLineNo">165</span><a id="line.165">     *</a>
+<span class="sourceLineNo">166</span><a id="line.166">     *  @param pagename The name to mangle</a>
+<span class="sourceLineNo">167</span><a id="line.167">     *  @return The mangled name.</a>
+<span class="sourceLineNo">168</span><a id="line.168">     */</a>
+<span class="sourceLineNo">169</span><a id="line.169">    protected String mangleName( String pagename ) {</a>
+<span class="sourceLineNo">170</span><a id="line.170">        pagename = TextUtil.urlEncode( pagename, m_encoding );</a>
+<span class="sourceLineNo">171</span><a id="line.171">        pagename = TextUtil.replaceString( pagename, "/", "%2F" );</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">        //  Names which start with a dot must be escaped to prevent problems. Since we use URL encoding, this is invisible in our unescaping.</a>
+<span class="sourceLineNo">174</span><a id="line.174">        if( pagename.startsWith( "." ) ) {</a>
+<span class="sourceLineNo">175</span><a id="line.175">            pagename = "%2E" + pagename.substring( 1 );</a>
+<span class="sourceLineNo">176</span><a id="line.176">        }</a>
+<span class="sourceLineNo">177</span><a id="line.177"></a>
+<span class="sourceLineNo">178</span><a id="line.178">        if( m_windowsHackNeeded ) {</a>
+<span class="sourceLineNo">179</span><a id="line.179">            final String pn = pagename.toLowerCase();</a>
+<span class="sourceLineNo">180</span><a id="line.180">            final StringBuilder pagenameBuilder = new StringBuilder(pagename);</a>
+<span class="sourceLineNo">181</span><a id="line.181">            for( final String windowsDeviceName : WINDOWS_DEVICE_NAMES ) {</a>
+<span class="sourceLineNo">182</span><a id="line.182">                if( windowsDeviceName.equals( pn ) ) {</a>
+<span class="sourceLineNo">183</span><a id="line.183">                    pagenameBuilder.insert(0, "$$$");</a>
+<span class="sourceLineNo">184</span><a id="line.184">                }</a>
+<span class="sourceLineNo">185</span><a id="line.185">            }</a>
+<span class="sourceLineNo">186</span><a id="line.186">            pagename = pagenameBuilder.toString();</a>
+<span class="sourceLineNo">187</span><a id="line.187">        }</a>
+<span class="sourceLineNo">188</span><a id="line.188"></a>
+<span class="sourceLineNo">189</span><a id="line.189">        return pagename;</a>
+<span class="sourceLineNo">190</span><a id="line.190">    }</a>
+<span class="sourceLineNo">191</span><a id="line.191"></a>
+<span class="sourceLineNo">192</span><a id="line.192">    /**</a>
+<span class="sourceLineNo">193</span><a id="line.193">     *  This makes the reverse of mangleName.</a>
+<span class="sourceLineNo">194</span><a id="line.194">     *</a>
+<span class="sourceLineNo">195</span><a id="line.195">     *  @param filename The filename to unmangle</a>
+<span class="sourceLineNo">196</span><a id="line.196">     *  @return The unmangled name.</a>
+<span class="sourceLineNo">197</span><a id="line.197">     */</a>
+<span class="sourceLineNo">198</span><a id="line.198">    protected String unmangleName( String filename ) {</a>
+<span class="sourceLineNo">199</span><a id="line.199">        // The exception should never happen.</a>
+<span class="sourceLineNo">200</span><a id="line.200">        if( m_windowsHackNeeded &amp;&amp; filename.startsWith( "$$$" ) &amp;&amp; filename.length() &gt; 3 ) {</a>
+<span class="sourceLineNo">201</span><a id="line.201">            filename = filename.substring( 3 );</a>
+<span class="sourceLineNo">202</span><a id="line.202">        }</a>
+<span class="sourceLineNo">203</span><a id="line.203"></a>
+<span class="sourceLineNo">204</span><a id="line.204">        return TextUtil.urlDecode( filename, m_encoding );</a>
+<span class="sourceLineNo">205</span><a id="line.205">    }</a>
+<span class="sourceLineNo">206</span><a id="line.206"></a>
+<span class="sourceLineNo">207</span><a id="line.207">    /**</a>
+<span class="sourceLineNo">208</span><a id="line.208">     *  Finds a Wiki page from the page repository.</a>
+<span class="sourceLineNo">209</span><a id="line.209">     *</a>
+<span class="sourceLineNo">210</span><a id="line.210">     *  @param page The name of the page.</a>
+<span class="sourceLineNo">211</span><a id="line.211">     *  @return A File to the page.  May be null.</a>
+<span class="sourceLineNo">212</span><a id="line.212">     */</a>
+<span class="sourceLineNo">213</span><a id="line.213">    protected File findPage( final String page ) {</a>
+<span class="sourceLineNo">214</span><a id="line.214">        return new File( m_pageDirectory, mangleName( page ) + FILE_EXT );</a>
+<span class="sourceLineNo">215</span><a id="line.215">    }</a>
+<span class="sourceLineNo">216</span><a id="line.216"></a>
+<span class="sourceLineNo">217</span><a id="line.217">    /**</a>
+<span class="sourceLineNo">218</span><a id="line.218">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">219</span><a id="line.219">     */</a>
+<span class="sourceLineNo">220</span><a id="line.220">    @Override</a>
+<span class="sourceLineNo">221</span><a id="line.221">    public boolean pageExists( final String page ) {</a>
+<span class="sourceLineNo">222</span><a id="line.222">        return findPage( page ).exists();</a>
+<span class="sourceLineNo">223</span><a id="line.223">    }</a>
+<span class="sourceLineNo">224</span><a id="line.224"></a>
+<span class="sourceLineNo">225</span><a id="line.225">    /**</a>
+<span class="sourceLineNo">226</span><a id="line.226">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">227</span><a id="line.227">     */</a>
+<span class="sourceLineNo">228</span><a id="line.228">    @Override</a>
+<span class="sourceLineNo">229</span><a id="line.229">    public boolean pageExists( final String page, final int version ) {</a>
+<span class="sourceLineNo">230</span><a id="line.230">        return pageExists( page );</a>
+<span class="sourceLineNo">231</span><a id="line.231">    }</a>
+<span class="sourceLineNo">232</span><a id="line.232"></a>
+<span class="sourceLineNo">233</span><a id="line.233">    /**</a>
+<span class="sourceLineNo">234</span><a id="line.234">     *  This implementation just returns the current version, as filesystem does not provide versioning information for now.</a>
+<span class="sourceLineNo">235</span><a id="line.235">     *</a>
+<span class="sourceLineNo">236</span><a id="line.236">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">237</span><a id="line.237">     */</a>
+<span class="sourceLineNo">238</span><a id="line.238">    @Override</a>
+<span class="sourceLineNo">239</span><a id="line.239">    public String getPageText( final String page, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">240</span><a id="line.240">        return getPageText( page );</a>
+<span class="sourceLineNo">241</span><a id="line.241">    }</a>
+<span class="sourceLineNo">242</span><a id="line.242"></a>
+<span class="sourceLineNo">243</span><a id="line.243">    /**</a>
+<span class="sourceLineNo">244</span><a id="line.244">     *  Read the text directly from the correct file.</a>
+<span class="sourceLineNo">245</span><a id="line.245">     */</a>
+<span class="sourceLineNo">246</span><a id="line.246">    private String getPageText( final String page ) {</a>
+<span class="sourceLineNo">247</span><a id="line.247">        String result  = null;</a>
+<span class="sourceLineNo">248</span><a id="line.248">        final File pagedata = findPage( page );</a>
+<span class="sourceLineNo">249</span><a id="line.249">        if( pagedata.exists() ) {</a>
+<span class="sourceLineNo">250</span><a id="line.250">            if( pagedata.canRead() ) {</a>
+<span class="sourceLineNo">251</span><a id="line.251">                try( final InputStream in = new FileInputStream( pagedata ) ) {</a>
+<span class="sourceLineNo">252</span><a id="line.252">                    result = FileUtil.readContents( in, m_encoding );</a>
+<span class="sourceLineNo">253</span><a id="line.253">                } catch( final IOException e ) {</a>
+<span class="sourceLineNo">254</span><a id="line.254">                    log.error( "Failed to read", e );</a>
+<span class="sourceLineNo">255</span><a id="line.255">                }</a>
+<span class="sourceLineNo">256</span><a id="line.256">            } else {</a>
+<span class="sourceLineNo">257</span><a id="line.257">                log.warn( "Failed to read page '" + page + "' from '" + pagedata.getAbsolutePath() + "', possibly a permissions problem" );</a>
+<span class="sourceLineNo">258</span><a id="line.258">            }</a>
+<span class="sourceLineNo">259</span><a id="line.259">        } else {</a>
+<span class="sourceLineNo">260</span><a id="line.260">            // This is okay.</a>
+<span class="sourceLineNo">261</span><a id="line.261">            log.info( "New page '" + page + "'" );</a>
+<span class="sourceLineNo">262</span><a id="line.262">        }</a>
+<span class="sourceLineNo">263</span><a id="line.263"></a>
+<span class="sourceLineNo">264</span><a id="line.264">        return result;</a>
+<span class="sourceLineNo">265</span><a id="line.265">    }</a>
+<span class="sourceLineNo">266</span><a id="line.266"></a>
+<span class="sourceLineNo">267</span><a id="line.267">    /**</a>
+<span class="sourceLineNo">268</span><a id="line.268">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">269</span><a id="line.269">     */</a>
+<span class="sourceLineNo">270</span><a id="line.270">    @Override</a>
+<span class="sourceLineNo">271</span><a id="line.271">    public void putPageText( final Page page, final String text ) throws ProviderException {</a>
+<span class="sourceLineNo">272</span><a id="line.272">        final File file = findPage( page.getName() );</a>
+<span class="sourceLineNo">273</span><a id="line.273">        try( final PrintWriter out = new PrintWriter( new OutputStreamWriter( new FileOutputStream( file ), m_encoding ) ) ) {</a>
+<span class="sourceLineNo">274</span><a id="line.274">            out.print( text );</a>
+<span class="sourceLineNo">275</span><a id="line.275">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">276</span><a id="line.276">            log.error( "Saving failed", e );</a>
+<span class="sourceLineNo">277</span><a id="line.277">        }</a>
+<span class="sourceLineNo">278</span><a id="line.278">    }</a>
+<span class="sourceLineNo">279</span><a id="line.279"></a>
+<span class="sourceLineNo">280</span><a id="line.280">    /**</a>
+<span class="sourceLineNo">281</span><a id="line.281">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">282</span><a id="line.282">     */</a>
+<span class="sourceLineNo">283</span><a id="line.283">    @Override</a>
+<span class="sourceLineNo">284</span><a id="line.284">    public Collection&lt; Page &gt; getAllPages()  throws ProviderException {</a>
+<span class="sourceLineNo">285</span><a id="line.285">        log.debug("Getting all pages...");</a>
+<span class="sourceLineNo">286</span><a id="line.286">        final ArrayList&lt; Page &gt; set = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">287</span><a id="line.287">        final File wikipagedir = new File( m_pageDirectory );</a>
+<span class="sourceLineNo">288</span><a id="line.288">        final File[] wikipages = wikipagedir.listFiles( new WikiFileFilter() );</a>
+<span class="sourceLineNo">289</span><a id="line.289"></a>
+<span class="sourceLineNo">290</span><a id="line.290">        if( wikipages == null ) {</a>
+<span class="sourceLineNo">291</span><a id="line.291">            log.error("Wikipages directory '" + m_pageDirectory + "' does not exist! Please check " + PROP_PAGEDIR + " in jspwiki.properties.");</a>
+<span class="sourceLineNo">292</span><a id="line.292">            throw new ProviderException( "Page directory does not exist" );</a>
+<span class="sourceLineNo">293</span><a id="line.293">        }</a>
+<span class="sourceLineNo">294</span><a id="line.294"></a>
+<span class="sourceLineNo">295</span><a id="line.295">        for( final File wikipage : wikipages ) {</a>
+<span class="sourceLineNo">296</span><a id="line.296">            final String wikiname = wikipage.getName();</a>
+<span class="sourceLineNo">297</span><a id="line.297">            final int cutpoint = wikiname.lastIndexOf( FILE_EXT );</a>
+<span class="sourceLineNo">298</span><a id="line.298">            final Page page = getPageInfo( unmangleName( wikiname.substring( 0, cutpoint ) ), PageProvider.LATEST_VERSION );</a>
+<span class="sourceLineNo">299</span><a id="line.299">            if( page == null ) {</a>
+<span class="sourceLineNo">300</span><a id="line.300">                // This should not really happen.</a>
+<span class="sourceLineNo">301</span><a id="line.301">                // FIXME: Should we throw an exception here?</a>
+<span class="sourceLineNo">302</span><a id="line.302">                log.error( "Page " + wikiname + " was found in directory listing, but could not be located individually." );</a>
+<span class="sourceLineNo">303</span><a id="line.303">                continue;</a>
+<span class="sourceLineNo">304</span><a id="line.304">            }</a>
+<span class="sourceLineNo">305</span><a id="line.305"></a>
+<span class="sourceLineNo">306</span><a id="line.306">            set.add( page );</a>
+<span class="sourceLineNo">307</span><a id="line.307">        }</a>
+<span class="sourceLineNo">308</span><a id="line.308"></a>
+<span class="sourceLineNo">309</span><a id="line.309">        return set;</a>
+<span class="sourceLineNo">310</span><a id="line.310">    }</a>
+<span class="sourceLineNo">311</span><a id="line.311"></a>
+<span class="sourceLineNo">312</span><a id="line.312">    /**</a>
+<span class="sourceLineNo">313</span><a id="line.313">     *  Does not work.</a>
+<span class="sourceLineNo">314</span><a id="line.314">     *</a>
+<span class="sourceLineNo">315</span><a id="line.315">     *  @param date {@inheritDoc}</a>
+<span class="sourceLineNo">316</span><a id="line.316">     *  @return {@inheritDoc}</a>
+<span class="sourceLineNo">317</span><a id="line.317">     */</a>
+<span class="sourceLineNo">318</span><a id="line.318">    @Override</a>
+<span class="sourceLineNo">319</span><a id="line.319">    public Collection&lt; Page &gt; getAllChangedSince( final Date date )</a>
+<span class="sourceLineNo">320</span><a id="line.320">    {</a>
+<span class="sourceLineNo">321</span><a id="line.321">        return new ArrayList&lt;&gt;(); // FIXME</a>
+<span class="sourceLineNo">322</span><a id="line.322">    }</a>
+<span class="sourceLineNo">323</span><a id="line.323"></a>
+<span class="sourceLineNo">324</span><a id="line.324">    /**</a>
+<span class="sourceLineNo">325</span><a id="line.325">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">326</span><a id="line.326">     */</a>
+<span class="sourceLineNo">327</span><a id="line.327">    @Override</a>
+<span class="sourceLineNo">328</span><a id="line.328">    public int getPageCount() {</a>
+<span class="sourceLineNo">329</span><a id="line.329">        final File wikipagedir = new File( m_pageDirectory );</a>
+<span class="sourceLineNo">330</span><a id="line.330">        final File[] wikipages = wikipagedir.listFiles( new WikiFileFilter() );</a>
+<span class="sourceLineNo">331</span><a id="line.331">        return wikipages != null ? wikipages.length : 0;</a>
+<span class="sourceLineNo">332</span><a id="line.332">    }</a>
+<span class="sourceLineNo">333</span><a id="line.333"></a>
+<span class="sourceLineNo">334</span><a id="line.334">    /**</a>
+<span class="sourceLineNo">335</span><a id="line.335">     * Iterates through all WikiPages, matches them against the given query, and returns a Collection of SearchResult objects.</a>
+<span class="sourceLineNo">336</span><a id="line.336">     *</a>
+<span class="sourceLineNo">337</span><a id="line.337">     * {@inheritDoc}</a>
+<span class="sourceLineNo">338</span><a id="line.338">     */</a>
+<span class="sourceLineNo">339</span><a id="line.339">    @Override</a>
+<span class="sourceLineNo">340</span><a id="line.340">    public Collection&lt; SearchResult &gt; findPages( final QueryItem[] query ) {</a>
+<span class="sourceLineNo">341</span><a id="line.341">        final File wikipagedir = new File( m_pageDirectory );</a>
+<span class="sourceLineNo">342</span><a id="line.342">        final TreeSet&lt; SearchResult &gt; res = new TreeSet&lt;&gt;( new SearchResultComparator() );</a>
+<span class="sourceLineNo">343</span><a id="line.343">        final SearchMatcher matcher = new SearchMatcher( m_engine, query );</a>
+<span class="sourceLineNo">344</span><a id="line.344">        final File[] wikipages = wikipagedir.listFiles( new WikiFileFilter() );</a>
+<span class="sourceLineNo">345</span><a id="line.345"></a>
+<span class="sourceLineNo">346</span><a id="line.346">        if( wikipages != null ) {</a>
+<span class="sourceLineNo">347</span><a id="line.347">            for( final File wikipage : wikipages ) {</a>
+<span class="sourceLineNo">348</span><a id="line.348">                final String filename = wikipage.getName();</a>
+<span class="sourceLineNo">349</span><a id="line.349">                final int cutpoint = filename.lastIndexOf( FILE_EXT );</a>
+<span class="sourceLineNo">350</span><a id="line.350">                final String wikiname = unmangleName( filename.substring( 0, cutpoint ) );</a>
+<span class="sourceLineNo">351</span><a id="line.351">                try( final FileInputStream input = new FileInputStream( wikipage ) ) {</a>
+<span class="sourceLineNo">352</span><a id="line.352">                    final String pagetext = FileUtil.readContents( input, m_encoding );</a>
+<span class="sourceLineNo">353</span><a id="line.353">                    final SearchResult comparison = matcher.matchPageContent( wikiname, pagetext );</a>
+<span class="sourceLineNo">354</span><a id="line.354">                    if( comparison != null ) {</a>
+<span class="sourceLineNo">355</span><a id="line.355">                        res.add( comparison );</a>
+<span class="sourceLineNo">356</span><a id="line.356">                    }</a>
+<span class="sourceLineNo">357</span><a id="line.357">                } catch( final IOException e ) {</a>
+<span class="sourceLineNo">358</span><a id="line.358">                    log.error( "Failed to read " + filename, e );</a>
+<span class="sourceLineNo">359</span><a id="line.359">                }</a>
+<span class="sourceLineNo">360</span><a id="line.360">            }</a>
+<span class="sourceLineNo">361</span><a id="line.361">        }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">        return res;</a>
+<span class="sourceLineNo">364</span><a id="line.364">    }</a>
+<span class="sourceLineNo">365</span><a id="line.365"></a>
+<span class="sourceLineNo">366</span><a id="line.366">    /**</a>
+<span class="sourceLineNo">367</span><a id="line.367">     *  Always returns the latest version, since FileSystemProvider</a>
+<span class="sourceLineNo">368</span><a id="line.368">     *  does not support versioning.</a>
+<span class="sourceLineNo">369</span><a id="line.369">     *</a>
+<span class="sourceLineNo">370</span><a id="line.370">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">371</span><a id="line.371">     */</a>
+<span class="sourceLineNo">372</span><a id="line.372">    @Override</a>
+<span class="sourceLineNo">373</span><a id="line.373">    public Page getPageInfo( final String page, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">374</span><a id="line.374">        final File file = findPage( page );</a>
+<span class="sourceLineNo">375</span><a id="line.375">        if( !file.exists() ) {</a>
+<span class="sourceLineNo">376</span><a id="line.376">            return null;</a>
+<span class="sourceLineNo">377</span><a id="line.377">        }</a>
+<span class="sourceLineNo">378</span><a id="line.378"></a>
+<span class="sourceLineNo">379</span><a id="line.379">        final Page p = Wiki.contents().page( m_engine, page );</a>
+<span class="sourceLineNo">380</span><a id="line.380">        p.setLastModified( new Date( file.lastModified() ) );</a>
+<span class="sourceLineNo">381</span><a id="line.381"></a>
+<span class="sourceLineNo">382</span><a id="line.382">        return p;</a>
+<span class="sourceLineNo">383</span><a id="line.383">    }</a>
+<span class="sourceLineNo">384</span><a id="line.384"></a>
+<span class="sourceLineNo">385</span><a id="line.385">    /**</a>
+<span class="sourceLineNo">386</span><a id="line.386">     *  The FileSystemProvider provides only one version.</a>
+<span class="sourceLineNo">387</span><a id="line.387">     *</a>
+<span class="sourceLineNo">388</span><a id="line.388">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">389</span><a id="line.389">     */</a>
+<span class="sourceLineNo">390</span><a id="line.390">    @Override</a>
+<span class="sourceLineNo">391</span><a id="line.391">    public List&lt; Page &gt; getVersionHistory( final String page ) throws ProviderException {</a>
+<span class="sourceLineNo">392</span><a id="line.392">        final ArrayList&lt; Page &gt; list = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">393</span><a id="line.393">        list.add( getPageInfo( page, PageProvider.LATEST_VERSION ) );</a>
+<span class="sourceLineNo">394</span><a id="line.394"></a>
+<span class="sourceLineNo">395</span><a id="line.395">        return list;</a>
+<span class="sourceLineNo">396</span><a id="line.396">    }</a>
+<span class="sourceLineNo">397</span><a id="line.397"></a>
+<span class="sourceLineNo">398</span><a id="line.398">    /**</a>
+<span class="sourceLineNo">399</span><a id="line.399">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">400</span><a id="line.400">     */</a>
+<span class="sourceLineNo">401</span><a id="line.401">    @Override</a>
+<span class="sourceLineNo">402</span><a id="line.402">    public String getProviderInfo()</a>
+<span class="sourceLineNo">403</span><a id="line.403">    {</a>
+<span class="sourceLineNo">404</span><a id="line.404">        return "";</a>
+<span class="sourceLineNo">405</span><a id="line.405">    }</a>
+<span class="sourceLineNo">406</span><a id="line.406"></a>
+<span class="sourceLineNo">407</span><a id="line.407">    /**</a>
+<span class="sourceLineNo">408</span><a id="line.408">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">409</span><a id="line.409">     */</a>
+<span class="sourceLineNo">410</span><a id="line.410">    @Override</a>
+<span class="sourceLineNo">411</span><a id="line.411">    public void deleteVersion( final String pageName, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">412</span><a id="line.412">        if( version == WikiProvider.LATEST_VERSION ) {</a>
+<span class="sourceLineNo">413</span><a id="line.413">            final File f = findPage( pageName );</a>
+<span class="sourceLineNo">414</span><a id="line.414">            f.delete();</a>
+<span class="sourceLineNo">415</span><a id="line.415">        }</a>
+<span class="sourceLineNo">416</span><a id="line.416">    }</a>
+<span class="sourceLineNo">417</span><a id="line.417"></a>
+<span class="sourceLineNo">418</span><a id="line.418">    /**</a>
+<span class="sourceLineNo">419</span><a id="line.419">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">420</span><a id="line.420">     */</a>
+<span class="sourceLineNo">421</span><a id="line.421">    @Override</a>
+<span class="sourceLineNo">422</span><a id="line.422">    public void deletePage( final String pageName ) throws ProviderException {</a>
+<span class="sourceLineNo">423</span><a id="line.423">        final File f = findPage( pageName );</a>
+<span class="sourceLineNo">424</span><a id="line.424">        f.delete();</a>
+<span class="sourceLineNo">425</span><a id="line.425">    }</a>
+<span class="sourceLineNo">426</span><a id="line.426"></a>
+<span class="sourceLineNo">427</span><a id="line.427">    /**</a>
+<span class="sourceLineNo">428</span><a id="line.428">     * Set the custom properties provided into the given page.</a>
+<span class="sourceLineNo">429</span><a id="line.429">     *</a>
+<span class="sourceLineNo">430</span><a id="line.430">     * @since 2.10.2</a>
+<span class="sourceLineNo">431</span><a id="line.431">     */</a>
+<span class="sourceLineNo">432</span><a id="line.432">    protected void setCustomProperties( final Page page, final Properties properties ) {</a>
+<span class="sourceLineNo">433</span><a id="line.433">        final Enumeration&lt; ? &gt; propertyNames = properties.propertyNames();</a>
+<span class="sourceLineNo">434</span><a id="line.434">        while( propertyNames.hasMoreElements() ) {</a>
+<span class="sourceLineNo">435</span><a id="line.435">            final String key = ( String )propertyNames.nextElement();</a>
+<span class="sourceLineNo">436</span><a id="line.436">            if( !key.equals( Page.AUTHOR ) &amp;&amp; !key.equals( Page.CHANGENOTE ) &amp;&amp; !key.equals( Page.VIEWCOUNT ) ) {</a>
+<span class="sourceLineNo">437</span><a id="line.437">                page.setAttribute( key, properties.get( key ) );</a>
+<span class="sourceLineNo">438</span><a id="line.438">            }</a>
+<span class="sourceLineNo">439</span><a id="line.439">        }</a>
+<span class="sourceLineNo">440</span><a id="line.440">    }</a>
+<span class="sourceLineNo">441</span><a id="line.441"></a>
+<span class="sourceLineNo">442</span><a id="line.442">    /**</a>
+<span class="sourceLineNo">443</span><a id="line.443">     * Get custom properties using {@link #addCustomProperties(Page, Properties)}, validate them using {@link #validateCustomPageProperties(Properties)}</a>
+<span class="sourceLineNo">444</span><a id="line.444">     * and add them to default properties provided</a>
+<span class="sourceLineNo">445</span><a id="line.445">     *</a>
+<span class="sourceLineNo">446</span><a id="line.446">     * @since 2.10.2</a>
+<span class="sourceLineNo">447</span><a id="line.447">     */</a>
+<span class="sourceLineNo">448</span><a id="line.448">    protected void getCustomProperties( final Page page, final Properties defaultProperties ) throws IOException {</a>
+<span class="sourceLineNo">449</span><a id="line.449">        final Properties customPageProperties = addCustomProperties( page, defaultProperties );</a>
+<span class="sourceLineNo">450</span><a id="line.450">        validateCustomPageProperties( customPageProperties );</a>
+<span class="sourceLineNo">451</span><a id="line.451">        defaultProperties.putAll( customPageProperties );</a>
+<span class="sourceLineNo">452</span><a id="line.452">    }</a>
+<span class="sourceLineNo">453</span><a id="line.453"></a>
+<span class="sourceLineNo">454</span><a id="line.454">    /**</a>
+<span class="sourceLineNo">455</span><a id="line.455">     * By default all page attributes that start with "@" are returned as custom properties.</a>
+<span class="sourceLineNo">456</span><a id="line.456">     * This can be overwritten by custom FileSystemProviders to save additional properties.</a>
+<span class="sourceLineNo">457</span><a id="line.457">     * CustomPageProperties are validated by {@link #validateCustomPageProperties(Properties)}</a>
+<span class="sourceLineNo">458</span><a id="line.458">     *</a>
+<span class="sourceLineNo">459</span><a id="line.459">     * @since 2.10.2</a>
+<span class="sourceLineNo">460</span><a id="line.460">     * @param page the current page</a>
+<span class="sourceLineNo">461</span><a id="line.461">     * @param props the default properties of this page</a>
+<span class="sourceLineNo">462</span><a id="line.462">     * @return default implementation returns empty Properties.</a>
+<span class="sourceLineNo">463</span><a id="line.463">     */</a>
+<span class="sourceLineNo">464</span><a id="line.464">    protected Properties addCustomProperties( final Page page, final Properties props ) {</a>
+<span class="sourceLineNo">465</span><a id="line.465">        final Properties customProperties = new Properties();</a>
+<span class="sourceLineNo">466</span><a id="line.466">        if( page != null ) {</a>
+<span class="sourceLineNo">467</span><a id="line.467">            final Map&lt; String, Object &gt; atts = page.getAttributes();</a>
+<span class="sourceLineNo">468</span><a id="line.468">            for( final String key : atts.keySet() ) {</a>
+<span class="sourceLineNo">469</span><a id="line.469">                final Object value = atts.get( key );</a>
+<span class="sourceLineNo">470</span><a id="line.470">                if( key.startsWith( "@" ) &amp;&amp; value != null ) {</a>
+<span class="sourceLineNo">471</span><a id="line.471">                    customProperties.put( key, value.toString() );</a>
+<span class="sourceLineNo">472</span><a id="line.472">                }</a>
+<span class="sourceLineNo">473</span><a id="line.473">            }</a>
+<span class="sourceLineNo">474</span><a id="line.474"></a>
+<span class="sourceLineNo">475</span><a id="line.475">        }</a>
+<span class="sourceLineNo">476</span><a id="line.476">        return customProperties;</a>
+<span class="sourceLineNo">477</span><a id="line.477">    }</a>
+<span class="sourceLineNo">478</span><a id="line.478"></a>
+<span class="sourceLineNo">479</span><a id="line.479">    /**</a>
+<span class="sourceLineNo">480</span><a id="line.480">     * Default validation, validates that key and value is ASCII &lt;code&gt;StringUtils.isAsciiPrintable()&lt;/code&gt; and within lengths set up in jspwiki-custom.properties.</a>
+<span class="sourceLineNo">481</span><a id="line.481">     * This can be overwritten by custom FileSystemProviders to validate additional properties</a>
+<span class="sourceLineNo">482</span><a id="line.482">     * See https://issues.apache.org/jira/browse/JSPWIKI-856</a>
+<span class="sourceLineNo">483</span><a id="line.483">     * @since 2.10.2</a>
+<span class="sourceLineNo">484</span><a id="line.484">     * @param customProperties the custom page properties being added</a>
+<span class="sourceLineNo">485</span><a id="line.485">     */</a>
+<span class="sourceLineNo">486</span><a id="line.486">    protected void validateCustomPageProperties( final Properties customProperties ) throws IOException {</a>
+<span class="sourceLineNo">487</span><a id="line.487">        // Default validation rules</a>
+<span class="sourceLineNo">488</span><a id="line.488">        if( customProperties != null &amp;&amp; !customProperties.isEmpty() ) {</a>
+<span class="sourceLineNo">489</span><a id="line.489">            if( customProperties.size() &gt; MAX_PROPLIMIT ) {</a>
+<span class="sourceLineNo">490</span><a id="line.490">                throw new IOException( "Too many custom properties. You are adding " + customProperties.size() + ", but max limit is " + MAX_PROPLIMIT );</a>
+<span class="sourceLineNo">491</span><a id="line.491">            }</a>
+<span class="sourceLineNo">492</span><a id="line.492">            final Enumeration&lt; ? &gt; propertyNames = customProperties.propertyNames();</a>
+<span class="sourceLineNo">493</span><a id="line.493">            while( propertyNames.hasMoreElements() ) {</a>
+<span class="sourceLineNo">494</span><a id="line.494">                final String key = ( String )propertyNames.nextElement();</a>
+<span class="sourceLineNo">495</span><a id="line.495">                final String value = ( String )customProperties.get( key );</a>
+<span class="sourceLineNo">496</span><a id="line.496">                if( key != null ) {</a>
+<span class="sourceLineNo">497</span><a id="line.497">                    if( key.length() &gt; MAX_PROPKEYLENGTH ) {</a>
+<span class="sourceLineNo">498</span><a id="line.498">                        throw new IOException( "Custom property key " + key + " is too long. Max allowed length is " + MAX_PROPKEYLENGTH );</a>
+<span class="sourceLineNo">499</span><a id="line.499">                    }</a>
+<span class="sourceLineNo">500</span><a id="line.500">                    if( !StringUtils.isAsciiPrintable( key ) ) {</a>
+<span class="sourceLineNo">501</span><a id="line.501">                        throw new IOException( "Custom property key " + key + " is not simple ASCII!" );</a>
+<span class="sourceLineNo">502</span><a id="line.502">                    }</a>
+<span class="sourceLineNo">503</span><a id="line.503">                }</a>
+<span class="sourceLineNo">504</span><a id="line.504">                if( value != null ) {</a>
+<span class="sourceLineNo">505</span><a id="line.505">                    if( value.length() &gt; MAX_PROPVALUELENGTH ) {</a>
+<span class="sourceLineNo">506</span><a id="line.506">                        throw new IOException( "Custom property key " + key + " has value that is too long. Value=" + value + ". Max allowed length is " + MAX_PROPVALUELENGTH );</a>
+<span class="sourceLineNo">507</span><a id="line.507">                    }</a>
+<span class="sourceLineNo">508</span><a id="line.508">                    if( !StringUtils.isAsciiPrintable( value ) ) {</a>
+<span class="sourceLineNo">509</span><a id="line.509">                        throw new IOException( "Custom property key " + key + " has value that is not simple ASCII! Value=" + value );</a>
+<span class="sourceLineNo">510</span><a id="line.510">                    }</a>
+<span class="sourceLineNo">511</span><a id="line.511">                }</a>
+<span class="sourceLineNo">512</span><a id="line.512">            }</a>
+<span class="sourceLineNo">513</span><a id="line.513">        }</a>
+<span class="sourceLineNo">514</span><a id="line.514">    }</a>
+<span class="sourceLineNo">515</span><a id="line.515"></a>
+<span class="sourceLineNo">516</span><a id="line.516">    /**</a>
+<span class="sourceLineNo">517</span><a id="line.517">     *  A simple filter which filters only those filenames which correspond to the</a>
+<span class="sourceLineNo">518</span><a id="line.518">     *  file extension used.</a>
+<span class="sourceLineNo">519</span><a id="line.519">     */</a>
+<span class="sourceLineNo">520</span><a id="line.520">    public static class WikiFileFilter implements FilenameFilter {</a>
+<span class="sourceLineNo">521</span><a id="line.521">        /**</a>
+<span class="sourceLineNo">522</span><a id="line.522">         *  {@inheritDoc}</a>
+<span class="sourceLineNo">523</span><a id="line.523">         */</a>
+<span class="sourceLineNo">524</span><a id="line.524">        @Override</a>
+<span class="sourceLineNo">525</span><a id="line.525">        public boolean accept( final File dir, final String name ) {</a>
+<span class="sourceLineNo">526</span><a id="line.526">            return name.endsWith( FILE_EXT );</a>
+<span class="sourceLineNo">527</span><a id="line.527">        }</a>
+<span class="sourceLineNo">528</span><a id="line.528">    }</a>
+<span class="sourceLineNo">529</span><a id="line.529"></a>
+<span class="sourceLineNo">530</span><a id="line.530">}</a>
 
 
 

@@ -28,171 +28,172 @@
 <span class="sourceLineNo">019</span><a id="line.19"></a>
 <span class="sourceLineNo">020</span><a id="line.20">package org.apache.wiki.diff;</a>
 <span class="sourceLineNo">021</span><a id="line.21"></a>
-<span class="sourceLineNo">022</span><a id="line.22">import org.apache.log4j.Logger;</a>
-<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Context;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.i18n.InternationalizationManager;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.preferences.Preferences;</a>
-<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.util.TextUtil;</a>
-<span class="sourceLineNo">029</span><a id="line.29">import org.suigeneris.jrcs.diff.Diff;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.suigeneris.jrcs.diff.DifferentiationFailedException;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.suigeneris.jrcs.diff.Revision;</a>
-<span class="sourceLineNo">032</span><a id="line.32">import org.suigeneris.jrcs.diff.RevisionVisitor;</a>
-<span class="sourceLineNo">033</span><a id="line.33">import org.suigeneris.jrcs.diff.delta.AddDelta;</a>
-<span class="sourceLineNo">034</span><a id="line.34">import org.suigeneris.jrcs.diff.delta.ChangeDelta;</a>
-<span class="sourceLineNo">035</span><a id="line.35">import org.suigeneris.jrcs.diff.delta.Chunk;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import org.suigeneris.jrcs.diff.delta.DeleteDelta;</a>
-<span class="sourceLineNo">037</span><a id="line.37">import org.suigeneris.jrcs.diff.myers.MyersDiff;</a>
-<span class="sourceLineNo">038</span><a id="line.38"></a>
-<span class="sourceLineNo">039</span><a id="line.39">import java.io.IOException;</a>
-<span class="sourceLineNo">040</span><a id="line.40">import java.text.ChoiceFormat;</a>
-<span class="sourceLineNo">041</span><a id="line.41">import java.text.Format;</a>
-<span class="sourceLineNo">042</span><a id="line.42">import java.text.MessageFormat;</a>
-<span class="sourceLineNo">043</span><a id="line.43">import java.text.NumberFormat;</a>
-<span class="sourceLineNo">044</span><a id="line.44">import java.util.Properties;</a>
-<span class="sourceLineNo">045</span><a id="line.45">import java.util.ResourceBundle;</a>
-<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.i18n.InternationalizationManager;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.preferences.Preferences;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.suigeneris.jrcs.diff.Diff;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.suigeneris.jrcs.diff.DifferentiationFailedException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.suigeneris.jrcs.diff.Revision;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.suigeneris.jrcs.diff.RevisionVisitor;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.suigeneris.jrcs.diff.delta.AddDelta;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.suigeneris.jrcs.diff.delta.ChangeDelta;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.suigeneris.jrcs.diff.delta.Chunk;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.suigeneris.jrcs.diff.delta.DeleteDelta;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import org.suigeneris.jrcs.diff.myers.MyersDiff;</a>
+<span class="sourceLineNo">039</span><a id="line.39"></a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.io.IOException;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.text.ChoiceFormat;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.text.Format;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.text.MessageFormat;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.text.NumberFormat;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.util.Properties;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import java.util.ResourceBundle;</a>
 <span class="sourceLineNo">047</span><a id="line.47"></a>
-<span class="sourceLineNo">048</span><a id="line.48">/**</a>
-<span class="sourceLineNo">049</span><a id="line.49"> * This is the JSPWiki 'traditional' diff.  It uses an internal diff engine.</a>
-<span class="sourceLineNo">050</span><a id="line.50"> */</a>
-<span class="sourceLineNo">051</span><a id="line.51">public class TraditionalDiffProvider implements DiffProvider {</a>
-<span class="sourceLineNo">052</span><a id="line.52"></a>
-<span class="sourceLineNo">053</span><a id="line.53">    private static final Logger log = Logger.getLogger( TraditionalDiffProvider.class );</a>
-<span class="sourceLineNo">054</span><a id="line.54">    private static final String CSS_DIFF_ADDED = "&lt;tr&gt;&lt;td class=\"diffadd\"&gt;";</a>
-<span class="sourceLineNo">055</span><a id="line.55">    private static final String CSS_DIFF_REMOVED = "&lt;tr&gt;&lt;td class=\"diffrem\"&gt;";</a>
-<span class="sourceLineNo">056</span><a id="line.56">    private static final String CSS_DIFF_UNCHANGED = "&lt;tr&gt;&lt;td class=\"diff\"&gt;";</a>
-<span class="sourceLineNo">057</span><a id="line.57">    private static final String CSS_DIFF_CLOSE = "&lt;/td&gt;&lt;/tr&gt;" + Diff.NL;</a>
-<span class="sourceLineNo">058</span><a id="line.58"></a>
-<span class="sourceLineNo">059</span><a id="line.59">    /**</a>
-<span class="sourceLineNo">060</span><a id="line.60">     *  Constructs the provider.</a>
-<span class="sourceLineNo">061</span><a id="line.61">     */</a>
-<span class="sourceLineNo">062</span><a id="line.62">    public TraditionalDiffProvider() {</a>
-<span class="sourceLineNo">063</span><a id="line.63">    }</a>
-<span class="sourceLineNo">064</span><a id="line.64"></a>
-<span class="sourceLineNo">065</span><a id="line.65">    /**</a>
-<span class="sourceLineNo">066</span><a id="line.66">     * {@inheritDoc}</a>
-<span class="sourceLineNo">067</span><a id="line.67">     * @see org.apache.wiki.api.providers.WikiProvider#getProviderInfo()</a>
-<span class="sourceLineNo">068</span><a id="line.68">     */</a>
-<span class="sourceLineNo">069</span><a id="line.69">    @Override</a>
-<span class="sourceLineNo">070</span><a id="line.70">    public String getProviderInfo()</a>
-<span class="sourceLineNo">071</span><a id="line.71">    {</a>
-<span class="sourceLineNo">072</span><a id="line.72">        return "TraditionalDiffProvider";</a>
-<span class="sourceLineNo">073</span><a id="line.73">    }</a>
-<span class="sourceLineNo">074</span><a id="line.74"></a>
-<span class="sourceLineNo">075</span><a id="line.75">    /**</a>
-<span class="sourceLineNo">076</span><a id="line.76">     * {@inheritDoc}</a>
-<span class="sourceLineNo">077</span><a id="line.77">     * @see org.apache.wiki.api.providers.WikiProvider#initialize(org.apache.wiki.api.core.Engine, java.util.Properties)</a>
-<span class="sourceLineNo">078</span><a id="line.78">     */</a>
-<span class="sourceLineNo">079</span><a id="line.79">    @Override</a>
-<span class="sourceLineNo">080</span><a id="line.80">    public void initialize( final Engine engine, final Properties properties ) throws NoRequiredPropertyException, IOException {</a>
-<span class="sourceLineNo">081</span><a id="line.81">    }</a>
-<span class="sourceLineNo">082</span><a id="line.82"></a>
-<span class="sourceLineNo">083</span><a id="line.83">    /**</a>
-<span class="sourceLineNo">084</span><a id="line.84">     * Makes a diff using the BMSI utility package. We use our own diff printer,</a>
-<span class="sourceLineNo">085</span><a id="line.85">     * which makes things easier.</a>
-<span class="sourceLineNo">086</span><a id="line.86">     * </a>
-<span class="sourceLineNo">087</span><a id="line.87">     * @param ctx The WikiContext in which the diff should be made.</a>
-<span class="sourceLineNo">088</span><a id="line.88">     * @param p1 The first string</a>
-<span class="sourceLineNo">089</span><a id="line.89">     * @param p2 The second string.</a>
-<span class="sourceLineNo">090</span><a id="line.90">     * </a>
-<span class="sourceLineNo">091</span><a id="line.91">     * @return Full HTML diff.</a>
-<span class="sourceLineNo">092</span><a id="line.92">     */</a>
-<span class="sourceLineNo">093</span><a id="line.93">    @Override</a>
-<span class="sourceLineNo">094</span><a id="line.94">    public String makeDiffHtml( final Context ctx, final String p1, final String p2 ) {</a>
-<span class="sourceLineNo">095</span><a id="line.95">        final String diffResult;</a>
-<span class="sourceLineNo">096</span><a id="line.96"></a>
-<span class="sourceLineNo">097</span><a id="line.97">        try {</a>
-<span class="sourceLineNo">098</span><a id="line.98">            final String[] first  = Diff.stringToArray(TextUtil.replaceEntities(p1));</a>
-<span class="sourceLineNo">099</span><a id="line.99">            final String[] second = Diff.stringToArray(TextUtil.replaceEntities(p2));</a>
-<span class="sourceLineNo">100</span><a id="line.100">            final Revision rev = Diff.diff(first, second, new MyersDiff());</a>
-<span class="sourceLineNo">101</span><a id="line.101"></a>
-<span class="sourceLineNo">102</span><a id="line.102">            if( rev == null || rev.size() == 0 ) {</a>
-<span class="sourceLineNo">103</span><a id="line.103">                // No difference</a>
-<span class="sourceLineNo">104</span><a id="line.104">                return "";</a>
-<span class="sourceLineNo">105</span><a id="line.105">            }</a>
-<span class="sourceLineNo">106</span><a id="line.106"></a>
-<span class="sourceLineNo">107</span><a id="line.107">            final StringBuffer ret = new StringBuffer(rev.size() * 20); // Guessing how big it will become...</a>
-<span class="sourceLineNo">108</span><a id="line.108"></a>
-<span class="sourceLineNo">109</span><a id="line.109">            ret.append( "&lt;table class=\"diff\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"&gt;\n" );</a>
-<span class="sourceLineNo">110</span><a id="line.110">            rev.accept( new RevisionPrint( ctx, ret ) );</a>
-<span class="sourceLineNo">111</span><a id="line.111">            ret.append( "&lt;/table&gt;\n" );</a>
-<span class="sourceLineNo">112</span><a id="line.112"></a>
-<span class="sourceLineNo">113</span><a id="line.113">            return ret.toString();</a>
-<span class="sourceLineNo">114</span><a id="line.114">        } catch( final DifferentiationFailedException e ) {</a>
-<span class="sourceLineNo">115</span><a id="line.115">            diffResult = "makeDiff failed with DifferentiationFailedException";</a>
-<span class="sourceLineNo">116</span><a id="line.116">            log.error( diffResult, e );</a>
-<span class="sourceLineNo">117</span><a id="line.117">        }</a>
-<span class="sourceLineNo">118</span><a id="line.118"></a>
-<span class="sourceLineNo">119</span><a id="line.119">        return diffResult;</a>
-<span class="sourceLineNo">120</span><a id="line.120">    }</a>
-<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">048</span><a id="line.48"></a>
+<span class="sourceLineNo">049</span><a id="line.49">/**</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * This is the JSPWiki 'traditional' diff.  It uses an internal diff engine.</a>
+<span class="sourceLineNo">051</span><a id="line.51"> */</a>
+<span class="sourceLineNo">052</span><a id="line.52">public class TraditionalDiffProvider implements DiffProvider {</a>
+<span class="sourceLineNo">053</span><a id="line.53"></a>
+<span class="sourceLineNo">054</span><a id="line.54">    private static final Logger log = LogManager.getLogger( TraditionalDiffProvider.class );</a>
+<span class="sourceLineNo">055</span><a id="line.55">    private static final String CSS_DIFF_ADDED = "&lt;tr&gt;&lt;td class=\"diffadd\"&gt;";</a>
+<span class="sourceLineNo">056</span><a id="line.56">    private static final String CSS_DIFF_REMOVED = "&lt;tr&gt;&lt;td class=\"diffrem\"&gt;";</a>
+<span class="sourceLineNo">057</span><a id="line.57">    private static final String CSS_DIFF_UNCHANGED = "&lt;tr&gt;&lt;td class=\"diff\"&gt;";</a>
+<span class="sourceLineNo">058</span><a id="line.58">    private static final String CSS_DIFF_CLOSE = "&lt;/td&gt;&lt;/tr&gt;" + Diff.NL;</a>
+<span class="sourceLineNo">059</span><a id="line.59"></a>
+<span class="sourceLineNo">060</span><a id="line.60">    /**</a>
+<span class="sourceLineNo">061</span><a id="line.61">     *  Constructs the provider.</a>
+<span class="sourceLineNo">062</span><a id="line.62">     */</a>
+<span class="sourceLineNo">063</span><a id="line.63">    public TraditionalDiffProvider() {</a>
+<span class="sourceLineNo">064</span><a id="line.64">    }</a>
+<span class="sourceLineNo">065</span><a id="line.65"></a>
+<span class="sourceLineNo">066</span><a id="line.66">    /**</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * {@inheritDoc}</a>
+<span class="sourceLineNo">068</span><a id="line.68">     * @see org.apache.wiki.api.providers.WikiProvider#getProviderInfo()</a>
+<span class="sourceLineNo">069</span><a id="line.69">     */</a>
+<span class="sourceLineNo">070</span><a id="line.70">    @Override</a>
+<span class="sourceLineNo">071</span><a id="line.71">    public String getProviderInfo()</a>
+<span class="sourceLineNo">072</span><a id="line.72">    {</a>
+<span class="sourceLineNo">073</span><a id="line.73">        return "TraditionalDiffProvider";</a>
+<span class="sourceLineNo">074</span><a id="line.74">    }</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    /**</a>
+<span class="sourceLineNo">077</span><a id="line.77">     * {@inheritDoc}</a>
+<span class="sourceLineNo">078</span><a id="line.78">     * @see org.apache.wiki.api.providers.WikiProvider#initialize(org.apache.wiki.api.core.Engine, java.util.Properties)</a>
+<span class="sourceLineNo">079</span><a id="line.79">     */</a>
+<span class="sourceLineNo">080</span><a id="line.80">    @Override</a>
+<span class="sourceLineNo">081</span><a id="line.81">    public void initialize( final Engine engine, final Properties properties ) throws NoRequiredPropertyException, IOException {</a>
+<span class="sourceLineNo">082</span><a id="line.82">    }</a>
+<span class="sourceLineNo">083</span><a id="line.83"></a>
+<span class="sourceLineNo">084</span><a id="line.84">    /**</a>
+<span class="sourceLineNo">085</span><a id="line.85">     * Makes a diff using the BMSI utility package. We use our own diff printer,</a>
+<span class="sourceLineNo">086</span><a id="line.86">     * which makes things easier.</a>
+<span class="sourceLineNo">087</span><a id="line.87">     * </a>
+<span class="sourceLineNo">088</span><a id="line.88">     * @param ctx The WikiContext in which the diff should be made.</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * @param p1 The first string</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * @param p2 The second string.</a>
+<span class="sourceLineNo">091</span><a id="line.91">     * </a>
+<span class="sourceLineNo">092</span><a id="line.92">     * @return Full HTML diff.</a>
+<span class="sourceLineNo">093</span><a id="line.93">     */</a>
+<span class="sourceLineNo">094</span><a id="line.94">    @Override</a>
+<span class="sourceLineNo">095</span><a id="line.95">    public String makeDiffHtml( final Context ctx, final String p1, final String p2 ) {</a>
+<span class="sourceLineNo">096</span><a id="line.96">        final String diffResult;</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">        try {</a>
+<span class="sourceLineNo">099</span><a id="line.99">            final String[] first  = Diff.stringToArray(TextUtil.replaceEntities(p1));</a>
+<span class="sourceLineNo">100</span><a id="line.100">            final String[] second = Diff.stringToArray(TextUtil.replaceEntities(p2));</a>
+<span class="sourceLineNo">101</span><a id="line.101">            final Revision rev = Diff.diff(first, second, new MyersDiff());</a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">            if( rev == null || rev.size() == 0 ) {</a>
+<span class="sourceLineNo">104</span><a id="line.104">                // No difference</a>
+<span class="sourceLineNo">105</span><a id="line.105">                return "";</a>
+<span class="sourceLineNo">106</span><a id="line.106">            }</a>
+<span class="sourceLineNo">107</span><a id="line.107"></a>
+<span class="sourceLineNo">108</span><a id="line.108">            final StringBuffer ret = new StringBuffer(rev.size() * 20); // Guessing how big it will become...</a>
+<span class="sourceLineNo">109</span><a id="line.109"></a>
+<span class="sourceLineNo">110</span><a id="line.110">            ret.append( "&lt;table class=\"diff\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\"&gt;\n" );</a>
+<span class="sourceLineNo">111</span><a id="line.111">            rev.accept( new RevisionPrint( ctx, ret ) );</a>
+<span class="sourceLineNo">112</span><a id="line.112">            ret.append( "&lt;/table&gt;\n" );</a>
+<span class="sourceLineNo">113</span><a id="line.113"></a>
+<span class="sourceLineNo">114</span><a id="line.114">            return ret.toString();</a>
+<span class="sourceLineNo">115</span><a id="line.115">        } catch( final DifferentiationFailedException e ) {</a>
+<span class="sourceLineNo">116</span><a id="line.116">            diffResult = "makeDiff failed with DifferentiationFailedException";</a>
+<span class="sourceLineNo">117</span><a id="line.117">            log.error( diffResult, e );</a>
+<span class="sourceLineNo">118</span><a id="line.118">        }</a>
+<span class="sourceLineNo">119</span><a id="line.119"></a>
+<span class="sourceLineNo">120</span><a id="line.120">        return diffResult;</a>
+<span class="sourceLineNo">121</span><a id="line.121">    }</a>
 <span class="sourceLineNo">122</span><a id="line.122"></a>
-<span class="sourceLineNo">123</span><a id="line.123">    private static final class RevisionPrint implements RevisionVisitor {</a>
-<span class="sourceLineNo">124</span><a id="line.124"></a>
-<span class="sourceLineNo">125</span><a id="line.125">        private final StringBuffer m_result;</a>
-<span class="sourceLineNo">126</span><a id="line.126">        private final Context  m_context;</a>
-<span class="sourceLineNo">127</span><a id="line.127">        private final ResourceBundle m_rb;</a>
-<span class="sourceLineNo">128</span><a id="line.128">        </a>
-<span class="sourceLineNo">129</span><a id="line.129">        private RevisionPrint( final Context ctx, final StringBuffer sb ) {</a>
-<span class="sourceLineNo">130</span><a id="line.130">            m_result = sb;</a>
-<span class="sourceLineNo">131</span><a id="line.131">            m_context = ctx;</a>
-<span class="sourceLineNo">132</span><a id="line.132">            m_rb = Preferences.getBundle( ctx, InternationalizationManager.CORE_BUNDLE );</a>
-<span class="sourceLineNo">133</span><a id="line.133">        }</a>
-<span class="sourceLineNo">134</span><a id="line.134"></a>
-<span class="sourceLineNo">135</span><a id="line.135">        @Override</a>
-<span class="sourceLineNo">136</span><a id="line.136">        public void visit( final Revision rev ) {</a>
-<span class="sourceLineNo">137</span><a id="line.137">            // GNDN (Goes nowhere, does nothing)</a>
-<span class="sourceLineNo">138</span><a id="line.138">        }</a>
-<span class="sourceLineNo">139</span><a id="line.139"></a>
-<span class="sourceLineNo">140</span><a id="line.140">        @Override</a>
-<span class="sourceLineNo">141</span><a id="line.141">        public void visit( final AddDelta delta ) {</a>
-<span class="sourceLineNo">142</span><a id="line.142">            final Chunk changed = delta.getRevised();</a>
-<span class="sourceLineNo">143</span><a id="line.143">            print( changed, m_rb.getString( "diff.traditional.added" ) );</a>
-<span class="sourceLineNo">144</span><a id="line.144">            changed.toString( m_result, CSS_DIFF_ADDED, CSS_DIFF_CLOSE );</a>
-<span class="sourceLineNo">145</span><a id="line.145">        }</a>
-<span class="sourceLineNo">146</span><a id="line.146"></a>
-<span class="sourceLineNo">147</span><a id="line.147">        @Override</a>
-<span class="sourceLineNo">148</span><a id="line.148">        public void visit( final ChangeDelta delta ) {</a>
-<span class="sourceLineNo">149</span><a id="line.149">            final Chunk changed = delta.getOriginal();</a>
-<span class="sourceLineNo">150</span><a id="line.150">            print(changed, m_rb.getString( "diff.traditional.changed" ) );</a>
-<span class="sourceLineNo">151</span><a id="line.151">            changed.toString( m_result, CSS_DIFF_REMOVED, CSS_DIFF_CLOSE );</a>
-<span class="sourceLineNo">152</span><a id="line.152">            delta.getRevised().toString( m_result, CSS_DIFF_ADDED, CSS_DIFF_CLOSE );</a>
-<span class="sourceLineNo">153</span><a id="line.153">        }</a>
-<span class="sourceLineNo">154</span><a id="line.154"></a>
-<span class="sourceLineNo">155</span><a id="line.155">        @Override</a>
-<span class="sourceLineNo">156</span><a id="line.156">        public void visit( final DeleteDelta delta ) {</a>
-<span class="sourceLineNo">157</span><a id="line.157">            final Chunk changed = delta.getOriginal();</a>
-<span class="sourceLineNo">158</span><a id="line.158">            print( changed, m_rb.getString( "diff.traditional.removed" ) );</a>
-<span class="sourceLineNo">159</span><a id="line.159">            changed.toString( m_result, CSS_DIFF_REMOVED, CSS_DIFF_CLOSE );</a>
-<span class="sourceLineNo">160</span><a id="line.160">        }</a>
-<span class="sourceLineNo">161</span><a id="line.161"></a>
-<span class="sourceLineNo">162</span><a id="line.162">        private void print( final Chunk changed, final String type ) {</a>
-<span class="sourceLineNo">163</span><a id="line.163">            m_result.append( CSS_DIFF_UNCHANGED );</a>
-<span class="sourceLineNo">164</span><a id="line.164"></a>
-<span class="sourceLineNo">165</span><a id="line.165">            final String[] choiceString = {</a>
-<span class="sourceLineNo">166</span><a id="line.166">               m_rb.getString("diff.traditional.oneline"),</a>
-<span class="sourceLineNo">167</span><a id="line.167">               m_rb.getString("diff.traditional.lines")</a>
-<span class="sourceLineNo">168</span><a id="line.168">            };</a>
-<span class="sourceLineNo">169</span><a id="line.169">            final double[] choiceLimits = { 1, 2 };</a>
-<span class="sourceLineNo">170</span><a id="line.170"></a>
-<span class="sourceLineNo">171</span><a id="line.171">            final MessageFormat fmt = new MessageFormat("");</a>
-<span class="sourceLineNo">172</span><a id="line.172">            fmt.setLocale( Preferences.getLocale(m_context) );</a>
-<span class="sourceLineNo">173</span><a id="line.173">            final ChoiceFormat cfmt = new ChoiceFormat( choiceLimits, choiceString );</a>
-<span class="sourceLineNo">174</span><a id="line.174">            fmt.applyPattern( type );</a>
-<span class="sourceLineNo">175</span><a id="line.175">            final Format[] formats = { NumberFormat.getInstance(), cfmt, NumberFormat.getInstance() };</a>
-<span class="sourceLineNo">176</span><a id="line.176">            fmt.setFormats( formats );</a>
-<span class="sourceLineNo">177</span><a id="line.177"></a>
-<span class="sourceLineNo">178</span><a id="line.178">            final Object[] params = { changed.first() + 1,</a>
-<span class="sourceLineNo">179</span><a id="line.179">                                      changed.size(),</a>
-<span class="sourceLineNo">180</span><a id="line.180">                                      changed.size() };</a>
-<span class="sourceLineNo">181</span><a id="line.181">            m_result.append( fmt.format(params) );</a>
-<span class="sourceLineNo">182</span><a id="line.182">            m_result.append( CSS_DIFF_CLOSE );</a>
-<span class="sourceLineNo">183</span><a id="line.183">        }</a>
-<span class="sourceLineNo">184</span><a id="line.184">    }</a>
-<span class="sourceLineNo">185</span><a id="line.185"></a>
-<span class="sourceLineNo">186</span><a id="line.186">}</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">    private static final class RevisionPrint implements RevisionVisitor {</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">        private final StringBuffer m_result;</a>
+<span class="sourceLineNo">127</span><a id="line.127">        private final Context  m_context;</a>
+<span class="sourceLineNo">128</span><a id="line.128">        private final ResourceBundle m_rb;</a>
+<span class="sourceLineNo">129</span><a id="line.129">        </a>
+<span class="sourceLineNo">130</span><a id="line.130">        private RevisionPrint( final Context ctx, final StringBuffer sb ) {</a>
+<span class="sourceLineNo">131</span><a id="line.131">            m_result = sb;</a>
+<span class="sourceLineNo">132</span><a id="line.132">            m_context = ctx;</a>
+<span class="sourceLineNo">133</span><a id="line.133">            m_rb = Preferences.getBundle( ctx, InternationalizationManager.CORE_BUNDLE );</a>
+<span class="sourceLineNo">134</span><a id="line.134">        }</a>
+<span class="sourceLineNo">135</span><a id="line.135"></a>
+<span class="sourceLineNo">136</span><a id="line.136">        @Override</a>
+<span class="sourceLineNo">137</span><a id="line.137">        public void visit( final Revision rev ) {</a>
+<span class="sourceLineNo">138</span><a id="line.138">            // GNDN (Goes nowhere, does nothing)</a>
+<span class="sourceLineNo">139</span><a id="line.139">        }</a>
+<span class="sourceLineNo">140</span><a id="line.140"></a>
+<span class="sourceLineNo">141</span><a id="line.141">        @Override</a>
+<span class="sourceLineNo">142</span><a id="line.142">        public void visit( final AddDelta delta ) {</a>
+<span class="sourceLineNo">143</span><a id="line.143">            final Chunk changed = delta.getRevised();</a>
+<span class="sourceLineNo">144</span><a id="line.144">            print( changed, m_rb.getString( "diff.traditional.added" ) );</a>
+<span class="sourceLineNo">145</span><a id="line.145">            changed.toString( m_result, CSS_DIFF_ADDED, CSS_DIFF_CLOSE );</a>
+<span class="sourceLineNo">146</span><a id="line.146">        }</a>
+<span class="sourceLineNo">147</span><a id="line.147"></a>
+<span class="sourceLineNo">148</span><a id="line.148">        @Override</a>
+<span class="sourceLineNo">149</span><a id="line.149">        public void visit( final ChangeDelta delta ) {</a>
+<span class="sourceLineNo">150</span><a id="line.150">            final Chunk changed = delta.getOriginal();</a>
+<span class="sourceLineNo">151</span><a id="line.151">            print(changed, m_rb.getString( "diff.traditional.changed" ) );</a>
+<span class="sourceLineNo">152</span><a id="line.152">            changed.toString( m_result, CSS_DIFF_REMOVED, CSS_DIFF_CLOSE );</a>
+<span class="sourceLineNo">153</span><a id="line.153">            delta.getRevised().toString( m_result, CSS_DIFF_ADDED, CSS_DIFF_CLOSE );</a>
+<span class="sourceLineNo">154</span><a id="line.154">        }</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">        @Override</a>
+<span class="sourceLineNo">157</span><a id="line.157">        public void visit( final DeleteDelta delta ) {</a>
+<span class="sourceLineNo">158</span><a id="line.158">            final Chunk changed = delta.getOriginal();</a>
+<span class="sourceLineNo">159</span><a id="line.159">            print( changed, m_rb.getString( "diff.traditional.removed" ) );</a>
+<span class="sourceLineNo">160</span><a id="line.160">            changed.toString( m_result, CSS_DIFF_REMOVED, CSS_DIFF_CLOSE );</a>
+<span class="sourceLineNo">161</span><a id="line.161">        }</a>
+<span class="sourceLineNo">162</span><a id="line.162"></a>
+<span class="sourceLineNo">163</span><a id="line.163">        private void print( final Chunk changed, final String type ) {</a>
+<span class="sourceLineNo">164</span><a id="line.164">            m_result.append( CSS_DIFF_UNCHANGED );</a>
+<span class="sourceLineNo">165</span><a id="line.165"></a>
+<span class="sourceLineNo">166</span><a id="line.166">            final String[] choiceString = {</a>
+<span class="sourceLineNo">167</span><a id="line.167">               m_rb.getString("diff.traditional.oneline"),</a>
+<span class="sourceLineNo">168</span><a id="line.168">               m_rb.getString("diff.traditional.lines")</a>
+<span class="sourceLineNo">169</span><a id="line.169">            };</a>
+<span class="sourceLineNo">170</span><a id="line.170">            final double[] choiceLimits = { 1, 2 };</a>
+<span class="sourceLineNo">171</span><a id="line.171"></a>
+<span class="sourceLineNo">172</span><a id="line.172">            final MessageFormat fmt = new MessageFormat("");</a>
+<span class="sourceLineNo">173</span><a id="line.173">            fmt.setLocale( Preferences.getLocale(m_context) );</a>
+<span class="sourceLineNo">174</span><a id="line.174">            final ChoiceFormat cfmt = new ChoiceFormat( choiceLimits, choiceString );</a>
+<span class="sourceLineNo">175</span><a id="line.175">            fmt.applyPattern( type );</a>
+<span class="sourceLineNo">176</span><a id="line.176">            final Format[] formats = { NumberFormat.getInstance(), cfmt, NumberFormat.getInstance() };</a>
+<span class="sourceLineNo">177</span><a id="line.177">            fmt.setFormats( formats );</a>
+<span class="sourceLineNo">178</span><a id="line.178"></a>
+<span class="sourceLineNo">179</span><a id="line.179">            final Object[] params = { changed.first() + 1,</a>
+<span class="sourceLineNo">180</span><a id="line.180">                                      changed.size(),</a>
+<span class="sourceLineNo">181</span><a id="line.181">                                      changed.size() };</a>
+<span class="sourceLineNo">182</span><a id="line.182">            m_result.append( fmt.format(params) );</a>
+<span class="sourceLineNo">183</span><a id="line.183">            m_result.append( CSS_DIFF_CLOSE );</a>
+<span class="sourceLineNo">184</span><a id="line.184">        }</a>
+<span class="sourceLineNo">185</span><a id="line.185">    }</a>
+<span class="sourceLineNo">186</span><a id="line.186"></a>
+<span class="sourceLineNo">187</span><a id="line.187">}</a>
 
 
 

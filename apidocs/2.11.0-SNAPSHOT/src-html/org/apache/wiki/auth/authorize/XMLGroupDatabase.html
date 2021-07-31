@@ -28,391 +28,386 @@
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth.authorize;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
 <span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.text.StringEscapeUtils;</a>
-<span class="sourceLineNo">022</span><a id="line.22">import org.apache.log4j.Logger;</a>
-<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Engine;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.auth.NoSuchPrincipalException;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.auth.WikiPrincipal;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.auth.WikiSecurityException;</a>
-<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.util.TextUtil;</a>
-<span class="sourceLineNo">029</span><a id="line.29">import org.w3c.dom.Document;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.w3c.dom.Element;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.w3c.dom.NodeList;</a>
-<span class="sourceLineNo">032</span><a id="line.32">import org.xml.sax.SAXException;</a>
-<span class="sourceLineNo">033</span><a id="line.33"></a>
-<span class="sourceLineNo">034</span><a id="line.34">import javax.xml.parsers.DocumentBuilderFactory;</a>
-<span class="sourceLineNo">035</span><a id="line.35">import javax.xml.parsers.ParserConfigurationException;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import java.io.BufferedWriter;</a>
-<span class="sourceLineNo">037</span><a id="line.37">import java.io.File;</a>
-<span class="sourceLineNo">038</span><a id="line.38">import java.io.FileNotFoundException;</a>
-<span class="sourceLineNo">039</span><a id="line.39">import java.io.FileOutputStream;</a>
-<span class="sourceLineNo">040</span><a id="line.40">import java.io.IOException;</a>
-<span class="sourceLineNo">041</span><a id="line.41">import java.io.OutputStreamWriter;</a>
-<span class="sourceLineNo">042</span><a id="line.42">import java.nio.charset.StandardCharsets;</a>
-<span class="sourceLineNo">043</span><a id="line.43">import java.security.Principal;</a>
-<span class="sourceLineNo">044</span><a id="line.44">import java.text.DateFormat;</a>
-<span class="sourceLineNo">045</span><a id="line.45">import java.text.ParseException;</a>
-<span class="sourceLineNo">046</span><a id="line.46">import java.text.SimpleDateFormat;</a>
-<span class="sourceLineNo">047</span><a id="line.47">import java.util.Collection;</a>
-<span class="sourceLineNo">048</span><a id="line.48">import java.util.Date;</a>
-<span class="sourceLineNo">049</span><a id="line.49">import java.util.Map;</a>
-<span class="sourceLineNo">050</span><a id="line.50">import java.util.Properties;</a>
-<span class="sourceLineNo">051</span><a id="line.51">import java.util.concurrent.ConcurrentHashMap;</a>
-<span class="sourceLineNo">052</span><a id="line.52"></a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.auth.NoSuchPrincipalException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.auth.WikiPrincipal;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.w3c.dom.Document;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.w3c.dom.Element;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.w3c.dom.NodeList;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.xml.sax.SAXException;</a>
+<span class="sourceLineNo">034</span><a id="line.34"></a>
+<span class="sourceLineNo">035</span><a id="line.35">import javax.xml.parsers.DocumentBuilderFactory;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import javax.xml.parsers.ParserConfigurationException;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.io.BufferedWriter;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.io.File;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.io.FileNotFoundException;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.io.FileOutputStream;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.io.IOException;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.io.OutputStreamWriter;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.nio.charset.StandardCharsets;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.security.Principal;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.text.DateFormat;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import java.text.ParseException;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import java.text.SimpleDateFormat;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import java.util.Collection;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import java.util.Date;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import java.util.Map;</a>
+<span class="sourceLineNo">051</span><a id="line.51">import java.util.Properties;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import java.util.concurrent.ConcurrentHashMap;</a>
 <span class="sourceLineNo">053</span><a id="line.53"></a>
-<span class="sourceLineNo">054</span><a id="line.54">/**</a>
-<span class="sourceLineNo">055</span><a id="line.55"> * &lt;p&gt;</a>
-<span class="sourceLineNo">056</span><a id="line.56"> * GroupDatabase implementation for loading, persisting and storing wiki groups,</a>
-<span class="sourceLineNo">057</span><a id="line.57"> * using an XML file for persistence. Group entries are simple</a>
-<span class="sourceLineNo">058</span><a id="line.58"> * &lt;code&gt;&amp;lt;group&amp;gt;&lt;/code&gt; elements under the root. Each group member is</a>
-<span class="sourceLineNo">059</span><a id="line.59"> * representated by a &lt;code&gt;&amp;lt;member&amp;gt;&lt;/code&gt; element. For example:</a>
-<span class="sourceLineNo">060</span><a id="line.60"> * &lt;/p&gt;</a>
-<span class="sourceLineNo">061</span><a id="line.61"> * &lt;blockquote&gt;&lt;code&gt;</a>
-<span class="sourceLineNo">062</span><a id="line.62"> * &amp;lt;groups&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">063</span><a id="line.63"> * &amp;nbsp;&amp;nbsp;&amp;lt;group name="TV" created="Jun 20, 2006 2:50:54 PM" lastModified="Jan 21, 2006 2:50:54 PM"&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">064</span><a id="line.64"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Archie Bunker" /&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">065</span><a id="line.65"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="BullwinkleMoose" /&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">066</span><a id="line.66"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Fred Friendly" /&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">067</span><a id="line.67"> * &amp;nbsp;&amp;nbsp;&amp;lt;/group&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">068</span><a id="line.68"> * &amp;nbsp;&amp;nbsp;&amp;lt;group name="Literature" created="Jun 22, 2006 2:50:54 PM" lastModified="Jan 23, 2006 2:50:54 PM"&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">069</span><a id="line.69"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Charles Dickens" /&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">070</span><a id="line.70"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Homer" /&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">071</span><a id="line.71"> * &amp;nbsp;&amp;nbsp;&amp;lt;/group&amp;gt;&lt;br/&gt;</a>
-<span class="sourceLineNo">072</span><a id="line.72"> * &amp;lt;/groups&amp;gt;</a>
-<span class="sourceLineNo">073</span><a id="line.73"> * &lt;/code&gt;&lt;/blockquote&gt;</a>
-<span class="sourceLineNo">074</span><a id="line.74"> * @since 2.4.17</a>
-<span class="sourceLineNo">075</span><a id="line.75"> */</a>
-<span class="sourceLineNo">076</span><a id="line.76">public class XMLGroupDatabase implements GroupDatabase {</a>
-<span class="sourceLineNo">077</span><a id="line.77"></a>
-<span class="sourceLineNo">078</span><a id="line.78">    private static final Logger log              = Logger.getLogger( XMLGroupDatabase.class );</a>
-<span class="sourceLineNo">079</span><a id="line.79"></a>
-<span class="sourceLineNo">080</span><a id="line.80">    /** The jspwiki.properties property specifying the file system location of the group database. */</a>
-<span class="sourceLineNo">081</span><a id="line.81">    public static final String    PROP_DATABASE    = "jspwiki.xmlGroupDatabaseFile";</a>
-<span class="sourceLineNo">082</span><a id="line.82"></a>
-<span class="sourceLineNo">083</span><a id="line.83">    private static final String   DEFAULT_DATABASE = "groupdatabase.xml";</a>
-<span class="sourceLineNo">084</span><a id="line.84"></a>
-<span class="sourceLineNo">085</span><a id="line.85">    private static final String   CREATED          = "created";</a>
-<span class="sourceLineNo">086</span><a id="line.86"></a>
-<span class="sourceLineNo">087</span><a id="line.87">    private static final String   CREATOR          = "creator";</a>
-<span class="sourceLineNo">088</span><a id="line.88"></a>
-<span class="sourceLineNo">089</span><a id="line.89">    private static final String   GROUP_TAG        = "group";</a>
-<span class="sourceLineNo">090</span><a id="line.90"></a>
-<span class="sourceLineNo">091</span><a id="line.91">    private static final String   GROUP_NAME       = "name";</a>
-<span class="sourceLineNo">092</span><a id="line.92"></a>
-<span class="sourceLineNo">093</span><a id="line.93">    private static final String   LAST_MODIFIED    = "lastModified";</a>
-<span class="sourceLineNo">094</span><a id="line.94"></a>
-<span class="sourceLineNo">095</span><a id="line.95">    private static final String   MODIFIER         = "modifier";</a>
-<span class="sourceLineNo">096</span><a id="line.96"></a>
-<span class="sourceLineNo">097</span><a id="line.97">    private static final String   MEMBER_TAG       = "member";</a>
-<span class="sourceLineNo">098</span><a id="line.98"></a>
-<span class="sourceLineNo">099</span><a id="line.99">    private static final String   PRINCIPAL        = "principal";</a>
-<span class="sourceLineNo">100</span><a id="line.100"></a>
-<span class="sourceLineNo">101</span><a id="line.101">    private static final String  DATE_FORMAT       = "yyyy.MM.dd 'at' HH:mm:ss:SSS z";</a>
-<span class="sourceLineNo">102</span><a id="line.102"></a>
-<span class="sourceLineNo">103</span><a id="line.103">    private Document              m_dom;</a>
-<span class="sourceLineNo">104</span><a id="line.104"></a>
-<span class="sourceLineNo">105</span><a id="line.105">    private final DateFormat            m_defaultFormat  = DateFormat.getDateTimeInstance();</a>
-<span class="sourceLineNo">106</span><a id="line.106"></a>
-<span class="sourceLineNo">107</span><a id="line.107">    private File                  m_file;</a>
-<span class="sourceLineNo">108</span><a id="line.108"></a>
-<span class="sourceLineNo">109</span><a id="line.109">    private Engine                m_engine;</a>
-<span class="sourceLineNo">110</span><a id="line.110"></a>
-<span class="sourceLineNo">111</span><a id="line.111">    private final Map&lt;String, Group&gt;    m_groups         = new ConcurrentHashMap&lt;&gt;();</a>
-<span class="sourceLineNo">112</span><a id="line.112"></a>
-<span class="sourceLineNo">113</span><a id="line.113">    /**</a>
-<span class="sourceLineNo">114</span><a id="line.114">      * Looks up and deletes a {@link Group} from the group database. If the</a>
-<span class="sourceLineNo">115</span><a id="line.115">     * group database does not contain the supplied Group. this method throws a</a>
-<span class="sourceLineNo">116</span><a id="line.116">     * {@link NoSuchPrincipalException}. The method commits the results</a>
-<span class="sourceLineNo">117</span><a id="line.117">     * of the delete to persistent storage.</a>
-<span class="sourceLineNo">118</span><a id="line.118">     * @param group the group to remove</a>
-<span class="sourceLineNo">119</span><a id="line.119">    * @throws WikiSecurityException if the database does not contain the</a>
-<span class="sourceLineNo">120</span><a id="line.120">     * supplied group (thrown as {@link NoSuchPrincipalException}) or if</a>
-<span class="sourceLineNo">121</span><a id="line.121">     * the commit did not succeed</a>
-<span class="sourceLineNo">122</span><a id="line.122">     */</a>
-<span class="sourceLineNo">123</span><a id="line.123">    @Override</a>
-<span class="sourceLineNo">124</span><a id="line.124">    public void delete( final Group group ) throws WikiSecurityException</a>
-<span class="sourceLineNo">125</span><a id="line.125">    {</a>
-<span class="sourceLineNo">126</span><a id="line.126">        final String index = group.getName();</a>
-<span class="sourceLineNo">127</span><a id="line.127">        final boolean exists = m_groups.containsKey( index );</a>
-<span class="sourceLineNo">128</span><a id="line.128"></a>
-<span class="sourceLineNo">129</span><a id="line.129">        if ( !exists )</a>
-<span class="sourceLineNo">130</span><a id="line.130">        {</a>
-<span class="sourceLineNo">131</span><a id="line.131">            throw new NoSuchPrincipalException( "Not in database: " + group.getName() );</a>
-<span class="sourceLineNo">132</span><a id="line.132">        }</a>
-<span class="sourceLineNo">133</span><a id="line.133"></a>
-<span class="sourceLineNo">134</span><a id="line.134">        m_groups.remove( index );</a>
-<span class="sourceLineNo">135</span><a id="line.135"></a>
-<span class="sourceLineNo">136</span><a id="line.136">        // Commit to disk</a>
-<span class="sourceLineNo">137</span><a id="line.137">        saveDOM();</a>
-<span class="sourceLineNo">138</span><a id="line.138">    }</a>
-<span class="sourceLineNo">139</span><a id="line.139"></a>
-<span class="sourceLineNo">140</span><a id="line.140">    /**</a>
-<span class="sourceLineNo">141</span><a id="line.141">     * Returns all wiki groups that are stored in the GroupDatabase as an array</a>
-<span class="sourceLineNo">142</span><a id="line.142">     * of Group objects. If the database does not contain any groups, this</a>
-<span class="sourceLineNo">143</span><a id="line.143">     * method will return a zero-length array. This method causes back-end</a>
-<span class="sourceLineNo">144</span><a id="line.144">     * storage to load the entire set of group; thus, it should be called</a>
-<span class="sourceLineNo">145</span><a id="line.145">     * infrequently (e.g., at initialization time).</a>
-<span class="sourceLineNo">146</span><a id="line.146">     * @return the wiki groups</a>
-<span class="sourceLineNo">147</span><a id="line.147">     * @throws WikiSecurityException if the groups cannot be returned by the back-end</a>
-<span class="sourceLineNo">148</span><a id="line.148">     */</a>
-<span class="sourceLineNo">149</span><a id="line.149">    @Override</a>
-<span class="sourceLineNo">150</span><a id="line.150">    public Group[] groups() throws WikiSecurityException</a>
-<span class="sourceLineNo">151</span><a id="line.151">    {</a>
-<span class="sourceLineNo">152</span><a id="line.152">        buildDOM();</a>
-<span class="sourceLineNo">153</span><a id="line.153">        final Collection&lt;Group&gt; groups = m_groups.values();</a>
-<span class="sourceLineNo">154</span><a id="line.154">        return groups.toArray( new Group[0] );</a>
-<span class="sourceLineNo">155</span><a id="line.155">    }</a>
-<span class="sourceLineNo">156</span><a id="line.156"></a>
-<span class="sourceLineNo">157</span><a id="line.157">    /**</a>
-<span class="sourceLineNo">158</span><a id="line.158">     * Initializes the group database based on values from a Properties object.</a>
-<span class="sourceLineNo">159</span><a id="line.159">     * The properties object must contain a file path to the XML database file</a>
-<span class="sourceLineNo">160</span><a id="line.160">     * whose key is {@link #PROP_DATABASE}.</a>
-<span class="sourceLineNo">161</span><a id="line.161">     * @param engine the wiki engine</a>
-<span class="sourceLineNo">162</span><a id="line.162">     * @param props the properties used to initialize the group database</a>
-<span class="sourceLineNo">163</span><a id="line.163">     * @throws NoRequiredPropertyException if the user database cannot be</a>
-<span class="sourceLineNo">164</span><a id="line.164">     *             located, parsed, or opened</a>
-<span class="sourceLineNo">165</span><a id="line.165">     * @throws WikiSecurityException if the database could not be initialized successfully</a>
-<span class="sourceLineNo">166</span><a id="line.166">     */</a>
-<span class="sourceLineNo">167</span><a id="line.167">    @Override</a>
-<span class="sourceLineNo">168</span><a id="line.168">    public void initialize( final Engine engine, final Properties props ) throws NoRequiredPropertyException, WikiSecurityException</a>
-<span class="sourceLineNo">169</span><a id="line.169">    {</a>
-<span class="sourceLineNo">170</span><a id="line.170">        m_engine = engine;</a>
-<span class="sourceLineNo">171</span><a id="line.171"></a>
-<span class="sourceLineNo">172</span><a id="line.172">        File defaultFile = null;</a>
-<span class="sourceLineNo">173</span><a id="line.173">        if ( engine.getRootPath() == null )</a>
-<span class="sourceLineNo">174</span><a id="line.174">        {</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">/**</a>
+<span class="sourceLineNo">056</span><a id="line.56"> * &lt;p&gt;</a>
+<span class="sourceLineNo">057</span><a id="line.57"> * GroupDatabase implementation for loading, persisting and storing wiki groups,</a>
+<span class="sourceLineNo">058</span><a id="line.58"> * using an XML file for persistence. Group entries are simple</a>
+<span class="sourceLineNo">059</span><a id="line.59"> * &lt;code&gt;&amp;lt;group&amp;gt;&lt;/code&gt; elements under the root. Each group member is</a>
+<span class="sourceLineNo">060</span><a id="line.60"> * representated by a &lt;code&gt;&amp;lt;member&amp;gt;&lt;/code&gt; element. For example:</a>
+<span class="sourceLineNo">061</span><a id="line.61"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">062</span><a id="line.62"> * &lt;blockquote&gt;&lt;code&gt;</a>
+<span class="sourceLineNo">063</span><a id="line.63"> * &amp;lt;groups&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">064</span><a id="line.64"> * &amp;nbsp;&amp;nbsp;&amp;lt;group name="TV" created="Jun 20, 2006 2:50:54 PM" lastModified="Jan 21, 2006 2:50:54 PM"&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">065</span><a id="line.65"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Archie Bunker" /&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">066</span><a id="line.66"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="BullwinkleMoose" /&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">067</span><a id="line.67"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Fred Friendly" /&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">068</span><a id="line.68"> * &amp;nbsp;&amp;nbsp;&amp;lt;/group&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">069</span><a id="line.69"> * &amp;nbsp;&amp;nbsp;&amp;lt;group name="Literature" created="Jun 22, 2006 2:50:54 PM" lastModified="Jan 23, 2006 2:50:54 PM"&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">070</span><a id="line.70"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Charles Dickens" /&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">071</span><a id="line.71"> * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;member principal="Homer" /&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">072</span><a id="line.72"> * &amp;nbsp;&amp;nbsp;&amp;lt;/group&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">073</span><a id="line.73"> * &amp;lt;/groups&amp;gt;</a>
+<span class="sourceLineNo">074</span><a id="line.74"> * &lt;/code&gt;&lt;/blockquote&gt;</a>
+<span class="sourceLineNo">075</span><a id="line.75"> * @since 2.4.17</a>
+<span class="sourceLineNo">076</span><a id="line.76"> */</a>
+<span class="sourceLineNo">077</span><a id="line.77">public class XMLGroupDatabase implements GroupDatabase {</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    private static final Logger log = LogManager.getLogger( XMLGroupDatabase.class );</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">    /** The jspwiki.properties property specifying the file system location of the group database. */</a>
+<span class="sourceLineNo">082</span><a id="line.82">    public static final String    PROP_DATABASE    = "jspwiki.xmlGroupDatabaseFile";</a>
+<span class="sourceLineNo">083</span><a id="line.83"></a>
+<span class="sourceLineNo">084</span><a id="line.84">    private static final String   DEFAULT_DATABASE = "groupdatabase.xml";</a>
+<span class="sourceLineNo">085</span><a id="line.85"></a>
+<span class="sourceLineNo">086</span><a id="line.86">    private static final String   CREATED          = "created";</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    private static final String   CREATOR          = "creator";</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">    private static final String   GROUP_TAG        = "group";</a>
+<span class="sourceLineNo">091</span><a id="line.91"></a>
+<span class="sourceLineNo">092</span><a id="line.92">    private static final String   GROUP_NAME       = "name";</a>
+<span class="sourceLineNo">093</span><a id="line.93"></a>
+<span class="sourceLineNo">094</span><a id="line.94">    private static final String   LAST_MODIFIED    = "lastModified";</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">    private static final String   MODIFIER         = "modifier";</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">    private static final String   MEMBER_TAG       = "member";</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">    private static final String   PRINCIPAL        = "principal";</a>
+<span class="sourceLineNo">101</span><a id="line.101"></a>
+<span class="sourceLineNo">102</span><a id="line.102">    private static final String  DATE_FORMAT       = "yyyy.MM.dd 'at' HH:mm:ss:SSS z";</a>
+<span class="sourceLineNo">103</span><a id="line.103"></a>
+<span class="sourceLineNo">104</span><a id="line.104">    private Document              m_dom;</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">    private final DateFormat            m_defaultFormat  = DateFormat.getDateTimeInstance();</a>
+<span class="sourceLineNo">107</span><a id="line.107"></a>
+<span class="sourceLineNo">108</span><a id="line.108">    private File                  m_file;</a>
+<span class="sourceLineNo">109</span><a id="line.109"></a>
+<span class="sourceLineNo">110</span><a id="line.110">    private Engine                m_engine;</a>
+<span class="sourceLineNo">111</span><a id="line.111"></a>
+<span class="sourceLineNo">112</span><a id="line.112">    private final Map&lt;String, Group&gt;    m_groups         = new ConcurrentHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">113</span><a id="line.113"></a>
+<span class="sourceLineNo">114</span><a id="line.114">    /**</a>
+<span class="sourceLineNo">115</span><a id="line.115">      * Looks up and deletes a {@link Group} from the group database. If the</a>
+<span class="sourceLineNo">116</span><a id="line.116">     * group database does not contain the supplied Group. this method throws a</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * {@link NoSuchPrincipalException}. The method commits the results</a>
+<span class="sourceLineNo">118</span><a id="line.118">     * of the delete to persistent storage.</a>
+<span class="sourceLineNo">119</span><a id="line.119">     * @param group the group to remove</a>
+<span class="sourceLineNo">120</span><a id="line.120">    * @throws WikiSecurityException if the database does not contain the</a>
+<span class="sourceLineNo">121</span><a id="line.121">     * supplied group (thrown as {@link NoSuchPrincipalException}) or if</a>
+<span class="sourceLineNo">122</span><a id="line.122">     * the commit did not succeed</a>
+<span class="sourceLineNo">123</span><a id="line.123">     */</a>
+<span class="sourceLineNo">124</span><a id="line.124">    @Override</a>
+<span class="sourceLineNo">125</span><a id="line.125">    public void delete( final Group group ) throws WikiSecurityException</a>
+<span class="sourceLineNo">126</span><a id="line.126">    {</a>
+<span class="sourceLineNo">127</span><a id="line.127">        final String index = group.getName();</a>
+<span class="sourceLineNo">128</span><a id="line.128">        final boolean exists = m_groups.containsKey( index );</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">        if ( !exists )</a>
+<span class="sourceLineNo">131</span><a id="line.131">        {</a>
+<span class="sourceLineNo">132</span><a id="line.132">            throw new NoSuchPrincipalException( "Not in database: " + group.getName() );</a>
+<span class="sourceLineNo">133</span><a id="line.133">        }</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">        m_groups.remove( index );</a>
+<span class="sourceLineNo">136</span><a id="line.136"></a>
+<span class="sourceLineNo">137</span><a id="line.137">        // Commit to disk</a>
+<span class="sourceLineNo">138</span><a id="line.138">        saveDOM();</a>
+<span class="sourceLineNo">139</span><a id="line.139">    }</a>
+<span class="sourceLineNo">140</span><a id="line.140"></a>
+<span class="sourceLineNo">141</span><a id="line.141">    /**</a>
+<span class="sourceLineNo">142</span><a id="line.142">     * Returns all wiki groups that are stored in the GroupDatabase as an array</a>
+<span class="sourceLineNo">143</span><a id="line.143">     * of Group objects. If the database does not contain any groups, this</a>
+<span class="sourceLineNo">144</span><a id="line.144">     * method will return a zero-length array. This method causes back-end</a>
+<span class="sourceLineNo">145</span><a id="line.145">     * storage to load the entire set of group; thus, it should be called</a>
+<span class="sourceLineNo">146</span><a id="line.146">     * infrequently (e.g., at initialization time).</a>
+<span class="sourceLineNo">147</span><a id="line.147">     * @return the wiki groups</a>
+<span class="sourceLineNo">148</span><a id="line.148">     * @throws WikiSecurityException if the groups cannot be returned by the back-end</a>
+<span class="sourceLineNo">149</span><a id="line.149">     */</a>
+<span class="sourceLineNo">150</span><a id="line.150">    @Override</a>
+<span class="sourceLineNo">151</span><a id="line.151">    public Group[] groups() throws WikiSecurityException</a>
+<span class="sourceLineNo">152</span><a id="line.152">    {</a>
+<span class="sourceLineNo">153</span><a id="line.153">        buildDOM();</a>
+<span class="sourceLineNo">154</span><a id="line.154">        final Collection&lt;Group&gt; groups = m_groups.values();</a>
+<span class="sourceLineNo">155</span><a id="line.155">        return groups.toArray( new Group[0] );</a>
+<span class="sourceLineNo">156</span><a id="line.156">    }</a>
+<span class="sourceLineNo">157</span><a id="line.157"></a>
+<span class="sourceLineNo">158</span><a id="line.158">    /**</a>
+<span class="sourceLineNo">159</span><a id="line.159">     * Initializes the group database based on values from a Properties object.</a>
+<span class="sourceLineNo">160</span><a id="line.160">     * The properties object must contain a file path to the XML database file</a>
+<span class="sourceLineNo">161</span><a id="line.161">     * whose key is {@link #PROP_DATABASE}.</a>
+<span class="sourceLineNo">162</span><a id="line.162">     * @param engine the wiki engine</a>
+<span class="sourceLineNo">163</span><a id="line.163">     * @param props the properties used to initialize the group database</a>
+<span class="sourceLineNo">164</span><a id="line.164">     * @throws NoRequiredPropertyException if the user database cannot be</a>
+<span class="sourceLineNo">165</span><a id="line.165">     *             located, parsed, or opened</a>
+<span class="sourceLineNo">166</span><a id="line.166">     * @throws WikiSecurityException if the database could not be initialized successfully</a>
+<span class="sourceLineNo">167</span><a id="line.167">     */</a>
+<span class="sourceLineNo">168</span><a id="line.168">    @Override</a>
+<span class="sourceLineNo">169</span><a id="line.169">    public void initialize( final Engine engine, final Properties props ) throws NoRequiredPropertyException, WikiSecurityException</a>
+<span class="sourceLineNo">170</span><a id="line.170">    {</a>
+<span class="sourceLineNo">171</span><a id="line.171">        m_engine = engine;</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">        final File defaultFile;</a>
+<span class="sourceLineNo">174</span><a id="line.174">        if ( engine.getRootPath() == null ) {</a>
 <span class="sourceLineNo">175</span><a id="line.175">            log.warn( "Cannot identify JSPWiki root path" );</a>
 <span class="sourceLineNo">176</span><a id="line.176">            defaultFile = new File( "WEB-INF/" + DEFAULT_DATABASE ).getAbsoluteFile();</a>
-<span class="sourceLineNo">177</span><a id="line.177">        }</a>
-<span class="sourceLineNo">178</span><a id="line.178">        else</a>
-<span class="sourceLineNo">179</span><a id="line.179">        {</a>
-<span class="sourceLineNo">180</span><a id="line.180">            defaultFile = new File( engine.getRootPath() + "/WEB-INF/" + DEFAULT_DATABASE );</a>
-<span class="sourceLineNo">181</span><a id="line.181">        }</a>
-<span class="sourceLineNo">182</span><a id="line.182"></a>
-<span class="sourceLineNo">183</span><a id="line.183">        // Get database file location</a>
-<span class="sourceLineNo">184</span><a id="line.184">        final String file = TextUtil.getStringProperty(props, PROP_DATABASE , defaultFile.getAbsolutePath());</a>
-<span class="sourceLineNo">185</span><a id="line.185">        if ( file == null )</a>
-<span class="sourceLineNo">186</span><a id="line.186">        {</a>
-<span class="sourceLineNo">187</span><a id="line.187">            log.warn( "XML group database property " + PROP_DATABASE + " not found; trying " + defaultFile );</a>
-<span class="sourceLineNo">188</span><a id="line.188">            m_file = defaultFile;</a>
-<span class="sourceLineNo">189</span><a id="line.189">        }</a>
-<span class="sourceLineNo">190</span><a id="line.190">        else</a>
-<span class="sourceLineNo">191</span><a id="line.191">        {</a>
-<span class="sourceLineNo">192</span><a id="line.192">            m_file = new File( file );</a>
-<span class="sourceLineNo">193</span><a id="line.193">        }</a>
-<span class="sourceLineNo">194</span><a id="line.194"></a>
-<span class="sourceLineNo">195</span><a id="line.195">        log.info( "XML group database at " + m_file.getAbsolutePath() );</a>
-<span class="sourceLineNo">196</span><a id="line.196"></a>
-<span class="sourceLineNo">197</span><a id="line.197">        // Read DOM</a>
-<span class="sourceLineNo">198</span><a id="line.198">        buildDOM();</a>
-<span class="sourceLineNo">199</span><a id="line.199">    }</a>
-<span class="sourceLineNo">200</span><a id="line.200"></a>
-<span class="sourceLineNo">201</span><a id="line.201">    /**</a>
-<span class="sourceLineNo">202</span><a id="line.202">     * Saves a Group to the group database. Note that this method &lt;em&gt;must&lt;/em&gt;</a>
-<span class="sourceLineNo">203</span><a id="line.203">     * fail, and throw an &lt;code&gt;IllegalArgumentException&lt;/code&gt;, if the</a>
-<span class="sourceLineNo">204</span><a id="line.204">     * proposed group is the same name as one of the built-in Roles: e.g.,</a>
-<span class="sourceLineNo">205</span><a id="line.205">     * Admin, Authenticated, etc. The database is responsible for setting</a>
-<span class="sourceLineNo">206</span><a id="line.206">     * create/modify timestamps, upon a successful save, to the Group.</a>
-<span class="sourceLineNo">207</span><a id="line.207">     * The method commits the results of the delete to persistent storage.</a>
-<span class="sourceLineNo">208</span><a id="line.208">     * @param group the Group to save</a>
-<span class="sourceLineNo">209</span><a id="line.209">     * @param modifier the user who saved the Group</a>
-<span class="sourceLineNo">210</span><a id="line.210">     * @throws WikiSecurityException if the Group could not be saved successfully</a>
-<span class="sourceLineNo">211</span><a id="line.211">     */</a>
-<span class="sourceLineNo">212</span><a id="line.212">    @Override</a>
-<span class="sourceLineNo">213</span><a id="line.213">    public void save( final Group group, final Principal modifier ) throws WikiSecurityException {</a>
-<span class="sourceLineNo">214</span><a id="line.214">        if ( group == null || modifier == null ) {</a>
-<span class="sourceLineNo">215</span><a id="line.215">            throw new IllegalArgumentException( "Group or modifier cannot be null." );</a>
-<span class="sourceLineNo">216</span><a id="line.216">        }</a>
-<span class="sourceLineNo">217</span><a id="line.217"></a>
-<span class="sourceLineNo">218</span><a id="line.218">        checkForRefresh();</a>
-<span class="sourceLineNo">219</span><a id="line.219"></a>
-<span class="sourceLineNo">220</span><a id="line.220">        final String index = group.getName();</a>
-<span class="sourceLineNo">221</span><a id="line.221">        final boolean isNew = !( m_groups.containsKey( index ) );</a>
-<span class="sourceLineNo">222</span><a id="line.222">        final Date modDate = new Date( System.currentTimeMillis() );</a>
-<span class="sourceLineNo">223</span><a id="line.223">        if ( isNew )</a>
-<span class="sourceLineNo">224</span><a id="line.224">        {</a>
-<span class="sourceLineNo">225</span><a id="line.225">            // If new, set created info</a>
-<span class="sourceLineNo">226</span><a id="line.226">            group.setCreated( modDate );</a>
-<span class="sourceLineNo">227</span><a id="line.227">            group.setCreator( modifier.getName() );</a>
-<span class="sourceLineNo">228</span><a id="line.228">        }</a>
-<span class="sourceLineNo">229</span><a id="line.229">        group.setModifier( modifier.getName() );</a>
-<span class="sourceLineNo">230</span><a id="line.230">        group.setLastModified( modDate );</a>
-<span class="sourceLineNo">231</span><a id="line.231"></a>
-<span class="sourceLineNo">232</span><a id="line.232">        // Add the group to the 'saved' list</a>
-<span class="sourceLineNo">233</span><a id="line.233">        m_groups.put( index, group );</a>
-<span class="sourceLineNo">234</span><a id="line.234"></a>
-<span class="sourceLineNo">235</span><a id="line.235">        // Commit to disk</a>
-<span class="sourceLineNo">236</span><a id="line.236">        saveDOM();</a>
-<span class="sourceLineNo">237</span><a id="line.237">    }</a>
-<span class="sourceLineNo">238</span><a id="line.238"></a>
-<span class="sourceLineNo">239</span><a id="line.239">    private void buildDOM() {</a>
-<span class="sourceLineNo">240</span><a id="line.240">        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();</a>
-<span class="sourceLineNo">241</span><a id="line.241">        factory.setValidating( false );</a>
-<span class="sourceLineNo">242</span><a id="line.242">        factory.setExpandEntityReferences( false );</a>
-<span class="sourceLineNo">243</span><a id="line.243">        factory.setIgnoringComments( true );</a>
-<span class="sourceLineNo">244</span><a id="line.244">        factory.setNamespaceAware( false );</a>
-<span class="sourceLineNo">245</span><a id="line.245">        try {</a>
-<span class="sourceLineNo">246</span><a id="line.246">            m_dom = factory.newDocumentBuilder().parse( m_file );</a>
-<span class="sourceLineNo">247</span><a id="line.247">            log.debug( "Database successfully initialized" );</a>
-<span class="sourceLineNo">248</span><a id="line.248">            m_lastModified = m_file.lastModified();</a>
-<span class="sourceLineNo">249</span><a id="line.249">            m_lastCheck    = System.currentTimeMillis();</a>
-<span class="sourceLineNo">250</span><a id="line.250">        } catch( final ParserConfigurationException e ) {</a>
-<span class="sourceLineNo">251</span><a id="line.251">            log.error( "Configuration error: " + e.getMessage() );</a>
-<span class="sourceLineNo">252</span><a id="line.252">        } catch( final SAXException e ) {</a>
-<span class="sourceLineNo">253</span><a id="line.253">            log.error( "SAX error: " + e.getMessage() );</a>
-<span class="sourceLineNo">254</span><a id="line.254">        } catch( final FileNotFoundException e ) {</a>
-<span class="sourceLineNo">255</span><a id="line.255">            log.info( "Group database not found; creating from scratch..." );</a>
-<span class="sourceLineNo">256</span><a id="line.256">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">257</span><a id="line.257">            log.error( "IO error: " + e.getMessage() );</a>
-<span class="sourceLineNo">258</span><a id="line.258">        }</a>
-<span class="sourceLineNo">259</span><a id="line.259">        if ( m_dom == null ) {</a>
-<span class="sourceLineNo">260</span><a id="line.260">            try {</a>
-<span class="sourceLineNo">261</span><a id="line.261">                //</a>
-<span class="sourceLineNo">262</span><a id="line.262">                // Create the DOM from scratch</a>
-<span class="sourceLineNo">263</span><a id="line.263">                //</a>
-<span class="sourceLineNo">264</span><a id="line.264">                m_dom = factory.newDocumentBuilder().newDocument();</a>
-<span class="sourceLineNo">265</span><a id="line.265">                m_dom.appendChild( m_dom.createElement( "groups" ) );</a>
-<span class="sourceLineNo">266</span><a id="line.266">            } catch( final ParserConfigurationException e ) {</a>
-<span class="sourceLineNo">267</span><a id="line.267">                log.fatal( "Could not create in-memory DOM" );</a>
-<span class="sourceLineNo">268</span><a id="line.268">            }</a>
-<span class="sourceLineNo">269</span><a id="line.269">        }</a>
-<span class="sourceLineNo">270</span><a id="line.270"></a>
-<span class="sourceLineNo">271</span><a id="line.271">        // Ok, now go and read this sucker in</a>
-<span class="sourceLineNo">272</span><a id="line.272">        if ( m_dom != null ) {</a>
-<span class="sourceLineNo">273</span><a id="line.273">            final NodeList groupNodes = m_dom.getElementsByTagName( GROUP_TAG );</a>
-<span class="sourceLineNo">274</span><a id="line.274">            for( int i = 0; i &lt; groupNodes.getLength(); i++ ) {</a>
-<span class="sourceLineNo">275</span><a id="line.275">                final Element groupNode = (Element) groupNodes.item( i );</a>
-<span class="sourceLineNo">276</span><a id="line.276">                final String groupName = groupNode.getAttribute( GROUP_NAME );</a>
-<span class="sourceLineNo">277</span><a id="line.277">                if ( groupName == null ) {</a>
-<span class="sourceLineNo">278</span><a id="line.278">                    log.warn( "Detected null group name in XMLGroupDataBase. Check your group database." );</a>
+<span class="sourceLineNo">177</span><a id="line.177">        } else {</a>
+<span class="sourceLineNo">178</span><a id="line.178">            defaultFile = new File( engine.getRootPath() + "/WEB-INF/" + DEFAULT_DATABASE );</a>
+<span class="sourceLineNo">179</span><a id="line.179">        }</a>
+<span class="sourceLineNo">180</span><a id="line.180"></a>
+<span class="sourceLineNo">181</span><a id="line.181">        // Get database file location</a>
+<span class="sourceLineNo">182</span><a id="line.182">        final String file = TextUtil.getStringProperty(props, PROP_DATABASE , defaultFile.getAbsolutePath());</a>
+<span class="sourceLineNo">183</span><a id="line.183">        if ( file == null ) {</a>
+<span class="sourceLineNo">184</span><a id="line.184">            log.warn( "XML group database property " + PROP_DATABASE + " not found; trying " + defaultFile );</a>
+<span class="sourceLineNo">185</span><a id="line.185">            m_file = defaultFile;</a>
+<span class="sourceLineNo">186</span><a id="line.186">        } else {</a>
+<span class="sourceLineNo">187</span><a id="line.187">            m_file = new File( file );</a>
+<span class="sourceLineNo">188</span><a id="line.188">        }</a>
+<span class="sourceLineNo">189</span><a id="line.189"></a>
+<span class="sourceLineNo">190</span><a id="line.190">        log.info( "XML group database at " + m_file.getAbsolutePath() );</a>
+<span class="sourceLineNo">191</span><a id="line.191"></a>
+<span class="sourceLineNo">192</span><a id="line.192">        // Read DOM</a>
+<span class="sourceLineNo">193</span><a id="line.193">        buildDOM();</a>
+<span class="sourceLineNo">194</span><a id="line.194">    }</a>
+<span class="sourceLineNo">195</span><a id="line.195"></a>
+<span class="sourceLineNo">196</span><a id="line.196">    /**</a>
+<span class="sourceLineNo">197</span><a id="line.197">     * Saves a Group to the group database. Note that this method &lt;em&gt;must&lt;/em&gt;</a>
+<span class="sourceLineNo">198</span><a id="line.198">     * fail, and throw an &lt;code&gt;IllegalArgumentException&lt;/code&gt;, if the</a>
+<span class="sourceLineNo">199</span><a id="line.199">     * proposed group is the same name as one of the built-in Roles: e.g.,</a>
+<span class="sourceLineNo">200</span><a id="line.200">     * Admin, Authenticated, etc. The database is responsible for setting</a>
+<span class="sourceLineNo">201</span><a id="line.201">     * create/modify timestamps, upon a successful save, to the Group.</a>
+<span class="sourceLineNo">202</span><a id="line.202">     * The method commits the results of the delete to persistent storage.</a>
+<span class="sourceLineNo">203</span><a id="line.203">     * @param group the Group to save</a>
+<span class="sourceLineNo">204</span><a id="line.204">     * @param modifier the user who saved the Group</a>
+<span class="sourceLineNo">205</span><a id="line.205">     * @throws WikiSecurityException if the Group could not be saved successfully</a>
+<span class="sourceLineNo">206</span><a id="line.206">     */</a>
+<span class="sourceLineNo">207</span><a id="line.207">    @Override</a>
+<span class="sourceLineNo">208</span><a id="line.208">    public void save( final Group group, final Principal modifier ) throws WikiSecurityException {</a>
+<span class="sourceLineNo">209</span><a id="line.209">        if ( group == null || modifier == null ) {</a>
+<span class="sourceLineNo">210</span><a id="line.210">            throw new IllegalArgumentException( "Group or modifier cannot be null." );</a>
+<span class="sourceLineNo">211</span><a id="line.211">        }</a>
+<span class="sourceLineNo">212</span><a id="line.212"></a>
+<span class="sourceLineNo">213</span><a id="line.213">        checkForRefresh();</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">        final String index = group.getName();</a>
+<span class="sourceLineNo">216</span><a id="line.216">        final boolean isNew = !( m_groups.containsKey( index ) );</a>
+<span class="sourceLineNo">217</span><a id="line.217">        final Date modDate = new Date( System.currentTimeMillis() );</a>
+<span class="sourceLineNo">218</span><a id="line.218">        if ( isNew )</a>
+<span class="sourceLineNo">219</span><a id="line.219">        {</a>
+<span class="sourceLineNo">220</span><a id="line.220">            // If new, set created info</a>
+<span class="sourceLineNo">221</span><a id="line.221">            group.setCreated( modDate );</a>
+<span class="sourceLineNo">222</span><a id="line.222">            group.setCreator( modifier.getName() );</a>
+<span class="sourceLineNo">223</span><a id="line.223">        }</a>
+<span class="sourceLineNo">224</span><a id="line.224">        group.setModifier( modifier.getName() );</a>
+<span class="sourceLineNo">225</span><a id="line.225">        group.setLastModified( modDate );</a>
+<span class="sourceLineNo">226</span><a id="line.226"></a>
+<span class="sourceLineNo">227</span><a id="line.227">        // Add the group to the 'saved' list</a>
+<span class="sourceLineNo">228</span><a id="line.228">        m_groups.put( index, group );</a>
+<span class="sourceLineNo">229</span><a id="line.229"></a>
+<span class="sourceLineNo">230</span><a id="line.230">        // Commit to disk</a>
+<span class="sourceLineNo">231</span><a id="line.231">        saveDOM();</a>
+<span class="sourceLineNo">232</span><a id="line.232">    }</a>
+<span class="sourceLineNo">233</span><a id="line.233"></a>
+<span class="sourceLineNo">234</span><a id="line.234">    private void buildDOM() {</a>
+<span class="sourceLineNo">235</span><a id="line.235">        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();</a>
+<span class="sourceLineNo">236</span><a id="line.236">        factory.setValidating( false );</a>
+<span class="sourceLineNo">237</span><a id="line.237">        factory.setExpandEntityReferences( false );</a>
+<span class="sourceLineNo">238</span><a id="line.238">        factory.setIgnoringComments( true );</a>
+<span class="sourceLineNo">239</span><a id="line.239">        factory.setNamespaceAware( false );</a>
+<span class="sourceLineNo">240</span><a id="line.240">        try {</a>
+<span class="sourceLineNo">241</span><a id="line.241">            m_dom = factory.newDocumentBuilder().parse( m_file );</a>
+<span class="sourceLineNo">242</span><a id="line.242">            log.debug( "Database successfully initialized" );</a>
+<span class="sourceLineNo">243</span><a id="line.243">            m_lastModified = m_file.lastModified();</a>
+<span class="sourceLineNo">244</span><a id="line.244">            m_lastCheck    = System.currentTimeMillis();</a>
+<span class="sourceLineNo">245</span><a id="line.245">        } catch( final ParserConfigurationException e ) {</a>
+<span class="sourceLineNo">246</span><a id="line.246">            log.error( "Configuration error: " + e.getMessage() );</a>
+<span class="sourceLineNo">247</span><a id="line.247">        } catch( final SAXException e ) {</a>
+<span class="sourceLineNo">248</span><a id="line.248">            log.error( "SAX error: " + e.getMessage() );</a>
+<span class="sourceLineNo">249</span><a id="line.249">        } catch( final FileNotFoundException e ) {</a>
+<span class="sourceLineNo">250</span><a id="line.250">            log.info( "Group database not found; creating from scratch..." );</a>
+<span class="sourceLineNo">251</span><a id="line.251">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">252</span><a id="line.252">            log.error( "IO error: " + e.getMessage() );</a>
+<span class="sourceLineNo">253</span><a id="line.253">        }</a>
+<span class="sourceLineNo">254</span><a id="line.254">        if ( m_dom == null ) {</a>
+<span class="sourceLineNo">255</span><a id="line.255">            try {</a>
+<span class="sourceLineNo">256</span><a id="line.256">                //</a>
+<span class="sourceLineNo">257</span><a id="line.257">                // Create the DOM from scratch</a>
+<span class="sourceLineNo">258</span><a id="line.258">                //</a>
+<span class="sourceLineNo">259</span><a id="line.259">                m_dom = factory.newDocumentBuilder().newDocument();</a>
+<span class="sourceLineNo">260</span><a id="line.260">                m_dom.appendChild( m_dom.createElement( "groups" ) );</a>
+<span class="sourceLineNo">261</span><a id="line.261">            } catch( final ParserConfigurationException e ) {</a>
+<span class="sourceLineNo">262</span><a id="line.262">                log.fatal( "Could not create in-memory DOM" );</a>
+<span class="sourceLineNo">263</span><a id="line.263">            }</a>
+<span class="sourceLineNo">264</span><a id="line.264">        }</a>
+<span class="sourceLineNo">265</span><a id="line.265"></a>
+<span class="sourceLineNo">266</span><a id="line.266">        // Ok, now go and read this sucker in</a>
+<span class="sourceLineNo">267</span><a id="line.267">        if ( m_dom != null ) {</a>
+<span class="sourceLineNo">268</span><a id="line.268">            final NodeList groupNodes = m_dom.getElementsByTagName( GROUP_TAG );</a>
+<span class="sourceLineNo">269</span><a id="line.269">            for( int i = 0; i &lt; groupNodes.getLength(); i++ ) {</a>
+<span class="sourceLineNo">270</span><a id="line.270">                final Element groupNode = (Element) groupNodes.item( i );</a>
+<span class="sourceLineNo">271</span><a id="line.271">                final String groupName = groupNode.getAttribute( GROUP_NAME );</a>
+<span class="sourceLineNo">272</span><a id="line.272">                if ( groupName == null ) {</a>
+<span class="sourceLineNo">273</span><a id="line.273">                    log.warn( "Detected null group name in XMLGroupDataBase. Check your group database." );</a>
+<span class="sourceLineNo">274</span><a id="line.274">                }</a>
+<span class="sourceLineNo">275</span><a id="line.275">                else</a>
+<span class="sourceLineNo">276</span><a id="line.276">                {</a>
+<span class="sourceLineNo">277</span><a id="line.277">                    final Group group = buildGroup( groupNode, groupName );</a>
+<span class="sourceLineNo">278</span><a id="line.278">                    m_groups.put( groupName, group );</a>
 <span class="sourceLineNo">279</span><a id="line.279">                }</a>
-<span class="sourceLineNo">280</span><a id="line.280">                else</a>
-<span class="sourceLineNo">281</span><a id="line.281">                {</a>
-<span class="sourceLineNo">282</span><a id="line.282">                    final Group group = buildGroup( groupNode, groupName );</a>
-<span class="sourceLineNo">283</span><a id="line.283">                    m_groups.put( groupName, group );</a>
-<span class="sourceLineNo">284</span><a id="line.284">                }</a>
-<span class="sourceLineNo">285</span><a id="line.285">            }</a>
-<span class="sourceLineNo">286</span><a id="line.286">        }</a>
-<span class="sourceLineNo">287</span><a id="line.287">    }</a>
-<span class="sourceLineNo">288</span><a id="line.288"></a>
-<span class="sourceLineNo">289</span><a id="line.289">    private long m_lastCheck;</a>
-<span class="sourceLineNo">290</span><a id="line.290">    private long m_lastModified;</a>
-<span class="sourceLineNo">291</span><a id="line.291"></a>
-<span class="sourceLineNo">292</span><a id="line.292">    private void checkForRefresh() {</a>
-<span class="sourceLineNo">293</span><a id="line.293">        final long time = System.currentTimeMillis();</a>
-<span class="sourceLineNo">294</span><a id="line.294">        if( time - m_lastCheck &gt; 60*1000L ) {</a>
-<span class="sourceLineNo">295</span><a id="line.295">            final long lastModified = m_file.lastModified();</a>
-<span class="sourceLineNo">296</span><a id="line.296">            if( lastModified &gt; m_lastModified ) {</a>
-<span class="sourceLineNo">297</span><a id="line.297">                buildDOM();</a>
-<span class="sourceLineNo">298</span><a id="line.298">            }</a>
-<span class="sourceLineNo">299</span><a id="line.299">        }</a>
-<span class="sourceLineNo">300</span><a id="line.300">    }</a>
-<span class="sourceLineNo">301</span><a id="line.301">    /**</a>
-<span class="sourceLineNo">302</span><a id="line.302">     * Constructs a Group based on a DOM group node.</a>
-<span class="sourceLineNo">303</span><a id="line.303">     * @param groupNode the node in the DOM containing the node</a>
-<span class="sourceLineNo">304</span><a id="line.304">     * @param name the name of the group</a>
-<span class="sourceLineNo">305</span><a id="line.305">     */</a>
-<span class="sourceLineNo">306</span><a id="line.306">    private Group buildGroup( final Element groupNode, final String name ) {</a>
-<span class="sourceLineNo">307</span><a id="line.307">        // It's an error if either param is null (very odd)</a>
-<span class="sourceLineNo">308</span><a id="line.308">        if ( groupNode == null || name == null ) {</a>
-<span class="sourceLineNo">309</span><a id="line.309">            throw new IllegalArgumentException( "DOM element or name cannot be null." );</a>
-<span class="sourceLineNo">310</span><a id="line.310">        }</a>
-<span class="sourceLineNo">311</span><a id="line.311"></a>
-<span class="sourceLineNo">312</span><a id="line.312">        // Construct a new group</a>
-<span class="sourceLineNo">313</span><a id="line.313">        final Group group = new Group( name, m_engine.getApplicationName() );</a>
-<span class="sourceLineNo">314</span><a id="line.314"></a>
-<span class="sourceLineNo">315</span><a id="line.315">        // Get the users for this group, and add them</a>
-<span class="sourceLineNo">316</span><a id="line.316">        final NodeList members = groupNode.getElementsByTagName( MEMBER_TAG );</a>
-<span class="sourceLineNo">317</span><a id="line.317">        for( int i = 0; i &lt; members.getLength(); i++ ) {</a>
-<span class="sourceLineNo">318</span><a id="line.318">            final Element memberNode = (Element) members.item( i );</a>
-<span class="sourceLineNo">319</span><a id="line.319">            final String principalName = memberNode.getAttribute( PRINCIPAL );</a>
-<span class="sourceLineNo">320</span><a id="line.320">            final Principal member = new WikiPrincipal( principalName );</a>
-<span class="sourceLineNo">321</span><a id="line.321">            group.add( member );</a>
-<span class="sourceLineNo">322</span><a id="line.322">        }</a>
-<span class="sourceLineNo">323</span><a id="line.323"></a>
-<span class="sourceLineNo">324</span><a id="line.324">        // Add the created/last-modified info</a>
-<span class="sourceLineNo">325</span><a id="line.325">        final String creator = groupNode.getAttribute( CREATOR );</a>
-<span class="sourceLineNo">326</span><a id="line.326">        final String created = groupNode.getAttribute( CREATED );</a>
-<span class="sourceLineNo">327</span><a id="line.327">        final String modifier = groupNode.getAttribute( MODIFIER );</a>
-<span class="sourceLineNo">328</span><a id="line.328">        final String modified = groupNode.getAttribute( LAST_MODIFIED );</a>
-<span class="sourceLineNo">329</span><a id="line.329">        try {</a>
-<span class="sourceLineNo">330</span><a id="line.330">            group.setCreated( new SimpleDateFormat( DATE_FORMAT ).parse( created ) );</a>
-<span class="sourceLineNo">331</span><a id="line.331">            group.setLastModified( new SimpleDateFormat( DATE_FORMAT ).parse( modified ) );</a>
-<span class="sourceLineNo">332</span><a id="line.332">        } catch ( final ParseException e ) {</a>
-<span class="sourceLineNo">333</span><a id="line.333">            // If parsing failed, use the platform default</a>
-<span class="sourceLineNo">334</span><a id="line.334">            try {</a>
-<span class="sourceLineNo">335</span><a id="line.335">                group.setCreated( m_defaultFormat.parse( created ) );</a>
-<span class="sourceLineNo">336</span><a id="line.336">                group.setLastModified( m_defaultFormat.parse( modified ) );</a>
-<span class="sourceLineNo">337</span><a id="line.337">            } catch ( final ParseException e2 ) {</a>
-<span class="sourceLineNo">338</span><a id="line.338">                log.warn( "Could not parse 'created' or 'lastModified' " + "attribute for " + " group'"</a>
-<span class="sourceLineNo">339</span><a id="line.339">                          + group.getName() + "'." + " It may have been tampered with." );</a>
-<span class="sourceLineNo">340</span><a id="line.340">            }</a>
-<span class="sourceLineNo">341</span><a id="line.341">        }</a>
-<span class="sourceLineNo">342</span><a id="line.342">        group.setCreator( creator );</a>
-<span class="sourceLineNo">343</span><a id="line.343">        group.setModifier( modifier );</a>
-<span class="sourceLineNo">344</span><a id="line.344">        return group;</a>
-<span class="sourceLineNo">345</span><a id="line.345">    }</a>
+<span class="sourceLineNo">280</span><a id="line.280">            }</a>
+<span class="sourceLineNo">281</span><a id="line.281">        }</a>
+<span class="sourceLineNo">282</span><a id="line.282">    }</a>
+<span class="sourceLineNo">283</span><a id="line.283"></a>
+<span class="sourceLineNo">284</span><a id="line.284">    private long m_lastCheck;</a>
+<span class="sourceLineNo">285</span><a id="line.285">    private long m_lastModified;</a>
+<span class="sourceLineNo">286</span><a id="line.286"></a>
+<span class="sourceLineNo">287</span><a id="line.287">    private void checkForRefresh() {</a>
+<span class="sourceLineNo">288</span><a id="line.288">        final long time = System.currentTimeMillis();</a>
+<span class="sourceLineNo">289</span><a id="line.289">        if( time - m_lastCheck &gt; 60*1000L ) {</a>
+<span class="sourceLineNo">290</span><a id="line.290">            final long lastModified = m_file.lastModified();</a>
+<span class="sourceLineNo">291</span><a id="line.291">            if( lastModified &gt; m_lastModified ) {</a>
+<span class="sourceLineNo">292</span><a id="line.292">                buildDOM();</a>
+<span class="sourceLineNo">293</span><a id="line.293">            }</a>
+<span class="sourceLineNo">294</span><a id="line.294">        }</a>
+<span class="sourceLineNo">295</span><a id="line.295">    }</a>
+<span class="sourceLineNo">296</span><a id="line.296">    /**</a>
+<span class="sourceLineNo">297</span><a id="line.297">     * Constructs a Group based on a DOM group node.</a>
+<span class="sourceLineNo">298</span><a id="line.298">     * @param groupNode the node in the DOM containing the node</a>
+<span class="sourceLineNo">299</span><a id="line.299">     * @param name the name of the group</a>
+<span class="sourceLineNo">300</span><a id="line.300">     */</a>
+<span class="sourceLineNo">301</span><a id="line.301">    private Group buildGroup( final Element groupNode, final String name ) {</a>
+<span class="sourceLineNo">302</span><a id="line.302">        // It's an error if either param is null (very odd)</a>
+<span class="sourceLineNo">303</span><a id="line.303">        if ( groupNode == null || name == null ) {</a>
+<span class="sourceLineNo">304</span><a id="line.304">            throw new IllegalArgumentException( "DOM element or name cannot be null." );</a>
+<span class="sourceLineNo">305</span><a id="line.305">        }</a>
+<span class="sourceLineNo">306</span><a id="line.306"></a>
+<span class="sourceLineNo">307</span><a id="line.307">        // Construct a new group</a>
+<span class="sourceLineNo">308</span><a id="line.308">        final Group group = new Group( name, m_engine.getApplicationName() );</a>
+<span class="sourceLineNo">309</span><a id="line.309"></a>
+<span class="sourceLineNo">310</span><a id="line.310">        // Get the users for this group, and add them</a>
+<span class="sourceLineNo">311</span><a id="line.311">        final NodeList members = groupNode.getElementsByTagName( MEMBER_TAG );</a>
+<span class="sourceLineNo">312</span><a id="line.312">        for( int i = 0; i &lt; members.getLength(); i++ ) {</a>
+<span class="sourceLineNo">313</span><a id="line.313">            final Element memberNode = (Element) members.item( i );</a>
+<span class="sourceLineNo">314</span><a id="line.314">            final String principalName = memberNode.getAttribute( PRINCIPAL );</a>
+<span class="sourceLineNo">315</span><a id="line.315">            final Principal member = new WikiPrincipal( principalName );</a>
+<span class="sourceLineNo">316</span><a id="line.316">            group.add( member );</a>
+<span class="sourceLineNo">317</span><a id="line.317">        }</a>
+<span class="sourceLineNo">318</span><a id="line.318"></a>
+<span class="sourceLineNo">319</span><a id="line.319">        // Add the created/last-modified info</a>
+<span class="sourceLineNo">320</span><a id="line.320">        final String creator = groupNode.getAttribute( CREATOR );</a>
+<span class="sourceLineNo">321</span><a id="line.321">        final String created = groupNode.getAttribute( CREATED );</a>
+<span class="sourceLineNo">322</span><a id="line.322">        final String modifier = groupNode.getAttribute( MODIFIER );</a>
+<span class="sourceLineNo">323</span><a id="line.323">        final String modified = groupNode.getAttribute( LAST_MODIFIED );</a>
+<span class="sourceLineNo">324</span><a id="line.324">        try {</a>
+<span class="sourceLineNo">325</span><a id="line.325">            group.setCreated( new SimpleDateFormat( DATE_FORMAT ).parse( created ) );</a>
+<span class="sourceLineNo">326</span><a id="line.326">            group.setLastModified( new SimpleDateFormat( DATE_FORMAT ).parse( modified ) );</a>
+<span class="sourceLineNo">327</span><a id="line.327">        } catch ( final ParseException e ) {</a>
+<span class="sourceLineNo">328</span><a id="line.328">            // If parsing failed, use the platform default</a>
+<span class="sourceLineNo">329</span><a id="line.329">            try {</a>
+<span class="sourceLineNo">330</span><a id="line.330">                group.setCreated( m_defaultFormat.parse( created ) );</a>
+<span class="sourceLineNo">331</span><a id="line.331">                group.setLastModified( m_defaultFormat.parse( modified ) );</a>
+<span class="sourceLineNo">332</span><a id="line.332">            } catch ( final ParseException e2 ) {</a>
+<span class="sourceLineNo">333</span><a id="line.333">                log.warn( "Could not parse 'created' or 'lastModified' " + "attribute for " + " group'"</a>
+<span class="sourceLineNo">334</span><a id="line.334">                          + group.getName() + "'." + " It may have been tampered with." );</a>
+<span class="sourceLineNo">335</span><a id="line.335">            }</a>
+<span class="sourceLineNo">336</span><a id="line.336">        }</a>
+<span class="sourceLineNo">337</span><a id="line.337">        group.setCreator( creator );</a>
+<span class="sourceLineNo">338</span><a id="line.338">        group.setModifier( modifier );</a>
+<span class="sourceLineNo">339</span><a id="line.339">        return group;</a>
+<span class="sourceLineNo">340</span><a id="line.340">    }</a>
+<span class="sourceLineNo">341</span><a id="line.341"></a>
+<span class="sourceLineNo">342</span><a id="line.342">    private void saveDOM() throws WikiSecurityException {</a>
+<span class="sourceLineNo">343</span><a id="line.343">        if ( m_dom == null ) {</a>
+<span class="sourceLineNo">344</span><a id="line.344">            log.fatal( "Group database doesn't exist in memory." );</a>
+<span class="sourceLineNo">345</span><a id="line.345">        }</a>
 <span class="sourceLineNo">346</span><a id="line.346"></a>
-<span class="sourceLineNo">347</span><a id="line.347">    private void saveDOM() throws WikiSecurityException {</a>
-<span class="sourceLineNo">348</span><a id="line.348">        if ( m_dom == null ) {</a>
-<span class="sourceLineNo">349</span><a id="line.349">            log.fatal( "Group database doesn't exist in memory." );</a>
-<span class="sourceLineNo">350</span><a id="line.350">        }</a>
-<span class="sourceLineNo">351</span><a id="line.351"></a>
-<span class="sourceLineNo">352</span><a id="line.352">        final File newFile = new File( m_file.getAbsolutePath() + ".new" );</a>
-<span class="sourceLineNo">353</span><a id="line.353">        try( final BufferedWriter io = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( newFile ), StandardCharsets.UTF_8 ) ) ) {</a>
-<span class="sourceLineNo">354</span><a id="line.354">            // Write the file header and document root</a>
-<span class="sourceLineNo">355</span><a id="line.355">            io.write( "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n" );</a>
-<span class="sourceLineNo">356</span><a id="line.356">            io.write( "&lt;groups&gt;\n" );</a>
-<span class="sourceLineNo">357</span><a id="line.357"></a>
-<span class="sourceLineNo">358</span><a id="line.358">            // Write each profile as a &lt;group&gt; node</a>
-<span class="sourceLineNo">359</span><a id="line.359">            for( final Group group : m_groups.values() ) {</a>
-<span class="sourceLineNo">360</span><a id="line.360">                io.write( "  &lt;" + GROUP_TAG + " " );</a>
-<span class="sourceLineNo">361</span><a id="line.361">                io.write( GROUP_NAME );</a>
-<span class="sourceLineNo">362</span><a id="line.362">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getName() )+ "\" " );</a>
-<span class="sourceLineNo">363</span><a id="line.363">                io.write( CREATOR );</a>
-<span class="sourceLineNo">364</span><a id="line.364">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getCreator() ) + "\" " );</a>
-<span class="sourceLineNo">365</span><a id="line.365">                io.write( CREATED );</a>
-<span class="sourceLineNo">366</span><a id="line.366">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getCreated() ) + "\" " );</a>
-<span class="sourceLineNo">367</span><a id="line.367">                io.write( MODIFIER );</a>
-<span class="sourceLineNo">368</span><a id="line.368">                io.write( "=\"" + group.getModifier() + "\" " );</a>
-<span class="sourceLineNo">369</span><a id="line.369">                io.write( LAST_MODIFIED );</a>
-<span class="sourceLineNo">370</span><a id="line.370">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getLastModified() ) + "\"" );</a>
-<span class="sourceLineNo">371</span><a id="line.371">                io.write( "&gt;\n" );</a>
-<span class="sourceLineNo">372</span><a id="line.372"></a>
-<span class="sourceLineNo">373</span><a id="line.373">                // Write each member as a &lt;member&gt; node</a>
-<span class="sourceLineNo">374</span><a id="line.374">                for( final Principal member : group.members() ) {</a>
-<span class="sourceLineNo">375</span><a id="line.375">                    io.write( "    &lt;" + MEMBER_TAG + " " );</a>
-<span class="sourceLineNo">376</span><a id="line.376">                    io.write( PRINCIPAL );</a>
-<span class="sourceLineNo">377</span><a id="line.377">                    io.write( "=\"" + StringEscapeUtils.escapeXml11(member.getName()) + "\" " );</a>
-<span class="sourceLineNo">378</span><a id="line.378">                    io.write( "/&gt;\n" );</a>
-<span class="sourceLineNo">379</span><a id="line.379">                }</a>
-<span class="sourceLineNo">380</span><a id="line.380"></a>
-<span class="sourceLineNo">381</span><a id="line.381">                // Close tag</a>
-<span class="sourceLineNo">382</span><a id="line.382">                io.write( "  &lt;/" + GROUP_TAG + "&gt;\n" );</a>
-<span class="sourceLineNo">383</span><a id="line.383">            }</a>
-<span class="sourceLineNo">384</span><a id="line.384">            io.write( "&lt;/groups&gt;" );</a>
-<span class="sourceLineNo">385</span><a id="line.385">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">386</span><a id="line.386">            throw new WikiSecurityException( e.getLocalizedMessage(), e );</a>
-<span class="sourceLineNo">387</span><a id="line.387">        }</a>
-<span class="sourceLineNo">388</span><a id="line.388"></a>
-<span class="sourceLineNo">389</span><a id="line.389">        // Copy new file over old version</a>
-<span class="sourceLineNo">390</span><a id="line.390">        final File backup = new File( m_file.getAbsolutePath() + ".old" );</a>
-<span class="sourceLineNo">391</span><a id="line.391">        if ( backup.exists() &amp;&amp; !backup.delete()) {</a>
-<span class="sourceLineNo">392</span><a id="line.392">            log.error( "Could not delete old group database backup: " + backup );</a>
-<span class="sourceLineNo">393</span><a id="line.393">        }</a>
-<span class="sourceLineNo">394</span><a id="line.394">        if ( !m_file.renameTo( backup ) ) {</a>
-<span class="sourceLineNo">395</span><a id="line.395">            log.error( "Could not create group database backup: " + backup );</a>
-<span class="sourceLineNo">396</span><a id="line.396">        }</a>
-<span class="sourceLineNo">397</span><a id="line.397">        if ( !newFile.renameTo( m_file ) ) {</a>
-<span class="sourceLineNo">398</span><a id="line.398">            log.error( "Could not save database: " + backup + " restoring backup." );</a>
-<span class="sourceLineNo">399</span><a id="line.399">            if ( !backup.renameTo( m_file ) ) {</a>
-<span class="sourceLineNo">400</span><a id="line.400">                log.error( "Restore failed. Check the file permissions." );</a>
-<span class="sourceLineNo">401</span><a id="line.401">            }</a>
-<span class="sourceLineNo">402</span><a id="line.402">            log.error( "Could not save database: " + m_file + ". Check the file permissions" );</a>
-<span class="sourceLineNo">403</span><a id="line.403">        }</a>
-<span class="sourceLineNo">404</span><a id="line.404">    }</a>
-<span class="sourceLineNo">405</span><a id="line.405"></a>
-<span class="sourceLineNo">406</span><a id="line.406">}</a>
+<span class="sourceLineNo">347</span><a id="line.347">        final File newFile = new File( m_file.getAbsolutePath() + ".new" );</a>
+<span class="sourceLineNo">348</span><a id="line.348">        try( final BufferedWriter io = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( newFile ), StandardCharsets.UTF_8 ) ) ) {</a>
+<span class="sourceLineNo">349</span><a id="line.349">            // Write the file header and document root</a>
+<span class="sourceLineNo">350</span><a id="line.350">            io.write( "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n" );</a>
+<span class="sourceLineNo">351</span><a id="line.351">            io.write( "&lt;groups&gt;\n" );</a>
+<span class="sourceLineNo">352</span><a id="line.352"></a>
+<span class="sourceLineNo">353</span><a id="line.353">            // Write each profile as a &lt;group&gt; node</a>
+<span class="sourceLineNo">354</span><a id="line.354">            for( final Group group : m_groups.values() ) {</a>
+<span class="sourceLineNo">355</span><a id="line.355">                io.write( "  &lt;" + GROUP_TAG + " " );</a>
+<span class="sourceLineNo">356</span><a id="line.356">                io.write( GROUP_NAME );</a>
+<span class="sourceLineNo">357</span><a id="line.357">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getName() )+ "\" " );</a>
+<span class="sourceLineNo">358</span><a id="line.358">                io.write( CREATOR );</a>
+<span class="sourceLineNo">359</span><a id="line.359">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getCreator() ) + "\" " );</a>
+<span class="sourceLineNo">360</span><a id="line.360">                io.write( CREATED );</a>
+<span class="sourceLineNo">361</span><a id="line.361">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getCreated() ) + "\" " );</a>
+<span class="sourceLineNo">362</span><a id="line.362">                io.write( MODIFIER );</a>
+<span class="sourceLineNo">363</span><a id="line.363">                io.write( "=\"" + group.getModifier() + "\" " );</a>
+<span class="sourceLineNo">364</span><a id="line.364">                io.write( LAST_MODIFIED );</a>
+<span class="sourceLineNo">365</span><a id="line.365">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getLastModified() ) + "\"" );</a>
+<span class="sourceLineNo">366</span><a id="line.366">                io.write( "&gt;\n" );</a>
+<span class="sourceLineNo">367</span><a id="line.367"></a>
+<span class="sourceLineNo">368</span><a id="line.368">                // Write each member as a &lt;member&gt; node</a>
+<span class="sourceLineNo">369</span><a id="line.369">                for( final Principal member : group.members() ) {</a>
+<span class="sourceLineNo">370</span><a id="line.370">                    io.write( "    &lt;" + MEMBER_TAG + " " );</a>
+<span class="sourceLineNo">371</span><a id="line.371">                    io.write( PRINCIPAL );</a>
+<span class="sourceLineNo">372</span><a id="line.372">                    io.write( "=\"" + StringEscapeUtils.escapeXml11(member.getName()) + "\" " );</a>
+<span class="sourceLineNo">373</span><a id="line.373">                    io.write( "/&gt;\n" );</a>
+<span class="sourceLineNo">374</span><a id="line.374">                }</a>
+<span class="sourceLineNo">375</span><a id="line.375"></a>
+<span class="sourceLineNo">376</span><a id="line.376">                // Close tag</a>
+<span class="sourceLineNo">377</span><a id="line.377">                io.write( "  &lt;/" + GROUP_TAG + "&gt;\n" );</a>
+<span class="sourceLineNo">378</span><a id="line.378">            }</a>
+<span class="sourceLineNo">379</span><a id="line.379">            io.write( "&lt;/groups&gt;" );</a>
+<span class="sourceLineNo">380</span><a id="line.380">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">381</span><a id="line.381">            throw new WikiSecurityException( e.getLocalizedMessage(), e );</a>
+<span class="sourceLineNo">382</span><a id="line.382">        }</a>
+<span class="sourceLineNo">383</span><a id="line.383"></a>
+<span class="sourceLineNo">384</span><a id="line.384">        // Copy new file over old version</a>
+<span class="sourceLineNo">385</span><a id="line.385">        final File backup = new File( m_file.getAbsolutePath() + ".old" );</a>
+<span class="sourceLineNo">386</span><a id="line.386">        if ( backup.exists() &amp;&amp; !backup.delete()) {</a>
+<span class="sourceLineNo">387</span><a id="line.387">            log.error( "Could not delete old group database backup: " + backup );</a>
+<span class="sourceLineNo">388</span><a id="line.388">        }</a>
+<span class="sourceLineNo">389</span><a id="line.389">        if ( !m_file.renameTo( backup ) ) {</a>
+<span class="sourceLineNo">390</span><a id="line.390">            log.error( "Could not create group database backup: " + backup );</a>
+<span class="sourceLineNo">391</span><a id="line.391">        }</a>
+<span class="sourceLineNo">392</span><a id="line.392">        if ( !newFile.renameTo( m_file ) ) {</a>
+<span class="sourceLineNo">393</span><a id="line.393">            log.error( "Could not save database: " + backup + " restoring backup." );</a>
+<span class="sourceLineNo">394</span><a id="line.394">            if ( !backup.renameTo( m_file ) ) {</a>
+<span class="sourceLineNo">395</span><a id="line.395">                log.error( "Restore failed. Check the file permissions." );</a>
+<span class="sourceLineNo">396</span><a id="line.396">            }</a>
+<span class="sourceLineNo">397</span><a id="line.397">            log.error( "Could not save database: " + m_file + ". Check the file permissions" );</a>
+<span class="sourceLineNo">398</span><a id="line.398">        }</a>
+<span class="sourceLineNo">399</span><a id="line.399">    }</a>
+<span class="sourceLineNo">400</span><a id="line.400"></a>
+<span class="sourceLineNo">401</span><a id="line.401">}</a>
 
 
 

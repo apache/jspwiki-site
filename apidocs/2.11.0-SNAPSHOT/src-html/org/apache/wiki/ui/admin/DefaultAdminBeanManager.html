@@ -27,243 +27,244 @@
 <span class="sourceLineNo">018</span><a id="line.18"> */</a>
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.ui.admin;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
-<span class="sourceLineNo">021</span><a id="line.21">import org.apache.log4j.Logger;</a>
-<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.Release;</a>
-<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Engine;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.event.WikiEngineEvent;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.event.WikiEvent;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.event.WikiEventListener;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.modules.ModuleManager;</a>
-<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.modules.WikiModuleInfo;</a>
-<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.ui.admin.beans.CoreBean;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.ui.admin.beans.FilterBean;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.ui.admin.beans.PluginBean;</a>
-<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.ui.admin.beans.SearchManagerBean;</a>
-<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.ui.admin.beans.UserBean;</a>
-<span class="sourceLineNo">034</span><a id="line.34"></a>
-<span class="sourceLineNo">035</span><a id="line.35">import javax.management.DynamicMBean;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import javax.management.InstanceAlreadyExistsException;</a>
-<span class="sourceLineNo">037</span><a id="line.37">import javax.management.InstanceNotFoundException;</a>
-<span class="sourceLineNo">038</span><a id="line.38">import javax.management.MBeanRegistrationException;</a>
-<span class="sourceLineNo">039</span><a id="line.39">import javax.management.MBeanServer;</a>
-<span class="sourceLineNo">040</span><a id="line.40">import javax.management.MalformedObjectNameException;</a>
-<span class="sourceLineNo">041</span><a id="line.41">import javax.management.NotCompliantMBeanException;</a>
-<span class="sourceLineNo">042</span><a id="line.42">import javax.management.ObjectName;</a>
-<span class="sourceLineNo">043</span><a id="line.43">import java.lang.management.ManagementFactory;</a>
-<span class="sourceLineNo">044</span><a id="line.44">import java.util.ArrayList;</a>
-<span class="sourceLineNo">045</span><a id="line.45">import java.util.Collection;</a>
-<span class="sourceLineNo">046</span><a id="line.46">import java.util.List;</a>
-<span class="sourceLineNo">047</span><a id="line.47"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.Release;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.event.WikiEngineEvent;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.event.WikiEvent;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.modules.ModuleManager;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.modules.WikiModuleInfo;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.ui.admin.beans.CoreBean;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.ui.admin.beans.FilterBean;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.ui.admin.beans.PluginBean;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.ui.admin.beans.SearchManagerBean;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.ui.admin.beans.UserBean;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">import javax.management.DynamicMBean;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import javax.management.InstanceAlreadyExistsException;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import javax.management.InstanceNotFoundException;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import javax.management.MBeanRegistrationException;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import javax.management.MBeanServer;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import javax.management.MalformedObjectNameException;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import javax.management.NotCompliantMBeanException;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import javax.management.ObjectName;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.lang.management.ManagementFactory;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.util.ArrayList;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import java.util.Collection;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import java.util.List;</a>
 <span class="sourceLineNo">048</span><a id="line.48"></a>
-<span class="sourceLineNo">049</span><a id="line.49">/**</a>
-<span class="sourceLineNo">050</span><a id="line.50"> *  Provides a manager class for all AdminBeans within JSPWiki.  This class also manages registration for any</a>
-<span class="sourceLineNo">051</span><a id="line.51"> *  AdminBean which is also a JMX bean.</a>
-<span class="sourceLineNo">052</span><a id="line.52"> *</a>
-<span class="sourceLineNo">053</span><a id="line.53"> *  @since  2.5.52</a>
-<span class="sourceLineNo">054</span><a id="line.54"> */</a>
-<span class="sourceLineNo">055</span><a id="line.55">public class DefaultAdminBeanManager implements WikiEventListener, AdminBeanManager {</a>
-<span class="sourceLineNo">056</span><a id="line.56"></a>
-<span class="sourceLineNo">057</span><a id="line.57">    private final Engine m_engine;</a>
-<span class="sourceLineNo">058</span><a id="line.58">    private ArrayList&lt; AdminBean &gt; m_allBeans;</a>
-<span class="sourceLineNo">059</span><a id="line.59">    private final MBeanServer m_mbeanServer;</a>
-<span class="sourceLineNo">060</span><a id="line.60"></a>
-<span class="sourceLineNo">061</span><a id="line.61">    private static final Logger log = Logger.getLogger( DefaultAdminBeanManager.class );</a>
-<span class="sourceLineNo">062</span><a id="line.62"></a>
-<span class="sourceLineNo">063</span><a id="line.63">    public DefaultAdminBeanManager( final Engine engine ) {</a>
-<span class="sourceLineNo">064</span><a id="line.64">        log.info("Using JDK 1.5 Platform MBeanServer");</a>
-<span class="sourceLineNo">065</span><a id="line.65">        m_mbeanServer = MBeanServerFactory15.getServer();</a>
-<span class="sourceLineNo">066</span><a id="line.66"></a>
-<span class="sourceLineNo">067</span><a id="line.67">        m_engine = engine;</a>
-<span class="sourceLineNo">068</span><a id="line.68"></a>
-<span class="sourceLineNo">069</span><a id="line.69">        if( m_mbeanServer != null ) {</a>
-<span class="sourceLineNo">070</span><a id="line.70">            log.info( m_mbeanServer.getClass().getName() );</a>
-<span class="sourceLineNo">071</span><a id="line.71">            log.info( m_mbeanServer.getDefaultDomain() );</a>
-<span class="sourceLineNo">072</span><a id="line.72">        }</a>
-<span class="sourceLineNo">073</span><a id="line.73"></a>
-<span class="sourceLineNo">074</span><a id="line.74">        m_engine.addWikiEventListener( this );</a>
-<span class="sourceLineNo">075</span><a id="line.75">        initialize();</a>
-<span class="sourceLineNo">076</span><a id="line.76">    }</a>
-<span class="sourceLineNo">077</span><a id="line.77"></a>
-<span class="sourceLineNo">078</span><a id="line.78">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">079</span><a id="line.79">    @Override</a>
-<span class="sourceLineNo">080</span><a id="line.80">    public void initialize() {</a>
-<span class="sourceLineNo">081</span><a id="line.81">        reload();</a>
-<span class="sourceLineNo">082</span><a id="line.82">    }</a>
-<span class="sourceLineNo">083</span><a id="line.83"></a>
-<span class="sourceLineNo">084</span><a id="line.84">    private String getJMXTitleString( final int title ) {</a>
-<span class="sourceLineNo">085</span><a id="line.85">        switch( title ) {</a>
-<span class="sourceLineNo">086</span><a id="line.86">            case AdminBean.CORE:</a>
-<span class="sourceLineNo">087</span><a id="line.87">                return "Core";</a>
-<span class="sourceLineNo">088</span><a id="line.88"></a>
-<span class="sourceLineNo">089</span><a id="line.89">            case AdminBean.EDITOR:</a>
-<span class="sourceLineNo">090</span><a id="line.90">                return "Editors";</a>
-<span class="sourceLineNo">091</span><a id="line.91"></a>
-<span class="sourceLineNo">092</span><a id="line.92">            case AdminBean.UNKNOWN:</a>
-<span class="sourceLineNo">093</span><a id="line.93">            default:</a>
-<span class="sourceLineNo">094</span><a id="line.94">                return "Unknown";</a>
-<span class="sourceLineNo">095</span><a id="line.95">        }</a>
-<span class="sourceLineNo">096</span><a id="line.96">    }</a>
-<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">049</span><a id="line.49"></a>
+<span class="sourceLineNo">050</span><a id="line.50">/**</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *  Provides a manager class for all AdminBeans within JSPWiki.  This class also manages registration for any</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *  AdminBean which is also a JMX bean.</a>
+<span class="sourceLineNo">053</span><a id="line.53"> *</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *  @since  2.5.52</a>
+<span class="sourceLineNo">055</span><a id="line.55"> */</a>
+<span class="sourceLineNo">056</span><a id="line.56">public class DefaultAdminBeanManager implements WikiEventListener, AdminBeanManager {</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    private final Engine m_engine;</a>
+<span class="sourceLineNo">059</span><a id="line.59">    private ArrayList&lt; AdminBean &gt; m_allBeans;</a>
+<span class="sourceLineNo">060</span><a id="line.60">    private final MBeanServer m_mbeanServer;</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">    private static final Logger log = LogManager.getLogger( DefaultAdminBeanManager.class );</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">    public DefaultAdminBeanManager( final Engine engine ) {</a>
+<span class="sourceLineNo">065</span><a id="line.65">        log.info("Using JDK 1.5 Platform MBeanServer");</a>
+<span class="sourceLineNo">066</span><a id="line.66">        m_mbeanServer = MBeanServerFactory15.getServer();</a>
+<span class="sourceLineNo">067</span><a id="line.67"></a>
+<span class="sourceLineNo">068</span><a id="line.68">        m_engine = engine;</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">        if( m_mbeanServer != null ) {</a>
+<span class="sourceLineNo">071</span><a id="line.71">            log.info( m_mbeanServer.getClass().getName() );</a>
+<span class="sourceLineNo">072</span><a id="line.72">            log.info( m_mbeanServer.getDefaultDomain() );</a>
+<span class="sourceLineNo">073</span><a id="line.73">        }</a>
+<span class="sourceLineNo">074</span><a id="line.74"></a>
+<span class="sourceLineNo">075</span><a id="line.75">        m_engine.addWikiEventListener( this );</a>
+<span class="sourceLineNo">076</span><a id="line.76">        initialize();</a>
+<span class="sourceLineNo">077</span><a id="line.77">    }</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">080</span><a id="line.80">    @Override</a>
+<span class="sourceLineNo">081</span><a id="line.81">    public void initialize() {</a>
+<span class="sourceLineNo">082</span><a id="line.82">        reload();</a>
+<span class="sourceLineNo">083</span><a id="line.83">    }</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">    private String getJMXTitleString( final int title ) {</a>
+<span class="sourceLineNo">086</span><a id="line.86">        switch( title ) {</a>
+<span class="sourceLineNo">087</span><a id="line.87">            case AdminBean.CORE:</a>
+<span class="sourceLineNo">088</span><a id="line.88">                return "Core";</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">            case AdminBean.EDITOR:</a>
+<span class="sourceLineNo">091</span><a id="line.91">                return "Editors";</a>
+<span class="sourceLineNo">092</span><a id="line.92"></a>
+<span class="sourceLineNo">093</span><a id="line.93">            case AdminBean.UNKNOWN:</a>
+<span class="sourceLineNo">094</span><a id="line.94">            default:</a>
+<span class="sourceLineNo">095</span><a id="line.95">                return "Unknown";</a>
+<span class="sourceLineNo">096</span><a id="line.96">        }</a>
+<span class="sourceLineNo">097</span><a id="line.97">    }</a>
 <span class="sourceLineNo">098</span><a id="line.98"></a>
-<span class="sourceLineNo">099</span><a id="line.99">    /**</a>
-<span class="sourceLineNo">100</span><a id="line.100">     *  Register an AdminBean.  If the AdminBean is also a JMX MBean, it also gets registered to the MBeanServer we've found.</a>
-<span class="sourceLineNo">101</span><a id="line.101">     *</a>
-<span class="sourceLineNo">102</span><a id="line.102">     *  @param ab AdminBean to register.</a>
-<span class="sourceLineNo">103</span><a id="line.103">     */</a>
-<span class="sourceLineNo">104</span><a id="line.104">    private void registerAdminBean( final AdminBean ab ) {</a>
-<span class="sourceLineNo">105</span><a id="line.105">        try {</a>
-<span class="sourceLineNo">106</span><a id="line.106">            if( ab instanceof DynamicMBean &amp;&amp; m_mbeanServer != null ) {</a>
-<span class="sourceLineNo">107</span><a id="line.107">                final ObjectName name = getObjectName( ab );</a>
-<span class="sourceLineNo">108</span><a id="line.108">                if( !m_mbeanServer.isRegistered( name ) ) {</a>
-<span class="sourceLineNo">109</span><a id="line.109">                    m_mbeanServer.registerMBean( ab, name );</a>
-<span class="sourceLineNo">110</span><a id="line.110">                }</a>
-<span class="sourceLineNo">111</span><a id="line.111">            }</a>
-<span class="sourceLineNo">112</span><a id="line.112"></a>
-<span class="sourceLineNo">113</span><a id="line.113">            m_allBeans.add( ab );</a>
-<span class="sourceLineNo">114</span><a id="line.114"></a>
-<span class="sourceLineNo">115</span><a id="line.115">            log.info( "Registered new admin bean " + ab.getTitle() );</a>
-<span class="sourceLineNo">116</span><a id="line.116">        } catch( final InstanceAlreadyExistsException e ) {</a>
-<span class="sourceLineNo">117</span><a id="line.117">            log.error( "Admin bean already registered to JMX", e );</a>
-<span class="sourceLineNo">118</span><a id="line.118">        } catch( final MBeanRegistrationException e ) {</a>
-<span class="sourceLineNo">119</span><a id="line.119">            log.error( "Admin bean cannot be registered to JMX", e );</a>
-<span class="sourceLineNo">120</span><a id="line.120">        } catch( final NotCompliantMBeanException e ) {</a>
-<span class="sourceLineNo">121</span><a id="line.121">            log.error( "Your admin bean is not very good", e );</a>
-<span class="sourceLineNo">122</span><a id="line.122">        } catch( final MalformedObjectNameException e ) {</a>
-<span class="sourceLineNo">123</span><a id="line.123">            log.error( "Your admin bean name is not very good", e );</a>
-<span class="sourceLineNo">124</span><a id="line.124">        } catch( final NullPointerException e ) {</a>
-<span class="sourceLineNo">125</span><a id="line.125">            log.error( "Evil NPE occurred", e );</a>
-<span class="sourceLineNo">126</span><a id="line.126">        }</a>
-<span class="sourceLineNo">127</span><a id="line.127">    }</a>
-<span class="sourceLineNo">128</span><a id="line.128"></a>
-<span class="sourceLineNo">129</span><a id="line.129">    private ObjectName getObjectName( final AdminBean ab ) throws MalformedObjectNameException {</a>
-<span class="sourceLineNo">130</span><a id="line.130">        final String component = getJMXTitleString( ab.getType() );</a>
-<span class="sourceLineNo">131</span><a id="line.131">        final String title     = ab.getTitle();</a>
-<span class="sourceLineNo">132</span><a id="line.132">        return new ObjectName( Release.APPNAME + ":component=" + component + ",name=" + title );</a>
-<span class="sourceLineNo">133</span><a id="line.133">    }</a>
-<span class="sourceLineNo">134</span><a id="line.134"></a>
-<span class="sourceLineNo">135</span><a id="line.135">    /**</a>
-<span class="sourceLineNo">136</span><a id="line.136">     *  Registers all the beans from a collection of WikiModuleInfos.  If some of the beans fail, logs the message and keeps going to the</a>
-<span class="sourceLineNo">137</span><a id="line.137">     *  next bean.</a>
-<span class="sourceLineNo">138</span><a id="line.138">     *</a>
-<span class="sourceLineNo">139</span><a id="line.139">     *  @param c Collection of WikiModuleInfo instances</a>
-<span class="sourceLineNo">140</span><a id="line.140">     */</a>
-<span class="sourceLineNo">141</span><a id="line.141">    private void registerBeans( final Collection&lt; WikiModuleInfo &gt; c ) {</a>
-<span class="sourceLineNo">142</span><a id="line.142">        for( final WikiModuleInfo wikiModuleInfo : c ) {</a>
-<span class="sourceLineNo">143</span><a id="line.143">            final String abname = wikiModuleInfo.getAdminBeanClass();</a>
-<span class="sourceLineNo">144</span><a id="line.144">            try {</a>
-<span class="sourceLineNo">145</span><a id="line.145">                if( abname != null &amp;&amp; !abname.isEmpty() ) {</a>
-<span class="sourceLineNo">146</span><a id="line.146">                    final Class&lt; ? &gt; abclass = Class.forName( abname );</a>
-<span class="sourceLineNo">147</span><a id="line.147">                    final AdminBean ab = ( AdminBean )abclass.newInstance();</a>
-<span class="sourceLineNo">148</span><a id="line.148">                    registerAdminBean( ab );</a>
-<span class="sourceLineNo">149</span><a id="line.149">                }</a>
-<span class="sourceLineNo">150</span><a id="line.150">            } catch( final ClassNotFoundException | InstantiationException | IllegalAccessException e ) {</a>
-<span class="sourceLineNo">151</span><a id="line.151">                log.error( e.getMessage(), e );</a>
-<span class="sourceLineNo">152</span><a id="line.152">            }</a>
-<span class="sourceLineNo">153</span><a id="line.153">        }</a>
-<span class="sourceLineNo">154</span><a id="line.154"></a>
-<span class="sourceLineNo">155</span><a id="line.155">    }</a>
-<span class="sourceLineNo">156</span><a id="line.156"></a>
-<span class="sourceLineNo">157</span><a id="line.157">    // FIXME: Should unload the beans first.</a>
-<span class="sourceLineNo">158</span><a id="line.158">    private void reload() {</a>
-<span class="sourceLineNo">159</span><a id="line.159">        m_allBeans = new ArrayList&lt;&gt;();</a>
-<span class="sourceLineNo">160</span><a id="line.160"></a>
-<span class="sourceLineNo">161</span><a id="line.161">        try {</a>
-<span class="sourceLineNo">162</span><a id="line.162">            registerAdminBean( new CoreBean( m_engine ) );</a>
-<span class="sourceLineNo">163</span><a id="line.163">            registerAdminBean( new UserBean( m_engine ) );</a>
-<span class="sourceLineNo">164</span><a id="line.164">            registerAdminBean( new SearchManagerBean( m_engine ) );</a>
-<span class="sourceLineNo">165</span><a id="line.165">            registerAdminBean( new PluginBean( m_engine ) );</a>
-<span class="sourceLineNo">166</span><a id="line.166">            registerAdminBean( new FilterBean( m_engine ) );</a>
-<span class="sourceLineNo">167</span><a id="line.167">        } catch( final NotCompliantMBeanException e ) {</a>
-<span class="sourceLineNo">168</span><a id="line.168">            log.error( e.getMessage(), e );</a>
-<span class="sourceLineNo">169</span><a id="line.169">        }</a>
-<span class="sourceLineNo">170</span><a id="line.170">        for( final ModuleManager moduleManager : m_engine.getManagers( ModuleManager.class ) ) {</a>
-<span class="sourceLineNo">171</span><a id="line.171">            registerBeans( moduleManager.modules() );</a>
-<span class="sourceLineNo">172</span><a id="line.172">        }</a>
-<span class="sourceLineNo">173</span><a id="line.173">    }</a>
-<span class="sourceLineNo">174</span><a id="line.174"></a>
-<span class="sourceLineNo">175</span><a id="line.175">    /* (non-Javadoc)</a>
-<span class="sourceLineNo">176</span><a id="line.176">     * @see org.apache.wiki.ui.admin.AdminBeanManager#getAllBeans()</a>
-<span class="sourceLineNo">177</span><a id="line.177">     */</a>
-<span class="sourceLineNo">178</span><a id="line.178">    @Override</a>
-<span class="sourceLineNo">179</span><a id="line.179">    public List&lt; AdminBean &gt; getAllBeans() {</a>
-<span class="sourceLineNo">180</span><a id="line.180">        if( m_allBeans == null ) {</a>
-<span class="sourceLineNo">181</span><a id="line.181">            reload();</a>
-<span class="sourceLineNo">182</span><a id="line.182">        }</a>
-<span class="sourceLineNo">183</span><a id="line.183"></a>
-<span class="sourceLineNo">184</span><a id="line.184">        return m_allBeans;</a>
-<span class="sourceLineNo">185</span><a id="line.185">    }</a>
-<span class="sourceLineNo">186</span><a id="line.186"></a>
-<span class="sourceLineNo">187</span><a id="line.187">    /* (non-Javadoc)</a>
-<span class="sourceLineNo">188</span><a id="line.188">     * @see org.apache.wiki.ui.admin.AdminBeanManager#findBean(java.lang.String)</a>
-<span class="sourceLineNo">189</span><a id="line.189">     */</a>
-<span class="sourceLineNo">190</span><a id="line.190">    @Override</a>
-<span class="sourceLineNo">191</span><a id="line.191">    public AdminBean findBean( final String id ) {</a>
-<span class="sourceLineNo">192</span><a id="line.192">        for( final AdminBean ab : m_allBeans ) {</a>
-<span class="sourceLineNo">193</span><a id="line.193">            if( ab.getId().equals( id ) ) {</a>
-<span class="sourceLineNo">194</span><a id="line.194">                return ab;</a>
-<span class="sourceLineNo">195</span><a id="line.195">            }</a>
-<span class="sourceLineNo">196</span><a id="line.196">        }</a>
-<span class="sourceLineNo">197</span><a id="line.197"></a>
-<span class="sourceLineNo">198</span><a id="line.198">        return null;</a>
-<span class="sourceLineNo">199</span><a id="line.199">    }</a>
-<span class="sourceLineNo">200</span><a id="line.200"></a>
-<span class="sourceLineNo">201</span><a id="line.201">    /**</a>
-<span class="sourceLineNo">202</span><a id="line.202">     *  Provides a JDK 1.5-compliant version of the MBeanServerFactory. This will simply bind to the</a>
-<span class="sourceLineNo">203</span><a id="line.203">     *  platform MBeanServer.</a>
-<span class="sourceLineNo">204</span><a id="line.204">     */</a>
-<span class="sourceLineNo">205</span><a id="line.205">    private static final class MBeanServerFactory15 {</a>
-<span class="sourceLineNo">206</span><a id="line.206">        private MBeanServerFactory15()</a>
-<span class="sourceLineNo">207</span><a id="line.207">        {}</a>
-<span class="sourceLineNo">208</span><a id="line.208"></a>
-<span class="sourceLineNo">209</span><a id="line.209">        public static MBeanServer getServer() {</a>
-<span class="sourceLineNo">210</span><a id="line.210">            return ManagementFactory.getPlatformMBeanServer();</a>
-<span class="sourceLineNo">211</span><a id="line.211">        }</a>
-<span class="sourceLineNo">212</span><a id="line.212">    }</a>
-<span class="sourceLineNo">213</span><a id="line.213"></a>
-<span class="sourceLineNo">214</span><a id="line.214">    /**</a>
-<span class="sourceLineNo">215</span><a id="line.215">     *  Returns the type identifier for a string type.</a>
-<span class="sourceLineNo">216</span><a id="line.216">     *</a>
-<span class="sourceLineNo">217</span><a id="line.217">     *  @param type A type string.</a>
-<span class="sourceLineNo">218</span><a id="line.218">     *  @return A type value.</a>
-<span class="sourceLineNo">219</span><a id="line.219">     */</a>
-<span class="sourceLineNo">220</span><a id="line.220">    @Override</a>
-<span class="sourceLineNo">221</span><a id="line.221">    public int getTypeFromString( final String type ) {</a>
-<span class="sourceLineNo">222</span><a id="line.222">        if( "core".equals( type ) ) {</a>
-<span class="sourceLineNo">223</span><a id="line.223">            return AdminBean.CORE;</a>
-<span class="sourceLineNo">224</span><a id="line.224">        } else if( "editors".equals( type ) ) {</a>
-<span class="sourceLineNo">225</span><a id="line.225">            return AdminBean.EDITOR;</a>
-<span class="sourceLineNo">226</span><a id="line.226">        }</a>
-<span class="sourceLineNo">227</span><a id="line.227"></a>
-<span class="sourceLineNo">228</span><a id="line.228">        return AdminBean.UNKNOWN;</a>
-<span class="sourceLineNo">229</span><a id="line.229">    }</a>
-<span class="sourceLineNo">230</span><a id="line.230"></a>
-<span class="sourceLineNo">231</span><a id="line.231">    /* (non-Javadoc)</a>
-<span class="sourceLineNo">232</span><a id="line.232">     * @see org.apache.wiki.ui.admin.AdminBeanManager#actionPerformed(org.apache.wiki.event.WikiEvent)</a>
-<span class="sourceLineNo">233</span><a id="line.233">     */</a>
-<span class="sourceLineNo">234</span><a id="line.234">    @Override</a>
-<span class="sourceLineNo">235</span><a id="line.235">    public void actionPerformed( final WikiEvent event ) {</a>
-<span class="sourceLineNo">236</span><a id="line.236">        if( event instanceof WikiEngineEvent ) {</a>
-<span class="sourceLineNo">237</span><a id="line.237">            if( event.getType() == WikiEngineEvent.SHUTDOWN ) {</a>
-<span class="sourceLineNo">238</span><a id="line.238">                for( final AdminBean m_allBean : m_allBeans ) {</a>
-<span class="sourceLineNo">239</span><a id="line.239">                    try {</a>
-<span class="sourceLineNo">240</span><a id="line.240">                        final ObjectName on = getObjectName( m_allBean );</a>
-<span class="sourceLineNo">241</span><a id="line.241">                        if( m_mbeanServer.isRegistered( on ) ) {</a>
-<span class="sourceLineNo">242</span><a id="line.242">                            m_mbeanServer.unregisterMBean( on );</a>
-<span class="sourceLineNo">243</span><a id="line.243">                            log.info( "Unregistered AdminBean " + m_allBean.getTitle() );</a>
-<span class="sourceLineNo">244</span><a id="line.244">                        }</a>
-<span class="sourceLineNo">245</span><a id="line.245">                    } catch( final MalformedObjectNameException e ) {</a>
-<span class="sourceLineNo">246</span><a id="line.246">                        log.error( "Malformed object name when unregistering", e );</a>
-<span class="sourceLineNo">247</span><a id="line.247">                    } catch( final InstanceNotFoundException e ) {</a>
-<span class="sourceLineNo">248</span><a id="line.248">                        log.error( "Object was registered; yet claims that it's not there", e );</a>
-<span class="sourceLineNo">249</span><a id="line.249">                    } catch( final MBeanRegistrationException e ) {</a>
-<span class="sourceLineNo">250</span><a id="line.250">                        log.error( "Registration exception while unregistering", e );</a>
-<span class="sourceLineNo">251</span><a id="line.251">                    }</a>
-<span class="sourceLineNo">252</span><a id="line.252">                }</a>
-<span class="sourceLineNo">253</span><a id="line.253">            }</a>
-<span class="sourceLineNo">254</span><a id="line.254">        }</a>
-<span class="sourceLineNo">255</span><a id="line.255">    }</a>
-<span class="sourceLineNo">256</span><a id="line.256"></a>
-<span class="sourceLineNo">257</span><a id="line.257">}</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">    /**</a>
+<span class="sourceLineNo">101</span><a id="line.101">     *  Register an AdminBean.  If the AdminBean is also a JMX MBean, it also gets registered to the MBeanServer we've found.</a>
+<span class="sourceLineNo">102</span><a id="line.102">     *</a>
+<span class="sourceLineNo">103</span><a id="line.103">     *  @param ab AdminBean to register.</a>
+<span class="sourceLineNo">104</span><a id="line.104">     */</a>
+<span class="sourceLineNo">105</span><a id="line.105">    private void registerAdminBean( final AdminBean ab ) {</a>
+<span class="sourceLineNo">106</span><a id="line.106">        try {</a>
+<span class="sourceLineNo">107</span><a id="line.107">            if( ab instanceof DynamicMBean &amp;&amp; m_mbeanServer != null ) {</a>
+<span class="sourceLineNo">108</span><a id="line.108">                final ObjectName name = getObjectName( ab );</a>
+<span class="sourceLineNo">109</span><a id="line.109">                if( !m_mbeanServer.isRegistered( name ) ) {</a>
+<span class="sourceLineNo">110</span><a id="line.110">                    m_mbeanServer.registerMBean( ab, name );</a>
+<span class="sourceLineNo">111</span><a id="line.111">                }</a>
+<span class="sourceLineNo">112</span><a id="line.112">            }</a>
+<span class="sourceLineNo">113</span><a id="line.113"></a>
+<span class="sourceLineNo">114</span><a id="line.114">            m_allBeans.add( ab );</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">            log.info( "Registered new admin bean " + ab.getTitle() );</a>
+<span class="sourceLineNo">117</span><a id="line.117">        } catch( final InstanceAlreadyExistsException e ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">            log.error( "Admin bean already registered to JMX", e );</a>
+<span class="sourceLineNo">119</span><a id="line.119">        } catch( final MBeanRegistrationException e ) {</a>
+<span class="sourceLineNo">120</span><a id="line.120">            log.error( "Admin bean cannot be registered to JMX", e );</a>
+<span class="sourceLineNo">121</span><a id="line.121">        } catch( final NotCompliantMBeanException e ) {</a>
+<span class="sourceLineNo">122</span><a id="line.122">            log.error( "Your admin bean is not very good", e );</a>
+<span class="sourceLineNo">123</span><a id="line.123">        } catch( final MalformedObjectNameException e ) {</a>
+<span class="sourceLineNo">124</span><a id="line.124">            log.error( "Your admin bean name is not very good", e );</a>
+<span class="sourceLineNo">125</span><a id="line.125">        } catch( final NullPointerException e ) {</a>
+<span class="sourceLineNo">126</span><a id="line.126">            log.error( "Evil NPE occurred", e );</a>
+<span class="sourceLineNo">127</span><a id="line.127">        }</a>
+<span class="sourceLineNo">128</span><a id="line.128">    }</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">    private ObjectName getObjectName( final AdminBean ab ) throws MalformedObjectNameException {</a>
+<span class="sourceLineNo">131</span><a id="line.131">        final String component = getJMXTitleString( ab.getType() );</a>
+<span class="sourceLineNo">132</span><a id="line.132">        final String title     = ab.getTitle();</a>
+<span class="sourceLineNo">133</span><a id="line.133">        return new ObjectName( Release.APPNAME + ":component=" + component + ",name=" + title );</a>
+<span class="sourceLineNo">134</span><a id="line.134">    }</a>
+<span class="sourceLineNo">135</span><a id="line.135"></a>
+<span class="sourceLineNo">136</span><a id="line.136">    /**</a>
+<span class="sourceLineNo">137</span><a id="line.137">     *  Registers all the beans from a collection of WikiModuleInfos.  If some of the beans fail, logs the message and keeps going to the</a>
+<span class="sourceLineNo">138</span><a id="line.138">     *  next bean.</a>
+<span class="sourceLineNo">139</span><a id="line.139">     *</a>
+<span class="sourceLineNo">140</span><a id="line.140">     *  @param c Collection of WikiModuleInfo instances</a>
+<span class="sourceLineNo">141</span><a id="line.141">     */</a>
+<span class="sourceLineNo">142</span><a id="line.142">    private void registerBeans( final Collection&lt; WikiModuleInfo &gt; c ) {</a>
+<span class="sourceLineNo">143</span><a id="line.143">        for( final WikiModuleInfo wikiModuleInfo : c ) {</a>
+<span class="sourceLineNo">144</span><a id="line.144">            final String abname = wikiModuleInfo.getAdminBeanClass();</a>
+<span class="sourceLineNo">145</span><a id="line.145">            try {</a>
+<span class="sourceLineNo">146</span><a id="line.146">                if( abname != null &amp;&amp; !abname.isEmpty() ) {</a>
+<span class="sourceLineNo">147</span><a id="line.147">                    final Class&lt; ? &gt; abclass = Class.forName( abname );</a>
+<span class="sourceLineNo">148</span><a id="line.148">                    final AdminBean ab = ( AdminBean )abclass.newInstance();</a>
+<span class="sourceLineNo">149</span><a id="line.149">                    registerAdminBean( ab );</a>
+<span class="sourceLineNo">150</span><a id="line.150">                }</a>
+<span class="sourceLineNo">151</span><a id="line.151">            } catch( final ClassNotFoundException | InstantiationException | IllegalAccessException e ) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">                log.error( e.getMessage(), e );</a>
+<span class="sourceLineNo">153</span><a id="line.153">            }</a>
+<span class="sourceLineNo">154</span><a id="line.154">        }</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">    }</a>
+<span class="sourceLineNo">157</span><a id="line.157"></a>
+<span class="sourceLineNo">158</span><a id="line.158">    // FIXME: Should unload the beans first.</a>
+<span class="sourceLineNo">159</span><a id="line.159">    private void reload() {</a>
+<span class="sourceLineNo">160</span><a id="line.160">        m_allBeans = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">161</span><a id="line.161"></a>
+<span class="sourceLineNo">162</span><a id="line.162">        try {</a>
+<span class="sourceLineNo">163</span><a id="line.163">            registerAdminBean( new CoreBean( m_engine ) );</a>
+<span class="sourceLineNo">164</span><a id="line.164">            registerAdminBean( new UserBean( m_engine ) );</a>
+<span class="sourceLineNo">165</span><a id="line.165">            registerAdminBean( new SearchManagerBean( m_engine ) );</a>
+<span class="sourceLineNo">166</span><a id="line.166">            registerAdminBean( new PluginBean( m_engine ) );</a>
+<span class="sourceLineNo">167</span><a id="line.167">            registerAdminBean( new FilterBean( m_engine ) );</a>
+<span class="sourceLineNo">168</span><a id="line.168">        } catch( final NotCompliantMBeanException e ) {</a>
+<span class="sourceLineNo">169</span><a id="line.169">            log.error( e.getMessage(), e );</a>
+<span class="sourceLineNo">170</span><a id="line.170">        }</a>
+<span class="sourceLineNo">171</span><a id="line.171">        for( final ModuleManager moduleManager : m_engine.getManagers( ModuleManager.class ) ) {</a>
+<span class="sourceLineNo">172</span><a id="line.172">            registerBeans( moduleManager.modules() );</a>
+<span class="sourceLineNo">173</span><a id="line.173">        }</a>
+<span class="sourceLineNo">174</span><a id="line.174">    }</a>
+<span class="sourceLineNo">175</span><a id="line.175"></a>
+<span class="sourceLineNo">176</span><a id="line.176">    /* (non-Javadoc)</a>
+<span class="sourceLineNo">177</span><a id="line.177">     * @see org.apache.wiki.ui.admin.AdminBeanManager#getAllBeans()</a>
+<span class="sourceLineNo">178</span><a id="line.178">     */</a>
+<span class="sourceLineNo">179</span><a id="line.179">    @Override</a>
+<span class="sourceLineNo">180</span><a id="line.180">    public List&lt; AdminBean &gt; getAllBeans() {</a>
+<span class="sourceLineNo">181</span><a id="line.181">        if( m_allBeans == null ) {</a>
+<span class="sourceLineNo">182</span><a id="line.182">            reload();</a>
+<span class="sourceLineNo">183</span><a id="line.183">        }</a>
+<span class="sourceLineNo">184</span><a id="line.184"></a>
+<span class="sourceLineNo">185</span><a id="line.185">        return m_allBeans;</a>
+<span class="sourceLineNo">186</span><a id="line.186">    }</a>
+<span class="sourceLineNo">187</span><a id="line.187"></a>
+<span class="sourceLineNo">188</span><a id="line.188">    /* (non-Javadoc)</a>
+<span class="sourceLineNo">189</span><a id="line.189">     * @see org.apache.wiki.ui.admin.AdminBeanManager#findBean(java.lang.String)</a>
+<span class="sourceLineNo">190</span><a id="line.190">     */</a>
+<span class="sourceLineNo">191</span><a id="line.191">    @Override</a>
+<span class="sourceLineNo">192</span><a id="line.192">    public AdminBean findBean( final String id ) {</a>
+<span class="sourceLineNo">193</span><a id="line.193">        for( final AdminBean ab : m_allBeans ) {</a>
+<span class="sourceLineNo">194</span><a id="line.194">            if( ab.getId().equals( id ) ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">                return ab;</a>
+<span class="sourceLineNo">196</span><a id="line.196">            }</a>
+<span class="sourceLineNo">197</span><a id="line.197">        }</a>
+<span class="sourceLineNo">198</span><a id="line.198"></a>
+<span class="sourceLineNo">199</span><a id="line.199">        return null;</a>
+<span class="sourceLineNo">200</span><a id="line.200">    }</a>
+<span class="sourceLineNo">201</span><a id="line.201"></a>
+<span class="sourceLineNo">202</span><a id="line.202">    /**</a>
+<span class="sourceLineNo">203</span><a id="line.203">     *  Provides a JDK 1.5-compliant version of the MBeanServerFactory. This will simply bind to the</a>
+<span class="sourceLineNo">204</span><a id="line.204">     *  platform MBeanServer.</a>
+<span class="sourceLineNo">205</span><a id="line.205">     */</a>
+<span class="sourceLineNo">206</span><a id="line.206">    private static final class MBeanServerFactory15 {</a>
+<span class="sourceLineNo">207</span><a id="line.207">        private MBeanServerFactory15()</a>
+<span class="sourceLineNo">208</span><a id="line.208">        {}</a>
+<span class="sourceLineNo">209</span><a id="line.209"></a>
+<span class="sourceLineNo">210</span><a id="line.210">        public static MBeanServer getServer() {</a>
+<span class="sourceLineNo">211</span><a id="line.211">            return ManagementFactory.getPlatformMBeanServer();</a>
+<span class="sourceLineNo">212</span><a id="line.212">        }</a>
+<span class="sourceLineNo">213</span><a id="line.213">    }</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">    /**</a>
+<span class="sourceLineNo">216</span><a id="line.216">     *  Returns the type identifier for a string type.</a>
+<span class="sourceLineNo">217</span><a id="line.217">     *</a>
+<span class="sourceLineNo">218</span><a id="line.218">     *  @param type A type string.</a>
+<span class="sourceLineNo">219</span><a id="line.219">     *  @return A type value.</a>
+<span class="sourceLineNo">220</span><a id="line.220">     */</a>
+<span class="sourceLineNo">221</span><a id="line.221">    @Override</a>
+<span class="sourceLineNo">222</span><a id="line.222">    public int getTypeFromString( final String type ) {</a>
+<span class="sourceLineNo">223</span><a id="line.223">        if( "core".equals( type ) ) {</a>
+<span class="sourceLineNo">224</span><a id="line.224">            return AdminBean.CORE;</a>
+<span class="sourceLineNo">225</span><a id="line.225">        } else if( "editors".equals( type ) ) {</a>
+<span class="sourceLineNo">226</span><a id="line.226">            return AdminBean.EDITOR;</a>
+<span class="sourceLineNo">227</span><a id="line.227">        }</a>
+<span class="sourceLineNo">228</span><a id="line.228"></a>
+<span class="sourceLineNo">229</span><a id="line.229">        return AdminBean.UNKNOWN;</a>
+<span class="sourceLineNo">230</span><a id="line.230">    }</a>
+<span class="sourceLineNo">231</span><a id="line.231"></a>
+<span class="sourceLineNo">232</span><a id="line.232">    /* (non-Javadoc)</a>
+<span class="sourceLineNo">233</span><a id="line.233">     * @see org.apache.wiki.ui.admin.AdminBeanManager#actionPerformed(org.apache.wiki.event.WikiEvent)</a>
+<span class="sourceLineNo">234</span><a id="line.234">     */</a>
+<span class="sourceLineNo">235</span><a id="line.235">    @Override</a>
+<span class="sourceLineNo">236</span><a id="line.236">    public void actionPerformed( final WikiEvent event ) {</a>
+<span class="sourceLineNo">237</span><a id="line.237">        if( event instanceof WikiEngineEvent ) {</a>
+<span class="sourceLineNo">238</span><a id="line.238">            if( event.getType() == WikiEngineEvent.SHUTDOWN ) {</a>
+<span class="sourceLineNo">239</span><a id="line.239">                for( final AdminBean m_allBean : m_allBeans ) {</a>
+<span class="sourceLineNo">240</span><a id="line.240">                    try {</a>
+<span class="sourceLineNo">241</span><a id="line.241">                        final ObjectName on = getObjectName( m_allBean );</a>
+<span class="sourceLineNo">242</span><a id="line.242">                        if( m_mbeanServer.isRegistered( on ) ) {</a>
+<span class="sourceLineNo">243</span><a id="line.243">                            m_mbeanServer.unregisterMBean( on );</a>
+<span class="sourceLineNo">244</span><a id="line.244">                            log.info( "Unregistered AdminBean " + m_allBean.getTitle() );</a>
+<span class="sourceLineNo">245</span><a id="line.245">                        }</a>
+<span class="sourceLineNo">246</span><a id="line.246">                    } catch( final MalformedObjectNameException e ) {</a>
+<span class="sourceLineNo">247</span><a id="line.247">                        log.error( "Malformed object name when unregistering", e );</a>
+<span class="sourceLineNo">248</span><a id="line.248">                    } catch( final InstanceNotFoundException e ) {</a>
+<span class="sourceLineNo">249</span><a id="line.249">                        log.error( "Object was registered; yet claims that it's not there", e );</a>
+<span class="sourceLineNo">250</span><a id="line.250">                    } catch( final MBeanRegistrationException e ) {</a>
+<span class="sourceLineNo">251</span><a id="line.251">                        log.error( "Registration exception while unregistering", e );</a>
+<span class="sourceLineNo">252</span><a id="line.252">                    }</a>
+<span class="sourceLineNo">253</span><a id="line.253">                }</a>
+<span class="sourceLineNo">254</span><a id="line.254">            }</a>
+<span class="sourceLineNo">255</span><a id="line.255">        }</a>
+<span class="sourceLineNo">256</span><a id="line.256">    }</a>
+<span class="sourceLineNo">257</span><a id="line.257"></a>
+<span class="sourceLineNo">258</span><a id="line.258">}</a>
 
 
 
