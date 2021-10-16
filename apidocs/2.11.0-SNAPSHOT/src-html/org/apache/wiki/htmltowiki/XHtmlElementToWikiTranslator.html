@@ -27,999 +27,895 @@
 <span class="sourceLineNo">018</span><a id="line.18"> */</a>
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.htmltowiki;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
-<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.text.StringEscapeUtils;</a>
-<span class="sourceLineNo">022</span><a id="line.22">import org.jdom2.Attribute;</a>
-<span class="sourceLineNo">023</span><a id="line.23">import org.jdom2.Content;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.jdom2.Element;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.jdom2.JDOMException;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.jdom2.Text;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.jdom2.xpath.XPathFactory;</a>
-<span class="sourceLineNo">028</span><a id="line.28"></a>
-<span class="sourceLineNo">029</span><a id="line.29">import java.io.ByteArrayInputStream;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import java.io.IOException;</a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.commons.text.StringEscapeUtils;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.util.XmlUtil;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.jdom2.Attribute;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.jdom2.Content;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.jdom2.Element;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.jdom2.JDOMException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.jdom2.Text;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.jdom2.xpath.XPathFactory;</a>
+<span class="sourceLineNo">030</span><a id="line.30"></a>
 <span class="sourceLineNo">031</span><a id="line.31">import java.io.PrintWriter;</a>
 <span class="sourceLineNo">032</span><a id="line.32">import java.io.UnsupportedEncodingException;</a>
 <span class="sourceLineNo">033</span><a id="line.33">import java.net.URLDecoder;</a>
 <span class="sourceLineNo">034</span><a id="line.34">import java.nio.charset.StandardCharsets;</a>
-<span class="sourceLineNo">035</span><a id="line.35">import java.util.HashMap;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import java.util.Iterator;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.util.Arrays;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.util.HashMap;</a>
 <span class="sourceLineNo">037</span><a id="line.37">import java.util.LinkedHashMap;</a>
-<span class="sourceLineNo">038</span><a id="line.38">import java.util.List;</a>
-<span class="sourceLineNo">039</span><a id="line.39">import java.util.Map;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Map;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.Stack;</a>
 <span class="sourceLineNo">040</span><a id="line.40"></a>
 <span class="sourceLineNo">041</span><a id="line.41"></a>
 <span class="sourceLineNo">042</span><a id="line.42">/**</a>
-<span class="sourceLineNo">043</span><a id="line.43"> * Converting XHtml to Wiki Markup.  This is the class which does all of the heavy loading.</a>
-<span class="sourceLineNo">044</span><a id="line.44"> *</a>
-<span class="sourceLineNo">045</span><a id="line.45"> */</a>
-<span class="sourceLineNo">046</span><a id="line.46">public class XHtmlElementToWikiTranslator</a>
-<span class="sourceLineNo">047</span><a id="line.47">{</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * Converting XHtml to Wiki Markup.  This is the class which does all the heavy loading.</a>
+<span class="sourceLineNo">044</span><a id="line.44"> */</a>
+<span class="sourceLineNo">045</span><a id="line.45">public class XHtmlElementToWikiTranslator {</a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">    private final XHtmlToWikiConfig config;</a>
 <span class="sourceLineNo">048</span><a id="line.48"></a>
-<span class="sourceLineNo">049</span><a id="line.49">    private final XHtmlToWikiConfig m_config;</a>
+<span class="sourceLineNo">049</span><a id="line.49">    private final WhitespaceTrimWriter outTrimmer = new WhitespaceTrimWriter();</a>
 <span class="sourceLineNo">050</span><a id="line.50"></a>
-<span class="sourceLineNo">051</span><a id="line.51">    private final WhitespaceTrimWriter m_outTimmer;</a>
+<span class="sourceLineNo">051</span><a id="line.51">    private final PrintWriter out = new PrintWriter( outTrimmer );</a>
 <span class="sourceLineNo">052</span><a id="line.52"></a>
-<span class="sourceLineNo">053</span><a id="line.53">    private final PrintWriter m_out;</a>
+<span class="sourceLineNo">053</span><a id="line.53">    private final Stack&lt; String &gt; liStack = new Stack&lt;&gt;();</a>
 <span class="sourceLineNo">054</span><a id="line.54"></a>
-<span class="sourceLineNo">055</span><a id="line.55">    private final LiStack m_liStack = new LiStack();</a>
+<span class="sourceLineNo">055</span><a id="line.55">    private final Stack&lt; String &gt; preStack = new PreStack();</a>
 <span class="sourceLineNo">056</span><a id="line.56"></a>
-<span class="sourceLineNo">057</span><a id="line.57">    private final PreStack m_preStack = new PreStack();</a>
-<span class="sourceLineNo">058</span><a id="line.58"></a>
-<span class="sourceLineNo">059</span><a id="line.59">    /**</a>
-<span class="sourceLineNo">060</span><a id="line.60">     *  Create a new translator using the default config.</a>
-<span class="sourceLineNo">061</span><a id="line.61">     *</a>
-<span class="sourceLineNo">062</span><a id="line.62">     *  @param base The base element from which to start translating.</a>
-<span class="sourceLineNo">063</span><a id="line.63">     *  @throws IOException If reading of the DOM tree fails.</a>
-<span class="sourceLineNo">064</span><a id="line.64">     *  @throws JDOMException If the DOM tree is faulty.</a>
-<span class="sourceLineNo">065</span><a id="line.65">     */</a>
-<span class="sourceLineNo">066</span><a id="line.66">    public XHtmlElementToWikiTranslator(final Element base ) throws IOException, JDOMException</a>
-<span class="sourceLineNo">067</span><a id="line.67">    {</a>
-<span class="sourceLineNo">068</span><a id="line.68">        this( base, new XHtmlToWikiConfig() );</a>
-<span class="sourceLineNo">069</span><a id="line.69">    }</a>
-<span class="sourceLineNo">070</span><a id="line.70"></a>
-<span class="sourceLineNo">071</span><a id="line.71">    /**</a>
-<span class="sourceLineNo">072</span><a id="line.72">     *  Create a new translator using the specified config.</a>
-<span class="sourceLineNo">073</span><a id="line.73">     *</a>
-<span class="sourceLineNo">074</span><a id="line.74">     *  @param base The base element from which to start translating.</a>
-<span class="sourceLineNo">075</span><a id="line.75">     *  @param config The config to use.</a>
-<span class="sourceLineNo">076</span><a id="line.76">     *  @throws IOException If reading of the DOM tree fails.</a>
-<span class="sourceLineNo">077</span><a id="line.77">     *  @throws JDOMException If the DOM tree is faulty.</a>
-<span class="sourceLineNo">078</span><a id="line.78">     */</a>
-<span class="sourceLineNo">079</span><a id="line.79">    public XHtmlElementToWikiTranslator(final Element base, final XHtmlToWikiConfig config ) throws IOException, JDOMException</a>
-<span class="sourceLineNo">080</span><a id="line.80">    {</a>
-<span class="sourceLineNo">081</span><a id="line.81">        this.m_config = config;</a>
-<span class="sourceLineNo">082</span><a id="line.82">        m_outTimmer = new WhitespaceTrimWriter();</a>
-<span class="sourceLineNo">083</span><a id="line.83">        m_out = new PrintWriter( m_outTimmer );</a>
-<span class="sourceLineNo">084</span><a id="line.84">        print( base );</a>
-<span class="sourceLineNo">085</span><a id="line.85">    }</a>
-<span class="sourceLineNo">086</span><a id="line.86"></a>
-<span class="sourceLineNo">087</span><a id="line.87">    /**</a>
-<span class="sourceLineNo">088</span><a id="line.88">     *  FIXME: I have no idea what this does...</a>
-<span class="sourceLineNo">089</span><a id="line.89">     *</a>
-<span class="sourceLineNo">090</span><a id="line.90">     *  @return Something.</a>
-<span class="sourceLineNo">091</span><a id="line.91">     */</a>
-<span class="sourceLineNo">092</span><a id="line.92">    public String getWikiString()</a>
-<span class="sourceLineNo">093</span><a id="line.93">    {</a>
-<span class="sourceLineNo">094</span><a id="line.94">        return m_outTimmer.toString();</a>
-<span class="sourceLineNo">095</span><a id="line.95">    }</a>
-<span class="sourceLineNo">096</span><a id="line.96"></a>
-<span class="sourceLineNo">097</span><a id="line.97">    private void print( String s )</a>
-<span class="sourceLineNo">098</span><a id="line.98">    {</a>
-<span class="sourceLineNo">099</span><a id="line.99">        s = StringEscapeUtils.unescapeHtml4( s );</a>
-<span class="sourceLineNo">100</span><a id="line.100">        m_out.print( s );</a>
-<span class="sourceLineNo">101</span><a id="line.101">    }</a>
-<span class="sourceLineNo">102</span><a id="line.102"></a>
-<span class="sourceLineNo">103</span><a id="line.103">    private void print(final Object element ) throws IOException, JDOMException</a>
-<span class="sourceLineNo">104</span><a id="line.104">    {</a>
-<span class="sourceLineNo">105</span><a id="line.105">        if( element instanceof Text )</a>
-<span class="sourceLineNo">106</span><a id="line.106">        {</a>
-<span class="sourceLineNo">107</span><a id="line.107">            final Text t = (Text)element;</a>
-<span class="sourceLineNo">108</span><a id="line.108">            String s = t.getText();</a>
-<span class="sourceLineNo">109</span><a id="line.109">            if( m_preStack.isPreMode() )</a>
-<span class="sourceLineNo">110</span><a id="line.110">            {</a>
-<span class="sourceLineNo">111</span><a id="line.111">                m_out.print( s );</a>
-<span class="sourceLineNo">112</span><a id="line.112">            }</a>
-<span class="sourceLineNo">113</span><a id="line.113">            else</a>
-<span class="sourceLineNo">114</span><a id="line.114">            {</a>
-<span class="sourceLineNo">115</span><a id="line.115">                // remove all "line terminator" characters</a>
-<span class="sourceLineNo">116</span><a id="line.116">                s = s.replaceAll( "[\\r\\n\\f\\u0085\\u2028\\u2029]", "" );</a>
-<span class="sourceLineNo">117</span><a id="line.117">                m_out.print( s );</a>
-<span class="sourceLineNo">118</span><a id="line.118">            }</a>
-<span class="sourceLineNo">119</span><a id="line.119">        }</a>
-<span class="sourceLineNo">120</span><a id="line.120">        else if( element instanceof Element )</a>
-<span class="sourceLineNo">121</span><a id="line.121">        {</a>
-<span class="sourceLineNo">122</span><a id="line.122">            final Element base = (Element)element;</a>
-<span class="sourceLineNo">123</span><a id="line.123">            String n = base.getName().toLowerCase();</a>
-<span class="sourceLineNo">124</span><a id="line.124">            if( "imageplugin".equals( base.getAttributeValue( "class" ) ) )</a>
-<span class="sourceLineNo">125</span><a id="line.125">            {</a>
-<span class="sourceLineNo">126</span><a id="line.126">                printImage( base );</a>
-<span class="sourceLineNo">127</span><a id="line.127">            }</a>
-<span class="sourceLineNo">128</span><a id="line.128">            else if( "wikiform".equals( base.getAttributeValue( "class" ) ) )</a>
-<span class="sourceLineNo">129</span><a id="line.129">            {</a>
-<span class="sourceLineNo">130</span><a id="line.130">                // only print the children if the div's class="wikiform", but not the div itself.</a>
-<span class="sourceLineNo">131</span><a id="line.131">                printChildren( base );</a>
-<span class="sourceLineNo">132</span><a id="line.132">            }</a>
-<span class="sourceLineNo">133</span><a id="line.133">            else</a>
-<span class="sourceLineNo">134</span><a id="line.134">            {</a>
-<span class="sourceLineNo">135</span><a id="line.135">                boolean bold = false;</a>
-<span class="sourceLineNo">136</span><a id="line.136">                boolean italic = false;</a>
-<span class="sourceLineNo">137</span><a id="line.137">                boolean monospace = false;</a>
-<span class="sourceLineNo">138</span><a id="line.138">                String cssSpecial = null;</a>
-<span class="sourceLineNo">139</span><a id="line.139">                final String cssClass = base.getAttributeValue( "class" );</a>
-<span class="sourceLineNo">140</span><a id="line.140"></a>
-<span class="sourceLineNo">141</span><a id="line.141">                // accomodate a FCKeditor bug with Firefox: when a link is removed, it becomes &lt;span class="wikipage"&gt;text&lt;/span&gt;.</a>
-<span class="sourceLineNo">142</span><a id="line.142">                final boolean ignoredCssClass = cssClass != null &amp;&amp; cssClass.matches( "wikipage|createpage|external|interwiki|attachment|inline-code" );</a>
+<span class="sourceLineNo">057</span><a id="line.57">    /**</a>
+<span class="sourceLineNo">058</span><a id="line.58">     *  Create a new translator using the default config.</a>
+<span class="sourceLineNo">059</span><a id="line.59">     *</a>
+<span class="sourceLineNo">060</span><a id="line.60">     *  @param base The base element from which to start translating.</a>
+<span class="sourceLineNo">061</span><a id="line.61">     *  @throws JDOMException If the DOM tree is faulty.</a>
+<span class="sourceLineNo">062</span><a id="line.62">     */</a>
+<span class="sourceLineNo">063</span><a id="line.63">    public XHtmlElementToWikiTranslator(final Element base ) throws JDOMException {</a>
+<span class="sourceLineNo">064</span><a id="line.64">        this( base, new XHtmlToWikiConfig() );</a>
+<span class="sourceLineNo">065</span><a id="line.65">    }</a>
+<span class="sourceLineNo">066</span><a id="line.66"></a>
+<span class="sourceLineNo">067</span><a id="line.67">    /**</a>
+<span class="sourceLineNo">068</span><a id="line.68">     *  Create a new translator using the specified config.</a>
+<span class="sourceLineNo">069</span><a id="line.69">     *</a>
+<span class="sourceLineNo">070</span><a id="line.70">     *  @param base The base element from which to start translating.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *  @param config The config to use.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     *  @throws JDOMException If the DOM tree is faulty.</a>
+<span class="sourceLineNo">073</span><a id="line.73">     */</a>
+<span class="sourceLineNo">074</span><a id="line.74">    public XHtmlElementToWikiTranslator( final Element base, final XHtmlToWikiConfig config ) throws JDOMException {</a>
+<span class="sourceLineNo">075</span><a id="line.75">        this.config = config;</a>
+<span class="sourceLineNo">076</span><a id="line.76">        translate( base );</a>
+<span class="sourceLineNo">077</span><a id="line.77">    }</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    /**</a>
+<span class="sourceLineNo">080</span><a id="line.80">     * Outputs parsed wikitext.</a>
+<span class="sourceLineNo">081</span><a id="line.81">     *</a>
+<span class="sourceLineNo">082</span><a id="line.82">     * @return parsed wikitext.</a>
+<span class="sourceLineNo">083</span><a id="line.83">     */</a>
+<span class="sourceLineNo">084</span><a id="line.84">    public String getWikiString() {</a>
+<span class="sourceLineNo">085</span><a id="line.85">        return outTrimmer.toString();</a>
+<span class="sourceLineNo">086</span><a id="line.86">    }</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    private void translate( final Content element ) throws JDOMException {</a>
+<span class="sourceLineNo">089</span><a id="line.89">        if( element instanceof Text ) {</a>
+<span class="sourceLineNo">090</span><a id="line.90">            decorateMarkupForText( ( Text )element );</a>
+<span class="sourceLineNo">091</span><a id="line.91">        } else if( element instanceof Element ) {</a>
+<span class="sourceLineNo">092</span><a id="line.92">            final Element base = ( Element )element;</a>
+<span class="sourceLineNo">093</span><a id="line.93">            if( "imageplugin".equals( base.getAttributeValue( "class" ) ) ) {</a>
+<span class="sourceLineNo">094</span><a id="line.94">                translateImage( base );</a>
+<span class="sourceLineNo">095</span><a id="line.95">            } else if( "wikiform".equals( base.getAttributeValue( "class" ) ) ) {</a>
+<span class="sourceLineNo">096</span><a id="line.96">                // only print the children if the div's class="wikiform", but not the div itself.</a>
+<span class="sourceLineNo">097</span><a id="line.97">                translateChildren( base );</a>
+<span class="sourceLineNo">098</span><a id="line.98">            } else {</a>
+<span class="sourceLineNo">099</span><a id="line.99">                final ElementDecoratorData dto = buildElementDecoratorDataFrom( base );</a>
+<span class="sourceLineNo">100</span><a id="line.100">                decorateMarkupForElementWith( dto );</a>
+<span class="sourceLineNo">101</span><a id="line.101">            }</a>
+<span class="sourceLineNo">102</span><a id="line.102">        }</a>
+<span class="sourceLineNo">103</span><a id="line.103">    }</a>
+<span class="sourceLineNo">104</span><a id="line.104"></a>
+<span class="sourceLineNo">105</span><a id="line.105">    void decorateMarkupForString( final String s ) {</a>
+<span class="sourceLineNo">106</span><a id="line.106">        out.print( StringEscapeUtils.unescapeHtml4( s ) );</a>
+<span class="sourceLineNo">107</span><a id="line.107">    }</a>
+<span class="sourceLineNo">108</span><a id="line.108"></a>
+<span class="sourceLineNo">109</span><a id="line.109">    void decorateMarkupForText( final Text text ) {</a>
+<span class="sourceLineNo">110</span><a id="line.110">        String s = text.getText();</a>
+<span class="sourceLineNo">111</span><a id="line.111">        if( preStack.isEmpty() ) {</a>
+<span class="sourceLineNo">112</span><a id="line.112">            // remove all "line terminator" characters</a>
+<span class="sourceLineNo">113</span><a id="line.113">            s = s.replaceAll( "[\\r\\n\\f\\u0085\\u2028\\u2029]", "" );</a>
+<span class="sourceLineNo">114</span><a id="line.114">        }</a>
+<span class="sourceLineNo">115</span><a id="line.115">        out.print( s );</a>
+<span class="sourceLineNo">116</span><a id="line.116">    }</a>
+<span class="sourceLineNo">117</span><a id="line.117"></a>
+<span class="sourceLineNo">118</span><a id="line.118">    ElementDecoratorData buildElementDecoratorDataFrom( final Element base ) {</a>
+<span class="sourceLineNo">119</span><a id="line.119">        String n = base.getName().toLowerCase();</a>
+<span class="sourceLineNo">120</span><a id="line.120">        boolean bold = false;</a>
+<span class="sourceLineNo">121</span><a id="line.121">        boolean italic = false;</a>
+<span class="sourceLineNo">122</span><a id="line.122">        boolean monospace = false;</a>
+<span class="sourceLineNo">123</span><a id="line.123">        String cssSpecial = null;</a>
+<span class="sourceLineNo">124</span><a id="line.124">        final String cssClass = base.getAttributeValue( "class" );</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">        // accomodate a FCKeditor bug with Firefox: when a link is removed, it becomes &lt;span class="wikipage"&gt;text&lt;/span&gt;.</a>
+<span class="sourceLineNo">127</span><a id="line.127">        final boolean ignoredCssClass = cssClass != null &amp;&amp; cssClass.matches( "wikipage|createpage|external|interwiki|attachment|inline-code" );</a>
+<span class="sourceLineNo">128</span><a id="line.128"></a>
+<span class="sourceLineNo">129</span><a id="line.129">        Map&lt; Object, Object &gt; styleProps = null;</a>
+<span class="sourceLineNo">130</span><a id="line.130"></a>
+<span class="sourceLineNo">131</span><a id="line.131">        // Only get the styles if it's not a link element. Styles for link elements are handled as an AugmentedWikiLink instead.</a>
+<span class="sourceLineNo">132</span><a id="line.132">        if( !n.equals( "a" ) ) {</a>
+<span class="sourceLineNo">133</span><a id="line.133">            styleProps = getStylePropertiesLowerCase( base );</a>
+<span class="sourceLineNo">134</span><a id="line.134">        }</a>
+<span class="sourceLineNo">135</span><a id="line.135"></a>
+<span class="sourceLineNo">136</span><a id="line.136">        if( "inline-code".equals( cssClass ) ) {</a>
+<span class="sourceLineNo">137</span><a id="line.137">            monospace = true;</a>
+<span class="sourceLineNo">138</span><a id="line.138">        }</a>
+<span class="sourceLineNo">139</span><a id="line.139"></a>
+<span class="sourceLineNo">140</span><a id="line.140">        if( styleProps != null ) {</a>
+<span class="sourceLineNo">141</span><a id="line.141">            final String weight = ( String ) styleProps.remove( "font-weight" );</a>
+<span class="sourceLineNo">142</span><a id="line.142">            final String style = ( String ) styleProps.remove( "font-style" );</a>
 <span class="sourceLineNo">143</span><a id="line.143"></a>
-<span class="sourceLineNo">144</span><a id="line.144">                Map&lt; Object, Object &gt; styleProps = null;</a>
-<span class="sourceLineNo">145</span><a id="line.145"></a>
-<span class="sourceLineNo">146</span><a id="line.146">                // Only get the styles if it's not a link element. Styles for link elements are</a>
-<span class="sourceLineNo">147</span><a id="line.147">                // handled as an AugmentedWikiLink instead.</a>
-<span class="sourceLineNo">148</span><a id="line.148">                if( !n.equals( "a" ) )</a>
-<span class="sourceLineNo">149</span><a id="line.149">                {</a>
-<span class="sourceLineNo">150</span><a id="line.150">                    styleProps = getStylePropertiesLowerCase( base );</a>
-<span class="sourceLineNo">151</span><a id="line.151">                }</a>
-<span class="sourceLineNo">152</span><a id="line.152"></a>
-<span class="sourceLineNo">153</span><a id="line.153">                if("inline-code".equals(cssClass))</a>
-<span class="sourceLineNo">154</span><a id="line.154">                {</a>
-<span class="sourceLineNo">155</span><a id="line.155">                    monospace = true;</a>
-<span class="sourceLineNo">156</span><a id="line.156">                }</a>
-<span class="sourceLineNo">157</span><a id="line.157"></a>
-<span class="sourceLineNo">158</span><a id="line.158">                if( styleProps != null )</a>
-<span class="sourceLineNo">159</span><a id="line.159">                {</a>
-<span class="sourceLineNo">160</span><a id="line.160">                    final String weight = (String)styleProps.remove( "font-weight" );</a>
-<span class="sourceLineNo">161</span><a id="line.161">                    final String style = (String)styleProps.remove( "font-style" );</a>
-<span class="sourceLineNo">162</span><a id="line.162"></a>
-<span class="sourceLineNo">163</span><a id="line.163">                    if( n.equals( "p" ) )</a>
-<span class="sourceLineNo">164</span><a id="line.164">                    {</a>
-<span class="sourceLineNo">165</span><a id="line.165">                        // change it so we can print out the css styles for &lt;p&gt;</a>
-<span class="sourceLineNo">166</span><a id="line.166">                        n = "div";</a>
-<span class="sourceLineNo">167</span><a id="line.167">                    }</a>
-<span class="sourceLineNo">168</span><a id="line.168"></a>
-<span class="sourceLineNo">169</span><a id="line.169">                    italic = "oblique".equals( style ) || "italic".equals( style );</a>
-<span class="sourceLineNo">170</span><a id="line.170">                    bold = "bold".equals( weight ) || "bolder".equals( weight );</a>
-<span class="sourceLineNo">171</span><a id="line.171">                    if( !styleProps.isEmpty() )</a>
-<span class="sourceLineNo">172</span><a id="line.172">                    {</a>
-<span class="sourceLineNo">173</span><a id="line.173">                        cssSpecial = propsToStyleString( styleProps );</a>
-<span class="sourceLineNo">174</span><a id="line.174">                    }</a>
-<span class="sourceLineNo">175</span><a id="line.175">                }</a>
-<span class="sourceLineNo">176</span><a id="line.176">                if( cssClass != null &amp;&amp; !ignoredCssClass )</a>
-<span class="sourceLineNo">177</span><a id="line.177">                {</a>
-<span class="sourceLineNo">178</span><a id="line.178">                    if( n.equals( "div" ) )</a>
-<span class="sourceLineNo">179</span><a id="line.179">                    {</a>
-<span class="sourceLineNo">180</span><a id="line.180">                        m_out.print( "\n%%" + cssClass + " \n" );</a>
-<span class="sourceLineNo">181</span><a id="line.181">                    }</a>
-<span class="sourceLineNo">182</span><a id="line.182">                    else if( n.equals( "span" ) )</a>
-<span class="sourceLineNo">183</span><a id="line.183">                    {</a>
-<span class="sourceLineNo">184</span><a id="line.184">                        m_out.print( "%%" + cssClass + " " );</a>
-<span class="sourceLineNo">185</span><a id="line.185">                    }</a>
-<span class="sourceLineNo">186</span><a id="line.186">                }</a>
-<span class="sourceLineNo">187</span><a id="line.187">                if( bold )</a>
-<span class="sourceLineNo">188</span><a id="line.188">                {</a>
-<span class="sourceLineNo">189</span><a id="line.189">                    m_out.print( "__" );</a>
-<span class="sourceLineNo">190</span><a id="line.190">                }</a>
-<span class="sourceLineNo">191</span><a id="line.191">                if( italic )</a>
-<span class="sourceLineNo">192</span><a id="line.192">                {</a>
-<span class="sourceLineNo">193</span><a id="line.193">                    m_out.print( "''" );</a>
-<span class="sourceLineNo">194</span><a id="line.194">                }</a>
-<span class="sourceLineNo">195</span><a id="line.195">                if( monospace )</a>
-<span class="sourceLineNo">196</span><a id="line.196">                {</a>
-<span class="sourceLineNo">197</span><a id="line.197">                    m_out.print( "{{{" );</a>
-<span class="sourceLineNo">198</span><a id="line.198">                    m_preStack.push();</a>
-<span class="sourceLineNo">199</span><a id="line.199">                }</a>
-<span class="sourceLineNo">200</span><a id="line.200">                if( cssSpecial != null )</a>
-<span class="sourceLineNo">201</span><a id="line.201">                {</a>
-<span class="sourceLineNo">202</span><a id="line.202">                    if( n.equals( "div" ) )</a>
-<span class="sourceLineNo">203</span><a id="line.203">                    {</a>
-<span class="sourceLineNo">204</span><a id="line.204">                        m_out.print( "\n%%(" + cssSpecial + " )\n" );</a>
-<span class="sourceLineNo">205</span><a id="line.205">                    }</a>
-<span class="sourceLineNo">206</span><a id="line.206">                    else</a>
-<span class="sourceLineNo">207</span><a id="line.207">                    {</a>
-<span class="sourceLineNo">208</span><a id="line.208">                        m_out.print( "%%(" + cssSpecial + " )" );</a>
-<span class="sourceLineNo">209</span><a id="line.209">                    }</a>
-<span class="sourceLineNo">210</span><a id="line.210">                }</a>
-<span class="sourceLineNo">211</span><a id="line.211">                printChildren( base );</a>
-<span class="sourceLineNo">212</span><a id="line.212">                if( cssSpecial != null )</a>
-<span class="sourceLineNo">213</span><a id="line.213">                {</a>
-<span class="sourceLineNo">214</span><a id="line.214">                    if( n.equals( "div" ) )</a>
-<span class="sourceLineNo">215</span><a id="line.215">                    {</a>
-<span class="sourceLineNo">216</span><a id="line.216">                        m_out.print( "\n/%\n" );</a>
-<span class="sourceLineNo">217</span><a id="line.217">                    }</a>
-<span class="sourceLineNo">218</span><a id="line.218">                    else</a>
-<span class="sourceLineNo">219</span><a id="line.219">                    {</a>
-<span class="sourceLineNo">220</span><a id="line.220">                        m_out.print( "/%" );</a>
-<span class="sourceLineNo">221</span><a id="line.221">                    }</a>
-<span class="sourceLineNo">222</span><a id="line.222">                }</a>
-<span class="sourceLineNo">223</span><a id="line.223">                if( monospace )</a>
-<span class="sourceLineNo">224</span><a id="line.224">                {</a>
-<span class="sourceLineNo">225</span><a id="line.225">                    m_preStack.pop();</a>
-<span class="sourceLineNo">226</span><a id="line.226">                    m_out.print( "}}}" );</a>
-<span class="sourceLineNo">227</span><a id="line.227">                }</a>
-<span class="sourceLineNo">228</span><a id="line.228">                if( italic )</a>
-<span class="sourceLineNo">229</span><a id="line.229">                {</a>
-<span class="sourceLineNo">230</span><a id="line.230">                    m_out.print( "''" );</a>
-<span class="sourceLineNo">231</span><a id="line.231">                }</a>
-<span class="sourceLineNo">232</span><a id="line.232">                if( bold )</a>
-<span class="sourceLineNo">233</span><a id="line.233">                {</a>
-<span class="sourceLineNo">234</span><a id="line.234">                    m_out.print( "__" );</a>
-<span class="sourceLineNo">235</span><a id="line.235">                }</a>
-<span class="sourceLineNo">236</span><a id="line.236">                if( cssClass != null &amp;&amp; !ignoredCssClass )</a>
-<span class="sourceLineNo">237</span><a id="line.237">                {</a>
-<span class="sourceLineNo">238</span><a id="line.238">                    if( n.equals( "div" ) )</a>
-<span class="sourceLineNo">239</span><a id="line.239">                    {</a>
-<span class="sourceLineNo">240</span><a id="line.240">                        m_out.print( "\n/%\n" );</a>
-<span class="sourceLineNo">241</span><a id="line.241">                    }</a>
-<span class="sourceLineNo">242</span><a id="line.242">                    else if( n.equals( "span" ) )</a>
-<span class="sourceLineNo">243</span><a id="line.243">                    {</a>
-<span class="sourceLineNo">244</span><a id="line.244">                        m_out.print( "/%" );</a>
-<span class="sourceLineNo">245</span><a id="line.245">                    }</a>
-<span class="sourceLineNo">246</span><a id="line.246">                }</a>
+<span class="sourceLineNo">144</span><a id="line.144">            if ( n.equals( "p" ) ) {</a>
+<span class="sourceLineNo">145</span><a id="line.145">                // change it, so we can print out the css styles for &lt;p&gt;</a>
+<span class="sourceLineNo">146</span><a id="line.146">                n = "div";</a>
+<span class="sourceLineNo">147</span><a id="line.147">            }</a>
+<span class="sourceLineNo">148</span><a id="line.148"></a>
+<span class="sourceLineNo">149</span><a id="line.149">            italic = "oblique".equals( style ) || "italic".equals( style );</a>
+<span class="sourceLineNo">150</span><a id="line.150">            bold = "bold".equals( weight ) || "bolder".equals( weight );</a>
+<span class="sourceLineNo">151</span><a id="line.151">            if ( !styleProps.isEmpty() ) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">                cssSpecial = propsToStyleString( styleProps );</a>
+<span class="sourceLineNo">153</span><a id="line.153">            }</a>
+<span class="sourceLineNo">154</span><a id="line.154">        }</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">        final ElementDecoratorData dto = new ElementDecoratorData();</a>
+<span class="sourceLineNo">157</span><a id="line.157">        dto.base = base;</a>
+<span class="sourceLineNo">158</span><a id="line.158">        dto.bold = bold;</a>
+<span class="sourceLineNo">159</span><a id="line.159">        dto.cssClass = cssClass;</a>
+<span class="sourceLineNo">160</span><a id="line.160">        dto.cssSpecial = cssSpecial;</a>
+<span class="sourceLineNo">161</span><a id="line.161">        dto.htmlBase = n;</a>
+<span class="sourceLineNo">162</span><a id="line.162">        dto.ignoredCssClass = ignoredCssClass;</a>
+<span class="sourceLineNo">163</span><a id="line.163">        dto.italic = italic;</a>
+<span class="sourceLineNo">164</span><a id="line.164">        dto.monospace = monospace;</a>
+<span class="sourceLineNo">165</span><a id="line.165">        return dto;</a>
+<span class="sourceLineNo">166</span><a id="line.166">    }</a>
+<span class="sourceLineNo">167</span><a id="line.167"></a>
+<span class="sourceLineNo">168</span><a id="line.168">    private Map&lt; Object, Object &gt; getStylePropertiesLowerCase( final Element base ) {</a>
+<span class="sourceLineNo">169</span><a id="line.169">        final String n = base.getName().toLowerCase();</a>
+<span class="sourceLineNo">170</span><a id="line.170"></a>
+<span class="sourceLineNo">171</span><a id="line.171">        // "font-weight: bold; font-style: italic;"</a>
+<span class="sourceLineNo">172</span><a id="line.172">        String style = base.getAttributeValue( "style" );</a>
+<span class="sourceLineNo">173</span><a id="line.173">        if( style == null ) {</a>
+<span class="sourceLineNo">174</span><a id="line.174">            style = "";</a>
+<span class="sourceLineNo">175</span><a id="line.175">        }</a>
+<span class="sourceLineNo">176</span><a id="line.176"></a>
+<span class="sourceLineNo">177</span><a id="line.177">        if( n.equals( "p" ) || n.equals( "div" ) ) {</a>
+<span class="sourceLineNo">178</span><a id="line.178">            final String align = base.getAttributeValue( "align" );</a>
+<span class="sourceLineNo">179</span><a id="line.179">            if( align != null ) {</a>
+<span class="sourceLineNo">180</span><a id="line.180">                // only add the value of the align attribute if the text-align style didn't already exist.</a>
+<span class="sourceLineNo">181</span><a id="line.181">                if( !style.contains( "text-align" ) ) {</a>
+<span class="sourceLineNo">182</span><a id="line.182">                    style += ";text-align:" + align + ";";</a>
+<span class="sourceLineNo">183</span><a id="line.183">                }</a>
+<span class="sourceLineNo">184</span><a id="line.184">            }</a>
+<span class="sourceLineNo">185</span><a id="line.185">        }</a>
+<span class="sourceLineNo">186</span><a id="line.186"></a>
+<span class="sourceLineNo">187</span><a id="line.187">        if( n.equals( "font" ) ) {</a>
+<span class="sourceLineNo">188</span><a id="line.188">            final String color = base.getAttributeValue( "color" );</a>
+<span class="sourceLineNo">189</span><a id="line.189">            final String face = base.getAttributeValue( "face" );</a>
+<span class="sourceLineNo">190</span><a id="line.190">            final String size = base.getAttributeValue( "size" );</a>
+<span class="sourceLineNo">191</span><a id="line.191">            if( color != null ) {</a>
+<span class="sourceLineNo">192</span><a id="line.192">                style = style + "color:" + color + ";";</a>
+<span class="sourceLineNo">193</span><a id="line.193">            }</a>
+<span class="sourceLineNo">194</span><a id="line.194">            if( face != null ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">                style = style + "font-family:" + face + ";";</a>
+<span class="sourceLineNo">196</span><a id="line.196">            }</a>
+<span class="sourceLineNo">197</span><a id="line.197">            if( size != null ) {</a>
+<span class="sourceLineNo">198</span><a id="line.198">                switch ( size ) {</a>
+<span class="sourceLineNo">199</span><a id="line.199">                    case "1": style += "font-size:xx-small;"; break;</a>
+<span class="sourceLineNo">200</span><a id="line.200">                    case "2": style += "font-size:x-small;"; break;</a>
+<span class="sourceLineNo">201</span><a id="line.201">                    case "3": style += "font-size:small;"; break;</a>
+<span class="sourceLineNo">202</span><a id="line.202">                    case "4": style += "font-size:medium;"; break;</a>
+<span class="sourceLineNo">203</span><a id="line.203">                    case "5": style += "font-size:large;"; break;</a>
+<span class="sourceLineNo">204</span><a id="line.204">                    case "6": style += "font-size:x-large;"; break;</a>
+<span class="sourceLineNo">205</span><a id="line.205">                    case "7": style += "font-size:xx-large;"; break;</a>
+<span class="sourceLineNo">206</span><a id="line.206">                }</a>
+<span class="sourceLineNo">207</span><a id="line.207">            }</a>
+<span class="sourceLineNo">208</span><a id="line.208">        }</a>
+<span class="sourceLineNo">209</span><a id="line.209"></a>
+<span class="sourceLineNo">210</span><a id="line.210">        if( style.equals( "" ) ) {</a>
+<span class="sourceLineNo">211</span><a id="line.211">            return null;</a>
+<span class="sourceLineNo">212</span><a id="line.212">        }</a>
+<span class="sourceLineNo">213</span><a id="line.213"></a>
+<span class="sourceLineNo">214</span><a id="line.214">        final Map&lt; Object, Object &gt; m = new LinkedHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">215</span><a id="line.215">        Arrays.stream( style.toLowerCase().split( ";" ) )</a>
+<span class="sourceLineNo">216</span><a id="line.216">              .filter( StringUtils::isNotEmpty )</a>
+<span class="sourceLineNo">217</span><a id="line.217">              .forEach( prop -&gt; m.put( prop.split( ":" )[ 0 ].trim(), prop.split( ":" )[ 1 ].trim() ) );</a>
+<span class="sourceLineNo">218</span><a id="line.218">        return m;</a>
+<span class="sourceLineNo">219</span><a id="line.219">    }</a>
+<span class="sourceLineNo">220</span><a id="line.220"></a>
+<span class="sourceLineNo">221</span><a id="line.221">    private String propsToStyleString( final Map&lt; Object, Object &gt;  styleProps ) {</a>
+<span class="sourceLineNo">222</span><a id="line.222">        final StringBuilder style = new StringBuilder();</a>
+<span class="sourceLineNo">223</span><a id="line.223">        for( final Map.Entry&lt; Object, Object &gt; entry : styleProps.entrySet() ) {</a>
+<span class="sourceLineNo">224</span><a id="line.224">            style.append( " " ).append( entry.getKey() ).append( ": " ).append( entry.getValue() ).append( ";" );</a>
+<span class="sourceLineNo">225</span><a id="line.225">        }</a>
+<span class="sourceLineNo">226</span><a id="line.226">        return style.toString();</a>
+<span class="sourceLineNo">227</span><a id="line.227">    }</a>
+<span class="sourceLineNo">228</span><a id="line.228"></a>
+<span class="sourceLineNo">229</span><a id="line.229">    void decorateMarkupForElementWith( final ElementDecoratorData dto ) throws JDOMException {</a>
+<span class="sourceLineNo">230</span><a id="line.230">        decorateMarkupForCssClass( dto );</a>
+<span class="sourceLineNo">231</span><a id="line.231">    }</a>
+<span class="sourceLineNo">232</span><a id="line.232"></a>
+<span class="sourceLineNo">233</span><a id="line.233">    void decorateMarkupForCssClass( final ElementDecoratorData dto ) throws JDOMException {</a>
+<span class="sourceLineNo">234</span><a id="line.234">        if( dto.cssClass != null &amp;&amp; !dto.ignoredCssClass ) {</a>
+<span class="sourceLineNo">235</span><a id="line.235">            if ( dto.htmlBase.equals( "div" ) ) {</a>
+<span class="sourceLineNo">236</span><a id="line.236">                out.print( "\n%%" + dto.cssClass + " \n" );</a>
+<span class="sourceLineNo">237</span><a id="line.237">            } else if ( dto.htmlBase.equals( "span" ) ) {</a>
+<span class="sourceLineNo">238</span><a id="line.238">                out.print( "%%" + dto.cssClass + " " );</a>
+<span class="sourceLineNo">239</span><a id="line.239">            }</a>
+<span class="sourceLineNo">240</span><a id="line.240">        }</a>
+<span class="sourceLineNo">241</span><a id="line.241">        decorateMarkupForBold( dto );</a>
+<span class="sourceLineNo">242</span><a id="line.242">        if( dto.cssClass != null &amp;&amp; !dto.ignoredCssClass ) {</a>
+<span class="sourceLineNo">243</span><a id="line.243">            if ( dto.htmlBase.equals( "div" ) ) {</a>
+<span class="sourceLineNo">244</span><a id="line.244">                out.print( "\n/%\n" );</a>
+<span class="sourceLineNo">245</span><a id="line.245">            } else if ( dto.htmlBase.equals( "span" ) ) {</a>
+<span class="sourceLineNo">246</span><a id="line.246">                out.print( "/%" );</a>
 <span class="sourceLineNo">247</span><a id="line.247">            }</a>
 <span class="sourceLineNo">248</span><a id="line.248">        }</a>
 <span class="sourceLineNo">249</span><a id="line.249">    }</a>
 <span class="sourceLineNo">250</span><a id="line.250"></a>
-<span class="sourceLineNo">251</span><a id="line.251">    private void printChildren(final Element base ) throws IOException, JDOMException</a>
-<span class="sourceLineNo">252</span><a id="line.252">    {</a>
-<span class="sourceLineNo">253</span><a id="line.253">        for(final Iterator&lt; Content &gt; i = base.getContent().iterator(); i.hasNext(); )</a>
-<span class="sourceLineNo">254</span><a id="line.254">        {</a>
-<span class="sourceLineNo">255</span><a id="line.255">            final Content c = i.next();</a>
-<span class="sourceLineNo">256</span><a id="line.256">            if( c instanceof Element )</a>
-<span class="sourceLineNo">257</span><a id="line.257">            {</a>
-<span class="sourceLineNo">258</span><a id="line.258">                final Element e = (Element)c;</a>
-<span class="sourceLineNo">259</span><a id="line.259">                final String n = e.getName().toLowerCase();</a>
-<span class="sourceLineNo">260</span><a id="line.260">                switch ( n ) {</a>
-<span class="sourceLineNo">261</span><a id="line.261">                    case "h1":</a>
-<span class="sourceLineNo">262</span><a id="line.262">                        m_out.print( "\n!!! " );</a>
-<span class="sourceLineNo">263</span><a id="line.263">                        print( e );</a>
-<span class="sourceLineNo">264</span><a id="line.264">                        m_out.println();</a>
-<span class="sourceLineNo">265</span><a id="line.265">                        break;</a>
-<span class="sourceLineNo">266</span><a id="line.266">                    case "h2":</a>
-<span class="sourceLineNo">267</span><a id="line.267">                        m_out.print( "\n!!! " );</a>
-<span class="sourceLineNo">268</span><a id="line.268">                        print( e );</a>
-<span class="sourceLineNo">269</span><a id="line.269">                        m_out.println();</a>
-<span class="sourceLineNo">270</span><a id="line.270">                        break;</a>
-<span class="sourceLineNo">271</span><a id="line.271">                    case "h3":</a>
-<span class="sourceLineNo">272</span><a id="line.272">                        m_out.print( "\n!! " );</a>
-<span class="sourceLineNo">273</span><a id="line.273">                        print( e );</a>
-<span class="sourceLineNo">274</span><a id="line.274">                        m_out.println();</a>
-<span class="sourceLineNo">275</span><a id="line.275">                        break;</a>
-<span class="sourceLineNo">276</span><a id="line.276">                    case "h4":</a>
-<span class="sourceLineNo">277</span><a id="line.277">                        m_out.print( "\n! " );</a>
-<span class="sourceLineNo">278</span><a id="line.278">                        print( e );</a>
-<span class="sourceLineNo">279</span><a id="line.279">                        m_out.println();</a>
-<span class="sourceLineNo">280</span><a id="line.280">                        break;</a>
-<span class="sourceLineNo">281</span><a id="line.281">                    case "p":</a>
-<span class="sourceLineNo">282</span><a id="line.282">                        if ( e.getContentSize() != 0 ) // we don't want to print empty elements: &lt;p&gt;&lt;/p&gt;</a>
-<span class="sourceLineNo">283</span><a id="line.283">                        {</a>
-<span class="sourceLineNo">284</span><a id="line.284">                            m_out.println();</a>
-<span class="sourceLineNo">285</span><a id="line.285">                            print( e );</a>
-<span class="sourceLineNo">286</span><a id="line.286">                            m_out.println();</a>
-<span class="sourceLineNo">287</span><a id="line.287">                        }</a>
-<span class="sourceLineNo">288</span><a id="line.288">                        break;</a>
-<span class="sourceLineNo">289</span><a id="line.289">                    case "br":</a>
-<span class="sourceLineNo">290</span><a id="line.290">                        if ( m_preStack.isPreMode() ) {</a>
-<span class="sourceLineNo">291</span><a id="line.291">                            m_out.println();</a>
-<span class="sourceLineNo">292</span><a id="line.292">                        } else {</a>
-<span class="sourceLineNo">293</span><a id="line.293">                            final String parentElementName = base.getName().toLowerCase();</a>
-<span class="sourceLineNo">294</span><a id="line.294"></a>
-<span class="sourceLineNo">295</span><a id="line.295">                            //</a>
-<span class="sourceLineNo">296</span><a id="line.296">                            // To beautify the generated wiki markup, we print a newline character after a linebreak.</a>
-<span class="sourceLineNo">297</span><a id="line.297">                            // It's only safe to do this when the parent element is a &lt;p&gt; or &lt;div&gt;; when the parent</a>
-<span class="sourceLineNo">298</span><a id="line.298">                            // element is a table cell or list item, a newline character would break the markup.</a>
-<span class="sourceLineNo">299</span><a id="line.299">                            // We also check that this isn't being done inside a plugin body.</a>
-<span class="sourceLineNo">300</span><a id="line.300">                            //</a>
-<span class="sourceLineNo">301</span><a id="line.301">                            if ( parentElementName.matches( "p|div" )</a>
-<span class="sourceLineNo">302</span><a id="line.302">                                    &amp;&amp; !base.getText().matches( "(?s).*\\[\\{.*\\}\\].*" ) ) {</a>
-<span class="sourceLineNo">303</span><a id="line.303">                                m_out.print( " \\\\\n" );</a>
-<span class="sourceLineNo">304</span><a id="line.304">                            } else {</a>
-<span class="sourceLineNo">305</span><a id="line.305">                                m_out.print( " \\\\" );</a>
-<span class="sourceLineNo">306</span><a id="line.306">                            }</a>
-<span class="sourceLineNo">307</span><a id="line.307">                        }</a>
-<span class="sourceLineNo">308</span><a id="line.308">                        print( e );</a>
-<span class="sourceLineNo">309</span><a id="line.309">                        break;</a>
-<span class="sourceLineNo">310</span><a id="line.310">                    case "hr":</a>
-<span class="sourceLineNo">311</span><a id="line.311">                        m_out.println();</a>
-<span class="sourceLineNo">312</span><a id="line.312">                        print( "----" );</a>
-<span class="sourceLineNo">313</span><a id="line.313">                        print( e );</a>
-<span class="sourceLineNo">314</span><a id="line.314">                        m_out.println();</a>
-<span class="sourceLineNo">315</span><a id="line.315">                        break;</a>
-<span class="sourceLineNo">316</span><a id="line.316">                    case "table":</a>
-<span class="sourceLineNo">317</span><a id="line.317">                        if ( !m_outTimmer.isCurrentlyOnLineBegin() ) {</a>
-<span class="sourceLineNo">318</span><a id="line.318">                            m_out.println();</a>
-<span class="sourceLineNo">319</span><a id="line.319">                        }</a>
-<span class="sourceLineNo">320</span><a id="line.320">                        print( e );</a>
-<span class="sourceLineNo">321</span><a id="line.321">                        break;</a>
-<span class="sourceLineNo">322</span><a id="line.322">                    case "tr":</a>
-<span class="sourceLineNo">323</span><a id="line.323">                        print( e );</a>
-<span class="sourceLineNo">324</span><a id="line.324">                        m_out.println();</a>
-<span class="sourceLineNo">325</span><a id="line.325">                        break;</a>
-<span class="sourceLineNo">326</span><a id="line.326">                    case "td":</a>
-<span class="sourceLineNo">327</span><a id="line.327">                        m_out.print( "| " );</a>
-<span class="sourceLineNo">328</span><a id="line.328">                        print( e );</a>
-<span class="sourceLineNo">329</span><a id="line.329">                        if ( !m_preStack.isPreMode() ) {</a>
-<span class="sourceLineNo">330</span><a id="line.330">                            print( " " );</a>
-<span class="sourceLineNo">331</span><a id="line.331">                        }</a>
-<span class="sourceLineNo">332</span><a id="line.332">                        break;</a>
-<span class="sourceLineNo">333</span><a id="line.333">                    case "th":</a>
-<span class="sourceLineNo">334</span><a id="line.334">                        m_out.print( "|| " );</a>
-<span class="sourceLineNo">335</span><a id="line.335">                        print( e );</a>
-<span class="sourceLineNo">336</span><a id="line.336">                        if ( !m_preStack.isPreMode() ) {</a>
-<span class="sourceLineNo">337</span><a id="line.337">                            print( " " );</a>
-<span class="sourceLineNo">338</span><a id="line.338">                        }</a>
-<span class="sourceLineNo">339</span><a id="line.339">                        break;</a>
-<span class="sourceLineNo">340</span><a id="line.340">                    case "a":</a>
-<span class="sourceLineNo">341</span><a id="line.341">                        if ( !isIgnorableWikiMarkupLink( e ) ) {</a>
-<span class="sourceLineNo">342</span><a id="line.342">                            if ( e.getChild( "IMG" ) != null ) {</a>
-<span class="sourceLineNo">343</span><a id="line.343">                                printImage( e );</a>
-<span class="sourceLineNo">344</span><a id="line.344">                            } else {</a>
-<span class="sourceLineNo">345</span><a id="line.345">                                String ref = e.getAttributeValue( "href" );</a>
-<span class="sourceLineNo">346</span><a id="line.346">                                if ( ref == null ) {</a>
-<span class="sourceLineNo">347</span><a id="line.347">                                    if ( isUndefinedPageLink( e ) ) {</a>
-<span class="sourceLineNo">348</span><a id="line.348">                                        m_out.print( "[" );</a>
-<span class="sourceLineNo">349</span><a id="line.349">                                        print( e );</a>
-<span class="sourceLineNo">350</span><a id="line.350">                                        m_out.print( "]" );</a>
-<span class="sourceLineNo">351</span><a id="line.351">                                    } else {</a>
-<span class="sourceLineNo">352</span><a id="line.352">                                        print( e );</a>
-<span class="sourceLineNo">353</span><a id="line.353">                                    }</a>
-<span class="sourceLineNo">354</span><a id="line.354">                                } else {</a>
-<span class="sourceLineNo">355</span><a id="line.355">                                    ref = trimLink( ref );</a>
-<span class="sourceLineNo">356</span><a id="line.356">                                    if ( ref != null ) {</a>
-<span class="sourceLineNo">357</span><a id="line.357">                                        if ( ref.startsWith( "#" ) ) // This is a link to a footnote.</a>
-<span class="sourceLineNo">358</span><a id="line.358">                                        {</a>
-<span class="sourceLineNo">359</span><a id="line.359">                                            // convert "#ref-PageName-1" to just "1"</a>
-<span class="sourceLineNo">360</span><a id="line.360">                                            final String href = ref.replaceFirst( "#ref-.+-(\\d+)", "$1" );</a>
-<span class="sourceLineNo">361</span><a id="line.361"></a>
-<span class="sourceLineNo">362</span><a id="line.362">                                            // remove the brackets around "[1]"</a>
-<span class="sourceLineNo">363</span><a id="line.363">                                            final String textValue = e.getValue().substring( 1, ( e.getValue().length() - 1 ) );</a>
-<span class="sourceLineNo">364</span><a id="line.364"></a>
-<span class="sourceLineNo">365</span><a id="line.365">                                            if ( href.equals( textValue ) ) { // handles the simplest case. Example: [1]</a>
-<span class="sourceLineNo">366</span><a id="line.366">                                                print( e );</a>
-<span class="sourceLineNo">367</span><a id="line.367">                                            } else { // handles the case where the link text is different from the href. Example: [something|1]</a>
-<span class="sourceLineNo">368</span><a id="line.368">                                                m_out.print( "[" + textValue + "|" + href + "]" );</a>
-<span class="sourceLineNo">369</span><a id="line.369">                                            }</a>
-<span class="sourceLineNo">370</span><a id="line.370">                                        } else {</a>
-<span class="sourceLineNo">371</span><a id="line.371">                                            final Map&lt;String, String&gt; augmentedWikiLinkAttributes = getAugmentedWikiLinkAttributes( e );</a>
-<span class="sourceLineNo">372</span><a id="line.372"></a>
-<span class="sourceLineNo">373</span><a id="line.373">                                            m_out.print( "[" );</a>
-<span class="sourceLineNo">374</span><a id="line.374">                                            print( e );</a>
-<span class="sourceLineNo">375</span><a id="line.375">                                            if ( !e.getTextTrim().equalsIgnoreCase( ref ) ) {</a>
-<span class="sourceLineNo">376</span><a id="line.376">                                                m_out.print( "|" );</a>
-<span class="sourceLineNo">377</span><a id="line.377">                                                print( ref );</a>
-<span class="sourceLineNo">378</span><a id="line.378"></a>
-<span class="sourceLineNo">379</span><a id="line.379">                                                if ( !augmentedWikiLinkAttributes.isEmpty() ) {</a>
-<span class="sourceLineNo">380</span><a id="line.380">                                                    m_out.print( "|" );</a>
-<span class="sourceLineNo">381</span><a id="line.381"></a>
-<span class="sourceLineNo">382</span><a id="line.382">                                                    final String augmentedWikiLink = augmentedWikiLinkMapToString( augmentedWikiLinkAttributes );</a>
-<span class="sourceLineNo">383</span><a id="line.383">                                                    m_out.print( augmentedWikiLink );</a>
-<span class="sourceLineNo">384</span><a id="line.384">                                                }</a>
-<span class="sourceLineNo">385</span><a id="line.385">                                            } else if ( !augmentedWikiLinkAttributes.isEmpty() ) {</a>
-<span class="sourceLineNo">386</span><a id="line.386">                                                // If the ref has the same value as the text and also if there</a>
-<span class="sourceLineNo">387</span><a id="line.387">                                                // are attributes, then just print: [ref|ref|attributes] .</a>
-<span class="sourceLineNo">388</span><a id="line.388">                                                m_out.print( "|" + ref + "|" );</a>
-<span class="sourceLineNo">389</span><a id="line.389">                                                final String augmentedWikiLink = augmentedWikiLinkMapToString( augmentedWikiLinkAttributes );</a>
-<span class="sourceLineNo">390</span><a id="line.390">                                                m_out.print( augmentedWikiLink );</a>
-<span class="sourceLineNo">391</span><a id="line.391">                                            }</a>
-<span class="sourceLineNo">392</span><a id="line.392"></a>
-<span class="sourceLineNo">393</span><a id="line.393">                                            m_out.print( "]" );</a>
-<span class="sourceLineNo">394</span><a id="line.394">                                        }</a>
-<span class="sourceLineNo">395</span><a id="line.395">                                    }</a>
-<span class="sourceLineNo">396</span><a id="line.396">                                }</a>
-<span class="sourceLineNo">397</span><a id="line.397">                            }</a>
-<span class="sourceLineNo">398</span><a id="line.398">                        }</a>
-<span class="sourceLineNo">399</span><a id="line.399">                        break;</a>
-<span class="sourceLineNo">400</span><a id="line.400">                    case "b":</a>
-<span class="sourceLineNo">401</span><a id="line.401">                    case "strong":</a>
-<span class="sourceLineNo">402</span><a id="line.402">                        m_out.print( "__" );</a>
-<span class="sourceLineNo">403</span><a id="line.403">                        print( e );</a>
-<span class="sourceLineNo">404</span><a id="line.404">                        m_out.print( "__" );</a>
-<span class="sourceLineNo">405</span><a id="line.405">                        break;</a>
-<span class="sourceLineNo">406</span><a id="line.406">                    case "i":</a>
-<span class="sourceLineNo">407</span><a id="line.407">                    case "em":</a>
-<span class="sourceLineNo">408</span><a id="line.408">                    case "address":</a>
-<span class="sourceLineNo">409</span><a id="line.409">                        m_out.print( "''" );</a>
-<span class="sourceLineNo">410</span><a id="line.410">                        print( e );</a>
-<span class="sourceLineNo">411</span><a id="line.411">                        m_out.print( "''" );</a>
-<span class="sourceLineNo">412</span><a id="line.412">                        break;</a>
-<span class="sourceLineNo">413</span><a id="line.413">                    case "u":</a>
-<span class="sourceLineNo">414</span><a id="line.414">                        m_out.print( "%%( text-decoration:underline; )" );</a>
-<span class="sourceLineNo">415</span><a id="line.415">                        print( e );</a>
-<span class="sourceLineNo">416</span><a id="line.416">                        m_out.print( "/%" );</a>
-<span class="sourceLineNo">417</span><a id="line.417">                        break;</a>
-<span class="sourceLineNo">418</span><a id="line.418">                    case "strike":</a>
-<span class="sourceLineNo">419</span><a id="line.419">                        m_out.print( "%%strike " );</a>
-<span class="sourceLineNo">420</span><a id="line.420">                        print( e );</a>
-<span class="sourceLineNo">421</span><a id="line.421">                        m_out.print( "/%" );</a>
-<span class="sourceLineNo">422</span><a id="line.422">                        // NOTE: don't print a space before or after the double percents because that can break words into two.</a>
-<span class="sourceLineNo">423</span><a id="line.423">                        // For example: %%(color:red)ABC%%%%(color:green)DEF%% is different from %%(color:red)ABC%% %%(color:green)DEF%%</a>
-<span class="sourceLineNo">424</span><a id="line.424">                        break;</a>
-<span class="sourceLineNo">425</span><a id="line.425">                    case "sup":</a>
-<span class="sourceLineNo">426</span><a id="line.426">                        m_out.print( "%%sup " );</a>
-<span class="sourceLineNo">427</span><a id="line.427">                        print( e );</a>
-<span class="sourceLineNo">428</span><a id="line.428">                        m_out.print( "/%" );</a>
-<span class="sourceLineNo">429</span><a id="line.429">                        break;</a>
-<span class="sourceLineNo">430</span><a id="line.430">                    case "sub":</a>
-<span class="sourceLineNo">431</span><a id="line.431">                        m_out.print( "%%sub " );</a>
-<span class="sourceLineNo">432</span><a id="line.432">                        print( e );</a>
-<span class="sourceLineNo">433</span><a id="line.433">                        m_out.print( "/%" );</a>
-<span class="sourceLineNo">434</span><a id="line.434">                        break;</a>
-<span class="sourceLineNo">435</span><a id="line.435">                    case "dl":</a>
-<span class="sourceLineNo">436</span><a id="line.436">                        m_out.print( "\n" );</a>
-<span class="sourceLineNo">437</span><a id="line.437">                        print( e );</a>
-<span class="sourceLineNo">438</span><a id="line.438"></a>
-<span class="sourceLineNo">439</span><a id="line.439">                        // print a newline after the definition list. If we don't,</a>
-<span class="sourceLineNo">440</span><a id="line.440">                        // it may cause problems for the subsequent element.</a>
-<span class="sourceLineNo">441</span><a id="line.441">                        m_out.print( "\n" );</a>
-<span class="sourceLineNo">442</span><a id="line.442">                        break;</a>
-<span class="sourceLineNo">443</span><a id="line.443">                    case "dt":</a>
-<span class="sourceLineNo">444</span><a id="line.444">                        m_out.print( ";" );</a>
-<span class="sourceLineNo">445</span><a id="line.445">                        print( e );</a>
-<span class="sourceLineNo">446</span><a id="line.446">                        break;</a>
-<span class="sourceLineNo">447</span><a id="line.447">                    case "dd":</a>
-<span class="sourceLineNo">448</span><a id="line.448">                        m_out.print( ":" );</a>
-<span class="sourceLineNo">449</span><a id="line.449">                        print( e );</a>
-<span class="sourceLineNo">450</span><a id="line.450">                        break;</a>
-<span class="sourceLineNo">451</span><a id="line.451">                    case "ul":</a>
-<span class="sourceLineNo">452</span><a id="line.452">                        m_out.println();</a>
-<span class="sourceLineNo">453</span><a id="line.453">                        m_liStack.push( "*" );</a>
-<span class="sourceLineNo">454</span><a id="line.454">                        print( e );</a>
-<span class="sourceLineNo">455</span><a id="line.455">                        m_liStack.pop();</a>
-<span class="sourceLineNo">456</span><a id="line.456">                        break;</a>
-<span class="sourceLineNo">457</span><a id="line.457">                    case "ol":</a>
-<span class="sourceLineNo">458</span><a id="line.458">                        m_out.println();</a>
-<span class="sourceLineNo">459</span><a id="line.459">                        m_liStack.push( "#" );</a>
-<span class="sourceLineNo">460</span><a id="line.460">                        print( e );</a>
-<span class="sourceLineNo">461</span><a id="line.461">                        m_liStack.pop();</a>
-<span class="sourceLineNo">462</span><a id="line.462">                        break;</a>
-<span class="sourceLineNo">463</span><a id="line.463">                    case "li":</a>
-<span class="sourceLineNo">464</span><a id="line.464">                        m_out.print( m_liStack + " " );</a>
-<span class="sourceLineNo">465</span><a id="line.465">                        print( e );</a>
-<span class="sourceLineNo">466</span><a id="line.466"></a>
-<span class="sourceLineNo">467</span><a id="line.467">                        // The following line assumes that the XHTML has been "pretty-printed"</a>
-<span class="sourceLineNo">468</span><a id="line.468">                        // (newlines separate child elements from their parents).</a>
-<span class="sourceLineNo">469</span><a id="line.469">                        final boolean lastListItem = base.indexOf( e ) == ( base.getContentSize() - 2 );</a>
-<span class="sourceLineNo">470</span><a id="line.470">                        final boolean sublistItem = m_liStack.toString().length() &gt; 1;</a>
-<span class="sourceLineNo">471</span><a id="line.471"></a>
-<span class="sourceLineNo">472</span><a id="line.472">                        // only print a newline if this &lt;li&gt; element is not the last item within a sublist.</a>
-<span class="sourceLineNo">473</span><a id="line.473">                        if ( !sublistItem || !lastListItem ) {</a>
-<span class="sourceLineNo">474</span><a id="line.474">                            m_out.println();</a>
-<span class="sourceLineNo">475</span><a id="line.475">                        }</a>
-<span class="sourceLineNo">476</span><a id="line.476">                        break;</a>
-<span class="sourceLineNo">477</span><a id="line.477">                    case "pre":</a>
-<span class="sourceLineNo">478</span><a id="line.478">                        m_out.print( "\n{{{" ); // start JSPWiki "code blocks" on its own line</a>
-<span class="sourceLineNo">479</span><a id="line.479"></a>
-<span class="sourceLineNo">480</span><a id="line.480">                        m_preStack.push();</a>
-<span class="sourceLineNo">481</span><a id="line.481">                        print( e );</a>
-<span class="sourceLineNo">482</span><a id="line.482">                        m_preStack.pop();</a>
-<span class="sourceLineNo">483</span><a id="line.483"></a>
-<span class="sourceLineNo">484</span><a id="line.484">                        // print a newline after the closing braces</a>
-<span class="sourceLineNo">485</span><a id="line.485">                        // to avoid breaking any subsequent wiki markup that follows.</a>
-<span class="sourceLineNo">486</span><a id="line.486">                        m_out.print( "}}}\n" );</a>
-<span class="sourceLineNo">487</span><a id="line.487">                        break;</a>
-<span class="sourceLineNo">488</span><a id="line.488">                    case "code":</a>
-<span class="sourceLineNo">489</span><a id="line.489">                    case "tt":</a>
-<span class="sourceLineNo">490</span><a id="line.490">                        m_out.print( "{{" );</a>
-<span class="sourceLineNo">491</span><a id="line.491">                        m_preStack.push();</a>
-<span class="sourceLineNo">492</span><a id="line.492">                        print( e );</a>
-<span class="sourceLineNo">493</span><a id="line.493">                        m_preStack.pop();</a>
-<span class="sourceLineNo">494</span><a id="line.494">                        m_out.print( "}}" );</a>
-<span class="sourceLineNo">495</span><a id="line.495">                        // NOTE: don't print a newline after the closing brackets because if the Text is inside</a>
-<span class="sourceLineNo">496</span><a id="line.496">                        // a table or list, it would break it if there was a subsequent row or list item.</a>
-<span class="sourceLineNo">497</span><a id="line.497">                        break;</a>
-<span class="sourceLineNo">498</span><a id="line.498">                    case "img":</a>
-<span class="sourceLineNo">499</span><a id="line.499">                        if ( !isIgnorableWikiMarkupLink( e ) ) {</a>
-<span class="sourceLineNo">500</span><a id="line.500">                            m_out.print( "[" );</a>
-<span class="sourceLineNo">501</span><a id="line.501">                            print( trimLink( e.getAttributeValue( "src" ) ) );</a>
-<span class="sourceLineNo">502</span><a id="line.502">                            m_out.print( "]" );</a>
-<span class="sourceLineNo">503</span><a id="line.503">                        }</a>
-<span class="sourceLineNo">504</span><a id="line.504">                        break;</a>
-<span class="sourceLineNo">505</span><a id="line.505">                    case "form": {</a>
-<span class="sourceLineNo">506</span><a id="line.506">                        // remove the hidden input where name="formname" since a new one will be generated again when the xhtml is rendered.</a>
-<span class="sourceLineNo">507</span><a id="line.507">                        final Element formName = getXPathElement( e, "INPUT[@name='formname']" );</a>
-<span class="sourceLineNo">508</span><a id="line.508">                        if ( formName != null ) {</a>
-<span class="sourceLineNo">509</span><a id="line.509">                            formName.detach();</a>
-<span class="sourceLineNo">510</span><a id="line.510">                        }</a>
-<span class="sourceLineNo">511</span><a id="line.511"></a>
-<span class="sourceLineNo">512</span><a id="line.512">                        final String name = e.getAttributeValue( "name" );</a>
-<span class="sourceLineNo">513</span><a id="line.513"></a>
-<span class="sourceLineNo">514</span><a id="line.514">                        m_out.print( "\n[{FormOpen" );</a>
-<span class="sourceLineNo">515</span><a id="line.515"></a>
-<span class="sourceLineNo">516</span><a id="line.516">                        if ( name != null ) {</a>
-<span class="sourceLineNo">517</span><a id="line.517">                            m_out.print( " form='" + name + "'" );</a>
-<span class="sourceLineNo">518</span><a id="line.518">                        }</a>
-<span class="sourceLineNo">519</span><a id="line.519"></a>
-<span class="sourceLineNo">520</span><a id="line.520">                        m_out.print( "}]\n" );</a>
-<span class="sourceLineNo">521</span><a id="line.521"></a>
-<span class="sourceLineNo">522</span><a id="line.522">                        print( e );</a>
-<span class="sourceLineNo">523</span><a id="line.523">                        m_out.print( "\n[{FormClose}]\n" );</a>
-<span class="sourceLineNo">524</span><a id="line.524">                        break;</a>
-<span class="sourceLineNo">525</span><a id="line.525">                    }</a>
-<span class="sourceLineNo">526</span><a id="line.526">                    case "input": {</a>
-<span class="sourceLineNo">527</span><a id="line.527">                        final String type = e.getAttributeValue( "type" );</a>
-<span class="sourceLineNo">528</span><a id="line.528">                        String name = e.getAttributeValue( "name" );</a>
-<span class="sourceLineNo">529</span><a id="line.529">                        final String value = e.getAttributeValue( "value" );</a>
-<span class="sourceLineNo">530</span><a id="line.530">                        final String checked = e.getAttributeValue( "checked" );</a>
-<span class="sourceLineNo">531</span><a id="line.531"></a>
-<span class="sourceLineNo">532</span><a id="line.532">                        m_out.print( "[{FormInput" );</a>
-<span class="sourceLineNo">533</span><a id="line.533"></a>
-<span class="sourceLineNo">534</span><a id="line.534">                        if ( type != null ) {</a>
-<span class="sourceLineNo">535</span><a id="line.535">                            m_out.print( " type='" + type + "'" );</a>
-<span class="sourceLineNo">536</span><a id="line.536">                        }</a>
-<span class="sourceLineNo">537</span><a id="line.537">                        if ( name != null ) {</a>
-<span class="sourceLineNo">538</span><a id="line.538">                            // remove the "nbf_" that was prepended since new one will be generated again when the xhtml is rendered.</a>
-<span class="sourceLineNo">539</span><a id="line.539">                            if ( name.startsWith( "nbf_" ) ) {</a>
-<span class="sourceLineNo">540</span><a id="line.540">                                name = name.substring( 4, name.length() );</a>
-<span class="sourceLineNo">541</span><a id="line.541">                            }</a>
-<span class="sourceLineNo">542</span><a id="line.542">                            m_out.print( " name='" + name + "'" );</a>
-<span class="sourceLineNo">543</span><a id="line.543">                        }</a>
-<span class="sourceLineNo">544</span><a id="line.544">                        if ( value != null &amp;&amp; !value.equals( "" ) ) {</a>
-<span class="sourceLineNo">545</span><a id="line.545">                            m_out.print( " value='" + value + "'" );</a>
-<span class="sourceLineNo">546</span><a id="line.546">                        }</a>
-<span class="sourceLineNo">547</span><a id="line.547">                        if ( checked != null ) {</a>
-<span class="sourceLineNo">548</span><a id="line.548">                            m_out.print( " checked='" + checked + "'" );</a>
-<span class="sourceLineNo">549</span><a id="line.549">                        }</a>
-<span class="sourceLineNo">550</span><a id="line.550"></a>
-<span class="sourceLineNo">551</span><a id="line.551">                        m_out.print( "}]" );</a>
+<span class="sourceLineNo">251</span><a id="line.251">    void decorateMarkupForBold( final ElementDecoratorData dto ) throws JDOMException {</a>
+<span class="sourceLineNo">252</span><a id="line.252">        if( dto.bold ) {</a>
+<span class="sourceLineNo">253</span><a id="line.253">            out.print( "__" );</a>
+<span class="sourceLineNo">254</span><a id="line.254">        }</a>
+<span class="sourceLineNo">255</span><a id="line.255">        decorateMarkupForItalic( dto );</a>
+<span class="sourceLineNo">256</span><a id="line.256">        if( dto.bold ) {</a>
+<span class="sourceLineNo">257</span><a id="line.257">            out.print( "__" );</a>
+<span class="sourceLineNo">258</span><a id="line.258">        }</a>
+<span class="sourceLineNo">259</span><a id="line.259">    }</a>
+<span class="sourceLineNo">260</span><a id="line.260"></a>
+<span class="sourceLineNo">261</span><a id="line.261">    void decorateMarkupForItalic( final ElementDecoratorData dto ) throws JDOMException {</a>
+<span class="sourceLineNo">262</span><a id="line.262">        if( dto.italic ) {</a>
+<span class="sourceLineNo">263</span><a id="line.263">            out.print( "''" );</a>
+<span class="sourceLineNo">264</span><a id="line.264">        }</a>
+<span class="sourceLineNo">265</span><a id="line.265">        decorateMarkupForMonospace( dto );</a>
+<span class="sourceLineNo">266</span><a id="line.266">        if( dto.italic ) {</a>
+<span class="sourceLineNo">267</span><a id="line.267">            out.print( "''" );</a>
+<span class="sourceLineNo">268</span><a id="line.268">        }</a>
+<span class="sourceLineNo">269</span><a id="line.269">    }</a>
+<span class="sourceLineNo">270</span><a id="line.270"></a>
+<span class="sourceLineNo">271</span><a id="line.271">    void decorateMarkupForMonospace( final ElementDecoratorData dto ) throws JDOMException {</a>
+<span class="sourceLineNo">272</span><a id="line.272">        if( dto.monospace ) {</a>
+<span class="sourceLineNo">273</span><a id="line.273">            out.print( "{{{" );</a>
+<span class="sourceLineNo">274</span><a id="line.274">            preStack.push( "{{{" );</a>
+<span class="sourceLineNo">275</span><a id="line.275">        }</a>
+<span class="sourceLineNo">276</span><a id="line.276">        decorateMarkupForCssSpecial( dto );</a>
+<span class="sourceLineNo">277</span><a id="line.277">        if( dto.monospace ) {</a>
+<span class="sourceLineNo">278</span><a id="line.278">            preStack.pop();</a>
+<span class="sourceLineNo">279</span><a id="line.279">            out.print( "}}}" );</a>
+<span class="sourceLineNo">280</span><a id="line.280">        }</a>
+<span class="sourceLineNo">281</span><a id="line.281">    }</a>
+<span class="sourceLineNo">282</span><a id="line.282"></a>
+<span class="sourceLineNo">283</span><a id="line.283">    void decorateMarkupForCssSpecial( final ElementDecoratorData dto ) throws JDOMException {</a>
+<span class="sourceLineNo">284</span><a id="line.284">        if( dto.cssSpecial != null ) {</a>
+<span class="sourceLineNo">285</span><a id="line.285">            if ( dto.htmlBase.equals( "div" ) ) {</a>
+<span class="sourceLineNo">286</span><a id="line.286">                out.print( "\n%%(" + dto.cssSpecial + " )\n" );</a>
+<span class="sourceLineNo">287</span><a id="line.287">            } else {</a>
+<span class="sourceLineNo">288</span><a id="line.288">                out.print( "%%(" + dto.cssSpecial + " )" );</a>
+<span class="sourceLineNo">289</span><a id="line.289">            }</a>
+<span class="sourceLineNo">290</span><a id="line.290">        }</a>
+<span class="sourceLineNo">291</span><a id="line.291">        translateChildren( dto.base );</a>
+<span class="sourceLineNo">292</span><a id="line.292">        if( dto.cssSpecial != null ) {</a>
+<span class="sourceLineNo">293</span><a id="line.293">            if ( dto.htmlBase.equals( "div" ) ) {</a>
+<span class="sourceLineNo">294</span><a id="line.294">                out.print( "\n/%\n" );</a>
+<span class="sourceLineNo">295</span><a id="line.295">            } else {</a>
+<span class="sourceLineNo">296</span><a id="line.296">                out.print( "/%" );</a>
+<span class="sourceLineNo">297</span><a id="line.297">            }</a>
+<span class="sourceLineNo">298</span><a id="line.298">        }</a>
+<span class="sourceLineNo">299</span><a id="line.299">    }</a>
+<span class="sourceLineNo">300</span><a id="line.300"></a>
+<span class="sourceLineNo">301</span><a id="line.301">    private void translateChildren( final Element base ) throws JDOMException {</a>
+<span class="sourceLineNo">302</span><a id="line.302">        for( final Content c : base.getContent() ) {</a>
+<span class="sourceLineNo">303</span><a id="line.303">            if ( c instanceof Element ) {</a>
+<span class="sourceLineNo">304</span><a id="line.304">                final Element e = ( Element )c;</a>
+<span class="sourceLineNo">305</span><a id="line.305">                final String n = e.getName().toLowerCase();</a>
+<span class="sourceLineNo">306</span><a id="line.306">                switch( n ) {</a>
+<span class="sourceLineNo">307</span><a id="line.307">                    case "h1": decorateMarkupForH1( e ); break;</a>
+<span class="sourceLineNo">308</span><a id="line.308">                    case "h2": decorateMarkupForH2( e ); break;</a>
+<span class="sourceLineNo">309</span><a id="line.309">                    case "h3": decorateMarkupForH3( e ); break;</a>
+<span class="sourceLineNo">310</span><a id="line.310">                    case "h4": decorateMarkupForH4( e ); break;</a>
+<span class="sourceLineNo">311</span><a id="line.311">                    case "p": decorateMarkupForP( e ); break;</a>
+<span class="sourceLineNo">312</span><a id="line.312">                    case "br": decorateMarkupForBR( base, e ); break;</a>
+<span class="sourceLineNo">313</span><a id="line.313">                    case "hr": decorateMarkupForHR( e ); break;</a>
+<span class="sourceLineNo">314</span><a id="line.314">                    case "table": decorateMarkupForTable( e ); break;</a>
+<span class="sourceLineNo">315</span><a id="line.315">                    case "tr": decorateMarkupForTR( e ); break;</a>
+<span class="sourceLineNo">316</span><a id="line.316">                    case "td": decorateMarkupForTD( e ); break;</a>
+<span class="sourceLineNo">317</span><a id="line.317">                    case "th": decorateMarkupForTH( e ); break;</a>
+<span class="sourceLineNo">318</span><a id="line.318">                    case "a": decorateMarkupForA( e ); break;</a>
+<span class="sourceLineNo">319</span><a id="line.319">                    case "b":</a>
+<span class="sourceLineNo">320</span><a id="line.320">                    case "strong": decorateMarkupForStrong( e ); break;</a>
+<span class="sourceLineNo">321</span><a id="line.321">                    case "i":</a>
+<span class="sourceLineNo">322</span><a id="line.322">                    case "em":</a>
+<span class="sourceLineNo">323</span><a id="line.323">                    case "address": decorateMarkupForEM( e ); break;</a>
+<span class="sourceLineNo">324</span><a id="line.324">                    case "u": decorateMarkupForUnderline( e ); break;</a>
+<span class="sourceLineNo">325</span><a id="line.325">                    case "strike": decorateMarkupForStrike( e ); break;</a>
+<span class="sourceLineNo">326</span><a id="line.326">                    case "sup": decorateMarkupForSup( e ); break;</a>
+<span class="sourceLineNo">327</span><a id="line.327">                    case "sub": decorateMarkupForSub( e ); break;</a>
+<span class="sourceLineNo">328</span><a id="line.328">                    case "dl": decorateMarkupForDL( e ); break;</a>
+<span class="sourceLineNo">329</span><a id="line.329">                    case "dt": decorateMarkupForDT( e ); break;</a>
+<span class="sourceLineNo">330</span><a id="line.330">                    case "dd": decorateMarkupForDD( e ); break;</a>
+<span class="sourceLineNo">331</span><a id="line.331">                    case "ul": decorateMarkupForUL( e ); break;</a>
+<span class="sourceLineNo">332</span><a id="line.332">                    case "ol": decorateMarkupForOL( e ); break;</a>
+<span class="sourceLineNo">333</span><a id="line.333">                    case "li": decorateMarkupForLI( base, e ); break;</a>
+<span class="sourceLineNo">334</span><a id="line.334">                    case "pre": decorateMarkupForPre( e ); break;</a>
+<span class="sourceLineNo">335</span><a id="line.335">                    case "code":</a>
+<span class="sourceLineNo">336</span><a id="line.336">                    case "tt": decorateMarkupForCode( e ); break;</a>
+<span class="sourceLineNo">337</span><a id="line.337">                    case "img": decorateMarkupForImg( e ); break;</a>
+<span class="sourceLineNo">338</span><a id="line.338">                    case "form": decorateMarkupForForm( e ); break;</a>
+<span class="sourceLineNo">339</span><a id="line.339">                    case "input": decorateMarkupForInput( e ); break;</a>
+<span class="sourceLineNo">340</span><a id="line.340">                    case "textarea": decorateMarkupForTextarea( e ); break;</a>
+<span class="sourceLineNo">341</span><a id="line.341">                    case "select": decorateMarkupForSelect( e ); break;</a>
+<span class="sourceLineNo">342</span><a id="line.342">                    case "option": decorateMarkupForOption( base, e ); break;</a>
+<span class="sourceLineNo">343</span><a id="line.343">                    default: translate( e ); break;</a>
+<span class="sourceLineNo">344</span><a id="line.344">                }</a>
+<span class="sourceLineNo">345</span><a id="line.345">            } else {</a>
+<span class="sourceLineNo">346</span><a id="line.346">                translate( c );</a>
+<span class="sourceLineNo">347</span><a id="line.347">            }</a>
+<span class="sourceLineNo">348</span><a id="line.348">        }</a>
+<span class="sourceLineNo">349</span><a id="line.349">    }</a>
+<span class="sourceLineNo">350</span><a id="line.350"></a>
+<span class="sourceLineNo">351</span><a id="line.351">    void decorateMarkupForH1( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">352</span><a id="line.352">        out.print( "\n!!! " );</a>
+<span class="sourceLineNo">353</span><a id="line.353">        translate( e );</a>
+<span class="sourceLineNo">354</span><a id="line.354">        out.println();</a>
+<span class="sourceLineNo">355</span><a id="line.355">    }</a>
+<span class="sourceLineNo">356</span><a id="line.356"></a>
+<span class="sourceLineNo">357</span><a id="line.357">    void decorateMarkupForH2( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">358</span><a id="line.358">        out.print( "\n!!! " );</a>
+<span class="sourceLineNo">359</span><a id="line.359">        translate( e );</a>
+<span class="sourceLineNo">360</span><a id="line.360">        out.println();</a>
+<span class="sourceLineNo">361</span><a id="line.361">    }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">    void decorateMarkupForH3( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">364</span><a id="line.364">        out.print( "\n!! " );</a>
+<span class="sourceLineNo">365</span><a id="line.365">        translate( e );</a>
+<span class="sourceLineNo">366</span><a id="line.366">        out.println();</a>
+<span class="sourceLineNo">367</span><a id="line.367">    }</a>
+<span class="sourceLineNo">368</span><a id="line.368"></a>
+<span class="sourceLineNo">369</span><a id="line.369">    void decorateMarkupForH4( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">370</span><a id="line.370">        out.print( "\n! " );</a>
+<span class="sourceLineNo">371</span><a id="line.371">        translate( e );</a>
+<span class="sourceLineNo">372</span><a id="line.372">        out.println();</a>
+<span class="sourceLineNo">373</span><a id="line.373">    }</a>
+<span class="sourceLineNo">374</span><a id="line.374"></a>
+<span class="sourceLineNo">375</span><a id="line.375">    void decorateMarkupForP( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">376</span><a id="line.376">        if ( e.getContentSize() != 0 ) { // we don't want to print empty elements: &lt;p&gt;&lt;/p&gt;</a>
+<span class="sourceLineNo">377</span><a id="line.377">            out.println();</a>
+<span class="sourceLineNo">378</span><a id="line.378">            translate( e );</a>
+<span class="sourceLineNo">379</span><a id="line.379">            out.println();</a>
+<span class="sourceLineNo">380</span><a id="line.380">        }</a>
+<span class="sourceLineNo">381</span><a id="line.381">    }</a>
+<span class="sourceLineNo">382</span><a id="line.382"></a>
+<span class="sourceLineNo">383</span><a id="line.383">    void decorateMarkupForHR( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">384</span><a id="line.384">        out.println();</a>
+<span class="sourceLineNo">385</span><a id="line.385">        decorateMarkupForString( "----" );</a>
+<span class="sourceLineNo">386</span><a id="line.386">        translate( e );</a>
+<span class="sourceLineNo">387</span><a id="line.387">        out.println();</a>
+<span class="sourceLineNo">388</span><a id="line.388">    }</a>
+<span class="sourceLineNo">389</span><a id="line.389"></a>
+<span class="sourceLineNo">390</span><a id="line.390">    void decorateMarkupForBR( final Element base, final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">391</span><a id="line.391">        if ( !preStack.isEmpty() ) {</a>
+<span class="sourceLineNo">392</span><a id="line.392">            out.println();</a>
+<span class="sourceLineNo">393</span><a id="line.393">        } else {</a>
+<span class="sourceLineNo">394</span><a id="line.394">            final String parentElementName = base.getName().toLowerCase();</a>
+<span class="sourceLineNo">395</span><a id="line.395"></a>
+<span class="sourceLineNo">396</span><a id="line.396">            // To beautify the generated wiki markup, we print a newline character after a linebreak.</a>
+<span class="sourceLineNo">397</span><a id="line.397">            // It's only safe to do this when the parent element is a &lt;p&gt; or &lt;div&gt;; when the parent</a>
+<span class="sourceLineNo">398</span><a id="line.398">            // element is a table cell or list item, a newline character would break the markup.</a>
+<span class="sourceLineNo">399</span><a id="line.399">            // We also check that this isn't being done inside a plugin body.</a>
+<span class="sourceLineNo">400</span><a id="line.400">            if ( parentElementName.matches( "p|div" ) &amp;&amp; !base.getText().matches( "(?s).*\\[\\{.*\\}\\].*" ) ) {</a>
+<span class="sourceLineNo">401</span><a id="line.401">                out.print( " \\\\\n" );</a>
+<span class="sourceLineNo">402</span><a id="line.402">            } else {</a>
+<span class="sourceLineNo">403</span><a id="line.403">                out.print( " \\\\" );</a>
+<span class="sourceLineNo">404</span><a id="line.404">            }</a>
+<span class="sourceLineNo">405</span><a id="line.405">        }</a>
+<span class="sourceLineNo">406</span><a id="line.406">        translate( e );</a>
+<span class="sourceLineNo">407</span><a id="line.407">    }</a>
+<span class="sourceLineNo">408</span><a id="line.408"></a>
+<span class="sourceLineNo">409</span><a id="line.409">    void decorateMarkupForTable( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">410</span><a id="line.410">        if ( !outTrimmer.isCurrentlyOnLineBegin() ) {</a>
+<span class="sourceLineNo">411</span><a id="line.411">            out.println();</a>
+<span class="sourceLineNo">412</span><a id="line.412">        }</a>
+<span class="sourceLineNo">413</span><a id="line.413">        translate( e );</a>
+<span class="sourceLineNo">414</span><a id="line.414">    }</a>
+<span class="sourceLineNo">415</span><a id="line.415"></a>
+<span class="sourceLineNo">416</span><a id="line.416">    void decorateMarkupForTR( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">417</span><a id="line.417">        translate( e );</a>
+<span class="sourceLineNo">418</span><a id="line.418">        out.println();</a>
+<span class="sourceLineNo">419</span><a id="line.419">    }</a>
+<span class="sourceLineNo">420</span><a id="line.420"></a>
+<span class="sourceLineNo">421</span><a id="line.421">    void decorateMarkupForTD( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">422</span><a id="line.422">        out.print( "| " );</a>
+<span class="sourceLineNo">423</span><a id="line.423">        translate( e );</a>
+<span class="sourceLineNo">424</span><a id="line.424">        if( preStack.isEmpty() ) {</a>
+<span class="sourceLineNo">425</span><a id="line.425">            decorateMarkupForString( " " );</a>
+<span class="sourceLineNo">426</span><a id="line.426">        }</a>
+<span class="sourceLineNo">427</span><a id="line.427">    }</a>
+<span class="sourceLineNo">428</span><a id="line.428"></a>
+<span class="sourceLineNo">429</span><a id="line.429">    void decorateMarkupForTH( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">430</span><a id="line.430">        out.print( "|| " );</a>
+<span class="sourceLineNo">431</span><a id="line.431">        translate( e );</a>
+<span class="sourceLineNo">432</span><a id="line.432">        if( preStack.isEmpty() ) {</a>
+<span class="sourceLineNo">433</span><a id="line.433">            decorateMarkupForString( " " );</a>
+<span class="sourceLineNo">434</span><a id="line.434">        }</a>
+<span class="sourceLineNo">435</span><a id="line.435">    }</a>
+<span class="sourceLineNo">436</span><a id="line.436"></a>
+<span class="sourceLineNo">437</span><a id="line.437">    void decorateMarkupForA( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">438</span><a id="line.438">        if( isNotIgnorableWikiMarkupLink( e ) ) {</a>
+<span class="sourceLineNo">439</span><a id="line.439">            if( e.getChild( "IMG" ) != null ) {</a>
+<span class="sourceLineNo">440</span><a id="line.440">                translateImage( e );</a>
+<span class="sourceLineNo">441</span><a id="line.441">            } else {</a>
+<span class="sourceLineNo">442</span><a id="line.442">                String ref = e.getAttributeValue( "href" );</a>
+<span class="sourceLineNo">443</span><a id="line.443">                if ( ref == null ) {</a>
+<span class="sourceLineNo">444</span><a id="line.444">                    if ( isUndefinedPageLink( e ) ) {</a>
+<span class="sourceLineNo">445</span><a id="line.445">                        out.print( "[" );</a>
+<span class="sourceLineNo">446</span><a id="line.446">                        translate( e );</a>
+<span class="sourceLineNo">447</span><a id="line.447">                        out.print( "]" );</a>
+<span class="sourceLineNo">448</span><a id="line.448">                    } else {</a>
+<span class="sourceLineNo">449</span><a id="line.449">                        translate( e );</a>
+<span class="sourceLineNo">450</span><a id="line.450">                    }</a>
+<span class="sourceLineNo">451</span><a id="line.451">                } else {</a>
+<span class="sourceLineNo">452</span><a id="line.452">                    ref = trimLink( ref );</a>
+<span class="sourceLineNo">453</span><a id="line.453">                    if ( ref != null ) {</a>
+<span class="sourceLineNo">454</span><a id="line.454">                        if ( ref.startsWith( "#" ) ) { // This is a link to a footnote.</a>
+<span class="sourceLineNo">455</span><a id="line.455">                            // convert "#ref-PageName-1" to just "1"</a>
+<span class="sourceLineNo">456</span><a id="line.456">                            final String href = ref.replaceFirst( "#ref-.+-(\\d+)", "$1" );</a>
+<span class="sourceLineNo">457</span><a id="line.457"></a>
+<span class="sourceLineNo">458</span><a id="line.458">                            // remove the brackets around "[1]"</a>
+<span class="sourceLineNo">459</span><a id="line.459">                            final String textValue = e.getValue().substring( 1, ( e.getValue().length() - 1 ) );</a>
+<span class="sourceLineNo">460</span><a id="line.460"></a>
+<span class="sourceLineNo">461</span><a id="line.461">                            if ( href.equals( textValue ) ) { // handles the simplest case. Example: [1]</a>
+<span class="sourceLineNo">462</span><a id="line.462">                                translate( e );</a>
+<span class="sourceLineNo">463</span><a id="line.463">                            } else { // handles the case where the link text is different from the href. Example: [something|1]</a>
+<span class="sourceLineNo">464</span><a id="line.464">                                out.print( "[" + textValue + "|" + href + "]" );</a>
+<span class="sourceLineNo">465</span><a id="line.465">                            }</a>
+<span class="sourceLineNo">466</span><a id="line.466">                        } else {</a>
+<span class="sourceLineNo">467</span><a id="line.467">                            final Map&lt; String, String &gt; augmentedWikiLinkAttributes = getAugmentedWikiLinkAttributes( e );</a>
+<span class="sourceLineNo">468</span><a id="line.468"></a>
+<span class="sourceLineNo">469</span><a id="line.469">                            out.print( "[" );</a>
+<span class="sourceLineNo">470</span><a id="line.470">                            translate( e );</a>
+<span class="sourceLineNo">471</span><a id="line.471">                            if ( !e.getTextTrim().equalsIgnoreCase( ref ) ) {</a>
+<span class="sourceLineNo">472</span><a id="line.472">                                out.print( "|" );</a>
+<span class="sourceLineNo">473</span><a id="line.473">                                decorateMarkupForString( ref );</a>
+<span class="sourceLineNo">474</span><a id="line.474"></a>
+<span class="sourceLineNo">475</span><a id="line.475">                                if ( !augmentedWikiLinkAttributes.isEmpty() ) {</a>
+<span class="sourceLineNo">476</span><a id="line.476">                                    out.print( "|" );</a>
+<span class="sourceLineNo">477</span><a id="line.477"></a>
+<span class="sourceLineNo">478</span><a id="line.478">                                    final String augmentedWikiLink = augmentedWikiLinkMapToString( augmentedWikiLinkAttributes );</a>
+<span class="sourceLineNo">479</span><a id="line.479">                                    out.print( augmentedWikiLink );</a>
+<span class="sourceLineNo">480</span><a id="line.480">                                }</a>
+<span class="sourceLineNo">481</span><a id="line.481">                            } else if ( !augmentedWikiLinkAttributes.isEmpty() ) {</a>
+<span class="sourceLineNo">482</span><a id="line.482">                                // If the ref has the same value as the text and also if there</a>
+<span class="sourceLineNo">483</span><a id="line.483">                                // are attributes, then just print: [ref|ref|attributes] .</a>
+<span class="sourceLineNo">484</span><a id="line.484">                                out.print( "|" + ref + "|" );</a>
+<span class="sourceLineNo">485</span><a id="line.485">                                final String augmentedWikiLink = augmentedWikiLinkMapToString( augmentedWikiLinkAttributes );</a>
+<span class="sourceLineNo">486</span><a id="line.486">                                out.print( augmentedWikiLink );</a>
+<span class="sourceLineNo">487</span><a id="line.487">                            }</a>
+<span class="sourceLineNo">488</span><a id="line.488"></a>
+<span class="sourceLineNo">489</span><a id="line.489">                            out.print( "]" );</a>
+<span class="sourceLineNo">490</span><a id="line.490">                        }</a>
+<span class="sourceLineNo">491</span><a id="line.491">                    }</a>
+<span class="sourceLineNo">492</span><a id="line.492">                }</a>
+<span class="sourceLineNo">493</span><a id="line.493">            }</a>
+<span class="sourceLineNo">494</span><a id="line.494">        }</a>
+<span class="sourceLineNo">495</span><a id="line.495">    }</a>
+<span class="sourceLineNo">496</span><a id="line.496"></a>
+<span class="sourceLineNo">497</span><a id="line.497">    /**</a>
+<span class="sourceLineNo">498</span><a id="line.498">     * Checks if the link points to an undefined page.</a>
+<span class="sourceLineNo">499</span><a id="line.499">     */</a>
+<span class="sourceLineNo">500</span><a id="line.500">    private boolean isUndefinedPageLink( final Element a ) {</a>
+<span class="sourceLineNo">501</span><a id="line.501">        final String classVal = a.getAttributeValue( "class" );</a>
+<span class="sourceLineNo">502</span><a id="line.502">        return "createpage".equals( classVal );</a>
+<span class="sourceLineNo">503</span><a id="line.503">    }</a>
+<span class="sourceLineNo">504</span><a id="line.504"></a>
+<span class="sourceLineNo">505</span><a id="line.505">    /**</a>
+<span class="sourceLineNo">506</span><a id="line.506">     *  Returns a Map containing the valid augmented wiki link attributes.</a>
+<span class="sourceLineNo">507</span><a id="line.507">     */</a>
+<span class="sourceLineNo">508</span><a id="line.508">    private Map&lt; String, String &gt; getAugmentedWikiLinkAttributes( final Element a ) {</a>
+<span class="sourceLineNo">509</span><a id="line.509">        final Map&lt; String, String &gt; attributesMap = new HashMap&lt;&gt;();</a>
+<span class="sourceLineNo">510</span><a id="line.510">        final String cssClass = a.getAttributeValue( "class" );</a>
+<span class="sourceLineNo">511</span><a id="line.511">        if( StringUtils.isNotEmpty( cssClass )</a>
+<span class="sourceLineNo">512</span><a id="line.512">                &amp;&amp; !cssClass.matches( "wikipage|createpage|external|interwiki|attachment" ) ) {</a>
+<span class="sourceLineNo">513</span><a id="line.513">            attributesMap.put( "class", cssClass.replaceAll( "'", "\"" ) );</a>
+<span class="sourceLineNo">514</span><a id="line.514">        }</a>
+<span class="sourceLineNo">515</span><a id="line.515">        addAttributeIfPresent( a, attributesMap, "accesskey" );</a>
+<span class="sourceLineNo">516</span><a id="line.516">        addAttributeIfPresent( a, attributesMap, "charset" );</a>
+<span class="sourceLineNo">517</span><a id="line.517">        addAttributeIfPresent( a, attributesMap, "dir" );</a>
+<span class="sourceLineNo">518</span><a id="line.518">        addAttributeIfPresent( a, attributesMap, "hreflang" );</a>
+<span class="sourceLineNo">519</span><a id="line.519">        addAttributeIfPresent( a, attributesMap, "id" );</a>
+<span class="sourceLineNo">520</span><a id="line.520">        addAttributeIfPresent( a, attributesMap, "lang" );</a>
+<span class="sourceLineNo">521</span><a id="line.521">        addAttributeIfPresent( a, attributesMap, "rel" );</a>
+<span class="sourceLineNo">522</span><a id="line.522">        addAttributeIfPresent( a, attributesMap, "rev" );</a>
+<span class="sourceLineNo">523</span><a id="line.523">        addAttributeIfPresent( a, attributesMap, "style" );</a>
+<span class="sourceLineNo">524</span><a id="line.524">        addAttributeIfPresent( a, attributesMap, "tabindex" );</a>
+<span class="sourceLineNo">525</span><a id="line.525">        addAttributeIfPresent( a, attributesMap, "target" );</a>
+<span class="sourceLineNo">526</span><a id="line.526">        addAttributeIfPresent( a, attributesMap, "title" );</a>
+<span class="sourceLineNo">527</span><a id="line.527">        addAttributeIfPresent( a, attributesMap, "type" );</a>
+<span class="sourceLineNo">528</span><a id="line.528">        return attributesMap;</a>
+<span class="sourceLineNo">529</span><a id="line.529">    }</a>
+<span class="sourceLineNo">530</span><a id="line.530"></a>
+<span class="sourceLineNo">531</span><a id="line.531">    private void addAttributeIfPresent( final Element a, final Map&lt; String, String &gt; attributesMap, final String attribute ) {</a>
+<span class="sourceLineNo">532</span><a id="line.532">        final String attr = a.getAttributeValue( attribute );</a>
+<span class="sourceLineNo">533</span><a id="line.533">        if( StringUtils.isNotEmpty( attr ) ) {</a>
+<span class="sourceLineNo">534</span><a id="line.534">            attributesMap.put( attribute, attr.replaceAll( "'", "\"" ) );</a>
+<span class="sourceLineNo">535</span><a id="line.535">        }</a>
+<span class="sourceLineNo">536</span><a id="line.536">    }</a>
+<span class="sourceLineNo">537</span><a id="line.537"></a>
+<span class="sourceLineNo">538</span><a id="line.538">    /**</a>
+<span class="sourceLineNo">539</span><a id="line.539">     * Converts the entries in the map to a string for use in a wiki link.</a>
+<span class="sourceLineNo">540</span><a id="line.540">     */</a>
+<span class="sourceLineNo">541</span><a id="line.541">    private String augmentedWikiLinkMapToString( final Map&lt; String, String &gt; attributesMap ) {</a>
+<span class="sourceLineNo">542</span><a id="line.542">        final StringBuilder sb = new StringBuilder();</a>
+<span class="sourceLineNo">543</span><a id="line.543">        for( final Map.Entry&lt; String, String &gt; entry : attributesMap.entrySet() ) {</a>
+<span class="sourceLineNo">544</span><a id="line.544">            final String attributeName = entry.getKey();</a>
+<span class="sourceLineNo">545</span><a id="line.545">            final String attributeValue = entry.getValue();</a>
+<span class="sourceLineNo">546</span><a id="line.546"></a>
+<span class="sourceLineNo">547</span><a id="line.547">            sb.append( " " ).append( attributeName ).append( "='" ).append( attributeValue ).append( "'" );</a>
+<span class="sourceLineNo">548</span><a id="line.548">        }</a>
+<span class="sourceLineNo">549</span><a id="line.549"></a>
+<span class="sourceLineNo">550</span><a id="line.550">        return sb.toString().trim();</a>
+<span class="sourceLineNo">551</span><a id="line.551">    }</a>
 <span class="sourceLineNo">552</span><a id="line.552"></a>
-<span class="sourceLineNo">553</span><a id="line.553">                        print( e );</a>
-<span class="sourceLineNo">554</span><a id="line.554">                        break;</a>
-<span class="sourceLineNo">555</span><a id="line.555">                    }</a>
-<span class="sourceLineNo">556</span><a id="line.556">                    case "textarea": {</a>
-<span class="sourceLineNo">557</span><a id="line.557">                        String name = e.getAttributeValue( "name" );</a>
-<span class="sourceLineNo">558</span><a id="line.558">                        final String rows = e.getAttributeValue( "rows" );</a>
-<span class="sourceLineNo">559</span><a id="line.559">                        final String cols = e.getAttributeValue( "cols" );</a>
-<span class="sourceLineNo">560</span><a id="line.560"></a>
-<span class="sourceLineNo">561</span><a id="line.561">                        m_out.print( "[{FormTextarea" );</a>
-<span class="sourceLineNo">562</span><a id="line.562"></a>
-<span class="sourceLineNo">563</span><a id="line.563">                        if ( name != null ) {</a>
-<span class="sourceLineNo">564</span><a id="line.564">                            if ( name.startsWith( "nbf_" ) ) {</a>
-<span class="sourceLineNo">565</span><a id="line.565">                                name = name.substring( 4, name.length() );</a>
-<span class="sourceLineNo">566</span><a id="line.566">                            }</a>
-<span class="sourceLineNo">567</span><a id="line.567">                            m_out.print( " name='" + name + "'" );</a>
-<span class="sourceLineNo">568</span><a id="line.568">                        }</a>
-<span class="sourceLineNo">569</span><a id="line.569">                        if ( rows != null ) {</a>
-<span class="sourceLineNo">570</span><a id="line.570">                            m_out.print( " rows='" + rows + "'" );</a>
-<span class="sourceLineNo">571</span><a id="line.571">                        }</a>
-<span class="sourceLineNo">572</span><a id="line.572">                        if ( cols != null ) {</a>
-<span class="sourceLineNo">573</span><a id="line.573">                            m_out.print( " cols='" + cols + "'" );</a>
-<span class="sourceLineNo">574</span><a id="line.574">                        }</a>
-<span class="sourceLineNo">575</span><a id="line.575"></a>
-<span class="sourceLineNo">576</span><a id="line.576">                        m_out.print( "}]" );</a>
-<span class="sourceLineNo">577</span><a id="line.577">                        print( e );</a>
-<span class="sourceLineNo">578</span><a id="line.578">                        break;</a>
-<span class="sourceLineNo">579</span><a id="line.579">                    }</a>
-<span class="sourceLineNo">580</span><a id="line.580">                    case "select": {</a>
-<span class="sourceLineNo">581</span><a id="line.581">                        String name = e.getAttributeValue( "name" );</a>
-<span class="sourceLineNo">582</span><a id="line.582"></a>
-<span class="sourceLineNo">583</span><a id="line.583">                        m_out.print( "[{FormSelect" );</a>
+<span class="sourceLineNo">553</span><a id="line.553">    void decorateMarkupForStrong( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">554</span><a id="line.554">        out.print( "__" );</a>
+<span class="sourceLineNo">555</span><a id="line.555">        translate( e );</a>
+<span class="sourceLineNo">556</span><a id="line.556">        out.print( "__" );</a>
+<span class="sourceLineNo">557</span><a id="line.557">    }</a>
+<span class="sourceLineNo">558</span><a id="line.558"></a>
+<span class="sourceLineNo">559</span><a id="line.559">    void decorateMarkupForEM( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">560</span><a id="line.560">        out.print( "''" );</a>
+<span class="sourceLineNo">561</span><a id="line.561">        translate( e );</a>
+<span class="sourceLineNo">562</span><a id="line.562">        out.print( "''" );</a>
+<span class="sourceLineNo">563</span><a id="line.563">    }</a>
+<span class="sourceLineNo">564</span><a id="line.564"></a>
+<span class="sourceLineNo">565</span><a id="line.565">    void decorateMarkupForUnderline( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">566</span><a id="line.566">        out.print( "%%( text-decoration:underline; )" );</a>
+<span class="sourceLineNo">567</span><a id="line.567">        translate( e );</a>
+<span class="sourceLineNo">568</span><a id="line.568">        out.print( "/%" );</a>
+<span class="sourceLineNo">569</span><a id="line.569">    }</a>
+<span class="sourceLineNo">570</span><a id="line.570"></a>
+<span class="sourceLineNo">571</span><a id="line.571">    void decorateMarkupForStrike( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">572</span><a id="line.572">        out.print( "%%strike " );</a>
+<span class="sourceLineNo">573</span><a id="line.573">        translate( e );</a>
+<span class="sourceLineNo">574</span><a id="line.574">        out.print( "/%" );</a>
+<span class="sourceLineNo">575</span><a id="line.575">        // NOTE: don't print a space before or after the double percents because that can break words into two.</a>
+<span class="sourceLineNo">576</span><a id="line.576">        // For example: %%(color:red)ABC%%%%(color:green)DEF%% is different from %%(color:red)ABC%% %%(color:green)DEF%%</a>
+<span class="sourceLineNo">577</span><a id="line.577">    }</a>
+<span class="sourceLineNo">578</span><a id="line.578"></a>
+<span class="sourceLineNo">579</span><a id="line.579">    void decorateMarkupForSup( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">580</span><a id="line.580">        out.print( "%%sup " );</a>
+<span class="sourceLineNo">581</span><a id="line.581">        translate( e );</a>
+<span class="sourceLineNo">582</span><a id="line.582">        out.print( "/%" );</a>
+<span class="sourceLineNo">583</span><a id="line.583">    }</a>
 <span class="sourceLineNo">584</span><a id="line.584"></a>
-<span class="sourceLineNo">585</span><a id="line.585">                        if ( name != null ) {</a>
-<span class="sourceLineNo">586</span><a id="line.586">                            if ( name.startsWith( "nbf_" ) ) {</a>
-<span class="sourceLineNo">587</span><a id="line.587">                                name = name.substring( 4, name.length() );</a>
-<span class="sourceLineNo">588</span><a id="line.588">                            }</a>
-<span class="sourceLineNo">589</span><a id="line.589">                            m_out.print( " name='" + name + "'" );</a>
-<span class="sourceLineNo">590</span><a id="line.590">                        }</a>
-<span class="sourceLineNo">591</span><a id="line.591"></a>
-<span class="sourceLineNo">592</span><a id="line.592">                        m_out.print( " value='" );</a>
-<span class="sourceLineNo">593</span><a id="line.593">                        print( e );</a>
-<span class="sourceLineNo">594</span><a id="line.594">                        m_out.print( "'}]" );</a>
-<span class="sourceLineNo">595</span><a id="line.595">                        break;</a>
-<span class="sourceLineNo">596</span><a id="line.596">                    }</a>
-<span class="sourceLineNo">597</span><a id="line.597">                    case "option": {</a>
-<span class="sourceLineNo">598</span><a id="line.598">                        // If this &lt;option&gt; element isn't the second child element within the parent &lt;select&gt;</a>
-<span class="sourceLineNo">599</span><a id="line.599">                        // element, then we need to print a semicolon as a separator. (The first child element</a>
-<span class="sourceLineNo">600</span><a id="line.600">                        // is expected to be a newline character which is at index of 0).</a>
-<span class="sourceLineNo">601</span><a id="line.601">                        if ( base.indexOf( e ) != 1 ) {</a>
-<span class="sourceLineNo">602</span><a id="line.602">                            m_out.print( ";" );</a>
-<span class="sourceLineNo">603</span><a id="line.603">                        }</a>
+<span class="sourceLineNo">585</span><a id="line.585">    void decorateMarkupForSub( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">586</span><a id="line.586">        out.print( "%%sub " );</a>
+<span class="sourceLineNo">587</span><a id="line.587">        translate( e );</a>
+<span class="sourceLineNo">588</span><a id="line.588">        out.print( "/%" );</a>
+<span class="sourceLineNo">589</span><a id="line.589">    }</a>
+<span class="sourceLineNo">590</span><a id="line.590"></a>
+<span class="sourceLineNo">591</span><a id="line.591">    void decorateMarkupForDL( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">592</span><a id="line.592">        out.print( "\n" );</a>
+<span class="sourceLineNo">593</span><a id="line.593">        translate( e );</a>
+<span class="sourceLineNo">594</span><a id="line.594"></a>
+<span class="sourceLineNo">595</span><a id="line.595">        // print a newline after the definition list. If we don't,</a>
+<span class="sourceLineNo">596</span><a id="line.596">        // it may cause problems for the subsequent element.</a>
+<span class="sourceLineNo">597</span><a id="line.597">        out.print( "\n" );</a>
+<span class="sourceLineNo">598</span><a id="line.598">    }</a>
+<span class="sourceLineNo">599</span><a id="line.599"></a>
+<span class="sourceLineNo">600</span><a id="line.600">    void decorateMarkupForDT( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">601</span><a id="line.601">        out.print( ";" );</a>
+<span class="sourceLineNo">602</span><a id="line.602">        translate( e );</a>
+<span class="sourceLineNo">603</span><a id="line.603">    }</a>
 <span class="sourceLineNo">604</span><a id="line.604"></a>
-<span class="sourceLineNo">605</span><a id="line.605">                        final Attribute selected = e.getAttribute( "selected" );</a>
-<span class="sourceLineNo">606</span><a id="line.606">                        if ( selected != null ) {</a>
-<span class="sourceLineNo">607</span><a id="line.607">                            m_out.print( "*" );</a>
-<span class="sourceLineNo">608</span><a id="line.608">                        }</a>
+<span class="sourceLineNo">605</span><a id="line.605">    void decorateMarkupForDD( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">606</span><a id="line.606">        out.print( ":" );</a>
+<span class="sourceLineNo">607</span><a id="line.607">        translate( e );</a>
+<span class="sourceLineNo">608</span><a id="line.608">    }</a>
 <span class="sourceLineNo">609</span><a id="line.609"></a>
-<span class="sourceLineNo">610</span><a id="line.610">                        final String value = e.getAttributeValue( "value" );</a>
-<span class="sourceLineNo">611</span><a id="line.611">                        if ( value != null ) {</a>
-<span class="sourceLineNo">612</span><a id="line.612">                            m_out.print( value );</a>
-<span class="sourceLineNo">613</span><a id="line.613">                        } else {</a>
-<span class="sourceLineNo">614</span><a id="line.614">                            print( e );</a>
-<span class="sourceLineNo">615</span><a id="line.615">                        }</a>
-<span class="sourceLineNo">616</span><a id="line.616">                        break;</a>
-<span class="sourceLineNo">617</span><a id="line.617">                    }</a>
-<span class="sourceLineNo">618</span><a id="line.618">                    default:</a>
-<span class="sourceLineNo">619</span><a id="line.619">                        print( e );</a>
-<span class="sourceLineNo">620</span><a id="line.620">                        break;</a>
-<span class="sourceLineNo">621</span><a id="line.621">                }</a>
-<span class="sourceLineNo">622</span><a id="line.622">            }</a>
-<span class="sourceLineNo">623</span><a id="line.623">            else</a>
-<span class="sourceLineNo">624</span><a id="line.624">            {</a>
-<span class="sourceLineNo">625</span><a id="line.625">                print( c );</a>
-<span class="sourceLineNo">626</span><a id="line.626">            }</a>
-<span class="sourceLineNo">627</span><a id="line.627">        }</a>
-<span class="sourceLineNo">628</span><a id="line.628">    }</a>
-<span class="sourceLineNo">629</span><a id="line.629"></a>
-<span class="sourceLineNo">630</span><a id="line.630">    private void printImage(final Element base )</a>
-<span class="sourceLineNo">631</span><a id="line.631">    {</a>
-<span class="sourceLineNo">632</span><a id="line.632">        Element child = getXPathElement( base, "TBODY/TR/TD/*" );</a>
-<span class="sourceLineNo">633</span><a id="line.633">        if( child == null )</a>
-<span class="sourceLineNo">634</span><a id="line.634">        {</a>
-<span class="sourceLineNo">635</span><a id="line.635">            child = base;</a>
+<span class="sourceLineNo">610</span><a id="line.610">    void decorateMarkupForUL( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">611</span><a id="line.611">        out.println();</a>
+<span class="sourceLineNo">612</span><a id="line.612">        liStack.push( "*" );</a>
+<span class="sourceLineNo">613</span><a id="line.613">        translate( e );</a>
+<span class="sourceLineNo">614</span><a id="line.614">        liStack.pop();</a>
+<span class="sourceLineNo">615</span><a id="line.615">    }</a>
+<span class="sourceLineNo">616</span><a id="line.616"></a>
+<span class="sourceLineNo">617</span><a id="line.617">    void decorateMarkupForOL( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">618</span><a id="line.618">        out.println();</a>
+<span class="sourceLineNo">619</span><a id="line.619">        liStack.push( "#" );</a>
+<span class="sourceLineNo">620</span><a id="line.620">        translate( e );</a>
+<span class="sourceLineNo">621</span><a id="line.621">        liStack.pop();</a>
+<span class="sourceLineNo">622</span><a id="line.622">    }</a>
+<span class="sourceLineNo">623</span><a id="line.623"></a>
+<span class="sourceLineNo">624</span><a id="line.624">    void decorateMarkupForLI( final Element base, final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">625</span><a id="line.625">        out.print( String.join( "", liStack ) + " " );</a>
+<span class="sourceLineNo">626</span><a id="line.626">        translate( e );</a>
+<span class="sourceLineNo">627</span><a id="line.627"></a>
+<span class="sourceLineNo">628</span><a id="line.628">        // The following line assumes that the XHTML has been "pretty-printed"</a>
+<span class="sourceLineNo">629</span><a id="line.629">        // (newlines separate child elements from their parents).</a>
+<span class="sourceLineNo">630</span><a id="line.630">        final boolean lastListItem = base.indexOf( e ) == ( base.getContentSize() - 2 );</a>
+<span class="sourceLineNo">631</span><a id="line.631">        final boolean sublistItem = liStack.size() &gt; 1;</a>
+<span class="sourceLineNo">632</span><a id="line.632"></a>
+<span class="sourceLineNo">633</span><a id="line.633">        // only print a newline if this &lt;li&gt; element is not the last item within a sublist.</a>
+<span class="sourceLineNo">634</span><a id="line.634">        if ( !sublistItem || !lastListItem ) {</a>
+<span class="sourceLineNo">635</span><a id="line.635">            out.println();</a>
 <span class="sourceLineNo">636</span><a id="line.636">        }</a>
-<span class="sourceLineNo">637</span><a id="line.637">        final Element img;</a>
-<span class="sourceLineNo">638</span><a id="line.638">        final String href;</a>
-<span class="sourceLineNo">639</span><a id="line.639">        final Map&lt;Object,Object&gt; map = new ForgetNullValuesLinkedHashMap&lt;&gt;();</a>
-<span class="sourceLineNo">640</span><a id="line.640">        if( child.getName().equals( "A" ) )</a>
-<span class="sourceLineNo">641</span><a id="line.641">        {</a>
-<span class="sourceLineNo">642</span><a id="line.642">            img = child.getChild( "IMG" );</a>
-<span class="sourceLineNo">643</span><a id="line.643">            href = child.getAttributeValue( "href" );</a>
-<span class="sourceLineNo">644</span><a id="line.644">        }</a>
-<span class="sourceLineNo">645</span><a id="line.645">        else</a>
-<span class="sourceLineNo">646</span><a id="line.646">        {</a>
-<span class="sourceLineNo">647</span><a id="line.647">            img = child;</a>
-<span class="sourceLineNo">648</span><a id="line.648">            href = null;</a>
-<span class="sourceLineNo">649</span><a id="line.649">        }</a>
-<span class="sourceLineNo">650</span><a id="line.650">        if( img == null )</a>
-<span class="sourceLineNo">651</span><a id="line.651">        {</a>
-<span class="sourceLineNo">652</span><a id="line.652">            return;</a>
-<span class="sourceLineNo">653</span><a id="line.653">        }</a>
-<span class="sourceLineNo">654</span><a id="line.654">        final String src = trimLink( img.getAttributeValue( "src" ) );</a>
-<span class="sourceLineNo">655</span><a id="line.655">        if( src == null )</a>
-<span class="sourceLineNo">656</span><a id="line.656">        {</a>
-<span class="sourceLineNo">657</span><a id="line.657">            return;</a>
-<span class="sourceLineNo">658</span><a id="line.658">        }</a>
-<span class="sourceLineNo">659</span><a id="line.659">        map.put( "align", base.getAttributeValue( "align" ) );</a>
-<span class="sourceLineNo">660</span><a id="line.660">        map.put( "height", img.getAttributeValue( "height" ) );</a>
-<span class="sourceLineNo">661</span><a id="line.661">        map.put( "width", img.getAttributeValue( "width" ) );</a>
-<span class="sourceLineNo">662</span><a id="line.662">        map.put( "alt", img.getAttributeValue( "alt" ) );</a>
-<span class="sourceLineNo">663</span><a id="line.663">        map.put( "caption", emptyToNull( ( Element )XPathFactory.instance().compile(  "CAPTION" ).evaluateFirst( base ) ) );</a>
-<span class="sourceLineNo">664</span><a id="line.664">        map.put( "link", href );</a>
-<span class="sourceLineNo">665</span><a id="line.665">        map.put( "border", img.getAttributeValue( "border" ) );</a>
-<span class="sourceLineNo">666</span><a id="line.666">        map.put( "style", base.getAttributeValue( "style" ) );</a>
-<span class="sourceLineNo">667</span><a id="line.667">        if( map.size() &gt; 0 )</a>
-<span class="sourceLineNo">668</span><a id="line.668">        {</a>
-<span class="sourceLineNo">669</span><a id="line.669">            m_out.print( "[{Image src='" + src + "'" );</a>
-<span class="sourceLineNo">670</span><a id="line.670">            for(final Iterator i = map.entrySet().iterator(); i.hasNext(); )</a>
-<span class="sourceLineNo">671</span><a id="line.671">            {</a>
-<span class="sourceLineNo">672</span><a id="line.672">                final Map.Entry entry = (Map.Entry)i.next();</a>
-<span class="sourceLineNo">673</span><a id="line.673">                if( !entry.getValue().equals( "" ) )</a>
-<span class="sourceLineNo">674</span><a id="line.674">                {</a>
-<span class="sourceLineNo">675</span><a id="line.675">                    m_out.print( " " + entry.getKey() + "='" + entry.getValue() + "'" );</a>
-<span class="sourceLineNo">676</span><a id="line.676">                }</a>
-<span class="sourceLineNo">677</span><a id="line.677">            }</a>
-<span class="sourceLineNo">678</span><a id="line.678">            m_out.print( "}]" );</a>
-<span class="sourceLineNo">679</span><a id="line.679">        }</a>
-<span class="sourceLineNo">680</span><a id="line.680">        else</a>
-<span class="sourceLineNo">681</span><a id="line.681">        {</a>
-<span class="sourceLineNo">682</span><a id="line.682">            m_out.print( "[" + src + "]" );</a>
-<span class="sourceLineNo">683</span><a id="line.683">        }</a>
-<span class="sourceLineNo">684</span><a id="line.684">    }</a>
-<span class="sourceLineNo">685</span><a id="line.685"></a>
-<span class="sourceLineNo">686</span><a id="line.686">    Element getXPathElement( final Element base, final String expression ) {</a>
-<span class="sourceLineNo">687</span><a id="line.687">        final List&lt; ? &gt; nodes = XPathFactory.instance().compile( expression ).evaluate( base );</a>
-<span class="sourceLineNo">688</span><a id="line.688">        if( nodes == null || nodes.size() == 0 ) {</a>
-<span class="sourceLineNo">689</span><a id="line.689">            return null;</a>
-<span class="sourceLineNo">690</span><a id="line.690">        } else {</a>
-<span class="sourceLineNo">691</span><a id="line.691">            return ( Element )nodes.get( 0 );</a>
-<span class="sourceLineNo">692</span><a id="line.692">        }</a>
-<span class="sourceLineNo">693</span><a id="line.693">    }</a>
+<span class="sourceLineNo">637</span><a id="line.637">    }</a>
+<span class="sourceLineNo">638</span><a id="line.638"></a>
+<span class="sourceLineNo">639</span><a id="line.639">    void decorateMarkupForPre( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">640</span><a id="line.640">        out.print( "\n{{{" ); // start JSPWiki "code blocks" on its own line</a>
+<span class="sourceLineNo">641</span><a id="line.641"></a>
+<span class="sourceLineNo">642</span><a id="line.642">        preStack.push( "\n{{{" );</a>
+<span class="sourceLineNo">643</span><a id="line.643">        translate( e );</a>
+<span class="sourceLineNo">644</span><a id="line.644">        preStack.pop();</a>
+<span class="sourceLineNo">645</span><a id="line.645"></a>
+<span class="sourceLineNo">646</span><a id="line.646">        // print a newline after the closing braces to avoid breaking any subsequent wiki markup that follows.</a>
+<span class="sourceLineNo">647</span><a id="line.647">        out.print( "}}}\n" );</a>
+<span class="sourceLineNo">648</span><a id="line.648">    }</a>
+<span class="sourceLineNo">649</span><a id="line.649"></a>
+<span class="sourceLineNo">650</span><a id="line.650">    void decorateMarkupForCode( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">651</span><a id="line.651">        out.print( "{{" );</a>
+<span class="sourceLineNo">652</span><a id="line.652">        preStack.push( "{{" );</a>
+<span class="sourceLineNo">653</span><a id="line.653">        translate( e );</a>
+<span class="sourceLineNo">654</span><a id="line.654">        preStack.pop();</a>
+<span class="sourceLineNo">655</span><a id="line.655">        out.print( "}}" );</a>
+<span class="sourceLineNo">656</span><a id="line.656">        // NOTE: don't print a newline after the closing brackets because if the Text is inside</a>
+<span class="sourceLineNo">657</span><a id="line.657">        // a table or list, it would break it if there was a subsequent row or list item.</a>
+<span class="sourceLineNo">658</span><a id="line.658">    }</a>
+<span class="sourceLineNo">659</span><a id="line.659"></a>
+<span class="sourceLineNo">660</span><a id="line.660">    void decorateMarkupForImg( final Element e ) {</a>
+<span class="sourceLineNo">661</span><a id="line.661">        if( isNotIgnorableWikiMarkupLink( e ) ) {</a>
+<span class="sourceLineNo">662</span><a id="line.662">            out.print( "[" );</a>
+<span class="sourceLineNo">663</span><a id="line.663">            decorateMarkupForString( trimLink( e.getAttributeValue( "src" ) ) );</a>
+<span class="sourceLineNo">664</span><a id="line.664">            out.print( "]" );</a>
+<span class="sourceLineNo">665</span><a id="line.665">        }</a>
+<span class="sourceLineNo">666</span><a id="line.666">    }</a>
+<span class="sourceLineNo">667</span><a id="line.667"></a>
+<span class="sourceLineNo">668</span><a id="line.668">    void decorateMarkupForForm( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">669</span><a id="line.669">        // remove the hidden input where name="formname" since a new one will be generated again when the xhtml is rendered.</a>
+<span class="sourceLineNo">670</span><a id="line.670">        final Element formName = XmlUtil.getXPathElement( e, "INPUT[@name='formname']" );</a>
+<span class="sourceLineNo">671</span><a id="line.671">        if ( formName != null ) {</a>
+<span class="sourceLineNo">672</span><a id="line.672">            formName.detach();</a>
+<span class="sourceLineNo">673</span><a id="line.673">        }</a>
+<span class="sourceLineNo">674</span><a id="line.674"></a>
+<span class="sourceLineNo">675</span><a id="line.675">        final String name = e.getAttributeValue( "name" );</a>
+<span class="sourceLineNo">676</span><a id="line.676"></a>
+<span class="sourceLineNo">677</span><a id="line.677">        out.print( "\n[{FormOpen" );</a>
+<span class="sourceLineNo">678</span><a id="line.678"></a>
+<span class="sourceLineNo">679</span><a id="line.679">        if( name != null ) {</a>
+<span class="sourceLineNo">680</span><a id="line.680">            out.print( " form='" + name + "'" );</a>
+<span class="sourceLineNo">681</span><a id="line.681">        }</a>
+<span class="sourceLineNo">682</span><a id="line.682"></a>
+<span class="sourceLineNo">683</span><a id="line.683">        out.print( "}]\n" );</a>
+<span class="sourceLineNo">684</span><a id="line.684"></a>
+<span class="sourceLineNo">685</span><a id="line.685">        translate( e );</a>
+<span class="sourceLineNo">686</span><a id="line.686">        out.print( "\n[{FormClose}]\n" );</a>
+<span class="sourceLineNo">687</span><a id="line.687">    }</a>
+<span class="sourceLineNo">688</span><a id="line.688"></a>
+<span class="sourceLineNo">689</span><a id="line.689">    void decorateMarkupForInput( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">690</span><a id="line.690">        final String type = e.getAttributeValue( "type" );</a>
+<span class="sourceLineNo">691</span><a id="line.691">        String name = e.getAttributeValue( "name" );</a>
+<span class="sourceLineNo">692</span><a id="line.692">        final String value = e.getAttributeValue( "value" );</a>
+<span class="sourceLineNo">693</span><a id="line.693">        final String checked = e.getAttributeValue( "checked" );</a>
 <span class="sourceLineNo">694</span><a id="line.694"></a>
-<span class="sourceLineNo">695</span><a id="line.695">    private String emptyToNull( final Element e ) {</a>
-<span class="sourceLineNo">696</span><a id="line.696">        if( e == null ) {</a>
-<span class="sourceLineNo">697</span><a id="line.697">            return null;</a>
-<span class="sourceLineNo">698</span><a id="line.698">        }</a>
-<span class="sourceLineNo">699</span><a id="line.699">        final String s = e.getText();</a>
-<span class="sourceLineNo">700</span><a id="line.700">        return s == null ? null : ( s.replaceAll( "\\s", "" ).isEmpty() ? null : s );</a>
-<span class="sourceLineNo">701</span><a id="line.701">    }</a>
-<span class="sourceLineNo">702</span><a id="line.702"></a>
-<span class="sourceLineNo">703</span><a id="line.703">    private String propsToStyleString( final Map&lt; Object, Object &gt;  styleProps ) {</a>
-<span class="sourceLineNo">704</span><a id="line.704">        final StringBuilder style = new StringBuilder();</a>
-<span class="sourceLineNo">705</span><a id="line.705">        for(final Iterator&lt; Map.Entry&lt; Object, Object &gt; &gt; i = styleProps.entrySet().iterator(); i.hasNext(); ) {</a>
-<span class="sourceLineNo">706</span><a id="line.706">            final Map.Entry&lt; Object, Object &gt; entry = i.next();</a>
-<span class="sourceLineNo">707</span><a id="line.707">            style.append( " " ).append( entry.getKey() ).append( ": " ).append( entry.getValue() ).append( ";" );</a>
-<span class="sourceLineNo">708</span><a id="line.708">        }</a>
-<span class="sourceLineNo">709</span><a id="line.709">        return style.toString();</a>
-<span class="sourceLineNo">710</span><a id="line.710">    }</a>
-<span class="sourceLineNo">711</span><a id="line.711"></a>
-<span class="sourceLineNo">712</span><a id="line.712">    private boolean isIgnorableWikiMarkupLink( final Element a ) {</a>
-<span class="sourceLineNo">713</span><a id="line.713">        final String ref = a.getAttributeValue( "href" );</a>
-<span class="sourceLineNo">714</span><a id="line.714">        final String clazz = a.getAttributeValue( "class" );</a>
-<span class="sourceLineNo">715</span><a id="line.715">        return ( ref != null &amp;&amp; ref.startsWith( m_config.getPageInfoJsp() ) )</a>
-<span class="sourceLineNo">716</span><a id="line.716">            || ( clazz != null &amp;&amp; clazz.trim().equalsIgnoreCase( m_config.getOutlink() ) );</a>
+<span class="sourceLineNo">695</span><a id="line.695">        out.print( "[{FormInput" );</a>
+<span class="sourceLineNo">696</span><a id="line.696"></a>
+<span class="sourceLineNo">697</span><a id="line.697">        if ( type != null ) {</a>
+<span class="sourceLineNo">698</span><a id="line.698">            out.print( " type='" + type + "'" );</a>
+<span class="sourceLineNo">699</span><a id="line.699">        }</a>
+<span class="sourceLineNo">700</span><a id="line.700">        if ( name != null ) {</a>
+<span class="sourceLineNo">701</span><a id="line.701">            // remove the "nbf_" that was prepended since new one will be generated again when the xhtml is rendered.</a>
+<span class="sourceLineNo">702</span><a id="line.702">            if ( name.startsWith( "nbf_" ) ) {</a>
+<span class="sourceLineNo">703</span><a id="line.703">                name = name.substring( 4 );</a>
+<span class="sourceLineNo">704</span><a id="line.704">            }</a>
+<span class="sourceLineNo">705</span><a id="line.705">            out.print( " name='" + name + "'" );</a>
+<span class="sourceLineNo">706</span><a id="line.706">        }</a>
+<span class="sourceLineNo">707</span><a id="line.707">        if ( value != null &amp;&amp; !value.equals( "" ) ) {</a>
+<span class="sourceLineNo">708</span><a id="line.708">            out.print( " value='" + value + "'" );</a>
+<span class="sourceLineNo">709</span><a id="line.709">        }</a>
+<span class="sourceLineNo">710</span><a id="line.710">        if ( checked != null ) {</a>
+<span class="sourceLineNo">711</span><a id="line.711">            out.print( " checked='" + checked + "'" );</a>
+<span class="sourceLineNo">712</span><a id="line.712">        }</a>
+<span class="sourceLineNo">713</span><a id="line.713"></a>
+<span class="sourceLineNo">714</span><a id="line.714">        out.print( "}]" );</a>
+<span class="sourceLineNo">715</span><a id="line.715"></a>
+<span class="sourceLineNo">716</span><a id="line.716">        translate( e );</a>
 <span class="sourceLineNo">717</span><a id="line.717">    }</a>
 <span class="sourceLineNo">718</span><a id="line.718"></a>
-<span class="sourceLineNo">719</span><a id="line.719">    /**</a>
-<span class="sourceLineNo">720</span><a id="line.720">     * Checks if the link points to an undefined page.</a>
-<span class="sourceLineNo">721</span><a id="line.721">     */</a>
-<span class="sourceLineNo">722</span><a id="line.722">    private boolean isUndefinedPageLink(final Element a)</a>
-<span class="sourceLineNo">723</span><a id="line.723">    {</a>
-<span class="sourceLineNo">724</span><a id="line.724">        final String classVal = a.getAttributeValue( "class" );</a>
+<span class="sourceLineNo">719</span><a id="line.719">    void decorateMarkupForTextarea( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">720</span><a id="line.720">        String name = e.getAttributeValue( "name" );</a>
+<span class="sourceLineNo">721</span><a id="line.721">        final String rows = e.getAttributeValue( "rows" );</a>
+<span class="sourceLineNo">722</span><a id="line.722">        final String cols = e.getAttributeValue( "cols" );</a>
+<span class="sourceLineNo">723</span><a id="line.723"></a>
+<span class="sourceLineNo">724</span><a id="line.724">        out.print( "[{FormTextarea" );</a>
 <span class="sourceLineNo">725</span><a id="line.725"></a>
-<span class="sourceLineNo">726</span><a id="line.726">        return "createpage".equals( classVal );</a>
-<span class="sourceLineNo">727</span><a id="line.727">    }</a>
-<span class="sourceLineNo">728</span><a id="line.728"></a>
-<span class="sourceLineNo">729</span><a id="line.729">    /**</a>
-<span class="sourceLineNo">730</span><a id="line.730">     *  Returns a Map containing the valid augmented wiki link attributes.</a>
-<span class="sourceLineNo">731</span><a id="line.731">     */</a>
-<span class="sourceLineNo">732</span><a id="line.732">    private Map&lt;String,String&gt; getAugmentedWikiLinkAttributes(final Element a )</a>
-<span class="sourceLineNo">733</span><a id="line.733">    {</a>
-<span class="sourceLineNo">734</span><a id="line.734">        final Map&lt;String,String&gt; attributesMap = new HashMap&lt;&gt;();</a>
-<span class="sourceLineNo">735</span><a id="line.735"></a>
-<span class="sourceLineNo">736</span><a id="line.736">        final String id = a.getAttributeValue( "id" );</a>
-<span class="sourceLineNo">737</span><a id="line.737">        if( id != null &amp;&amp; !id.equals( "" ) )</a>
-<span class="sourceLineNo">738</span><a id="line.738">        {</a>
-<span class="sourceLineNo">739</span><a id="line.739">            attributesMap.put( "id", id.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">740</span><a id="line.740">        }</a>
-<span class="sourceLineNo">741</span><a id="line.741"></a>
-<span class="sourceLineNo">742</span><a id="line.742">        final String cssClass = a.getAttributeValue( "class" );</a>
-<span class="sourceLineNo">743</span><a id="line.743">        if( cssClass != null &amp;&amp; !cssClass.equals( "" )</a>
-<span class="sourceLineNo">744</span><a id="line.744">            &amp;&amp; !cssClass.matches( "wikipage|createpage|external|interwiki|attachment" ) )</a>
-<span class="sourceLineNo">745</span><a id="line.745">        {</a>
-<span class="sourceLineNo">746</span><a id="line.746">            attributesMap.put( "class", cssClass.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">747</span><a id="line.747">        }</a>
-<span class="sourceLineNo">748</span><a id="line.748"></a>
-<span class="sourceLineNo">749</span><a id="line.749">        final String style = a.getAttributeValue( "style" );</a>
-<span class="sourceLineNo">750</span><a id="line.750">        if( style != null &amp;&amp; !style.equals( "" ) )</a>
-<span class="sourceLineNo">751</span><a id="line.751">        {</a>
-<span class="sourceLineNo">752</span><a id="line.752">            attributesMap.put( "style", style.replaceAll( "'", "\"" ) );</a>
+<span class="sourceLineNo">726</span><a id="line.726">        if ( name != null ) {</a>
+<span class="sourceLineNo">727</span><a id="line.727">            if ( name.startsWith( "nbf_" ) ) {</a>
+<span class="sourceLineNo">728</span><a id="line.728">                name = name.substring( 4 );</a>
+<span class="sourceLineNo">729</span><a id="line.729">            }</a>
+<span class="sourceLineNo">730</span><a id="line.730">            out.print( " name='" + name + "'" );</a>
+<span class="sourceLineNo">731</span><a id="line.731">        }</a>
+<span class="sourceLineNo">732</span><a id="line.732">        if ( rows != null ) {</a>
+<span class="sourceLineNo">733</span><a id="line.733">            out.print( " rows='" + rows + "'" );</a>
+<span class="sourceLineNo">734</span><a id="line.734">        }</a>
+<span class="sourceLineNo">735</span><a id="line.735">        if ( cols != null ) {</a>
+<span class="sourceLineNo">736</span><a id="line.736">            out.print( " cols='" + cols + "'" );</a>
+<span class="sourceLineNo">737</span><a id="line.737">        }</a>
+<span class="sourceLineNo">738</span><a id="line.738"></a>
+<span class="sourceLineNo">739</span><a id="line.739">        out.print( "}]" );</a>
+<span class="sourceLineNo">740</span><a id="line.740">        translate( e );</a>
+<span class="sourceLineNo">741</span><a id="line.741">    }</a>
+<span class="sourceLineNo">742</span><a id="line.742"></a>
+<span class="sourceLineNo">743</span><a id="line.743">    void decorateMarkupForSelect( final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">744</span><a id="line.744">        String name = e.getAttributeValue( "name" );</a>
+<span class="sourceLineNo">745</span><a id="line.745"></a>
+<span class="sourceLineNo">746</span><a id="line.746">        out.print( "[{FormSelect" );</a>
+<span class="sourceLineNo">747</span><a id="line.747"></a>
+<span class="sourceLineNo">748</span><a id="line.748">        if ( name != null ) {</a>
+<span class="sourceLineNo">749</span><a id="line.749">            if ( name.startsWith( "nbf_" ) ) {</a>
+<span class="sourceLineNo">750</span><a id="line.750">                name = name.substring( 4 );</a>
+<span class="sourceLineNo">751</span><a id="line.751">            }</a>
+<span class="sourceLineNo">752</span><a id="line.752">            out.print( " name='" + name + "'" );</a>
 <span class="sourceLineNo">753</span><a id="line.753">        }</a>
 <span class="sourceLineNo">754</span><a id="line.754"></a>
-<span class="sourceLineNo">755</span><a id="line.755">        final String title = a.getAttributeValue( "title" );</a>
-<span class="sourceLineNo">756</span><a id="line.756">        if( title != null &amp;&amp; !title.equals( "" ) )</a>
-<span class="sourceLineNo">757</span><a id="line.757">        {</a>
-<span class="sourceLineNo">758</span><a id="line.758">            attributesMap.put( "title", title.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">759</span><a id="line.759">        }</a>
-<span class="sourceLineNo">760</span><a id="line.760"></a>
-<span class="sourceLineNo">761</span><a id="line.761">        final String lang = a.getAttributeValue( "lang" );</a>
-<span class="sourceLineNo">762</span><a id="line.762">        if( lang != null &amp;&amp; !lang.equals( "" ) )</a>
-<span class="sourceLineNo">763</span><a id="line.763">        {</a>
-<span class="sourceLineNo">764</span><a id="line.764">            attributesMap.put( "lang", lang.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">765</span><a id="line.765">        }</a>
-<span class="sourceLineNo">766</span><a id="line.766"></a>
-<span class="sourceLineNo">767</span><a id="line.767">        final String dir = a.getAttributeValue( "dir" );</a>
-<span class="sourceLineNo">768</span><a id="line.768">        if( dir != null &amp;&amp; !dir.equals( "" ) )</a>
-<span class="sourceLineNo">769</span><a id="line.769">        {</a>
-<span class="sourceLineNo">770</span><a id="line.770">            attributesMap.put( "dir", dir.replaceAll( "'", "\"" ) );</a>
+<span class="sourceLineNo">755</span><a id="line.755">        out.print( " value='" );</a>
+<span class="sourceLineNo">756</span><a id="line.756">        translate( e );</a>
+<span class="sourceLineNo">757</span><a id="line.757">        out.print( "'}]" );</a>
+<span class="sourceLineNo">758</span><a id="line.758">    }</a>
+<span class="sourceLineNo">759</span><a id="line.759"></a>
+<span class="sourceLineNo">760</span><a id="line.760">    void decorateMarkupForOption( final Element base, final Element e ) throws JDOMException {</a>
+<span class="sourceLineNo">761</span><a id="line.761">        // If this &lt;option&gt; element isn't the second child element within the parent &lt;select&gt;</a>
+<span class="sourceLineNo">762</span><a id="line.762">        // element, then we need to print a semicolon as a separator. (The first child element</a>
+<span class="sourceLineNo">763</span><a id="line.763">        // is expected to be a newline character which is at index of 0).</a>
+<span class="sourceLineNo">764</span><a id="line.764">        if ( base.indexOf( e ) != 1 ) {</a>
+<span class="sourceLineNo">765</span><a id="line.765">            out.print( ";" );</a>
+<span class="sourceLineNo">766</span><a id="line.766">        }</a>
+<span class="sourceLineNo">767</span><a id="line.767"></a>
+<span class="sourceLineNo">768</span><a id="line.768">        final Attribute selected = e.getAttribute( "selected" );</a>
+<span class="sourceLineNo">769</span><a id="line.769">        if ( selected != null ) {</a>
+<span class="sourceLineNo">770</span><a id="line.770">            out.print( "*" );</a>
 <span class="sourceLineNo">771</span><a id="line.771">        }</a>
 <span class="sourceLineNo">772</span><a id="line.772"></a>
-<span class="sourceLineNo">773</span><a id="line.773">        final String charset = a.getAttributeValue( "charset" );</a>
-<span class="sourceLineNo">774</span><a id="line.774">        if( charset != null &amp;&amp; !charset.equals("") )</a>
-<span class="sourceLineNo">775</span><a id="line.775">        {</a>
-<span class="sourceLineNo">776</span><a id="line.776">            attributesMap.put( "charset", charset.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">777</span><a id="line.777">        }</a>
-<span class="sourceLineNo">778</span><a id="line.778"></a>
-<span class="sourceLineNo">779</span><a id="line.779">        final String type = a.getAttributeValue( "type" );</a>
-<span class="sourceLineNo">780</span><a id="line.780">        if( type != null &amp;&amp; !type.equals( "" ) )</a>
-<span class="sourceLineNo">781</span><a id="line.781">        {</a>
-<span class="sourceLineNo">782</span><a id="line.782">            attributesMap.put( "type", type.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">783</span><a id="line.783">        }</a>
-<span class="sourceLineNo">784</span><a id="line.784"></a>
-<span class="sourceLineNo">785</span><a id="line.785">        final String hreflang = a.getAttributeValue( "hreflang" );</a>
-<span class="sourceLineNo">786</span><a id="line.786">        if( hreflang != null &amp;&amp; !hreflang.equals( "" ) )</a>
-<span class="sourceLineNo">787</span><a id="line.787">        {</a>
-<span class="sourceLineNo">788</span><a id="line.788">            attributesMap.put( "hreflang", hreflang.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">789</span><a id="line.789">        }</a>
-<span class="sourceLineNo">790</span><a id="line.790"></a>
-<span class="sourceLineNo">791</span><a id="line.791">        final String rel = a.getAttributeValue( "rel" );</a>
-<span class="sourceLineNo">792</span><a id="line.792">        if( rel != null &amp;&amp; !rel.equals( "" ) )</a>
-<span class="sourceLineNo">793</span><a id="line.793">        {</a>
-<span class="sourceLineNo">794</span><a id="line.794">            attributesMap.put( "rel", rel.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">795</span><a id="line.795">        }</a>
-<span class="sourceLineNo">796</span><a id="line.796"></a>
-<span class="sourceLineNo">797</span><a id="line.797">        final String rev = a.getAttributeValue( "rev" );</a>
-<span class="sourceLineNo">798</span><a id="line.798">        if( rev != null &amp;&amp; !rev.equals( "" ) )</a>
-<span class="sourceLineNo">799</span><a id="line.799">        {</a>
-<span class="sourceLineNo">800</span><a id="line.800">            attributesMap.put( "rev", rev.replaceAll( "'", "\"" ) );</a>
+<span class="sourceLineNo">773</span><a id="line.773">        final String value = e.getAttributeValue( "value" );</a>
+<span class="sourceLineNo">774</span><a id="line.774">        if ( value != null ) {</a>
+<span class="sourceLineNo">775</span><a id="line.775">            out.print( value );</a>
+<span class="sourceLineNo">776</span><a id="line.776">        } else {</a>
+<span class="sourceLineNo">777</span><a id="line.777">            translate( e );</a>
+<span class="sourceLineNo">778</span><a id="line.778">        }</a>
+<span class="sourceLineNo">779</span><a id="line.779">    }</a>
+<span class="sourceLineNo">780</span><a id="line.780"></a>
+<span class="sourceLineNo">781</span><a id="line.781">    private void translateImage( final Element base ) {</a>
+<span class="sourceLineNo">782</span><a id="line.782">        Element child = XmlUtil.getXPathElement( base, "TBODY/TR/TD/*" );</a>
+<span class="sourceLineNo">783</span><a id="line.783">        if( child == null ) {</a>
+<span class="sourceLineNo">784</span><a id="line.784">            child = base;</a>
+<span class="sourceLineNo">785</span><a id="line.785">        }</a>
+<span class="sourceLineNo">786</span><a id="line.786">        final Element img;</a>
+<span class="sourceLineNo">787</span><a id="line.787">        final String href;</a>
+<span class="sourceLineNo">788</span><a id="line.788">        if( child.getName().equals( "A" ) ) {</a>
+<span class="sourceLineNo">789</span><a id="line.789">            img = child.getChild( "IMG" );</a>
+<span class="sourceLineNo">790</span><a id="line.790">            href = child.getAttributeValue( "href" );</a>
+<span class="sourceLineNo">791</span><a id="line.791">        } else {</a>
+<span class="sourceLineNo">792</span><a id="line.792">            img = child;</a>
+<span class="sourceLineNo">793</span><a id="line.793">            href = null;</a>
+<span class="sourceLineNo">794</span><a id="line.794">        }</a>
+<span class="sourceLineNo">795</span><a id="line.795">        if( img == null ) {</a>
+<span class="sourceLineNo">796</span><a id="line.796">            return;</a>
+<span class="sourceLineNo">797</span><a id="line.797">        }</a>
+<span class="sourceLineNo">798</span><a id="line.798">        final String src = trimLink( img.getAttributeValue( "src" ) );</a>
+<span class="sourceLineNo">799</span><a id="line.799">        if( src == null ) {</a>
+<span class="sourceLineNo">800</span><a id="line.800">            return;</a>
 <span class="sourceLineNo">801</span><a id="line.801">        }</a>
 <span class="sourceLineNo">802</span><a id="line.802"></a>
-<span class="sourceLineNo">803</span><a id="line.803">        final String accesskey = a.getAttributeValue( "accesskey" );</a>
-<span class="sourceLineNo">804</span><a id="line.804">        if( accesskey != null &amp;&amp; !accesskey.equals( "" ) )</a>
-<span class="sourceLineNo">805</span><a id="line.805">        {</a>
-<span class="sourceLineNo">806</span><a id="line.806">            attributesMap.put( "accesskey", accesskey.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">807</span><a id="line.807">        }</a>
-<span class="sourceLineNo">808</span><a id="line.808"></a>
-<span class="sourceLineNo">809</span><a id="line.809">        final String tabindex = a.getAttributeValue( "tabindex" );</a>
-<span class="sourceLineNo">810</span><a id="line.810">        if( tabindex != null &amp;&amp; !tabindex.equals( "" ) )</a>
-<span class="sourceLineNo">811</span><a id="line.811">        {</a>
-<span class="sourceLineNo">812</span><a id="line.812">            attributesMap.put( "tabindex", tabindex.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">813</span><a id="line.813">        }</a>
+<span class="sourceLineNo">803</span><a id="line.803">        final Map&lt; String, Object &gt; imageAttrs = new LinkedHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">804</span><a id="line.804">        putIfNotEmpty( imageAttrs, "align", base.getAttributeValue( "align" ) );</a>
+<span class="sourceLineNo">805</span><a id="line.805">        putIfNotEmpty( imageAttrs, "height", img.getAttributeValue( "height" ) );</a>
+<span class="sourceLineNo">806</span><a id="line.806">        putIfNotEmpty( imageAttrs, "width", img.getAttributeValue( "width" ) );</a>
+<span class="sourceLineNo">807</span><a id="line.807">        putIfNotEmpty( imageAttrs, "alt", img.getAttributeValue( "alt" ) );</a>
+<span class="sourceLineNo">808</span><a id="line.808">        putIfNotEmpty( imageAttrs, "caption", emptyToNull( ( Element )XPathFactory.instance().compile(  "CAPTION" ).evaluateFirst( base ) ) );</a>
+<span class="sourceLineNo">809</span><a id="line.809">        putIfNotEmpty( imageAttrs, "link", href );</a>
+<span class="sourceLineNo">810</span><a id="line.810">        putIfNotEmpty( imageAttrs, "border", img.getAttributeValue( "border" ) );</a>
+<span class="sourceLineNo">811</span><a id="line.811">        putIfNotEmpty( imageAttrs, "style", base.getAttributeValue( "style" ) );</a>
+<span class="sourceLineNo">812</span><a id="line.812">        decorateMarkupforImage( src, imageAttrs );</a>
+<span class="sourceLineNo">813</span><a id="line.813">    }</a>
 <span class="sourceLineNo">814</span><a id="line.814"></a>
-<span class="sourceLineNo">815</span><a id="line.815">        final String target = a.getAttributeValue( "target" );</a>
-<span class="sourceLineNo">816</span><a id="line.816">        if( target != null &amp;&amp; !target.equals( "" ) )</a>
-<span class="sourceLineNo">817</span><a id="line.817">        {</a>
-<span class="sourceLineNo">818</span><a id="line.818">            attributesMap.put( "target", target.replaceAll( "'", "\"" ) );</a>
-<span class="sourceLineNo">819</span><a id="line.819">        }</a>
+<span class="sourceLineNo">815</span><a id="line.815">    private void putIfNotEmpty( final Map&lt; String, Object &gt; map, final String key, final Object value ) {</a>
+<span class="sourceLineNo">816</span><a id="line.816">        if( value != null ) {</a>
+<span class="sourceLineNo">817</span><a id="line.817">            map.put( key, value );</a>
+<span class="sourceLineNo">818</span><a id="line.818">        }</a>
+<span class="sourceLineNo">819</span><a id="line.819">    }</a>
 <span class="sourceLineNo">820</span><a id="line.820"></a>
-<span class="sourceLineNo">821</span><a id="line.821">        return attributesMap;</a>
-<span class="sourceLineNo">822</span><a id="line.822">    }</a>
-<span class="sourceLineNo">823</span><a id="line.823"></a>
-<span class="sourceLineNo">824</span><a id="line.824">    /**</a>
-<span class="sourceLineNo">825</span><a id="line.825">     * Converts the entries in the map to a string for use in a wiki link.</a>
-<span class="sourceLineNo">826</span><a id="line.826">     */</a>
-<span class="sourceLineNo">827</span><a id="line.827">    private String augmentedWikiLinkMapToString(final Map attributesMap )</a>
-<span class="sourceLineNo">828</span><a id="line.828">    {</a>
-<span class="sourceLineNo">829</span><a id="line.829">        final StringBuilder sb = new StringBuilder();</a>
-<span class="sourceLineNo">830</span><a id="line.830"></a>
-<span class="sourceLineNo">831</span><a id="line.831">        for (final Iterator itr = attributesMap.entrySet().iterator(); itr.hasNext(); )</a>
-<span class="sourceLineNo">832</span><a id="line.832">        {</a>
-<span class="sourceLineNo">833</span><a id="line.833">            final Map.Entry entry = (Map.Entry)itr.next();</a>
-<span class="sourceLineNo">834</span><a id="line.834">            final String attributeName = (String)entry.getKey();</a>
-<span class="sourceLineNo">835</span><a id="line.835">            final String attributeValue = (String)entry.getValue();</a>
-<span class="sourceLineNo">836</span><a id="line.836"></a>
-<span class="sourceLineNo">837</span><a id="line.837">            sb.append( " " + attributeName + "='" + attributeValue + "'" );</a>
-<span class="sourceLineNo">838</span><a id="line.838">        }</a>
-<span class="sourceLineNo">839</span><a id="line.839"></a>
-<span class="sourceLineNo">840</span><a id="line.840">        return sb.toString().trim();</a>
+<span class="sourceLineNo">821</span><a id="line.821">    private String emptyToNull( final Element e ) {</a>
+<span class="sourceLineNo">822</span><a id="line.822">        if( e == null ) {</a>
+<span class="sourceLineNo">823</span><a id="line.823">            return null;</a>
+<span class="sourceLineNo">824</span><a id="line.824">        }</a>
+<span class="sourceLineNo">825</span><a id="line.825">        final String s = e.getText();</a>
+<span class="sourceLineNo">826</span><a id="line.826">        return s == null ? null : ( s.replaceAll( "\\s", "" ).isEmpty() ? null : s );</a>
+<span class="sourceLineNo">827</span><a id="line.827">    }</a>
+<span class="sourceLineNo">828</span><a id="line.828"></a>
+<span class="sourceLineNo">829</span><a id="line.829">    void decorateMarkupforImage( final String src, final Map&lt; String, Object &gt; imageAttrs ) {</a>
+<span class="sourceLineNo">830</span><a id="line.830">        if( imageAttrs.isEmpty() ) {</a>
+<span class="sourceLineNo">831</span><a id="line.831">            out.print( "[" + src + "]" );</a>
+<span class="sourceLineNo">832</span><a id="line.832">        } else {</a>
+<span class="sourceLineNo">833</span><a id="line.833">            out.print( "[{Image src='" + src + "'" );</a>
+<span class="sourceLineNo">834</span><a id="line.834">            for( final Map.Entry&lt; String, Object &gt; objectObjectEntry : imageAttrs.entrySet() ) {</a>
+<span class="sourceLineNo">835</span><a id="line.835">                if ( !objectObjectEntry.getValue().equals( "" ) ) {</a>
+<span class="sourceLineNo">836</span><a id="line.836">                    out.print( " " + objectObjectEntry.getKey() + "='" + objectObjectEntry.getValue() + "'" );</a>
+<span class="sourceLineNo">837</span><a id="line.837">                }</a>
+<span class="sourceLineNo">838</span><a id="line.838">            }</a>
+<span class="sourceLineNo">839</span><a id="line.839">            out.print( "}]" );</a>
+<span class="sourceLineNo">840</span><a id="line.840">        }</a>
 <span class="sourceLineNo">841</span><a id="line.841">    }</a>
 <span class="sourceLineNo">842</span><a id="line.842"></a>
-<span class="sourceLineNo">843</span><a id="line.843">    private Map&lt; Object, Object &gt; getStylePropertiesLowerCase(final Element base ) throws IOException</a>
-<span class="sourceLineNo">844</span><a id="line.844">    {</a>
-<span class="sourceLineNo">845</span><a id="line.845">        final String n = base.getName().toLowerCase();</a>
-<span class="sourceLineNo">846</span><a id="line.846"></a>
-<span class="sourceLineNo">847</span><a id="line.847">        //"font-weight: bold; font-style: italic;"</a>
-<span class="sourceLineNo">848</span><a id="line.848">        String style = base.getAttributeValue( "style" );</a>
-<span class="sourceLineNo">849</span><a id="line.849">        if( style == null )</a>
-<span class="sourceLineNo">850</span><a id="line.850">        {</a>
-<span class="sourceLineNo">851</span><a id="line.851">            style = "";</a>
-<span class="sourceLineNo">852</span><a id="line.852">        }</a>
-<span class="sourceLineNo">853</span><a id="line.853"></a>
-<span class="sourceLineNo">854</span><a id="line.854">        if( n.equals( "p" ) || n.equals( "div" ) )</a>
-<span class="sourceLineNo">855</span><a id="line.855">        {</a>
-<span class="sourceLineNo">856</span><a id="line.856">            final String align = base.getAttributeValue( "align" );</a>
-<span class="sourceLineNo">857</span><a id="line.857">            if( align != null )</a>
-<span class="sourceLineNo">858</span><a id="line.858">            {</a>
-<span class="sourceLineNo">859</span><a id="line.859">                // only add the value of the align attribute if the text-align style didn't already exist.</a>
-<span class="sourceLineNo">860</span><a id="line.860">                if( style.indexOf( "text-align" ) == -1 )</a>
-<span class="sourceLineNo">861</span><a id="line.861">                {</a>
-<span class="sourceLineNo">862</span><a id="line.862">                    style = style + ";text-align:" + align + ";";</a>
-<span class="sourceLineNo">863</span><a id="line.863">                }</a>
-<span class="sourceLineNo">864</span><a id="line.864">            }</a>
-<span class="sourceLineNo">865</span><a id="line.865">        }</a>
-<span class="sourceLineNo">866</span><a id="line.866"></a>
-<span class="sourceLineNo">867</span><a id="line.867"></a>
-<span class="sourceLineNo">868</span><a id="line.868"></a>
-<span class="sourceLineNo">869</span><a id="line.869">        if( n.equals( "font" ) )</a>
-<span class="sourceLineNo">870</span><a id="line.870">        {</a>
-<span class="sourceLineNo">871</span><a id="line.871">            final String color = base.getAttributeValue( "color" );</a>
-<span class="sourceLineNo">872</span><a id="line.872">            final String face = base.getAttributeValue( "face" );</a>
-<span class="sourceLineNo">873</span><a id="line.873">            final String size = base.getAttributeValue( "size" );</a>
-<span class="sourceLineNo">874</span><a id="line.874">            if( color != null )</a>
-<span class="sourceLineNo">875</span><a id="line.875">            {</a>
-<span class="sourceLineNo">876</span><a id="line.876">                style = style + "color:" + color + ";";</a>
-<span class="sourceLineNo">877</span><a id="line.877">            }</a>
-<span class="sourceLineNo">878</span><a id="line.878">            if( face != null )</a>
-<span class="sourceLineNo">879</span><a id="line.879">            {</a>
-<span class="sourceLineNo">880</span><a id="line.880">                style = style + "font-family:" + face + ";";</a>
-<span class="sourceLineNo">881</span><a id="line.881">            }</a>
-<span class="sourceLineNo">882</span><a id="line.882">            if( size != null )</a>
-<span class="sourceLineNo">883</span><a id="line.883">            {</a>
-<span class="sourceLineNo">884</span><a id="line.884">                switch ( size ) {</a>
-<span class="sourceLineNo">885</span><a id="line.885">                    case "1":</a>
-<span class="sourceLineNo">886</span><a id="line.886">                        style = style + "font-size:xx-small;";</a>
-<span class="sourceLineNo">887</span><a id="line.887">                        break;</a>
-<span class="sourceLineNo">888</span><a id="line.888">                    case "2":</a>
-<span class="sourceLineNo">889</span><a id="line.889">                        style = style + "font-size:x-small;";</a>
-<span class="sourceLineNo">890</span><a id="line.890">                        break;</a>
-<span class="sourceLineNo">891</span><a id="line.891">                    case "3":</a>
-<span class="sourceLineNo">892</span><a id="line.892">                        style = style + "font-size:small;";</a>
-<span class="sourceLineNo">893</span><a id="line.893">                        break;</a>
-<span class="sourceLineNo">894</span><a id="line.894">                    case "4":</a>
-<span class="sourceLineNo">895</span><a id="line.895">                        style = style + "font-size:medium;";</a>
-<span class="sourceLineNo">896</span><a id="line.896">                        break;</a>
-<span class="sourceLineNo">897</span><a id="line.897">                    case "5":</a>
-<span class="sourceLineNo">898</span><a id="line.898">                        style = style + "font-size:large;";</a>
-<span class="sourceLineNo">899</span><a id="line.899">                        break;</a>
-<span class="sourceLineNo">900</span><a id="line.900">                    case "6":</a>
-<span class="sourceLineNo">901</span><a id="line.901">                        style = style + "font-size:x-large;";</a>
-<span class="sourceLineNo">902</span><a id="line.902">                        break;</a>
-<span class="sourceLineNo">903</span><a id="line.903">                    case "7":</a>
-<span class="sourceLineNo">904</span><a id="line.904">                        style = style + "font-size:xx-large;";</a>
-<span class="sourceLineNo">905</span><a id="line.905">                        break;</a>
-<span class="sourceLineNo">906</span><a id="line.906">                }</a>
-<span class="sourceLineNo">907</span><a id="line.907">            }</a>
-<span class="sourceLineNo">908</span><a id="line.908">        }</a>
-<span class="sourceLineNo">909</span><a id="line.909"></a>
-<span class="sourceLineNo">910</span><a id="line.910">        if( style.equals( "" ) )</a>
-<span class="sourceLineNo">911</span><a id="line.911">        {</a>
-<span class="sourceLineNo">912</span><a id="line.912">            return null;</a>
-<span class="sourceLineNo">913</span><a id="line.913">        }</a>
-<span class="sourceLineNo">914</span><a id="line.914"></a>
-<span class="sourceLineNo">915</span><a id="line.915">        style = style.replace( ';', '\n' ).toLowerCase();</a>
-<span class="sourceLineNo">916</span><a id="line.916">        final LinkedHashMap&lt; Object, Object &gt; m = new LinkedHashMap&lt;&gt;();</a>
-<span class="sourceLineNo">917</span><a id="line.917">        new PersistentMapDecorator( m ).load( new ByteArrayInputStream( style.getBytes() ) );</a>
-<span class="sourceLineNo">918</span><a id="line.918">        return m;</a>
-<span class="sourceLineNo">919</span><a id="line.919">    }</a>
-<span class="sourceLineNo">920</span><a id="line.920"></a>
-<span class="sourceLineNo">921</span><a id="line.921">    private String trimLink( String ref )</a>
-<span class="sourceLineNo">922</span><a id="line.922">    {</a>
-<span class="sourceLineNo">923</span><a id="line.923">        if( ref == null )</a>
-<span class="sourceLineNo">924</span><a id="line.924">        {</a>
-<span class="sourceLineNo">925</span><a id="line.925">            return null;</a>
-<span class="sourceLineNo">926</span><a id="line.926">        }</a>
-<span class="sourceLineNo">927</span><a id="line.927">        try</a>
-<span class="sourceLineNo">928</span><a id="line.928">        {</a>
-<span class="sourceLineNo">929</span><a id="line.929">            ref = URLDecoder.decode( ref, StandardCharsets.UTF_8.name() );</a>
-<span class="sourceLineNo">930</span><a id="line.930">            ref = ref.trim();</a>
-<span class="sourceLineNo">931</span><a id="line.931">            if( ref.startsWith( m_config.getAttachPage() ) )</a>
-<span class="sourceLineNo">932</span><a id="line.932">            {</a>
-<span class="sourceLineNo">933</span><a id="line.933">                ref = ref.substring( m_config.getAttachPage().length() );</a>
-<span class="sourceLineNo">934</span><a id="line.934">            }</a>
-<span class="sourceLineNo">935</span><a id="line.935">            if( ref.startsWith( m_config.getWikiJspPage() ) )</a>
-<span class="sourceLineNo">936</span><a id="line.936">            {</a>
-<span class="sourceLineNo">937</span><a id="line.937">                ref = ref.substring( m_config.getWikiJspPage().length() );</a>
-<span class="sourceLineNo">938</span><a id="line.938"></a>
-<span class="sourceLineNo">939</span><a id="line.939">                // Handle links with section anchors.</a>
-<span class="sourceLineNo">940</span><a id="line.940">                // For example, we need to translate the html string "TargetPage#section-TargetPage-Heading2"</a>
-<span class="sourceLineNo">941</span><a id="line.941">                // to this wiki string "TargetPage#Heading2".</a>
-<span class="sourceLineNo">942</span><a id="line.942">                ref = ref.replaceFirst( ".+#section-(.+)-(.+)", "$1#$2" );</a>
-<span class="sourceLineNo">943</span><a id="line.943">            }</a>
-<span class="sourceLineNo">944</span><a id="line.944">            if( ref.startsWith( m_config.getEditJspPage() ) )</a>
-<span class="sourceLineNo">945</span><a id="line.945">            {</a>
-<span class="sourceLineNo">946</span><a id="line.946">                ref = ref.substring( m_config.getEditJspPage().length() );</a>
-<span class="sourceLineNo">947</span><a id="line.947">            }</a>
-<span class="sourceLineNo">948</span><a id="line.948">            if( m_config.getPageName() != null )</a>
-<span class="sourceLineNo">949</span><a id="line.949">            {</a>
-<span class="sourceLineNo">950</span><a id="line.950">                if( ref.startsWith( m_config.getPageName() ) )</a>
-<span class="sourceLineNo">951</span><a id="line.951">                {</a>
-<span class="sourceLineNo">952</span><a id="line.952">                    ref = ref.substring( m_config.getPageName().length() );</a>
-<span class="sourceLineNo">953</span><a id="line.953">                }</a>
-<span class="sourceLineNo">954</span><a id="line.954">            }</a>
-<span class="sourceLineNo">955</span><a id="line.955">        }</a>
-<span class="sourceLineNo">956</span><a id="line.956">        catch ( final UnsupportedEncodingException e )</a>
-<span class="sourceLineNo">957</span><a id="line.957">        {</a>
-<span class="sourceLineNo">958</span><a id="line.958">            // Shouldn't happen...</a>
-<span class="sourceLineNo">959</span><a id="line.959">        }</a>
-<span class="sourceLineNo">960</span><a id="line.960">        return ref;</a>
-<span class="sourceLineNo">961</span><a id="line.961">    }</a>
-<span class="sourceLineNo">962</span><a id="line.962"></a>
-<span class="sourceLineNo">963</span><a id="line.963">    // FIXME: These should probably be better used with java.util.Stack</a>
-<span class="sourceLineNo">964</span><a id="line.964"></a>
-<span class="sourceLineNo">965</span><a id="line.965">    private static class LiStack</a>
-<span class="sourceLineNo">966</span><a id="line.966">    {</a>
-<span class="sourceLineNo">967</span><a id="line.967"></a>
-<span class="sourceLineNo">968</span><a id="line.968">        private StringBuffer m_li = new StringBuffer();</a>
-<span class="sourceLineNo">969</span><a id="line.969"></a>
-<span class="sourceLineNo">970</span><a id="line.970">        public void push(final String c )</a>
-<span class="sourceLineNo">971</span><a id="line.971">        {</a>
-<span class="sourceLineNo">972</span><a id="line.972">            m_li.append( c );</a>
-<span class="sourceLineNo">973</span><a id="line.973">        }</a>
-<span class="sourceLineNo">974</span><a id="line.974"></a>
-<span class="sourceLineNo">975</span><a id="line.975">        public void pop()</a>
-<span class="sourceLineNo">976</span><a id="line.976">        {</a>
-<span class="sourceLineNo">977</span><a id="line.977">            m_li = m_li.deleteCharAt( m_li.length()-1 );</a>
-<span class="sourceLineNo">978</span><a id="line.978">            // m_li = m_li.substring( 0, m_li.length() - 1 );</a>
-<span class="sourceLineNo">979</span><a id="line.979">        }</a>
-<span class="sourceLineNo">980</span><a id="line.980"></a>
-<span class="sourceLineNo">981</span><a id="line.981">        @Override</a>
-<span class="sourceLineNo">982</span><a id="line.982">        public String toString()</a>
-<span class="sourceLineNo">983</span><a id="line.983">        {</a>
-<span class="sourceLineNo">984</span><a id="line.984">            return m_li.toString();</a>
-<span class="sourceLineNo">985</span><a id="line.985">        }</a>
-<span class="sourceLineNo">986</span><a id="line.986"></a>
-<span class="sourceLineNo">987</span><a id="line.987">    }</a>
-<span class="sourceLineNo">988</span><a id="line.988"></a>
-<span class="sourceLineNo">989</span><a id="line.989">    private class PreStack</a>
-<span class="sourceLineNo">990</span><a id="line.990">    {</a>
-<span class="sourceLineNo">991</span><a id="line.991"></a>
-<span class="sourceLineNo">992</span><a id="line.992">        private int m_pre;</a>
-<span class="sourceLineNo">993</span><a id="line.993"></a>
-<span class="sourceLineNo">994</span><a id="line.994">        public boolean isPreMode()</a>
-<span class="sourceLineNo">995</span><a id="line.995">        {</a>
-<span class="sourceLineNo">996</span><a id="line.996">            return m_pre &gt; 0;</a>
-<span class="sourceLineNo">997</span><a id="line.997">        }</a>
-<span class="sourceLineNo">998</span><a id="line.998"></a>
-<span class="sourceLineNo">999</span><a id="line.999">        public void push()</a>
-<span class="sourceLineNo">1000</span><a id="line.1000">        {</a>
-<span class="sourceLineNo">1001</span><a id="line.1001">            m_pre++;</a>
-<span class="sourceLineNo">1002</span><a id="line.1002">            m_outTimmer.setWhitespaceTrimMode( !isPreMode() );</a>
-<span class="sourceLineNo">1003</span><a id="line.1003">        }</a>
-<span class="sourceLineNo">1004</span><a id="line.1004"></a>
-<span class="sourceLineNo">1005</span><a id="line.1005">        public void pop()</a>
-<span class="sourceLineNo">1006</span><a id="line.1006">        {</a>
-<span class="sourceLineNo">1007</span><a id="line.1007">            m_pre--;</a>
-<span class="sourceLineNo">1008</span><a id="line.1008">            m_outTimmer.setWhitespaceTrimMode( !isPreMode() );</a>
-<span class="sourceLineNo">1009</span><a id="line.1009">        }</a>
-<span class="sourceLineNo">1010</span><a id="line.1010"></a>
-<span class="sourceLineNo">1011</span><a id="line.1011">    }</a>
-<span class="sourceLineNo">1012</span><a id="line.1012"></a>
-<span class="sourceLineNo">1013</span><a id="line.1013">}</a>
+<span class="sourceLineNo">843</span><a id="line.843">    private boolean isNotIgnorableWikiMarkupLink( final Element a ) {</a>
+<span class="sourceLineNo">844</span><a id="line.844">        final String ref = a.getAttributeValue( "href" );</a>
+<span class="sourceLineNo">845</span><a id="line.845">        final String clazz = a.getAttributeValue( "class" );</a>
+<span class="sourceLineNo">846</span><a id="line.846">        return ( ref == null || !ref.startsWith( config.getPageInfoJsp() ) )</a>
+<span class="sourceLineNo">847</span><a id="line.847">                &amp;&amp; ( clazz == null || !clazz.trim().equalsIgnoreCase( config.getOutlink() ) );</a>
+<span class="sourceLineNo">848</span><a id="line.848">    }</a>
+<span class="sourceLineNo">849</span><a id="line.849"></a>
+<span class="sourceLineNo">850</span><a id="line.850">    private String trimLink( String ref ) {</a>
+<span class="sourceLineNo">851</span><a id="line.851">        if( ref == null ) {</a>
+<span class="sourceLineNo">852</span><a id="line.852">            return null;</a>
+<span class="sourceLineNo">853</span><a id="line.853">        }</a>
+<span class="sourceLineNo">854</span><a id="line.854">        try {</a>
+<span class="sourceLineNo">855</span><a id="line.855">            ref = URLDecoder.decode( ref, StandardCharsets.UTF_8.name() );</a>
+<span class="sourceLineNo">856</span><a id="line.856">            ref = ref.trim();</a>
+<span class="sourceLineNo">857</span><a id="line.857">            if( ref.startsWith( config.getAttachPage() ) ) {</a>
+<span class="sourceLineNo">858</span><a id="line.858">                ref = ref.substring( config.getAttachPage().length() );</a>
+<span class="sourceLineNo">859</span><a id="line.859">            }</a>
+<span class="sourceLineNo">860</span><a id="line.860">            if( ref.startsWith( config.getWikiJspPage() ) ) {</a>
+<span class="sourceLineNo">861</span><a id="line.861">                ref = ref.substring( config.getWikiJspPage().length() );</a>
+<span class="sourceLineNo">862</span><a id="line.862"></a>
+<span class="sourceLineNo">863</span><a id="line.863">                // Handle links with section anchors.</a>
+<span class="sourceLineNo">864</span><a id="line.864">                // For example, we need to translate the html string "TargetPage#section-TargetPage-Heading2"</a>
+<span class="sourceLineNo">865</span><a id="line.865">                // to this wiki string "TargetPage#Heading2".</a>
+<span class="sourceLineNo">866</span><a id="line.866">                ref = ref.replaceFirst( ".+#section-(.+)-(.+)", "$1#$2" );</a>
+<span class="sourceLineNo">867</span><a id="line.867">            }</a>
+<span class="sourceLineNo">868</span><a id="line.868">            if( ref.startsWith( config.getEditJspPage() ) ) {</a>
+<span class="sourceLineNo">869</span><a id="line.869">                ref = ref.substring( config.getEditJspPage().length() );</a>
+<span class="sourceLineNo">870</span><a id="line.870">            }</a>
+<span class="sourceLineNo">871</span><a id="line.871">            if( config.getPageName() != null ) {</a>
+<span class="sourceLineNo">872</span><a id="line.872">                if( ref.startsWith( config.getPageName() ) ) {</a>
+<span class="sourceLineNo">873</span><a id="line.873">                    ref = ref.substring( config.getPageName().length() );</a>
+<span class="sourceLineNo">874</span><a id="line.874">                }</a>
+<span class="sourceLineNo">875</span><a id="line.875">            }</a>
+<span class="sourceLineNo">876</span><a id="line.876">        } catch ( final UnsupportedEncodingException e ) {</a>
+<span class="sourceLineNo">877</span><a id="line.877">            // Shouldn't happen...</a>
+<span class="sourceLineNo">878</span><a id="line.878">        }</a>
+<span class="sourceLineNo">879</span><a id="line.879">        return ref;</a>
+<span class="sourceLineNo">880</span><a id="line.880">    }</a>
+<span class="sourceLineNo">881</span><a id="line.881"></a>
+<span class="sourceLineNo">882</span><a id="line.882">    private class PreStack extends Stack&lt; String &gt; {</a>
+<span class="sourceLineNo">883</span><a id="line.883"></a>
+<span class="sourceLineNo">884</span><a id="line.884">        public String push( final String item ) {</a>
+<span class="sourceLineNo">885</span><a id="line.885">            final String push = super.push( item );</a>
+<span class="sourceLineNo">886</span><a id="line.886">            outTrimmer.setWhitespaceTrimMode( isEmpty() );</a>
+<span class="sourceLineNo">887</span><a id="line.887">            return push;</a>
+<span class="sourceLineNo">888</span><a id="line.888">        }</a>
+<span class="sourceLineNo">889</span><a id="line.889"></a>
+<span class="sourceLineNo">890</span><a id="line.890">        public String pop() {</a>
+<span class="sourceLineNo">891</span><a id="line.891">            final String pop = super.pop();</a>
+<span class="sourceLineNo">892</span><a id="line.892">            outTrimmer.setWhitespaceTrimMode( isEmpty() );</a>
+<span class="sourceLineNo">893</span><a id="line.893">            return pop;</a>
+<span class="sourceLineNo">894</span><a id="line.894">        }</a>
+<span class="sourceLineNo">895</span><a id="line.895"></a>
+<span class="sourceLineNo">896</span><a id="line.896">    }</a>
+<span class="sourceLineNo">897</span><a id="line.897"></a>
+<span class="sourceLineNo">898</span><a id="line.898">    static class ElementDecoratorData {</a>
+<span class="sourceLineNo">899</span><a id="line.899">        Element base;</a>
+<span class="sourceLineNo">900</span><a id="line.900">        String htmlBase;</a>
+<span class="sourceLineNo">901</span><a id="line.901">        String cssClass;</a>
+<span class="sourceLineNo">902</span><a id="line.902">        String cssSpecial;</a>
+<span class="sourceLineNo">903</span><a id="line.903">        boolean monospace;</a>
+<span class="sourceLineNo">904</span><a id="line.904">        boolean bold;</a>
+<span class="sourceLineNo">905</span><a id="line.905">        boolean italic;</a>
+<span class="sourceLineNo">906</span><a id="line.906">        boolean ignoredCssClass;</a>
+<span class="sourceLineNo">907</span><a id="line.907">    }</a>
+<span class="sourceLineNo">908</span><a id="line.908"></a>
+<span class="sourceLineNo">909</span><a id="line.909">}</a>
 
 
 
