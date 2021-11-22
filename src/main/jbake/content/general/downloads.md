@@ -4,7 +4,7 @@ title=Downloads
 type=page
 ~~~~~~
 
-**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M8/">Apache mirrors</a>.
+**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0/">Apache mirrors</a>.
 
 Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://downloads.apache.org/jspwiki. Find here the <a class="external" href="https://downloads.apache.org/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
 
@@ -16,9 +16,12 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 <br/> **Release Index**
 
-* **13-Dec-2020**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M8ReleasedOn13122020">2.11.0.M8</a>. This release fixes the following issues:
-https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12349271 <br/>
-<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0.M8/source/jspwiki-builder-2.11.0.M8-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M8/source/jspwiki-builder-2.11.0.M8-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0.M8/source/jspwiki-builder-2.11.0.M8-source-release.zip.asc">signature</a></strong>
+* **22-Nov-2021**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0ReleasedOn22112021">2.11.0</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12345152 <br/>
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0/source/jspwiki-builder-2.11.0-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0/source/jspwiki-builder-2.11.0-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.0/source/jspwiki-builder-2.11.0-source-release.zip.asc">signature</a></strong>
+
+* **13-Dec-2020**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M8ReleasedOn13122020">2.11.0.M8</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12349271
 
 * **28-May-2020**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M7ReleasedOn28052020">2.11.0.M7</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12346642

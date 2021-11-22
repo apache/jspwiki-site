@@ -6,6 +6,10 @@ type=page
 
 ## Project News
 
+  * **22-Nov-2021:** Apache JSPWiki [CVE-2021-40369][] and [CVE-2021-44140][] vulnerability disclosures
+
+  * **22-Nov-2021**: Official [Apache JSPWiki 2.11.0 release][] is out!
+
   * **13-Dec-2020**: Official [Apache JSPWiki 2.11.0.M8 release][] is out!
 
   * **28-May-2020**: Official [Apache JSPWiki 2.11.0.M7 release][] is out!
@@ -91,6 +95,7 @@ type=page
 [Apache JSPWiki 2.11.0.M6 release]: downloads.html
 [Apache JSPWiki 2.11.0.M7 release]: downloads.html
 [Apache JSPWiki 2.11.0.M8 release]: downloads.html
+[Apache JSPWiki 2.11.0 release]: downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
@@ -101,4 +106,5 @@ type=page
 [CVE-2019-10089]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10089
 [CVE-2019-10090]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10090
 [CVE-2019-12404]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-12404
-[CVE-2019-12407]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-12407
+[CVE-2021-40369]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-40369
+[CVE-2021-44140]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-44140

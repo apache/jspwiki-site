@@ -12,6 +12,7 @@ Some of its [features](https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiFeat
   * File attachments 
   * Templates support
   * Data storage through your choice of two [WikiPage Providers][], with the capability to create and plug in new ones
+  * Search support through your choice of three [Search Providers][], with the capability to create and plug in new ones
   * [Security][]: fine grained control over authorization and authentication, yet simple to configure
   * Easy [plugin][] and [page filter][] interfaces
   * UTF-8 support
@@ -27,6 +28,10 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **22-Nov-2021:** Apache JSPWiki [CVE-2021-40369][] and [CVE-2021-44140][] vulnerability disclosures
+
+  * **22-Nov-2021**: Official [Apache JSPWiki 2.11.0 release][] is out!
+
   * **13-Dec-2020**: Official [Apache JSPWiki 2.11.0.M8 release][] release is out!
 
   * **28-May-2020**: Official [Apache JSPWiki 2.11.0.M7 release][] release is out!
@@ -37,14 +42,11 @@ JSPWiki is open-source software that is released under the Apache Public License
 
   * **18-Sep-2019:** Official [Apache JSPWiki 2.11.0.M5 release][] is out!
 
-  * **19-May-2019:** Apache JSPWiki [CVE-2019-10076][], [CVE-2019-10077][] and [CVE-2019-10078][] vulnerability disclosures
-
-  * **18-May-2019:** Official [Apache JSPWiki 2.11.0.M4 release][] is out!
-
 [Apache JSPWiki]: https://jspwiki.apache.org
 [WikiWiki]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiWiki
 [JEE]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=JEE
 [Security]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Wiki.Admin.Security
+[Search Providers]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=SearchProviders
 [WikiPage Providers]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiPageProviders
 [plugin]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiPlugin
 [page filter]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiFilters
@@ -53,16 +55,15 @@ JSPWiki is open-source software that is released under the Apache Public License
 [JSPWiki today]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiSites
 [WikiMatrix]: http://www.wikimatrix.org/show/JSPWiki
 [Getting Involved]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Getting%20Involved
+[Apache JSPWiki 2.11.0 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0ReleasedOn22112021
 [Apache JSPWiki 2.11.0.M8 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M8ReleasedOn13122020
 [Apache JSPWiki 2.11.0.M7 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M7ReleasedOn28052020
 [Apache JSPWiki 2.11.0.M6 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M6ReleasedOn17122019
 [Apache JSPWiki 2.11.0.M5 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M5ReleasedOn18092019
-[Apache JSPWiki 2.11.0.M4 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M4ReleasedOn18052019
-[CVE-2019-10076]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10076
-[CVE-2019-10077]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10077
-[CVE-2019-10078]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10078
 [CVE-2019-10087]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10087
 [CVE-2019-10089]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10089
 [CVE-2019-10090]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10090
 [CVE-2019-12404]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-12404
 [CVE-2019-12407]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-12407
+[CVE-2021-40369]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-40369
+[CVE-2021-44140]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-44140
