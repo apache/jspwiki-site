@@ -66,10 +66,10 @@ try {
             echo "Will use Java $JAVA_JDK_8"
             echo "Will use Maven $MAVEN_3_LATEST"
             withEnv( [ "Path+JDK=$JAVA_JDK_8/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_8" ] ) {
-                def jbakeVersion = version != 'master' ? " -Dplugin.japicmp.jspwiki-new=$version" : pom.version
+                def jbakeVersion = version != 'master' ? version : pom.version
                 dir( jbake ) {
                     git branch: jbake, url: repo, credentialsId: creds, poll: true
-                    sh 'mvn clean process-resources $jbakeVersion'
+                    sh "mvn clean process-resources -Dplugin.japicmp.jspwiki-new=$jbakeVersion"
                 }
                 stash name: 'jbake-website'
             }
