@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.ui;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Command;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.auth.GroupPrincipal;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.auth.permissions.GroupPermission;</a>
+<span class="sourceLineNo">025</span><a id="line.25"></a>
+<span class="sourceLineNo">026</span><a id="line.26">import java.security.Permission;</a>
+<span class="sourceLineNo">027</span><a id="line.27"></a>
+<span class="sourceLineNo">028</span><a id="line.28">/**</a>
+<span class="sourceLineNo">029</span><a id="line.29"> * &lt;p&gt;Defines Commands for viewing, editing and deleting wiki groups. GroupCommands can be combined with GroupPrincipals to produce</a>
+<span class="sourceLineNo">030</span><a id="line.30"> * targeted Commands.&lt;/p&gt;</a>
+<span class="sourceLineNo">031</span><a id="line.31"> * &lt;p&gt;This class is not &lt;code&gt;final&lt;/code&gt;; it may be extended in the future.&lt;/p&gt;</a>
+<span class="sourceLineNo">032</span><a id="line.32"> * @since 2.4.22</a>
+<span class="sourceLineNo">033</span><a id="line.33"> */</a>
+<span class="sourceLineNo">034</span><a id="line.34">public final class GroupCommand extends AbstractCommand {</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">    /** GroupCommand for deleting a group. */</a>
+<span class="sourceLineNo">037</span><a id="line.37">    public static final Command DELETE_GROUP = new GroupCommand( ContextEnum.GROUP_DELETE,null, GroupPermission.DELETE_ACTION );</a>
+<span class="sourceLineNo">038</span><a id="line.38"></a>
+<span class="sourceLineNo">039</span><a id="line.39">    /** GroupCommand for editing a group. */</a>
+<span class="sourceLineNo">040</span><a id="line.40">    public static final Command EDIT_GROUP = new GroupCommand( ContextEnum.GROUP_EDIT, null, GroupPermission.EDIT_ACTION );</a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42">       /** GroupCommand for viewing a group. */</a>
+<span class="sourceLineNo">043</span><a id="line.43">    public static final Command VIEW_GROUP = new GroupCommand( ContextEnum.GROUP_VIEW, null, GroupPermission.VIEW_ACTION );</a>
+<span class="sourceLineNo">044</span><a id="line.44"></a>
+<span class="sourceLineNo">045</span><a id="line.45">    private final String m_action;</a>
+<span class="sourceLineNo">046</span><a id="line.46">    </a>
+<span class="sourceLineNo">047</span><a id="line.47">    private final Permission m_permission;</a>
+<span class="sourceLineNo">048</span><a id="line.48"></a>
+<span class="sourceLineNo">049</span><a id="line.49">    /**</a>
+<span class="sourceLineNo">050</span><a id="line.50">     * Constructs a new Command with a specified wiki context, URL pattern, type, and content template. The WikiPage for this command is</a>
+<span class="sourceLineNo">051</span><a id="line.51">     * initialized to &lt;code&gt;null&lt;/code&gt;.</a>
+<span class="sourceLineNo">052</span><a id="line.52">     *</a>
+<span class="sourceLineNo">053</span><a id="line.53">     * @param currentContext the current context.</a>
+<span class="sourceLineNo">054</span><a id="line.54">     * @param target the target of this command (a GroupPrincipal representing a Group); may be &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">055</span><a id="line.55">     * @param action the action used to construct a suitable GroupPermission</a>
+<span class="sourceLineNo">056</span><a id="line.56">     * @throws IllegalArgumentException if the request content, URL pattern, or type is &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">057</span><a id="line.57">     */</a>
+<span class="sourceLineNo">058</span><a id="line.58">    private GroupCommand( final ContextEnum currentContext, final GroupPrincipal target, final String action ) {</a>
+<span class="sourceLineNo">059</span><a id="line.59">        this( currentContext.getRequestContext(), currentContext.getUrlPattern(), currentContext.getContentTemplate(), target, action );</a>
+<span class="sourceLineNo">060</span><a id="line.60">    }</a>
+<span class="sourceLineNo">061</span><a id="line.61">    </a>
+<span class="sourceLineNo">062</span><a id="line.62">    /**</a>
+<span class="sourceLineNo">063</span><a id="line.63">     * Constructs a new Command with a specified wiki context, URL pattern, type, and content template. The WikiPage for this command is</a>
+<span class="sourceLineNo">064</span><a id="line.64">     * initialized to &lt;code&gt;null&lt;/code&gt;.</a>
+<span class="sourceLineNo">065</span><a id="line.65">     *</a>
+<span class="sourceLineNo">066</span><a id="line.66">     * @param requestContext the request context</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * @param urlPattern the URL pattern</a>
+<span class="sourceLineNo">068</span><a id="line.68">     * @param target the target of this command (a GroupPrincipal representing a Group); may be &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">069</span><a id="line.69">     * @param action the action used to construct a suitable GroupPermission</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * @param contentTemplate the content template; may be &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">071</span><a id="line.71">     * @throws IllegalArgumentException if the request content, URL pattern, or type is &lt;code&gt;null&lt;/code&gt;</a>
+<span class="sourceLineNo">072</span><a id="line.72">     */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    private GroupCommand( final String requestContext,</a>
+<span class="sourceLineNo">074</span><a id="line.74">                          final String urlPattern,</a>
+<span class="sourceLineNo">075</span><a id="line.75">                          final String contentTemplate,</a>
+<span class="sourceLineNo">076</span><a id="line.76">                          final GroupPrincipal target,</a>
+<span class="sourceLineNo">077</span><a id="line.77">                          final String action ) {</a>
+<span class="sourceLineNo">078</span><a id="line.78">        super( requestContext, urlPattern, contentTemplate, target );</a>
+<span class="sourceLineNo">079</span><a id="line.79">        m_action = action;</a>
+<span class="sourceLineNo">080</span><a id="line.80">        if ( target == null || m_action == null ) {</a>
+<span class="sourceLineNo">081</span><a id="line.81">            m_permission = null;</a>
+<span class="sourceLineNo">082</span><a id="line.82">        } else {</a>
+<span class="sourceLineNo">083</span><a id="line.83">            m_permission = new GroupPermission( target.getName(), action );</a>
+<span class="sourceLineNo">084</span><a id="line.84">        }</a>
+<span class="sourceLineNo">085</span><a id="line.85">    }</a>
+<span class="sourceLineNo">086</span><a id="line.86"></a>
+<span class="sourceLineNo">087</span><a id="line.87">    /**</a>
+<span class="sourceLineNo">088</span><a id="line.88">     * Creates and returns a targeted Command by combining a GroupPrincipal with this Command. The supplied &lt;code&gt;target&lt;/code&gt; object</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * must be non-&lt;code&gt;null&lt;/code&gt; and of type GroupPrincipal. If the target is not of the correct type, this method throws an</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * {@link IllegalArgumentException}.</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *</a>
+<span class="sourceLineNo">092</span><a id="line.92">     * @param target the GroupPrincipal to combine into the current Command</a>
+<span class="sourceLineNo">093</span><a id="line.93">     * @return the new, targeted command</a>
+<span class="sourceLineNo">094</span><a id="line.94">     */</a>
+<span class="sourceLineNo">095</span><a id="line.95">    public Command targetedCommand( final Object target ) {</a>
+<span class="sourceLineNo">096</span><a id="line.96">        if( !( target instanceof GroupPrincipal ) ) {</a>
+<span class="sourceLineNo">097</span><a id="line.97">            throw new IllegalArgumentException( "Target must non-null and of type GroupPrincipal." );</a>
+<span class="sourceLineNo">098</span><a id="line.98">        }</a>
+<span class="sourceLineNo">099</span><a id="line.99">        return new GroupCommand( getRequestContext(), getURLPattern(), getContentTemplate(), ( GroupPrincipal )target, m_action );</a>
+<span class="sourceLineNo">100</span><a id="line.100">    }</a>
+<span class="sourceLineNo">101</span><a id="line.101">    </a>
+<span class="sourceLineNo">102</span><a id="line.102">    /**</a>
+<span class="sourceLineNo">103</span><a id="line.103">     * Returns the name of the command, which will either be the target (if specified), or the "friendly name" for the JSP.</a>
+<span class="sourceLineNo">104</span><a id="line.104">     *</a>
+<span class="sourceLineNo">105</span><a id="line.105">     * @return the name</a>
+<span class="sourceLineNo">106</span><a id="line.106">     * @see org.apache.wiki.api.core.Command#getName()</a>
+<span class="sourceLineNo">107</span><a id="line.107">     */</a>
+<span class="sourceLineNo">108</span><a id="line.108">    public String getName() {</a>
+<span class="sourceLineNo">109</span><a id="line.109">        final Object target = getTarget();</a>
+<span class="sourceLineNo">110</span><a id="line.110">        if ( target == null ) {</a>
+<span class="sourceLineNo">111</span><a id="line.111">            return getJSPFriendlyName();</a>
+<span class="sourceLineNo">112</span><a id="line.112">        }</a>
+<span class="sourceLineNo">113</span><a id="line.113">        return ( ( GroupPrincipal ) target ).getName();</a>
+<span class="sourceLineNo">114</span><a id="line.114">    }</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">    /**</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * Returns the permission required to execute this GroupCommand.</a>
+<span class="sourceLineNo">118</span><a id="line.118">     *</a>
+<span class="sourceLineNo">119</span><a id="line.119">     * @return the permission</a>
+<span class="sourceLineNo">120</span><a id="line.120">     * @see org.apache.wiki.api.core.Command#requiredPermission()</a>
+<span class="sourceLineNo">121</span><a id="line.121">     */</a>
+<span class="sourceLineNo">122</span><a id="line.122">    public Permission requiredPermission() {</a>
+<span class="sourceLineNo">123</span><a id="line.123">        return m_permission;</a>
+<span class="sourceLineNo">124</span><a id="line.124">    }</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
