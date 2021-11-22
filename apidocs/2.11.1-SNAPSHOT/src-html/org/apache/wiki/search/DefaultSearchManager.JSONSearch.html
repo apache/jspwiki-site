@@ -1,0 +1,358 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.search;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.commons.lang3.time.StopWatch;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.ajax.AjaxUtil;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.ajax.WikiAjaxDispatcherServlet;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.ajax.WikiAjaxServlet;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.api.exceptions.FilterException;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.api.filters.BasePageFilter;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.api.search.SearchResult;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.apache.wiki.event.WikiEvent;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import org.apache.wiki.event.WikiPageEvent;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import org.apache.wiki.parser.MarkupParser;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import org.apache.wiki.references.ReferenceManager;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">045</span><a id="line.45"></a>
+<span class="sourceLineNo">046</span><a id="line.46">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import javax.servlet.http.HttpServletResponse;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import java.io.IOException;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import java.util.ArrayList;</a>
+<span class="sourceLineNo">050</span><a id="line.50">import java.util.Collection;</a>
+<span class="sourceLineNo">051</span><a id="line.51">import java.util.HashMap;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import java.util.Iterator;</a>
+<span class="sourceLineNo">053</span><a id="line.53">import java.util.List;</a>
+<span class="sourceLineNo">054</span><a id="line.54">import java.util.Map;</a>
+<span class="sourceLineNo">055</span><a id="line.55">import java.util.Properties;</a>
+<span class="sourceLineNo">056</span><a id="line.56">import java.util.Set;</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">/**</a>
+<span class="sourceLineNo">060</span><a id="line.60"> *  Manages searching the Wiki.</a>
+<span class="sourceLineNo">061</span><a id="line.61"> *</a>
+<span class="sourceLineNo">062</span><a id="line.62"> *  @since 2.2.21.</a>
+<span class="sourceLineNo">063</span><a id="line.63"> */</a>
+<span class="sourceLineNo">064</span><a id="line.64">public class DefaultSearchManager extends BasePageFilter implements SearchManager {</a>
+<span class="sourceLineNo">065</span><a id="line.65"></a>
+<span class="sourceLineNo">066</span><a id="line.66">    private static final Logger log = LogManager.getLogger( DefaultSearchManager.class );</a>
+<span class="sourceLineNo">067</span><a id="line.67"></a>
+<span class="sourceLineNo">068</span><a id="line.68">    private SearchProvider m_searchProvider;</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">    /**</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *  Creates a new SearchManager.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     *</a>
+<span class="sourceLineNo">073</span><a id="line.73">     *  @param engine The Engine that owns this SearchManager.</a>
+<span class="sourceLineNo">074</span><a id="line.74">     *  @param properties The list of Properties.</a>
+<span class="sourceLineNo">075</span><a id="line.75">     *  @throws FilterException If it cannot be instantiated.</a>
+<span class="sourceLineNo">076</span><a id="line.76">     */</a>
+<span class="sourceLineNo">077</span><a id="line.77">    public DefaultSearchManager( final Engine engine, final Properties properties ) throws FilterException {</a>
+<span class="sourceLineNo">078</span><a id="line.78">        initialize( engine, properties );</a>
+<span class="sourceLineNo">079</span><a id="line.79">        WikiEventManager.addWikiEventListener( m_engine.getManager( PageManager.class ), this );</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">        // TODO: Replace with custom annotations. See JSPWIKI-566</a>
+<span class="sourceLineNo">082</span><a id="line.82">        WikiAjaxDispatcherServlet.registerServlet( JSON_SEARCH, new JSONSearch() );</a>
+<span class="sourceLineNo">083</span><a id="line.83">    }</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">    /**</a>
+<span class="sourceLineNo">086</span><a id="line.86">     *  Provides a JSON AJAX API to the JSPWiki Search Engine.</a>
+<span class="sourceLineNo">087</span><a id="line.87">     */</a>
+<span class="sourceLineNo">088</span><a id="line.88">    public class JSONSearch implements WikiAjaxServlet {</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">        public static final String AJAX_ACTION_SUGGESTIONS = "suggestions";</a>
+<span class="sourceLineNo">091</span><a id="line.91">        public static final String AJAX_ACTION_PAGES = "pages";</a>
+<span class="sourceLineNo">092</span><a id="line.92">        public static final int DEFAULT_MAX_RESULTS = 20;</a>
+<span class="sourceLineNo">093</span><a id="line.93">        public int maxResults = DEFAULT_MAX_RESULTS;</a>
+<span class="sourceLineNo">094</span><a id="line.94"></a>
+<span class="sourceLineNo">095</span><a id="line.95">        /** {@inheritDoc} */</a>
+<span class="sourceLineNo">096</span><a id="line.96">        @Override</a>
+<span class="sourceLineNo">097</span><a id="line.97">        public String getServletMapping() {</a>
+<span class="sourceLineNo">098</span><a id="line.98">            return JSON_SEARCH;</a>
+<span class="sourceLineNo">099</span><a id="line.99">        }</a>
+<span class="sourceLineNo">100</span><a id="line.100"></a>
+<span class="sourceLineNo">101</span><a id="line.101">        /** {@inheritDoc} */</a>
+<span class="sourceLineNo">102</span><a id="line.102">        @Override</a>
+<span class="sourceLineNo">103</span><a id="line.103">        public void service( final HttpServletRequest req,</a>
+<span class="sourceLineNo">104</span><a id="line.104">                             final HttpServletResponse resp,</a>
+<span class="sourceLineNo">105</span><a id="line.105">                             final String actionName,</a>
+<span class="sourceLineNo">106</span><a id="line.106">                             final List&lt; String &gt; params ) throws IOException {</a>
+<span class="sourceLineNo">107</span><a id="line.107">            String result = "";</a>
+<span class="sourceLineNo">108</span><a id="line.108">            if( StringUtils.isNotBlank( actionName ) ) {</a>
+<span class="sourceLineNo">109</span><a id="line.109">                if( params.size() &lt; 1 ) {</a>
+<span class="sourceLineNo">110</span><a id="line.110">                    return;</a>
+<span class="sourceLineNo">111</span><a id="line.111">                }</a>
+<span class="sourceLineNo">112</span><a id="line.112">                final String itemId = params.get( 0 );</a>
+<span class="sourceLineNo">113</span><a id="line.113">                log.debug( "itemId=" + itemId );</a>
+<span class="sourceLineNo">114</span><a id="line.114">                if( params.size() &gt; 1 ) {</a>
+<span class="sourceLineNo">115</span><a id="line.115">                    final String maxResultsParam = params.get( 1 );</a>
+<span class="sourceLineNo">116</span><a id="line.116">                    log.debug( "maxResultsParam=" + maxResultsParam );</a>
+<span class="sourceLineNo">117</span><a id="line.117">                    if( StringUtils.isNotBlank( maxResultsParam ) &amp;&amp; StringUtils.isNumeric( maxResultsParam ) ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">                        maxResults = Integer.parseInt( maxResultsParam );</a>
+<span class="sourceLineNo">119</span><a id="line.119">                    }</a>
+<span class="sourceLineNo">120</span><a id="line.120">                }</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">                if( actionName.equals( AJAX_ACTION_SUGGESTIONS ) ) {</a>
+<span class="sourceLineNo">123</span><a id="line.123">                    log.debug( "Calling getSuggestions() START" );</a>
+<span class="sourceLineNo">124</span><a id="line.124">                    final List&lt; String &gt; callResults = getSuggestions( itemId, maxResults );</a>
+<span class="sourceLineNo">125</span><a id="line.125">                    log.debug( "Calling getSuggestions() DONE. " + callResults.size() );</a>
+<span class="sourceLineNo">126</span><a id="line.126">                    result = AjaxUtil.toJson( callResults );</a>
+<span class="sourceLineNo">127</span><a id="line.127">                } else if( actionName.equals( AJAX_ACTION_PAGES ) ) {</a>
+<span class="sourceLineNo">128</span><a id="line.128">                    log.debug("Calling findPages() START");</a>
+<span class="sourceLineNo">129</span><a id="line.129">                    final Context wikiContext = Wiki.context().create( m_engine, req, ContextEnum.PAGE_VIEW.getRequestContext() );</a>
+<span class="sourceLineNo">130</span><a id="line.130">                    final List&lt; Map&lt; String, Object &gt; &gt; callResults = findPages( itemId, maxResults, wikiContext );</a>
+<span class="sourceLineNo">131</span><a id="line.131">                    log.debug( "Calling findPages() DONE. " + callResults.size() );</a>
+<span class="sourceLineNo">132</span><a id="line.132">                    result = AjaxUtil.toJson( callResults );</a>
+<span class="sourceLineNo">133</span><a id="line.133">                }</a>
+<span class="sourceLineNo">134</span><a id="line.134">            }</a>
+<span class="sourceLineNo">135</span><a id="line.135">            log.debug( "result=" + result );</a>
+<span class="sourceLineNo">136</span><a id="line.136">            resp.getWriter().write( result );</a>
+<span class="sourceLineNo">137</span><a id="line.137">        }</a>
+<span class="sourceLineNo">138</span><a id="line.138"></a>
+<span class="sourceLineNo">139</span><a id="line.139">        /**</a>
+<span class="sourceLineNo">140</span><a id="line.140">         *  Provides a list of suggestions to use for a page name. Currently the algorithm just looks into the value parameter,</a>
+<span class="sourceLineNo">141</span><a id="line.141">         *  and returns all page names from that.</a>
+<span class="sourceLineNo">142</span><a id="line.142">         *</a>
+<span class="sourceLineNo">143</span><a id="line.143">         *  @param wikiName the page name</a>
+<span class="sourceLineNo">144</span><a id="line.144">         *  @param maxLength maximum number of suggestions</a>
+<span class="sourceLineNo">145</span><a id="line.145">         *  @return the suggestions</a>
+<span class="sourceLineNo">146</span><a id="line.146">         */</a>
+<span class="sourceLineNo">147</span><a id="line.147">        public List&lt; String &gt; getSuggestions( String wikiName, final int maxLength ) {</a>
+<span class="sourceLineNo">148</span><a id="line.148">            final StopWatch sw = new StopWatch();</a>
+<span class="sourceLineNo">149</span><a id="line.149">            sw.start();</a>
+<span class="sourceLineNo">150</span><a id="line.150">            final List&lt; String &gt; list = new ArrayList&lt;&gt;( maxLength );</a>
+<span class="sourceLineNo">151</span><a id="line.151">            if( !wikiName.isEmpty() ) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">                // split pagename and attachment filename</a>
+<span class="sourceLineNo">153</span><a id="line.153">                String filename = "";</a>
+<span class="sourceLineNo">154</span><a id="line.154">                final int pos = wikiName.indexOf("/");</a>
+<span class="sourceLineNo">155</span><a id="line.155">                if( pos &gt;= 0 ) {</a>
+<span class="sourceLineNo">156</span><a id="line.156">                    filename = wikiName.substring( pos ).toLowerCase();</a>
+<span class="sourceLineNo">157</span><a id="line.157">                    wikiName = wikiName.substring( 0, pos );</a>
+<span class="sourceLineNo">158</span><a id="line.158">                }</a>
+<span class="sourceLineNo">159</span><a id="line.159"></a>
+<span class="sourceLineNo">160</span><a id="line.160">                final String cleanWikiName = MarkupParser.cleanLink(wikiName).toLowerCase() + filename;</a>
+<span class="sourceLineNo">161</span><a id="line.161">                final String oldStyleName = MarkupParser.wikifyLink(wikiName).toLowerCase() + filename;</a>
+<span class="sourceLineNo">162</span><a id="line.162">                final Set&lt; String &gt; allPages = m_engine.getManager( ReferenceManager.class ).findCreated();</a>
+<span class="sourceLineNo">163</span><a id="line.163"></a>
+<span class="sourceLineNo">164</span><a id="line.164">                int counter = 0;</a>
+<span class="sourceLineNo">165</span><a id="line.165">                for( final Iterator&lt; String &gt; i = allPages.iterator(); i.hasNext() &amp;&amp; counter &lt; maxLength; ) {</a>
+<span class="sourceLineNo">166</span><a id="line.166">                    final String p = i.next();</a>
+<span class="sourceLineNo">167</span><a id="line.167">                    final String pp = p.toLowerCase();</a>
+<span class="sourceLineNo">168</span><a id="line.168">                    if( pp.startsWith( cleanWikiName) || pp.startsWith( oldStyleName ) ) {</a>
+<span class="sourceLineNo">169</span><a id="line.169">                        list.add( p );</a>
+<span class="sourceLineNo">170</span><a id="line.170">                        counter++;</a>
+<span class="sourceLineNo">171</span><a id="line.171">                    }</a>
+<span class="sourceLineNo">172</span><a id="line.172">                }</a>
+<span class="sourceLineNo">173</span><a id="line.173">            }</a>
+<span class="sourceLineNo">174</span><a id="line.174"></a>
+<span class="sourceLineNo">175</span><a id="line.175">            sw.stop();</a>
+<span class="sourceLineNo">176</span><a id="line.176">            if( log.isDebugEnabled() ) {</a>
+<span class="sourceLineNo">177</span><a id="line.177">                log.debug( "Suggestion request for " + wikiName + " done in " + sw );</a>
+<span class="sourceLineNo">178</span><a id="line.178">            }</a>
+<span class="sourceLineNo">179</span><a id="line.179">            return list;</a>
+<span class="sourceLineNo">180</span><a id="line.180">        }</a>
+<span class="sourceLineNo">181</span><a id="line.181"></a>
+<span class="sourceLineNo">182</span><a id="line.182">        /**</a>
+<span class="sourceLineNo">183</span><a id="line.183">         *  Performs a full search of pages.</a>
+<span class="sourceLineNo">184</span><a id="line.184">         *</a>
+<span class="sourceLineNo">185</span><a id="line.185">         *  @param searchString The query string</a>
+<span class="sourceLineNo">186</span><a id="line.186">         *  @param maxLength How many hits to return</a>
+<span class="sourceLineNo">187</span><a id="line.187">         *  @return the pages found</a>
+<span class="sourceLineNo">188</span><a id="line.188">         */</a>
+<span class="sourceLineNo">189</span><a id="line.189">        public List&lt; Map&lt; String, Object &gt; &gt; findPages( final String searchString, final int maxLength, final Context wikiContext ) {</a>
+<span class="sourceLineNo">190</span><a id="line.190">            final StopWatch sw = new StopWatch();</a>
+<span class="sourceLineNo">191</span><a id="line.191">            sw.start();</a>
+<span class="sourceLineNo">192</span><a id="line.192"></a>
+<span class="sourceLineNo">193</span><a id="line.193">            final List&lt; Map&lt; String, Object &gt; &gt; list = new ArrayList&lt;&gt;( maxLength );</a>
+<span class="sourceLineNo">194</span><a id="line.194">            if( !searchString.isEmpty() ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">                try {</a>
+<span class="sourceLineNo">196</span><a id="line.196">                    final Collection&lt; SearchResult &gt; c;</a>
+<span class="sourceLineNo">197</span><a id="line.197">                    if( m_searchProvider instanceof LuceneSearchProvider ) {</a>
+<span class="sourceLineNo">198</span><a id="line.198">                        c = ( ( LuceneSearchProvider )m_searchProvider ).findPages( searchString, 0, wikiContext );</a>
+<span class="sourceLineNo">199</span><a id="line.199">                    } else {</a>
+<span class="sourceLineNo">200</span><a id="line.200">                        c = m_searchProvider.findPages( searchString, wikiContext );</a>
+<span class="sourceLineNo">201</span><a id="line.201">                    }</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">                    int count = 0;</a>
+<span class="sourceLineNo">204</span><a id="line.204">                    for( final Iterator&lt; SearchResult &gt; i = c.iterator(); i.hasNext() &amp;&amp; count &lt; maxLength; count++ ) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">                        final SearchResult sr = i.next();</a>
+<span class="sourceLineNo">206</span><a id="line.206">                        final HashMap&lt; String, Object &gt; hm = new HashMap&lt;&gt;();</a>
+<span class="sourceLineNo">207</span><a id="line.207">                        hm.put( "page", sr.getPage().getName() );</a>
+<span class="sourceLineNo">208</span><a id="line.208">                        hm.put( "score", sr.getScore() );</a>
+<span class="sourceLineNo">209</span><a id="line.209">                        list.add( hm );</a>
+<span class="sourceLineNo">210</span><a id="line.210">                    }</a>
+<span class="sourceLineNo">211</span><a id="line.211">                } catch( final Exception e ) {</a>
+<span class="sourceLineNo">212</span><a id="line.212">                    log.info( "AJAX search failed; ", e );</a>
+<span class="sourceLineNo">213</span><a id="line.213">                }</a>
+<span class="sourceLineNo">214</span><a id="line.214">            }</a>
+<span class="sourceLineNo">215</span><a id="line.215"></a>
+<span class="sourceLineNo">216</span><a id="line.216">            sw.stop();</a>
+<span class="sourceLineNo">217</span><a id="line.217">            if( log.isDebugEnabled() ) {</a>
+<span class="sourceLineNo">218</span><a id="line.218">                log.debug( "AJAX search complete in " + sw );</a>
+<span class="sourceLineNo">219</span><a id="line.219">            }</a>
+<span class="sourceLineNo">220</span><a id="line.220">            return list;</a>
+<span class="sourceLineNo">221</span><a id="line.221">        }</a>
+<span class="sourceLineNo">222</span><a id="line.222">    }</a>
+<span class="sourceLineNo">223</span><a id="line.223"></a>
+<span class="sourceLineNo">224</span><a id="line.224"></a>
+<span class="sourceLineNo">225</span><a id="line.225">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">226</span><a id="line.226">    @Override</a>
+<span class="sourceLineNo">227</span><a id="line.227">    public void initialize( final Engine engine, final Properties properties ) throws FilterException {</a>
+<span class="sourceLineNo">228</span><a id="line.228">        m_engine = engine;</a>
+<span class="sourceLineNo">229</span><a id="line.229">        loadSearchProvider(properties);</a>
+<span class="sourceLineNo">230</span><a id="line.230"></a>
+<span class="sourceLineNo">231</span><a id="line.231">        try {</a>
+<span class="sourceLineNo">232</span><a id="line.232">            m_searchProvider.initialize( engine, properties );</a>
+<span class="sourceLineNo">233</span><a id="line.233">        } catch( final NoRequiredPropertyException | IOException e ) {</a>
+<span class="sourceLineNo">234</span><a id="line.234">            log.error( e.getMessage(), e );</a>
+<span class="sourceLineNo">235</span><a id="line.235">        }</a>
+<span class="sourceLineNo">236</span><a id="line.236">    }</a>
+<span class="sourceLineNo">237</span><a id="line.237"></a>
+<span class="sourceLineNo">238</span><a id="line.238">    private void loadSearchProvider( final Properties properties ) {</a>
+<span class="sourceLineNo">239</span><a id="line.239">        // See if we're using Lucene, and if so, ensure that its index directory is up to date.</a>
+<span class="sourceLineNo">240</span><a id="line.240"></a>
+<span class="sourceLineNo">241</span><a id="line.241">        final String providerClassName = TextUtil.getStringProperty( properties, PROP_SEARCHPROVIDER, DEFAULT_SEARCHPROVIDER );</a>
+<span class="sourceLineNo">242</span><a id="line.242"></a>
+<span class="sourceLineNo">243</span><a id="line.243">        try {</a>
+<span class="sourceLineNo">244</span><a id="line.244">            final Class&lt;?&gt; providerClass = ClassUtil.findClass( "org.apache.wiki.search", providerClassName );</a>
+<span class="sourceLineNo">245</span><a id="line.245">            m_searchProvider = ( SearchProvider )providerClass.newInstance();</a>
+<span class="sourceLineNo">246</span><a id="line.246">        } catch( final ClassNotFoundException | InstantiationException | IllegalAccessException e ) {</a>
+<span class="sourceLineNo">247</span><a id="line.247">            log.warn("Failed loading SearchProvider, will use BasicSearchProvider.", e);</a>
+<span class="sourceLineNo">248</span><a id="line.248">        }</a>
+<span class="sourceLineNo">249</span><a id="line.249"></a>
+<span class="sourceLineNo">250</span><a id="line.250">        if( null == m_searchProvider ) {</a>
+<span class="sourceLineNo">251</span><a id="line.251">            // FIXME: Make a static with the default search provider</a>
+<span class="sourceLineNo">252</span><a id="line.252">            m_searchProvider = new BasicSearchProvider();</a>
+<span class="sourceLineNo">253</span><a id="line.253">        }</a>
+<span class="sourceLineNo">254</span><a id="line.254">        log.debug("Loaded search provider " + m_searchProvider);</a>
+<span class="sourceLineNo">255</span><a id="line.255">    }</a>
+<span class="sourceLineNo">256</span><a id="line.256"></a>
+<span class="sourceLineNo">257</span><a id="line.257">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">258</span><a id="line.258">    @Override</a>
+<span class="sourceLineNo">259</span><a id="line.259">    public SearchProvider getSearchEngine()</a>
+<span class="sourceLineNo">260</span><a id="line.260">    {</a>
+<span class="sourceLineNo">261</span><a id="line.261">        return m_searchProvider;</a>
+<span class="sourceLineNo">262</span><a id="line.262">    }</a>
+<span class="sourceLineNo">263</span><a id="line.263"></a>
+<span class="sourceLineNo">264</span><a id="line.264">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">265</span><a id="line.265">    @Override</a>
+<span class="sourceLineNo">266</span><a id="line.266">    public void actionPerformed( final WikiEvent event ) {</a>
+<span class="sourceLineNo">267</span><a id="line.267">        if( event instanceof WikiPageEvent ) {</a>
+<span class="sourceLineNo">268</span><a id="line.268">            final String pageName = ( ( WikiPageEvent ) event ).getPageName();</a>
+<span class="sourceLineNo">269</span><a id="line.269">            if( event.getType() == WikiPageEvent.PAGE_DELETE_REQUEST ) {</a>
+<span class="sourceLineNo">270</span><a id="line.270">                final Page p = m_engine.getManager( PageManager.class ).getPage( pageName );</a>
+<span class="sourceLineNo">271</span><a id="line.271">                if( p != null ) {</a>
+<span class="sourceLineNo">272</span><a id="line.272">                    pageRemoved( p );</a>
+<span class="sourceLineNo">273</span><a id="line.273">                }</a>
+<span class="sourceLineNo">274</span><a id="line.274">            }</a>
+<span class="sourceLineNo">275</span><a id="line.275">            if( event.getType() == WikiPageEvent.PAGE_REINDEX ) {</a>
+<span class="sourceLineNo">276</span><a id="line.276">                final Page p = m_engine.getManager( PageManager.class ).getPage( pageName );</a>
+<span class="sourceLineNo">277</span><a id="line.277">                if( p != null ) {</a>
+<span class="sourceLineNo">278</span><a id="line.278">                    reindexPage( p );</a>
+<span class="sourceLineNo">279</span><a id="line.279">                }</a>
+<span class="sourceLineNo">280</span><a id="line.280">            }</a>
+<span class="sourceLineNo">281</span><a id="line.281">        }</a>
+<span class="sourceLineNo">282</span><a id="line.282">    }</a>
+<span class="sourceLineNo">283</span><a id="line.283"></a>
+<span class="sourceLineNo">284</span><a id="line.284">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

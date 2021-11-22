@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.workflow;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">023</span><a id="line.23"></a>
+<span class="sourceLineNo">024</span><a id="line.24">import java.security.Principal;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import java.util.Map;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import java.util.concurrent.ConcurrentHashMap;</a>
+<span class="sourceLineNo">027</span><a id="line.27"></a>
+<span class="sourceLineNo">028</span><a id="line.28">/**</a>
+<span class="sourceLineNo">029</span><a id="line.29"> * Factory class that creates common Workflow instances such as a standard approval workflow.</a>
+<span class="sourceLineNo">030</span><a id="line.30"> */</a>
+<span class="sourceLineNo">031</span><a id="line.31">public final class WorkflowBuilder {</a>
+<span class="sourceLineNo">032</span><a id="line.32"></a>
+<span class="sourceLineNo">033</span><a id="line.33">    private static final Map&lt; Engine, WorkflowBuilder &gt; BUILDERS = new ConcurrentHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">034</span><a id="line.34">    private final Engine m_engine;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">    /**</a>
+<span class="sourceLineNo">037</span><a id="line.37">     * Private constructor that creates a new WorkflowBuilder for the supplied Engine.</a>
+<span class="sourceLineNo">038</span><a id="line.38">     * @param engine the wiki engine</a>
+<span class="sourceLineNo">039</span><a id="line.39">     */</a>
+<span class="sourceLineNo">040</span><a id="line.40">    private WorkflowBuilder( final Engine engine )</a>
+<span class="sourceLineNo">041</span><a id="line.41">    {</a>
+<span class="sourceLineNo">042</span><a id="line.42">        m_engine = engine;</a>
+<span class="sourceLineNo">043</span><a id="line.43">    }</a>
+<span class="sourceLineNo">044</span><a id="line.44"></a>
+<span class="sourceLineNo">045</span><a id="line.45">    /**</a>
+<span class="sourceLineNo">046</span><a id="line.46">     * Returns the WorkflowBuilder instance for a Engine. Only one WorkflowBuilder</a>
+<span class="sourceLineNo">047</span><a id="line.47">     * exists for a given engine.</a>
+<span class="sourceLineNo">048</span><a id="line.48">     * @param engine the wiki engine</a>
+<span class="sourceLineNo">049</span><a id="line.49">     * @return the workflow builder</a>
+<span class="sourceLineNo">050</span><a id="line.50">     */</a>
+<span class="sourceLineNo">051</span><a id="line.51">    public static WorkflowBuilder getBuilder( final Engine engine ) {</a>
+<span class="sourceLineNo">052</span><a id="line.52">        WorkflowBuilder builder = BUILDERS.get( engine );</a>
+<span class="sourceLineNo">053</span><a id="line.53">        if ( builder == null ) {</a>
+<span class="sourceLineNo">054</span><a id="line.54">            builder = new WorkflowBuilder( engine );</a>
+<span class="sourceLineNo">055</span><a id="line.55">            BUILDERS.put( engine, builder );</a>
+<span class="sourceLineNo">056</span><a id="line.56">        }</a>
+<span class="sourceLineNo">057</span><a id="line.57">        return builder;</a>
+<span class="sourceLineNo">058</span><a id="line.58">    }</a>
+<span class="sourceLineNo">059</span><a id="line.59"></a>
+<span class="sourceLineNo">060</span><a id="line.60">    /**</a>
+<span class="sourceLineNo">061</span><a id="line.61">     * &lt;p&gt;Builds an approval workflow that requests approval from a named</a>
+<span class="sourceLineNo">062</span><a id="line.62">     * user, {@link org.apache.wiki.auth.authorize.Group} or</a>
+<span class="sourceLineNo">063</span><a id="line.63">     * {@link org.apache.wiki.auth.authorize.Role} before running a Task.&lt;/p&gt;</a>
+<span class="sourceLineNo">064</span><a id="line.64">     * &lt;p&gt;The Principal who approves the activity is determined by looking up</a>
+<span class="sourceLineNo">065</span><a id="line.65">     * the property &lt;code&gt;jspwiki.approver.&lt;var&gt;workflowApproverKey&lt;/var&gt;&lt;/code&gt;</a>
+<span class="sourceLineNo">066</span><a id="line.66">     * in &lt;code&gt;jspwiki.properties&lt;/code&gt;. If that Principal resolves to a known user, Group</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * Role, a Decision will be placed in the respective workflow queue (or multiple queues,</a>
+<span class="sourceLineNo">068</span><a id="line.68">     * if necessary). Only one approver needs to make the Decision, and if the request is</a>
+<span class="sourceLineNo">069</span><a id="line.69">     * approved, the completion task will be executed. If the request is denied, a</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * {@link SimpleNotification} with a message corresponding to the &lt;code&gt;rejectedMessage&lt;/code&gt;</a>
+<span class="sourceLineNo">071</span><a id="line.71">     * message key will be placed in the submitter's workflow queue.&lt;/p&gt;</a>
+<span class="sourceLineNo">072</span><a id="line.72">     * &lt;p&gt;To help approvers determine how to make the Decision, callers can supply an</a>
+<span class="sourceLineNo">073</span><a id="line.73">     * array of Fact objects to this method, which will be added to the Decision in the order</a>
+<span class="sourceLineNo">074</span><a id="line.74">     * they appear in the array. These items will be displayed in the web UI.</a>
+<span class="sourceLineNo">075</span><a id="line.75">     * In addition, the value of the first Fact will also be added as the third message</a>
+<span class="sourceLineNo">076</span><a id="line.76">     * argument for the workflow (the first two are always the submitter and the approver).</a>
+<span class="sourceLineNo">077</span><a id="line.77">     * For example, the PageManager code that creates the "save page approval" workflow</a>
+<span class="sourceLineNo">078</span><a id="line.78">     * adds the name of the page as its first Fact; this results in the page name being</a>
+<span class="sourceLineNo">079</span><a id="line.79">     * substituted correctly into the resulting message:</a>
+<span class="sourceLineNo">080</span><a id="line.80">     * "Save wiki page &amp;lt;strong&amp;gt;{2}&amp;lt;/strong&amp;gt;".&lt;/p&gt;</a>
+<span class="sourceLineNo">081</span><a id="line.81">     * @param submitter the user submitting the request</a>
+<span class="sourceLineNo">082</span><a id="line.82">     * @param workflowApproverKey the key that names the user, Group or Role who must approve</a>
+<span class="sourceLineNo">083</span><a id="line.83">     * the request. The key is looked up in &lt;code&gt;jspwiki.properties&lt;/code&gt;, and is derived</a>
+<span class="sourceLineNo">084</span><a id="line.84">     * by prepending &lt;code&gt;jspwiki.approver&lt;/code&gt; to the value of &lt;code&gt;workflowApproverKey&lt;/code&gt;</a>
+<span class="sourceLineNo">085</span><a id="line.85">     * @param prepTask the initial task that should run before the Decision step is processed.</a>
+<span class="sourceLineNo">086</span><a id="line.86">     * If this parameter is &lt;code&gt;null&lt;/code&gt;, the Decision will run as the first Step instead</a>
+<span class="sourceLineNo">087</span><a id="line.87">     * @param decisionKey the message key in &lt;code&gt;default.properties&lt;/code&gt; that contains</a>
+<span class="sourceLineNo">088</span><a id="line.88">     * the text that will appear in approvers' workflow queues indicating they need to make</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * a Decision; for example, &lt;code&gt;decision.saveWikiPage&lt;/code&gt;. In the i18n message bundle</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * file, this key might return text that reads "Approve page &amp;lt;strong&amp;gt;{2}&amp;lt;/strong&amp;gt;"</a>
+<span class="sourceLineNo">091</span><a id="line.91">     * @param facts an array of {@link Fact} objects that will be shown to the approver</a>
+<span class="sourceLineNo">092</span><a id="line.92">     * to aid decision-making. The facts will be displayed in the order supplied in the array</a>
+<span class="sourceLineNo">093</span><a id="line.93">     * @param completionTask the Task that will run if the Decision is approved</a>
+<span class="sourceLineNo">094</span><a id="line.94">     * @param rejectedMessageKey the message key in &lt;code&gt;default.properties&lt;/code&gt; that contains</a>
+<span class="sourceLineNo">095</span><a id="line.95">     * the text that will appear in the submitter's workflow queue if request was</a>
+<span class="sourceLineNo">096</span><a id="line.96">     * not approved; for example, &lt;code&gt;notification.saveWikiPage.reject&lt;/code&gt;. In the</a>
+<span class="sourceLineNo">097</span><a id="line.97">     * i18n message bundle file, this key might might return</a>
+<span class="sourceLineNo">098</span><a id="line.98">     * text that reads "Your request to save page &amp;lt;strong&amp;gt;{2}&amp;lt;/strong&amp;gt; was rejected."</a>
+<span class="sourceLineNo">099</span><a id="line.99">     * If this parameter is &lt;code&gt;null&lt;/code&gt;, no message will be sent</a>
+<span class="sourceLineNo">100</span><a id="line.100">     * @return the created workflow</a>
+<span class="sourceLineNo">101</span><a id="line.101">     * @throws WikiException if the name of the approving user, Role or Group cannot be determined</a>
+<span class="sourceLineNo">102</span><a id="line.102">     */</a>
+<span class="sourceLineNo">103</span><a id="line.103">    public Workflow buildApprovalWorkflow( final Principal submitter,</a>
+<span class="sourceLineNo">104</span><a id="line.104">                                           final String workflowApproverKey,</a>
+<span class="sourceLineNo">105</span><a id="line.105">                                           final Step prepTask,</a>
+<span class="sourceLineNo">106</span><a id="line.106">                                           final String decisionKey,</a>
+<span class="sourceLineNo">107</span><a id="line.107">                                           final Fact[] facts,</a>
+<span class="sourceLineNo">108</span><a id="line.108">                                           final Step completionTask,</a>
+<span class="sourceLineNo">109</span><a id="line.109">                                           final String rejectedMessageKey ) throws WikiException {</a>
+<span class="sourceLineNo">110</span><a id="line.110">        final WorkflowManager mgr = m_engine.getManager( WorkflowManager.class );</a>
+<span class="sourceLineNo">111</span><a id="line.111">        final Workflow workflow = new Workflow( workflowApproverKey, submitter );</a>
+<span class="sourceLineNo">112</span><a id="line.112"></a>
+<span class="sourceLineNo">113</span><a id="line.113">        // Is a Decision required to run the approve task?</a>
+<span class="sourceLineNo">114</span><a id="line.114">        final boolean decisionRequired = mgr.requiresApproval( workflowApproverKey );</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">        // If Decision required, create a simple approval workflow</a>
+<span class="sourceLineNo">117</span><a id="line.117">        if ( decisionRequired ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">            // Look up the name of the approver (user or group) listed in jspwiki.properties; approvals go to the approver's decision queue</a>
+<span class="sourceLineNo">119</span><a id="line.119">            final Principal approverPrincipal = mgr.getApprover( workflowApproverKey );</a>
+<span class="sourceLineNo">120</span><a id="line.120">            final Decision decision = new SimpleDecision( workflow.getId(), workflow.getAttributes(), decisionKey, approverPrincipal );</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">            // Add facts to the Decision, if any were supplied</a>
+<span class="sourceLineNo">123</span><a id="line.123">            if( facts != null ) {</a>
+<span class="sourceLineNo">124</span><a id="line.124">                for( final Fact fact : facts ) {</a>
+<span class="sourceLineNo">125</span><a id="line.125">                    decision.addFact( fact );</a>
+<span class="sourceLineNo">126</span><a id="line.126">                }</a>
+<span class="sourceLineNo">127</span><a id="line.127">                // Add the first one as a message key</a>
+<span class="sourceLineNo">128</span><a id="line.128">                if( facts.length &gt; 0 ) {</a>
+<span class="sourceLineNo">129</span><a id="line.129">                    workflow.addMessageArgument( facts[ 0 ].getValue() );</a>
+<span class="sourceLineNo">130</span><a id="line.130">                }</a>
+<span class="sourceLineNo">131</span><a id="line.131">            }</a>
+<span class="sourceLineNo">132</span><a id="line.132"></a>
+<span class="sourceLineNo">133</span><a id="line.133">            // If rejected, sent a notification</a>
+<span class="sourceLineNo">134</span><a id="line.134">            if ( rejectedMessageKey != null ) {</a>
+<span class="sourceLineNo">135</span><a id="line.135">                final SimpleNotification rejectNotification = new SimpleNotification( workflow.getId(), workflow.getAttributes(), rejectedMessageKey, submitter );</a>
+<span class="sourceLineNo">136</span><a id="line.136">                decision.addSuccessor( Outcome.DECISION_DENY, rejectNotification );</a>
+<span class="sourceLineNo">137</span><a id="line.137">            }</a>
+<span class="sourceLineNo">138</span><a id="line.138"></a>
+<span class="sourceLineNo">139</span><a id="line.139">            // If approved, run the 'approved' task</a>
+<span class="sourceLineNo">140</span><a id="line.140">            decision.addSuccessor( Outcome.DECISION_APPROVE, completionTask );</a>
+<span class="sourceLineNo">141</span><a id="line.141"></a>
+<span class="sourceLineNo">142</span><a id="line.142">            // Set the first step</a>
+<span class="sourceLineNo">143</span><a id="line.143">            if( prepTask == null ) {</a>
+<span class="sourceLineNo">144</span><a id="line.144">                workflow.setFirstStep( decision );</a>
+<span class="sourceLineNo">145</span><a id="line.145">            } else {</a>
+<span class="sourceLineNo">146</span><a id="line.146">                workflow.setFirstStep( prepTask );</a>
+<span class="sourceLineNo">147</span><a id="line.147">                prepTask.addSuccessor( Outcome.STEP_COMPLETE, decision );</a>
+<span class="sourceLineNo">148</span><a id="line.148">            }</a>
+<span class="sourceLineNo">149</span><a id="line.149">        } else { // If Decision not required, just run the prep + approved tasks in succession</a>
+<span class="sourceLineNo">150</span><a id="line.150">            // Set the first step</a>
+<span class="sourceLineNo">151</span><a id="line.151">            if ( prepTask == null ) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">                workflow.setFirstStep( completionTask );</a>
+<span class="sourceLineNo">153</span><a id="line.153">            } else {</a>
+<span class="sourceLineNo">154</span><a id="line.154">                workflow.setFirstStep( prepTask );</a>
+<span class="sourceLineNo">155</span><a id="line.155">                prepTask.addSuccessor( Outcome.STEP_COMPLETE, completionTask );</a>
+<span class="sourceLineNo">156</span><a id="line.156">            }</a>
+<span class="sourceLineNo">157</span><a id="line.157">        }</a>
+<span class="sourceLineNo">158</span><a id="line.158"></a>
+<span class="sourceLineNo">159</span><a id="line.159">        // Make sure our tasks have this workflow as the parent, then return</a>
+<span class="sourceLineNo">160</span><a id="line.160">        if( prepTask != null ) {</a>
+<span class="sourceLineNo">161</span><a id="line.161">            prepTask.setWorkflow( workflow.getId(), workflow.getAttributes() );</a>
+<span class="sourceLineNo">162</span><a id="line.162">        }</a>
+<span class="sourceLineNo">163</span><a id="line.163">        completionTask.setWorkflow( workflow.getId(), workflow.getAttributes() );</a>
+<span class="sourceLineNo">164</span><a id="line.164">        return workflow;</a>
+<span class="sourceLineNo">165</span><a id="line.165">    }</a>
+<span class="sourceLineNo">166</span><a id="line.166"></a>
+<span class="sourceLineNo">167</span><a id="line.167">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
