@@ -88,7 +88,8 @@ try {
             unstash 'build'
             dir( asfsite ) {
                 git branch: asfsite, url: repo, credentialsId: creds
-                sh "mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/content/* ./japicmp/$docsVersion"
+                sh "cp -rf ../$jbake/target/content/* ./"
+                sh "mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/japicmp/* ./japicmp/$docsVersion"
                 sh "mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/site/apidocs/* ./apidocs/$docsVersion"
                 timeout( 15 ) { // 15 minutes
                     sh 'git add .'
