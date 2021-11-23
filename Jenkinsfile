@@ -43,7 +43,7 @@ try {
         stage( 'generate apidocs & translations' ) {
             echo "Will use Java $JAVA_JDK_11"
             echo "Will use Maven $MAVEN_3_LATEST"
-            def gitVersion = version != 'master' ? "refs/tags/$version" : ''
+            def gitVersion = version != 'master' ? "refs/tags/$version" : '*/master'
 
             dir( build ) {
                 checkout( [
@@ -89,8 +89,8 @@ try {
             dir( asfsite ) {
                 git branch: asfsite, url: repo, credentialsId: creds
                 sh "cp -rf ../$jbake/target/content/* ./"
-                sh "mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/japicmp/* ./japicmp/$docsVersion"
-                sh "mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/site/apidocs/* ./apidocs/$docsVersion"
+                sh "rm -rf ./japicmp/$docsVersion && mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/japicmp/* ./japicmp/$docsVersion"
+                sh "rm -rf ./apidocs/$docsVersion && mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/site/apidocs/* ./apidocs/$docsVersion"
                 timeout( 15 ) { // 15 minutes
                     sh 'git add .'
                     sh 'git commit -m "Automatic Site Publish by Buildbot"'
