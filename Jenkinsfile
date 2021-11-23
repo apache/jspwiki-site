@@ -27,13 +27,14 @@ errMsg = ''
 
 try {
 
+    def pom
+    def docsVersion
+
     node( 'ubuntu' ) {
         def JAVA_JDK_8=tool name: 'jdk_1.8_latest', type: 'hudson.model.JDK'
         def JAVA_JDK_11=tool name: 'jdk_11_latest', type: 'hudson.model.JDK'
         def MAVEN_3_LATEST=tool name: 'maven_3_latest', type: 'hudson.tasks.Maven$MavenInstallation'
         def version = params?.version ?: 'master'
-        def pom
-        def docsVersion
 
         stage( 'clean workspace' ) {
             cleanWs()
