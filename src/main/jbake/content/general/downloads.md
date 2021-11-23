@@ -9,7 +9,7 @@ Apache JSPWiki is distributed in source format, under the <a class="external" hr
 
 You will be prompted for a mirror - if the file is not found on yours, please be patient, as it may take 24 hours to reach all mirrors. 
 
-Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://downloads.apache.org/jspwiki. Find here the <a class="external" href="https://downloads.apache.org/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
+Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and signature files from the main Apache site at https://downloads.apache.org/jspwiki. Find here the <a class="external" href="https://downloads.apache.org/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys we use to sign releases.
 
 **Previous source and binary distributions** are available through the <a class="external" href="https://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
 
@@ -17,7 +17,7 @@ Note: When downloading from a mirror, please be sure to verify that checksums an
 
 If you want to build directly from the sources, please check the [Get and Build Source][] page.
 
-<br/> **Release Index**
+**Release Index**
 
 * **22-Nov-2021**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0ReleasedOn22112021">2.11.0</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12345152 
