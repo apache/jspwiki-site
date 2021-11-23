@@ -3,14 +3,17 @@ status=published
 title=Downloads
 type=page
 ~~~~~~
+Apache JSPWiki is distributed in source format, under the <a class="external" href="http://www.apache.org/licenses/">Apache License, version 2.0</a>. 
 
 **Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.0/">Apache mirrors</a>.
 
+You will be prompted for a mirror - if the file is not found on yours, please be patient, as it may take 24 hours to reach all mirrors. 
+
 Note: When downloading from a mirror, please be sure to verify that checksums and signatures are correct. To do so, use the checksum and <br/>signature files from the main Apache site at https://downloads.apache.org/jspwiki. Find here the <a class="external" href="https://downloads.apache.org/jspwiki/KEYS">KEYS</a> file, which contains all OpenPGP keys <br/>we use to sign releases.
 
-<br/> **Previous source and binary distributions** are available through the <a class="external" href="https://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
+**Previous source and binary distributions** are available through the <a class="external" href="https://archive.apache.org/dist/jspwiki/"> Apache archives</a>.
 
-<br/> **Source, javadocs and build artifacts** are also available via <a class="external" href="https://search.maven.org/#search|ga|1|org.apache.jspwiki">Central repo</a>, <br/>under `org.apache.jspwiki` groupId.
+**Source, javadocs and build artifacts** are also available via <a class="external" href="https://search.maven.org/#search|ga|1|org.apache.jspwiki">Central repo</a>, under `org.apache.jspwiki` groupId.
 
 If you want to build directly from the sources, please check the [Get and Build Source][] page.
 
