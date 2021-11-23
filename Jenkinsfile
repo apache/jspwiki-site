@@ -33,6 +33,7 @@ try {
         def MAVEN_3_LATEST=tool name: 'maven_3_latest', type: 'hudson.tasks.Maven$MavenInstallation'
         def version = params?.version ?: 'master'
         def pom
+        def docsVersion
 
         stage( 'clean workspace' ) {
             cleanWs()
@@ -53,6 +54,7 @@ try {
 	                ]
                 ] )
                 pom = readMavenPom file: 'pom.xml'
+                docsVersion = version != 'master' ? version : pom.version
                 writeFile file: 'target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
                 writeFile file: 'jspwiki-it-tests/target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
                 withEnv( [ "Path+JDK=$JAVA_JDK_11/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_11" ] ) {
@@ -66,32 +68,27 @@ try {
             echo "Will use Java $JAVA_JDK_8"
             echo "Will use Maven $MAVEN_3_LATEST"
             withEnv( [ "Path+JDK=$JAVA_JDK_8/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_8" ] ) {
-                def jbakeVersion = version != 'master' ? version : pom.version
                 dir( jbake ) {
                     git branch: jbake, url: repo, credentialsId: creds, poll: true
                     sh "cp ../$build/ChangeLog.md ./src/main/config/changelog.md"
                     sh "cp ../$build/i18n-table.txt ./src/main/config/i18n-table.md"
                     sh "cat ./src/main/config/changelog-header.txt ./src/main/config/changelog.md > ./src/main/jbake/content/development/changelog.md"
                     sh "cat ./src/main/config/i18n-header.txt ./src/main/config/i18n-table.md > ./src/main/jbake/content/development/i18n.md"
-                    sh "mvn clean process-resources -Dplugin.japicmp.jspwiki-new=$jbakeVersion"
+                    sh "mvn clean process-resources -Dplugin.japicmp.jspwiki-new=$docsVersion"
                 }
-                stash name: 'jbake-website'
             }
+            stash name: 'build'
         }
-
     }
 
     node( 'git-websites' ) {
         stage( 'publish website' ) {
             cleanWs()
-            unstash 'jbake-website'
+            unstash 'build'
             dir( asfsite ) {
                 git branch: asfsite, url: repo, credentialsId: creds
-                sh "cp -rf ../$jbake/target/content/* ./"
-                if( version != 'master' ) {
-                    def apidocsVersion = version != 'master' ? version : pom.version
-                    sh "mkdir -p ./apidocs/$apidocsVersion && cp -rf ../$build/target/site/apidocs/* ./apidocs/$apidocsVersion"
-                }
+                sh "mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/content/* ./japicmp/$docsVersion"
+                sh "mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/site/apidocs/* ./apidocs/$docsVersion"
                 timeout( 15 ) { // 15 minutes
                     sh 'git add .'
                     sh 'git commit -m "Automatic Site Publish by Buildbot"'
