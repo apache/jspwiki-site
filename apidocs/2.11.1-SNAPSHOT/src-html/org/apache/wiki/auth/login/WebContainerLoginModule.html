@@ -90,51 +90,35 @@
 <span class="sourceLineNo">081</span><a id="line.81">            // directly. If we find one, we're done.</a>
 <span class="sourceLineNo">082</span><a id="line.82">            m_handler.handle( callbacks );</a>
 <span class="sourceLineNo">083</span><a id="line.83">            final HttpServletRequest request = rcb.getRequest();</a>
-<span class="sourceLineNo">084</span><a id="line.84">            if ( request == null )</a>
-<span class="sourceLineNo">085</span><a id="line.85">            {</a>
-<span class="sourceLineNo">086</span><a id="line.86">                throw new LoginException( "No Http request supplied." );</a>
-<span class="sourceLineNo">087</span><a id="line.87">            }</a>
-<span class="sourceLineNo">088</span><a id="line.88">            final HttpSession session = request.getSession(false);</a>
-<span class="sourceLineNo">089</span><a id="line.89">            final String sid = (session == null) ? NULL : session.getId();</a>
-<span class="sourceLineNo">090</span><a id="line.90">            Principal principal = request.getUserPrincipal();</a>
-<span class="sourceLineNo">091</span><a id="line.91">            if ( principal == null )</a>
-<span class="sourceLineNo">092</span><a id="line.92">            {</a>
-<span class="sourceLineNo">093</span><a id="line.93">                // If no Principal in request, try the remoteUser</a>
-<span class="sourceLineNo">094</span><a id="line.94">                if ( log.isDebugEnabled() )</a>
-<span class="sourceLineNo">095</span><a id="line.95">                {</a>
-<span class="sourceLineNo">096</span><a id="line.96">                    log.debug( "No userPrincipal found for session ID=" + sid);</a>
+<span class="sourceLineNo">084</span><a id="line.84">            if ( request == null ) {</a>
+<span class="sourceLineNo">085</span><a id="line.85">                throw new LoginException( "No Http request supplied." );</a>
+<span class="sourceLineNo">086</span><a id="line.86">            }</a>
+<span class="sourceLineNo">087</span><a id="line.87">            final HttpSession session = request.getSession(false);</a>
+<span class="sourceLineNo">088</span><a id="line.88">            final String sid = (session == null) ? NULL : session.getId();</a>
+<span class="sourceLineNo">089</span><a id="line.89">            Principal principal = request.getUserPrincipal();</a>
+<span class="sourceLineNo">090</span><a id="line.90">            if ( principal == null ) {</a>
+<span class="sourceLineNo">091</span><a id="line.91">                // If no Principal in request, try the remoteUser</a>
+<span class="sourceLineNo">092</span><a id="line.92">                log.debug( "No userPrincipal found for session ID={}", sid);</a>
+<span class="sourceLineNo">093</span><a id="line.93">                userId = request.getRemoteUser();</a>
+<span class="sourceLineNo">094</span><a id="line.94">                if ( userId == null ) {</a>
+<span class="sourceLineNo">095</span><a id="line.95">                    log.debug( "No remoteUser found for session ID={}", sid);</a>
+<span class="sourceLineNo">096</span><a id="line.96">                    throw new FailedLoginException( "No remote user found" );</a>
 <span class="sourceLineNo">097</span><a id="line.97">                }</a>
-<span class="sourceLineNo">098</span><a id="line.98">                userId = request.getRemoteUser();</a>
-<span class="sourceLineNo">099</span><a id="line.99">                if ( userId == null )</a>
-<span class="sourceLineNo">100</span><a id="line.100">                {</a>
-<span class="sourceLineNo">101</span><a id="line.101">                    if ( log.isDebugEnabled() )</a>
-<span class="sourceLineNo">102</span><a id="line.102">                    {</a>
-<span class="sourceLineNo">103</span><a id="line.103">                        log.debug( "No remoteUser found for session ID=" + sid);</a>
-<span class="sourceLineNo">104</span><a id="line.104">                    }</a>
-<span class="sourceLineNo">105</span><a id="line.105">                    throw new FailedLoginException( "No remote user found" );</a>
-<span class="sourceLineNo">106</span><a id="line.106">                }</a>
-<span class="sourceLineNo">107</span><a id="line.107">                principal = new WikiPrincipal( userId, WikiPrincipal.LOGIN_NAME );</a>
-<span class="sourceLineNo">108</span><a id="line.108">            }</a>
-<span class="sourceLineNo">109</span><a id="line.109">            if ( log.isDebugEnabled() )</a>
-<span class="sourceLineNo">110</span><a id="line.110">            {</a>
-<span class="sourceLineNo">111</span><a id="line.111">                log.debug("Logged in container principal " + principal.getName() + "." );</a>
-<span class="sourceLineNo">112</span><a id="line.112">            }</a>
-<span class="sourceLineNo">113</span><a id="line.113">            m_principals.add( principal );</a>
-<span class="sourceLineNo">114</span><a id="line.114"></a>
-<span class="sourceLineNo">115</span><a id="line.115">            return true;</a>
-<span class="sourceLineNo">116</span><a id="line.116">        }</a>
-<span class="sourceLineNo">117</span><a id="line.117">        catch( final IOException e )</a>
-<span class="sourceLineNo">118</span><a id="line.118">        {</a>
-<span class="sourceLineNo">119</span><a id="line.119">            log.error( "IOException: " + e.getMessage() );</a>
-<span class="sourceLineNo">120</span><a id="line.120">            return false;</a>
-<span class="sourceLineNo">121</span><a id="line.121">        }</a>
-<span class="sourceLineNo">122</span><a id="line.122">        catch( final UnsupportedCallbackException e )</a>
-<span class="sourceLineNo">123</span><a id="line.123">        {</a>
-<span class="sourceLineNo">124</span><a id="line.124">            log.error( "UnsupportedCallbackException: " + e.getMessage() );</a>
-<span class="sourceLineNo">125</span><a id="line.125">            return false;</a>
-<span class="sourceLineNo">126</span><a id="line.126">        }</a>
-<span class="sourceLineNo">127</span><a id="line.127">    }</a>
-<span class="sourceLineNo">128</span><a id="line.128">}</a>
+<span class="sourceLineNo">098</span><a id="line.98">                principal = new WikiPrincipal( userId, WikiPrincipal.LOGIN_NAME );</a>
+<span class="sourceLineNo">099</span><a id="line.99">            }</a>
+<span class="sourceLineNo">100</span><a id="line.100">            log.debug("Logged in container principal {}.", principal.getName() );</a>
+<span class="sourceLineNo">101</span><a id="line.101">            m_principals.add( principal );</a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">            return true;</a>
+<span class="sourceLineNo">104</span><a id="line.104">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">105</span><a id="line.105">            log.error( "IOException: {}", e.getMessage() );</a>
+<span class="sourceLineNo">106</span><a id="line.106">            return false;</a>
+<span class="sourceLineNo">107</span><a id="line.107">        } catch( final UnsupportedCallbackException e ) {</a>
+<span class="sourceLineNo">108</span><a id="line.108">            log.error( "UnsupportedCallbackException: {}", e.getMessage() );</a>
+<span class="sourceLineNo">109</span><a id="line.109">            return false;</a>
+<span class="sourceLineNo">110</span><a id="line.110">        }</a>
+<span class="sourceLineNo">111</span><a id="line.111">    }</a>
+<span class="sourceLineNo">112</span><a id="line.112">}</a>
 
 
 

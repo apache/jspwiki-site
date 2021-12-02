@@ -50,76 +50,76 @@
 <span class="sourceLineNo">041</span><a id="line.41">import java.util.jar.JarFile;</a>
 <span class="sourceLineNo">042</span><a id="line.42"></a>
 <span class="sourceLineNo">043</span><a id="line.43">/**</a>
-<span class="sourceLineNo">044</span><a id="line.44"> *  Contains useful utilities for class file manipulation.  This is a static class,</a>
-<span class="sourceLineNo">045</span><a id="line.45"> *  so there is no need to instantiate it.</a>
-<span class="sourceLineNo">046</span><a id="line.46"> *</a>
-<span class="sourceLineNo">047</span><a id="line.47"> *  @since 2.1.29.</a>
-<span class="sourceLineNo">048</span><a id="line.48"> */</a>
-<span class="sourceLineNo">049</span><a id="line.49">public final class ClassUtil {</a>
-<span class="sourceLineNo">050</span><a id="line.50"></a>
-<span class="sourceLineNo">051</span><a id="line.51">    private static final Logger log = LogManager.getLogger(ClassUtil.class);</a>
-<span class="sourceLineNo">052</span><a id="line.52"></a>
-<span class="sourceLineNo">053</span><a id="line.53">    /** The location of the classmappings.xml document. It will be searched for in the classpath.  It's value is "{@value}". */</a>
-<span class="sourceLineNo">054</span><a id="line.54">    public  static final String MAPPINGS = "ini/classmappings.xml";</a>
-<span class="sourceLineNo">055</span><a id="line.55"></a>
-<span class="sourceLineNo">056</span><a id="line.56">    /** The location of the classmappings-extra.xml document. It will be searched for in the classpath.  It's value is "{@value}". */</a>
-<span class="sourceLineNo">057</span><a id="line.57">    public  static final String MAPPINGS_EXTRA = "ini/classmappings-extra.xml";</a>
-<span class="sourceLineNo">058</span><a id="line.58"></a>
-<span class="sourceLineNo">059</span><a id="line.59">    /** Initialize the class mappings document. */</a>
-<span class="sourceLineNo">060</span><a id="line.60">    private static final Map&lt; String, String &gt; c_classMappings = populateClassMappingsFrom( MAPPINGS );</a>
-<span class="sourceLineNo">061</span><a id="line.61"></a>
-<span class="sourceLineNo">062</span><a id="line.62">    /** Initialize the class mappings extra document. */</a>
-<span class="sourceLineNo">063</span><a id="line.63">    private static final Map&lt; String, String &gt; c_classMappingsExtra = populateClassMappingsFrom( MAPPINGS_EXTRA ) ;</a>
-<span class="sourceLineNo">064</span><a id="line.64"></a>
-<span class="sourceLineNo">065</span><a id="line.65">    private static boolean classLoaderSetup;</a>
-<span class="sourceLineNo">066</span><a id="line.66">    private static ClassLoader loader;</a>
-<span class="sourceLineNo">067</span><a id="line.67"></a>
-<span class="sourceLineNo">068</span><a id="line.68">    private static Map&lt; String, String &gt; populateClassMappingsFrom( final String fileLoc ) {</a>
-<span class="sourceLineNo">069</span><a id="line.69">        final Map&lt; String, String &gt; map = new ConcurrentHashMap&lt;&gt;();</a>
-<span class="sourceLineNo">070</span><a id="line.70">        final List&lt; Element &gt; nodes = XmlUtil.parse( fileLoc, "/classmappings/mapping" );</a>
-<span class="sourceLineNo">071</span><a id="line.71"></a>
-<span class="sourceLineNo">072</span><a id="line.72">        if( !nodes.isEmpty() ) {</a>
-<span class="sourceLineNo">073</span><a id="line.73">            for( final Element f : nodes ) {</a>
-<span class="sourceLineNo">074</span><a id="line.74">                final String key = f.getChildText( "requestedClass" );</a>
-<span class="sourceLineNo">075</span><a id="line.75">                final String className = f.getChildText( "mappedClass" );</a>
-<span class="sourceLineNo">076</span><a id="line.76"></a>
-<span class="sourceLineNo">077</span><a id="line.77">                map.put( key, className );</a>
-<span class="sourceLineNo">078</span><a id="line.78">                log.debug( "Mapped class '" + key + "' to class '" + className + "'" );</a>
-<span class="sourceLineNo">079</span><a id="line.79">            }</a>
-<span class="sourceLineNo">080</span><a id="line.80">        } else {</a>
-<span class="sourceLineNo">081</span><a id="line.81">            log.info( "Didn't find class mapping document in " + MAPPINGS );</a>
-<span class="sourceLineNo">082</span><a id="line.82">        }</a>
-<span class="sourceLineNo">083</span><a id="line.83">        return map;</a>
-<span class="sourceLineNo">084</span><a id="line.84">    }</a>
-<span class="sourceLineNo">085</span><a id="line.85"></a>
-<span class="sourceLineNo">086</span><a id="line.86">    /**</a>
-<span class="sourceLineNo">087</span><a id="line.87">     * Private constructor to prevent direct instantiation.</a>
-<span class="sourceLineNo">088</span><a id="line.88">     */</a>
-<span class="sourceLineNo">089</span><a id="line.89">    private ClassUtil() {}</a>
-<span class="sourceLineNo">090</span><a id="line.90">    </a>
-<span class="sourceLineNo">091</span><a id="line.91">    /**</a>
-<span class="sourceLineNo">092</span><a id="line.92">     *  Attempts to find a class from a collection of packages.  This will first</a>
-<span class="sourceLineNo">093</span><a id="line.93">     *  attempt to find the class based on just the className parameter, but</a>
-<span class="sourceLineNo">094</span><a id="line.94">     *  should that fail, will iterate through the "packages" -list, prefixes</a>
-<span class="sourceLineNo">095</span><a id="line.95">     *  the package name to the className, and then tries to find the class</a>
-<span class="sourceLineNo">096</span><a id="line.96">     *  again.</a>
-<span class="sourceLineNo">097</span><a id="line.97">     *</a>
-<span class="sourceLineNo">098</span><a id="line.98">     * @param packages A List of Strings, containing different package names.</a>
-<span class="sourceLineNo">099</span><a id="line.99">     *  @param className The name of the class to find.</a>
-<span class="sourceLineNo">100</span><a id="line.100">     * @return The class, if it was found.</a>
-<span class="sourceLineNo">101</span><a id="line.101">     *  @throws ClassNotFoundException if this particular class cannot be found from the list.</a>
-<span class="sourceLineNo">102</span><a id="line.102">     */</a>
-<span class="sourceLineNo">103</span><a id="line.103">    public static Class&lt;?&gt; findClass( final List&lt; String &gt; packages,  final List&lt; String &gt; externaljars, final String className ) throws ClassNotFoundException {</a>
+<span class="sourceLineNo">044</span><a id="line.44"> * Contains useful utilities for class file manipulation. This is a static class, so there is no need to instantiate it.</a>
+<span class="sourceLineNo">045</span><a id="line.45"> *</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * @since 2.1.29.</a>
+<span class="sourceLineNo">047</span><a id="line.47"> */</a>
+<span class="sourceLineNo">048</span><a id="line.48">public final class ClassUtil {</a>
+<span class="sourceLineNo">049</span><a id="line.49"></a>
+<span class="sourceLineNo">050</span><a id="line.50">    private static final Logger log = LogManager.getLogger(ClassUtil.class);</a>
+<span class="sourceLineNo">051</span><a id="line.51"></a>
+<span class="sourceLineNo">052</span><a id="line.52">    /** The location of the classmappings.xml document. It will be searched for in the classpath. Its value is "{@value}". */</a>
+<span class="sourceLineNo">053</span><a id="line.53">    public  static final String MAPPINGS = "ini/classmappings.xml";</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">    /** The location of the classmappings-extra.xml document. It will be searched for in the classpath. Its value is "{@value}". */</a>
+<span class="sourceLineNo">056</span><a id="line.56">    public  static final String MAPPINGS_EXTRA = "ini/classmappings-extra.xml";</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    /** Initialize the class mappings document. */</a>
+<span class="sourceLineNo">059</span><a id="line.59">    private static final Map&lt; String, String &gt; c_classMappings = populateClassMappingsFrom( MAPPINGS );</a>
+<span class="sourceLineNo">060</span><a id="line.60"></a>
+<span class="sourceLineNo">061</span><a id="line.61">    /** Initialize the class mappings extra document. */</a>
+<span class="sourceLineNo">062</span><a id="line.62">    private static final Map&lt; String, String &gt; c_classMappingsExtra = populateClassMappingsFrom( MAPPINGS_EXTRA ) ;</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">    private static boolean classLoaderSetup;</a>
+<span class="sourceLineNo">065</span><a id="line.65">    private static ClassLoader loader;</a>
+<span class="sourceLineNo">066</span><a id="line.66"></a>
+<span class="sourceLineNo">067</span><a id="line.67">    private static Map&lt; String, String &gt; populateClassMappingsFrom( final String fileLoc ) {</a>
+<span class="sourceLineNo">068</span><a id="line.68">        final Map&lt; String, String &gt; map = new ConcurrentHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">069</span><a id="line.69">        final List&lt; Element &gt; nodes = XmlUtil.parse( fileLoc, "/classmappings/mapping" );</a>
+<span class="sourceLineNo">070</span><a id="line.70"></a>
+<span class="sourceLineNo">071</span><a id="line.71">        if( !nodes.isEmpty() ) {</a>
+<span class="sourceLineNo">072</span><a id="line.72">            for( final Element f : nodes ) {</a>
+<span class="sourceLineNo">073</span><a id="line.73">                final String key = f.getChildText( "requestedClass" );</a>
+<span class="sourceLineNo">074</span><a id="line.74">                final String className = f.getChildText( "mappedClass" );</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">                map.put( key, className );</a>
+<span class="sourceLineNo">077</span><a id="line.77">                log.debug( "Mapped class '" + key + "' to class '" + className + "'" );</a>
+<span class="sourceLineNo">078</span><a id="line.78">            }</a>
+<span class="sourceLineNo">079</span><a id="line.79">        } else {</a>
+<span class="sourceLineNo">080</span><a id="line.80">            log.info( "Didn't find class mapping document in " + MAPPINGS );</a>
+<span class="sourceLineNo">081</span><a id="line.81">        }</a>
+<span class="sourceLineNo">082</span><a id="line.82">        return map;</a>
+<span class="sourceLineNo">083</span><a id="line.83">    }</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">    /**</a>
+<span class="sourceLineNo">086</span><a id="line.86">     * Private constructor to prevent direct instantiation.</a>
+<span class="sourceLineNo">087</span><a id="line.87">     */</a>
+<span class="sourceLineNo">088</span><a id="line.88">    private ClassUtil() {}</a>
+<span class="sourceLineNo">089</span><a id="line.89">    </a>
+<span class="sourceLineNo">090</span><a id="line.90">    /**</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *  Attempts to find a class from a collection of packages.  This will first</a>
+<span class="sourceLineNo">092</span><a id="line.92">     *  attempt to find the class based on just the className parameter, but</a>
+<span class="sourceLineNo">093</span><a id="line.93">     *  should that fail, will iterate through the "packages" -list, prefixes</a>
+<span class="sourceLineNo">094</span><a id="line.94">     *  the package name to the className, and then tries to find the class</a>
+<span class="sourceLineNo">095</span><a id="line.95">     *  again.</a>
+<span class="sourceLineNo">096</span><a id="line.96">     *</a>
+<span class="sourceLineNo">097</span><a id="line.97">     * @param packages A List of Strings, containing different package names.</a>
+<span class="sourceLineNo">098</span><a id="line.98">     *  @param className The name of the class to find.</a>
+<span class="sourceLineNo">099</span><a id="line.99">     * @return The class, if it was found.</a>
+<span class="sourceLineNo">100</span><a id="line.100">     *  @throws ClassNotFoundException if this particular class cannot be found from the list.</a>
+<span class="sourceLineNo">101</span><a id="line.101">     */</a>
+<span class="sourceLineNo">102</span><a id="line.102">    @SuppressWarnings( "unchecked" )</a>
+<span class="sourceLineNo">103</span><a id="line.103">    public static &lt; T &gt; Class&lt; T &gt; findClass( final List&lt; String &gt; packages,  final List&lt; String &gt; externaljars, final String className ) throws ClassNotFoundException {</a>
 <span class="sourceLineNo">104</span><a id="line.104">        if (!classLoaderSetup) {</a>
 <span class="sourceLineNo">105</span><a id="line.105">            loader = setupClassLoader(externaljars);</a>
 <span class="sourceLineNo">106</span><a id="line.106">        }</a>
 <span class="sourceLineNo">107</span><a id="line.107"></a>
 <span class="sourceLineNo">108</span><a id="line.108">        try {</a>
-<span class="sourceLineNo">109</span><a id="line.109">            return loader.loadClass( className );</a>
+<span class="sourceLineNo">109</span><a id="line.109">            return ( Class&lt; T &gt; )loader.loadClass( className );</a>
 <span class="sourceLineNo">110</span><a id="line.110">        } catch( final ClassNotFoundException e ) {</a>
 <span class="sourceLineNo">111</span><a id="line.111">            for( final String packageName : packages ) {</a>
 <span class="sourceLineNo">112</span><a id="line.112">                try {</a>
-<span class="sourceLineNo">113</span><a id="line.113">                    return loader.loadClass( packageName + "." + className );</a>
+<span class="sourceLineNo">113</span><a id="line.113">                    return ( Class&lt; T &gt; )loader.loadClass( packageName + "." + className );</a>
 <span class="sourceLineNo">114</span><a id="line.114">                } catch( final ClassNotFoundException ex ) {</a>
 <span class="sourceLineNo">115</span><a id="line.115">                    // This is okay, we go to the next package.</a>
 <span class="sourceLineNo">116</span><a id="line.116">                }</a>
@@ -131,7 +131,7 @@
 <span class="sourceLineNo">122</span><a id="line.122">    }</a>
 <span class="sourceLineNo">123</span><a id="line.123"></a>
 <span class="sourceLineNo">124</span><a id="line.124">    /**</a>
-<span class="sourceLineNo">125</span><a id="line.125">     * Setup the plugin classloader, checking if there are external JARS to add.</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * Set up the plugin classloader, checking if there are external JARS to add.</a>
 <span class="sourceLineNo">126</span><a id="line.126">     * </a>
 <span class="sourceLineNo">127</span><a id="line.127">     * @param externaljars external jars to load into the classloader.</a>
 <span class="sourceLineNo">128</span><a id="line.128">     * @return the classloader that can load classes from the configured external jars or, if not specified, the classloader that loaded this class.</a>
@@ -166,19 +166,19 @@
 <span class="sourceLineNo">157</span><a id="line.157">    }</a>
 <span class="sourceLineNo">158</span><a id="line.158"></a>
 <span class="sourceLineNo">159</span><a id="line.159">    /**</a>
-<span class="sourceLineNo">160</span><a id="line.160">     *</a>
-<span class="sourceLineNo">161</span><a id="line.161">     *  It will first attempt to instantiate the class directly from the className, and will then try to prefix it with the packageName.</a>
-<span class="sourceLineNo">162</span><a id="line.162">     *</a>
-<span class="sourceLineNo">163</span><a id="line.163">     *  @param packageName A package name (such as "org.apache.wiki.plugins").</a>
-<span class="sourceLineNo">164</span><a id="line.164">     *  @param className The class name to find.</a>
-<span class="sourceLineNo">165</span><a id="line.165">     *  @return The class, if it was found.</a>
-<span class="sourceLineNo">166</span><a id="line.166">     *  @throws ClassNotFoundException if this particular class cannot be found.</a>
-<span class="sourceLineNo">167</span><a id="line.167">     */</a>
-<span class="sourceLineNo">168</span><a id="line.168">    public static Class&lt; ? &gt; findClass( final String packageName, final String className ) throws ClassNotFoundException {</a>
+<span class="sourceLineNo">160</span><a id="line.160">     * It will first attempt to instantiate the class directly from the className, and will then try to prefix it with the packageName.</a>
+<span class="sourceLineNo">161</span><a id="line.161">     *</a>
+<span class="sourceLineNo">162</span><a id="line.162">     * @param packageName A package name (such as "org.apache.wiki.plugins").</a>
+<span class="sourceLineNo">163</span><a id="line.163">     * @param className The class name to find.</a>
+<span class="sourceLineNo">164</span><a id="line.164">     * @return The class, if it was found.</a>
+<span class="sourceLineNo">165</span><a id="line.165">     * @throws ClassNotFoundException if this particular class cannot be found.</a>
+<span class="sourceLineNo">166</span><a id="line.166">     */</a>
+<span class="sourceLineNo">167</span><a id="line.167">    @SuppressWarnings( "unchecked" )</a>
+<span class="sourceLineNo">168</span><a id="line.168">    public static &lt; T &gt; Class&lt; T &gt; findClass( final String packageName, final String className ) throws ClassNotFoundException {</a>
 <span class="sourceLineNo">169</span><a id="line.169">        try {</a>
-<span class="sourceLineNo">170</span><a id="line.170">            return ClassUtil.class.getClassLoader().loadClass( className );</a>
+<span class="sourceLineNo">170</span><a id="line.170">            return ( Class&lt; T &gt; )ClassUtil.class.getClassLoader().loadClass( className );</a>
 <span class="sourceLineNo">171</span><a id="line.171">        } catch( final ClassNotFoundException e ) {</a>
-<span class="sourceLineNo">172</span><a id="line.172">            return ClassUtil.class.getClassLoader().loadClass( packageName + "." + className );</a>
+<span class="sourceLineNo">172</span><a id="line.172">            return ( Class&lt; T &gt; )ClassUtil.class.getClassLoader().loadClass( packageName + "." + className );</a>
 <span class="sourceLineNo">173</span><a id="line.173">        }</a>
 <span class="sourceLineNo">174</span><a id="line.174">    }</a>
 <span class="sourceLineNo">175</span><a id="line.175">    </a>
@@ -277,108 +277,163 @@
 <span class="sourceLineNo">268</span><a id="line.268">     *  @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
 <span class="sourceLineNo">269</span><a id="line.269">     *  @since 2.5.40</a>
 <span class="sourceLineNo">270</span><a id="line.270">     */</a>
-<span class="sourceLineNo">271</span><a id="line.271">    @SuppressWarnings("unchecked")</a>
-<span class="sourceLineNo">272</span><a id="line.272">    public static &lt; T &gt; T getMappedObject( final String requestedClass ) throws ReflectiveOperationException, IllegalArgumentException {</a>
-<span class="sourceLineNo">273</span><a id="line.273">        final Object[] initargs = {};</a>
-<span class="sourceLineNo">274</span><a id="line.274">        return ( T )getMappedObject(requestedClass, initargs );</a>
-<span class="sourceLineNo">275</span><a id="line.275">    }</a>
-<span class="sourceLineNo">276</span><a id="line.276"></a>
-<span class="sourceLineNo">277</span><a id="line.277">    /**</a>
-<span class="sourceLineNo">278</span><a id="line.278">     *  This method is used to locate and instantiate a mapped class.</a>
-<span class="sourceLineNo">279</span><a id="line.279">     *  You may redefine anything in the resource file which is located in your classpath</a>
-<span class="sourceLineNo">280</span><a id="line.280">     *  under the name &lt;code&gt;{@value #MAPPINGS}&lt;/code&gt;.</a>
-<span class="sourceLineNo">281</span><a id="line.281">     *  &lt;p&gt;</a>
-<span class="sourceLineNo">282</span><a id="line.282">     *  This is an extremely powerful system, which allows you to remap many of</a>
-<span class="sourceLineNo">283</span><a id="line.283">     *  the JSPWiki core classes to your own class.  Please read the documentation</a>
-<span class="sourceLineNo">284</span><a id="line.284">     *  included in the default &lt;code&gt;{@value #MAPPINGS}&lt;/code&gt; file to see</a>
-<span class="sourceLineNo">285</span><a id="line.285">     *  how this method works. </a>
-<span class="sourceLineNo">286</span><a id="line.286">     *  &lt;p&gt;</a>
-<span class="sourceLineNo">287</span><a id="line.287">     *  This method takes in an object array for the constructor arguments for classes</a>
-<span class="sourceLineNo">288</span><a id="line.288">     *  which have more than two constructors.</a>
-<span class="sourceLineNo">289</span><a id="line.289">     *  </a>
-<span class="sourceLineNo">290</span><a id="line.290">     *  @param requestedClass The name of the class you wish to instantiate.</a>
-<span class="sourceLineNo">291</span><a id="line.291">     *  @param initargs The parameters to be passed to the constructor. May be &lt;code&gt;null&lt;/code&gt;.</a>
-<span class="sourceLineNo">292</span><a id="line.292">     *  @return An instantiated Object.</a>
-<span class="sourceLineNo">293</span><a id="line.293">     *  @throws IllegalArgumentException If the class cannot be found or instantiated. </a>
-<span class="sourceLineNo">294</span><a id="line.294">     *  @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
-<span class="sourceLineNo">295</span><a id="line.295">     *  @since 2.5.40</a>
-<span class="sourceLineNo">296</span><a id="line.296">     */</a>
-<span class="sourceLineNo">297</span><a id="line.297">    @SuppressWarnings( "unchecked" )</a>
-<span class="sourceLineNo">298</span><a id="line.298">    public static &lt; T &gt; T getMappedObject( final String requestedClass, final Object... initargs ) throws ReflectiveOperationException, IllegalArgumentException {</a>
-<span class="sourceLineNo">299</span><a id="line.299">        final Class&lt; ? &gt; cl = getMappedClass( requestedClass );</a>
-<span class="sourceLineNo">300</span><a id="line.300">        final Constructor&lt; ? &gt;[] ctors = cl.getConstructors();</a>
-<span class="sourceLineNo">301</span><a id="line.301">        </a>
-<span class="sourceLineNo">302</span><a id="line.302">        //  Try to find the proper constructor by comparing the initargs array classes and the constructor types.</a>
-<span class="sourceLineNo">303</span><a id="line.303">        for( final Constructor&lt; ? &gt; ctor : ctors ) {</a>
-<span class="sourceLineNo">304</span><a id="line.304">            final Class&lt; ? &gt;[] params = ctor.getParameterTypes();</a>
-<span class="sourceLineNo">305</span><a id="line.305">            if( params.length == initargs.length ) {</a>
-<span class="sourceLineNo">306</span><a id="line.306">                for( int arg = 0; arg &lt; initargs.length; arg++ ) {</a>
-<span class="sourceLineNo">307</span><a id="line.307">                    if( params[ arg ].isAssignableFrom( initargs[ arg ].getClass() ) ) {</a>
-<span class="sourceLineNo">308</span><a id="line.308">                        //  Ha, found it!  Instantiating and returning...</a>
-<span class="sourceLineNo">309</span><a id="line.309">                        return ( T )ctor.newInstance( initargs );</a>
-<span class="sourceLineNo">310</span><a id="line.310">                    }</a>
-<span class="sourceLineNo">311</span><a id="line.311">                }</a>
-<span class="sourceLineNo">312</span><a id="line.312">            }</a>
+<span class="sourceLineNo">271</span><a id="line.271">    public static &lt; T &gt; T getMappedObject( final String requestedClass ) throws ReflectiveOperationException, IllegalArgumentException {</a>
+<span class="sourceLineNo">272</span><a id="line.272">        final Object[] initargs = {};</a>
+<span class="sourceLineNo">273</span><a id="line.273">        return getMappedObject( requestedClass, initargs );</a>
+<span class="sourceLineNo">274</span><a id="line.274">    }</a>
+<span class="sourceLineNo">275</span><a id="line.275"></a>
+<span class="sourceLineNo">276</span><a id="line.276">    /**</a>
+<span class="sourceLineNo">277</span><a id="line.277">     *  This method is used to locate and instantiate a mapped class.</a>
+<span class="sourceLineNo">278</span><a id="line.278">     *  You may redefine anything in the resource file which is located in your classpath</a>
+<span class="sourceLineNo">279</span><a id="line.279">     *  under the name &lt;code&gt;{@value #MAPPINGS}&lt;/code&gt;.</a>
+<span class="sourceLineNo">280</span><a id="line.280">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">281</span><a id="line.281">     *  This is an extremely powerful system, which allows you to remap many of</a>
+<span class="sourceLineNo">282</span><a id="line.282">     *  the JSPWiki core classes to your own class.  Please read the documentation</a>
+<span class="sourceLineNo">283</span><a id="line.283">     *  included in the default &lt;code&gt;{@value #MAPPINGS}&lt;/code&gt; file to see</a>
+<span class="sourceLineNo">284</span><a id="line.284">     *  how this method works. </a>
+<span class="sourceLineNo">285</span><a id="line.285">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">286</span><a id="line.286">     *  This method takes in an object array for the constructor arguments for classes</a>
+<span class="sourceLineNo">287</span><a id="line.287">     *  which have more than two constructors.</a>
+<span class="sourceLineNo">288</span><a id="line.288">     *  </a>
+<span class="sourceLineNo">289</span><a id="line.289">     *  @param requestedClass The name of the class you wish to instantiate.</a>
+<span class="sourceLineNo">290</span><a id="line.290">     *  @param initargs The parameters to be passed to the constructor. May be &lt;code&gt;null&lt;/code&gt;.</a>
+<span class="sourceLineNo">291</span><a id="line.291">     *  @return An instantiated Object.</a>
+<span class="sourceLineNo">292</span><a id="line.292">     *  @throws IllegalArgumentException If the class cannot be found or instantiated. </a>
+<span class="sourceLineNo">293</span><a id="line.293">     *  @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
+<span class="sourceLineNo">294</span><a id="line.294">     *  @since 2.5.40</a>
+<span class="sourceLineNo">295</span><a id="line.295">     */</a>
+<span class="sourceLineNo">296</span><a id="line.296">    @SuppressWarnings( "unchecked" )</a>
+<span class="sourceLineNo">297</span><a id="line.297">    public static &lt; T &gt; T getMappedObject( final String requestedClass, final Object... initargs ) throws ReflectiveOperationException, IllegalArgumentException {</a>
+<span class="sourceLineNo">298</span><a id="line.298">        final Class&lt; ? &gt; cl = getMappedClass( requestedClass );</a>
+<span class="sourceLineNo">299</span><a id="line.299">        return ( T )buildInstance( cl, initargs );</a>
+<span class="sourceLineNo">300</span><a id="line.300">    }</a>
+<span class="sourceLineNo">301</span><a id="line.301"></a>
+<span class="sourceLineNo">302</span><a id="line.302">    /**</a>
+<span class="sourceLineNo">303</span><a id="line.303">     *  Finds a mapped class from the c_classMappings list.  If there is no mappped class, will use the requestedClass.</a>
+<span class="sourceLineNo">304</span><a id="line.304">     *  </a>
+<span class="sourceLineNo">305</span><a id="line.305">     *  @param requestedClass requested class.</a>
+<span class="sourceLineNo">306</span><a id="line.306">     *  @return A Class object which you can then instantiate.</a>
+<span class="sourceLineNo">307</span><a id="line.307">     *  @throws ClassNotFoundException if the class is not found.</a>
+<span class="sourceLineNo">308</span><a id="line.308">     */</a>
+<span class="sourceLineNo">309</span><a id="line.309">    public static Class&lt; ? &gt; getMappedClass( final String requestedClass ) throws ClassNotFoundException {</a>
+<span class="sourceLineNo">310</span><a id="line.310">        String mappedClass = c_classMappings.get( requestedClass );</a>
+<span class="sourceLineNo">311</span><a id="line.311">        if( mappedClass == null ) {</a>
+<span class="sourceLineNo">312</span><a id="line.312">            mappedClass = requestedClass;</a>
 <span class="sourceLineNo">313</span><a id="line.313">        }</a>
 <span class="sourceLineNo">314</span><a id="line.314">        </a>
-<span class="sourceLineNo">315</span><a id="line.315">        //  No arguments, so we can just call a default constructor and ignore the arguments.</a>
-<span class="sourceLineNo">316</span><a id="line.316">        return ( T )cl.getDeclaredConstructor().newInstance();</a>
-<span class="sourceLineNo">317</span><a id="line.317">    }</a>
-<span class="sourceLineNo">318</span><a id="line.318"></a>
-<span class="sourceLineNo">319</span><a id="line.319">    /**</a>
-<span class="sourceLineNo">320</span><a id="line.320">     *  Finds a mapped class from the c_classMappings list.  If there is no mappped class, will use the requestedClass.</a>
-<span class="sourceLineNo">321</span><a id="line.321">     *  </a>
-<span class="sourceLineNo">322</span><a id="line.322">     *  @param requestedClass requested class.</a>
-<span class="sourceLineNo">323</span><a id="line.323">     *  @return A Class object which you can then instantiate.</a>
-<span class="sourceLineNo">324</span><a id="line.324">     *  @throws ClassNotFoundException if the class is not found.</a>
-<span class="sourceLineNo">325</span><a id="line.325">     */</a>
-<span class="sourceLineNo">326</span><a id="line.326">    public static Class&lt; ? &gt; getMappedClass( final String requestedClass ) throws ClassNotFoundException {</a>
-<span class="sourceLineNo">327</span><a id="line.327">        String mappedClass = c_classMappings.get( requestedClass );</a>
-<span class="sourceLineNo">328</span><a id="line.328">        if( mappedClass == null ) {</a>
-<span class="sourceLineNo">329</span><a id="line.329">            mappedClass = requestedClass;</a>
-<span class="sourceLineNo">330</span><a id="line.330">        }</a>
-<span class="sourceLineNo">331</span><a id="line.331">        </a>
-<span class="sourceLineNo">332</span><a id="line.332">        return Class.forName( mappedClass );</a>
-<span class="sourceLineNo">333</span><a id="line.333">    }</a>
-<span class="sourceLineNo">334</span><a id="line.334">    </a>
-<span class="sourceLineNo">335</span><a id="line.335">    /**</a>
-<span class="sourceLineNo">336</span><a id="line.336">     * checks if {@code srcClassName} is a subclass of {@code parentClassname}.</a>
-<span class="sourceLineNo">337</span><a id="line.337">     * </a>
-<span class="sourceLineNo">338</span><a id="line.338">     * @param srcClassName expected subclass.</a>
-<span class="sourceLineNo">339</span><a id="line.339">     * @param parentClassName expected parent class.</a>
-<span class="sourceLineNo">340</span><a id="line.340">     * @return {@code true} if {@code srcClassName} is a subclass of {@code parentClassname}, {@code false} otherwise.</a>
+<span class="sourceLineNo">315</span><a id="line.315">        return Class.forName( mappedClass );</a>
+<span class="sourceLineNo">316</span><a id="line.316">    }</a>
+<span class="sourceLineNo">317</span><a id="line.317">    </a>
+<span class="sourceLineNo">318</span><a id="line.318">    /**</a>
+<span class="sourceLineNo">319</span><a id="line.319">     * checks if {@code srcClassName} is a subclass of {@code parentClassname}.</a>
+<span class="sourceLineNo">320</span><a id="line.320">     * </a>
+<span class="sourceLineNo">321</span><a id="line.321">     * @param srcClassName expected subclass.</a>
+<span class="sourceLineNo">322</span><a id="line.322">     * @param parentClassName expected parent class.</a>
+<span class="sourceLineNo">323</span><a id="line.323">     * @return {@code true} if {@code srcClassName} is a subclass of {@code parentClassname}, {@code false} otherwise.</a>
+<span class="sourceLineNo">324</span><a id="line.324">     */</a>
+<span class="sourceLineNo">325</span><a id="line.325">    public static boolean assignable( final String srcClassName, final String parentClassName ) {</a>
+<span class="sourceLineNo">326</span><a id="line.326">        try {</a>
+<span class="sourceLineNo">327</span><a id="line.327">            final Class&lt; ? &gt; src = Class.forName( srcClassName );</a>
+<span class="sourceLineNo">328</span><a id="line.328">            final Class&lt; ? &gt; parent = Class.forName( parentClassName );</a>
+<span class="sourceLineNo">329</span><a id="line.329">            return parent.isAssignableFrom( src );</a>
+<span class="sourceLineNo">330</span><a id="line.330">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">331</span><a id="line.331">            log.error( e.getMessage(), e );</a>
+<span class="sourceLineNo">332</span><a id="line.332">        }</a>
+<span class="sourceLineNo">333</span><a id="line.333">        return false;</a>
+<span class="sourceLineNo">334</span><a id="line.334">    }</a>
+<span class="sourceLineNo">335</span><a id="line.335"></a>
+<span class="sourceLineNo">336</span><a id="line.336">    /**</a>
+<span class="sourceLineNo">337</span><a id="line.337">     * Checks if a given class exists in classpath.</a>
+<span class="sourceLineNo">338</span><a id="line.338">     *</a>
+<span class="sourceLineNo">339</span><a id="line.339">     * @param className the class to check for existence.</a>
+<span class="sourceLineNo">340</span><a id="line.340">     * @return {@code true} if it exists, {@code false} otherwise.</a>
 <span class="sourceLineNo">341</span><a id="line.341">     */</a>
-<span class="sourceLineNo">342</span><a id="line.342">    public static boolean assignable( final String srcClassName, final String parentClassName ) {</a>
+<span class="sourceLineNo">342</span><a id="line.342">    public static boolean exists( final String className ) {</a>
 <span class="sourceLineNo">343</span><a id="line.343">        try {</a>
-<span class="sourceLineNo">344</span><a id="line.344">            final Class&lt; ? &gt; src = Class.forName( srcClassName );</a>
-<span class="sourceLineNo">345</span><a id="line.345">            final Class&lt; ? &gt; parent = Class.forName( parentClassName );</a>
-<span class="sourceLineNo">346</span><a id="line.346">            return parent.isAssignableFrom( src );</a>
-<span class="sourceLineNo">347</span><a id="line.347">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">348</span><a id="line.348">            log.error( e.getMessage(), e );</a>
-<span class="sourceLineNo">349</span><a id="line.349">        }</a>
-<span class="sourceLineNo">350</span><a id="line.350">        return false;</a>
-<span class="sourceLineNo">351</span><a id="line.351">    }</a>
-<span class="sourceLineNo">352</span><a id="line.352"></a>
-<span class="sourceLineNo">353</span><a id="line.353">    /**</a>
-<span class="sourceLineNo">354</span><a id="line.354">     * Checks if a given class exists in classpath.</a>
-<span class="sourceLineNo">355</span><a id="line.355">     *</a>
-<span class="sourceLineNo">356</span><a id="line.356">     * @param className the class to check for existence.</a>
-<span class="sourceLineNo">357</span><a id="line.357">     * @return {@code true} if it exists, {@code false} otherwise.</a>
-<span class="sourceLineNo">358</span><a id="line.358">     */</a>
-<span class="sourceLineNo">359</span><a id="line.359">    public static boolean exists( final String className ) {</a>
-<span class="sourceLineNo">360</span><a id="line.360">        try {</a>
-<span class="sourceLineNo">361</span><a id="line.361">            Class.forName( className, false, ClassUtil.class.getClassLoader() );</a>
-<span class="sourceLineNo">362</span><a id="line.362">            return true;</a>
-<span class="sourceLineNo">363</span><a id="line.363">        } catch( final ClassNotFoundException e ) {</a>
-<span class="sourceLineNo">364</span><a id="line.364">            return false;</a>
-<span class="sourceLineNo">365</span><a id="line.365">        }</a>
-<span class="sourceLineNo">366</span><a id="line.366">    }</a>
-<span class="sourceLineNo">367</span><a id="line.367"></a>
-<span class="sourceLineNo">368</span><a id="line.368">    public static Map&lt; String, String &gt; getExtraClassMappings() {</a>
-<span class="sourceLineNo">369</span><a id="line.369">        return c_classMappingsExtra;</a>
-<span class="sourceLineNo">370</span><a id="line.370">    }</a>
-<span class="sourceLineNo">371</span><a id="line.371">    </a>
-<span class="sourceLineNo">372</span><a id="line.372">}</a>
+<span class="sourceLineNo">344</span><a id="line.344">            Class.forName( className, false, ClassUtil.class.getClassLoader() );</a>
+<span class="sourceLineNo">345</span><a id="line.345">            return true;</a>
+<span class="sourceLineNo">346</span><a id="line.346">        } catch( final ClassNotFoundException e ) {</a>
+<span class="sourceLineNo">347</span><a id="line.347">            return false;</a>
+<span class="sourceLineNo">348</span><a id="line.348">        }</a>
+<span class="sourceLineNo">349</span><a id="line.349">    }</a>
+<span class="sourceLineNo">350</span><a id="line.350"></a>
+<span class="sourceLineNo">351</span><a id="line.351">    public static Map&lt; String, String &gt; getExtraClassMappings() {</a>
+<span class="sourceLineNo">352</span><a id="line.352">        return c_classMappingsExtra;</a>
+<span class="sourceLineNo">353</span><a id="line.353">    }</a>
+<span class="sourceLineNo">354</span><a id="line.354"></a>
+<span class="sourceLineNo">355</span><a id="line.355">    /**</a>
+<span class="sourceLineNo">356</span><a id="line.356">     * This method is used to instantiate a given class.</a>
+<span class="sourceLineNo">357</span><a id="line.357">     *</a>
+<span class="sourceLineNo">358</span><a id="line.358">     * @param className The name of the class you wish to instantiate.</a>
+<span class="sourceLineNo">359</span><a id="line.359">     * @return An instantiated Object.</a>
+<span class="sourceLineNo">360</span><a id="line.360">     * @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
+<span class="sourceLineNo">361</span><a id="line.361">     * @since 2.11.1</a>
+<span class="sourceLineNo">362</span><a id="line.362">     */</a>
+<span class="sourceLineNo">363</span><a id="line.363">    public static &lt; T &gt; T buildInstance( final String className ) throws ReflectiveOperationException {</a>
+<span class="sourceLineNo">364</span><a id="line.364">        return buildInstance( "", className );</a>
+<span class="sourceLineNo">365</span><a id="line.365">    }</a>
+<span class="sourceLineNo">366</span><a id="line.366"></a>
+<span class="sourceLineNo">367</span><a id="line.367">    /**</a>
+<span class="sourceLineNo">368</span><a id="line.368">     * This method is used to instantiate a given class.</a>
+<span class="sourceLineNo">369</span><a id="line.369">     * &lt;p&gt;</a>
+<span class="sourceLineNo">370</span><a id="line.370">     * * It will first attempt to instantiate the class directly from the className, and will then try to prefix it with the packageName.</a>
+<span class="sourceLineNo">371</span><a id="line.371">     *</a>
+<span class="sourceLineNo">372</span><a id="line.372">     * @param packageName A package name (such as "org.apache.wiki.plugins").</a>
+<span class="sourceLineNo">373</span><a id="line.373">     * @param className The class name to find.</a>
+<span class="sourceLineNo">374</span><a id="line.374">     * @return An instantiated Object.</a>
+<span class="sourceLineNo">375</span><a id="line.375">     * @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
+<span class="sourceLineNo">376</span><a id="line.376">     * @since 2.11.1</a>
+<span class="sourceLineNo">377</span><a id="line.377">     */</a>
+<span class="sourceLineNo">378</span><a id="line.378">    public static &lt; T &gt; T buildInstance( final String packageName, final String className ) throws ReflectiveOperationException {</a>
+<span class="sourceLineNo">379</span><a id="line.379">        return buildInstance( findClass( packageName, className ) );</a>
+<span class="sourceLineNo">380</span><a id="line.380">    }</a>
+<span class="sourceLineNo">381</span><a id="line.381"></a>
+<span class="sourceLineNo">382</span><a id="line.382">    /**</a>
+<span class="sourceLineNo">383</span><a id="line.383">     * This method is used to instantiate a given class.</a>
+<span class="sourceLineNo">384</span><a id="line.384">     *</a>
+<span class="sourceLineNo">385</span><a id="line.385">     * @param from The name of the class you wish to instantiate.</a>
+<span class="sourceLineNo">386</span><a id="line.386">     * @return An instantiated Object.</a>
+<span class="sourceLineNo">387</span><a id="line.387">     * @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
+<span class="sourceLineNo">388</span><a id="line.388">     * @since 2.11.1</a>
+<span class="sourceLineNo">389</span><a id="line.389">     */</a>
+<span class="sourceLineNo">390</span><a id="line.390">    public static &lt; T &gt; T buildInstance( final Class&lt; T &gt; from ) throws ReflectiveOperationException {</a>
+<span class="sourceLineNo">391</span><a id="line.391">        final Object[] initArgs = {};</a>
+<span class="sourceLineNo">392</span><a id="line.392">        return buildInstance( from, initArgs );</a>
+<span class="sourceLineNo">393</span><a id="line.393">    }</a>
+<span class="sourceLineNo">394</span><a id="line.394"></a>
+<span class="sourceLineNo">395</span><a id="line.395">    /**</a>
+<span class="sourceLineNo">396</span><a id="line.396">     * This method is used to instantiate a given class.</a>
+<span class="sourceLineNo">397</span><a id="line.397">     * &lt;p&gt;</a>
+<span class="sourceLineNo">398</span><a id="line.398">     * This method takes in an object array for the constructor arguments for classes</a>
+<span class="sourceLineNo">399</span><a id="line.399">     * which have more than two constructors.</a>
+<span class="sourceLineNo">400</span><a id="line.400">     *</a>
+<span class="sourceLineNo">401</span><a id="line.401">     * @param from The name of the class you wish to instantiate.</a>
+<span class="sourceLineNo">402</span><a id="line.402">     * @param initArgs The parameters to be passed to the constructor. May be &lt;code&gt;null&lt;/code&gt;.</a>
+<span class="sourceLineNo">403</span><a id="line.403">     * @return An instantiated Object.</a>
+<span class="sourceLineNo">404</span><a id="line.404">     * @throws ReflectiveOperationException If the class cannot be found or instantiated.</a>
+<span class="sourceLineNo">405</span><a id="line.405">     * @since 2.11.1</a>
+<span class="sourceLineNo">406</span><a id="line.406">     */</a>
+<span class="sourceLineNo">407</span><a id="line.407">    @SuppressWarnings( "unchecked" )</a>
+<span class="sourceLineNo">408</span><a id="line.408">    public static &lt; T &gt; T buildInstance( final Class&lt; T &gt; from, final Object... initArgs ) throws ReflectiveOperationException {</a>
+<span class="sourceLineNo">409</span><a id="line.409">        final Constructor&lt; ? &gt;[] ctors = from.getConstructors();</a>
+<span class="sourceLineNo">410</span><a id="line.410"></a>
+<span class="sourceLineNo">411</span><a id="line.411">        //  Try to find the proper constructor by comparing the initargs array classes and the constructor types.</a>
+<span class="sourceLineNo">412</span><a id="line.412">        for( final Constructor&lt; ? &gt; ctor : ctors ) {</a>
+<span class="sourceLineNo">413</span><a id="line.413">            final Class&lt; ? &gt;[] params = ctor.getParameterTypes();</a>
+<span class="sourceLineNo">414</span><a id="line.414">            if( params.length == initArgs.length ) {</a>
+<span class="sourceLineNo">415</span><a id="line.415">                for( int arg = 0; arg &lt; initArgs.length; arg++ ) {</a>
+<span class="sourceLineNo">416</span><a id="line.416">                    if( params[ arg ].isAssignableFrom( initArgs[ arg ].getClass() ) ) {</a>
+<span class="sourceLineNo">417</span><a id="line.417">                        //  Ha, found it!  Instantiating and returning...</a>
+<span class="sourceLineNo">418</span><a id="line.418">                        return ( T )ctor.newInstance( initArgs );</a>
+<span class="sourceLineNo">419</span><a id="line.419">                    }</a>
+<span class="sourceLineNo">420</span><a id="line.420">                }</a>
+<span class="sourceLineNo">421</span><a id="line.421">            }</a>
+<span class="sourceLineNo">422</span><a id="line.422">        }</a>
+<span class="sourceLineNo">423</span><a id="line.423">        //  No arguments, so we can just call a default constructor and ignore the arguments.</a>
+<span class="sourceLineNo">424</span><a id="line.424">        return from.getDeclaredConstructor().newInstance();</a>
+<span class="sourceLineNo">425</span><a id="line.425">    }</a>
+<span class="sourceLineNo">426</span><a id="line.426">    </a>
+<span class="sourceLineNo">427</span><a id="line.427">}</a>
 
 
 

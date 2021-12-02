@@ -71,49 +71,41 @@
 <span class="sourceLineNo">062</span><a id="line.62">    protected static final Logger log = LogManager.getLogger( AnonymousLoginModule.class );</a>
 <span class="sourceLineNo">063</span><a id="line.63"></a>
 <span class="sourceLineNo">064</span><a id="line.64">    /**</a>
-<span class="sourceLineNo">065</span><a id="line.65">     * Logs in the user by calling back to the registered CallbackHandler with an</a>
-<span class="sourceLineNo">066</span><a id="line.66">     * HttpRequestCallback. The CallbackHandler must supply the current servlet</a>
-<span class="sourceLineNo">067</span><a id="line.67">     * HTTP request as its response.</a>
-<span class="sourceLineNo">068</span><a id="line.68">     * @return the result of the login; this will always be &lt;code&gt;true&lt;/code&gt;.</a>
-<span class="sourceLineNo">069</span><a id="line.69">     * @see javax.security.auth.spi.LoginModule#login()</a>
-<span class="sourceLineNo">070</span><a id="line.70">     * @throws {@inheritDoc}</a>
-<span class="sourceLineNo">071</span><a id="line.71">     */</a>
-<span class="sourceLineNo">072</span><a id="line.72">    public boolean login() throws LoginException</a>
-<span class="sourceLineNo">073</span><a id="line.73">    {</a>
-<span class="sourceLineNo">074</span><a id="line.74">        // Let's go and make a Principal based on the IP address</a>
-<span class="sourceLineNo">075</span><a id="line.75">        final HttpRequestCallback hcb = new HttpRequestCallback();</a>
-<span class="sourceLineNo">076</span><a id="line.76">        final Callback[] callbacks = new Callback[]</a>
-<span class="sourceLineNo">077</span><a id="line.77">        { hcb };</a>
-<span class="sourceLineNo">078</span><a id="line.78">        try</a>
-<span class="sourceLineNo">079</span><a id="line.79">        {</a>
+<span class="sourceLineNo">065</span><a id="line.65">     * {@inheritDoc}</a>
+<span class="sourceLineNo">066</span><a id="line.66">     *</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * Logs in the user by calling back to the registered CallbackHandler with an</a>
+<span class="sourceLineNo">068</span><a id="line.68">     * HttpRequestCallback. The CallbackHandler must supply the current servlet</a>
+<span class="sourceLineNo">069</span><a id="line.69">     * HTTP request as its response.</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * @return the result of the login; this will always be &lt;code&gt;true&lt;/code&gt;.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     * @see javax.security.auth.spi.LoginModule#login()</a>
+<span class="sourceLineNo">072</span><a id="line.72">     * @throws LoginException if unable to handle callback</a>
+<span class="sourceLineNo">073</span><a id="line.73">     */</a>
+<span class="sourceLineNo">074</span><a id="line.74">    public boolean login() throws LoginException</a>
+<span class="sourceLineNo">075</span><a id="line.75">    {</a>
+<span class="sourceLineNo">076</span><a id="line.76">        // Let's go and make a Principal based on the IP address</a>
+<span class="sourceLineNo">077</span><a id="line.77">        final HttpRequestCallback hcb = new HttpRequestCallback();</a>
+<span class="sourceLineNo">078</span><a id="line.78">        final Callback[] callbacks = new Callback[]{ hcb };</a>
+<span class="sourceLineNo">079</span><a id="line.79">        try {</a>
 <span class="sourceLineNo">080</span><a id="line.80">            m_handler.handle( callbacks );</a>
 <span class="sourceLineNo">081</span><a id="line.81">            final HttpServletRequest request = hcb.getRequest();</a>
 <span class="sourceLineNo">082</span><a id="line.82">            final WikiPrincipal ipAddr = new WikiPrincipal( HttpUtil.getRemoteAddress(request) );</a>
-<span class="sourceLineNo">083</span><a id="line.83">            if ( log.isDebugEnabled() )</a>
-<span class="sourceLineNo">084</span><a id="line.84">            {</a>
-<span class="sourceLineNo">085</span><a id="line.85">                final HttpSession session = request.getSession( false );</a>
-<span class="sourceLineNo">086</span><a id="line.86">                final String sid = (session == null) ? NULL : session.getId();</a>
-<span class="sourceLineNo">087</span><a id="line.87">                log.debug("Logged in session ID=" + sid + "; IP=" + ipAddr);</a>
-<span class="sourceLineNo">088</span><a id="line.88">            }</a>
-<span class="sourceLineNo">089</span><a id="line.89">            // If login succeeds, commit these principals/roles</a>
-<span class="sourceLineNo">090</span><a id="line.90">            m_principals.add( ipAddr );</a>
-<span class="sourceLineNo">091</span><a id="line.91">            return true;</a>
-<span class="sourceLineNo">092</span><a id="line.92">        }</a>
-<span class="sourceLineNo">093</span><a id="line.93">        catch( final IOException e )</a>
-<span class="sourceLineNo">094</span><a id="line.94">        {</a>
-<span class="sourceLineNo">095</span><a id="line.95">            log.error("IOException: " + e.getMessage());</a>
-<span class="sourceLineNo">096</span><a id="line.96">            return false;</a>
-<span class="sourceLineNo">097</span><a id="line.97">        }</a>
-<span class="sourceLineNo">098</span><a id="line.98">        catch( final UnsupportedCallbackException e )</a>
-<span class="sourceLineNo">099</span><a id="line.99">        {</a>
-<span class="sourceLineNo">100</span><a id="line.100">            final String message = "Unable to handle callback, disallowing login.";</a>
-<span class="sourceLineNo">101</span><a id="line.101">            log.error( message, e );</a>
-<span class="sourceLineNo">102</span><a id="line.102">            throw new LoginException( message );</a>
-<span class="sourceLineNo">103</span><a id="line.103">        }</a>
-<span class="sourceLineNo">104</span><a id="line.104"></a>
-<span class="sourceLineNo">105</span><a id="line.105">    }</a>
-<span class="sourceLineNo">106</span><a id="line.106"></a>
-<span class="sourceLineNo">107</span><a id="line.107">}</a>
+<span class="sourceLineNo">083</span><a id="line.83">            final HttpSession session = request.getSession( false );</a>
+<span class="sourceLineNo">084</span><a id="line.84">            final String sid = (session == null) ? NULL : session.getId();</a>
+<span class="sourceLineNo">085</span><a id="line.85">            log.debug("Logged in session ID={}; IP={}", sid, ipAddr);</a>
+<span class="sourceLineNo">086</span><a id="line.86">            // If login succeeds, commit these principals/roles</a>
+<span class="sourceLineNo">087</span><a id="line.87">            m_principals.add( ipAddr );</a>
+<span class="sourceLineNo">088</span><a id="line.88">            return true;</a>
+<span class="sourceLineNo">089</span><a id="line.89">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">090</span><a id="line.90">            log.error("IOException: " + e.getMessage());</a>
+<span class="sourceLineNo">091</span><a id="line.91">            return false;</a>
+<span class="sourceLineNo">092</span><a id="line.92">        } catch( final UnsupportedCallbackException e ) {</a>
+<span class="sourceLineNo">093</span><a id="line.93">            final String message = "Unable to handle callback, disallowing login.";</a>
+<span class="sourceLineNo">094</span><a id="line.94">            log.error( message, e );</a>
+<span class="sourceLineNo">095</span><a id="line.95">            throw new LoginException( message );</a>
+<span class="sourceLineNo">096</span><a id="line.96">        }</a>
+<span class="sourceLineNo">097</span><a id="line.97">    }</a>
+<span class="sourceLineNo">098</span><a id="line.98"></a>
+<span class="sourceLineNo">099</span><a id="line.99">}</a>
 
 
 

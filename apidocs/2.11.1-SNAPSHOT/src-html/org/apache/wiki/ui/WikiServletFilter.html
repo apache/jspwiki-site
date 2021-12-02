@@ -138,50 +138,48 @@
 <span class="sourceLineNo">129</span><a id="line.129">                m_engine.getManager( AuthenticationManager.class ).login( httpRequest );</a>
 <span class="sourceLineNo">130</span><a id="line.130">                final Session wikiSession = SessionMonitor.getInstance( m_engine ).find( httpRequest.getSession() );</a>
 <span class="sourceLineNo">131</span><a id="line.131">                httpRequest = new WikiRequestWrapper( m_engine, httpRequest );</a>
-<span class="sourceLineNo">132</span><a id="line.132">                if ( log.isDebugEnabled() ) {</a>
-<span class="sourceLineNo">133</span><a id="line.133">                    log.debug( "Executed security filters for user=" + wikiSession.getLoginPrincipal().getName() + ", path=" + httpRequest.getRequestURI() );</a>
-<span class="sourceLineNo">134</span><a id="line.134">                }</a>
-<span class="sourceLineNo">135</span><a id="line.135">            } catch( final WikiSecurityException e ) {</a>
-<span class="sourceLineNo">136</span><a id="line.136">                throw new ServletException( e );</a>
-<span class="sourceLineNo">137</span><a id="line.137">            }</a>
-<span class="sourceLineNo">138</span><a id="line.138">        }</a>
-<span class="sourceLineNo">139</span><a id="line.139"></a>
-<span class="sourceLineNo">140</span><a id="line.140">        try {</a>
-<span class="sourceLineNo">141</span><a id="line.141">            ThreadContext.push( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
-<span class="sourceLineNo">142</span><a id="line.142">            chain.doFilter( httpRequest, response );</a>
-<span class="sourceLineNo">143</span><a id="line.143">        } finally {</a>
-<span class="sourceLineNo">144</span><a id="line.144">            ThreadContext.pop();</a>
-<span class="sourceLineNo">145</span><a id="line.145">            ThreadContext.remove( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
-<span class="sourceLineNo">146</span><a id="line.146">        }</a>
+<span class="sourceLineNo">132</span><a id="line.132">                log.debug( "Executed security filters for user={}, path={}",wikiSession.getLoginPrincipal().getName(), httpRequest.getRequestURI() );</a>
+<span class="sourceLineNo">133</span><a id="line.133">            } catch( final WikiSecurityException e ) {</a>
+<span class="sourceLineNo">134</span><a id="line.134">                throw new ServletException( e );</a>
+<span class="sourceLineNo">135</span><a id="line.135">            }</a>
+<span class="sourceLineNo">136</span><a id="line.136">        }</a>
+<span class="sourceLineNo">137</span><a id="line.137"></a>
+<span class="sourceLineNo">138</span><a id="line.138">        try {</a>
+<span class="sourceLineNo">139</span><a id="line.139">            ThreadContext.push( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
+<span class="sourceLineNo">140</span><a id="line.140">            chain.doFilter( httpRequest, response );</a>
+<span class="sourceLineNo">141</span><a id="line.141">        } finally {</a>
+<span class="sourceLineNo">142</span><a id="line.142">            ThreadContext.pop();</a>
+<span class="sourceLineNo">143</span><a id="line.143">            ThreadContext.remove( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
+<span class="sourceLineNo">144</span><a id="line.144">        }</a>
+<span class="sourceLineNo">145</span><a id="line.145"></a>
+<span class="sourceLineNo">146</span><a id="line.146">    }</a>
 <span class="sourceLineNo">147</span><a id="line.147"></a>
-<span class="sourceLineNo">148</span><a id="line.148">    }</a>
-<span class="sourceLineNo">149</span><a id="line.149"></a>
-<span class="sourceLineNo">150</span><a id="line.150">    /**</a>
-<span class="sourceLineNo">151</span><a id="line.151">     *  Figures out the wiki context from the request.  This method does not create the context if it does not exist.</a>
-<span class="sourceLineNo">152</span><a id="line.152">     *  </a>
-<span class="sourceLineNo">153</span><a id="line.153">     *  @param request The request to examine</a>
-<span class="sourceLineNo">154</span><a id="line.154">     *  @return A valid WikiContext value (or null, if the context could not be located).</a>
-<span class="sourceLineNo">155</span><a id="line.155">     */</a>
-<span class="sourceLineNo">156</span><a id="line.156">    protected WikiContext getWikiContext( final ServletRequest request ) {</a>
-<span class="sourceLineNo">157</span><a id="line.157">        final HttpServletRequest httpRequest = (HttpServletRequest) request;</a>
-<span class="sourceLineNo">158</span><a id="line.158">        return ( WikiContext )httpRequest.getAttribute( Context.ATTR_CONTEXT );</a>
-<span class="sourceLineNo">159</span><a id="line.159">    }</a>
-<span class="sourceLineNo">160</span><a id="line.160"></a>
-<span class="sourceLineNo">161</span><a id="line.161">    /** </a>
-<span class="sourceLineNo">162</span><a id="line.162">     * Determines whether the request has been previously wrapped with a WikiRequestWrapper. </a>
-<span class="sourceLineNo">163</span><a id="line.163">     * We find the wrapper by recursively unwrapping successive request wrappers, if they have been supplied.</a>
-<span class="sourceLineNo">164</span><a id="line.164">     *</a>
-<span class="sourceLineNo">165</span><a id="line.165">     * @param request the current HTTP request</a>
-<span class="sourceLineNo">166</span><a id="line.166">     * @return &lt;code&gt;true&lt;/code&gt; if the request has previously been wrapped; &lt;code&gt;false&lt;/code&gt; otherwise</a>
-<span class="sourceLineNo">167</span><a id="line.167">     */</a>
-<span class="sourceLineNo">168</span><a id="line.168">    private boolean isWrapped( ServletRequest request ) {</a>
-<span class="sourceLineNo">169</span><a id="line.169">        while( !(request instanceof WikiRequestWrapper ) &amp;&amp; request instanceof HttpServletRequestWrapper ) {</a>
-<span class="sourceLineNo">170</span><a id="line.170">            request = ( ( HttpServletRequestWrapper ) request ).getRequest();</a>
-<span class="sourceLineNo">171</span><a id="line.171">        }</a>
-<span class="sourceLineNo">172</span><a id="line.172">        return request instanceof WikiRequestWrapper;</a>
-<span class="sourceLineNo">173</span><a id="line.173">    }</a>
-<span class="sourceLineNo">174</span><a id="line.174"></a>
-<span class="sourceLineNo">175</span><a id="line.175">}</a>
+<span class="sourceLineNo">148</span><a id="line.148">    /**</a>
+<span class="sourceLineNo">149</span><a id="line.149">     *  Figures out the wiki context from the request.  This method does not create the context if it does not exist.</a>
+<span class="sourceLineNo">150</span><a id="line.150">     *  </a>
+<span class="sourceLineNo">151</span><a id="line.151">     *  @param request The request to examine</a>
+<span class="sourceLineNo">152</span><a id="line.152">     *  @return A valid WikiContext value (or null, if the context could not be located).</a>
+<span class="sourceLineNo">153</span><a id="line.153">     */</a>
+<span class="sourceLineNo">154</span><a id="line.154">    protected WikiContext getWikiContext( final ServletRequest request ) {</a>
+<span class="sourceLineNo">155</span><a id="line.155">        final HttpServletRequest httpRequest = (HttpServletRequest) request;</a>
+<span class="sourceLineNo">156</span><a id="line.156">        return ( WikiContext )httpRequest.getAttribute( Context.ATTR_CONTEXT );</a>
+<span class="sourceLineNo">157</span><a id="line.157">    }</a>
+<span class="sourceLineNo">158</span><a id="line.158"></a>
+<span class="sourceLineNo">159</span><a id="line.159">    /** </a>
+<span class="sourceLineNo">160</span><a id="line.160">     * Determines whether the request has been previously wrapped with a WikiRequestWrapper. </a>
+<span class="sourceLineNo">161</span><a id="line.161">     * We find the wrapper by recursively unwrapping successive request wrappers, if they have been supplied.</a>
+<span class="sourceLineNo">162</span><a id="line.162">     *</a>
+<span class="sourceLineNo">163</span><a id="line.163">     * @param request the current HTTP request</a>
+<span class="sourceLineNo">164</span><a id="line.164">     * @return &lt;code&gt;true&lt;/code&gt; if the request has previously been wrapped; &lt;code&gt;false&lt;/code&gt; otherwise</a>
+<span class="sourceLineNo">165</span><a id="line.165">     */</a>
+<span class="sourceLineNo">166</span><a id="line.166">    private boolean isWrapped( ServletRequest request ) {</a>
+<span class="sourceLineNo">167</span><a id="line.167">        while( !(request instanceof WikiRequestWrapper ) &amp;&amp; request instanceof HttpServletRequestWrapper ) {</a>
+<span class="sourceLineNo">168</span><a id="line.168">            request = ( ( HttpServletRequestWrapper ) request ).getRequest();</a>
+<span class="sourceLineNo">169</span><a id="line.169">        }</a>
+<span class="sourceLineNo">170</span><a id="line.170">        return request instanceof WikiRequestWrapper;</a>
+<span class="sourceLineNo">171</span><a id="line.171">    }</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">}</a>
 
 
 

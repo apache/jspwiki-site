@@ -284,127 +284,120 @@
 <span class="sourceLineNo">275</span><a id="line.275">     */</a>
 <span class="sourceLineNo">276</span><a id="line.276">    private Authorizer getAuthorizerImplementation( final Properties props ) throws WikiException {</a>
 <span class="sourceLineNo">277</span><a id="line.277">        final String authClassName = props.getProperty( PROP_AUTHORIZER, DEFAULT_AUTHORIZER );</a>
-<span class="sourceLineNo">278</span><a id="line.278">        return ( Authorizer )locateImplementation( authClassName );</a>
+<span class="sourceLineNo">278</span><a id="line.278">        return locateImplementation( authClassName );</a>
 <span class="sourceLineNo">279</span><a id="line.279">    }</a>
 <span class="sourceLineNo">280</span><a id="line.280"></a>
-<span class="sourceLineNo">281</span><a id="line.281">    private Object locateImplementation( final String clazz ) throws WikiException {</a>
+<span class="sourceLineNo">281</span><a id="line.281">    private Authorizer locateImplementation( final String clazz ) throws WikiException {</a>
 <span class="sourceLineNo">282</span><a id="line.282">        if ( clazz != null ) {</a>
 <span class="sourceLineNo">283</span><a id="line.283">            try {</a>
-<span class="sourceLineNo">284</span><a id="line.284">                final Class&lt; ? &gt; authClass = ClassUtil.findClass( "org.apache.wiki.auth.authorize", clazz );</a>
-<span class="sourceLineNo">285</span><a id="line.285">                return authClass.newInstance();</a>
-<span class="sourceLineNo">286</span><a id="line.286">            } catch( final ClassNotFoundException e ) {</a>
-<span class="sourceLineNo">287</span><a id="line.287">                log.fatal( "Authorizer " + clazz + " cannot be found", e );</a>
-<span class="sourceLineNo">288</span><a id="line.288">                throw new WikiException( "Authorizer " + clazz + " cannot be found", e );</a>
-<span class="sourceLineNo">289</span><a id="line.289">            } catch( final InstantiationException e ) {</a>
-<span class="sourceLineNo">290</span><a id="line.290">                log.fatal( "Authorizer " + clazz + " cannot be created", e );</a>
-<span class="sourceLineNo">291</span><a id="line.291">                throw new WikiException( "Authorizer " + clazz + " cannot be created", e );</a>
-<span class="sourceLineNo">292</span><a id="line.292">            } catch( final IllegalAccessException e ) {</a>
-<span class="sourceLineNo">293</span><a id="line.293">                log.fatal( "You are not allowed to access this authorizer class", e );</a>
-<span class="sourceLineNo">294</span><a id="line.294">                throw new WikiException( "You are not allowed to access this authorizer class", e );</a>
-<span class="sourceLineNo">295</span><a id="line.295">            }</a>
-<span class="sourceLineNo">296</span><a id="line.296">        }</a>
-<span class="sourceLineNo">297</span><a id="line.297"></a>
-<span class="sourceLineNo">298</span><a id="line.298">        throw new NoRequiredPropertyException( "Unable to find a " + PROP_AUTHORIZER + " entry in the properties.", PROP_AUTHORIZER );</a>
-<span class="sourceLineNo">299</span><a id="line.299">    }</a>
-<span class="sourceLineNo">300</span><a id="line.300"></a>
-<span class="sourceLineNo">301</span><a id="line.301">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">302</span><a id="line.302">    @Override</a>
-<span class="sourceLineNo">303</span><a id="line.303">    public boolean allowedByLocalPolicy( final Principal[] principals, final Permission permission ) {</a>
-<span class="sourceLineNo">304</span><a id="line.304">        for ( final Principal principal : principals ) {</a>
-<span class="sourceLineNo">305</span><a id="line.305">            // Get ProtectionDomain for this Principal from cache, or create new one</a>
-<span class="sourceLineNo">306</span><a id="line.306">            ProtectionDomain pd = m_cachedPds.get( principal );</a>
-<span class="sourceLineNo">307</span><a id="line.307">            if ( pd == null ) {</a>
-<span class="sourceLineNo">308</span><a id="line.308">                final ClassLoader cl = this.getClass().getClassLoader();</a>
-<span class="sourceLineNo">309</span><a id="line.309">                final CodeSource cs = new CodeSource( null, (Certificate[])null );</a>
-<span class="sourceLineNo">310</span><a id="line.310">                pd = new ProtectionDomain( cs, null, cl, new Principal[]{ principal } );</a>
-<span class="sourceLineNo">311</span><a id="line.311">                m_cachedPds.put( principal, pd );</a>
-<span class="sourceLineNo">312</span><a id="line.312">            }</a>
-<span class="sourceLineNo">313</span><a id="line.313"></a>
-<span class="sourceLineNo">314</span><a id="line.314">            // Consult the local policy and get the answer</a>
-<span class="sourceLineNo">315</span><a id="line.315">            if ( m_localPolicy.implies( pd, permission ) ) {</a>
-<span class="sourceLineNo">316</span><a id="line.316">                return true;</a>
-<span class="sourceLineNo">317</span><a id="line.317">            }</a>
-<span class="sourceLineNo">318</span><a id="line.318">        }</a>
-<span class="sourceLineNo">319</span><a id="line.319">        return false;</a>
-<span class="sourceLineNo">320</span><a id="line.320">    }</a>
-<span class="sourceLineNo">321</span><a id="line.321"></a>
-<span class="sourceLineNo">322</span><a id="line.322">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">323</span><a id="line.323">    @Override</a>
-<span class="sourceLineNo">324</span><a id="line.324">    public boolean checkStaticPermission( final Session session, final Permission permission ) {</a>
-<span class="sourceLineNo">325</span><a id="line.325">        return ( Boolean )Session.doPrivileged( session, ( PrivilegedAction&lt; Boolean &gt; )() -&gt; {</a>
-<span class="sourceLineNo">326</span><a id="line.326">            try {</a>
-<span class="sourceLineNo">327</span><a id="line.327">                // Check the JVM-wide security policy first</a>
-<span class="sourceLineNo">328</span><a id="line.328">                AccessController.checkPermission( permission );</a>
+<span class="sourceLineNo">284</span><a id="line.284">                return ClassUtil.buildInstance( "org.apache.wiki.auth.authorize", clazz );</a>
+<span class="sourceLineNo">285</span><a id="line.285">            } catch( final ReflectiveOperationException e ) {</a>
+<span class="sourceLineNo">286</span><a id="line.286">                log.fatal( "Authorizer {} cannot be instantiated", clazz, e );</a>
+<span class="sourceLineNo">287</span><a id="line.287">                throw new WikiException( "Authorizer " + clazz + " cannot be instantiated", e );</a>
+<span class="sourceLineNo">288</span><a id="line.288">            }</a>
+<span class="sourceLineNo">289</span><a id="line.289">        }</a>
+<span class="sourceLineNo">290</span><a id="line.290"></a>
+<span class="sourceLineNo">291</span><a id="line.291">        throw new NoRequiredPropertyException( "Unable to find a " + PROP_AUTHORIZER + " entry in the properties.", PROP_AUTHORIZER );</a>
+<span class="sourceLineNo">292</span><a id="line.292">    }</a>
+<span class="sourceLineNo">293</span><a id="line.293"></a>
+<span class="sourceLineNo">294</span><a id="line.294">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">295</span><a id="line.295">    @Override</a>
+<span class="sourceLineNo">296</span><a id="line.296">    public boolean allowedByLocalPolicy( final Principal[] principals, final Permission permission ) {</a>
+<span class="sourceLineNo">297</span><a id="line.297">        for ( final Principal principal : principals ) {</a>
+<span class="sourceLineNo">298</span><a id="line.298">            // Get ProtectionDomain for this Principal from cache, or create new one</a>
+<span class="sourceLineNo">299</span><a id="line.299">            ProtectionDomain pd = m_cachedPds.get( principal );</a>
+<span class="sourceLineNo">300</span><a id="line.300">            if ( pd == null ) {</a>
+<span class="sourceLineNo">301</span><a id="line.301">                final ClassLoader cl = this.getClass().getClassLoader();</a>
+<span class="sourceLineNo">302</span><a id="line.302">                final CodeSource cs = new CodeSource( null, (Certificate[])null );</a>
+<span class="sourceLineNo">303</span><a id="line.303">                pd = new ProtectionDomain( cs, null, cl, new Principal[]{ principal } );</a>
+<span class="sourceLineNo">304</span><a id="line.304">                m_cachedPds.put( principal, pd );</a>
+<span class="sourceLineNo">305</span><a id="line.305">            }</a>
+<span class="sourceLineNo">306</span><a id="line.306"></a>
+<span class="sourceLineNo">307</span><a id="line.307">            // Consult the local policy and get the answer</a>
+<span class="sourceLineNo">308</span><a id="line.308">            if ( m_localPolicy.implies( pd, permission ) ) {</a>
+<span class="sourceLineNo">309</span><a id="line.309">                return true;</a>
+<span class="sourceLineNo">310</span><a id="line.310">            }</a>
+<span class="sourceLineNo">311</span><a id="line.311">        }</a>
+<span class="sourceLineNo">312</span><a id="line.312">        return false;</a>
+<span class="sourceLineNo">313</span><a id="line.313">    }</a>
+<span class="sourceLineNo">314</span><a id="line.314"></a>
+<span class="sourceLineNo">315</span><a id="line.315">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">316</span><a id="line.316">    @Override</a>
+<span class="sourceLineNo">317</span><a id="line.317">    public boolean checkStaticPermission( final Session session, final Permission permission ) {</a>
+<span class="sourceLineNo">318</span><a id="line.318">        return ( Boolean )Session.doPrivileged( session, ( PrivilegedAction&lt; Boolean &gt; )() -&gt; {</a>
+<span class="sourceLineNo">319</span><a id="line.319">            try {</a>
+<span class="sourceLineNo">320</span><a id="line.320">                // Check the JVM-wide security policy first</a>
+<span class="sourceLineNo">321</span><a id="line.321">                AccessController.checkPermission( permission );</a>
+<span class="sourceLineNo">322</span><a id="line.322">                return Boolean.TRUE;</a>
+<span class="sourceLineNo">323</span><a id="line.323">            } catch( final AccessControlException e ) {</a>
+<span class="sourceLineNo">324</span><a id="line.324">                // Global policy denied the permission</a>
+<span class="sourceLineNo">325</span><a id="line.325">            }</a>
+<span class="sourceLineNo">326</span><a id="line.326"></a>
+<span class="sourceLineNo">327</span><a id="line.327">            // Try the local policy - check each Role/Group and User Principal</a>
+<span class="sourceLineNo">328</span><a id="line.328">            if ( allowedByLocalPolicy( session.getRoles(), permission ) || allowedByLocalPolicy( session.getPrincipals(), permission ) ) {</a>
 <span class="sourceLineNo">329</span><a id="line.329">                return Boolean.TRUE;</a>
-<span class="sourceLineNo">330</span><a id="line.330">            } catch( final AccessControlException e ) {</a>
-<span class="sourceLineNo">331</span><a id="line.331">                // Global policy denied the permission</a>
-<span class="sourceLineNo">332</span><a id="line.332">            }</a>
-<span class="sourceLineNo">333</span><a id="line.333"></a>
-<span class="sourceLineNo">334</span><a id="line.334">            // Try the local policy - check each Role/Group and User Principal</a>
-<span class="sourceLineNo">335</span><a id="line.335">            if ( allowedByLocalPolicy( session.getRoles(), permission ) || allowedByLocalPolicy( session.getPrincipals(), permission ) ) {</a>
-<span class="sourceLineNo">336</span><a id="line.336">                return Boolean.TRUE;</a>
-<span class="sourceLineNo">337</span><a id="line.337">            }</a>
-<span class="sourceLineNo">338</span><a id="line.338">            return Boolean.FALSE;</a>
-<span class="sourceLineNo">339</span><a id="line.339">        } );</a>
-<span class="sourceLineNo">340</span><a id="line.340">    }</a>
-<span class="sourceLineNo">341</span><a id="line.341"></a>
-<span class="sourceLineNo">342</span><a id="line.342">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">343</span><a id="line.343">    @Override</a>
-<span class="sourceLineNo">344</span><a id="line.344">    public Principal resolvePrincipal( final String name ) {</a>
-<span class="sourceLineNo">345</span><a id="line.345">        // Check built-in Roles first</a>
-<span class="sourceLineNo">346</span><a id="line.346">        final Role role = new Role(name);</a>
-<span class="sourceLineNo">347</span><a id="line.347">        if ( Role.isBuiltInRole( role ) ) {</a>
-<span class="sourceLineNo">348</span><a id="line.348">            return role;</a>
-<span class="sourceLineNo">349</span><a id="line.349">        }</a>
-<span class="sourceLineNo">350</span><a id="line.350"></a>
-<span class="sourceLineNo">351</span><a id="line.351">        // Check Authorizer Roles</a>
-<span class="sourceLineNo">352</span><a id="line.352">        Principal principal = m_authorizer.findRole( name );</a>
-<span class="sourceLineNo">353</span><a id="line.353">        if ( principal != null ) {</a>
-<span class="sourceLineNo">354</span><a id="line.354">            return principal;</a>
-<span class="sourceLineNo">355</span><a id="line.355">        }</a>
-<span class="sourceLineNo">356</span><a id="line.356"></a>
-<span class="sourceLineNo">357</span><a id="line.357">        // Check Groups</a>
-<span class="sourceLineNo">358</span><a id="line.358">        principal = m_engine.getManager( GroupManager.class ).findRole( name );</a>
-<span class="sourceLineNo">359</span><a id="line.359">        if ( principal != null ) {</a>
-<span class="sourceLineNo">360</span><a id="line.360">            return principal;</a>
-<span class="sourceLineNo">361</span><a id="line.361">        }</a>
-<span class="sourceLineNo">362</span><a id="line.362"></a>
-<span class="sourceLineNo">363</span><a id="line.363">        // Ok, no luck---this must be a user principal</a>
-<span class="sourceLineNo">364</span><a id="line.364">        final Principal[] principals;</a>
-<span class="sourceLineNo">365</span><a id="line.365">        final UserProfile profile;</a>
-<span class="sourceLineNo">366</span><a id="line.366">        final UserDatabase db = m_engine.getManager( UserManager.class ).getUserDatabase();</a>
-<span class="sourceLineNo">367</span><a id="line.367">        try {</a>
-<span class="sourceLineNo">368</span><a id="line.368">            profile = db.find( name );</a>
-<span class="sourceLineNo">369</span><a id="line.369">            principals = db.getPrincipals( profile.getLoginName() );</a>
-<span class="sourceLineNo">370</span><a id="line.370">            for( final Principal value : principals ) {</a>
-<span class="sourceLineNo">371</span><a id="line.371">                principal = value;</a>
-<span class="sourceLineNo">372</span><a id="line.372">                if( principal.getName().equals( name ) ) {</a>
-<span class="sourceLineNo">373</span><a id="line.373">                    return principal;</a>
-<span class="sourceLineNo">374</span><a id="line.374">                }</a>
-<span class="sourceLineNo">375</span><a id="line.375">            }</a>
-<span class="sourceLineNo">376</span><a id="line.376">        } catch( final NoSuchPrincipalException e ) {</a>
-<span class="sourceLineNo">377</span><a id="line.377">            // We couldn't find the user...</a>
-<span class="sourceLineNo">378</span><a id="line.378">        }</a>
-<span class="sourceLineNo">379</span><a id="line.379">        // Ok, no luck---mark this as unresolved and move on</a>
-<span class="sourceLineNo">380</span><a id="line.380">        return new UnresolvedPrincipal( name );</a>
-<span class="sourceLineNo">381</span><a id="line.381">    }</a>
-<span class="sourceLineNo">382</span><a id="line.382"></a>
-<span class="sourceLineNo">383</span><a id="line.383"></a>
-<span class="sourceLineNo">384</span><a id="line.384">    // events processing .......................................................</a>
-<span class="sourceLineNo">385</span><a id="line.385"></a>
-<span class="sourceLineNo">386</span><a id="line.386">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">387</span><a id="line.387">    @Override</a>
-<span class="sourceLineNo">388</span><a id="line.388">    public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">389</span><a id="line.389">        WikiEventManager.addWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">390</span><a id="line.390">    }</a>
-<span class="sourceLineNo">391</span><a id="line.391"></a>
-<span class="sourceLineNo">392</span><a id="line.392">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">393</span><a id="line.393">    @Override</a>
-<span class="sourceLineNo">394</span><a id="line.394">    public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">395</span><a id="line.395">        WikiEventManager.removeWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">396</span><a id="line.396">    }</a>
-<span class="sourceLineNo">397</span><a id="line.397"></a>
-<span class="sourceLineNo">398</span><a id="line.398">}</a>
+<span class="sourceLineNo">330</span><a id="line.330">            }</a>
+<span class="sourceLineNo">331</span><a id="line.331">            return Boolean.FALSE;</a>
+<span class="sourceLineNo">332</span><a id="line.332">        } );</a>
+<span class="sourceLineNo">333</span><a id="line.333">    }</a>
+<span class="sourceLineNo">334</span><a id="line.334"></a>
+<span class="sourceLineNo">335</span><a id="line.335">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">336</span><a id="line.336">    @Override</a>
+<span class="sourceLineNo">337</span><a id="line.337">    public Principal resolvePrincipal( final String name ) {</a>
+<span class="sourceLineNo">338</span><a id="line.338">        // Check built-in Roles first</a>
+<span class="sourceLineNo">339</span><a id="line.339">        final Role role = new Role(name);</a>
+<span class="sourceLineNo">340</span><a id="line.340">        if ( Role.isBuiltInRole( role ) ) {</a>
+<span class="sourceLineNo">341</span><a id="line.341">            return role;</a>
+<span class="sourceLineNo">342</span><a id="line.342">        }</a>
+<span class="sourceLineNo">343</span><a id="line.343"></a>
+<span class="sourceLineNo">344</span><a id="line.344">        // Check Authorizer Roles</a>
+<span class="sourceLineNo">345</span><a id="line.345">        Principal principal = m_authorizer.findRole( name );</a>
+<span class="sourceLineNo">346</span><a id="line.346">        if ( principal != null ) {</a>
+<span class="sourceLineNo">347</span><a id="line.347">            return principal;</a>
+<span class="sourceLineNo">348</span><a id="line.348">        }</a>
+<span class="sourceLineNo">349</span><a id="line.349"></a>
+<span class="sourceLineNo">350</span><a id="line.350">        // Check Groups</a>
+<span class="sourceLineNo">351</span><a id="line.351">        principal = m_engine.getManager( GroupManager.class ).findRole( name );</a>
+<span class="sourceLineNo">352</span><a id="line.352">        if ( principal != null ) {</a>
+<span class="sourceLineNo">353</span><a id="line.353">            return principal;</a>
+<span class="sourceLineNo">354</span><a id="line.354">        }</a>
+<span class="sourceLineNo">355</span><a id="line.355"></a>
+<span class="sourceLineNo">356</span><a id="line.356">        // Ok, no luck---this must be a user principal</a>
+<span class="sourceLineNo">357</span><a id="line.357">        final Principal[] principals;</a>
+<span class="sourceLineNo">358</span><a id="line.358">        final UserProfile profile;</a>
+<span class="sourceLineNo">359</span><a id="line.359">        final UserDatabase db = m_engine.getManager( UserManager.class ).getUserDatabase();</a>
+<span class="sourceLineNo">360</span><a id="line.360">        try {</a>
+<span class="sourceLineNo">361</span><a id="line.361">            profile = db.find( name );</a>
+<span class="sourceLineNo">362</span><a id="line.362">            principals = db.getPrincipals( profile.getLoginName() );</a>
+<span class="sourceLineNo">363</span><a id="line.363">            for( final Principal value : principals ) {</a>
+<span class="sourceLineNo">364</span><a id="line.364">                principal = value;</a>
+<span class="sourceLineNo">365</span><a id="line.365">                if( principal.getName().equals( name ) ) {</a>
+<span class="sourceLineNo">366</span><a id="line.366">                    return principal;</a>
+<span class="sourceLineNo">367</span><a id="line.367">                }</a>
+<span class="sourceLineNo">368</span><a id="line.368">            }</a>
+<span class="sourceLineNo">369</span><a id="line.369">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">370</span><a id="line.370">            // We couldn't find the user...</a>
+<span class="sourceLineNo">371</span><a id="line.371">        }</a>
+<span class="sourceLineNo">372</span><a id="line.372">        // Ok, no luck---mark this as unresolved and move on</a>
+<span class="sourceLineNo">373</span><a id="line.373">        return new UnresolvedPrincipal( name );</a>
+<span class="sourceLineNo">374</span><a id="line.374">    }</a>
+<span class="sourceLineNo">375</span><a id="line.375"></a>
+<span class="sourceLineNo">376</span><a id="line.376"></a>
+<span class="sourceLineNo">377</span><a id="line.377">    // events processing .......................................................</a>
+<span class="sourceLineNo">378</span><a id="line.378"></a>
+<span class="sourceLineNo">379</span><a id="line.379">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">380</span><a id="line.380">    @Override</a>
+<span class="sourceLineNo">381</span><a id="line.381">    public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">382</span><a id="line.382">        WikiEventManager.addWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">383</span><a id="line.383">    }</a>
+<span class="sourceLineNo">384</span><a id="line.384"></a>
+<span class="sourceLineNo">385</span><a id="line.385">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">386</span><a id="line.386">    @Override</a>
+<span class="sourceLineNo">387</span><a id="line.387">    public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">388</span><a id="line.388">        WikiEventManager.removeWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">389</span><a id="line.389">    }</a>
+<span class="sourceLineNo">390</span><a id="line.390"></a>
+<span class="sourceLineNo">391</span><a id="line.391">}</a>
 
 
 

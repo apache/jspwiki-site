@@ -27,27 +27,27 @@
 <span class="sourceLineNo">018</span><a id="line.18"> */</a>
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.providers;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
-<span class="sourceLineNo">021</span><a id="line.21">import net.sf.ehcache.Cache;</a>
-<span class="sourceLineNo">022</span><a id="line.22">import net.sf.ehcache.CacheManager;</a>
-<span class="sourceLineNo">023</span><a id="line.23">import net.sf.ehcache.Element;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.apache.logging.log4j.LogManager;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.apache.logging.log4j.Logger;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Attachment;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.Engine;</a>
-<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.core.Page;</a>
-<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.exceptions.ProviderException;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.providers.AttachmentProvider;</a>
-<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.api.providers.WikiProvider;</a>
-<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.api.search.QueryItem;</a>
-<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.attachment.AttachmentManager;</a>
-<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.util.ClassUtil;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.util.TextUtil;</a>
-<span class="sourceLineNo">037</span><a id="line.37"></a>
-<span class="sourceLineNo">038</span><a id="line.38">import java.io.IOException;</a>
-<span class="sourceLineNo">039</span><a id="line.39">import java.io.InputStream;</a>
-<span class="sourceLineNo">040</span><a id="line.40">import java.util.ArrayList;</a>
-<span class="sourceLineNo">041</span><a id="line.41">import java.util.Collection;</a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Attachment;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.providers.AttachmentProvider;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.providers.WikiProvider;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.search.QueryItem;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.attachment.AttachmentManager;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.cache.CacheInfo;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.cache.CachingManager;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">036</span><a id="line.36"></a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.io.IOException;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.io.InputStream;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.ArrayList;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.Collection;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.util.Collections;</a>
 <span class="sourceLineNo">042</span><a id="line.42">import java.util.Date;</a>
 <span class="sourceLineNo">043</span><a id="line.43">import java.util.List;</a>
 <span class="sourceLineNo">044</span><a id="line.44">import java.util.NoSuchElementException;</a>
@@ -60,310 +60,227 @@
 <span class="sourceLineNo">051</span><a id="line.51"> *</a>
 <span class="sourceLineNo">052</span><a id="line.52"> *  @since 2.1.64.</a>
 <span class="sourceLineNo">053</span><a id="line.53"> */</a>
-<span class="sourceLineNo">054</span><a id="line.54">//        EntryRefreshPolicy for that.</a>
-<span class="sourceLineNo">055</span><a id="line.55">public class CachingAttachmentProvider implements AttachmentProvider {</a>
-<span class="sourceLineNo">056</span><a id="line.56"></a>
-<span class="sourceLineNo">057</span><a id="line.57">    private static final Logger log = LogManager.getLogger(CachingAttachmentProvider.class);</a>
-<span class="sourceLineNo">058</span><a id="line.58"></a>
-<span class="sourceLineNo">059</span><a id="line.59">    private AttachmentProvider m_provider;</a>
-<span class="sourceLineNo">060</span><a id="line.60"></a>
-<span class="sourceLineNo">061</span><a id="line.61">    private final CacheManager m_cacheManager = CacheManager.getInstance();</a>
-<span class="sourceLineNo">062</span><a id="line.62"></a>
-<span class="sourceLineNo">063</span><a id="line.63">    /** Default cache capacity for now. */</a>
-<span class="sourceLineNo">064</span><a id="line.64">    public static final int m_capacity = 1000;</a>
-<span class="sourceLineNo">065</span><a id="line.65"></a>
-<span class="sourceLineNo">066</span><a id="line.66">    /** The cache contains Collection objects which contain Attachment objects. The key is the parent wiki page name (String). */</a>
-<span class="sourceLineNo">067</span><a id="line.67">    private Cache m_cache;</a>
-<span class="sourceLineNo">068</span><a id="line.68"></a>
-<span class="sourceLineNo">069</span><a id="line.69">    /** Name of the attachment cache. */</a>
-<span class="sourceLineNo">070</span><a id="line.70">    public static final String ATTCACHE_NAME = "jspwiki.attachmentsCache";</a>
-<span class="sourceLineNo">071</span><a id="line.71">    /** Name of the attachment cache. */</a>
-<span class="sourceLineNo">072</span><a id="line.72">    public static final String ATTCOLLCACHE_NAME = "jspwiki.attachmentCollectionsCache";</a>
-<span class="sourceLineNo">073</span><a id="line.73"></a>
-<span class="sourceLineNo">074</span><a id="line.74">    /**</a>
-<span class="sourceLineNo">075</span><a id="line.75">     * This cache contains Attachment objects and is keyed by attachment name.</a>
-<span class="sourceLineNo">076</span><a id="line.76">     * This provides for quickly giving recently changed attachments (for the RecentChanges plugin)</a>
-<span class="sourceLineNo">077</span><a id="line.77">     */</a>
-<span class="sourceLineNo">078</span><a id="line.78">    private Cache m_attCache;</a>
-<span class="sourceLineNo">079</span><a id="line.79"></a>
-<span class="sourceLineNo">080</span><a id="line.80">    private final long m_cacheMisses = 0;</a>
-<span class="sourceLineNo">081</span><a id="line.81">    private final long m_cacheHits = 0;</a>
-<span class="sourceLineNo">082</span><a id="line.82"></a>
-<span class="sourceLineNo">083</span><a id="line.83">    /** The extension to append to directory names to denote an attachment directory. */</a>
-<span class="sourceLineNo">084</span><a id="line.84">    public static final String DIR_EXTENSION   = "-att";</a>
-<span class="sourceLineNo">085</span><a id="line.85"></a>
-<span class="sourceLineNo">086</span><a id="line.86"></a>
-<span class="sourceLineNo">087</span><a id="line.87">    private boolean m_gotall;</a>
-<span class="sourceLineNo">088</span><a id="line.88"></a>
-<span class="sourceLineNo">089</span><a id="line.89">    /**</a>
-<span class="sourceLineNo">090</span><a id="line.90">     * {@inheritDoc}</a>
-<span class="sourceLineNo">091</span><a id="line.91">     */</a>
-<span class="sourceLineNo">092</span><a id="line.92">    @Override</a>
-<span class="sourceLineNo">093</span><a id="line.93">    public void initialize( final Engine engine, final Properties properties ) throws NoRequiredPropertyException, IOException {</a>
-<span class="sourceLineNo">094</span><a id="line.94">        log.info( "Initing CachingAttachmentProvider" );</a>
-<span class="sourceLineNo">095</span><a id="line.95">        final String attCollCacheName = engine.getApplicationName() + "." + ATTCOLLCACHE_NAME;</a>
-<span class="sourceLineNo">096</span><a id="line.96">        if( m_cacheManager.cacheExists( attCollCacheName ) ) {</a>
-<span class="sourceLineNo">097</span><a id="line.97">            m_cache = m_cacheManager.getCache( attCollCacheName );</a>
-<span class="sourceLineNo">098</span><a id="line.98">        } else {</a>
-<span class="sourceLineNo">099</span><a id="line.99">            m_cache = new Cache( attCollCacheName, m_capacity, false, false, 0, 0 );</a>
-<span class="sourceLineNo">100</span><a id="line.100">            m_cacheManager.addCache( m_cache );</a>
-<span class="sourceLineNo">101</span><a id="line.101">        }</a>
-<span class="sourceLineNo">102</span><a id="line.102"></a>
-<span class="sourceLineNo">103</span><a id="line.103">        //</a>
-<span class="sourceLineNo">104</span><a id="line.104">        // cache for the individual Attachment objects, attachment name is key, the Attachment object is the cached object</a>
-<span class="sourceLineNo">105</span><a id="line.105">        //</a>
-<span class="sourceLineNo">106</span><a id="line.106">        final String attCacheName = engine.getApplicationName() + "." + ATTCACHE_NAME;</a>
-<span class="sourceLineNo">107</span><a id="line.107">        if( m_cacheManager.cacheExists( attCacheName ) ) {</a>
-<span class="sourceLineNo">108</span><a id="line.108">            m_attCache = m_cacheManager.getCache( attCacheName );</a>
-<span class="sourceLineNo">109</span><a id="line.109">        } else {</a>
-<span class="sourceLineNo">110</span><a id="line.110">            m_attCache = new Cache( attCacheName, m_capacity, false, false, 0, 0 );</a>
-<span class="sourceLineNo">111</span><a id="line.111">            m_cacheManager.addCache( m_attCache );</a>
-<span class="sourceLineNo">112</span><a id="line.112">        }</a>
-<span class="sourceLineNo">113</span><a id="line.113">        //</a>
-<span class="sourceLineNo">114</span><a id="line.114">        //  Find and initialize real provider.</a>
-<span class="sourceLineNo">115</span><a id="line.115">        //</a>
-<span class="sourceLineNo">116</span><a id="line.116">        final String classname;</a>
-<span class="sourceLineNo">117</span><a id="line.117">        try {</a>
-<span class="sourceLineNo">118</span><a id="line.118">            classname = TextUtil.getRequiredProperty( properties, AttachmentManager.PROP_PROVIDER );</a>
-<span class="sourceLineNo">119</span><a id="line.119">        } catch( final NoSuchElementException e ) {</a>
-<span class="sourceLineNo">120</span><a id="line.120">            throw new NoRequiredPropertyException( e.getMessage(), AttachmentManager.PROP_PROVIDER );</a>
-<span class="sourceLineNo">121</span><a id="line.121">        }</a>
-<span class="sourceLineNo">122</span><a id="line.122"></a>
-<span class="sourceLineNo">123</span><a id="line.123">        try {</a>
-<span class="sourceLineNo">124</span><a id="line.124">            final Class&lt; ? &gt; providerclass = ClassUtil.findClass( "org.apache.wiki.providers", classname );</a>
-<span class="sourceLineNo">125</span><a id="line.125">            m_provider = ( AttachmentProvider )providerclass.newInstance();</a>
-<span class="sourceLineNo">126</span><a id="line.126"></a>
-<span class="sourceLineNo">127</span><a id="line.127">            log.debug( "Initializing real provider class " + m_provider );</a>
-<span class="sourceLineNo">128</span><a id="line.128">            m_provider.initialize( engine, properties );</a>
-<span class="sourceLineNo">129</span><a id="line.129">        } catch( final ClassNotFoundException e ) {</a>
-<span class="sourceLineNo">130</span><a id="line.130">            log.error( "Unable to locate provider class " + classname, e );</a>
-<span class="sourceLineNo">131</span><a id="line.131">            throw new IllegalArgumentException( "no provider class", e );</a>
-<span class="sourceLineNo">132</span><a id="line.132">        } catch( final InstantiationException e ) {</a>
-<span class="sourceLineNo">133</span><a id="line.133">            log.error( "Unable to create provider class " + classname, e );</a>
-<span class="sourceLineNo">134</span><a id="line.134">            throw new IllegalArgumentException( "faulty provider class", e );</a>
-<span class="sourceLineNo">135</span><a id="line.135">        } catch( final IllegalAccessException e ) {</a>
-<span class="sourceLineNo">136</span><a id="line.136">            log.error( "Illegal access to provider class " + classname, e );</a>
-<span class="sourceLineNo">137</span><a id="line.137">            throw new IllegalArgumentException( "illegal provider class", e );</a>
-<span class="sourceLineNo">138</span><a id="line.138">        }</a>
-<span class="sourceLineNo">139</span><a id="line.139">    }</a>
-<span class="sourceLineNo">140</span><a id="line.140"></a>
-<span class="sourceLineNo">141</span><a id="line.141">    /**</a>
-<span class="sourceLineNo">142</span><a id="line.142">     * {@inheritDoc}</a>
-<span class="sourceLineNo">143</span><a id="line.143">     */</a>
-<span class="sourceLineNo">144</span><a id="line.144">    @Override</a>
-<span class="sourceLineNo">145</span><a id="line.145">    public void putAttachmentData( final Attachment att, final InputStream data )</a>
-<span class="sourceLineNo">146</span><a id="line.146">        throws ProviderException, IOException {</a>
-<span class="sourceLineNo">147</span><a id="line.147">        m_provider.putAttachmentData( att, data );</a>
-<span class="sourceLineNo">148</span><a id="line.148"></a>
-<span class="sourceLineNo">149</span><a id="line.149">        m_cache.remove(att.getParentName());</a>
-<span class="sourceLineNo">150</span><a id="line.150">        att.setLastModified(new Date());</a>
-<span class="sourceLineNo">151</span><a id="line.151">        m_attCache.put(new Element(att.getName(), att));</a>
-<span class="sourceLineNo">152</span><a id="line.152">    }</a>
-<span class="sourceLineNo">153</span><a id="line.153"></a>
-<span class="sourceLineNo">154</span><a id="line.154">    /**</a>
-<span class="sourceLineNo">155</span><a id="line.155">     * {@inheritDoc}</a>
-<span class="sourceLineNo">156</span><a id="line.156">     */</a>
-<span class="sourceLineNo">157</span><a id="line.157">    @Override</a>
-<span class="sourceLineNo">158</span><a id="line.158">    public InputStream getAttachmentData( final Attachment att )</a>
-<span class="sourceLineNo">159</span><a id="line.159">        throws ProviderException, IOException {</a>
-<span class="sourceLineNo">160</span><a id="line.160">        return m_provider.getAttachmentData( att );</a>
-<span class="sourceLineNo">161</span><a id="line.161">    }</a>
-<span class="sourceLineNo">162</span><a id="line.162"></a>
-<span class="sourceLineNo">163</span><a id="line.163">    /**</a>
-<span class="sourceLineNo">164</span><a id="line.164">     * {@inheritDoc}</a>
-<span class="sourceLineNo">165</span><a id="line.165">     */</a>
-<span class="sourceLineNo">166</span><a id="line.166">    @Override</a>
-<span class="sourceLineNo">167</span><a id="line.167">    public List&lt; Attachment &gt; listAttachments( final Page page) throws ProviderException {</a>
-<span class="sourceLineNo">168</span><a id="line.168">        log.debug("Listing attachments for " + page);</a>
-<span class="sourceLineNo">169</span><a id="line.169">        final Element element = m_cache.get(page.getName());</a>
-<span class="sourceLineNo">170</span><a id="line.170"></a>
-<span class="sourceLineNo">171</span><a id="line.171">        if (element != null) {</a>
-<span class="sourceLineNo">172</span><a id="line.172">            @SuppressWarnings("unchecked") final List&lt; Attachment &gt; c = ( List&lt; Attachment &gt; )element.getObjectValue();</a>
-<span class="sourceLineNo">173</span><a id="line.173">            log.debug("LIST from cache, " + page.getName() + ", size=" + c.size());</a>
-<span class="sourceLineNo">174</span><a id="line.174">            return cloneCollection(c);</a>
-<span class="sourceLineNo">175</span><a id="line.175">        }</a>
-<span class="sourceLineNo">176</span><a id="line.176"></a>
-<span class="sourceLineNo">177</span><a id="line.177">        log.debug("list NOT in cache, " + page.getName());</a>
-<span class="sourceLineNo">178</span><a id="line.178"></a>
-<span class="sourceLineNo">179</span><a id="line.179">        return refresh(page);</a>
-<span class="sourceLineNo">180</span><a id="line.180">    }</a>
-<span class="sourceLineNo">181</span><a id="line.181"></a>
-<span class="sourceLineNo">182</span><a id="line.182">    private &lt; T &gt; List&lt; T &gt; cloneCollection( final Collection&lt; T &gt; c ) {</a>
-<span class="sourceLineNo">183</span><a id="line.183">        return new ArrayList&lt;&gt;( c );</a>
+<span class="sourceLineNo">054</span><a id="line.54">public class CachingAttachmentProvider implements AttachmentProvider {</a>
+<span class="sourceLineNo">055</span><a id="line.55"></a>
+<span class="sourceLineNo">056</span><a id="line.56">    private static final Logger LOG = LogManager.getLogger( CachingAttachmentProvider.class );</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    private AttachmentProvider m_provider;</a>
+<span class="sourceLineNo">059</span><a id="line.59">    private CachingManager cachingManager;</a>
+<span class="sourceLineNo">060</span><a id="line.60">    private boolean m_gotall;</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">    /**</a>
+<span class="sourceLineNo">063</span><a id="line.63">     * {@inheritDoc}</a>
+<span class="sourceLineNo">064</span><a id="line.64">     */</a>
+<span class="sourceLineNo">065</span><a id="line.65">    @Override</a>
+<span class="sourceLineNo">066</span><a id="line.66">    public void initialize( final Engine engine, final Properties properties ) throws NoRequiredPropertyException, IOException {</a>
+<span class="sourceLineNo">067</span><a id="line.67">        LOG.info( "Initing CachingAttachmentProvider" );</a>
+<span class="sourceLineNo">068</span><a id="line.68">        cachingManager = engine.getManager( CachingManager.class );</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">        // Find and initialize real provider.</a>
+<span class="sourceLineNo">071</span><a id="line.71">        final String classname;</a>
+<span class="sourceLineNo">072</span><a id="line.72">        try {</a>
+<span class="sourceLineNo">073</span><a id="line.73">            classname = TextUtil.getRequiredProperty( properties, AttachmentManager.PROP_PROVIDER, AttachmentManager.PROP_PROVIDER_DEPRECATED );</a>
+<span class="sourceLineNo">074</span><a id="line.74">        } catch( final NoSuchElementException e ) {</a>
+<span class="sourceLineNo">075</span><a id="line.75">            throw new NoRequiredPropertyException( e.getMessage(), AttachmentManager.PROP_PROVIDER );</a>
+<span class="sourceLineNo">076</span><a id="line.76">        }</a>
+<span class="sourceLineNo">077</span><a id="line.77"></a>
+<span class="sourceLineNo">078</span><a id="line.78">        try {</a>
+<span class="sourceLineNo">079</span><a id="line.79">            m_provider = ClassUtil.buildInstance( "org.apache.wiki.providers", classname );</a>
+<span class="sourceLineNo">080</span><a id="line.80">            LOG.debug( "Initializing real provider class {}", m_provider );</a>
+<span class="sourceLineNo">081</span><a id="line.81">            m_provider.initialize( engine, properties );</a>
+<span class="sourceLineNo">082</span><a id="line.82">        } catch( final ReflectiveOperationException e ) {</a>
+<span class="sourceLineNo">083</span><a id="line.83">            LOG.error( "Unable to instantiate provider class {}", classname, e );</a>
+<span class="sourceLineNo">084</span><a id="line.84">            throw new IllegalArgumentException( "illegal provider class", e );</a>
+<span class="sourceLineNo">085</span><a id="line.85">        }</a>
+<span class="sourceLineNo">086</span><a id="line.86">    }</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    /**</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * {@inheritDoc}</a>
+<span class="sourceLineNo">090</span><a id="line.90">     */</a>
+<span class="sourceLineNo">091</span><a id="line.91">    @Override</a>
+<span class="sourceLineNo">092</span><a id="line.92">    public void putAttachmentData( final Attachment att, final InputStream data ) throws ProviderException, IOException {</a>
+<span class="sourceLineNo">093</span><a id="line.93">        m_provider.putAttachmentData( att, data );</a>
+<span class="sourceLineNo">094</span><a id="line.94">        cachingManager.remove( CachingManager.CACHE_ATTACHMENTS_COLLECTION, att.getParentName() );</a>
+<span class="sourceLineNo">095</span><a id="line.95">        att.setLastModified( new Date() );</a>
+<span class="sourceLineNo">096</span><a id="line.96">        cachingManager.put( CachingManager.CACHE_ATTACHMENTS, att.getName(), att );</a>
+<span class="sourceLineNo">097</span><a id="line.97">    }</a>
+<span class="sourceLineNo">098</span><a id="line.98"></a>
+<span class="sourceLineNo">099</span><a id="line.99">    /**</a>
+<span class="sourceLineNo">100</span><a id="line.100">     * {@inheritDoc}</a>
+<span class="sourceLineNo">101</span><a id="line.101">     */</a>
+<span class="sourceLineNo">102</span><a id="line.102">    @Override</a>
+<span class="sourceLineNo">103</span><a id="line.103">    public InputStream getAttachmentData( final Attachment att ) throws ProviderException, IOException {</a>
+<span class="sourceLineNo">104</span><a id="line.104">        return m_provider.getAttachmentData( att );</a>
+<span class="sourceLineNo">105</span><a id="line.105">    }</a>
+<span class="sourceLineNo">106</span><a id="line.106"></a>
+<span class="sourceLineNo">107</span><a id="line.107">    /**</a>
+<span class="sourceLineNo">108</span><a id="line.108">     * {@inheritDoc}</a>
+<span class="sourceLineNo">109</span><a id="line.109">     */</a>
+<span class="sourceLineNo">110</span><a id="line.110">    @Override</a>
+<span class="sourceLineNo">111</span><a id="line.111">    public List&lt; Attachment &gt; listAttachments( final Page page ) throws ProviderException {</a>
+<span class="sourceLineNo">112</span><a id="line.112">        LOG.debug( "Listing attachments for {}", page );</a>
+<span class="sourceLineNo">113</span><a id="line.113">        final List&lt; Attachment &gt; atts = cachingManager.get( CachingManager.CACHE_ATTACHMENTS_COLLECTION, page.getName(),</a>
+<span class="sourceLineNo">114</span><a id="line.114">                                                            () -&gt; m_provider.listAttachments( page ) );</a>
+<span class="sourceLineNo">115</span><a id="line.115">        return cloneCollection( atts );</a>
+<span class="sourceLineNo">116</span><a id="line.116">    }</a>
+<span class="sourceLineNo">117</span><a id="line.117"></a>
+<span class="sourceLineNo">118</span><a id="line.118">    private &lt; T &gt; List&lt; T &gt; cloneCollection( final Collection&lt; T &gt; c ) {</a>
+<span class="sourceLineNo">119</span><a id="line.119">        return c != null ? new ArrayList&lt;&gt;( c ) : Collections.emptyList();</a>
+<span class="sourceLineNo">120</span><a id="line.120">    }</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">    /**</a>
+<span class="sourceLineNo">123</span><a id="line.123">     * {@inheritDoc}</a>
+<span class="sourceLineNo">124</span><a id="line.124">     */</a>
+<span class="sourceLineNo">125</span><a id="line.125">    @Override</a>
+<span class="sourceLineNo">126</span><a id="line.126">    public Collection&lt; Attachment &gt; findAttachments( final QueryItem[] query ) {</a>
+<span class="sourceLineNo">127</span><a id="line.127">        return m_provider.findAttachments( query );</a>
+<span class="sourceLineNo">128</span><a id="line.128">    }</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">    /**</a>
+<span class="sourceLineNo">131</span><a id="line.131">     * {@inheritDoc}</a>
+<span class="sourceLineNo">132</span><a id="line.132">     */</a>
+<span class="sourceLineNo">133</span><a id="line.133">    @Override</a>
+<span class="sourceLineNo">134</span><a id="line.134">    public List&lt; Attachment &gt; listAllChanged( final Date timestamp ) throws ProviderException {</a>
+<span class="sourceLineNo">135</span><a id="line.135">        final List&lt; Attachment &gt; all;</a>
+<span class="sourceLineNo">136</span><a id="line.136">        if ( !m_gotall ) {</a>
+<span class="sourceLineNo">137</span><a id="line.137">            all = m_provider.listAllChanged( timestamp );</a>
+<span class="sourceLineNo">138</span><a id="line.138"></a>
+<span class="sourceLineNo">139</span><a id="line.139">            // Make sure that all attachments are in the cache.</a>
+<span class="sourceLineNo">140</span><a id="line.140">            synchronized( this ) {</a>
+<span class="sourceLineNo">141</span><a id="line.141">                for( final Attachment att : all ) {</a>
+<span class="sourceLineNo">142</span><a id="line.142">                    cachingManager.put( CachingManager.CACHE_ATTACHMENTS, att.getName(), att );</a>
+<span class="sourceLineNo">143</span><a id="line.143">                }</a>
+<span class="sourceLineNo">144</span><a id="line.144">                m_gotall = true;</a>
+<span class="sourceLineNo">145</span><a id="line.145">            }</a>
+<span class="sourceLineNo">146</span><a id="line.146">        } else {</a>
+<span class="sourceLineNo">147</span><a id="line.147">            final List&lt; String &gt; keys = cachingManager.keys( CachingManager.CACHE_ATTACHMENTS );</a>
+<span class="sourceLineNo">148</span><a id="line.148">            all = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">149</span><a id="line.149">            for( final String key : keys) {</a>
+<span class="sourceLineNo">150</span><a id="line.150">                final Attachment cachedAttachment = cachingManager.get( CachingManager.CACHE_ATTACHMENTS, key, () -&gt; null );</a>
+<span class="sourceLineNo">151</span><a id="line.151">                if( cachedAttachment != null ) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">                    all.add( cachedAttachment );</a>
+<span class="sourceLineNo">153</span><a id="line.153">                }</a>
+<span class="sourceLineNo">154</span><a id="line.154">            }</a>
+<span class="sourceLineNo">155</span><a id="line.155">        }</a>
+<span class="sourceLineNo">156</span><a id="line.156"></a>
+<span class="sourceLineNo">157</span><a id="line.157">        if( cachingManager.enabled( CachingManager.CACHE_ATTACHMENTS )</a>
+<span class="sourceLineNo">158</span><a id="line.158">                &amp;&amp; all.size() &gt;= cachingManager.info( CachingManager.CACHE_ATTACHMENTS ).getMaxElementsAllowed() ) {</a>
+<span class="sourceLineNo">159</span><a id="line.159">            LOG.warn( "seems {} can't hold all attachments from your page repository, " +</a>
+<span class="sourceLineNo">160</span><a id="line.160">                    "so we're delegating on the underlying provider instead. Please consider increasing " +</a>
+<span class="sourceLineNo">161</span><a id="line.161">                    "your cache sizes on the ehcache configuration file to avoid this behaviour", CachingManager.CACHE_ATTACHMENTS );</a>
+<span class="sourceLineNo">162</span><a id="line.162">            return m_provider.listAllChanged( timestamp );</a>
+<span class="sourceLineNo">163</span><a id="line.163">        }</a>
+<span class="sourceLineNo">164</span><a id="line.164"></a>
+<span class="sourceLineNo">165</span><a id="line.165">        return all;</a>
+<span class="sourceLineNo">166</span><a id="line.166">    }</a>
+<span class="sourceLineNo">167</span><a id="line.167"></a>
+<span class="sourceLineNo">168</span><a id="line.168">    /**</a>
+<span class="sourceLineNo">169</span><a id="line.169">     *  Simply goes through the collection and attempts to locate the</a>
+<span class="sourceLineNo">170</span><a id="line.170">     *  given attachment of that name.</a>
+<span class="sourceLineNo">171</span><a id="line.171">     *</a>
+<span class="sourceLineNo">172</span><a id="line.172">     *  @return null, if no such attachment was in this collection.</a>
+<span class="sourceLineNo">173</span><a id="line.173">     */</a>
+<span class="sourceLineNo">174</span><a id="line.174">    private Attachment findAttachmentFromCollection( final Collection&lt; Attachment &gt; c, final String name ) {</a>
+<span class="sourceLineNo">175</span><a id="line.175">        if( c != null ) {</a>
+<span class="sourceLineNo">176</span><a id="line.176">            for( final Attachment att : c ) {</a>
+<span class="sourceLineNo">177</span><a id="line.177">                if( name.equals( att.getFileName() ) ) {</a>
+<span class="sourceLineNo">178</span><a id="line.178">                    return att;</a>
+<span class="sourceLineNo">179</span><a id="line.179">                }</a>
+<span class="sourceLineNo">180</span><a id="line.180">            }</a>
+<span class="sourceLineNo">181</span><a id="line.181">        }</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">        return null;</a>
 <span class="sourceLineNo">184</span><a id="line.184">    }</a>
 <span class="sourceLineNo">185</span><a id="line.185"></a>
 <span class="sourceLineNo">186</span><a id="line.186">    /**</a>
 <span class="sourceLineNo">187</span><a id="line.187">     * {@inheritDoc}</a>
 <span class="sourceLineNo">188</span><a id="line.188">     */</a>
 <span class="sourceLineNo">189</span><a id="line.189">    @Override</a>
-<span class="sourceLineNo">190</span><a id="line.190">    public Collection&lt; Attachment &gt; findAttachments( final QueryItem[] query )</a>
-<span class="sourceLineNo">191</span><a id="line.191">    {</a>
-<span class="sourceLineNo">192</span><a id="line.192">        return m_provider.findAttachments( query );</a>
-<span class="sourceLineNo">193</span><a id="line.193">    }</a>
-<span class="sourceLineNo">194</span><a id="line.194"></a>
-<span class="sourceLineNo">195</span><a id="line.195">    /**</a>
-<span class="sourceLineNo">196</span><a id="line.196">     * {@inheritDoc}</a>
-<span class="sourceLineNo">197</span><a id="line.197">     */</a>
-<span class="sourceLineNo">198</span><a id="line.198">    @Override</a>
-<span class="sourceLineNo">199</span><a id="line.199">    public List&lt;Attachment&gt; listAllChanged( final Date timestamp ) throws ProviderException {</a>
-<span class="sourceLineNo">200</span><a id="line.200">        final List&lt; Attachment &gt; all;</a>
-<span class="sourceLineNo">201</span><a id="line.201">        // we do a one-time build up of the cache, after this the cache is updated for every attachment add/delete</a>
-<span class="sourceLineNo">202</span><a id="line.202">        if ( !m_gotall ) {</a>
-<span class="sourceLineNo">203</span><a id="line.203">            all = m_provider.listAllChanged(timestamp);</a>
-<span class="sourceLineNo">204</span><a id="line.204"></a>
-<span class="sourceLineNo">205</span><a id="line.205">            // Put all pages in the cache :</a>
-<span class="sourceLineNo">206</span><a id="line.206">            synchronized (this) {</a>
-<span class="sourceLineNo">207</span><a id="line.207">                for( final Attachment att : all ) {</a>
-<span class="sourceLineNo">208</span><a id="line.208">                    m_attCache.put( new Element( att.getName(), att ) );</a>
-<span class="sourceLineNo">209</span><a id="line.209">                }</a>
-<span class="sourceLineNo">210</span><a id="line.210">                m_gotall = true;</a>
-<span class="sourceLineNo">211</span><a id="line.211">            }</a>
-<span class="sourceLineNo">212</span><a id="line.212">        } else {</a>
-<span class="sourceLineNo">213</span><a id="line.213">            @SuppressWarnings("unchecked") final List&lt; String &gt; keys = m_attCache.getKeysWithExpiryCheck();</a>
-<span class="sourceLineNo">214</span><a id="line.214">            all = new ArrayList&lt;&gt;();</a>
-<span class="sourceLineNo">215</span><a id="line.215">            for ( final String key : keys) {</a>
-<span class="sourceLineNo">216</span><a id="line.216">                final Element element = m_attCache.get(key);</a>
-<span class="sourceLineNo">217</span><a id="line.217">                final Attachment cachedAttachment = ( Attachment )element.getObjectValue();</a>
-<span class="sourceLineNo">218</span><a id="line.218">                if (cachedAttachment != null) {</a>
-<span class="sourceLineNo">219</span><a id="line.219">                    all.add(cachedAttachment);</a>
-<span class="sourceLineNo">220</span><a id="line.220">                }</a>
-<span class="sourceLineNo">221</span><a id="line.221">            }</a>
-<span class="sourceLineNo">222</span><a id="line.222">        }</a>
-<span class="sourceLineNo">223</span><a id="line.223"></a>
-<span class="sourceLineNo">224</span><a id="line.224">        return all;</a>
-<span class="sourceLineNo">225</span><a id="line.225">    }</a>
-<span class="sourceLineNo">226</span><a id="line.226"></a>
-<span class="sourceLineNo">227</span><a id="line.227">    /**</a>
-<span class="sourceLineNo">228</span><a id="line.228">     *  Simply goes through the collection and attempts to locate the</a>
-<span class="sourceLineNo">229</span><a id="line.229">     *  given attachment of that name.</a>
-<span class="sourceLineNo">230</span><a id="line.230">     *</a>
-<span class="sourceLineNo">231</span><a id="line.231">     *  @return null, if no such attachment was in this collection.</a>
-<span class="sourceLineNo">232</span><a id="line.232">     */</a>
-<span class="sourceLineNo">233</span><a id="line.233">    private Attachment findAttachmentFromCollection( final Collection&lt; Attachment &gt; c, final String name ) {</a>
-<span class="sourceLineNo">234</span><a id="line.234">        for( final Attachment att : new ArrayList&lt; &gt;( c ) ) {</a>
-<span class="sourceLineNo">235</span><a id="line.235">            if( name.equals( att.getFileName() ) ) {</a>
-<span class="sourceLineNo">236</span><a id="line.236">                return att;</a>
-<span class="sourceLineNo">237</span><a id="line.237">            }</a>
-<span class="sourceLineNo">238</span><a id="line.238">        }</a>
-<span class="sourceLineNo">239</span><a id="line.239"></a>
-<span class="sourceLineNo">240</span><a id="line.240">        return null;</a>
-<span class="sourceLineNo">241</span><a id="line.241">    }</a>
-<span class="sourceLineNo">242</span><a id="line.242"></a>
-<span class="sourceLineNo">243</span><a id="line.243">    /**</a>
-<span class="sourceLineNo">244</span><a id="line.244">     *  Refreshes the cache content and updates counters.</a>
-<span class="sourceLineNo">245</span><a id="line.245">     *</a>
-<span class="sourceLineNo">246</span><a id="line.246">     *  @return The newly fetched object from the provider.</a>
-<span class="sourceLineNo">247</span><a id="line.247">     */</a>
-<span class="sourceLineNo">248</span><a id="line.248">    private List&lt; Attachment &gt; refresh( final Page page ) throws ProviderException {</a>
-<span class="sourceLineNo">249</span><a id="line.249">        final List&lt; Attachment &gt; c = m_provider.listAttachments( page );</a>
-<span class="sourceLineNo">250</span><a id="line.250">        m_cache.put( new Element( page.getName(), c ) );</a>
-<span class="sourceLineNo">251</span><a id="line.251">        return c;</a>
-<span class="sourceLineNo">252</span><a id="line.252">    }</a>
-<span class="sourceLineNo">253</span><a id="line.253"></a>
-<span class="sourceLineNo">254</span><a id="line.254">    /**</a>
-<span class="sourceLineNo">255</span><a id="line.255">     * {@inheritDoc}</a>
-<span class="sourceLineNo">256</span><a id="line.256">     */</a>
-<span class="sourceLineNo">257</span><a id="line.257">    @SuppressWarnings("unchecked")</a>
+<span class="sourceLineNo">190</span><a id="line.190">    public Attachment getAttachmentInfo( final Page page, final String name, final int version ) throws ProviderException {</a>
+<span class="sourceLineNo">191</span><a id="line.191">        LOG.debug( "Getting attachments for {}, name={}, version={}", page, name, version );</a>
+<span class="sourceLineNo">192</span><a id="line.192">        //  We don't cache previous versions</a>
+<span class="sourceLineNo">193</span><a id="line.193">        if( version != WikiProvider.LATEST_VERSION ) {</a>
+<span class="sourceLineNo">194</span><a id="line.194">            LOG.debug( "...we don't cache old versions" );</a>
+<span class="sourceLineNo">195</span><a id="line.195">            return m_provider.getAttachmentInfo( page, name, version );</a>
+<span class="sourceLineNo">196</span><a id="line.196">        }</a>
+<span class="sourceLineNo">197</span><a id="line.197">        final Collection&lt; Attachment &gt; c = cachingManager.get( CachingManager.CACHE_ATTACHMENTS_COLLECTION, page.getName(),</a>
+<span class="sourceLineNo">198</span><a id="line.198">                                                               ()-&gt; m_provider.listAttachments( page ) );</a>
+<span class="sourceLineNo">199</span><a id="line.199">        return findAttachmentFromCollection( c, name );</a>
+<span class="sourceLineNo">200</span><a id="line.200">    }</a>
+<span class="sourceLineNo">201</span><a id="line.201"></a>
+<span class="sourceLineNo">202</span><a id="line.202">    /**</a>
+<span class="sourceLineNo">203</span><a id="line.203">     * {@inheritDoc}</a>
+<span class="sourceLineNo">204</span><a id="line.204">     */</a>
+<span class="sourceLineNo">205</span><a id="line.205">    @Override</a>
+<span class="sourceLineNo">206</span><a id="line.206">    public List&lt; Attachment &gt; getVersionHistory( final Attachment att ) {</a>
+<span class="sourceLineNo">207</span><a id="line.207">        return m_provider.getVersionHistory( att );</a>
+<span class="sourceLineNo">208</span><a id="line.208">    }</a>
+<span class="sourceLineNo">209</span><a id="line.209"></a>
+<span class="sourceLineNo">210</span><a id="line.210">    /**</a>
+<span class="sourceLineNo">211</span><a id="line.211">     * {@inheritDoc}</a>
+<span class="sourceLineNo">212</span><a id="line.212">     */</a>
+<span class="sourceLineNo">213</span><a id="line.213">    @Override</a>
+<span class="sourceLineNo">214</span><a id="line.214">    public void deleteVersion( final Attachment att ) throws ProviderException {</a>
+<span class="sourceLineNo">215</span><a id="line.215">        // This isn't strictly speaking correct, but it does not really matter</a>
+<span class="sourceLineNo">216</span><a id="line.216">        cachingManager.remove( CachingManager.CACHE_ATTACHMENTS_COLLECTION, att.getParentName() );</a>
+<span class="sourceLineNo">217</span><a id="line.217">        m_provider.deleteVersion( att );</a>
+<span class="sourceLineNo">218</span><a id="line.218">    }</a>
+<span class="sourceLineNo">219</span><a id="line.219"></a>
+<span class="sourceLineNo">220</span><a id="line.220">    /**</a>
+<span class="sourceLineNo">221</span><a id="line.221">     * {@inheritDoc}</a>
+<span class="sourceLineNo">222</span><a id="line.222">     */</a>
+<span class="sourceLineNo">223</span><a id="line.223">    @Override</a>
+<span class="sourceLineNo">224</span><a id="line.224">    public void deleteAttachment( final Attachment att ) throws ProviderException {</a>
+<span class="sourceLineNo">225</span><a id="line.225">        cachingManager.remove( CachingManager.CACHE_ATTACHMENTS_COLLECTION, att.getParentName() );</a>
+<span class="sourceLineNo">226</span><a id="line.226">        cachingManager.remove( CachingManager.CACHE_ATTACHMENTS, att.getName() );</a>
+<span class="sourceLineNo">227</span><a id="line.227">        m_provider.deleteAttachment( att );</a>
+<span class="sourceLineNo">228</span><a id="line.228">    }</a>
+<span class="sourceLineNo">229</span><a id="line.229"></a>
+<span class="sourceLineNo">230</span><a id="line.230">    /**</a>
+<span class="sourceLineNo">231</span><a id="line.231">     * Gets the provider class name, and cache statistics (misscount and hitcount of the attachment cache).</a>
+<span class="sourceLineNo">232</span><a id="line.232">     *</a>
+<span class="sourceLineNo">233</span><a id="line.233">     * @return A plain string with all the above-mentioned values.</a>
+<span class="sourceLineNo">234</span><a id="line.234">     */</a>
+<span class="sourceLineNo">235</span><a id="line.235">    @Override</a>
+<span class="sourceLineNo">236</span><a id="line.236">    public synchronized String getProviderInfo() {</a>
+<span class="sourceLineNo">237</span><a id="line.237">        final CacheInfo attCacheInfo = cachingManager.info( CachingManager.CACHE_ATTACHMENTS );</a>
+<span class="sourceLineNo">238</span><a id="line.238">        final CacheInfo attColCacheInfo = cachingManager.info( CachingManager.CACHE_ATTACHMENTS_COLLECTION );</a>
+<span class="sourceLineNo">239</span><a id="line.239">        return "Real provider: " + m_provider.getClass().getName() +</a>
+<span class="sourceLineNo">240</span><a id="line.240">                ". Attachment cache hits: " + attCacheInfo.getHits() +</a>
+<span class="sourceLineNo">241</span><a id="line.241">                ". Attachment cache misses: " + attCacheInfo.getMisses() +</a>
+<span class="sourceLineNo">242</span><a id="line.242">                ". Attachment collection cache hits: " + attColCacheInfo.getHits() +</a>
+<span class="sourceLineNo">243</span><a id="line.243">                ". Attachment collection cache misses: " + attColCacheInfo.getMisses();</a>
+<span class="sourceLineNo">244</span><a id="line.244">    }</a>
+<span class="sourceLineNo">245</span><a id="line.245"></a>
+<span class="sourceLineNo">246</span><a id="line.246">    /**</a>
+<span class="sourceLineNo">247</span><a id="line.247">     *  Returns the WikiAttachmentProvider that this caching provider delegates to.</a>
+<span class="sourceLineNo">248</span><a id="line.248">     *</a>
+<span class="sourceLineNo">249</span><a id="line.249">     *  @return The real provider underneath this one.</a>
+<span class="sourceLineNo">250</span><a id="line.250">     */</a>
+<span class="sourceLineNo">251</span><a id="line.251">    public AttachmentProvider getRealProvider() {</a>
+<span class="sourceLineNo">252</span><a id="line.252">        return m_provider;</a>
+<span class="sourceLineNo">253</span><a id="line.253">    }</a>
+<span class="sourceLineNo">254</span><a id="line.254"></a>
+<span class="sourceLineNo">255</span><a id="line.255">    /**</a>
+<span class="sourceLineNo">256</span><a id="line.256">     * {@inheritDoc}</a>
+<span class="sourceLineNo">257</span><a id="line.257">     */</a>
 <span class="sourceLineNo">258</span><a id="line.258">    @Override</a>
-<span class="sourceLineNo">259</span><a id="line.259">    public Attachment getAttachmentInfo( final Page page, final String name, final int version) throws ProviderException {</a>
-<span class="sourceLineNo">260</span><a id="line.260">        if( log.isDebugEnabled() ) {</a>
-<span class="sourceLineNo">261</span><a id="line.261">            log.debug( "Getting attachments for " + page + ", name=" + name + ", version=" + version );</a>
-<span class="sourceLineNo">262</span><a id="line.262">        }</a>
+<span class="sourceLineNo">259</span><a id="line.259">    public void moveAttachmentsForPage( final String oldParent, final String newParent ) throws ProviderException {</a>
+<span class="sourceLineNo">260</span><a id="line.260">        m_provider.moveAttachmentsForPage( oldParent, newParent );</a>
+<span class="sourceLineNo">261</span><a id="line.261">        cachingManager.remove( CachingManager.CACHE_ATTACHMENTS_COLLECTION, newParent );</a>
+<span class="sourceLineNo">262</span><a id="line.262">        cachingManager.remove( CachingManager.CACHE_ATTACHMENTS_COLLECTION, oldParent );</a>
 <span class="sourceLineNo">263</span><a id="line.263"></a>
-<span class="sourceLineNo">264</span><a id="line.264">        //  We don't cache previous versions</a>
-<span class="sourceLineNo">265</span><a id="line.265">        if( version != WikiProvider.LATEST_VERSION ) {</a>
-<span class="sourceLineNo">266</span><a id="line.266">            log.debug( "...we don't cache old versions" );</a>
-<span class="sourceLineNo">267</span><a id="line.267">            return m_provider.getAttachmentInfo( page, name, version );</a>
-<span class="sourceLineNo">268</span><a id="line.268">        }</a>
-<span class="sourceLineNo">269</span><a id="line.269"></a>
-<span class="sourceLineNo">270</span><a id="line.270">        final Collection&lt; Attachment &gt; c;</a>
-<span class="sourceLineNo">271</span><a id="line.271">        final Element element = m_cache.get( page.getName() );</a>
-<span class="sourceLineNo">272</span><a id="line.272"></a>
-<span class="sourceLineNo">273</span><a id="line.273">        if( element == null ) {</a>
-<span class="sourceLineNo">274</span><a id="line.274">            log.debug( page.getName() + " wasn't in the cache" );</a>
-<span class="sourceLineNo">275</span><a id="line.275">            c = refresh( page );</a>
-<span class="sourceLineNo">276</span><a id="line.276"></a>
-<span class="sourceLineNo">277</span><a id="line.277">            if( c == null ) {</a>
-<span class="sourceLineNo">278</span><a id="line.278">                return null; // No such attachment</a>
-<span class="sourceLineNo">279</span><a id="line.279">            }</a>
-<span class="sourceLineNo">280</span><a id="line.280">        } else {</a>
-<span class="sourceLineNo">281</span><a id="line.281">            log.debug( page.getName() + " FOUND in the cache" );</a>
-<span class="sourceLineNo">282</span><a id="line.282">            c = ( Collection&lt; Attachment &gt; )element.getObjectValue();</a>
-<span class="sourceLineNo">283</span><a id="line.283">        }</a>
-<span class="sourceLineNo">284</span><a id="line.284"></a>
-<span class="sourceLineNo">285</span><a id="line.285">        return findAttachmentFromCollection( c, name );</a>
-<span class="sourceLineNo">286</span><a id="line.286">    }</a>
-<span class="sourceLineNo">287</span><a id="line.287"></a>
-<span class="sourceLineNo">288</span><a id="line.288">    /**</a>
-<span class="sourceLineNo">289</span><a id="line.289">     * {@inheritDoc}</a>
-<span class="sourceLineNo">290</span><a id="line.290">     */</a>
-<span class="sourceLineNo">291</span><a id="line.291">    @Override</a>
-<span class="sourceLineNo">292</span><a id="line.292">    public List&lt;Attachment&gt; getVersionHistory( final Attachment att ) {</a>
-<span class="sourceLineNo">293</span><a id="line.293">        return m_provider.getVersionHistory( att );</a>
-<span class="sourceLineNo">294</span><a id="line.294">    }</a>
-<span class="sourceLineNo">295</span><a id="line.295"></a>
-<span class="sourceLineNo">296</span><a id="line.296">    /**</a>
-<span class="sourceLineNo">297</span><a id="line.297">     * {@inheritDoc}</a>
-<span class="sourceLineNo">298</span><a id="line.298">     */</a>
-<span class="sourceLineNo">299</span><a id="line.299">    @Override</a>
-<span class="sourceLineNo">300</span><a id="line.300">    public void deleteVersion( final Attachment att ) throws ProviderException {</a>
-<span class="sourceLineNo">301</span><a id="line.301">        // This isn't strictly speaking correct, but it does not really matter</a>
-<span class="sourceLineNo">302</span><a id="line.302">        m_cache.remove( att.getParentName() );</a>
-<span class="sourceLineNo">303</span><a id="line.303">        m_provider.deleteVersion( att );</a>
-<span class="sourceLineNo">304</span><a id="line.304">    }</a>
-<span class="sourceLineNo">305</span><a id="line.305"></a>
-<span class="sourceLineNo">306</span><a id="line.306">    /**</a>
-<span class="sourceLineNo">307</span><a id="line.307">     * {@inheritDoc}</a>
-<span class="sourceLineNo">308</span><a id="line.308">     */</a>
-<span class="sourceLineNo">309</span><a id="line.309">    @Override</a>
-<span class="sourceLineNo">310</span><a id="line.310">    public void deleteAttachment( final Attachment att ) throws ProviderException {</a>
-<span class="sourceLineNo">311</span><a id="line.311">        m_cache.remove( att.getParentName() );</a>
-<span class="sourceLineNo">312</span><a id="line.312">        m_attCache.remove( att.getName() );</a>
-<span class="sourceLineNo">313</span><a id="line.313">        m_provider.deleteAttachment( att );</a>
-<span class="sourceLineNo">314</span><a id="line.314">    }</a>
-<span class="sourceLineNo">315</span><a id="line.315"></a>
-<span class="sourceLineNo">316</span><a id="line.316">    /**</a>
-<span class="sourceLineNo">317</span><a id="line.317">     * Gets the provider class name, and cache statistics (misscount and,hitcount of the attachment cache).</a>
-<span class="sourceLineNo">318</span><a id="line.318">     *</a>
-<span class="sourceLineNo">319</span><a id="line.319">     * @return A plain string with all the above mentioned values.</a>
-<span class="sourceLineNo">320</span><a id="line.320">     */</a>
-<span class="sourceLineNo">321</span><a id="line.321">    @Override</a>
-<span class="sourceLineNo">322</span><a id="line.322">    public synchronized String getProviderInfo() {</a>
-<span class="sourceLineNo">323</span><a id="line.323">        return "Real provider: " + m_provider.getClass().getName() +</a>
-<span class="sourceLineNo">324</span><a id="line.324">                ".  Cache misses: " + m_cacheMisses +</a>
-<span class="sourceLineNo">325</span><a id="line.325">                ".  Cache hits: " + m_cacheHits;</a>
-<span class="sourceLineNo">326</span><a id="line.326">    }</a>
-<span class="sourceLineNo">327</span><a id="line.327"></a>
-<span class="sourceLineNo">328</span><a id="line.328">    /**</a>
-<span class="sourceLineNo">329</span><a id="line.329">     *  Returns the WikiAttachmentProvider that this caching provider delegates to.</a>
-<span class="sourceLineNo">330</span><a id="line.330">     *</a>
-<span class="sourceLineNo">331</span><a id="line.331">     *  @return The real provider underneath this one.</a>
-<span class="sourceLineNo">332</span><a id="line.332">     */</a>
-<span class="sourceLineNo">333</span><a id="line.333">    public AttachmentProvider getRealProvider() {</a>
-<span class="sourceLineNo">334</span><a id="line.334">        return m_provider;</a>
-<span class="sourceLineNo">335</span><a id="line.335">    }</a>
-<span class="sourceLineNo">336</span><a id="line.336"></a>
-<span class="sourceLineNo">337</span><a id="line.337">    /**</a>
-<span class="sourceLineNo">338</span><a id="line.338">     * {@inheritDoc}</a>
-<span class="sourceLineNo">339</span><a id="line.339">     */</a>
-<span class="sourceLineNo">340</span><a id="line.340">    @Override</a>
-<span class="sourceLineNo">341</span><a id="line.341">    public void moveAttachmentsForPage( final String oldParent, final String newParent ) throws ProviderException {</a>
-<span class="sourceLineNo">342</span><a id="line.342">        m_provider.moveAttachmentsForPage( oldParent, newParent );</a>
-<span class="sourceLineNo">343</span><a id="line.343">        m_cache.remove( newParent );</a>
-<span class="sourceLineNo">344</span><a id="line.344">        m_cache.remove( oldParent );</a>
-<span class="sourceLineNo">345</span><a id="line.345"></a>
-<span class="sourceLineNo">346</span><a id="line.346">        // This is a kludge to make sure that the pages are removed from the other cache as well.</a>
-<span class="sourceLineNo">347</span><a id="line.347">        final String checkName = oldParent + "/";</a>
-<span class="sourceLineNo">348</span><a id="line.348"></a>
-<span class="sourceLineNo">349</span><a id="line.349">        @SuppressWarnings("unchecked") final List&lt; String &gt; names = m_cache.getKeysWithExpiryCheck();</a>
-<span class="sourceLineNo">350</span><a id="line.350">        for( final String name : names ) {</a>
-<span class="sourceLineNo">351</span><a id="line.351">            if( name.startsWith( checkName ) ) {</a>
-<span class="sourceLineNo">352</span><a id="line.352">                m_attCache.remove( name );</a>
-<span class="sourceLineNo">353</span><a id="line.353">            }</a>
-<span class="sourceLineNo">354</span><a id="line.354">        }</a>
-<span class="sourceLineNo">355</span><a id="line.355">    }</a>
-<span class="sourceLineNo">356</span><a id="line.356"></a>
-<span class="sourceLineNo">357</span><a id="line.357">}</a>
+<span class="sourceLineNo">264</span><a id="line.264">        // This is a kludge to make sure that the pages are removed from the other cache as well.</a>
+<span class="sourceLineNo">265</span><a id="line.265">        final String checkName = oldParent + "/";</a>
+<span class="sourceLineNo">266</span><a id="line.266">        final List&lt; String &gt; names = cachingManager.keys( CachingManager.CACHE_ATTACHMENTS_COLLECTION );</a>
+<span class="sourceLineNo">267</span><a id="line.267">        for( final String name : names ) {</a>
+<span class="sourceLineNo">268</span><a id="line.268">            if( name.startsWith( checkName ) ) {</a>
+<span class="sourceLineNo">269</span><a id="line.269">                cachingManager.remove( CachingManager.CACHE_ATTACHMENTS, name );</a>
+<span class="sourceLineNo">270</span><a id="line.270">            }</a>
+<span class="sourceLineNo">271</span><a id="line.271">        }</a>
+<span class="sourceLineNo">272</span><a id="line.272">    }</a>
+<span class="sourceLineNo">273</span><a id="line.273"></a>
+<span class="sourceLineNo">274</span><a id="line.274">}</a>
 
 
 

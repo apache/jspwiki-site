@@ -123,191 +123,187 @@
 <span class="sourceLineNo">114</span><a id="line.114"></a>
 <span class="sourceLineNo">115</span><a id="line.115">        // If the weak reference returns a wiki session, return it</a>
 <span class="sourceLineNo">116</span><a id="line.116">        if( storedSession != null ) {</a>
-<span class="sourceLineNo">117</span><a id="line.117">            if( log.isDebugEnabled() ) {</a>
-<span class="sourceLineNo">118</span><a id="line.118">                log.debug( "Looking up WikiSession for session ID=" + sid + "... found it" );</a>
-<span class="sourceLineNo">119</span><a id="line.119">            }</a>
-<span class="sourceLineNo">120</span><a id="line.120">            wikiSession = storedSession;</a>
-<span class="sourceLineNo">121</span><a id="line.121">        }</a>
-<span class="sourceLineNo">122</span><a id="line.122"></a>
-<span class="sourceLineNo">123</span><a id="line.123">        return wikiSession;</a>
-<span class="sourceLineNo">124</span><a id="line.124">    }</a>
-<span class="sourceLineNo">125</span><a id="line.125"></a>
-<span class="sourceLineNo">126</span><a id="line.126">    /**</a>
-<span class="sourceLineNo">127</span><a id="line.127">     * &lt;p&gt;Looks up the wiki session associated with a user's Http session and adds it to the session cache. This method will return the</a>
-<span class="sourceLineNo">128</span><a id="line.128">     * "guest session" as constructed by {@link org.apache.wiki.api.spi.SessionSPI#guest(Engine)} if the HttpSession is not currently</a>
-<span class="sourceLineNo">129</span><a id="line.129">     * associated with a WikiSession. This method is guaranteed to return a non-&lt;code&gt;null&lt;/code&gt; WikiSession.&lt;/p&gt;</a>
-<span class="sourceLineNo">130</span><a id="line.130">     * &lt;p&gt;Internally, the session is stored in a HashMap; keys are the HttpSession objects, while the values are</a>
-<span class="sourceLineNo">131</span><a id="line.131">     * {@link java.lang.ref.WeakReference}-wrapped WikiSessions.&lt;/p&gt;</a>
-<span class="sourceLineNo">132</span><a id="line.132">     *</a>
-<span class="sourceLineNo">133</span><a id="line.133">     * @param session the HTTP session</a>
-<span class="sourceLineNo">134</span><a id="line.134">     * @return the wiki session</a>
-<span class="sourceLineNo">135</span><a id="line.135">     */</a>
-<span class="sourceLineNo">136</span><a id="line.136">    public final Session find( final HttpSession session ) {</a>
-<span class="sourceLineNo">137</span><a id="line.137">        final Session wikiSession = findSession( session );</a>
-<span class="sourceLineNo">138</span><a id="line.138">        final String sid = ( session == null ) ? "(null)" : session.getId();</a>
-<span class="sourceLineNo">139</span><a id="line.139">        if( wikiSession == null ) {</a>
-<span class="sourceLineNo">140</span><a id="line.140">            return createGuestSessionFor( sid );</a>
-<span class="sourceLineNo">141</span><a id="line.141">        }</a>
-<span class="sourceLineNo">142</span><a id="line.142"></a>
-<span class="sourceLineNo">143</span><a id="line.143">        return wikiSession;</a>
-<span class="sourceLineNo">144</span><a id="line.144">    }</a>
-<span class="sourceLineNo">145</span><a id="line.145"></a>
-<span class="sourceLineNo">146</span><a id="line.146">    /**</a>
-<span class="sourceLineNo">147</span><a id="line.147">     * &lt;p&gt;Looks up the wiki session associated with a user's Http session and adds it to the session cache. This method will return the</a>
-<span class="sourceLineNo">148</span><a id="line.148">     * "guest session" as constructed by {@link org.apache.wiki.api.spi.SessionSPI#guest(Engine)} if the HttpSession is not currently</a>
-<span class="sourceLineNo">149</span><a id="line.149">     * associated with a WikiSession. This method is guaranteed to return a non-&lt;code&gt;null&lt;/code&gt; WikiSession.&lt;/p&gt;</a>
-<span class="sourceLineNo">150</span><a id="line.150">     * &lt;p&gt;Internally, the session is stored in a HashMap; keys are the HttpSession objects, while the values are</a>
-<span class="sourceLineNo">151</span><a id="line.151">     * {@link java.lang.ref.WeakReference}-wrapped WikiSessions.&lt;/p&gt;</a>
-<span class="sourceLineNo">152</span><a id="line.152">     *</a>
-<span class="sourceLineNo">153</span><a id="line.153">     * @param sessionId the HTTP session</a>
-<span class="sourceLineNo">154</span><a id="line.154">     * @return the wiki session</a>
-<span class="sourceLineNo">155</span><a id="line.155">     */</a>
-<span class="sourceLineNo">156</span><a id="line.156">    public final Session find( final String sessionId ) {</a>
-<span class="sourceLineNo">157</span><a id="line.157">        final Session wikiSession = findSession( sessionId );</a>
-<span class="sourceLineNo">158</span><a id="line.158">        if( wikiSession == null ) {</a>
-<span class="sourceLineNo">159</span><a id="line.159">            return createGuestSessionFor( sessionId );</a>
-<span class="sourceLineNo">160</span><a id="line.160">        }</a>
-<span class="sourceLineNo">161</span><a id="line.161"></a>
-<span class="sourceLineNo">162</span><a id="line.162">        return wikiSession;</a>
-<span class="sourceLineNo">163</span><a id="line.163">    }</a>
-<span class="sourceLineNo">164</span><a id="line.164"></a>
-<span class="sourceLineNo">165</span><a id="line.165">    /**</a>
-<span class="sourceLineNo">166</span><a id="line.166">     * Creates a new session and stashes it</a>
-<span class="sourceLineNo">167</span><a id="line.167">     *</a>
-<span class="sourceLineNo">168</span><a id="line.168">     * @param sessionId id looked for before creating the guest session</a>
-<span class="sourceLineNo">169</span><a id="line.169">     * @return a new guest session</a>
-<span class="sourceLineNo">170</span><a id="line.170">     */</a>
-<span class="sourceLineNo">171</span><a id="line.171">    private Session createGuestSessionFor( final String sessionId ) {</a>
-<span class="sourceLineNo">172</span><a id="line.172">        if( log.isDebugEnabled() ) {</a>
-<span class="sourceLineNo">173</span><a id="line.173">            log.debug( "Session for session ID=" + sessionId + "... not found. Creating guestSession()" );</a>
+<span class="sourceLineNo">117</span><a id="line.117">            log.debug( "Looking up WikiSession for session ID={}... found it", sid );</a>
+<span class="sourceLineNo">118</span><a id="line.118">            wikiSession = storedSession;</a>
+<span class="sourceLineNo">119</span><a id="line.119">        }</a>
+<span class="sourceLineNo">120</span><a id="line.120"></a>
+<span class="sourceLineNo">121</span><a id="line.121">        return wikiSession;</a>
+<span class="sourceLineNo">122</span><a id="line.122">    }</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">    /**</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * &lt;p&gt;Looks up the wiki session associated with a user's Http session and adds it to the session cache. This method will return the</a>
+<span class="sourceLineNo">126</span><a id="line.126">     * "guest session" as constructed by {@link org.apache.wiki.api.spi.SessionSPI#guest(Engine)} if the HttpSession is not currently</a>
+<span class="sourceLineNo">127</span><a id="line.127">     * associated with a WikiSession. This method is guaranteed to return a non-&lt;code&gt;null&lt;/code&gt; WikiSession.&lt;/p&gt;</a>
+<span class="sourceLineNo">128</span><a id="line.128">     * &lt;p&gt;Internally, the session is stored in a HashMap; keys are the HttpSession objects, while the values are</a>
+<span class="sourceLineNo">129</span><a id="line.129">     * {@link java.lang.ref.WeakReference}-wrapped WikiSessions.&lt;/p&gt;</a>
+<span class="sourceLineNo">130</span><a id="line.130">     *</a>
+<span class="sourceLineNo">131</span><a id="line.131">     * @param session the HTTP session</a>
+<span class="sourceLineNo">132</span><a id="line.132">     * @return the wiki session</a>
+<span class="sourceLineNo">133</span><a id="line.133">     */</a>
+<span class="sourceLineNo">134</span><a id="line.134">    public final Session find( final HttpSession session ) {</a>
+<span class="sourceLineNo">135</span><a id="line.135">        final Session wikiSession = findSession( session );</a>
+<span class="sourceLineNo">136</span><a id="line.136">        final String sid = ( session == null ) ? "(null)" : session.getId();</a>
+<span class="sourceLineNo">137</span><a id="line.137">        if( wikiSession == null ) {</a>
+<span class="sourceLineNo">138</span><a id="line.138">            return createGuestSessionFor( sid );</a>
+<span class="sourceLineNo">139</span><a id="line.139">        }</a>
+<span class="sourceLineNo">140</span><a id="line.140"></a>
+<span class="sourceLineNo">141</span><a id="line.141">        return wikiSession;</a>
+<span class="sourceLineNo">142</span><a id="line.142">    }</a>
+<span class="sourceLineNo">143</span><a id="line.143"></a>
+<span class="sourceLineNo">144</span><a id="line.144">    /**</a>
+<span class="sourceLineNo">145</span><a id="line.145">     * &lt;p&gt;Looks up the wiki session associated with a user's Http session and adds it to the session cache. This method will return the</a>
+<span class="sourceLineNo">146</span><a id="line.146">     * "guest session" as constructed by {@link org.apache.wiki.api.spi.SessionSPI#guest(Engine)} if the HttpSession is not currently</a>
+<span class="sourceLineNo">147</span><a id="line.147">     * associated with a WikiSession. This method is guaranteed to return a non-&lt;code&gt;null&lt;/code&gt; WikiSession.&lt;/p&gt;</a>
+<span class="sourceLineNo">148</span><a id="line.148">     * &lt;p&gt;Internally, the session is stored in a HashMap; keys are the HttpSession objects, while the values are</a>
+<span class="sourceLineNo">149</span><a id="line.149">     * {@link java.lang.ref.WeakReference}-wrapped WikiSessions.&lt;/p&gt;</a>
+<span class="sourceLineNo">150</span><a id="line.150">     *</a>
+<span class="sourceLineNo">151</span><a id="line.151">     * @param sessionId the HTTP session</a>
+<span class="sourceLineNo">152</span><a id="line.152">     * @return the wiki session</a>
+<span class="sourceLineNo">153</span><a id="line.153">     */</a>
+<span class="sourceLineNo">154</span><a id="line.154">    public final Session find( final String sessionId ) {</a>
+<span class="sourceLineNo">155</span><a id="line.155">        final Session wikiSession = findSession( sessionId );</a>
+<span class="sourceLineNo">156</span><a id="line.156">        if( wikiSession == null ) {</a>
+<span class="sourceLineNo">157</span><a id="line.157">            return createGuestSessionFor( sessionId );</a>
+<span class="sourceLineNo">158</span><a id="line.158">        }</a>
+<span class="sourceLineNo">159</span><a id="line.159"></a>
+<span class="sourceLineNo">160</span><a id="line.160">        return wikiSession;</a>
+<span class="sourceLineNo">161</span><a id="line.161">    }</a>
+<span class="sourceLineNo">162</span><a id="line.162"></a>
+<span class="sourceLineNo">163</span><a id="line.163">    /**</a>
+<span class="sourceLineNo">164</span><a id="line.164">     * Creates a new session and stashes it</a>
+<span class="sourceLineNo">165</span><a id="line.165">     *</a>
+<span class="sourceLineNo">166</span><a id="line.166">     * @param sessionId id looked for before creating the guest session</a>
+<span class="sourceLineNo">167</span><a id="line.167">     * @return a new guest session</a>
+<span class="sourceLineNo">168</span><a id="line.168">     */</a>
+<span class="sourceLineNo">169</span><a id="line.169">    private Session createGuestSessionFor( final String sessionId ) {</a>
+<span class="sourceLineNo">170</span><a id="line.170">        log.debug( "Session for session ID={}... not found. Creating guestSession()", sessionId );</a>
+<span class="sourceLineNo">171</span><a id="line.171">        final Session wikiSession = Wiki.session().guest( m_engine );</a>
+<span class="sourceLineNo">172</span><a id="line.172">        synchronized( m_sessions ) {</a>
+<span class="sourceLineNo">173</span><a id="line.173">            m_sessions.put( sessionId, wikiSession );</a>
 <span class="sourceLineNo">174</span><a id="line.174">        }</a>
-<span class="sourceLineNo">175</span><a id="line.175">        final Session wikiSession = Wiki.session().guest( m_engine );</a>
-<span class="sourceLineNo">176</span><a id="line.176">        synchronized( m_sessions ) {</a>
-<span class="sourceLineNo">177</span><a id="line.177">            m_sessions.put( sessionId, wikiSession );</a>
-<span class="sourceLineNo">178</span><a id="line.178">        }</a>
-<span class="sourceLineNo">179</span><a id="line.179">        return wikiSession;</a>
-<span class="sourceLineNo">180</span><a id="line.180">    }</a>
-<span class="sourceLineNo">181</span><a id="line.181"></a>
-<span class="sourceLineNo">182</span><a id="line.182">    /**</a>
-<span class="sourceLineNo">183</span><a id="line.183">     * Removes the wiki session associated with the user's HttpRequest from the session cache.</a>
-<span class="sourceLineNo">184</span><a id="line.184">     *</a>
-<span class="sourceLineNo">185</span><a id="line.185">     * @param request the user's HTTP request</a>
-<span class="sourceLineNo">186</span><a id="line.186">     */</a>
-<span class="sourceLineNo">187</span><a id="line.187">    public final void remove( final HttpServletRequest request ) {</a>
-<span class="sourceLineNo">188</span><a id="line.188">        if( request == null ) {</a>
-<span class="sourceLineNo">189</span><a id="line.189">            throw new IllegalArgumentException( "Request cannot be null." );</a>
-<span class="sourceLineNo">190</span><a id="line.190">        }</a>
-<span class="sourceLineNo">191</span><a id="line.191">        remove( request.getSession() );</a>
-<span class="sourceLineNo">192</span><a id="line.192">    }</a>
-<span class="sourceLineNo">193</span><a id="line.193"></a>
-<span class="sourceLineNo">194</span><a id="line.194">    /**</a>
-<span class="sourceLineNo">195</span><a id="line.195">     * Removes the wiki session associated with the user's HttpSession from the session cache.</a>
-<span class="sourceLineNo">196</span><a id="line.196">     *</a>
-<span class="sourceLineNo">197</span><a id="line.197">     * @param session the user's HTTP session</a>
-<span class="sourceLineNo">198</span><a id="line.198">     */</a>
-<span class="sourceLineNo">199</span><a id="line.199">    public final void remove( final HttpSession session ) {</a>
-<span class="sourceLineNo">200</span><a id="line.200">        if( session == null ) {</a>
-<span class="sourceLineNo">201</span><a id="line.201">            throw new IllegalArgumentException( "Session cannot be null." );</a>
-<span class="sourceLineNo">202</span><a id="line.202">        }</a>
-<span class="sourceLineNo">203</span><a id="line.203">        synchronized( m_sessions ) {</a>
-<span class="sourceLineNo">204</span><a id="line.204">            m_sessions.remove( session.getId() );</a>
-<span class="sourceLineNo">205</span><a id="line.205">        }</a>
-<span class="sourceLineNo">206</span><a id="line.206">    }</a>
-<span class="sourceLineNo">207</span><a id="line.207"></a>
-<span class="sourceLineNo">208</span><a id="line.208">    /**</a>
-<span class="sourceLineNo">209</span><a id="line.209">     * Returns the current number of active wiki sessions.</a>
-<span class="sourceLineNo">210</span><a id="line.210">     * @return the number of sessions</a>
-<span class="sourceLineNo">211</span><a id="line.211">     */</a>
-<span class="sourceLineNo">212</span><a id="line.212">    public final int sessions()</a>
-<span class="sourceLineNo">213</span><a id="line.213">    {</a>
-<span class="sourceLineNo">214</span><a id="line.214">        return userPrincipals().length;</a>
-<span class="sourceLineNo">215</span><a id="line.215">    }</a>
-<span class="sourceLineNo">216</span><a id="line.216"></a>
-<span class="sourceLineNo">217</span><a id="line.217">    /**</a>
-<span class="sourceLineNo">218</span><a id="line.218">     * &lt;p&gt;Returns the current wiki users as a sorted array of Principal objects. The principals are those returned by</a>
-<span class="sourceLineNo">219</span><a id="line.219">     * each WikiSession's {@link Session#getUserPrincipal()}'s method.&lt;/p&gt;</a>
-<span class="sourceLineNo">220</span><a id="line.220">     * &lt;p&gt;To obtain the list of current WikiSessions, we iterate through our session Map and obtain the list of values,</a>
-<span class="sourceLineNo">221</span><a id="line.221">     * which are WikiSessions wrapped in {@link java.lang.ref.WeakReference} objects. Those &lt;code&gt;WeakReference&lt;/code&gt;s</a>
-<span class="sourceLineNo">222</span><a id="line.222">     * whose &lt;code&gt;get()&lt;/code&gt; method returns non-&lt;code&gt;null&lt;/code&gt; values are valid sessions.&lt;/p&gt;</a>
-<span class="sourceLineNo">223</span><a id="line.223">     *</a>
-<span class="sourceLineNo">224</span><a id="line.224">     * @return the array of user principals</a>
-<span class="sourceLineNo">225</span><a id="line.225">     */</a>
-<span class="sourceLineNo">226</span><a id="line.226">    public final Principal[] userPrincipals() {</a>
-<span class="sourceLineNo">227</span><a id="line.227">        final Collection&lt;Principal&gt; principals = new ArrayList&lt;&gt;();</a>
-<span class="sourceLineNo">228</span><a id="line.228">        synchronized ( m_sessions ) {</a>
-<span class="sourceLineNo">229</span><a id="line.229">            for ( final Session session : m_sessions.values()) {</a>
-<span class="sourceLineNo">230</span><a id="line.230">                principals.add( session.getUserPrincipal() );</a>
-<span class="sourceLineNo">231</span><a id="line.231">            }</a>
-<span class="sourceLineNo">232</span><a id="line.232">        }</a>
-<span class="sourceLineNo">233</span><a id="line.233">        final Principal[] p = principals.toArray( new Principal[0] );</a>
-<span class="sourceLineNo">234</span><a id="line.234">        Arrays.sort( p, m_comparator );</a>
-<span class="sourceLineNo">235</span><a id="line.235">        return p;</a>
-<span class="sourceLineNo">236</span><a id="line.236">    }</a>
-<span class="sourceLineNo">237</span><a id="line.237"></a>
-<span class="sourceLineNo">238</span><a id="line.238">    /**</a>
-<span class="sourceLineNo">239</span><a id="line.239">     * Registers a WikiEventListener with this instance.</a>
-<span class="sourceLineNo">240</span><a id="line.240">     *</a>
-<span class="sourceLineNo">241</span><a id="line.241">     * @param listener the event listener</a>
-<span class="sourceLineNo">242</span><a id="line.242">     * @since 2.4.75</a>
-<span class="sourceLineNo">243</span><a id="line.243">     */</a>
-<span class="sourceLineNo">244</span><a id="line.244">    public final synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">245</span><a id="line.245">        WikiEventManager.addWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">246</span><a id="line.246">    }</a>
-<span class="sourceLineNo">247</span><a id="line.247"></a>
-<span class="sourceLineNo">248</span><a id="line.248">    /**</a>
-<span class="sourceLineNo">249</span><a id="line.249">     * Un-registers a WikiEventListener with this instance.</a>
-<span class="sourceLineNo">250</span><a id="line.250">     *</a>
-<span class="sourceLineNo">251</span><a id="line.251">     * @param listener the event listener</a>
-<span class="sourceLineNo">252</span><a id="line.252">     * @since 2.4.75</a>
-<span class="sourceLineNo">253</span><a id="line.253">     */</a>
-<span class="sourceLineNo">254</span><a id="line.254">    public final synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">255</span><a id="line.255">        WikiEventManager.removeWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">256</span><a id="line.256">    }</a>
-<span class="sourceLineNo">257</span><a id="line.257"></a>
-<span class="sourceLineNo">258</span><a id="line.258">    /**</a>
-<span class="sourceLineNo">259</span><a id="line.259">     * Fires a WikiSecurityEvent to all registered listeners.</a>
-<span class="sourceLineNo">260</span><a id="line.260">     *</a>
-<span class="sourceLineNo">261</span><a id="line.261">     * @param type  the event type</a>
-<span class="sourceLineNo">262</span><a id="line.262">     * @param principal the user principal associated with this session</a>
-<span class="sourceLineNo">263</span><a id="line.263">     * @param session the wiki session</a>
-<span class="sourceLineNo">264</span><a id="line.264">     * @since 2.4.75</a>
-<span class="sourceLineNo">265</span><a id="line.265">     */</a>
-<span class="sourceLineNo">266</span><a id="line.266">    protected final void fireEvent( final int type, final Principal principal, final Session session ) {</a>
-<span class="sourceLineNo">267</span><a id="line.267">        if( WikiEventManager.isListening( this ) ) {</a>
-<span class="sourceLineNo">268</span><a id="line.268">            WikiEventManager.fireEvent( this, new WikiSecurityEvent( this, type, principal, session ) );</a>
-<span class="sourceLineNo">269</span><a id="line.269">        }</a>
-<span class="sourceLineNo">270</span><a id="line.270">    }</a>
-<span class="sourceLineNo">271</span><a id="line.271"></a>
-<span class="sourceLineNo">272</span><a id="line.272">    /**</a>
-<span class="sourceLineNo">273</span><a id="line.273">     * Fires when the web container creates a new HTTP session.</a>
-<span class="sourceLineNo">274</span><a id="line.274">     * </a>
-<span class="sourceLineNo">275</span><a id="line.275">     * @param se the HTTP session event</a>
-<span class="sourceLineNo">276</span><a id="line.276">     */</a>
-<span class="sourceLineNo">277</span><a id="line.277">    @Override</a>
-<span class="sourceLineNo">278</span><a id="line.278">    public void sessionCreated( final HttpSessionEvent se ) {</a>
-<span class="sourceLineNo">279</span><a id="line.279">        final HttpSession session = se.getSession();</a>
-<span class="sourceLineNo">280</span><a id="line.280">        log.debug( "Created session: " + session.getId() + "." );</a>
-<span class="sourceLineNo">281</span><a id="line.281">    }</a>
-<span class="sourceLineNo">282</span><a id="line.282"></a>
-<span class="sourceLineNo">283</span><a id="line.283">    /**</a>
-<span class="sourceLineNo">284</span><a id="line.284">     * Removes the user's WikiSession from the internal session cache when the web</a>
-<span class="sourceLineNo">285</span><a id="line.285">     * container destroys an HTTP session.</a>
-<span class="sourceLineNo">286</span><a id="line.286">     * @param se the HTTP session event</a>
-<span class="sourceLineNo">287</span><a id="line.287">     */</a>
-<span class="sourceLineNo">288</span><a id="line.288">    @Override</a>
-<span class="sourceLineNo">289</span><a id="line.289">    public void sessionDestroyed( final HttpSessionEvent se ) {</a>
-<span class="sourceLineNo">290</span><a id="line.290">        final HttpSession session = se.getSession();</a>
-<span class="sourceLineNo">291</span><a id="line.291">        for( final SessionMonitor monitor : c_monitors.values() ) {</a>
-<span class="sourceLineNo">292</span><a id="line.292">            final Session storedSession = monitor.findSession( session );</a>
-<span class="sourceLineNo">293</span><a id="line.293">            monitor.remove( session );</a>
-<span class="sourceLineNo">294</span><a id="line.294">            log.debug( "Removed session " + session.getId() + "." );</a>
-<span class="sourceLineNo">295</span><a id="line.295">            if( storedSession != null ) {</a>
-<span class="sourceLineNo">296</span><a id="line.296">                fireEvent( WikiSecurityEvent.SESSION_EXPIRED, storedSession.getLoginPrincipal(), storedSession );</a>
-<span class="sourceLineNo">297</span><a id="line.297">            }</a>
-<span class="sourceLineNo">298</span><a id="line.298">        }</a>
-<span class="sourceLineNo">299</span><a id="line.299">    }</a>
-<span class="sourceLineNo">300</span><a id="line.300"></a>
-<span class="sourceLineNo">301</span><a id="line.301">}</a>
+<span class="sourceLineNo">175</span><a id="line.175">        return wikiSession;</a>
+<span class="sourceLineNo">176</span><a id="line.176">    }</a>
+<span class="sourceLineNo">177</span><a id="line.177"></a>
+<span class="sourceLineNo">178</span><a id="line.178">    /**</a>
+<span class="sourceLineNo">179</span><a id="line.179">     * Removes the wiki session associated with the user's HttpRequest from the session cache.</a>
+<span class="sourceLineNo">180</span><a id="line.180">     *</a>
+<span class="sourceLineNo">181</span><a id="line.181">     * @param request the user's HTTP request</a>
+<span class="sourceLineNo">182</span><a id="line.182">     */</a>
+<span class="sourceLineNo">183</span><a id="line.183">    public final void remove( final HttpServletRequest request ) {</a>
+<span class="sourceLineNo">184</span><a id="line.184">        if( request == null ) {</a>
+<span class="sourceLineNo">185</span><a id="line.185">            throw new IllegalArgumentException( "Request cannot be null." );</a>
+<span class="sourceLineNo">186</span><a id="line.186">        }</a>
+<span class="sourceLineNo">187</span><a id="line.187">        remove( request.getSession() );</a>
+<span class="sourceLineNo">188</span><a id="line.188">    }</a>
+<span class="sourceLineNo">189</span><a id="line.189"></a>
+<span class="sourceLineNo">190</span><a id="line.190">    /**</a>
+<span class="sourceLineNo">191</span><a id="line.191">     * Removes the wiki session associated with the user's HttpSession from the session cache.</a>
+<span class="sourceLineNo">192</span><a id="line.192">     *</a>
+<span class="sourceLineNo">193</span><a id="line.193">     * @param session the user's HTTP session</a>
+<span class="sourceLineNo">194</span><a id="line.194">     */</a>
+<span class="sourceLineNo">195</span><a id="line.195">    public final void remove( final HttpSession session ) {</a>
+<span class="sourceLineNo">196</span><a id="line.196">        if( session == null ) {</a>
+<span class="sourceLineNo">197</span><a id="line.197">            throw new IllegalArgumentException( "Session cannot be null." );</a>
+<span class="sourceLineNo">198</span><a id="line.198">        }</a>
+<span class="sourceLineNo">199</span><a id="line.199">        synchronized( m_sessions ) {</a>
+<span class="sourceLineNo">200</span><a id="line.200">            m_sessions.remove( session.getId() );</a>
+<span class="sourceLineNo">201</span><a id="line.201">        }</a>
+<span class="sourceLineNo">202</span><a id="line.202">    }</a>
+<span class="sourceLineNo">203</span><a id="line.203"></a>
+<span class="sourceLineNo">204</span><a id="line.204">    /**</a>
+<span class="sourceLineNo">205</span><a id="line.205">     * Returns the current number of active wiki sessions.</a>
+<span class="sourceLineNo">206</span><a id="line.206">     * @return the number of sessions</a>
+<span class="sourceLineNo">207</span><a id="line.207">     */</a>
+<span class="sourceLineNo">208</span><a id="line.208">    public final int sessions()</a>
+<span class="sourceLineNo">209</span><a id="line.209">    {</a>
+<span class="sourceLineNo">210</span><a id="line.210">        return userPrincipals().length;</a>
+<span class="sourceLineNo">211</span><a id="line.211">    }</a>
+<span class="sourceLineNo">212</span><a id="line.212"></a>
+<span class="sourceLineNo">213</span><a id="line.213">    /**</a>
+<span class="sourceLineNo">214</span><a id="line.214">     * &lt;p&gt;Returns the current wiki users as a sorted array of Principal objects. The principals are those returned by</a>
+<span class="sourceLineNo">215</span><a id="line.215">     * each WikiSession's {@link Session#getUserPrincipal()}'s method.&lt;/p&gt;</a>
+<span class="sourceLineNo">216</span><a id="line.216">     * &lt;p&gt;To obtain the list of current WikiSessions, we iterate through our session Map and obtain the list of values,</a>
+<span class="sourceLineNo">217</span><a id="line.217">     * which are WikiSessions wrapped in {@link java.lang.ref.WeakReference} objects. Those &lt;code&gt;WeakReference&lt;/code&gt;s</a>
+<span class="sourceLineNo">218</span><a id="line.218">     * whose &lt;code&gt;get()&lt;/code&gt; method returns non-&lt;code&gt;null&lt;/code&gt; values are valid sessions.&lt;/p&gt;</a>
+<span class="sourceLineNo">219</span><a id="line.219">     *</a>
+<span class="sourceLineNo">220</span><a id="line.220">     * @return the array of user principals</a>
+<span class="sourceLineNo">221</span><a id="line.221">     */</a>
+<span class="sourceLineNo">222</span><a id="line.222">    public final Principal[] userPrincipals() {</a>
+<span class="sourceLineNo">223</span><a id="line.223">        final Collection&lt;Principal&gt; principals = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">224</span><a id="line.224">        synchronized ( m_sessions ) {</a>
+<span class="sourceLineNo">225</span><a id="line.225">            for ( final Session session : m_sessions.values()) {</a>
+<span class="sourceLineNo">226</span><a id="line.226">                principals.add( session.getUserPrincipal() );</a>
+<span class="sourceLineNo">227</span><a id="line.227">            }</a>
+<span class="sourceLineNo">228</span><a id="line.228">        }</a>
+<span class="sourceLineNo">229</span><a id="line.229">        final Principal[] p = principals.toArray( new Principal[0] );</a>
+<span class="sourceLineNo">230</span><a id="line.230">        Arrays.sort( p, m_comparator );</a>
+<span class="sourceLineNo">231</span><a id="line.231">        return p;</a>
+<span class="sourceLineNo">232</span><a id="line.232">    }</a>
+<span class="sourceLineNo">233</span><a id="line.233"></a>
+<span class="sourceLineNo">234</span><a id="line.234">    /**</a>
+<span class="sourceLineNo">235</span><a id="line.235">     * Registers a WikiEventListener with this instance.</a>
+<span class="sourceLineNo">236</span><a id="line.236">     *</a>
+<span class="sourceLineNo">237</span><a id="line.237">     * @param listener the event listener</a>
+<span class="sourceLineNo">238</span><a id="line.238">     * @since 2.4.75</a>
+<span class="sourceLineNo">239</span><a id="line.239">     */</a>
+<span class="sourceLineNo">240</span><a id="line.240">    public final synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">241</span><a id="line.241">        WikiEventManager.addWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">242</span><a id="line.242">    }</a>
+<span class="sourceLineNo">243</span><a id="line.243"></a>
+<span class="sourceLineNo">244</span><a id="line.244">    /**</a>
+<span class="sourceLineNo">245</span><a id="line.245">     * Un-registers a WikiEventListener with this instance.</a>
+<span class="sourceLineNo">246</span><a id="line.246">     *</a>
+<span class="sourceLineNo">247</span><a id="line.247">     * @param listener the event listener</a>
+<span class="sourceLineNo">248</span><a id="line.248">     * @since 2.4.75</a>
+<span class="sourceLineNo">249</span><a id="line.249">     */</a>
+<span class="sourceLineNo">250</span><a id="line.250">    public final synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">251</span><a id="line.251">        WikiEventManager.removeWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">252</span><a id="line.252">    }</a>
+<span class="sourceLineNo">253</span><a id="line.253"></a>
+<span class="sourceLineNo">254</span><a id="line.254">    /**</a>
+<span class="sourceLineNo">255</span><a id="line.255">     * Fires a WikiSecurityEvent to all registered listeners.</a>
+<span class="sourceLineNo">256</span><a id="line.256">     *</a>
+<span class="sourceLineNo">257</span><a id="line.257">     * @param type  the event type</a>
+<span class="sourceLineNo">258</span><a id="line.258">     * @param principal the user principal associated with this session</a>
+<span class="sourceLineNo">259</span><a id="line.259">     * @param session the wiki session</a>
+<span class="sourceLineNo">260</span><a id="line.260">     * @since 2.4.75</a>
+<span class="sourceLineNo">261</span><a id="line.261">     */</a>
+<span class="sourceLineNo">262</span><a id="line.262">    protected final void fireEvent( final int type, final Principal principal, final Session session ) {</a>
+<span class="sourceLineNo">263</span><a id="line.263">        if( WikiEventManager.isListening( this ) ) {</a>
+<span class="sourceLineNo">264</span><a id="line.264">            WikiEventManager.fireEvent( this, new WikiSecurityEvent( this, type, principal, session ) );</a>
+<span class="sourceLineNo">265</span><a id="line.265">        }</a>
+<span class="sourceLineNo">266</span><a id="line.266">    }</a>
+<span class="sourceLineNo">267</span><a id="line.267"></a>
+<span class="sourceLineNo">268</span><a id="line.268">    /**</a>
+<span class="sourceLineNo">269</span><a id="line.269">     * Fires when the web container creates a new HTTP session.</a>
+<span class="sourceLineNo">270</span><a id="line.270">     * </a>
+<span class="sourceLineNo">271</span><a id="line.271">     * @param se the HTTP session event</a>
+<span class="sourceLineNo">272</span><a id="line.272">     */</a>
+<span class="sourceLineNo">273</span><a id="line.273">    @Override</a>
+<span class="sourceLineNo">274</span><a id="line.274">    public void sessionCreated( final HttpSessionEvent se ) {</a>
+<span class="sourceLineNo">275</span><a id="line.275">        final HttpSession session = se.getSession();</a>
+<span class="sourceLineNo">276</span><a id="line.276">        log.debug( "Created session: " + session.getId() + "." );</a>
+<span class="sourceLineNo">277</span><a id="line.277">    }</a>
+<span class="sourceLineNo">278</span><a id="line.278"></a>
+<span class="sourceLineNo">279</span><a id="line.279">    /**</a>
+<span class="sourceLineNo">280</span><a id="line.280">     * Removes the user's WikiSession from the internal session cache when the web</a>
+<span class="sourceLineNo">281</span><a id="line.281">     * container destroys an HTTP session.</a>
+<span class="sourceLineNo">282</span><a id="line.282">     * @param se the HTTP session event</a>
+<span class="sourceLineNo">283</span><a id="line.283">     */</a>
+<span class="sourceLineNo">284</span><a id="line.284">    @Override</a>
+<span class="sourceLineNo">285</span><a id="line.285">    public void sessionDestroyed( final HttpSessionEvent se ) {</a>
+<span class="sourceLineNo">286</span><a id="line.286">        final HttpSession session = se.getSession();</a>
+<span class="sourceLineNo">287</span><a id="line.287">        for( final SessionMonitor monitor : c_monitors.values() ) {</a>
+<span class="sourceLineNo">288</span><a id="line.288">            final Session storedSession = monitor.findSession( session );</a>
+<span class="sourceLineNo">289</span><a id="line.289">            monitor.remove( session );</a>
+<span class="sourceLineNo">290</span><a id="line.290">            log.debug( "Removed session " + session.getId() + "." );</a>
+<span class="sourceLineNo">291</span><a id="line.291">            if( storedSession != null ) {</a>
+<span class="sourceLineNo">292</span><a id="line.292">                fireEvent( WikiSecurityEvent.SESSION_EXPIRED, storedSession.getLoginPrincipal(), storedSession );</a>
+<span class="sourceLineNo">293</span><a id="line.293">            }</a>
+<span class="sourceLineNo">294</span><a id="line.294">        }</a>
+<span class="sourceLineNo">295</span><a id="line.295">    }</a>
+<span class="sourceLineNo">296</span><a id="line.296"></a>
+<span class="sourceLineNo">297</span><a id="line.297">}</a>
 
 
 
