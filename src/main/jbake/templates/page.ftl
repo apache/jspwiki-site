@@ -185,6 +185,7 @@
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=News">News</a></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Wiki%20Syntax">Wiki Syntax</a></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Downloads">Downloads</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Security">Security</a></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=NewIn">ReleaseNotes</a></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=FAQ">FAQ</a></li>
                 <li><a class="external" href="http://www.apache.org/licenses/">License</a><img class="outlink" src="./images/out.png" alt=""></li>
