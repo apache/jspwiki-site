@@ -6,6 +6,8 @@ type=page
 
 ## Project News
 
+  * **13-Dec-2021:** Apache JSPWiki affected by [Apache Log4J's CVE-2021-44228][]
+
   * **22-Nov-2021:** Apache JSPWiki [CVE-2021-40369][] and [CVE-2021-44140][] vulnerability disclosures
 
   * **22-Nov-2021**: Official [Apache JSPWiki 2.11.0 release][] is out!
@@ -99,12 +101,13 @@ type=page
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
-[CVE-2019-10076]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10076
-[CVE-2019-10077]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10077
-[CVE-2019-10078]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10078
-[CVE-2019-10087]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10087
-[CVE-2019-10089]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10089
-[CVE-2019-10090]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10090
-[CVE-2019-12404]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-12404
-[CVE-2021-40369]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-40369
-[CVE-2021-44140]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-44140
+[CVE-2019-10076]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10076
+[CVE-2019-10077]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10077
+[CVE-2019-10078]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10078
+[CVE-2019-10087]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10087
+[CVE-2019-10089]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10089
+[CVE-2019-10090]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-10090
+[CVE-2019-12404]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-12404
+[CVE-2021-40369]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-40369
+[CVE-2021-44140]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-44140
+[Apache Log4J's CVE-2021-44228][]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Log4J-CVE-2021-44228
