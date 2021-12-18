@@ -6,6 +6,8 @@ type=page
 
 ## Project News
 
+  * **18-Dec-2021:** Official [Apache JSPWiki 2.11.1 release][] is out!
+
   * **13-Dec-2021:** Apache JSPWiki affected by [Apache Log4J's CVE-2021-44228][]
 
   * **22-Nov-2021:** Apache JSPWiki [CVE-2021-40369][] and [CVE-2021-44140][] vulnerability disclosures
@@ -98,6 +100,7 @@ type=page
 [Apache JSPWiki 2.11.0.M7 release]: downloads.html
 [Apache JSPWiki 2.11.0.M8 release]: downloads.html
 [Apache JSPWiki 2.11.0 release]: downloads.html
+[Apache JSPWiki 2.11.1 release]: downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
