@@ -31,7 +31,6 @@ try {
     def docsVersion
 
     node( 'ubuntu' ) {
-        def JAVA_JDK_8=tool name: 'jdk_1.8_latest', type: 'hudson.model.JDK'
         def JAVA_JDK_11=tool name: 'jdk_11_latest', type: 'hudson.model.JDK'
         def MAVEN_3_LATEST=tool name: 'maven_3_latest', type: 'hudson.tasks.Maven$MavenInstallation'
         def version = params?.version ?: 'master'
@@ -66,9 +65,9 @@ try {
         }
 
         stage( 'build website' ) {
-            echo "Will use Java $JAVA_JDK_8"
+            echo "Will use Java $JAVA_JDK_11"
             echo "Will use Maven $MAVEN_3_LATEST"
-            withEnv( [ "Path+JDK=$JAVA_JDK_8/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_8" ] ) {
+            withEnv( [ "Path+JDK=$JAVA_JDK_11/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_11" ] ) {
                 dir( jbake ) {
                     git branch: jbake, url: repo, credentialsId: creds, poll: true
                     sh "cp ../$build/ChangeLog.md ./src/main/config/changelog.md"
