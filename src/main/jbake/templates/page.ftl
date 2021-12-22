@@ -242,31 +242,41 @@
 
       <div class="leftmenufooter">
         <div class="table-condensed-bordered">
-          <div class="accordion">
-            <div class="tab-ASF" id="section-LeftMenuFooter-ASF"> 
-              <table class="imageplugin" style="float:right;" border="0">
-                <tbody><tr><td><img src="./images/asf_logo.png" height="30px"></td></tr></tbody>
-              </table>
-              <table class="wikitable table-condensed table-bordered" border="1">
-                <tbody>
-                  <tr class="odd">
-                    <td><a class="external" href="http://www.apache.org/">Website</a><img class="outlink" src="./images/out.png" alt=""></td>
-                    <td><a class="external" href="http://www.apache.org/foundation/">Foundation</a><img class="outlink" src="./images/out.png" alt=""></td>
-                  </tr>
-                  <tr>
-                    <td><a class="external" href="http://www.apache.org/foundation/contributing.html">Donations</a><img class="outlink" src="./images/out.png" alt=""></td>
-                    <td><a class="external" href="http://projects.apache.org/">Projects</a><img class="outlink" src="./images/out.png" alt=""></td>
-                  </tr>
-                  <tr class="odd">
-                    <td><a class="external" href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a><img class="outlink" src="./images/out.png" alt=""></td>
-                    <td><a class="external" href="http://people.apache.org/">People</a><img class="outlink" src="./images/out.png" alt=""></td>
-                  </tr>
-                  <tr>
-                    <td><a class="external" href="http://www.apache.org/foundation/getinvolved.html">Get involved</a><img class="outlink" src="./images/out.png" alt=""></td>
-                    <td><a class="external" href="http://www.apache.org/foundation/thanks.html">Thanks</a><img class="outlink" src="./images/out.png" alt=""></td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="accordion panel-group">
+            <div class="panel panel-default">
+              <div id="kxhdiog7" class="panel-heading active">ASF
+                <table class="imageplugin" style="float:right;" border="0">
+                  <tbody><tr><td><img src="./images/asf_logo.png" alt="Apache Logo" height="30px"></td></tr></tbody>
+                </table>
+              </div>
+              <div style="padding-top: 0px; border-top: medium none; padding-bottom: 0px; border-bottom: medium none; overflow: hidden; opacity: 1; height: auto;" class="active">
+                <div class="tab-ASF panel-body" data-pane="ASF <table class=&quot;imageplugin&quot; style=&quot;float:right;&quot; border=&quot;0&quot;><tbody><tr><td><img src=&quot;/attach/CopyrightNotice/Apache_Logo.png&quot; alt=&quot;Apache Logo&quot; height=&quot;30px&quot;></td></tr></tbody></table>" id="section-LeftMenuFooter-ASFTableBorder0ClassImagepluginStyleFloatRightTrTdImgSrcAttachCopyrightNoticeApache_Logo.pngHeight30pxAltApacheLogoTdTrTable">
+                  <table class="wikitable table-condensed table-bordered" border="1">
+                    <tbody>
+                      <tr class="odd">
+                        <td><a class="external" href="http://www.apache.org/">Apache</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="http://www.apache.org/foundation/">Foundation</a><img class="outlink" src="./images/out.png" alt=""></td>
+                      </tr>
+                      <tr>
+                        <td><a class="external" href="http://www.apache.org/foundation/contributing.html">Donations</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="http://projects.apache.org/">Projects</a><img class="outlink" src="./images/out.png" alt=""></td>
+                      </tr>
+                      <tr class="odd">
+                        <td><a class="external" href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="http://people.apache.org/">People</a><img class="outlink" src="./images/out.png" alt=""></td>
+                      </tr>
+                      <tr>
+                        <td><a class="external" href="http://www.apache.org/foundation/getinvolved.html">Get involved</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="http://www.apache.org/foundation/thanks.html">Thanks</a><img class="outlink" src="./images/out.png" alt=""></td>
+                      </tr>
+                      <tr class="odd">
+                        <td><a class="external" href="http://www.apache.org/events/current-event.html">Events</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td>&nbsp;</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -288,7 +298,7 @@
       }
     </style>
     <div class="feather">
-      Copyright &copy; 2020 The Apache Software Foundation, <br>
+      Copyright &copy; 2021 The Apache Software Foundation, <br>
       Licensed under the <a class="external" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><img class="outlink" src="./images/out.png" alt="">.<br>
       Apache and the Apache feather logo are trademarks of The Apache Software Foundation.<br> <br>
     </div> 
