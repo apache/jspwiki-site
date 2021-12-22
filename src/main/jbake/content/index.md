@@ -62,4 +62,4 @@ JSPWiki is open-source software that is released under the Apache Public License
 [Apache JSPWiki 2.11.0.M6 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.0.M6ReleasedOn17122019
 [CVE-2021-40369]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-40369
 [CVE-2021-44140]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2021-44140
-[Apache Log4J's CVE-2021-44228][]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Log4J-CVE-2021-44228
+[Apache Log4J's CVE-2021-44228]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Log4J-CVE-2021-44228
