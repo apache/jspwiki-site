@@ -1,0 +1,448 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.pages;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.providers.PageProvider;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">027</span><a id="line.27"></a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.util.Collection;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import java.util.List;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import java.util.Set;</a>
+<span class="sourceLineNo">031</span><a id="line.31"></a>
+<span class="sourceLineNo">032</span><a id="line.32"></a>
+<span class="sourceLineNo">033</span><a id="line.33">public interface PageManager extends WikiEventListener {</a>
+<span class="sourceLineNo">034</span><a id="line.34"></a>
+<span class="sourceLineNo">035</span><a id="line.35">    /** The property value for setting the current page provider.  Value is {@value}. */</a>
+<span class="sourceLineNo">036</span><a id="line.36">    String PROP_PAGEPROVIDER = "jspwiki.pageProvider";</a>
+<span class="sourceLineNo">037</span><a id="line.37">    /** The property value for setting the amount of time before the page locks expire. Value is {@value}. */</a>
+<span class="sourceLineNo">038</span><a id="line.38">    String PROP_LOCKEXPIRY = "jspwiki.lockExpiryTime";</a>
+<span class="sourceLineNo">039</span><a id="line.39"></a>
+<span class="sourceLineNo">040</span><a id="line.40">    /**</a>
+<span class="sourceLineNo">041</span><a id="line.41">     * Returns the page provider currently in use.</a>
+<span class="sourceLineNo">042</span><a id="line.42">     *</a>
+<span class="sourceLineNo">043</span><a id="line.43">     * @return A WikiPageProvider instance.</a>
+<span class="sourceLineNo">044</span><a id="line.44">     */</a>
+<span class="sourceLineNo">045</span><a id="line.45">    PageProvider getProvider();</a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">    /**</a>
+<span class="sourceLineNo">048</span><a id="line.48">     * Returns all pages in some random order.  If you need just the page names,</a>
+<span class="sourceLineNo">049</span><a id="line.49">     * please see {@link org.apache.wiki.references.ReferenceManager#findCreated() ReferenceManager#findCreated()}, which is probably a lot</a>
+<span class="sourceLineNo">050</span><a id="line.50">     * faster.  This method may cause repository access.</a>
+<span class="sourceLineNo">051</span><a id="line.51">     *</a>
+<span class="sourceLineNo">052</span><a id="line.52">     * @return A Collection of WikiPage objects.</a>
+<span class="sourceLineNo">053</span><a id="line.53">     * @throws ProviderException If the backend has problems.</a>
+<span class="sourceLineNo">054</span><a id="line.54">     */</a>
+<span class="sourceLineNo">055</span><a id="line.55">    Collection&lt; Page &gt; getAllPages() throws ProviderException;</a>
+<span class="sourceLineNo">056</span><a id="line.56"></a>
+<span class="sourceLineNo">057</span><a id="line.57">    /**</a>
+<span class="sourceLineNo">058</span><a id="line.58">     * Fetches the page text from the repository.  This method also does some sanity checks, like checking for the pageName validity, etc.</a>
+<span class="sourceLineNo">059</span><a id="line.59">     * Also, if the page repository has been modified externally, it is smart enough to handle such occurrences.</a>
+<span class="sourceLineNo">060</span><a id="line.60">     *</a>
+<span class="sourceLineNo">061</span><a id="line.61">     * @param pageName The name of the page to fetch.</a>
+<span class="sourceLineNo">062</span><a id="line.62">     * @param version  The version to find</a>
+<span class="sourceLineNo">063</span><a id="line.63">     * @return The page content as a raw string</a>
+<span class="sourceLineNo">064</span><a id="line.64">     * @throws ProviderException If the backend has issues.</a>
+<span class="sourceLineNo">065</span><a id="line.65">     */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    String getPageText( String pageName, int version ) throws ProviderException;</a>
+<span class="sourceLineNo">067</span><a id="line.67"></a>
+<span class="sourceLineNo">068</span><a id="line.68">    /**</a>
+<span class="sourceLineNo">069</span><a id="line.69">     *  Returns the pure text of a page, no conversions.  Use this if you are writing something that depends on the parsing</a>
+<span class="sourceLineNo">070</span><a id="line.70">     *  of the page. Note that you should always check for page existence through pageExists() before attempting to fetch</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *  the page contents.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     *</a>
+<span class="sourceLineNo">073</span><a id="line.73">     *  This method is pretty similar to {@link #getPageText(String, int)}, except that it doesn't throw {@link ProviderException},</a>
+<span class="sourceLineNo">074</span><a id="line.74">     *  it logs and swallows them.</a>
+<span class="sourceLineNo">075</span><a id="line.75">     *</a>
+<span class="sourceLineNo">076</span><a id="line.76">     *  @param page The name of the page to fetch.</a>
+<span class="sourceLineNo">077</span><a id="line.77">     *  @param version If WikiPageProvider.LATEST_VERSION, then uses the latest version.</a>
+<span class="sourceLineNo">078</span><a id="line.78">     *  @return The page contents.  If the page does not exist, returns an empty string.</a>
+<span class="sourceLineNo">079</span><a id="line.79">     */</a>
+<span class="sourceLineNo">080</span><a id="line.80">    String getPureText( String page, int version );</a>
+<span class="sourceLineNo">081</span><a id="line.81"></a>
+<span class="sourceLineNo">082</span><a id="line.82">    /**</a>
+<span class="sourceLineNo">083</span><a id="line.83">     *  Returns the pure text of a page, no conversions.  Use this if you are writing something that depends on the parsing</a>
+<span class="sourceLineNo">084</span><a id="line.84">     *  the page. Note that you should always check for page existence through pageExists() before attempting to fetch</a>
+<span class="sourceLineNo">085</span><a id="line.85">     *  the page contents.</a>
+<span class="sourceLineNo">086</span><a id="line.86">     *</a>
+<span class="sourceLineNo">087</span><a id="line.87">     *  This method is pretty similar to {@link #getPageText(String, int)}, except that it doesn't throw {@link ProviderException},</a>
+<span class="sourceLineNo">088</span><a id="line.88">     *  it logs and swallows them.</a>
+<span class="sourceLineNo">089</span><a id="line.89">     *</a>
+<span class="sourceLineNo">090</span><a id="line.90">     *  @param page A handle to the WikiPage</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *  @return String of WikiText.</a>
+<span class="sourceLineNo">092</span><a id="line.92">     *  @since 2.1.13, moved to PageManager on 2.11.0.</a>
+<span class="sourceLineNo">093</span><a id="line.93">     */</a>
+<span class="sourceLineNo">094</span><a id="line.94">    default String getPureText( final Page page ) {</a>
+<span class="sourceLineNo">095</span><a id="line.95">        return getPureText( page.getName(), page.getVersion() );</a>
+<span class="sourceLineNo">096</span><a id="line.96">    }</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">    /**</a>
+<span class="sourceLineNo">099</span><a id="line.99">     *  Returns the un-HTMLized text of the given version of a page. This method also replaces the &amp;lt; and &amp;amp; -characters with</a>
+<span class="sourceLineNo">100</span><a id="line.100">     *  their respective HTML entities, thus making it suitable for inclusion on an HTML page.  If you want to have the page text</a>
+<span class="sourceLineNo">101</span><a id="line.101">     *  without any conversions, use {@link #getPureText(String, int)}.</a>
+<span class="sourceLineNo">102</span><a id="line.102">     *</a>
+<span class="sourceLineNo">103</span><a id="line.103">     * @param page WikiName of the page to fetch</a>
+<span class="sourceLineNo">104</span><a id="line.104">     * @param version  Version of the page to fetch</a>
+<span class="sourceLineNo">105</span><a id="line.105">     * @return WikiText.</a>
+<span class="sourceLineNo">106</span><a id="line.106">     */</a>
+<span class="sourceLineNo">107</span><a id="line.107">    String getText( String page, int version );</a>
+<span class="sourceLineNo">108</span><a id="line.108"></a>
+<span class="sourceLineNo">109</span><a id="line.109">    /**</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *  Returns the un-HTMLized text of the latest version of a page. This method also replaces the &amp;lt; and &amp;amp; -characters with</a>
+<span class="sourceLineNo">111</span><a id="line.111">     *  their respective HTML entities, thus making it suitable for inclusion on an HTML page.  If you want to have the page text</a>
+<span class="sourceLineNo">112</span><a id="line.112">     *  without any conversions, use {@link #getPureText(String, int)}.</a>
+<span class="sourceLineNo">113</span><a id="line.113">     *</a>
+<span class="sourceLineNo">114</span><a id="line.114">     *  @param page WikiName of the page to fetch.</a>
+<span class="sourceLineNo">115</span><a id="line.115">     *  @return WikiText.</a>
+<span class="sourceLineNo">116</span><a id="line.116">     */</a>
+<span class="sourceLineNo">117</span><a id="line.117">    default String getText( final String page ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">        return getText( page, PageProvider.LATEST_VERSION );</a>
+<span class="sourceLineNo">119</span><a id="line.119">    }</a>
+<span class="sourceLineNo">120</span><a id="line.120"></a>
+<span class="sourceLineNo">121</span><a id="line.121">    /**</a>
+<span class="sourceLineNo">122</span><a id="line.122">     *  Returns the un-HTMLized text of the given version of a page in the given context.  USE THIS METHOD if you don't know what doing.</a>
+<span class="sourceLineNo">123</span><a id="line.123">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">124</span><a id="line.124">     *  This method also replaces the &amp;lt; and &amp;amp; -characters with their respective HTML entities, thus making it suitable</a>
+<span class="sourceLineNo">125</span><a id="line.125">     *  for inclusion on an HTML page.  If you want to have the page text without any conversions, use {@link #getPureText(Page)}.</a>
+<span class="sourceLineNo">126</span><a id="line.126">     *</a>
+<span class="sourceLineNo">127</span><a id="line.127">     *  @since 1.9.15.</a>
+<span class="sourceLineNo">128</span><a id="line.128">     *  @param page A page reference (not an attachment)</a>
+<span class="sourceLineNo">129</span><a id="line.129">     *  @return The page content as HTMLized String.</a>
+<span class="sourceLineNo">130</span><a id="line.130">     *  @see PageManager#getPureText(Page)</a>
+<span class="sourceLineNo">131</span><a id="line.131">     */</a>
+<span class="sourceLineNo">132</span><a id="line.132">    default String getText( final Page page ) {</a>
+<span class="sourceLineNo">133</span><a id="line.133">        return getText( page.getName(), page.getVersion() );</a>
+<span class="sourceLineNo">134</span><a id="line.134">    }</a>
+<span class="sourceLineNo">135</span><a id="line.135"></a>
+<span class="sourceLineNo">136</span><a id="line.136">    /**</a>
+<span class="sourceLineNo">137</span><a id="line.137">     *  Writes the WikiText of a page into the page repository. If the &lt;code&gt;jspwiki.properties&lt;/code&gt; file contains</a>
+<span class="sourceLineNo">138</span><a id="line.138">     *  the property &lt;code&gt;jspwiki.approver.workflow.saveWikiPage&lt;/code&gt; and its value resolves to a valid user,</a>
+<span class="sourceLineNo">139</span><a id="line.139">     *  {@link org.apache.wiki.auth.authorize.Group} or {@link org.apache.wiki.auth.authorize.Role}, this method will</a>
+<span class="sourceLineNo">140</span><a id="line.140">     *  place a {@link org.apache.wiki.workflow.Decision} in the approver's workflow inbox and throw a</a>
+<span class="sourceLineNo">141</span><a id="line.141">     *  {@link org.apache.wiki.workflow.DecisionRequiredException}. If the submitting user is authenticated and the</a>
+<span class="sourceLineNo">142</span><a id="line.142">     *  page save is rejected, a notification will be placed in the user's decision queue.</a>
+<span class="sourceLineNo">143</span><a id="line.143">     *</a>
+<span class="sourceLineNo">144</span><a id="line.144">     *  @since 2.1.28, moved to PageManager on 2.11.0</a>
+<span class="sourceLineNo">145</span><a id="line.145">     *  @param context The current WikiContext</a>
+<span class="sourceLineNo">146</span><a id="line.146">     *  @param text    The Wiki markup for the page.</a>
+<span class="sourceLineNo">147</span><a id="line.147">     *  @throws WikiException if the save operation encounters an error during the save operation. If the page-save</a>
+<span class="sourceLineNo">148</span><a id="line.148">     *  operation requires approval, the exception will be of type {@link org.apache.wiki.workflow.DecisionRequiredException}.</a>
+<span class="sourceLineNo">149</span><a id="line.149">     *  Individual PageFilters, such as the {@link org.apache.wiki.filters.SpamFilter} may also throw a</a>
+<span class="sourceLineNo">150</span><a id="line.150">     *  {@link org.apache.wiki.api.exceptions.RedirectException}.</a>
+<span class="sourceLineNo">151</span><a id="line.151">     */</a>
+<span class="sourceLineNo">152</span><a id="line.152">    void saveText( Context context, String text ) throws WikiException;</a>
+<span class="sourceLineNo">153</span><a id="line.153"></a>
+<span class="sourceLineNo">154</span><a id="line.154">    /**</a>
+<span class="sourceLineNo">155</span><a id="line.155">     * Puts the page text into the repository.  Note that this method does NOT update</a>
+<span class="sourceLineNo">156</span><a id="line.156">     * JSPWiki internal data structures, and therefore you should always use saveText()</a>
+<span class="sourceLineNo">157</span><a id="line.157">     *</a>
+<span class="sourceLineNo">158</span><a id="line.158">     * @param page    Page to save</a>
+<span class="sourceLineNo">159</span><a id="line.159">     * @param content Wikimarkup to save</a>
+<span class="sourceLineNo">160</span><a id="line.160">     * @throws ProviderException If something goes wrong in the saving phase</a>
+<span class="sourceLineNo">161</span><a id="line.161">     */</a>
+<span class="sourceLineNo">162</span><a id="line.162">    void putPageText( Page page, String content ) throws ProviderException;</a>
+<span class="sourceLineNo">163</span><a id="line.163"></a>
+<span class="sourceLineNo">164</span><a id="line.164">    /**</a>
+<span class="sourceLineNo">165</span><a id="line.165">     * Locks page for editing.  Note, however, that the PageManager will in no way prevent you from actually editing this page;</a>
+<span class="sourceLineNo">166</span><a id="line.166">     * the lock is just for information.</a>
+<span class="sourceLineNo">167</span><a id="line.167">     *</a>
+<span class="sourceLineNo">168</span><a id="line.168">     * @param page WikiPage to lock</a>
+<span class="sourceLineNo">169</span><a id="line.169">     * @param user Username to use for locking</a>
+<span class="sourceLineNo">170</span><a id="line.170">     * @return null, if page could not be locked.</a>
+<span class="sourceLineNo">171</span><a id="line.171">     */</a>
+<span class="sourceLineNo">172</span><a id="line.172">    PageLock lockPage( Page page, String user );</a>
+<span class="sourceLineNo">173</span><a id="line.173"></a>
+<span class="sourceLineNo">174</span><a id="line.174">    /**</a>
+<span class="sourceLineNo">175</span><a id="line.175">     * Marks a page free to be written again.  If there has not been a lock, will fail quietly.</a>
+<span class="sourceLineNo">176</span><a id="line.176">     *</a>
+<span class="sourceLineNo">177</span><a id="line.177">     * @param lock A lock acquired in lockPage().  Safe to be null.</a>
+<span class="sourceLineNo">178</span><a id="line.178">     */</a>
+<span class="sourceLineNo">179</span><a id="line.179">    void unlockPage( PageLock lock );</a>
+<span class="sourceLineNo">180</span><a id="line.180"></a>
+<span class="sourceLineNo">181</span><a id="line.181">    /**</a>
+<span class="sourceLineNo">182</span><a id="line.182">     * Returns the current lock owner of a page.  If the page is not locked, will return null.</a>
+<span class="sourceLineNo">183</span><a id="line.183">     *</a>
+<span class="sourceLineNo">184</span><a id="line.184">     * @param page The page to check the lock for</a>
+<span class="sourceLineNo">185</span><a id="line.185">     * @return Current lock, or null, if there is no lock</a>
+<span class="sourceLineNo">186</span><a id="line.186">     */</a>
+<span class="sourceLineNo">187</span><a id="line.187">    PageLock getCurrentLock( Page page );</a>
+<span class="sourceLineNo">188</span><a id="line.188"></a>
+<span class="sourceLineNo">189</span><a id="line.189">    /**</a>
+<span class="sourceLineNo">190</span><a id="line.190">     * Returns a list of currently applicable locks.  Note that by the time you get the list,</a>
+<span class="sourceLineNo">191</span><a id="line.191">     * the locks may have already expired, so use this only for informational purposes.</a>
+<span class="sourceLineNo">192</span><a id="line.192">     *</a>
+<span class="sourceLineNo">193</span><a id="line.193">     * @return List of PageLock objects, detailing the locks.  If no locks exist, returns an empty list.</a>
+<span class="sourceLineNo">194</span><a id="line.194">     * @since 2.0.22.</a>
+<span class="sourceLineNo">195</span><a id="line.195">     */</a>
+<span class="sourceLineNo">196</span><a id="line.196">    List&lt; PageLock &gt; getActiveLocks();</a>
+<span class="sourceLineNo">197</span><a id="line.197"></a>
+<span class="sourceLineNo">198</span><a id="line.198">    /**</a>
+<span class="sourceLineNo">199</span><a id="line.199">     *  Finds the corresponding WikiPage object based on the page name.  It always finds</a>
+<span class="sourceLineNo">200</span><a id="line.200">     *  the latest version of a page.</a>
+<span class="sourceLineNo">201</span><a id="line.201">     *</a>
+<span class="sourceLineNo">202</span><a id="line.202">     *  @param pagereq The name of the page to look for.</a>
+<span class="sourceLineNo">203</span><a id="line.203">     *  @return A WikiPage object, or null, if the page by the name could not be found.</a>
+<span class="sourceLineNo">204</span><a id="line.204">     */</a>
+<span class="sourceLineNo">205</span><a id="line.205">    Page getPage( String pagereq );</a>
+<span class="sourceLineNo">206</span><a id="line.206"></a>
+<span class="sourceLineNo">207</span><a id="line.207">    /**</a>
+<span class="sourceLineNo">208</span><a id="line.208">     *  Finds the corresponding WikiPage object base on the page name and version.</a>
+<span class="sourceLineNo">209</span><a id="line.209">     *</a>
+<span class="sourceLineNo">210</span><a id="line.210">     *  @param pagereq The name of the page to look for.</a>
+<span class="sourceLineNo">211</span><a id="line.211">     *  @param version The version number to look for.  May be WikiProvider.LATEST_VERSION,</a>
+<span class="sourceLineNo">212</span><a id="line.212">     *  in which case it will look for the latest version (and this method then becomes</a>
+<span class="sourceLineNo">213</span><a id="line.213">     *  the equivalent of getPage(String).</a>
+<span class="sourceLineNo">214</span><a id="line.214">     *</a>
+<span class="sourceLineNo">215</span><a id="line.215">     *  @return A WikiPage object, or null, if the page could not be found; or if there</a>
+<span class="sourceLineNo">216</span><a id="line.216">     *  is no such version of the page.</a>
+<span class="sourceLineNo">217</span><a id="line.217">     *  @since 1.6.7 (moved to PageManager on 2.11.0).</a>
+<span class="sourceLineNo">218</span><a id="line.218">     */</a>
+<span class="sourceLineNo">219</span><a id="line.219">    Page getPage( String pagereq, int version );</a>
+<span class="sourceLineNo">220</span><a id="line.220"></a>
+<span class="sourceLineNo">221</span><a id="line.221">    /**</a>
+<span class="sourceLineNo">222</span><a id="line.222">     * Finds a WikiPage object describing a particular page and version.</a>
+<span class="sourceLineNo">223</span><a id="line.223">     *</a>
+<span class="sourceLineNo">224</span><a id="line.224">     * @param pageName The name of the page</a>
+<span class="sourceLineNo">225</span><a id="line.225">     * @param version  A version number</a>
+<span class="sourceLineNo">226</span><a id="line.226">     * @return A WikiPage object, or null, if the page does not exist</a>
+<span class="sourceLineNo">227</span><a id="line.227">     * @throws ProviderException If there is something wrong with the page name or the repository</a>
+<span class="sourceLineNo">228</span><a id="line.228">     */</a>
+<span class="sourceLineNo">229</span><a id="line.229">    Page getPageInfo( String pageName, int version ) throws ProviderException;</a>
+<span class="sourceLineNo">230</span><a id="line.230"></a>
+<span class="sourceLineNo">231</span><a id="line.231">    /**</a>
+<span class="sourceLineNo">232</span><a id="line.232">     * Gets a version history of page.  Each element in the returned List is a WikiPage.</a>
+<span class="sourceLineNo">233</span><a id="line.233">     *</a>
+<span class="sourceLineNo">234</span><a id="line.234">     * @param pageName The name of the page or attachment to fetch history for</a>
+<span class="sourceLineNo">235</span><a id="line.235">     * @return If the page does not exist or there's some problem retrieving the version history, returns null,</a>
+<span class="sourceLineNo">236</span><a id="line.236">     *         otherwise a List of WikiPages / Attachments, each corresponding to a different revision of the page / attachment.</a>
+<span class="sourceLineNo">237</span><a id="line.237">     */</a>
+<span class="sourceLineNo">238</span><a id="line.238">    &lt; T extends Page &gt; List&lt; T &gt; getVersionHistory( String pageName );</a>
+<span class="sourceLineNo">239</span><a id="line.239"></a>
+<span class="sourceLineNo">240</span><a id="line.240">    /**</a>
+<span class="sourceLineNo">241</span><a id="line.241">     *  Returns the provider name.</a>
+<span class="sourceLineNo">242</span><a id="line.242">     *</a>
+<span class="sourceLineNo">243</span><a id="line.243">     *  @return The full class name of the current page provider.</a>
+<span class="sourceLineNo">244</span><a id="line.244">     */</a>
+<span class="sourceLineNo">245</span><a id="line.245">    String getCurrentProvider();</a>
+<span class="sourceLineNo">246</span><a id="line.246"></a>
+<span class="sourceLineNo">247</span><a id="line.247">    /**</a>
+<span class="sourceLineNo">248</span><a id="line.248">     * Returns a human-readable description of the current provider.</a>
+<span class="sourceLineNo">249</span><a id="line.249">     *</a>
+<span class="sourceLineNo">250</span><a id="line.250">     * @return A human-readable description.</a>
+<span class="sourceLineNo">251</span><a id="line.251">     */</a>
+<span class="sourceLineNo">252</span><a id="line.252">    String getProviderDescription();</a>
+<span class="sourceLineNo">253</span><a id="line.253"></a>
+<span class="sourceLineNo">254</span><a id="line.254">    /**</a>
+<span class="sourceLineNo">255</span><a id="line.255">     * Returns the total count of all pages in the repository. This</a>
+<span class="sourceLineNo">256</span><a id="line.256">     * method is equivalent of calling getAllPages().size(), but</a>
+<span class="sourceLineNo">257</span><a id="line.257">     * it swallows the ProviderException and returns -1 instead of</a>
+<span class="sourceLineNo">258</span><a id="line.258">     * any problems.</a>
+<span class="sourceLineNo">259</span><a id="line.259">     *</a>
+<span class="sourceLineNo">260</span><a id="line.260">     * @return The number of pages, or -1, if there is an error.</a>
+<span class="sourceLineNo">261</span><a id="line.261">     */</a>
+<span class="sourceLineNo">262</span><a id="line.262">    int getTotalPageCount();</a>
+<span class="sourceLineNo">263</span><a id="line.263"></a>
+<span class="sourceLineNo">264</span><a id="line.264">    /**</a>
+<span class="sourceLineNo">265</span><a id="line.265">     *  Returns a Collection of WikiPages, sorted in time order of last change (i.e. first object is the most recently changed).</a>
+<span class="sourceLineNo">266</span><a id="line.266">     *  This method also includes attachments.</a>
+<span class="sourceLineNo">267</span><a id="line.267">     *</a>
+<span class="sourceLineNo">268</span><a id="line.268">     *  @return Set of WikiPage objects.</a>
+<span class="sourceLineNo">269</span><a id="line.269">     */</a>
+<span class="sourceLineNo">270</span><a id="line.270">    Set&lt; Page &gt; getRecentChanges();</a>
+<span class="sourceLineNo">271</span><a id="line.271"></a>
+<span class="sourceLineNo">272</span><a id="line.272">    /**</a>
+<span class="sourceLineNo">273</span><a id="line.273">     * Returns true, if the page exists (any version) on the underlying WikiPageProvider.</a>
+<span class="sourceLineNo">274</span><a id="line.274">     *</a>
+<span class="sourceLineNo">275</span><a id="line.275">     * @param pageName Name of the page.</a>
+<span class="sourceLineNo">276</span><a id="line.276">     * @return A boolean value describing the existence of a page</a>
+<span class="sourceLineNo">277</span><a id="line.277">     * @throws ProviderException If the backend fails or the name is illegal.</a>
+<span class="sourceLineNo">278</span><a id="line.278">     */</a>
+<span class="sourceLineNo">279</span><a id="line.279">    boolean pageExists( String pageName ) throws ProviderException;</a>
+<span class="sourceLineNo">280</span><a id="line.280"></a>
+<span class="sourceLineNo">281</span><a id="line.281">    /**</a>
+<span class="sourceLineNo">282</span><a id="line.282">     * Checks for existence of a specific page and version on the underlying WikiPageProvider.</a>
+<span class="sourceLineNo">283</span><a id="line.283">     *</a>
+<span class="sourceLineNo">284</span><a id="line.284">     * @param pageName Name of the page</a>
+<span class="sourceLineNo">285</span><a id="line.285">     * @param version  The version to check</a>
+<span class="sourceLineNo">286</span><a id="line.286">     * @return &lt;code&gt;true&lt;/code&gt; if the page exists, &lt;code&gt;false&lt;/code&gt; otherwise</a>
+<span class="sourceLineNo">287</span><a id="line.287">     * @throws ProviderException If backend fails or name is illegal</a>
+<span class="sourceLineNo">288</span><a id="line.288">     * @since 2.3.29</a>
+<span class="sourceLineNo">289</span><a id="line.289">     */</a>
+<span class="sourceLineNo">290</span><a id="line.290">    boolean pageExists( String pageName, int version ) throws ProviderException;</a>
+<span class="sourceLineNo">291</span><a id="line.291"></a>
+<span class="sourceLineNo">292</span><a id="line.292">    /**</a>
+<span class="sourceLineNo">293</span><a id="line.293">     *  Checks for existence of a specific page and version denoted by a WikiPage on the underlying WikiPageProvider.</a>
+<span class="sourceLineNo">294</span><a id="line.294">     *</a>
+<span class="sourceLineNo">295</span><a id="line.295">     *  @param page A WikiPage object describing the name and version.</a>
+<span class="sourceLineNo">296</span><a id="line.296">     *  @return true, if the page (or alias, or attachment) exists.</a>
+<span class="sourceLineNo">297</span><a id="line.297">     *  @throws ProviderException If something goes badly wrong.</a>
+<span class="sourceLineNo">298</span><a id="line.298">     *  @since 2.0</a>
+<span class="sourceLineNo">299</span><a id="line.299">     */</a>
+<span class="sourceLineNo">300</span><a id="line.300">    default boolean pageExists( final Page page ) throws ProviderException {</a>
+<span class="sourceLineNo">301</span><a id="line.301">        if( page != null ) {</a>
+<span class="sourceLineNo">302</span><a id="line.302">            return pageExists( page.getName(), page.getVersion() );</a>
+<span class="sourceLineNo">303</span><a id="line.303">        }</a>
+<span class="sourceLineNo">304</span><a id="line.304">        return false;</a>
+<span class="sourceLineNo">305</span><a id="line.305">    }</a>
+<span class="sourceLineNo">306</span><a id="line.306"></a>
+<span class="sourceLineNo">307</span><a id="line.307">    /**</a>
+<span class="sourceLineNo">308</span><a id="line.308">     *  Returns true, if the requested page (or an alias) exists.  Will consider any version as existing. Will check for all types of</a>
+<span class="sourceLineNo">309</span><a id="line.309">     *  WikiPages: wiki pages themselves, attachments and special pages (non-existant references to other pages).</a>
+<span class="sourceLineNo">310</span><a id="line.310">     *</a>
+<span class="sourceLineNo">311</span><a id="line.311">     *  @param page WikiName of the page.</a>
+<span class="sourceLineNo">312</span><a id="line.312">     *  @return true, if page (or attachment) exists.</a>
+<span class="sourceLineNo">313</span><a id="line.313">     */</a>
+<span class="sourceLineNo">314</span><a id="line.314">    boolean wikiPageExists( String page );</a>
+<span class="sourceLineNo">315</span><a id="line.315"></a>
+<span class="sourceLineNo">316</span><a id="line.316">    /**</a>
+<span class="sourceLineNo">317</span><a id="line.317">     *  Returns true, if the requested page (or an alias) exists with the requested version. Will check for all types of</a>
+<span class="sourceLineNo">318</span><a id="line.318">     *  WikiPages: wiki pages themselves, attachments and special pages (non-existant references to other pages).</a>
+<span class="sourceLineNo">319</span><a id="line.319">     *</a>
+<span class="sourceLineNo">320</span><a id="line.320">     *  @param page Page name</a>
+<span class="sourceLineNo">321</span><a id="line.321">     *  @param version Page version</a>
+<span class="sourceLineNo">322</span><a id="line.322">     *  @return True, if page (or alias, or attachment) exists</a>
+<span class="sourceLineNo">323</span><a id="line.323">     *  @throws ProviderException If the provider fails.</a>
+<span class="sourceLineNo">324</span><a id="line.324">     */</a>
+<span class="sourceLineNo">325</span><a id="line.325">    boolean wikiPageExists( String page, int version ) throws ProviderException;</a>
+<span class="sourceLineNo">326</span><a id="line.326"></a>
+<span class="sourceLineNo">327</span><a id="line.327">    /**</a>
+<span class="sourceLineNo">328</span><a id="line.328">     *  Returns true, if the requested page (or an alias) exists, with the specified version in the WikiPage. Will check for all types of</a>
+<span class="sourceLineNo">329</span><a id="line.329">     *  WikiPages: wiki pages themselves, attachments and special pages (non-existant references to other pages).</a>
+<span class="sourceLineNo">330</span><a id="line.330">     *</a>
+<span class="sourceLineNo">331</span><a id="line.331">     *  @param page A WikiPage object describing the name and version.</a>
+<span class="sourceLineNo">332</span><a id="line.332">     *  @return true, if the page (or alias, or attachment) exists.</a>
+<span class="sourceLineNo">333</span><a id="line.333">     *  @throws ProviderException If something goes badly wrong.</a>
+<span class="sourceLineNo">334</span><a id="line.334">     *  @since 2.0</a>
+<span class="sourceLineNo">335</span><a id="line.335">     */</a>
+<span class="sourceLineNo">336</span><a id="line.336">    default boolean wikiPageExists( final Page page ) throws ProviderException {</a>
+<span class="sourceLineNo">337</span><a id="line.337">        if( page != null ) {</a>
+<span class="sourceLineNo">338</span><a id="line.338">            return wikiPageExists( page.getName(), page.getVersion() );</a>
+<span class="sourceLineNo">339</span><a id="line.339">        }</a>
+<span class="sourceLineNo">340</span><a id="line.340">        return false;</a>
+<span class="sourceLineNo">341</span><a id="line.341">    }</a>
+<span class="sourceLineNo">342</span><a id="line.342"></a>
+<span class="sourceLineNo">343</span><a id="line.343">    /**</a>
+<span class="sourceLineNo">344</span><a id="line.344">     * Deletes only a specific version of a WikiPage.</a>
+<span class="sourceLineNo">345</span><a id="line.345">     *</a>
+<span class="sourceLineNo">346</span><a id="line.346">     * @param page The page to delete.</a>
+<span class="sourceLineNo">347</span><a id="line.347">     * @throws ProviderException if the page fails</a>
+<span class="sourceLineNo">348</span><a id="line.348">     */</a>
+<span class="sourceLineNo">349</span><a id="line.349">    void deleteVersion( Page page ) throws ProviderException;</a>
+<span class="sourceLineNo">350</span><a id="line.350"></a>
+<span class="sourceLineNo">351</span><a id="line.351">    /**</a>
+<span class="sourceLineNo">352</span><a id="line.352">     *  Deletes a page or an attachment completely, including all versions.  If the page does not exist, does nothing.</a>
+<span class="sourceLineNo">353</span><a id="line.353">     *</a>
+<span class="sourceLineNo">354</span><a id="line.354">     * @param pageName The name of the page.</a>
+<span class="sourceLineNo">355</span><a id="line.355">     * @throws ProviderException If something goes wrong.</a>
+<span class="sourceLineNo">356</span><a id="line.356">     */</a>
+<span class="sourceLineNo">357</span><a id="line.357">    void deletePage( String pageName ) throws ProviderException;</a>
+<span class="sourceLineNo">358</span><a id="line.358"></a>
+<span class="sourceLineNo">359</span><a id="line.359">    /**</a>
+<span class="sourceLineNo">360</span><a id="line.360">     * Deletes an entire page, all versions, all traces.</a>
+<span class="sourceLineNo">361</span><a id="line.361">     *</a>
+<span class="sourceLineNo">362</span><a id="line.362">     * @param page The WikiPage to delete</a>
+<span class="sourceLineNo">363</span><a id="line.363">     * @throws ProviderException If the repository operation fails</a>
+<span class="sourceLineNo">364</span><a id="line.364">     */</a>
+<span class="sourceLineNo">365</span><a id="line.365">    void deletePage( Page page ) throws ProviderException;</a>
+<span class="sourceLineNo">366</span><a id="line.366"></a>
+<span class="sourceLineNo">367</span><a id="line.367">    /**</a>
+<span class="sourceLineNo">368</span><a id="line.368">     * Returns the configured {@link PageSorter}.</a>
+<span class="sourceLineNo">369</span><a id="line.369">     * </a>
+<span class="sourceLineNo">370</span><a id="line.370">     * @return the configured {@link PageSorter}.</a>
+<span class="sourceLineNo">371</span><a id="line.371">     */</a>
+<span class="sourceLineNo">372</span><a id="line.372">    PageSorter getPageSorter();</a>
+<span class="sourceLineNo">373</span><a id="line.373"></a>
+<span class="sourceLineNo">374</span><a id="line.374">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

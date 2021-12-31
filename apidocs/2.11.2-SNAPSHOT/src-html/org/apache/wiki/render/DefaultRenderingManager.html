@@ -1,0 +1,503 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.render;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.time.StopWatch;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.StringTransmutator;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Attachment;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.exceptions.FilterException;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.api.providers.PageProvider;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.apache.wiki.attachment.AttachmentManager;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import org.apache.wiki.cache.CachingManager;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import org.apache.wiki.event.WikiEvent;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import org.apache.wiki.event.WikiEventManager;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import org.apache.wiki.event.WikiPageEvent;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import org.apache.wiki.filters.FilterManager;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import org.apache.wiki.parser.JSPWikiMarkupParser;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import org.apache.wiki.parser.MarkupParser;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import org.apache.wiki.parser.WikiDocument;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import org.apache.wiki.references.ReferenceManager;</a>
+<span class="sourceLineNo">047</span><a id="line.47">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">048</span><a id="line.48">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">049</span><a id="line.49">import org.apache.wiki.variables.VariableManager;</a>
+<span class="sourceLineNo">050</span><a id="line.50"></a>
+<span class="sourceLineNo">051</span><a id="line.51">import java.io.IOException;</a>
+<span class="sourceLineNo">052</span><a id="line.52">import java.io.StringReader;</a>
+<span class="sourceLineNo">053</span><a id="line.53">import java.lang.reflect.Constructor;</a>
+<span class="sourceLineNo">054</span><a id="line.54">import java.util.Collection;</a>
+<span class="sourceLineNo">055</span><a id="line.55">import java.util.Properties;</a>
+<span class="sourceLineNo">056</span><a id="line.56"></a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">/**</a>
+<span class="sourceLineNo">059</span><a id="line.59"> *  This class provides a facade towards the differing rendering routines.  You should use the routines in this manager</a>
+<span class="sourceLineNo">060</span><a id="line.60"> *  instead of the ones in Engine, if you don't want the different side effects to occur - such as WikiFilters.</a>
+<span class="sourceLineNo">061</span><a id="line.61"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">062</span><a id="line.62"> *  This class also delegates to a rendering cache, i.e. documents are stored between calls. You may control the cache by</a>
+<span class="sourceLineNo">063</span><a id="line.63"> *  tweaking the ehcache configuration file.</a>
+<span class="sourceLineNo">064</span><a id="line.64"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">065</span><a id="line.65"> *</a>
+<span class="sourceLineNo">066</span><a id="line.66"> *  @since  2.4</a>
+<span class="sourceLineNo">067</span><a id="line.67"> */</a>
+<span class="sourceLineNo">068</span><a id="line.68">public class DefaultRenderingManager implements RenderingManager {</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">    private static final Logger LOG = LogManager.getLogger( DefaultRenderingManager.class );</a>
+<span class="sourceLineNo">071</span><a id="line.71">    private static final String VERSION_DELIMITER = "::";</a>
+<span class="sourceLineNo">072</span><a id="line.72">    /** The name of the default renderer. */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    private static final String DEFAULT_PARSER = JSPWikiMarkupParser.class.getName();</a>
+<span class="sourceLineNo">074</span><a id="line.74">    /** The name of the default renderer. */</a>
+<span class="sourceLineNo">075</span><a id="line.75">    private static final String DEFAULT_RENDERER = XHTMLRenderer.class.getName();</a>
+<span class="sourceLineNo">076</span><a id="line.76">    /** The name of the default WYSIWYG renderer. */</a>
+<span class="sourceLineNo">077</span><a id="line.77">    private static final String DEFAULT_WYSIWYG_RENDERER = WysiwygEditingRenderer.class.getName();</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    private Engine m_engine;</a>
+<span class="sourceLineNo">080</span><a id="line.80">    private CachingManager cachingManager;</a>
+<span class="sourceLineNo">081</span><a id="line.81"></a>
+<span class="sourceLineNo">082</span><a id="line.82">    /** If true, all titles will be cleaned. */</a>
+<span class="sourceLineNo">083</span><a id="line.83">    private boolean m_beautifyTitle;</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">    private Constructor&lt; ? &gt; m_rendererConstructor;</a>
+<span class="sourceLineNo">086</span><a id="line.86">    private Constructor&lt; ? &gt; m_rendererWysiwygConstructor;</a>
+<span class="sourceLineNo">087</span><a id="line.87">    private String m_markupParserClass = DEFAULT_PARSER;</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">    /**</a>
+<span class="sourceLineNo">090</span><a id="line.90">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *</a>
+<span class="sourceLineNo">092</span><a id="line.92">     *  Checks for cache size settings, initializes the document cache. Looks for alternative WikiRenderers, initializes one, or the</a>
+<span class="sourceLineNo">093</span><a id="line.93">     *  default XHTMLRenderer, for use.</a>
+<span class="sourceLineNo">094</span><a id="line.94">     */</a>
+<span class="sourceLineNo">095</span><a id="line.95">    @Override</a>
+<span class="sourceLineNo">096</span><a id="line.96">    public void initialize( final Engine engine, final Properties properties ) throws WikiException {</a>
+<span class="sourceLineNo">097</span><a id="line.97">        m_engine = engine;</a>
+<span class="sourceLineNo">098</span><a id="line.98">        cachingManager = m_engine.getManager( CachingManager.class );</a>
+<span class="sourceLineNo">099</span><a id="line.99">        m_markupParserClass = properties.getProperty( PROP_PARSER, DEFAULT_PARSER );</a>
+<span class="sourceLineNo">100</span><a id="line.100">        if( !ClassUtil.assignable( m_markupParserClass, MarkupParser.class.getName() ) ) {</a>
+<span class="sourceLineNo">101</span><a id="line.101">            LOG.warn( "{} does not subclass {} reverting to default markup parser.", m_markupParserClass, MarkupParser.class.getName() );</a>
+<span class="sourceLineNo">102</span><a id="line.102">            m_markupParserClass = DEFAULT_PARSER;</a>
+<span class="sourceLineNo">103</span><a id="line.103">        }</a>
+<span class="sourceLineNo">104</span><a id="line.104">        LOG.info( "Using {} as markup parser.", m_markupParserClass );</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">        m_beautifyTitle  = TextUtil.getBooleanProperty( properties, PROP_BEAUTIFYTITLE, m_beautifyTitle );</a>
+<span class="sourceLineNo">107</span><a id="line.107">        final String renderImplName = properties.getProperty( PROP_RENDERER, DEFAULT_RENDERER );</a>
+<span class="sourceLineNo">108</span><a id="line.108">        final String renderWysiwygImplName = properties.getProperty( PROP_WYSIWYG_RENDERER, DEFAULT_WYSIWYG_RENDERER );</a>
+<span class="sourceLineNo">109</span><a id="line.109"></a>
+<span class="sourceLineNo">110</span><a id="line.110">        final Class&lt; ? &gt;[] rendererParams = { Context.class, WikiDocument.class };</a>
+<span class="sourceLineNo">111</span><a id="line.111">        m_rendererConstructor = initRenderer( renderImplName, rendererParams );</a>
+<span class="sourceLineNo">112</span><a id="line.112">        m_rendererWysiwygConstructor = initRenderer( renderWysiwygImplName, rendererParams );</a>
+<span class="sourceLineNo">113</span><a id="line.113"></a>
+<span class="sourceLineNo">114</span><a id="line.114">        LOG.info( "Rendering content with {}.", renderImplName );</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">        WikiEventManager.addWikiEventListener( m_engine.getManager( FilterManager.class ),this );</a>
+<span class="sourceLineNo">117</span><a id="line.117">    }</a>
+<span class="sourceLineNo">118</span><a id="line.118"></a>
+<span class="sourceLineNo">119</span><a id="line.119">    private Constructor&lt; ? &gt; initRenderer( final String renderImplName, final Class&lt; ? &gt;[] rendererParams ) throws WikiException {</a>
+<span class="sourceLineNo">120</span><a id="line.120">        Constructor&lt; ? &gt; c = null;</a>
+<span class="sourceLineNo">121</span><a id="line.121">        try {</a>
+<span class="sourceLineNo">122</span><a id="line.122">            final Class&lt; ? &gt; clazz = Class.forName( renderImplName );</a>
+<span class="sourceLineNo">123</span><a id="line.123">            c = clazz.getConstructor( rendererParams );</a>
+<span class="sourceLineNo">124</span><a id="line.124">        } catch( final ClassNotFoundException e ) {</a>
+<span class="sourceLineNo">125</span><a id="line.125">            LOG.error( "Unable to find WikiRenderer implementation {}", renderImplName );</a>
+<span class="sourceLineNo">126</span><a id="line.126">        } catch( final SecurityException e ) {</a>
+<span class="sourceLineNo">127</span><a id="line.127">            LOG.error( "Unable to access the WikiRenderer(WikiContext,WikiDocument) constructor for {}", renderImplName );</a>
+<span class="sourceLineNo">128</span><a id="line.128">        } catch( final NoSuchMethodException e ) {</a>
+<span class="sourceLineNo">129</span><a id="line.129">            LOG.error( "Unable to locate the WikiRenderer(WikiContext,WikiDocument) constructor for {}", renderImplName );</a>
+<span class="sourceLineNo">130</span><a id="line.130">        }</a>
+<span class="sourceLineNo">131</span><a id="line.131">        if( c == null ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">            throw new WikiException( "Failed to get WikiRenderer '" + renderImplName + "'." );</a>
+<span class="sourceLineNo">133</span><a id="line.133">        }</a>
+<span class="sourceLineNo">134</span><a id="line.134">        return c;</a>
+<span class="sourceLineNo">135</span><a id="line.135">    }</a>
+<span class="sourceLineNo">136</span><a id="line.136"></a>
+<span class="sourceLineNo">137</span><a id="line.137">    /**</a>
+<span class="sourceLineNo">138</span><a id="line.138">     * {@inheritDoc}</a>
+<span class="sourceLineNo">139</span><a id="line.139">     */</a>
+<span class="sourceLineNo">140</span><a id="line.140">    @Override</a>
+<span class="sourceLineNo">141</span><a id="line.141">    public String beautifyTitle( final String title ) {</a>
+<span class="sourceLineNo">142</span><a id="line.142">        if( m_beautifyTitle ) {</a>
+<span class="sourceLineNo">143</span><a id="line.143">            try {</a>
+<span class="sourceLineNo">144</span><a id="line.144">                final Attachment att = m_engine.getManager( AttachmentManager.class ).getAttachmentInfo( title );</a>
+<span class="sourceLineNo">145</span><a id="line.145">                if( att == null ) {</a>
+<span class="sourceLineNo">146</span><a id="line.146">                    return TextUtil.beautifyString( title );</a>
+<span class="sourceLineNo">147</span><a id="line.147">                }</a>
+<span class="sourceLineNo">148</span><a id="line.148"></a>
+<span class="sourceLineNo">149</span><a id="line.149">                final String parent = TextUtil.beautifyString( att.getParentName() );</a>
+<span class="sourceLineNo">150</span><a id="line.150">                return parent + "/" + att.getFileName();</a>
+<span class="sourceLineNo">151</span><a id="line.151">            } catch( final ProviderException e ) {</a>
+<span class="sourceLineNo">152</span><a id="line.152">                return title;</a>
+<span class="sourceLineNo">153</span><a id="line.153">            }</a>
+<span class="sourceLineNo">154</span><a id="line.154">        }</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">        return title;</a>
+<span class="sourceLineNo">157</span><a id="line.157">    }</a>
+<span class="sourceLineNo">158</span><a id="line.158"></a>
+<span class="sourceLineNo">159</span><a id="line.159">    /**</a>
+<span class="sourceLineNo">160</span><a id="line.160">     * {@inheritDoc}</a>
+<span class="sourceLineNo">161</span><a id="line.161">     */</a>
+<span class="sourceLineNo">162</span><a id="line.162">    @Override</a>
+<span class="sourceLineNo">163</span><a id="line.163">    public String beautifyTitleNoBreak( final String title ) {</a>
+<span class="sourceLineNo">164</span><a id="line.164">        if( m_beautifyTitle ) {</a>
+<span class="sourceLineNo">165</span><a id="line.165">            return TextUtil.beautifyString( title, "&amp;nbsp;" );</a>
+<span class="sourceLineNo">166</span><a id="line.166">        }</a>
+<span class="sourceLineNo">167</span><a id="line.167"></a>
+<span class="sourceLineNo">168</span><a id="line.168">        return title;</a>
+<span class="sourceLineNo">169</span><a id="line.169">    }</a>
+<span class="sourceLineNo">170</span><a id="line.170"></a>
+<span class="sourceLineNo">171</span><a id="line.171">    /**</a>
+<span class="sourceLineNo">172</span><a id="line.172">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">173</span><a id="line.173">     */</a>
+<span class="sourceLineNo">174</span><a id="line.174">    @Override</a>
+<span class="sourceLineNo">175</span><a id="line.175">    public MarkupParser getParser( final Context context, final String pagedata ) {</a>
+<span class="sourceLineNo">176</span><a id="line.176">        try {</a>
+<span class="sourceLineNo">177</span><a id="line.177">            return ClassUtil.getMappedObject( m_markupParserClass, context, new StringReader( pagedata ) );</a>
+<span class="sourceLineNo">178</span><a id="line.178">        } catch( final ReflectiveOperationException | IllegalArgumentException e ) {</a>
+<span class="sourceLineNo">179</span><a id="line.179">            LOG.error( "unable to get an instance of {} ({}), returning default markup parser.", m_markupParserClass, e.getMessage(), e );</a>
+<span class="sourceLineNo">180</span><a id="line.180">            return new JSPWikiMarkupParser( context, new StringReader( pagedata ) );</a>
+<span class="sourceLineNo">181</span><a id="line.181">        }</a>
+<span class="sourceLineNo">182</span><a id="line.182">    }</a>
+<span class="sourceLineNo">183</span><a id="line.183"></a>
+<span class="sourceLineNo">184</span><a id="line.184">    /**</a>
+<span class="sourceLineNo">185</span><a id="line.185">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">186</span><a id="line.186">     */</a>
+<span class="sourceLineNo">187</span><a id="line.187">    @Override</a>
+<span class="sourceLineNo">188</span><a id="line.188">    // FIXME: The cache management policy is not very good: deleted/changed pages should be detected better.</a>
+<span class="sourceLineNo">189</span><a id="line.189">    public WikiDocument getRenderedDocument( final Context context, final String pagedata ) {</a>
+<span class="sourceLineNo">190</span><a id="line.190">        final String pageid = context.getRealPage().getName() + VERSION_DELIMITER +</a>
+<span class="sourceLineNo">191</span><a id="line.191">                              context.getRealPage().getVersion() + VERSION_DELIMITER +</a>
+<span class="sourceLineNo">192</span><a id="line.192">                              context.getVariable( Context.VAR_EXECUTE_PLUGINS );</a>
+<span class="sourceLineNo">193</span><a id="line.193"></a>
+<span class="sourceLineNo">194</span><a id="line.194">        if( useCache( context ) ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">            final WikiDocument doc = cachingManager.get( CachingManager.CACHE_DOCUMENTS, pageid, () -&gt; null );</a>
+<span class="sourceLineNo">196</span><a id="line.196">            if ( doc != null ) {</a>
+<span class="sourceLineNo">197</span><a id="line.197">                //  This check is needed in case the different filters have actually changed the page data.</a>
+<span class="sourceLineNo">198</span><a id="line.198">                //  FIXME: Figure out a faster method</a>
+<span class="sourceLineNo">199</span><a id="line.199">                if( pagedata.equals( doc.getPageData() ) ) {</a>
+<span class="sourceLineNo">200</span><a id="line.200">                    LOG.debug( "Using cached HTML for page {}", pageid );</a>
+<span class="sourceLineNo">201</span><a id="line.201">                    return doc;</a>
+<span class="sourceLineNo">202</span><a id="line.202">                }</a>
+<span class="sourceLineNo">203</span><a id="line.203">            } else {</a>
+<span class="sourceLineNo">204</span><a id="line.204">                LOG.debug( "Re-rendering and storing {}", pageid );</a>
+<span class="sourceLineNo">205</span><a id="line.205">            }</a>
+<span class="sourceLineNo">206</span><a id="line.206">        }</a>
+<span class="sourceLineNo">207</span><a id="line.207"></a>
+<span class="sourceLineNo">208</span><a id="line.208">        // Refresh the data content</a>
+<span class="sourceLineNo">209</span><a id="line.209">        try {</a>
+<span class="sourceLineNo">210</span><a id="line.210">            final MarkupParser parser = getParser( context, pagedata );</a>
+<span class="sourceLineNo">211</span><a id="line.211">            final WikiDocument doc = parser.parse();</a>
+<span class="sourceLineNo">212</span><a id="line.212">            doc.setPageData( pagedata );</a>
+<span class="sourceLineNo">213</span><a id="line.213">            if( useCache( context ) ) {</a>
+<span class="sourceLineNo">214</span><a id="line.214">                cachingManager.put( CachingManager.CACHE_DOCUMENTS, pageid, doc );</a>
+<span class="sourceLineNo">215</span><a id="line.215">            }</a>
+<span class="sourceLineNo">216</span><a id="line.216">            return doc;</a>
+<span class="sourceLineNo">217</span><a id="line.217">        } catch( final IOException ex ) {</a>
+<span class="sourceLineNo">218</span><a id="line.218">            LOG.error( "Unable to parse", ex );</a>
+<span class="sourceLineNo">219</span><a id="line.219">        }</a>
+<span class="sourceLineNo">220</span><a id="line.220"></a>
+<span class="sourceLineNo">221</span><a id="line.221">        return null;</a>
+<span class="sourceLineNo">222</span><a id="line.222">    }</a>
+<span class="sourceLineNo">223</span><a id="line.223"></a>
+<span class="sourceLineNo">224</span><a id="line.224">    boolean useCache( final Context context ) {</a>
+<span class="sourceLineNo">225</span><a id="line.225">        return cachingManager.enabled( CachingManager.CACHE_DOCUMENTS )</a>
+<span class="sourceLineNo">226</span><a id="line.226">               &amp;&amp; ContextEnum.PAGE_VIEW.getRequestContext().equals( context.getRequestContext() );</a>
+<span class="sourceLineNo">227</span><a id="line.227">    }</a>
+<span class="sourceLineNo">228</span><a id="line.228"></a>
+<span class="sourceLineNo">229</span><a id="line.229">    /**</a>
+<span class="sourceLineNo">230</span><a id="line.230">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">231</span><a id="line.231">     */</a>
+<span class="sourceLineNo">232</span><a id="line.232">    @Override</a>
+<span class="sourceLineNo">233</span><a id="line.233">    public String getHTML( final Context context, final WikiDocument doc ) throws IOException {</a>
+<span class="sourceLineNo">234</span><a id="line.234">        final Boolean wysiwygVariable = context.getVariable( Context.VAR_WYSIWYG_EDITOR_MODE );</a>
+<span class="sourceLineNo">235</span><a id="line.235">        final boolean wysiwygEditorMode;</a>
+<span class="sourceLineNo">236</span><a id="line.236">        if( wysiwygVariable != null ) {</a>
+<span class="sourceLineNo">237</span><a id="line.237">            wysiwygEditorMode = wysiwygVariable;</a>
+<span class="sourceLineNo">238</span><a id="line.238">        } else {</a>
+<span class="sourceLineNo">239</span><a id="line.239">            wysiwygEditorMode = false;</a>
+<span class="sourceLineNo">240</span><a id="line.240">        }</a>
+<span class="sourceLineNo">241</span><a id="line.241">        final WikiRenderer rend;</a>
+<span class="sourceLineNo">242</span><a id="line.242">        if( wysiwygEditorMode ) {</a>
+<span class="sourceLineNo">243</span><a id="line.243">            rend = getWysiwygRenderer( context, doc );</a>
+<span class="sourceLineNo">244</span><a id="line.244">        } else {</a>
+<span class="sourceLineNo">245</span><a id="line.245">            rend = getRenderer( context, doc );</a>
+<span class="sourceLineNo">246</span><a id="line.246">        }</a>
+<span class="sourceLineNo">247</span><a id="line.247"></a>
+<span class="sourceLineNo">248</span><a id="line.248">        return rend.getString();</a>
+<span class="sourceLineNo">249</span><a id="line.249">    }</a>
+<span class="sourceLineNo">250</span><a id="line.250"></a>
+<span class="sourceLineNo">251</span><a id="line.251">    /**</a>
+<span class="sourceLineNo">252</span><a id="line.252">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">253</span><a id="line.253">     */</a>
+<span class="sourceLineNo">254</span><a id="line.254">    @Override</a>
+<span class="sourceLineNo">255</span><a id="line.255">    public String getHTML( final Context context, final Page page ) {</a>
+<span class="sourceLineNo">256</span><a id="line.256">        final String pagedata = m_engine.getManager( PageManager.class ).getPureText( page.getName(), page.getVersion() );</a>
+<span class="sourceLineNo">257</span><a id="line.257">        return textToHTML( context, pagedata );</a>
+<span class="sourceLineNo">258</span><a id="line.258">    }</a>
+<span class="sourceLineNo">259</span><a id="line.259"></a>
+<span class="sourceLineNo">260</span><a id="line.260">    /**</a>
+<span class="sourceLineNo">261</span><a id="line.261">     *  Returns the converted HTML of the page's specific version. The version must be a positive integer, otherwise the current</a>
+<span class="sourceLineNo">262</span><a id="line.262">     *  version is returned.</a>
+<span class="sourceLineNo">263</span><a id="line.263">     *</a>
+<span class="sourceLineNo">264</span><a id="line.264">     *  @param pagename WikiName of the page to convert.</a>
+<span class="sourceLineNo">265</span><a id="line.265">     *  @param version Version number to fetch</a>
+<span class="sourceLineNo">266</span><a id="line.266">     *  @return HTML-rendered page text.</a>
+<span class="sourceLineNo">267</span><a id="line.267">     */</a>
+<span class="sourceLineNo">268</span><a id="line.268">    @Override</a>
+<span class="sourceLineNo">269</span><a id="line.269">    public String getHTML( final String pagename, final int version ) {</a>
+<span class="sourceLineNo">270</span><a id="line.270">        final Page page = m_engine.getManager( PageManager.class ).getPage( pagename, version );</a>
+<span class="sourceLineNo">271</span><a id="line.271">        final Context context = Wiki.context().create( m_engine, page );</a>
+<span class="sourceLineNo">272</span><a id="line.272">        context.setRequestContext( ContextEnum.PAGE_NONE.getRequestContext() );</a>
+<span class="sourceLineNo">273</span><a id="line.273">        return getHTML( context, page );</a>
+<span class="sourceLineNo">274</span><a id="line.274">    }</a>
+<span class="sourceLineNo">275</span><a id="line.275"></a>
+<span class="sourceLineNo">276</span><a id="line.276">    /**</a>
+<span class="sourceLineNo">277</span><a id="line.277">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">278</span><a id="line.278">     */</a>
+<span class="sourceLineNo">279</span><a id="line.279">    @Override</a>
+<span class="sourceLineNo">280</span><a id="line.280">    public String textToHTML( final Context context, String pagedata ) {</a>
+<span class="sourceLineNo">281</span><a id="line.281">        String result = "";</a>
+<span class="sourceLineNo">282</span><a id="line.282"></a>
+<span class="sourceLineNo">283</span><a id="line.283">        final boolean runFilters = "true".equals( m_engine.getManager( VariableManager.class ).getValue( context,VariableManager.VAR_RUNFILTERS,"true" ) );</a>
+<span class="sourceLineNo">284</span><a id="line.284"></a>
+<span class="sourceLineNo">285</span><a id="line.285">        final StopWatch sw = new StopWatch();</a>
+<span class="sourceLineNo">286</span><a id="line.286">        sw.start();</a>
+<span class="sourceLineNo">287</span><a id="line.287">        try {</a>
+<span class="sourceLineNo">288</span><a id="line.288">            if( runFilters ) {</a>
+<span class="sourceLineNo">289</span><a id="line.289">                pagedata = m_engine.getManager( FilterManager.class ).doPreTranslateFiltering( context, pagedata );</a>
+<span class="sourceLineNo">290</span><a id="line.290">            }</a>
+<span class="sourceLineNo">291</span><a id="line.291"></a>
+<span class="sourceLineNo">292</span><a id="line.292">            result = getHTML( context, pagedata );</a>
+<span class="sourceLineNo">293</span><a id="line.293"></a>
+<span class="sourceLineNo">294</span><a id="line.294">            if( runFilters ) {</a>
+<span class="sourceLineNo">295</span><a id="line.295">                result = m_engine.getManager( FilterManager.class ).doPostTranslateFiltering( context, result );</a>
+<span class="sourceLineNo">296</span><a id="line.296">            }</a>
+<span class="sourceLineNo">297</span><a id="line.297">        } catch( final FilterException e ) {</a>
+<span class="sourceLineNo">298</span><a id="line.298">            LOG.error( "page filter threw exception: ", e );</a>
+<span class="sourceLineNo">299</span><a id="line.299">            // FIXME: Don't yet know what to do</a>
+<span class="sourceLineNo">300</span><a id="line.300">        }</a>
+<span class="sourceLineNo">301</span><a id="line.301">        sw.stop();</a>
+<span class="sourceLineNo">302</span><a id="line.302">        LOG.debug( "Page {} rendered, took {}", context.getRealPage().getName(), sw );</a>
+<span class="sourceLineNo">303</span><a id="line.303"></a>
+<span class="sourceLineNo">304</span><a id="line.304">        return result;</a>
+<span class="sourceLineNo">305</span><a id="line.305">    }</a>
+<span class="sourceLineNo">306</span><a id="line.306"></a>
+<span class="sourceLineNo">307</span><a id="line.307">    /**</a>
+<span class="sourceLineNo">308</span><a id="line.308">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">309</span><a id="line.309">     */</a>
+<span class="sourceLineNo">310</span><a id="line.310">    @Override</a>
+<span class="sourceLineNo">311</span><a id="line.311">    public String textToHTML( final Context context,</a>
+<span class="sourceLineNo">312</span><a id="line.312">                              String pagedata,</a>
+<span class="sourceLineNo">313</span><a id="line.313">                              final StringTransmutator localLinkHook,</a>
+<span class="sourceLineNo">314</span><a id="line.314">                              final StringTransmutator extLinkHook,</a>
+<span class="sourceLineNo">315</span><a id="line.315">                              final StringTransmutator attLinkHook,</a>
+<span class="sourceLineNo">316</span><a id="line.316">                              final boolean parseAccessRules,</a>
+<span class="sourceLineNo">317</span><a id="line.317">                              final boolean justParse ) {</a>
+<span class="sourceLineNo">318</span><a id="line.318">        String result = "";</a>
+<span class="sourceLineNo">319</span><a id="line.319"></a>
+<span class="sourceLineNo">320</span><a id="line.320">        if( pagedata == null ) {</a>
+<span class="sourceLineNo">321</span><a id="line.321">            LOG.error( "NULL pagedata to textToHTML()" );</a>
+<span class="sourceLineNo">322</span><a id="line.322">            return null;</a>
+<span class="sourceLineNo">323</span><a id="line.323">        }</a>
+<span class="sourceLineNo">324</span><a id="line.324"></a>
+<span class="sourceLineNo">325</span><a id="line.325">        final boolean runFilters = "true".equals( m_engine.getManager( VariableManager.class ).getValue( context, VariableManager.VAR_RUNFILTERS,"true" ) );</a>
+<span class="sourceLineNo">326</span><a id="line.326"></a>
+<span class="sourceLineNo">327</span><a id="line.327">        try {</a>
+<span class="sourceLineNo">328</span><a id="line.328">            final StopWatch sw = new StopWatch();</a>
+<span class="sourceLineNo">329</span><a id="line.329">            sw.start();</a>
+<span class="sourceLineNo">330</span><a id="line.330"></a>
+<span class="sourceLineNo">331</span><a id="line.331">            if( runFilters &amp;&amp; m_engine.getManager( FilterManager.class ) != null ) {</a>
+<span class="sourceLineNo">332</span><a id="line.332">                pagedata = m_engine.getManager( FilterManager.class ).doPreTranslateFiltering( context, pagedata );</a>
+<span class="sourceLineNo">333</span><a id="line.333">            }</a>
+<span class="sourceLineNo">334</span><a id="line.334"></a>
+<span class="sourceLineNo">335</span><a id="line.335">            final MarkupParser mp = getParser( context, pagedata );</a>
+<span class="sourceLineNo">336</span><a id="line.336">            mp.addLocalLinkHook( localLinkHook );</a>
+<span class="sourceLineNo">337</span><a id="line.337">            mp.addExternalLinkHook( extLinkHook );</a>
+<span class="sourceLineNo">338</span><a id="line.338">            mp.addAttachmentLinkHook( attLinkHook );</a>
+<span class="sourceLineNo">339</span><a id="line.339"></a>
+<span class="sourceLineNo">340</span><a id="line.340">            if( !parseAccessRules ) {</a>
+<span class="sourceLineNo">341</span><a id="line.341">                mp.disableAccessRules();</a>
+<span class="sourceLineNo">342</span><a id="line.342">            }</a>
+<span class="sourceLineNo">343</span><a id="line.343"></a>
+<span class="sourceLineNo">344</span><a id="line.344">            final WikiDocument doc = mp.parse();</a>
+<span class="sourceLineNo">345</span><a id="line.345">            //  In some cases it's better just to parse, not to render</a>
+<span class="sourceLineNo">346</span><a id="line.346">            if( !justParse ) {</a>
+<span class="sourceLineNo">347</span><a id="line.347">                result = getHTML( context, doc );</a>
+<span class="sourceLineNo">348</span><a id="line.348">                if( runFilters &amp;&amp; m_engine.getManager( FilterManager.class ) != null ) {</a>
+<span class="sourceLineNo">349</span><a id="line.349">                    result = m_engine.getManager( FilterManager.class ).doPostTranslateFiltering( context, result );</a>
+<span class="sourceLineNo">350</span><a id="line.350">                }</a>
+<span class="sourceLineNo">351</span><a id="line.351">            }</a>
+<span class="sourceLineNo">352</span><a id="line.352"></a>
+<span class="sourceLineNo">353</span><a id="line.353">            sw.stop();</a>
+<span class="sourceLineNo">354</span><a id="line.354"></a>
+<span class="sourceLineNo">355</span><a id="line.355">            LOG.debug( "Page {} rendered, took {}", context.getRealPage().getName(), sw );</a>
+<span class="sourceLineNo">356</span><a id="line.356">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">357</span><a id="line.357">            LOG.error( "Failed to scan page data: ", e );</a>
+<span class="sourceLineNo">358</span><a id="line.358">        } catch( final FilterException e ) {</a>
+<span class="sourceLineNo">359</span><a id="line.359">            LOG.error( "page filter threw exception: ", e );</a>
+<span class="sourceLineNo">360</span><a id="line.360">            // FIXME: Don't yet know what to do</a>
+<span class="sourceLineNo">361</span><a id="line.361">        }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">        return result;</a>
+<span class="sourceLineNo">364</span><a id="line.364">    }</a>
+<span class="sourceLineNo">365</span><a id="line.365"></a>
+<span class="sourceLineNo">366</span><a id="line.366">    /**</a>
+<span class="sourceLineNo">367</span><a id="line.367">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">368</span><a id="line.368">     */</a>
+<span class="sourceLineNo">369</span><a id="line.369">    @Override</a>
+<span class="sourceLineNo">370</span><a id="line.370">    public WikiRenderer getRenderer( final Context context, final WikiDocument doc ) {</a>
+<span class="sourceLineNo">371</span><a id="line.371">        final Object[] params = { context, doc };</a>
+<span class="sourceLineNo">372</span><a id="line.372">        return getRenderer( params, m_rendererConstructor );</a>
+<span class="sourceLineNo">373</span><a id="line.373">    }</a>
+<span class="sourceLineNo">374</span><a id="line.374"></a>
+<span class="sourceLineNo">375</span><a id="line.375">    /**</a>
+<span class="sourceLineNo">376</span><a id="line.376">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">377</span><a id="line.377">     */</a>
+<span class="sourceLineNo">378</span><a id="line.378">    @Override</a>
+<span class="sourceLineNo">379</span><a id="line.379">    public WikiRenderer getWysiwygRenderer( final Context context, final WikiDocument doc ) {</a>
+<span class="sourceLineNo">380</span><a id="line.380">        final Object[] params = { context, doc };</a>
+<span class="sourceLineNo">381</span><a id="line.381">        return getRenderer( params, m_rendererWysiwygConstructor );</a>
+<span class="sourceLineNo">382</span><a id="line.382">    }</a>
+<span class="sourceLineNo">383</span><a id="line.383"></a>
+<span class="sourceLineNo">384</span><a id="line.384">    @SuppressWarnings("unchecked")</a>
+<span class="sourceLineNo">385</span><a id="line.385">    private &lt; T extends WikiRenderer &gt; T getRenderer( final Object[] params, final Constructor&lt;?&gt; rendererConstructor ) {</a>
+<span class="sourceLineNo">386</span><a id="line.386">        try {</a>
+<span class="sourceLineNo">387</span><a id="line.387">            return ( T )rendererConstructor.newInstance( params );</a>
+<span class="sourceLineNo">388</span><a id="line.388">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">389</span><a id="line.389">            LOG.error( "Unable to create WikiRenderer", e );</a>
+<span class="sourceLineNo">390</span><a id="line.390">        }</a>
+<span class="sourceLineNo">391</span><a id="line.391">        return null;</a>
+<span class="sourceLineNo">392</span><a id="line.392">    }</a>
+<span class="sourceLineNo">393</span><a id="line.393"></a>
+<span class="sourceLineNo">394</span><a id="line.394">    /**</a>
+<span class="sourceLineNo">395</span><a id="line.395">     * {@inheritDoc}</a>
+<span class="sourceLineNo">396</span><a id="line.396">     *</a>
+<span class="sourceLineNo">397</span><a id="line.397">     * &lt;p&gt;Flushes the document cache in response to a POST_SAVE_BEGIN event.</a>
+<span class="sourceLineNo">398</span><a id="line.398">     *</a>
+<span class="sourceLineNo">399</span><a id="line.399">     * @see WikiEventListener#actionPerformed(WikiEvent)</a>
+<span class="sourceLineNo">400</span><a id="line.400">     */</a>
+<span class="sourceLineNo">401</span><a id="line.401">    @Override</a>
+<span class="sourceLineNo">402</span><a id="line.402">    public void actionPerformed( final WikiEvent event ) {</a>
+<span class="sourceLineNo">403</span><a id="line.403">        LOG.debug( "event received: {}", event.toString() );</a>
+<span class="sourceLineNo">404</span><a id="line.404">        if( isBeginningAWikiPagePostSaveEventAndDocumentCacheIsEnabled( event ) ) {</a>
+<span class="sourceLineNo">405</span><a id="line.405">            final String pageName = ( ( WikiPageEvent ) event ).getPageName();</a>
+<span class="sourceLineNo">406</span><a id="line.406">            cachingManager.remove( CachingManager.CACHE_DOCUMENTS, pageName );</a>
+<span class="sourceLineNo">407</span><a id="line.407">            final Collection&lt; String &gt; referringPages = m_engine.getManager( ReferenceManager.class ).findReferrers( pageName );</a>
+<span class="sourceLineNo">408</span><a id="line.408"></a>
+<span class="sourceLineNo">409</span><a id="line.409">            // Flush also those pages that refer to this page (if a nonexistent page</a>
+<span class="sourceLineNo">410</span><a id="line.410">            // appears, we need to flush the HTML that refers to the now-existent page)</a>
+<span class="sourceLineNo">411</span><a id="line.411">            if( referringPages != null ) {</a>
+<span class="sourceLineNo">412</span><a id="line.412">                for( final String page : referringPages ) {</a>
+<span class="sourceLineNo">413</span><a id="line.413">                    LOG.debug( "Flushing latest version of {}", page );</a>
+<span class="sourceLineNo">414</span><a id="line.414">                    // as there is a new version of the page expire both plugin and pluginless versions of the old page</a>
+<span class="sourceLineNo">415</span><a id="line.415">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + Boolean.FALSE );</a>
+<span class="sourceLineNo">416</span><a id="line.416">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + Boolean.TRUE );</a>
+<span class="sourceLineNo">417</span><a id="line.417">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + null );</a>
+<span class="sourceLineNo">418</span><a id="line.418">                }</a>
+<span class="sourceLineNo">419</span><a id="line.419">            }</a>
+<span class="sourceLineNo">420</span><a id="line.420">        }</a>
+<span class="sourceLineNo">421</span><a id="line.421">    }</a>
+<span class="sourceLineNo">422</span><a id="line.422"></a>
+<span class="sourceLineNo">423</span><a id="line.423">    boolean isBeginningAWikiPagePostSaveEventAndDocumentCacheIsEnabled( final WikiEvent event ) {</a>
+<span class="sourceLineNo">424</span><a id="line.424">        return event instanceof WikiPageEvent</a>
+<span class="sourceLineNo">425</span><a id="line.425">               &amp;&amp; event.getType() == WikiPageEvent.POST_SAVE_BEGIN</a>
+<span class="sourceLineNo">426</span><a id="line.426">               &amp;&amp; cachingManager.enabled( CachingManager.CACHE_DOCUMENTS );</a>
+<span class="sourceLineNo">427</span><a id="line.427">    }</a>
+<span class="sourceLineNo">428</span><a id="line.428"></a>
+<span class="sourceLineNo">429</span><a id="line.429">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

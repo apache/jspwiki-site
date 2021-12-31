@@ -1,0 +1,338 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.util;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">024</span><a id="line.24"></a>
+<span class="sourceLineNo">025</span><a id="line.25">import javax.servlet.http.Cookie;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import javax.servlet.http.HttpServletResponse;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.nio.charset.Charset;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import java.nio.charset.StandardCharsets;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import java.text.DateFormat;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import java.text.ParseException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import java.text.SimpleDateFormat;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.util.Date;</a>
+<span class="sourceLineNo">034</span><a id="line.34"></a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">/**</a>
+<span class="sourceLineNo">037</span><a id="line.37"> *  Contains useful utilities for some common HTTP tasks.</a>
+<span class="sourceLineNo">038</span><a id="line.38"> *</a>
+<span class="sourceLineNo">039</span><a id="line.39"> *  @since 2.1.61.</a>
+<span class="sourceLineNo">040</span><a id="line.40"> */</a>
+<span class="sourceLineNo">041</span><a id="line.41">public final class HttpUtil {</a>
+<span class="sourceLineNo">042</span><a id="line.42"></a>
+<span class="sourceLineNo">043</span><a id="line.43">    private static final Logger log = LogManager.getLogger( HttpUtil.class );</a>
+<span class="sourceLineNo">044</span><a id="line.44">    private static final int    ONE                   = 48;</a>
+<span class="sourceLineNo">045</span><a id="line.45">    private static final int    NINE                  = 57;</a>
+<span class="sourceLineNo">046</span><a id="line.46">    private static final int    DOT                   = 46;</a>
+<span class="sourceLineNo">047</span><a id="line.47">    </a>
+<span class="sourceLineNo">048</span><a id="line.48">    /** Private constructor to prevent direct instantiation. */</a>
+<span class="sourceLineNo">049</span><a id="line.49">    private HttpUtil() {</a>
+<span class="sourceLineNo">050</span><a id="line.50">    }</a>
+<span class="sourceLineNo">051</span><a id="line.51">    </a>
+<span class="sourceLineNo">052</span><a id="line.52">    /**</a>
+<span class="sourceLineNo">053</span><a id="line.53">     * returns the remote address by looking into {@code x-forwarded-for} header or, if unavailable, </a>
+<span class="sourceLineNo">054</span><a id="line.54">     * into {@link HttpServletRequest#getRemoteAddr()}.</a>
+<span class="sourceLineNo">055</span><a id="line.55">     * </a>
+<span class="sourceLineNo">056</span><a id="line.56">     * @param req http request</a>
+<span class="sourceLineNo">057</span><a id="line.57">     * @return remote address associated to the request.</a>
+<span class="sourceLineNo">058</span><a id="line.58">     */</a>
+<span class="sourceLineNo">059</span><a id="line.59">    public static String getRemoteAddress( final HttpServletRequest req ) {</a>
+<span class="sourceLineNo">060</span><a id="line.60">        return StringUtils.isNotEmpty ( req.getHeader( "X-Forwarded-For" ) ) ? req.getHeader( "X-Forwarded-For" ) : </a>
+<span class="sourceLineNo">061</span><a id="line.61">                                                                                      req.getRemoteAddr();</a>
+<span class="sourceLineNo">062</span><a id="line.62">    }</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">    /**</a>
+<span class="sourceLineNo">065</span><a id="line.65">     *  Attempts to retrieve the given cookie value from the request. Returns the string value (which may or may not be decoded</a>
+<span class="sourceLineNo">066</span><a id="line.66">     *  correctly, depending on browser!), or null if the cookie is not found. The algorithm will automatically trim leading</a>
+<span class="sourceLineNo">067</span><a id="line.67">     *  and trailing double quotes, if found.</a>
+<span class="sourceLineNo">068</span><a id="line.68">     *</a>
+<span class="sourceLineNo">069</span><a id="line.69">     *  @param request The current request</a>
+<span class="sourceLineNo">070</span><a id="line.70">     *  @param cookieName The name of the cookie to fetch.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *  @return Value of the cookie, or null, if there is no such cookie.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    public static String retrieveCookieValue( final HttpServletRequest request, final String cookieName ) {</a>
+<span class="sourceLineNo">074</span><a id="line.74">        final Cookie[] cookies = request.getCookies();</a>
+<span class="sourceLineNo">075</span><a id="line.75">        if( cookies != null ) {</a>
+<span class="sourceLineNo">076</span><a id="line.76">            for( final Cookie cookie : cookies ) {</a>
+<span class="sourceLineNo">077</span><a id="line.77">                if( cookie.getName().equals( cookieName ) ) {</a>
+<span class="sourceLineNo">078</span><a id="line.78">                    String value = cookie.getValue();</a>
+<span class="sourceLineNo">079</span><a id="line.79">                    if( value == null || value.isEmpty() ) {</a>
+<span class="sourceLineNo">080</span><a id="line.80">                        return null;</a>
+<span class="sourceLineNo">081</span><a id="line.81">                    }</a>
+<span class="sourceLineNo">082</span><a id="line.82">                    if( value.charAt( 0 ) == '"' &amp;&amp; value.charAt( value.length() - 1 ) == '"' ) {</a>
+<span class="sourceLineNo">083</span><a id="line.83">                        value = value.substring( 1, value.length() - 1 );</a>
+<span class="sourceLineNo">084</span><a id="line.84">                    }</a>
+<span class="sourceLineNo">085</span><a id="line.85">                    return value;</a>
+<span class="sourceLineNo">086</span><a id="line.86">                }</a>
+<span class="sourceLineNo">087</span><a id="line.87">            }</a>
+<span class="sourceLineNo">088</span><a id="line.88">        }</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">        return null;</a>
+<span class="sourceLineNo">091</span><a id="line.91">    }</a>
+<span class="sourceLineNo">092</span><a id="line.92"></a>
+<span class="sourceLineNo">093</span><a id="line.93">    /**</a>
+<span class="sourceLineNo">094</span><a id="line.94">     *  Creates an ETag based on page information. An ETag is unique to each page and version, so it can be used to check if the page has</a>
+<span class="sourceLineNo">095</span><a id="line.95">     *  changed. Do not assume that the ETag is in any particular format.</a>
+<span class="sourceLineNo">096</span><a id="line.96">     *  </a>
+<span class="sourceLineNo">097</span><a id="line.97">     *  @param pageName  The page name for which the ETag should be created.</a>
+<span class="sourceLineNo">098</span><a id="line.98">     *  @param lastModified  The page last modified date for which the ETag should be created.</a>
+<span class="sourceLineNo">099</span><a id="line.99">     *  @return A String depiction of an ETag.</a>
+<span class="sourceLineNo">100</span><a id="line.100">     */</a>
+<span class="sourceLineNo">101</span><a id="line.101">    public static String createETag( final String pageName, final Date lastModified ) {</a>
+<span class="sourceLineNo">102</span><a id="line.102">        return Long.toString( pageName.hashCode() ^ lastModified.getTime() );</a>
+<span class="sourceLineNo">103</span><a id="line.103">    }</a>
+<span class="sourceLineNo">104</span><a id="line.104">    </a>
+<span class="sourceLineNo">105</span><a id="line.105">    /**</a>
+<span class="sourceLineNo">106</span><a id="line.106">     *  If returns true, then should return a 304 (HTTP_NOT_MODIFIED)</a>
+<span class="sourceLineNo">107</span><a id="line.107">     *</a>
+<span class="sourceLineNo">108</span><a id="line.108">     *  @param req the HTTP request</a>
+<span class="sourceLineNo">109</span><a id="line.109">     *  @param pageName the wiki page name to check for</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *  @param lastModified the last modified date of the wiki page to check for</a>
+<span class="sourceLineNo">111</span><a id="line.111">     *  @return the result of the check</a>
+<span class="sourceLineNo">112</span><a id="line.112">     */</a>
+<span class="sourceLineNo">113</span><a id="line.113">    public static boolean checkFor304( final HttpServletRequest req, final String pageName, final Date lastModified ) {</a>
+<span class="sourceLineNo">114</span><a id="line.114">        // We'll do some handling for CONDITIONAL GET (and return a 304). If the client has set the following headers, do not try for a 304.</a>
+<span class="sourceLineNo">115</span><a id="line.115">        //    pragma: no-cache</a>
+<span class="sourceLineNo">116</span><a id="line.116">        //    cache-control: no-cache</a>
+<span class="sourceLineNo">117</span><a id="line.117">        if( "no-cache".equalsIgnoreCase( req.getHeader( "Pragma" ) )</a>
+<span class="sourceLineNo">118</span><a id="line.118">            || "no-cache".equalsIgnoreCase( req.getHeader( "cache-control" ) ) ) {</a>
+<span class="sourceLineNo">119</span><a id="line.119">            // Wants specifically a fresh copy</a>
+<span class="sourceLineNo">120</span><a id="line.120">        } else {</a>
+<span class="sourceLineNo">121</span><a id="line.121">            //  HTTP 1.1 ETags go first</a>
+<span class="sourceLineNo">122</span><a id="line.122">            final String thisTag = createETag( pageName, lastModified );</a>
+<span class="sourceLineNo">123</span><a id="line.123">            final String eTag = req.getHeader( "If-None-Match" );</a>
+<span class="sourceLineNo">124</span><a id="line.124">            </a>
+<span class="sourceLineNo">125</span><a id="line.125">            if( eTag != null &amp;&amp; eTag.equals(thisTag) ) {</a>
+<span class="sourceLineNo">126</span><a id="line.126">                return true;</a>
+<span class="sourceLineNo">127</span><a id="line.127">            }</a>
+<span class="sourceLineNo">128</span><a id="line.128">            </a>
+<span class="sourceLineNo">129</span><a id="line.129">            //  Next, try if-modified-since</a>
+<span class="sourceLineNo">130</span><a id="line.130">            final DateFormat rfcDateFormat = new SimpleDateFormat( "EEE, dd MMM yyyy HH:mm:ss z" );</a>
+<span class="sourceLineNo">131</span><a id="line.131"></a>
+<span class="sourceLineNo">132</span><a id="line.132">            try {</a>
+<span class="sourceLineNo">133</span><a id="line.133">                final long ifModifiedSince = req.getDateHeader( "If-Modified-Since" );</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">                if( ifModifiedSince != -1 ) {</a>
+<span class="sourceLineNo">136</span><a id="line.136">                    final long lastModifiedTime = lastModified.getTime();</a>
+<span class="sourceLineNo">137</span><a id="line.137">                    if( lastModifiedTime &lt;= ifModifiedSince ) {</a>
+<span class="sourceLineNo">138</span><a id="line.138">                        return true;</a>
+<span class="sourceLineNo">139</span><a id="line.139">                    }</a>
+<span class="sourceLineNo">140</span><a id="line.140">                } else {</a>
+<span class="sourceLineNo">141</span><a id="line.141">                    try {</a>
+<span class="sourceLineNo">142</span><a id="line.142">                        final String s = req.getHeader("If-Modified-Since");</a>
+<span class="sourceLineNo">143</span><a id="line.143">                        if( s != null ) {</a>
+<span class="sourceLineNo">144</span><a id="line.144">                            final Date ifModifiedSinceDate = rfcDateFormat.parse( s );</a>
+<span class="sourceLineNo">145</span><a id="line.145">                            if( lastModified.before( ifModifiedSinceDate ) ) {</a>
+<span class="sourceLineNo">146</span><a id="line.146">                                return true;</a>
+<span class="sourceLineNo">147</span><a id="line.147">                            }</a>
+<span class="sourceLineNo">148</span><a id="line.148">                        }</a>
+<span class="sourceLineNo">149</span><a id="line.149">                    } catch( final ParseException e ) {</a>
+<span class="sourceLineNo">150</span><a id="line.150">                        log.warn( e.getLocalizedMessage(), e );</a>
+<span class="sourceLineNo">151</span><a id="line.151">                    }</a>
+<span class="sourceLineNo">152</span><a id="line.152">                }</a>
+<span class="sourceLineNo">153</span><a id="line.153">            } catch( final IllegalArgumentException e ) {</a>
+<span class="sourceLineNo">154</span><a id="line.154">                // Illegal date/time header format.  We fail quietly, and return false.</a>
+<span class="sourceLineNo">155</span><a id="line.155">                // FIXME: Should really move to ETags.</a>
+<span class="sourceLineNo">156</span><a id="line.156">            }</a>
+<span class="sourceLineNo">157</span><a id="line.157">        }</a>
+<span class="sourceLineNo">158</span><a id="line.158">         </a>
+<span class="sourceLineNo">159</span><a id="line.159">        return false;</a>
+<span class="sourceLineNo">160</span><a id="line.160">    }</a>
+<span class="sourceLineNo">161</span><a id="line.161"></a>
+<span class="sourceLineNo">162</span><a id="line.162">    /**</a>
+<span class="sourceLineNo">163</span><a id="line.163">     * Attempts to form a valid URI based on the string given.  Currently it can guess email addresses (mailto:).  If nothing else is given,</a>
+<span class="sourceLineNo">164</span><a id="line.164">     * it assumes it to be an http:// url.</a>
+<span class="sourceLineNo">165</span><a id="line.165">     * </a>
+<span class="sourceLineNo">166</span><a id="line.166">     * @param uri  URI to take a poke at</a>
+<span class="sourceLineNo">167</span><a id="line.167">     * @return Possibly a valid URI</a>
+<span class="sourceLineNo">168</span><a id="line.168">     * @since 2.2.8</a>
+<span class="sourceLineNo">169</span><a id="line.169">     */</a>
+<span class="sourceLineNo">170</span><a id="line.170">    public static String guessValidURI( String uri ) {</a>
+<span class="sourceLineNo">171</span><a id="line.171">        if( uri.indexOf( '@' ) != -1 ) {</a>
+<span class="sourceLineNo">172</span><a id="line.172">            if( !uri.startsWith( "mailto:" ) ) {</a>
+<span class="sourceLineNo">173</span><a id="line.173">                // Assume this is an email address</a>
+<span class="sourceLineNo">174</span><a id="line.174">                uri = "mailto:" + uri;</a>
+<span class="sourceLineNo">175</span><a id="line.175">            }</a>
+<span class="sourceLineNo">176</span><a id="line.176">        } else if( notBeginningWithHttpOrHttps( uri ) ) {</a>
+<span class="sourceLineNo">177</span><a id="line.177">            uri = "http://" + uri;</a>
+<span class="sourceLineNo">178</span><a id="line.178">        }</a>
+<span class="sourceLineNo">179</span><a id="line.179">        </a>
+<span class="sourceLineNo">180</span><a id="line.180">        return uri;</a>
+<span class="sourceLineNo">181</span><a id="line.181">    }</a>
+<span class="sourceLineNo">182</span><a id="line.182"></a>
+<span class="sourceLineNo">183</span><a id="line.183">    static boolean notBeginningWithHttpOrHttps( final String uri ) {</a>
+<span class="sourceLineNo">184</span><a id="line.184">        return !uri.isEmpty() &amp;&amp; !( uri.startsWith("http://" ) || uri.startsWith( "https://" ) );</a>
+<span class="sourceLineNo">185</span><a id="line.185">    }</a>
+<span class="sourceLineNo">186</span><a id="line.186"></a>
+<span class="sourceLineNo">187</span><a id="line.187">    /**</a>
+<span class="sourceLineNo">188</span><a id="line.188">     *  Returns the query string (the portion after the question mark).</a>
+<span class="sourceLineNo">189</span><a id="line.189">     *</a>
+<span class="sourceLineNo">190</span><a id="line.190">     *  @param request The HTTP request to parse.</a>
+<span class="sourceLineNo">191</span><a id="line.191">     *  @return The query string. If the query string is null, returns an empty string.</a>
+<span class="sourceLineNo">192</span><a id="line.192">     *  @since 2.1.3 (method moved from WikiEngine on 2.11.0.M6)</a>
+<span class="sourceLineNo">193</span><a id="line.193">     */</a>
+<span class="sourceLineNo">194</span><a id="line.194">    public static String safeGetQueryString( final HttpServletRequest request, final Charset contentEncoding ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">        if( request == null ) {</a>
+<span class="sourceLineNo">196</span><a id="line.196">            return "";</a>
+<span class="sourceLineNo">197</span><a id="line.197">        }</a>
+<span class="sourceLineNo">198</span><a id="line.198"></a>
+<span class="sourceLineNo">199</span><a id="line.199">        String res = request.getQueryString();</a>
+<span class="sourceLineNo">200</span><a id="line.200">        if( res != null ) {</a>
+<span class="sourceLineNo">201</span><a id="line.201">            res = new String( res.getBytes( StandardCharsets.ISO_8859_1 ), contentEncoding );</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">            //</a>
+<span class="sourceLineNo">204</span><a id="line.204">            // Ensure that the 'page=xyz' attribute is removed</a>
+<span class="sourceLineNo">205</span><a id="line.205">            // FIXME: Is it really the mandate of this routine to do that?</a>
+<span class="sourceLineNo">206</span><a id="line.206">            //</a>
+<span class="sourceLineNo">207</span><a id="line.207">            final int pos1 = res.indexOf( "page=" );</a>
+<span class="sourceLineNo">208</span><a id="line.208">            if( pos1 &gt;= 0 ) {</a>
+<span class="sourceLineNo">209</span><a id="line.209">                String tmpRes = res.substring( 0, pos1 );</a>
+<span class="sourceLineNo">210</span><a id="line.210">                final int pos2 = res.indexOf( '&amp;', pos1 ) + 1;</a>
+<span class="sourceLineNo">211</span><a id="line.211">                if( ( pos2 &gt; 0 ) &amp;&amp; ( pos2 &lt; res.length() ) ) {</a>
+<span class="sourceLineNo">212</span><a id="line.212">                    tmpRes = tmpRes + res.substring( pos2 );</a>
+<span class="sourceLineNo">213</span><a id="line.213">                }</a>
+<span class="sourceLineNo">214</span><a id="line.214">                res = tmpRes;</a>
+<span class="sourceLineNo">215</span><a id="line.215">            }</a>
+<span class="sourceLineNo">216</span><a id="line.216">        }</a>
+<span class="sourceLineNo">217</span><a id="line.217"></a>
+<span class="sourceLineNo">218</span><a id="line.218">        return res;</a>
+<span class="sourceLineNo">219</span><a id="line.219">    }</a>
+<span class="sourceLineNo">220</span><a id="line.220"></a>
+<span class="sourceLineNo">221</span><a id="line.221">    /**</a>
+<span class="sourceLineNo">222</span><a id="line.222">     * Verifies whether a String represents an IPv4 address. The algorithm is extremely efficient and does not allocate any objects.</a>
+<span class="sourceLineNo">223</span><a id="line.223">     *</a>
+<span class="sourceLineNo">224</span><a id="line.224">     * @param name the address to test</a>
+<span class="sourceLineNo">225</span><a id="line.225">     * @return the result</a>
+<span class="sourceLineNo">226</span><a id="line.226">     */</a>
+<span class="sourceLineNo">227</span><a id="line.227">    public static boolean isIPV4Address( final String name ) {</a>
+<span class="sourceLineNo">228</span><a id="line.228">        if( StringUtils.isEmpty( name ) || name.charAt( 0 ) == DOT || name.charAt( name.length() - 1 ) == DOT ) {</a>
+<span class="sourceLineNo">229</span><a id="line.229">            return false;</a>
+<span class="sourceLineNo">230</span><a id="line.230">        }</a>
+<span class="sourceLineNo">231</span><a id="line.231"></a>
+<span class="sourceLineNo">232</span><a id="line.232">        final int[] addr = new int[] { 0, 0, 0, 0 };</a>
+<span class="sourceLineNo">233</span><a id="line.233">        int currentOctet = 0;</a>
+<span class="sourceLineNo">234</span><a id="line.234">        for( int i = 0; i &lt; name.length(); i++ ) {</a>
+<span class="sourceLineNo">235</span><a id="line.235">            if( currentOctet &gt; 3 ) {</a>
+<span class="sourceLineNo">236</span><a id="line.236">                return false;</a>
+<span class="sourceLineNo">237</span><a id="line.237">            }</a>
+<span class="sourceLineNo">238</span><a id="line.238">            final int ch = name.charAt( i );</a>
+<span class="sourceLineNo">239</span><a id="line.239">            final boolean isDigit = ch &gt;= ONE &amp;&amp; ch &lt;= NINE;</a>
+<span class="sourceLineNo">240</span><a id="line.240">            final boolean isDot = ch == DOT;</a>
+<span class="sourceLineNo">241</span><a id="line.241">            if( !isDigit &amp;&amp; !isDot ) {</a>
+<span class="sourceLineNo">242</span><a id="line.242">                return false;</a>
+<span class="sourceLineNo">243</span><a id="line.243">            }</a>
+<span class="sourceLineNo">244</span><a id="line.244">            if( isDigit ) {</a>
+<span class="sourceLineNo">245</span><a id="line.245">                addr[ currentOctet ] = 10 * addr[ currentOctet ] + ( ch - ONE );</a>
+<span class="sourceLineNo">246</span><a id="line.246">                if( addr[ currentOctet ] &gt; 255 ) {</a>
+<span class="sourceLineNo">247</span><a id="line.247">                    return false;</a>
+<span class="sourceLineNo">248</span><a id="line.248">                }</a>
+<span class="sourceLineNo">249</span><a id="line.249">            } else if( name.charAt( i - 1 ) == DOT ) {</a>
+<span class="sourceLineNo">250</span><a id="line.250">                return false;</a>
+<span class="sourceLineNo">251</span><a id="line.251">            } else {</a>
+<span class="sourceLineNo">252</span><a id="line.252">                currentOctet++;</a>
+<span class="sourceLineNo">253</span><a id="line.253">            }</a>
+<span class="sourceLineNo">254</span><a id="line.254">        }</a>
+<span class="sourceLineNo">255</span><a id="line.255">        return currentOctet == 3;</a>
+<span class="sourceLineNo">256</span><a id="line.256">    }</a>
+<span class="sourceLineNo">257</span><a id="line.257"></a>
+<span class="sourceLineNo">258</span><a id="line.258">    public static void clearCookie( final HttpServletResponse response, final String cookieName ) {</a>
+<span class="sourceLineNo">259</span><a id="line.259">        final Cookie cookie = new Cookie( cookieName, "" );</a>
+<span class="sourceLineNo">260</span><a id="line.260">        cookie.setMaxAge( 0 );</a>
+<span class="sourceLineNo">261</span><a id="line.261">        response.addCookie( cookie );</a>
+<span class="sourceLineNo">262</span><a id="line.262">    }</a>
+<span class="sourceLineNo">263</span><a id="line.263"></a>
+<span class="sourceLineNo">264</span><a id="line.264">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
