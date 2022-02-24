@@ -19,7 +19,7 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 **Release Index**
 
-* **18-Dec-2021**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.2ReleasedOn18122021">2.11.2</a>. This release fixes the following issues:
+* **24-Feb-2022**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.2ReleasedOn24022022">2.11.2</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12351120 
 <strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.2/source/jspwiki-builder-2.11.2-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.2/source/jspwiki-builder-2.11.2-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.2/source/jspwiki-builder-2.11.2-source-release.zip.asc">signature</a></strong>
 
