@@ -1,0 +1,823 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth.user;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.auth.NoSuchPrincipalException;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.auth.WikiPrincipal;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.util.Serializer;</a>
+<span class="sourceLineNo">028</span><a id="line.28"></a>
+<span class="sourceLineNo">029</span><a id="line.29">import javax.naming.Context;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import javax.naming.InitialContext;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import javax.naming.NamingException;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import javax.sql.DataSource;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.io.IOException;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import java.io.Serializable;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.security.Principal;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.sql.Connection;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.sql.DatabaseMetaData;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.sql.PreparedStatement;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.sql.ResultSet;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.sql.SQLException;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.sql.Timestamp;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.util.Date;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.util.HashSet;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.util.Map;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.util.Properties;</a>
+<span class="sourceLineNo">046</span><a id="line.46">import java.util.Set;</a>
+<span class="sourceLineNo">047</span><a id="line.47"></a>
+<span class="sourceLineNo">048</span><a id="line.48">/**</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * &lt;p&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * Implementation of UserDatabase that persists {@link DefaultUserProfile}</a>
+<span class="sourceLineNo">051</span><a id="line.51"> * objects to a JDBC DataSource, as might typically be provided by a web</a>
+<span class="sourceLineNo">052</span><a id="line.52"> * container. This implementation looks up the JDBC DataSource using JNDI. The</a>
+<span class="sourceLineNo">053</span><a id="line.53"> * JNDI name of the datasource, backing table and mapped columns used by this </a>
+<span class="sourceLineNo">054</span><a id="line.54"> * class can be overridden by adding settings in &lt;code&gt;jspwiki.properties&lt;/code&gt;.</a>
+<span class="sourceLineNo">055</span><a id="line.55"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">056</span><a id="line.56"> * &lt;p&gt;</a>
+<span class="sourceLineNo">057</span><a id="line.57"> * Configurable properties are these:</a>
+<span class="sourceLineNo">058</span><a id="line.58"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">059</span><a id="line.59"> * &lt;table&gt;</a>
+<span class="sourceLineNo">060</span><a id="line.60"> * &lt;tr&gt; &lt;thead&gt;</a>
+<span class="sourceLineNo">061</span><a id="line.61"> * &lt;th&gt;Property&lt;/th&gt;</a>
+<span class="sourceLineNo">062</span><a id="line.62"> * &lt;th&gt;Default&lt;/th&gt;</a>
+<span class="sourceLineNo">063</span><a id="line.63"> * &lt;th&gt;Definition&lt;/th&gt;</a>
+<span class="sourceLineNo">064</span><a id="line.64"> * &lt;thead&gt; &lt;/tr&gt;</a>
+<span class="sourceLineNo">065</span><a id="line.65"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">066</span><a id="line.66"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.datasource&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">067</span><a id="line.67"> * &lt;td&gt;&lt;code&gt;jdbc/UserDatabase&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">068</span><a id="line.68"> * &lt;td&gt;The JNDI name of the DataSource&lt;/td&gt;</a>
+<span class="sourceLineNo">069</span><a id="line.69"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">070</span><a id="line.70"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">071</span><a id="line.71"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.table&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">072</span><a id="line.72"> * &lt;td&gt;&lt;code&gt;users&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">073</span><a id="line.73"> * &lt;td&gt;The table that stores the user profiles&lt;/td&gt;</a>
+<span class="sourceLineNo">074</span><a id="line.74"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">075</span><a id="line.75"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">076</span><a id="line.76"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.attributes&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">077</span><a id="line.77"> * &lt;td&gt;&lt;code&gt;attributes&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">078</span><a id="line.78"> * &lt;td&gt;The CLOB column containing the profile's custom attributes, stored as key/value strings, each separated by newline.&lt;/td&gt;</a>
+<span class="sourceLineNo">079</span><a id="line.79"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">080</span><a id="line.80"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">081</span><a id="line.81"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.created&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">082</span><a id="line.82"> * &lt;td&gt;&lt;code&gt;created&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">083</span><a id="line.83"> * &lt;td&gt;The column containing the profile's creation timestamp&lt;/td&gt;</a>
+<span class="sourceLineNo">084</span><a id="line.84"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">085</span><a id="line.85"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">086</span><a id="line.86"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.email&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">087</span><a id="line.87"> * &lt;td&gt;&lt;code&gt;email&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">088</span><a id="line.88"> * &lt;td&gt;The column containing the user's e-mail address&lt;/td&gt;</a>
+<span class="sourceLineNo">089</span><a id="line.89"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">090</span><a id="line.90"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">091</span><a id="line.91"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.fullName&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">092</span><a id="line.92"> * &lt;td&gt;&lt;code&gt;full_name&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">093</span><a id="line.93"> * &lt;td&gt;The column containing the user's full name&lt;/td&gt;</a>
+<span class="sourceLineNo">094</span><a id="line.94"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">095</span><a id="line.95"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">096</span><a id="line.96"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.loginName&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">097</span><a id="line.97"> * &lt;td&gt;&lt;code&gt;login_name&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">098</span><a id="line.98"> * &lt;td&gt;The column containing the user's login id&lt;/td&gt;</a>
+<span class="sourceLineNo">099</span><a id="line.99"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">100</span><a id="line.100"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">101</span><a id="line.101"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.password&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">102</span><a id="line.102"> * &lt;td&gt;&lt;code&gt;password&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">103</span><a id="line.103"> * &lt;td&gt;The column containing the user's password&lt;/td&gt;</a>
+<span class="sourceLineNo">104</span><a id="line.104"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">105</span><a id="line.105"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">106</span><a id="line.106"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.modified&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">107</span><a id="line.107"> * &lt;td&gt;&lt;code&gt;modified&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">108</span><a id="line.108"> * &lt;td&gt;The column containing the profile's last-modified timestamp&lt;/td&gt;</a>
+<span class="sourceLineNo">109</span><a id="line.109"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">110</span><a id="line.110"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">111</span><a id="line.111"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.uid&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">112</span><a id="line.112"> * &lt;td&gt;&lt;code&gt;uid&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">113</span><a id="line.113"> * &lt;td&gt;The column containing the profile's unique identifier, as a long integer&lt;/td&gt;</a>
+<span class="sourceLineNo">114</span><a id="line.114"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">115</span><a id="line.115"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">116</span><a id="line.116"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.wikiName&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">117</span><a id="line.117"> * &lt;td&gt;&lt;code&gt;wiki_name&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">118</span><a id="line.118"> * &lt;td&gt;The column containing the user's wiki name&lt;/td&gt;</a>
+<span class="sourceLineNo">119</span><a id="line.119"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">120</span><a id="line.120"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">121</span><a id="line.121"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.lockExpiry&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">122</span><a id="line.122"> * &lt;td&gt;&lt;code&gt;lock_expiry&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">123</span><a id="line.123"> * &lt;td&gt;The column containing the date/time when the profile, if locked, should be unlocked.&lt;/td&gt;</a>
+<span class="sourceLineNo">124</span><a id="line.124"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">125</span><a id="line.125"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">126</span><a id="line.126"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.roleTable&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">127</span><a id="line.127"> * &lt;td&gt;&lt;code&gt;roles&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">128</span><a id="line.128"> * &lt;td&gt;The table that stores user roles. When a new user is created, a new</a>
+<span class="sourceLineNo">129</span><a id="line.129"> * record is inserted containing user's initial role. The table will have an ID</a>
+<span class="sourceLineNo">130</span><a id="line.130"> * column whose name and values correspond to the contents of the user table's</a>
+<span class="sourceLineNo">131</span><a id="line.131"> * login name column. It will also contain a role column (see next row).&lt;/td&gt;</a>
+<span class="sourceLineNo">132</span><a id="line.132"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">133</span><a id="line.133"> * &lt;tr&gt;</a>
+<span class="sourceLineNo">134</span><a id="line.134"> * &lt;td&gt;&lt;code&gt;jspwiki.userdatabase.role&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">135</span><a id="line.135"> * &lt;td&gt;&lt;code&gt;role&lt;/code&gt;&lt;/td&gt;</a>
+<span class="sourceLineNo">136</span><a id="line.136"> * &lt;td&gt;The column in the role table that stores user roles. When a new user is</a>
+<span class="sourceLineNo">137</span><a id="line.137"> * created, this column will be populated with the value</a>
+<span class="sourceLineNo">138</span><a id="line.138"> * &lt;code&gt;Authenticated&lt;/code&gt;. Once created, JDBCUserDatabase does not use</a>
+<span class="sourceLineNo">139</span><a id="line.139"> * this column again; it is provided strictly for the convenience of</a>
+<span class="sourceLineNo">140</span><a id="line.140"> * container-managed authentication services.&lt;/td&gt;</a>
+<span class="sourceLineNo">141</span><a id="line.141"> * &lt;/tr&gt;</a>
+<span class="sourceLineNo">142</span><a id="line.142"> * &lt;/table&gt;</a>
+<span class="sourceLineNo">143</span><a id="line.143"> * &lt;p&gt;</a>
+<span class="sourceLineNo">144</span><a id="line.144"> * This class hashes passwords using SHA-1. All of the underying SQL commands</a>
+<span class="sourceLineNo">145</span><a id="line.145"> * used by this class are implemented using prepared statements, so it is immune</a>
+<span class="sourceLineNo">146</span><a id="line.146"> * to SQL injection attacks.</a>
+<span class="sourceLineNo">147</span><a id="line.147"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">148</span><a id="line.148"> * &lt;p&gt;</a>
+<span class="sourceLineNo">149</span><a id="line.149"> * This class is typically used in conjunction with a web container's JNDI</a>
+<span class="sourceLineNo">150</span><a id="line.150"> * resource factory. For example, Tomcat provides a basic</a>
+<span class="sourceLineNo">151</span><a id="line.151"> * JNDI factory for registering DataSources. To give JSPWiki access to the JNDI</a>
+<span class="sourceLineNo">152</span><a id="line.152"> * resource named by &lt;code&gt;&lt;/code&gt;, you would declare the datasource resource</a>
+<span class="sourceLineNo">153</span><a id="line.153"> * similar to this:</a>
+<span class="sourceLineNo">154</span><a id="line.154"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">155</span><a id="line.155"> * &lt;blockquote&gt;&lt;code&gt;&amp;lt;Context ...&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">156</span><a id="line.156"> *  &amp;nbsp;&amp;nbsp;...&lt;br/&gt;</a>
+<span class="sourceLineNo">157</span><a id="line.157"> *  &amp;nbsp;&amp;nbsp;&amp;lt;Resource name="jdbc/UserDatabase" auth="Container"&lt;br/&gt;</a>
+<span class="sourceLineNo">158</span><a id="line.158"> *  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;type="javax.sql.DataSource" username="dbusername" password="dbpassword"&lt;br/&gt;</a>
+<span class="sourceLineNo">159</span><a id="line.159"> *  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;driverClassName="org.hsql.jdbcDriver" url="jdbc:HypersonicSQL:database"&lt;br/&gt;</a>
+<span class="sourceLineNo">160</span><a id="line.160"> *  &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;maxActive="8" maxIdle="4"/&amp;gt;&lt;br/&gt;</a>
+<span class="sourceLineNo">161</span><a id="line.161"> *  &amp;nbsp;...&lt;br/&gt;</a>
+<span class="sourceLineNo">162</span><a id="line.162"> * &amp;lt;/Context&amp;gt;&lt;/code&gt;&lt;/blockquote&gt;</a>
+<span class="sourceLineNo">163</span><a id="line.163"> * &lt;p&gt;</a>
+<span class="sourceLineNo">164</span><a id="line.164"> * To configure JSPWiki to use JDBC support, first create a database </a>
+<span class="sourceLineNo">165</span><a id="line.165"> * with a structure similar to that provided by the HSQL and PostgreSQL </a>
+<span class="sourceLineNo">166</span><a id="line.166"> * scripts in src/main/config/db.  If you have different table or column </a>
+<span class="sourceLineNo">167</span><a id="line.167"> * names you can either alias them with a database view and have JSPWiki</a>
+<span class="sourceLineNo">168</span><a id="line.168"> * use the views, or alter the WEB-INF/jspwiki.properties file: the </a>
+<span class="sourceLineNo">169</span><a id="line.169"> * jspwiki.userdatabase.* and jspwiki.groupdatabase.* properties change the</a>
+<span class="sourceLineNo">170</span><a id="line.170"> * names of the tables and columns that JSPWiki uses.</a>
+<span class="sourceLineNo">171</span><a id="line.171"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">172</span><a id="line.172"> * &lt;p&gt;</a>
+<span class="sourceLineNo">173</span><a id="line.173"> * A JNDI datasource (named jdbc/UserDatabase by default but can be configured </a>
+<span class="sourceLineNo">174</span><a id="line.174"> * in the jspwiki.properties file) will need to be created in your servlet container.</a>
+<span class="sourceLineNo">175</span><a id="line.175"> * JDBC driver JARs should be added, e.g. in Tomcat's &lt;code&gt;lib&lt;/code&gt;</a>
+<span class="sourceLineNo">176</span><a id="line.176"> * directory. For more Tomcat JNDI configuration examples, see &lt;a</a>
+<span class="sourceLineNo">177</span><a id="line.177"> * href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-resources-howto.html"&gt;</a>
+<span class="sourceLineNo">178</span><a id="line.178"> * http://tomcat.apache.org/tomcat-7.0-doc/jndi-resources-howto.html&lt;/a&gt;.</a>
+<span class="sourceLineNo">179</span><a id="line.179"> * Once done, restart JSPWiki in the servlet container for it to read the </a>
+<span class="sourceLineNo">180</span><a id="line.180"> * new properties and switch to JDBC authentication.</a>
+<span class="sourceLineNo">181</span><a id="line.181"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">182</span><a id="line.182"> * &lt;p&gt;</a>
+<span class="sourceLineNo">183</span><a id="line.183"> * JDBCUserDatabase commits changes as transactions if the back-end database</a>
+<span class="sourceLineNo">184</span><a id="line.184"> * supports them. Changes are made immediately (during the {@link #save(UserProfile)} method).</a>
+<span class="sourceLineNo">185</span><a id="line.185"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">186</span><a id="line.186"> * </a>
+<span class="sourceLineNo">187</span><a id="line.187"> * @since 2.3</a>
+<span class="sourceLineNo">188</span><a id="line.188"> */</a>
+<span class="sourceLineNo">189</span><a id="line.189">public class JDBCUserDatabase extends AbstractUserDatabase {</a>
+<span class="sourceLineNo">190</span><a id="line.190"></a>
+<span class="sourceLineNo">191</span><a id="line.191">    private static final String NOTHING = "";</a>
+<span class="sourceLineNo">192</span><a id="line.192"></a>
+<span class="sourceLineNo">193</span><a id="line.193">    public static final String DEFAULT_DB_ATTRIBUTES = "attributes";</a>
+<span class="sourceLineNo">194</span><a id="line.194"></a>
+<span class="sourceLineNo">195</span><a id="line.195">    public static final String DEFAULT_DB_CREATED = "created";</a>
+<span class="sourceLineNo">196</span><a id="line.196"></a>
+<span class="sourceLineNo">197</span><a id="line.197">    public static final String DEFAULT_DB_EMAIL = "email";</a>
+<span class="sourceLineNo">198</span><a id="line.198"></a>
+<span class="sourceLineNo">199</span><a id="line.199">    public static final String DEFAULT_DB_FULL_NAME = "full_name";</a>
+<span class="sourceLineNo">200</span><a id="line.200"></a>
+<span class="sourceLineNo">201</span><a id="line.201">    public static final String DEFAULT_DB_JNDI_NAME = "jdbc/UserDatabase";</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">    public static final String DEFAULT_DB_LOCK_EXPIRY = "lock_expiry";</a>
+<span class="sourceLineNo">204</span><a id="line.204"></a>
+<span class="sourceLineNo">205</span><a id="line.205">    public static final String DEFAULT_DB_MODIFIED = "modified";</a>
+<span class="sourceLineNo">206</span><a id="line.206"></a>
+<span class="sourceLineNo">207</span><a id="line.207">    public static final String DEFAULT_DB_ROLE = "role";</a>
+<span class="sourceLineNo">208</span><a id="line.208"></a>
+<span class="sourceLineNo">209</span><a id="line.209">    public static final String DEFAULT_DB_ROLE_TABLE = "roles";</a>
+<span class="sourceLineNo">210</span><a id="line.210"></a>
+<span class="sourceLineNo">211</span><a id="line.211">    public static final String DEFAULT_DB_TABLE = "users";</a>
+<span class="sourceLineNo">212</span><a id="line.212"></a>
+<span class="sourceLineNo">213</span><a id="line.213">    public static final String DEFAULT_DB_LOGIN_NAME = "login_name";</a>
+<span class="sourceLineNo">214</span><a id="line.214"></a>
+<span class="sourceLineNo">215</span><a id="line.215">    public static final String DEFAULT_DB_PASSWORD = "password";</a>
+<span class="sourceLineNo">216</span><a id="line.216"></a>
+<span class="sourceLineNo">217</span><a id="line.217">    public static final String DEFAULT_DB_UID = "uid";</a>
+<span class="sourceLineNo">218</span><a id="line.218"></a>
+<span class="sourceLineNo">219</span><a id="line.219">    public static final String DEFAULT_DB_WIKI_NAME = "wiki_name";</a>
+<span class="sourceLineNo">220</span><a id="line.220"></a>
+<span class="sourceLineNo">221</span><a id="line.221">    public static final String PROP_DB_ATTRIBUTES = "jspwiki.userdatabase.attributes";</a>
+<span class="sourceLineNo">222</span><a id="line.222"></a>
+<span class="sourceLineNo">223</span><a id="line.223">    public static final String PROP_DB_CREATED = "jspwiki.userdatabase.created";</a>
+<span class="sourceLineNo">224</span><a id="line.224"></a>
+<span class="sourceLineNo">225</span><a id="line.225">    public static final String PROP_DB_EMAIL = "jspwiki.userdatabase.email";</a>
+<span class="sourceLineNo">226</span><a id="line.226"></a>
+<span class="sourceLineNo">227</span><a id="line.227">    public static final String PROP_DB_FULL_NAME = "jspwiki.userdatabase.fullName";</a>
+<span class="sourceLineNo">228</span><a id="line.228"></a>
+<span class="sourceLineNo">229</span><a id="line.229">    public static final String PROP_DB_DATASOURCE = "jspwiki.userdatabase.datasource";</a>
+<span class="sourceLineNo">230</span><a id="line.230"></a>
+<span class="sourceLineNo">231</span><a id="line.231">    public static final String PROP_DB_LOCK_EXPIRY = "jspwiki.userdatabase.lockExpiry";</a>
+<span class="sourceLineNo">232</span><a id="line.232"></a>
+<span class="sourceLineNo">233</span><a id="line.233">    public static final String PROP_DB_LOGIN_NAME = "jspwiki.userdatabase.loginName";</a>
+<span class="sourceLineNo">234</span><a id="line.234"></a>
+<span class="sourceLineNo">235</span><a id="line.235">    public static final String PROP_DB_MODIFIED = "jspwiki.userdatabase.modified";</a>
+<span class="sourceLineNo">236</span><a id="line.236"></a>
+<span class="sourceLineNo">237</span><a id="line.237">    public static final String PROP_DB_PASSWORD = "jspwiki.userdatabase.password";</a>
+<span class="sourceLineNo">238</span><a id="line.238"></a>
+<span class="sourceLineNo">239</span><a id="line.239">    public static final String PROP_DB_UID = "jspwiki.userdatabase.uid";</a>
+<span class="sourceLineNo">240</span><a id="line.240"></a>
+<span class="sourceLineNo">241</span><a id="line.241">    public static final String PROP_DB_ROLE = "jspwiki.userdatabase.role";</a>
+<span class="sourceLineNo">242</span><a id="line.242"></a>
+<span class="sourceLineNo">243</span><a id="line.243">    public static final String PROP_DB_ROLE_TABLE = "jspwiki.userdatabase.roleTable";</a>
+<span class="sourceLineNo">244</span><a id="line.244"></a>
+<span class="sourceLineNo">245</span><a id="line.245">    public static final String PROP_DB_TABLE = "jspwiki.userdatabase.table";</a>
+<span class="sourceLineNo">246</span><a id="line.246"></a>
+<span class="sourceLineNo">247</span><a id="line.247">    public static final String PROP_DB_WIKI_NAME = "jspwiki.userdatabase.wikiName";</a>
+<span class="sourceLineNo">248</span><a id="line.248"></a>
+<span class="sourceLineNo">249</span><a id="line.249">    private DataSource m_ds;</a>
+<span class="sourceLineNo">250</span><a id="line.250"></a>
+<span class="sourceLineNo">251</span><a id="line.251">    private String m_deleteUserByLoginName;</a>
+<span class="sourceLineNo">252</span><a id="line.252"></a>
+<span class="sourceLineNo">253</span><a id="line.253">    private String m_deleteRoleByLoginName;</a>
+<span class="sourceLineNo">254</span><a id="line.254"></a>
+<span class="sourceLineNo">255</span><a id="line.255">    private String m_findByEmail;</a>
+<span class="sourceLineNo">256</span><a id="line.256"></a>
+<span class="sourceLineNo">257</span><a id="line.257">    private String m_findByFullName;</a>
+<span class="sourceLineNo">258</span><a id="line.258"></a>
+<span class="sourceLineNo">259</span><a id="line.259">    private String m_findByLoginName;</a>
+<span class="sourceLineNo">260</span><a id="line.260"></a>
+<span class="sourceLineNo">261</span><a id="line.261">    private String m_findByUid;</a>
+<span class="sourceLineNo">262</span><a id="line.262"></a>
+<span class="sourceLineNo">263</span><a id="line.263">    private String m_findByWikiName;</a>
+<span class="sourceLineNo">264</span><a id="line.264"></a>
+<span class="sourceLineNo">265</span><a id="line.265">    private String m_renameProfile;</a>
+<span class="sourceLineNo">266</span><a id="line.266"></a>
+<span class="sourceLineNo">267</span><a id="line.267">    private String m_renameRoles;</a>
+<span class="sourceLineNo">268</span><a id="line.268"></a>
+<span class="sourceLineNo">269</span><a id="line.269">    private String m_updateProfile;</a>
+<span class="sourceLineNo">270</span><a id="line.270"></a>
+<span class="sourceLineNo">271</span><a id="line.271">    private String m_findAll;</a>
+<span class="sourceLineNo">272</span><a id="line.272"></a>
+<span class="sourceLineNo">273</span><a id="line.273">    private String m_findRoles;</a>
+<span class="sourceLineNo">274</span><a id="line.274"></a>
+<span class="sourceLineNo">275</span><a id="line.275">    private String m_insertProfile;</a>
+<span class="sourceLineNo">276</span><a id="line.276"></a>
+<span class="sourceLineNo">277</span><a id="line.277">    private String m_insertRole;</a>
+<span class="sourceLineNo">278</span><a id="line.278"></a>
+<span class="sourceLineNo">279</span><a id="line.279">    private String m_attributes;</a>
+<span class="sourceLineNo">280</span><a id="line.280"></a>
+<span class="sourceLineNo">281</span><a id="line.281">    private String m_email;</a>
+<span class="sourceLineNo">282</span><a id="line.282"></a>
+<span class="sourceLineNo">283</span><a id="line.283">    private String m_fullName;</a>
+<span class="sourceLineNo">284</span><a id="line.284"></a>
+<span class="sourceLineNo">285</span><a id="line.285">    private String m_lockExpiry;</a>
+<span class="sourceLineNo">286</span><a id="line.286"></a>
+<span class="sourceLineNo">287</span><a id="line.287">    private String m_loginName;</a>
+<span class="sourceLineNo">288</span><a id="line.288"></a>
+<span class="sourceLineNo">289</span><a id="line.289">    private String m_password;</a>
+<span class="sourceLineNo">290</span><a id="line.290"></a>
+<span class="sourceLineNo">291</span><a id="line.291">    private String m_uid;</a>
+<span class="sourceLineNo">292</span><a id="line.292">    </a>
+<span class="sourceLineNo">293</span><a id="line.293">    private String m_wikiName;</a>
+<span class="sourceLineNo">294</span><a id="line.294"></a>
+<span class="sourceLineNo">295</span><a id="line.295">    private String m_created;</a>
+<span class="sourceLineNo">296</span><a id="line.296"></a>
+<span class="sourceLineNo">297</span><a id="line.297">    private String m_modified;</a>
+<span class="sourceLineNo">298</span><a id="line.298"></a>
+<span class="sourceLineNo">299</span><a id="line.299">    private boolean m_supportsCommits;</a>
+<span class="sourceLineNo">300</span><a id="line.300"></a>
+<span class="sourceLineNo">301</span><a id="line.301">    /**</a>
+<span class="sourceLineNo">302</span><a id="line.302">     * Looks up and deletes the first {@link UserProfile} in the user database</a>
+<span class="sourceLineNo">303</span><a id="line.303">     * that matches a profile having a given login name. If the user database</a>
+<span class="sourceLineNo">304</span><a id="line.304">     * does not contain a user with a matching attribute, throws a</a>
+<span class="sourceLineNo">305</span><a id="line.305">     * {@link NoSuchPrincipalException}. This method is intended to be atomic;</a>
+<span class="sourceLineNo">306</span><a id="line.306">     * results cannot be partially committed. If the commit fails, it should</a>
+<span class="sourceLineNo">307</span><a id="line.307">     * roll back its state appropriately. Implementing classes that persist to</a>
+<span class="sourceLineNo">308</span><a id="line.308">     * the file system may wish to make this method &lt;code&gt;synchronized&lt;/code&gt;.</a>
+<span class="sourceLineNo">309</span><a id="line.309">     * </a>
+<span class="sourceLineNo">310</span><a id="line.310">     * @param loginName the login name of the user profile that shall be deleted</a>
+<span class="sourceLineNo">311</span><a id="line.311">     */</a>
+<span class="sourceLineNo">312</span><a id="line.312">    @Override</a>
+<span class="sourceLineNo">313</span><a id="line.313">    public void deleteByLoginName( final String loginName ) throws WikiSecurityException {</a>
+<span class="sourceLineNo">314</span><a id="line.314">        // Get the existing user; if not found, throws NoSuchPrincipalException</a>
+<span class="sourceLineNo">315</span><a id="line.315">        findByLoginName( loginName );</a>
+<span class="sourceLineNo">316</span><a id="line.316"></a>
+<span class="sourceLineNo">317</span><a id="line.317">        try( final Connection conn = m_ds.getConnection() ;</a>
+<span class="sourceLineNo">318</span><a id="line.318">             final PreparedStatement ps1 = conn.prepareStatement( m_deleteUserByLoginName );</a>
+<span class="sourceLineNo">319</span><a id="line.319">             final PreparedStatement ps2 = conn.prepareStatement( m_deleteRoleByLoginName ) )</a>
+<span class="sourceLineNo">320</span><a id="line.320">        {</a>
+<span class="sourceLineNo">321</span><a id="line.321">            // Open the database connection</a>
+<span class="sourceLineNo">322</span><a id="line.322">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">323</span><a id="line.323">                conn.setAutoCommit( false );</a>
+<span class="sourceLineNo">324</span><a id="line.324">            }</a>
+<span class="sourceLineNo">325</span><a id="line.325"></a>
+<span class="sourceLineNo">326</span><a id="line.326">            // Delete user record</a>
+<span class="sourceLineNo">327</span><a id="line.327">            ps1.setString( 1, loginName );</a>
+<span class="sourceLineNo">328</span><a id="line.328">            ps1.execute();</a>
+<span class="sourceLineNo">329</span><a id="line.329"></a>
+<span class="sourceLineNo">330</span><a id="line.330">            // Delete role record</a>
+<span class="sourceLineNo">331</span><a id="line.331">            ps2.setString( 1, loginName );</a>
+<span class="sourceLineNo">332</span><a id="line.332">            ps2.execute();</a>
+<span class="sourceLineNo">333</span><a id="line.333"></a>
+<span class="sourceLineNo">334</span><a id="line.334">            // Commit and close connection</a>
+<span class="sourceLineNo">335</span><a id="line.335">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">336</span><a id="line.336">                conn.commit();</a>
+<span class="sourceLineNo">337</span><a id="line.337">            }</a>
+<span class="sourceLineNo">338</span><a id="line.338">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">339</span><a id="line.339">            throw new WikiSecurityException( e.getMessage(), e );</a>
+<span class="sourceLineNo">340</span><a id="line.340">        }</a>
+<span class="sourceLineNo">341</span><a id="line.341">    }</a>
+<span class="sourceLineNo">342</span><a id="line.342"></a>
+<span class="sourceLineNo">343</span><a id="line.343">    /**</a>
+<span class="sourceLineNo">344</span><a id="line.344">     * @see org.apache.wiki.auth.user.UserDatabase#findByEmail(java.lang.String)</a>
+<span class="sourceLineNo">345</span><a id="line.345">     */</a>
+<span class="sourceLineNo">346</span><a id="line.346">    @Override</a>
+<span class="sourceLineNo">347</span><a id="line.347">    public UserProfile findByEmail( final String index ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">348</span><a id="line.348">        return findByPreparedStatement( m_findByEmail, index );</a>
+<span class="sourceLineNo">349</span><a id="line.349">    }</a>
+<span class="sourceLineNo">350</span><a id="line.350"></a>
+<span class="sourceLineNo">351</span><a id="line.351">    /**</a>
+<span class="sourceLineNo">352</span><a id="line.352">     * @see org.apache.wiki.auth.user.UserDatabase#findByFullName(java.lang.String)</a>
+<span class="sourceLineNo">353</span><a id="line.353">     */</a>
+<span class="sourceLineNo">354</span><a id="line.354">    @Override</a>
+<span class="sourceLineNo">355</span><a id="line.355">    public UserProfile findByFullName( final String index ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">356</span><a id="line.356">        return findByPreparedStatement( m_findByFullName, index );</a>
+<span class="sourceLineNo">357</span><a id="line.357">    }</a>
+<span class="sourceLineNo">358</span><a id="line.358"></a>
+<span class="sourceLineNo">359</span><a id="line.359">    /**</a>
+<span class="sourceLineNo">360</span><a id="line.360">     * @see org.apache.wiki.auth.user.UserDatabase#findByLoginName(java.lang.String)</a>
+<span class="sourceLineNo">361</span><a id="line.361">     */</a>
+<span class="sourceLineNo">362</span><a id="line.362">    @Override</a>
+<span class="sourceLineNo">363</span><a id="line.363">    public UserProfile findByLoginName( final String index ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">364</span><a id="line.364">        return findByPreparedStatement( m_findByLoginName, index );</a>
+<span class="sourceLineNo">365</span><a id="line.365">    }</a>
+<span class="sourceLineNo">366</span><a id="line.366"></a>
+<span class="sourceLineNo">367</span><a id="line.367">    /**</a>
+<span class="sourceLineNo">368</span><a id="line.368">     * @see org.apache.wiki.auth.user.UserDatabase#findByWikiName(String)</a>
+<span class="sourceLineNo">369</span><a id="line.369">     */</a>
+<span class="sourceLineNo">370</span><a id="line.370">    @Override</a>
+<span class="sourceLineNo">371</span><a id="line.371">    public UserProfile findByUid( final String uid ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">372</span><a id="line.372">        return findByPreparedStatement( m_findByUid, uid );</a>
+<span class="sourceLineNo">373</span><a id="line.373">    }</a>
+<span class="sourceLineNo">374</span><a id="line.374"></a>
+<span class="sourceLineNo">375</span><a id="line.375">    /**</a>
+<span class="sourceLineNo">376</span><a id="line.376">     * @see org.apache.wiki.auth.user.UserDatabase#findByWikiName(String)</a>
+<span class="sourceLineNo">377</span><a id="line.377">     */</a>
+<span class="sourceLineNo">378</span><a id="line.378">    @Override</a>
+<span class="sourceLineNo">379</span><a id="line.379">    public UserProfile findByWikiName( final String index ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">380</span><a id="line.380">        return findByPreparedStatement( m_findByWikiName, index );</a>
+<span class="sourceLineNo">381</span><a id="line.381">    }</a>
+<span class="sourceLineNo">382</span><a id="line.382"></a>
+<span class="sourceLineNo">383</span><a id="line.383">    /**</a>
+<span class="sourceLineNo">384</span><a id="line.384">     * Returns all WikiNames that are stored in the UserDatabase as an array of</a>
+<span class="sourceLineNo">385</span><a id="line.385">     * WikiPrincipal objects. If the database does not contain any profiles,</a>
+<span class="sourceLineNo">386</span><a id="line.386">     * this method will return a zero-length array.</a>
+<span class="sourceLineNo">387</span><a id="line.387">     * </a>
+<span class="sourceLineNo">388</span><a id="line.388">     * @return the WikiNames</a>
+<span class="sourceLineNo">389</span><a id="line.389">     */</a>
+<span class="sourceLineNo">390</span><a id="line.390">    @Override</a>
+<span class="sourceLineNo">391</span><a id="line.391">    public Principal[] getWikiNames() throws WikiSecurityException {</a>
+<span class="sourceLineNo">392</span><a id="line.392">        final Set&lt;Principal&gt; principals = new HashSet&lt;&gt;();</a>
+<span class="sourceLineNo">393</span><a id="line.393">        try( final Connection conn = m_ds.getConnection();</a>
+<span class="sourceLineNo">394</span><a id="line.394">             final PreparedStatement ps = conn.prepareStatement( m_findAll );</a>
+<span class="sourceLineNo">395</span><a id="line.395">             final ResultSet rs = ps.executeQuery() ) {</a>
+<span class="sourceLineNo">396</span><a id="line.396">            while( rs.next() ) {</a>
+<span class="sourceLineNo">397</span><a id="line.397">                final String wikiName = rs.getString( m_wikiName );</a>
+<span class="sourceLineNo">398</span><a id="line.398">                if( StringUtils.isEmpty( wikiName ) ) {</a>
+<span class="sourceLineNo">399</span><a id="line.399">                    log.warn( "Detected null or empty wiki name for {} in JDBCUserDataBase. Check your user database.", rs.getString( m_loginName ) );</a>
+<span class="sourceLineNo">400</span><a id="line.400">                } else {</a>
+<span class="sourceLineNo">401</span><a id="line.401">                    final Principal principal = new WikiPrincipal( wikiName, WikiPrincipal.WIKI_NAME );</a>
+<span class="sourceLineNo">402</span><a id="line.402">                    principals.add( principal );</a>
+<span class="sourceLineNo">403</span><a id="line.403">                }</a>
+<span class="sourceLineNo">404</span><a id="line.404">            }</a>
+<span class="sourceLineNo">405</span><a id="line.405">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">406</span><a id="line.406">            throw new WikiSecurityException( e.getMessage(), e );</a>
+<span class="sourceLineNo">407</span><a id="line.407">        }</a>
+<span class="sourceLineNo">408</span><a id="line.408"></a>
+<span class="sourceLineNo">409</span><a id="line.409">        return principals.toArray( new Principal[0] );</a>
+<span class="sourceLineNo">410</span><a id="line.410">    }</a>
+<span class="sourceLineNo">411</span><a id="line.411"></a>
+<span class="sourceLineNo">412</span><a id="line.412">    /**</a>
+<span class="sourceLineNo">413</span><a id="line.413">     * @see org.apache.wiki.auth.user.UserDatabase#initialize(org.apache.wiki.api.core.Engine, java.util.Properties)</a>
+<span class="sourceLineNo">414</span><a id="line.414">     */</a>
+<span class="sourceLineNo">415</span><a id="line.415">    @Override</a>
+<span class="sourceLineNo">416</span><a id="line.416">    public void initialize( final Engine engine, final Properties props ) throws NoRequiredPropertyException, WikiSecurityException {</a>
+<span class="sourceLineNo">417</span><a id="line.417">        final String jndiName = props.getProperty( PROP_DB_DATASOURCE, DEFAULT_DB_JNDI_NAME );</a>
+<span class="sourceLineNo">418</span><a id="line.418">        try {</a>
+<span class="sourceLineNo">419</span><a id="line.419">            final Context initCtx = new InitialContext();</a>
+<span class="sourceLineNo">420</span><a id="line.420">            final Context ctx = (Context) initCtx.lookup( "java:comp/env" );</a>
+<span class="sourceLineNo">421</span><a id="line.421">            m_ds = (DataSource) ctx.lookup( jndiName );</a>
+<span class="sourceLineNo">422</span><a id="line.422"></a>
+<span class="sourceLineNo">423</span><a id="line.423">            // Prepare the SQL selectors</a>
+<span class="sourceLineNo">424</span><a id="line.424">            final String userTable = props.getProperty( PROP_DB_TABLE, DEFAULT_DB_TABLE );</a>
+<span class="sourceLineNo">425</span><a id="line.425">            m_email = props.getProperty( PROP_DB_EMAIL, DEFAULT_DB_EMAIL );</a>
+<span class="sourceLineNo">426</span><a id="line.426">            m_fullName = props.getProperty( PROP_DB_FULL_NAME, DEFAULT_DB_FULL_NAME );</a>
+<span class="sourceLineNo">427</span><a id="line.427">            m_lockExpiry = props.getProperty( PROP_DB_LOCK_EXPIRY, DEFAULT_DB_LOCK_EXPIRY );</a>
+<span class="sourceLineNo">428</span><a id="line.428">            m_loginName = props.getProperty( PROP_DB_LOGIN_NAME, DEFAULT_DB_LOGIN_NAME );</a>
+<span class="sourceLineNo">429</span><a id="line.429">            m_password = props.getProperty( PROP_DB_PASSWORD, DEFAULT_DB_PASSWORD );</a>
+<span class="sourceLineNo">430</span><a id="line.430">            m_uid = props.getProperty( PROP_DB_UID, DEFAULT_DB_UID );</a>
+<span class="sourceLineNo">431</span><a id="line.431">            m_wikiName = props.getProperty( PROP_DB_WIKI_NAME, DEFAULT_DB_WIKI_NAME );</a>
+<span class="sourceLineNo">432</span><a id="line.432">            m_created = props.getProperty( PROP_DB_CREATED, DEFAULT_DB_CREATED );</a>
+<span class="sourceLineNo">433</span><a id="line.433">            m_modified = props.getProperty( PROP_DB_MODIFIED, DEFAULT_DB_MODIFIED );</a>
+<span class="sourceLineNo">434</span><a id="line.434">            m_attributes = props.getProperty( PROP_DB_ATTRIBUTES, DEFAULT_DB_ATTRIBUTES );</a>
+<span class="sourceLineNo">435</span><a id="line.435"></a>
+<span class="sourceLineNo">436</span><a id="line.436">            m_findAll = "SELECT * FROM " + userTable;</a>
+<span class="sourceLineNo">437</span><a id="line.437">            m_findByEmail = "SELECT * FROM " + userTable + " WHERE " + m_email + "=?";</a>
+<span class="sourceLineNo">438</span><a id="line.438">            m_findByFullName = "SELECT * FROM " + userTable + " WHERE " + m_fullName + "=?";</a>
+<span class="sourceLineNo">439</span><a id="line.439">            m_findByLoginName = "SELECT * FROM " + userTable + " WHERE " + m_loginName + "=?";</a>
+<span class="sourceLineNo">440</span><a id="line.440">            m_findByUid = "SELECT * FROM " + userTable + " WHERE " + m_uid + "=?";</a>
+<span class="sourceLineNo">441</span><a id="line.441">            m_findByWikiName = "SELECT * FROM " + userTable + " WHERE " + m_wikiName + "=?";</a>
+<span class="sourceLineNo">442</span><a id="line.442"></a>
+<span class="sourceLineNo">443</span><a id="line.443">            // The user insert SQL prepared statement</a>
+<span class="sourceLineNo">444</span><a id="line.444">            m_insertProfile = "INSERT INTO " + userTable + " ("</a>
+<span class="sourceLineNo">445</span><a id="line.445">                              + m_uid + ","</a>
+<span class="sourceLineNo">446</span><a id="line.446">                              + m_email + ","</a>
+<span class="sourceLineNo">447</span><a id="line.447">                              + m_fullName + ","</a>
+<span class="sourceLineNo">448</span><a id="line.448">                              + m_password + ","</a>
+<span class="sourceLineNo">449</span><a id="line.449">                              + m_wikiName + ","</a>
+<span class="sourceLineNo">450</span><a id="line.450">                              + m_modified + ","</a>
+<span class="sourceLineNo">451</span><a id="line.451">                              + m_loginName + ","</a>
+<span class="sourceLineNo">452</span><a id="line.452">                              + m_attributes + ","</a>
+<span class="sourceLineNo">453</span><a id="line.453">                              + m_created</a>
+<span class="sourceLineNo">454</span><a id="line.454">                              + ") VALUES (?,?,?,?,?,?,?,?,?)";</a>
+<span class="sourceLineNo">455</span><a id="line.455">            </a>
+<span class="sourceLineNo">456</span><a id="line.456">            // The user update SQL prepared statement</a>
+<span class="sourceLineNo">457</span><a id="line.457">            m_updateProfile = "UPDATE " + userTable + " SET "</a>
+<span class="sourceLineNo">458</span><a id="line.458">                              + m_uid + "=?,"</a>
+<span class="sourceLineNo">459</span><a id="line.459">                              + m_email + "=?,"</a>
+<span class="sourceLineNo">460</span><a id="line.460">                              + m_fullName + "=?,"</a>
+<span class="sourceLineNo">461</span><a id="line.461">                              + m_password + "=?,"</a>
+<span class="sourceLineNo">462</span><a id="line.462">                              + m_wikiName + "=?,"</a>
+<span class="sourceLineNo">463</span><a id="line.463">                              + m_modified + "=?,"</a>
+<span class="sourceLineNo">464</span><a id="line.464">                              + m_loginName + "=?,"</a>
+<span class="sourceLineNo">465</span><a id="line.465">                              + m_attributes + "=?,"</a>
+<span class="sourceLineNo">466</span><a id="line.466">                              + m_lockExpiry + "=? "</a>
+<span class="sourceLineNo">467</span><a id="line.467">                              + "WHERE " + m_loginName + "=?";</a>
+<span class="sourceLineNo">468</span><a id="line.468"></a>
+<span class="sourceLineNo">469</span><a id="line.469">            // Prepare the role insert SQL</a>
+<span class="sourceLineNo">470</span><a id="line.470">            final String roleTable = props.getProperty( PROP_DB_ROLE_TABLE, DEFAULT_DB_ROLE_TABLE );</a>
+<span class="sourceLineNo">471</span><a id="line.471">            final String role = props.getProperty( PROP_DB_ROLE, DEFAULT_DB_ROLE );</a>
+<span class="sourceLineNo">472</span><a id="line.472">            m_insertRole = "INSERT INTO " + roleTable + " (" + m_loginName + "," + role + ") VALUES (?,?)";</a>
+<span class="sourceLineNo">473</span><a id="line.473">            m_findRoles = "SELECT * FROM " + roleTable + " WHERE " + m_loginName + "=?";</a>
+<span class="sourceLineNo">474</span><a id="line.474"></a>
+<span class="sourceLineNo">475</span><a id="line.475">            // Prepare the user delete SQL</a>
+<span class="sourceLineNo">476</span><a id="line.476">            m_deleteUserByLoginName = "DELETE FROM " + userTable + " WHERE " + m_loginName + "=?";</a>
+<span class="sourceLineNo">477</span><a id="line.477"></a>
+<span class="sourceLineNo">478</span><a id="line.478">            // Prepare the role delete SQL</a>
+<span class="sourceLineNo">479</span><a id="line.479">            m_deleteRoleByLoginName = "DELETE FROM " + roleTable + " WHERE " + m_loginName + "=?";</a>
+<span class="sourceLineNo">480</span><a id="line.480"></a>
+<span class="sourceLineNo">481</span><a id="line.481">            // Prepare the rename user/roles SQL</a>
+<span class="sourceLineNo">482</span><a id="line.482">            m_renameProfile = "UPDATE " + userTable + " SET " + m_loginName + "=?," + m_modified + "=? WHERE " + m_loginName</a>
+<span class="sourceLineNo">483</span><a id="line.483">                              + "=?";</a>
+<span class="sourceLineNo">484</span><a id="line.484">            m_renameRoles = "UPDATE " + roleTable + " SET " + m_loginName + "=? WHERE " + m_loginName + "=?";</a>
+<span class="sourceLineNo">485</span><a id="line.485">        } catch( final NamingException e ) {</a>
+<span class="sourceLineNo">486</span><a id="line.486">            log.error( "JDBCUserDatabase initialization error: " + e.getMessage() );</a>
+<span class="sourceLineNo">487</span><a id="line.487">            throw new NoRequiredPropertyException( PROP_DB_DATASOURCE, "JDBCUserDatabase initialization error: " + e.getMessage() );</a>
+<span class="sourceLineNo">488</span><a id="line.488">        }</a>
+<span class="sourceLineNo">489</span><a id="line.489"></a>
+<span class="sourceLineNo">490</span><a id="line.490">        // Test connection by doing a quickie select</a>
+<span class="sourceLineNo">491</span><a id="line.491">        try( final Connection conn = m_ds.getConnection(); final PreparedStatement ps = conn.prepareStatement( m_findAll ) ) {</a>
+<span class="sourceLineNo">492</span><a id="line.492">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">493</span><a id="line.493">            log.error( "DB connectivity error: " + e.getMessage() );</a>
+<span class="sourceLineNo">494</span><a id="line.494">            throw new WikiSecurityException("DB connectivity error: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">495</span><a id="line.495">        }</a>
+<span class="sourceLineNo">496</span><a id="line.496">        log.info( "JDBCUserDatabase initialized from JNDI DataSource: {}", jndiName );</a>
+<span class="sourceLineNo">497</span><a id="line.497"></a>
+<span class="sourceLineNo">498</span><a id="line.498">        // Determine if the datasource supports commits</a>
+<span class="sourceLineNo">499</span><a id="line.499">        try( final Connection conn = m_ds.getConnection() ) {</a>
+<span class="sourceLineNo">500</span><a id="line.500">            final DatabaseMetaData dmd = conn.getMetaData();</a>
+<span class="sourceLineNo">501</span><a id="line.501">            if( dmd.supportsTransactions() ) {</a>
+<span class="sourceLineNo">502</span><a id="line.502">                m_supportsCommits = true;</a>
+<span class="sourceLineNo">503</span><a id="line.503">                conn.setAutoCommit( false );</a>
+<span class="sourceLineNo">504</span><a id="line.504">                log.info( "JDBCUserDatabase supports transactions. Good; we will use them." );</a>
+<span class="sourceLineNo">505</span><a id="line.505">            }</a>
+<span class="sourceLineNo">506</span><a id="line.506">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">507</span><a id="line.507">            log.warn( "JDBCUserDatabase warning: user database doesn't seem to support transactions. Reason: {}", e.getMessage() );</a>
+<span class="sourceLineNo">508</span><a id="line.508">        }</a>
+<span class="sourceLineNo">509</span><a id="line.509">    }</a>
+<span class="sourceLineNo">510</span><a id="line.510"></a>
+<span class="sourceLineNo">511</span><a id="line.511">    /**</a>
+<span class="sourceLineNo">512</span><a id="line.512">     * @see org.apache.wiki.auth.user.UserDatabase#rename(String, String)</a>
+<span class="sourceLineNo">513</span><a id="line.513">     */</a>
+<span class="sourceLineNo">514</span><a id="line.514">    @Override</a>
+<span class="sourceLineNo">515</span><a id="line.515">    public void rename( final String loginName, final String newName ) throws DuplicateUserException, WikiSecurityException {</a>
+<span class="sourceLineNo">516</span><a id="line.516">        // Get the existing user; if not found, throws NoSuchPrincipalException</a>
+<span class="sourceLineNo">517</span><a id="line.517">        final UserProfile profile = findByLoginName( loginName );</a>
+<span class="sourceLineNo">518</span><a id="line.518"></a>
+<span class="sourceLineNo">519</span><a id="line.519">        // Get user with the proposed name; if found, it's a collision</a>
+<span class="sourceLineNo">520</span><a id="line.520">        try {</a>
+<span class="sourceLineNo">521</span><a id="line.521">            final UserProfile otherProfile = findByLoginName( newName );</a>
+<span class="sourceLineNo">522</span><a id="line.522">            if( otherProfile != null ) {</a>
+<span class="sourceLineNo">523</span><a id="line.523">                throw new DuplicateUserException( "security.error.cannot.rename", newName );</a>
+<span class="sourceLineNo">524</span><a id="line.524">            }</a>
+<span class="sourceLineNo">525</span><a id="line.525">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">526</span><a id="line.526">            // Good! That means it's safe to save using the new name</a>
+<span class="sourceLineNo">527</span><a id="line.527">        }</a>
+<span class="sourceLineNo">528</span><a id="line.528"></a>
+<span class="sourceLineNo">529</span><a id="line.529">        try( final Connection conn = m_ds.getConnection();</a>
+<span class="sourceLineNo">530</span><a id="line.530">             final PreparedStatement ps1 = conn.prepareStatement( m_renameProfile );</a>
+<span class="sourceLineNo">531</span><a id="line.531">             final PreparedStatement ps2 = conn.prepareStatement( m_renameRoles ) ) {</a>
+<span class="sourceLineNo">532</span><a id="line.532">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">533</span><a id="line.533">                conn.setAutoCommit( false );</a>
+<span class="sourceLineNo">534</span><a id="line.534">            }</a>
+<span class="sourceLineNo">535</span><a id="line.535"></a>
+<span class="sourceLineNo">536</span><a id="line.536">            final Timestamp ts = new Timestamp( System.currentTimeMillis() );</a>
+<span class="sourceLineNo">537</span><a id="line.537">            final Date modDate = new Date( ts.getTime() );</a>
+<span class="sourceLineNo">538</span><a id="line.538"></a>
+<span class="sourceLineNo">539</span><a id="line.539">            // Change the login ID for the user record</a>
+<span class="sourceLineNo">540</span><a id="line.540">            ps1.setString( 1, newName );</a>
+<span class="sourceLineNo">541</span><a id="line.541">            ps1.setTimestamp( 2, ts );</a>
+<span class="sourceLineNo">542</span><a id="line.542">            ps1.setString( 3, loginName );</a>
+<span class="sourceLineNo">543</span><a id="line.543">            ps1.execute();</a>
+<span class="sourceLineNo">544</span><a id="line.544"></a>
+<span class="sourceLineNo">545</span><a id="line.545">            // Change the login ID for the role records</a>
+<span class="sourceLineNo">546</span><a id="line.546">            ps2.setString( 1, newName );</a>
+<span class="sourceLineNo">547</span><a id="line.547">            ps2.setString( 2, loginName );</a>
+<span class="sourceLineNo">548</span><a id="line.548">            ps2.execute();</a>
+<span class="sourceLineNo">549</span><a id="line.549"></a>
+<span class="sourceLineNo">550</span><a id="line.550">            // Set the profile name and mod time</a>
+<span class="sourceLineNo">551</span><a id="line.551">            profile.setLoginName( newName );</a>
+<span class="sourceLineNo">552</span><a id="line.552">            profile.setLastModified( modDate );</a>
+<span class="sourceLineNo">553</span><a id="line.553"></a>
+<span class="sourceLineNo">554</span><a id="line.554">            // Commit and close connection</a>
+<span class="sourceLineNo">555</span><a id="line.555">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">556</span><a id="line.556">                conn.commit();</a>
+<span class="sourceLineNo">557</span><a id="line.557">            }</a>
+<span class="sourceLineNo">558</span><a id="line.558">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">559</span><a id="line.559">            throw new WikiSecurityException( e.getMessage(), e );</a>
+<span class="sourceLineNo">560</span><a id="line.560">        }</a>
+<span class="sourceLineNo">561</span><a id="line.561">    }</a>
+<span class="sourceLineNo">562</span><a id="line.562"></a>
+<span class="sourceLineNo">563</span><a id="line.563">    /**</a>
+<span class="sourceLineNo">564</span><a id="line.564">     * @see org.apache.wiki.auth.user.UserDatabase#save(org.apache.wiki.auth.user.UserProfile)</a>
+<span class="sourceLineNo">565</span><a id="line.565">     */</a>
+<span class="sourceLineNo">566</span><a id="line.566">    @Override</a>
+<span class="sourceLineNo">567</span><a id="line.567">    public void save( final UserProfile profile ) throws WikiSecurityException {</a>
+<span class="sourceLineNo">568</span><a id="line.568">        final String initialRole = "Authenticated";</a>
+<span class="sourceLineNo">569</span><a id="line.569"></a>
+<span class="sourceLineNo">570</span><a id="line.570">        // Figure out which prepared statement to use &amp; execute it</a>
+<span class="sourceLineNo">571</span><a id="line.571">        final String loginName = profile.getLoginName();</a>
+<span class="sourceLineNo">572</span><a id="line.572">        UserProfile existingProfile = null;</a>
+<span class="sourceLineNo">573</span><a id="line.573"></a>
+<span class="sourceLineNo">574</span><a id="line.574">        try {</a>
+<span class="sourceLineNo">575</span><a id="line.575">            existingProfile = findByLoginName( loginName );</a>
+<span class="sourceLineNo">576</span><a id="line.576">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">577</span><a id="line.577">            // Existing profile will be null</a>
+<span class="sourceLineNo">578</span><a id="line.578">        }</a>
+<span class="sourceLineNo">579</span><a id="line.579"></a>
+<span class="sourceLineNo">580</span><a id="line.580">        // Get a clean password from the passed profile.</a>
+<span class="sourceLineNo">581</span><a id="line.581">        // Blank password is the same as null, which means we re-use the existing one.</a>
+<span class="sourceLineNo">582</span><a id="line.582">        String password = profile.getPassword();</a>
+<span class="sourceLineNo">583</span><a id="line.583">        final String existingPassword = (existingProfile == null) ? null : existingProfile.getPassword();</a>
+<span class="sourceLineNo">584</span><a id="line.584">        if( NOTHING.equals( password ) ) {</a>
+<span class="sourceLineNo">585</span><a id="line.585">            password = null;</a>
+<span class="sourceLineNo">586</span><a id="line.586">        }</a>
+<span class="sourceLineNo">587</span><a id="line.587">        if( password == null ) {</a>
+<span class="sourceLineNo">588</span><a id="line.588">            password = existingPassword;</a>
+<span class="sourceLineNo">589</span><a id="line.589">        }</a>
+<span class="sourceLineNo">590</span><a id="line.590"></a>
+<span class="sourceLineNo">591</span><a id="line.591">        // If password changed, hash it before we save</a>
+<span class="sourceLineNo">592</span><a id="line.592">        if( !StringUtils.equals( password, existingPassword ) ) {</a>
+<span class="sourceLineNo">593</span><a id="line.593">            password = getHash( password );</a>
+<span class="sourceLineNo">594</span><a id="line.594">        }</a>
+<span class="sourceLineNo">595</span><a id="line.595"></a>
+<span class="sourceLineNo">596</span><a id="line.596">        try( final Connection conn = m_ds.getConnection();</a>
+<span class="sourceLineNo">597</span><a id="line.597">             final PreparedStatement ps1 = conn.prepareStatement( m_insertProfile );</a>
+<span class="sourceLineNo">598</span><a id="line.598">             final PreparedStatement ps2 = conn.prepareStatement( m_findRoles );</a>
+<span class="sourceLineNo">599</span><a id="line.599">             final PreparedStatement ps3 = conn.prepareStatement( m_insertRole );</a>
+<span class="sourceLineNo">600</span><a id="line.600">             final PreparedStatement ps4 = conn.prepareStatement( m_updateProfile ) ) {</a>
+<span class="sourceLineNo">601</span><a id="line.601">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">602</span><a id="line.602">                conn.setAutoCommit( false );</a>
+<span class="sourceLineNo">603</span><a id="line.603">            }</a>
+<span class="sourceLineNo">604</span><a id="line.604"></a>
+<span class="sourceLineNo">605</span><a id="line.605">            final Timestamp ts = new Timestamp( System.currentTimeMillis() );</a>
+<span class="sourceLineNo">606</span><a id="line.606">            final Date modDate = new Date( ts.getTime() );</a>
+<span class="sourceLineNo">607</span><a id="line.607">            final java.sql.Date lockExpiry = profile.getLockExpiry() == null ? null : new java.sql.Date( profile.getLockExpiry().getTime() );</a>
+<span class="sourceLineNo">608</span><a id="line.608">            if( existingProfile == null ) {</a>
+<span class="sourceLineNo">609</span><a id="line.609">                // User is new: insert new user record</a>
+<span class="sourceLineNo">610</span><a id="line.610">                ps1.setString( 1, profile.getUid() );</a>
+<span class="sourceLineNo">611</span><a id="line.611">                ps1.setString( 2, profile.getEmail() );</a>
+<span class="sourceLineNo">612</span><a id="line.612">                ps1.setString( 3, profile.getFullname() );</a>
+<span class="sourceLineNo">613</span><a id="line.613">                ps1.setString( 4, password );</a>
+<span class="sourceLineNo">614</span><a id="line.614">                ps1.setString( 5, profile.getWikiName() );</a>
+<span class="sourceLineNo">615</span><a id="line.615">                ps1.setTimestamp( 6, ts );</a>
+<span class="sourceLineNo">616</span><a id="line.616">                ps1.setString( 7, profile.getLoginName() );</a>
+<span class="sourceLineNo">617</span><a id="line.617">                try {</a>
+<span class="sourceLineNo">618</span><a id="line.618">                    ps1.setString( 8, Serializer.serializeToBase64( profile.getAttributes() ) );</a>
+<span class="sourceLineNo">619</span><a id="line.619">                } catch ( final IOException e ) {</a>
+<span class="sourceLineNo">620</span><a id="line.620">                    throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">621</span><a id="line.621">                }</a>
+<span class="sourceLineNo">622</span><a id="line.622">                ps1.setTimestamp( 9, ts );</a>
+<span class="sourceLineNo">623</span><a id="line.623">                ps1.execute();</a>
+<span class="sourceLineNo">624</span><a id="line.624"></a>
+<span class="sourceLineNo">625</span><a id="line.625">                // Insert new role record</a>
+<span class="sourceLineNo">626</span><a id="line.626">                ps2.setString( 1, profile.getLoginName() );</a>
+<span class="sourceLineNo">627</span><a id="line.627">                int roles = 0;</a>
+<span class="sourceLineNo">628</span><a id="line.628">                try ( final ResultSet rs = ps2.executeQuery() ) {</a>
+<span class="sourceLineNo">629</span><a id="line.629">                    while ( rs.next() ) {</a>
+<span class="sourceLineNo">630</span><a id="line.630">                        roles++;</a>
+<span class="sourceLineNo">631</span><a id="line.631">                    }</a>
+<span class="sourceLineNo">632</span><a id="line.632">                }</a>
+<span class="sourceLineNo">633</span><a id="line.633">                </a>
+<span class="sourceLineNo">634</span><a id="line.634">                if( roles == 0 ) {</a>
+<span class="sourceLineNo">635</span><a id="line.635">                    ps3.setString( 1, profile.getLoginName() );</a>
+<span class="sourceLineNo">636</span><a id="line.636">                    ps3.setString( 2, initialRole );</a>
+<span class="sourceLineNo">637</span><a id="line.637">                    ps3.execute();</a>
+<span class="sourceLineNo">638</span><a id="line.638">                }</a>
+<span class="sourceLineNo">639</span><a id="line.639"></a>
+<span class="sourceLineNo">640</span><a id="line.640">                // Set the profile creation time</a>
+<span class="sourceLineNo">641</span><a id="line.641">                profile.setCreated( modDate );</a>
+<span class="sourceLineNo">642</span><a id="line.642">            } else {</a>
+<span class="sourceLineNo">643</span><a id="line.643">                // User exists: modify existing record</a>
+<span class="sourceLineNo">644</span><a id="line.644">                ps4.setString( 1, profile.getUid() );</a>
+<span class="sourceLineNo">645</span><a id="line.645">                ps4.setString( 2, profile.getEmail() );</a>
+<span class="sourceLineNo">646</span><a id="line.646">                ps4.setString( 3, profile.getFullname() );</a>
+<span class="sourceLineNo">647</span><a id="line.647">                ps4.setString( 4, password );</a>
+<span class="sourceLineNo">648</span><a id="line.648">                ps4.setString( 5, profile.getWikiName() );</a>
+<span class="sourceLineNo">649</span><a id="line.649">                ps4.setTimestamp( 6, ts );</a>
+<span class="sourceLineNo">650</span><a id="line.650">                ps4.setString( 7, profile.getLoginName() );</a>
+<span class="sourceLineNo">651</span><a id="line.651">                try {</a>
+<span class="sourceLineNo">652</span><a id="line.652">                    ps4.setString( 8, Serializer.serializeToBase64( profile.getAttributes() ) );</a>
+<span class="sourceLineNo">653</span><a id="line.653">                } catch ( final IOException e ) {</a>
+<span class="sourceLineNo">654</span><a id="line.654">                    throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">655</span><a id="line.655">                }</a>
+<span class="sourceLineNo">656</span><a id="line.656">                ps4.setDate( 9, lockExpiry );</a>
+<span class="sourceLineNo">657</span><a id="line.657">                ps4.setString( 10, profile.getLoginName() );</a>
+<span class="sourceLineNo">658</span><a id="line.658">                ps4.execute();</a>
+<span class="sourceLineNo">659</span><a id="line.659">            }</a>
+<span class="sourceLineNo">660</span><a id="line.660">            // Set the profile mod time</a>
+<span class="sourceLineNo">661</span><a id="line.661">            profile.setLastModified( modDate );</a>
+<span class="sourceLineNo">662</span><a id="line.662"></a>
+<span class="sourceLineNo">663</span><a id="line.663">            // Commit and close connection</a>
+<span class="sourceLineNo">664</span><a id="line.664">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">665</span><a id="line.665">                conn.commit();</a>
+<span class="sourceLineNo">666</span><a id="line.666">            }</a>
+<span class="sourceLineNo">667</span><a id="line.667">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">668</span><a id="line.668">            throw new WikiSecurityException( e.getMessage(), e );</a>
+<span class="sourceLineNo">669</span><a id="line.669">        }</a>
+<span class="sourceLineNo">670</span><a id="line.670">    }</a>
+<span class="sourceLineNo">671</span><a id="line.671"></a>
+<span class="sourceLineNo">672</span><a id="line.672">    /**</a>
+<span class="sourceLineNo">673</span><a id="line.673">     * Private method that returns the first {@link UserProfile} matching a</a>
+<span class="sourceLineNo">674</span><a id="line.674">     * named column's value. This method will also set the UID if it has not yet been set.     </a>
+<span class="sourceLineNo">675</span><a id="line.675">     * @param sql the SQL statement that should be prepared; it must have one parameter</a>
+<span class="sourceLineNo">676</span><a id="line.676">     * to set (either a String or a Long)</a>
+<span class="sourceLineNo">677</span><a id="line.677">     * @param index the value to match</a>
+<span class="sourceLineNo">678</span><a id="line.678">     * @return the resolved UserProfile</a>
+<span class="sourceLineNo">679</span><a id="line.679">     * @throws NoSuchPrincipalException problems accessing the database</a>
+<span class="sourceLineNo">680</span><a id="line.680">     */</a>
+<span class="sourceLineNo">681</span><a id="line.681">    private UserProfile findByPreparedStatement( final String sql, final Object index ) throws NoSuchPrincipalException</a>
+<span class="sourceLineNo">682</span><a id="line.682">    {</a>
+<span class="sourceLineNo">683</span><a id="line.683">        UserProfile profile = null;</a>
+<span class="sourceLineNo">684</span><a id="line.684">        boolean found = false;</a>
+<span class="sourceLineNo">685</span><a id="line.685">        boolean unique = true;</a>
+<span class="sourceLineNo">686</span><a id="line.686">        try( final Connection conn = m_ds.getConnection(); final PreparedStatement ps = conn.prepareStatement( sql ) ) {</a>
+<span class="sourceLineNo">687</span><a id="line.687">            if( m_supportsCommits ) {</a>
+<span class="sourceLineNo">688</span><a id="line.688">                conn.setAutoCommit( false );</a>
+<span class="sourceLineNo">689</span><a id="line.689">            }</a>
+<span class="sourceLineNo">690</span><a id="line.690">            </a>
+<span class="sourceLineNo">691</span><a id="line.691">            // Set the parameter to search by</a>
+<span class="sourceLineNo">692</span><a id="line.692">            if( index instanceof String ) {</a>
+<span class="sourceLineNo">693</span><a id="line.693">                ps.setString( 1, ( String )index );</a>
+<span class="sourceLineNo">694</span><a id="line.694">            } else if ( index instanceof Long ) {</a>
+<span class="sourceLineNo">695</span><a id="line.695">                ps.setLong( 1, ( Long )index );</a>
+<span class="sourceLineNo">696</span><a id="line.696">            } else {</a>
+<span class="sourceLineNo">697</span><a id="line.697">                throw new IllegalArgumentException( "Index type not recognized!" );</a>
+<span class="sourceLineNo">698</span><a id="line.698">            }</a>
+<span class="sourceLineNo">699</span><a id="line.699">            </a>
+<span class="sourceLineNo">700</span><a id="line.700">            // Go and get the record!</a>
+<span class="sourceLineNo">701</span><a id="line.701">            try( final ResultSet rs = ps.executeQuery() ) {</a>
+<span class="sourceLineNo">702</span><a id="line.702">                while ( rs.next() ) {</a>
+<span class="sourceLineNo">703</span><a id="line.703">                    if( profile != null ) {</a>
+<span class="sourceLineNo">704</span><a id="line.704">                        unique = false;</a>
+<span class="sourceLineNo">705</span><a id="line.705">                        break;</a>
+<span class="sourceLineNo">706</span><a id="line.706">                    }</a>
+<span class="sourceLineNo">707</span><a id="line.707">                    profile = newProfile();</a>
+<span class="sourceLineNo">708</span><a id="line.708">                    </a>
+<span class="sourceLineNo">709</span><a id="line.709">                    // Fetch the basic user attributes</a>
+<span class="sourceLineNo">710</span><a id="line.710">                    profile.setUid( rs.getString( m_uid ) );</a>
+<span class="sourceLineNo">711</span><a id="line.711">                    if ( profile.getUid() == null ) {</a>
+<span class="sourceLineNo">712</span><a id="line.712">                        profile.setUid( generateUid( this ) );</a>
+<span class="sourceLineNo">713</span><a id="line.713">                    }</a>
+<span class="sourceLineNo">714</span><a id="line.714">                    profile.setCreated( rs.getTimestamp( m_created ) );</a>
+<span class="sourceLineNo">715</span><a id="line.715">                    profile.setEmail( rs.getString( m_email ) );</a>
+<span class="sourceLineNo">716</span><a id="line.716">                    profile.setFullname( rs.getString( m_fullName ) );</a>
+<span class="sourceLineNo">717</span><a id="line.717">                    profile.setLastModified( rs.getTimestamp( m_modified ) );</a>
+<span class="sourceLineNo">718</span><a id="line.718">                    final Date lockExpiry = rs.getDate( m_lockExpiry );</a>
+<span class="sourceLineNo">719</span><a id="line.719">                    profile.setLockExpiry( rs.wasNull() ? null : lockExpiry );</a>
+<span class="sourceLineNo">720</span><a id="line.720">                    profile.setLoginName( rs.getString( m_loginName ) );</a>
+<span class="sourceLineNo">721</span><a id="line.721">                    profile.setPassword( rs.getString( m_password ) );</a>
+<span class="sourceLineNo">722</span><a id="line.722">                    </a>
+<span class="sourceLineNo">723</span><a id="line.723">                    // Fetch the user attributes</a>
+<span class="sourceLineNo">724</span><a id="line.724">                    final String rawAttributes = rs.getString( m_attributes );</a>
+<span class="sourceLineNo">725</span><a id="line.725">                    if ( rawAttributes != null ) {</a>
+<span class="sourceLineNo">726</span><a id="line.726">                        try {</a>
+<span class="sourceLineNo">727</span><a id="line.727">                            final Map&lt;String,? extends Serializable&gt; attributes = Serializer.deserializeFromBase64( rawAttributes );</a>
+<span class="sourceLineNo">728</span><a id="line.728">                            profile.getAttributes().putAll( attributes );</a>
+<span class="sourceLineNo">729</span><a id="line.729">                        } catch ( final IOException e ) {</a>
+<span class="sourceLineNo">730</span><a id="line.730">                            log.error( "Could not parse user profile attributes!", e );</a>
+<span class="sourceLineNo">731</span><a id="line.731">                        }</a>
+<span class="sourceLineNo">732</span><a id="line.732">                    }</a>
+<span class="sourceLineNo">733</span><a id="line.733">                    found = true;</a>
+<span class="sourceLineNo">734</span><a id="line.734">                }</a>
+<span class="sourceLineNo">735</span><a id="line.735">            }</a>
+<span class="sourceLineNo">736</span><a id="line.736">        } catch( final SQLException e ) {</a>
+<span class="sourceLineNo">737</span><a id="line.737">            throw new NoSuchPrincipalException( e.getMessage() );</a>
+<span class="sourceLineNo">738</span><a id="line.738">        }</a>
+<span class="sourceLineNo">739</span><a id="line.739"></a>
+<span class="sourceLineNo">740</span><a id="line.740">        if( !found ) {</a>
+<span class="sourceLineNo">741</span><a id="line.741">            throw new NoSuchPrincipalException( "Could not find profile in database!" );</a>
+<span class="sourceLineNo">742</span><a id="line.742">        }</a>
+<span class="sourceLineNo">743</span><a id="line.743">        if( !unique ) {</a>
+<span class="sourceLineNo">744</span><a id="line.744">            throw new NoSuchPrincipalException( "More than one profile in database!" );</a>
+<span class="sourceLineNo">745</span><a id="line.745">        }</a>
+<span class="sourceLineNo">746</span><a id="line.746">        return profile;</a>
+<span class="sourceLineNo">747</span><a id="line.747">    }</a>
+<span class="sourceLineNo">748</span><a id="line.748"></a>
+<span class="sourceLineNo">749</span><a id="line.749">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
