@@ -268,120 +268,120 @@
 <span class="sourceLineNo">259</span><a id="line.259"></a>
 <span class="sourceLineNo">260</span><a id="line.260">        LOG.debug( "Configuring WikiEngine..." );</a>
 <span class="sourceLineNo">261</span><a id="line.261"></a>
-<span class="sourceLineNo">262</span><a id="line.262">        //  Create and find the default working directory.</a>
-<span class="sourceLineNo">263</span><a id="line.263">        m_workDir = TextUtil.getStringProperty( props, PROP_WORKDIR, null );</a>
-<span class="sourceLineNo">264</span><a id="line.264"></a>
-<span class="sourceLineNo">265</span><a id="line.265">        if( m_workDir == null ) {</a>
-<span class="sourceLineNo">266</span><a id="line.266">            m_workDir = System.getProperty( "java.io.tmpdir", "." ) +  File.separator + Release.APPNAME + "-" + m_appid;</a>
-<span class="sourceLineNo">267</span><a id="line.267">        }</a>
-<span class="sourceLineNo">268</span><a id="line.268"></a>
-<span class="sourceLineNo">269</span><a id="line.269">        try {</a>
-<span class="sourceLineNo">270</span><a id="line.270">            final File f = new File( m_workDir );</a>
-<span class="sourceLineNo">271</span><a id="line.271">            f.mkdirs();</a>
-<span class="sourceLineNo">272</span><a id="line.272"></a>
-<span class="sourceLineNo">273</span><a id="line.273">            //  A bunch of sanity checks</a>
-<span class="sourceLineNo">274</span><a id="line.274">            if( !f.exists() ) {</a>
-<span class="sourceLineNo">275</span><a id="line.275">                throw new WikiException( "Work directory does not exist: " + m_workDir );</a>
-<span class="sourceLineNo">276</span><a id="line.276">            }</a>
-<span class="sourceLineNo">277</span><a id="line.277">            if( !f.canRead() ) {</a>
-<span class="sourceLineNo">278</span><a id="line.278">                throw new WikiException( "No permission to read work directory: " + m_workDir );</a>
-<span class="sourceLineNo">279</span><a id="line.279">            }</a>
-<span class="sourceLineNo">280</span><a id="line.280">            if( !f.canWrite() ) {</a>
-<span class="sourceLineNo">281</span><a id="line.281">                throw new WikiException( "No permission to write to work directory: " + m_workDir );</a>
-<span class="sourceLineNo">282</span><a id="line.282">            }</a>
-<span class="sourceLineNo">283</span><a id="line.283">            if( !f.isDirectory() ) {</a>
-<span class="sourceLineNo">284</span><a id="line.284">                throw new WikiException( "jspwiki.workDir does not point to a directory: " + m_workDir );</a>
-<span class="sourceLineNo">285</span><a id="line.285">            }</a>
-<span class="sourceLineNo">286</span><a id="line.286">        } catch( final SecurityException e ) {</a>
-<span class="sourceLineNo">287</span><a id="line.287">            LOG.fatal( "Unable to find or create the working directory: {}", m_workDir, e );</a>
-<span class="sourceLineNo">288</span><a id="line.288">            throw new WikiException( "Unable to find or create the working dir: " + m_workDir, e );</a>
-<span class="sourceLineNo">289</span><a id="line.289">        }</a>
-<span class="sourceLineNo">290</span><a id="line.290"></a>
-<span class="sourceLineNo">291</span><a id="line.291">        LOG.info( "JSPWiki working directory is '{}'", m_workDir );</a>
-<span class="sourceLineNo">292</span><a id="line.292"></a>
-<span class="sourceLineNo">293</span><a id="line.293">        m_saveUserInfo   = TextUtil.getBooleanProperty( props, PROP_STOREUSERNAME, m_saveUserInfo );</a>
-<span class="sourceLineNo">294</span><a id="line.294">        m_useUTF8        = StandardCharsets.UTF_8.name().equals( TextUtil.getStringProperty( props, PROP_ENCODING, StandardCharsets.ISO_8859_1.name() ) );</a>
-<span class="sourceLineNo">295</span><a id="line.295">        m_templateDir    = TextUtil.getStringProperty( props, PROP_TEMPLATEDIR, "default" );</a>
-<span class="sourceLineNo">296</span><a id="line.296">        enforceValidTemplateDirectory();</a>
-<span class="sourceLineNo">297</span><a id="line.297">        m_frontPage      = TextUtil.getStringProperty( props, PROP_FRONTPAGE,   "Main" );</a>
-<span class="sourceLineNo">298</span><a id="line.298"></a>
-<span class="sourceLineNo">299</span><a id="line.299">        //</a>
-<span class="sourceLineNo">300</span><a id="line.300">        //  Initialize the important modules.  Any exception thrown by the managers means that we will not start up.</a>
-<span class="sourceLineNo">301</span><a id="line.301">        //</a>
-<span class="sourceLineNo">302</span><a id="line.302">        try {</a>
-<span class="sourceLineNo">303</span><a id="line.303">            final String aclClassName = m_properties.getProperty( PROP_ACL_MANAGER_IMPL, ClassUtil.getMappedClass( AclManager.class.getName() ).getName() );</a>
-<span class="sourceLineNo">304</span><a id="line.304">            final String urlConstructorClassName = TextUtil.getStringProperty( props, PROP_URLCONSTRUCTOR, "DefaultURLConstructor" );</a>
-<span class="sourceLineNo">305</span><a id="line.305">            final Class&lt; URLConstructor &gt; urlclass = ClassUtil.findClass( "org.apache.wiki.url", urlConstructorClassName );</a>
-<span class="sourceLineNo">306</span><a id="line.306"></a>
-<span class="sourceLineNo">307</span><a id="line.307">            initComponent( CommandResolver.class, this, props );</a>
-<span class="sourceLineNo">308</span><a id="line.308">            initComponent( urlclass.getName(), URLConstructor.class );</a>
-<span class="sourceLineNo">309</span><a id="line.309">            initComponent( CachingManager.class, this, props );</a>
-<span class="sourceLineNo">310</span><a id="line.310">            initComponent( PageManager.class, this, props );</a>
-<span class="sourceLineNo">311</span><a id="line.311">            initComponent( PluginManager.class, this, props );</a>
-<span class="sourceLineNo">312</span><a id="line.312">            initComponent( DifferenceManager.class, this, props );</a>
-<span class="sourceLineNo">313</span><a id="line.313">            initComponent( AttachmentManager.class, this, props );</a>
-<span class="sourceLineNo">314</span><a id="line.314">            initComponent( VariableManager.class, props );</a>
-<span class="sourceLineNo">315</span><a id="line.315">            initComponent( SearchManager.class, this, props );</a>
-<span class="sourceLineNo">316</span><a id="line.316">            initComponent( AuthenticationManager.class );</a>
-<span class="sourceLineNo">317</span><a id="line.317">            initComponent( AuthorizationManager.class );</a>
-<span class="sourceLineNo">318</span><a id="line.318">            initComponent( UserManager.class );</a>
-<span class="sourceLineNo">319</span><a id="line.319">            initComponent( GroupManager.class );</a>
-<span class="sourceLineNo">320</span><a id="line.320">            initComponent( EditorManager.class, this );</a>
-<span class="sourceLineNo">321</span><a id="line.321">            initComponent( ProgressManager.class, this );</a>
-<span class="sourceLineNo">322</span><a id="line.322">            initComponent( aclClassName, AclManager.class );</a>
-<span class="sourceLineNo">323</span><a id="line.323">            initComponent( WorkflowManager.class );</a>
-<span class="sourceLineNo">324</span><a id="line.324">            initComponent( TasksManager.class );</a>
-<span class="sourceLineNo">325</span><a id="line.325">            initComponent( InternationalizationManager.class, this );</a>
-<span class="sourceLineNo">326</span><a id="line.326">            initComponent( TemplateManager.class, this, props );</a>
-<span class="sourceLineNo">327</span><a id="line.327">            initComponent( FilterManager.class, this, props );</a>
-<span class="sourceLineNo">328</span><a id="line.328">            initComponent( AdminBeanManager.class, this );</a>
-<span class="sourceLineNo">329</span><a id="line.329">            initComponent( PageRenamer.class, this, props );</a>
+<span class="sourceLineNo">262</span><a id="line.262">        createAndFindWorkingDirectory( props );</a>
+<span class="sourceLineNo">263</span><a id="line.263"></a>
+<span class="sourceLineNo">264</span><a id="line.264">        m_useUTF8        = StandardCharsets.UTF_8.name().equals( TextUtil.getStringProperty( props, PROP_ENCODING, StandardCharsets.ISO_8859_1.name() ) );</a>
+<span class="sourceLineNo">265</span><a id="line.265">        m_saveUserInfo   = TextUtil.getBooleanProperty( props, PROP_STOREUSERNAME, m_saveUserInfo );</a>
+<span class="sourceLineNo">266</span><a id="line.266">        m_frontPage      = TextUtil.getStringProperty( props, PROP_FRONTPAGE, "Main" );</a>
+<span class="sourceLineNo">267</span><a id="line.267">        m_templateDir    = TextUtil.getStringProperty( props, PROP_TEMPLATEDIR, "default" );</a>
+<span class="sourceLineNo">268</span><a id="line.268">        enforceValidTemplateDirectory();</a>
+<span class="sourceLineNo">269</span><a id="line.269"></a>
+<span class="sourceLineNo">270</span><a id="line.270">        //</a>
+<span class="sourceLineNo">271</span><a id="line.271">        //  Initialize the important modules.  Any exception thrown by the managers means that we will not start up.</a>
+<span class="sourceLineNo">272</span><a id="line.272">        //</a>
+<span class="sourceLineNo">273</span><a id="line.273">        try {</a>
+<span class="sourceLineNo">274</span><a id="line.274">            final String aclClassName = m_properties.getProperty( PROP_ACL_MANAGER_IMPL, ClassUtil.getMappedClass( AclManager.class.getName() ).getName() );</a>
+<span class="sourceLineNo">275</span><a id="line.275">            final String urlConstructorClassName = TextUtil.getStringProperty( props, PROP_URLCONSTRUCTOR, "DefaultURLConstructor" );</a>
+<span class="sourceLineNo">276</span><a id="line.276">            final Class&lt; URLConstructor &gt; urlclass = ClassUtil.findClass( "org.apache.wiki.url", urlConstructorClassName );</a>
+<span class="sourceLineNo">277</span><a id="line.277"></a>
+<span class="sourceLineNo">278</span><a id="line.278">            initComponent( CommandResolver.class, this, props );</a>
+<span class="sourceLineNo">279</span><a id="line.279">            initComponent( urlclass.getName(), URLConstructor.class );</a>
+<span class="sourceLineNo">280</span><a id="line.280">            initComponent( CachingManager.class, this, props );</a>
+<span class="sourceLineNo">281</span><a id="line.281">            initComponent( PageManager.class, this, props );</a>
+<span class="sourceLineNo">282</span><a id="line.282">            initComponent( PluginManager.class, this, props );</a>
+<span class="sourceLineNo">283</span><a id="line.283">            initComponent( DifferenceManager.class, this, props );</a>
+<span class="sourceLineNo">284</span><a id="line.284">            initComponent( AttachmentManager.class, this, props );</a>
+<span class="sourceLineNo">285</span><a id="line.285">            initComponent( VariableManager.class, props );</a>
+<span class="sourceLineNo">286</span><a id="line.286">            initComponent( SearchManager.class, this, props );</a>
+<span class="sourceLineNo">287</span><a id="line.287">            initComponent( AuthenticationManager.class );</a>
+<span class="sourceLineNo">288</span><a id="line.288">            initComponent( AuthorizationManager.class );</a>
+<span class="sourceLineNo">289</span><a id="line.289">            initComponent( UserManager.class );</a>
+<span class="sourceLineNo">290</span><a id="line.290">            initComponent( GroupManager.class );</a>
+<span class="sourceLineNo">291</span><a id="line.291">            initComponent( EditorManager.class, this );</a>
+<span class="sourceLineNo">292</span><a id="line.292">            initComponent( ProgressManager.class, this );</a>
+<span class="sourceLineNo">293</span><a id="line.293">            initComponent( aclClassName, AclManager.class );</a>
+<span class="sourceLineNo">294</span><a id="line.294">            initComponent( WorkflowManager.class );</a>
+<span class="sourceLineNo">295</span><a id="line.295">            initComponent( TasksManager.class );</a>
+<span class="sourceLineNo">296</span><a id="line.296">            initComponent( InternationalizationManager.class, this );</a>
+<span class="sourceLineNo">297</span><a id="line.297">            initComponent( TemplateManager.class, this, props );</a>
+<span class="sourceLineNo">298</span><a id="line.298">            initComponent( FilterManager.class, this, props );</a>
+<span class="sourceLineNo">299</span><a id="line.299">            initComponent( AdminBeanManager.class, this );</a>
+<span class="sourceLineNo">300</span><a id="line.300">            initComponent( PageRenamer.class, this, props );</a>
+<span class="sourceLineNo">301</span><a id="line.301"></a>
+<span class="sourceLineNo">302</span><a id="line.302">            // RenderingManager depends on FilterManager events.</a>
+<span class="sourceLineNo">303</span><a id="line.303">            initComponent( RenderingManager.class );</a>
+<span class="sourceLineNo">304</span><a id="line.304"></a>
+<span class="sourceLineNo">305</span><a id="line.305">            //  ReferenceManager has the side effect of loading all pages. Therefore, after this point, all page attributes are available.</a>
+<span class="sourceLineNo">306</span><a id="line.306">            //  initReferenceManager is indirectly using m_filterManager, so it has to be called after it was initialized.</a>
+<span class="sourceLineNo">307</span><a id="line.307">            initReferenceManager();</a>
+<span class="sourceLineNo">308</span><a id="line.308"></a>
+<span class="sourceLineNo">309</span><a id="line.309">            //  Hook the different manager routines into the system.</a>
+<span class="sourceLineNo">310</span><a id="line.310">            getManager( FilterManager.class ).addPageFilter( getManager( ReferenceManager.class ), -1001 );</a>
+<span class="sourceLineNo">311</span><a id="line.311">            getManager( FilterManager.class ).addPageFilter( getManager( SearchManager.class ), -1002 );</a>
+<span class="sourceLineNo">312</span><a id="line.312">        } catch( final RuntimeException e ) {</a>
+<span class="sourceLineNo">313</span><a id="line.313">            // RuntimeExceptions may occur here, even if they shouldn't.</a>
+<span class="sourceLineNo">314</span><a id="line.314">            LOG.fatal( "Failed to start managers.", e );</a>
+<span class="sourceLineNo">315</span><a id="line.315">            throw new WikiException( "Failed to start managers: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">316</span><a id="line.316">        } catch( final ClassNotFoundException e ) {</a>
+<span class="sourceLineNo">317</span><a id="line.317">            LOG.fatal( "JSPWiki could not start, URLConstructor was not found: {}", e.getMessage(), e );</a>
+<span class="sourceLineNo">318</span><a id="line.318">            throw new WikiException( e.getMessage(), e );</a>
+<span class="sourceLineNo">319</span><a id="line.319">        } catch( final InstantiationException e ) {</a>
+<span class="sourceLineNo">320</span><a id="line.320">            LOG.fatal( "JSPWiki could not start, URLConstructor could not be instantiated: {}", e.getMessage(), e );</a>
+<span class="sourceLineNo">321</span><a id="line.321">            throw new WikiException( e.getMessage(), e );</a>
+<span class="sourceLineNo">322</span><a id="line.322">        } catch( final IllegalAccessException e ) {</a>
+<span class="sourceLineNo">323</span><a id="line.323">            LOG.fatal( "JSPWiki could not start, URLConstructor cannot be accessed: {}", e.getMessage(), e );</a>
+<span class="sourceLineNo">324</span><a id="line.324">            throw new WikiException( e.getMessage(), e );</a>
+<span class="sourceLineNo">325</span><a id="line.325">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">326</span><a id="line.326">            // Final catch-all for everything</a>
+<span class="sourceLineNo">327</span><a id="line.327">            LOG.fatal( "JSPWiki could not start, due to an unknown exception when starting.", e );</a>
+<span class="sourceLineNo">328</span><a id="line.328">            throw new WikiException( "Failed to start. Caused by: " + e.getMessage() + "; please check log files for better information.", e );</a>
+<span class="sourceLineNo">329</span><a id="line.329">        }</a>
 <span class="sourceLineNo">330</span><a id="line.330"></a>
-<span class="sourceLineNo">331</span><a id="line.331">            // RenderingManager depends on FilterManager events.</a>
-<span class="sourceLineNo">332</span><a id="line.332">            initComponent( RenderingManager.class );</a>
-<span class="sourceLineNo">333</span><a id="line.333"></a>
-<span class="sourceLineNo">334</span><a id="line.334">            //  ReferenceManager has the side effect of loading all pages. Therefore, after this point, all page attributes are available.</a>
-<span class="sourceLineNo">335</span><a id="line.335">            //  initReferenceManager is indirectly using m_filterManager, so it has to be called after it was initialized.</a>
-<span class="sourceLineNo">336</span><a id="line.336">            initReferenceManager();</a>
-<span class="sourceLineNo">337</span><a id="line.337"></a>
-<span class="sourceLineNo">338</span><a id="line.338">            //  Hook the different manager routines into the system.</a>
-<span class="sourceLineNo">339</span><a id="line.339">            getManager( FilterManager.class ).addPageFilter( getManager( ReferenceManager.class ), -1001 );</a>
-<span class="sourceLineNo">340</span><a id="line.340">            getManager( FilterManager.class ).addPageFilter( getManager( SearchManager.class ), -1002 );</a>
-<span class="sourceLineNo">341</span><a id="line.341">        } catch( final RuntimeException e ) {</a>
-<span class="sourceLineNo">342</span><a id="line.342">            // RuntimeExceptions may occur here, even if they shouldn't.</a>
-<span class="sourceLineNo">343</span><a id="line.343">            LOG.fatal( "Failed to start managers.", e );</a>
-<span class="sourceLineNo">344</span><a id="line.344">            throw new WikiException( "Failed to start managers: " + e.getMessage(), e );</a>
-<span class="sourceLineNo">345</span><a id="line.345">        } catch( final ClassNotFoundException e ) {</a>
-<span class="sourceLineNo">346</span><a id="line.346">            LOG.fatal( "JSPWiki could not start, URLConstructor was not found: {}", e.getMessage(), e );</a>
-<span class="sourceLineNo">347</span><a id="line.347">            throw new WikiException( e.getMessage(), e );</a>
-<span class="sourceLineNo">348</span><a id="line.348">        } catch( final InstantiationException e ) {</a>
-<span class="sourceLineNo">349</span><a id="line.349">            LOG.fatal( "JSPWiki could not start, URLConstructor could not be instantiated: {}", e.getMessage(), e );</a>
-<span class="sourceLineNo">350</span><a id="line.350">            throw new WikiException( e.getMessage(), e );</a>
-<span class="sourceLineNo">351</span><a id="line.351">        } catch( final IllegalAccessException e ) {</a>
-<span class="sourceLineNo">352</span><a id="line.352">            LOG.fatal( "JSPWiki could not start, URLConstructor cannot be accessed: {}", e.getMessage(), e );</a>
-<span class="sourceLineNo">353</span><a id="line.353">            throw new WikiException( e.getMessage(), e );</a>
-<span class="sourceLineNo">354</span><a id="line.354">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">355</span><a id="line.355">            // Final catch-all for everything</a>
-<span class="sourceLineNo">356</span><a id="line.356">            LOG.fatal( "JSPWiki could not start, due to an unknown exception when starting.", e );</a>
-<span class="sourceLineNo">357</span><a id="line.357">            throw new WikiException( "Failed to start. Caused by: " + e.getMessage() + "; please check log files for better information.", e );</a>
-<span class="sourceLineNo">358</span><a id="line.358">        }</a>
-<span class="sourceLineNo">359</span><a id="line.359"></a>
-<span class="sourceLineNo">360</span><a id="line.360">        //  Initialize the good-to-have-but-not-fatal modules.</a>
-<span class="sourceLineNo">361</span><a id="line.361">        try {</a>
-<span class="sourceLineNo">362</span><a id="line.362">            if( TextUtil.getBooleanProperty( props, RSSGenerator.PROP_GENERATE_RSS,false ) ) {</a>
-<span class="sourceLineNo">363</span><a id="line.363">                initComponent( RSSGenerator.class, this, props );</a>
-<span class="sourceLineNo">364</span><a id="line.364">            }</a>
-<span class="sourceLineNo">365</span><a id="line.365">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">366</span><a id="line.366">            LOG.error( "Unable to start RSS generator - JSPWiki will still work, but there will be no RSS feed.", e );</a>
-<span class="sourceLineNo">367</span><a id="line.367">        }</a>
+<span class="sourceLineNo">331</span><a id="line.331">        //  Initialize the good-to-have-but-not-fatal modules.</a>
+<span class="sourceLineNo">332</span><a id="line.332">        try {</a>
+<span class="sourceLineNo">333</span><a id="line.333">            if( TextUtil.getBooleanProperty( props, RSSGenerator.PROP_GENERATE_RSS,false ) ) {</a>
+<span class="sourceLineNo">334</span><a id="line.334">                initComponent( RSSGenerator.class, this, props );</a>
+<span class="sourceLineNo">335</span><a id="line.335">            }</a>
+<span class="sourceLineNo">336</span><a id="line.336">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">337</span><a id="line.337">            LOG.error( "Unable to start RSS generator - JSPWiki will still work, but there will be no RSS feed.", e );</a>
+<span class="sourceLineNo">338</span><a id="line.338">        }</a>
+<span class="sourceLineNo">339</span><a id="line.339"></a>
+<span class="sourceLineNo">340</span><a id="line.340">        final Map&lt; String, String &gt; extraComponents = ClassUtil.getExtraClassMappings();</a>
+<span class="sourceLineNo">341</span><a id="line.341">        initExtraComponents( extraComponents );</a>
+<span class="sourceLineNo">342</span><a id="line.342"></a>
+<span class="sourceLineNo">343</span><a id="line.343">        fireEvent( WikiEngineEvent.INITIALIZED ); // initialization complete</a>
+<span class="sourceLineNo">344</span><a id="line.344"></a>
+<span class="sourceLineNo">345</span><a id="line.345">        LOG.info( "WikiEngine configured." );</a>
+<span class="sourceLineNo">346</span><a id="line.346">        m_isConfigured = true;</a>
+<span class="sourceLineNo">347</span><a id="line.347">    }</a>
+<span class="sourceLineNo">348</span><a id="line.348"></a>
+<span class="sourceLineNo">349</span><a id="line.349">    void createAndFindWorkingDirectory( final Properties props ) throws WikiException {</a>
+<span class="sourceLineNo">350</span><a id="line.350">        m_workDir = TextUtil.getStringProperty( props, PROP_WORKDIR, null );</a>
+<span class="sourceLineNo">351</span><a id="line.351">        if( StringUtils.isBlank( m_workDir ) ) {</a>
+<span class="sourceLineNo">352</span><a id="line.352">            m_workDir = System.getProperty( "java.io.tmpdir", "." ) +  File.separator + Release.APPNAME + "-" + m_appid;</a>
+<span class="sourceLineNo">353</span><a id="line.353">        }</a>
+<span class="sourceLineNo">354</span><a id="line.354"></a>
+<span class="sourceLineNo">355</span><a id="line.355">        final File f = new File( m_workDir );</a>
+<span class="sourceLineNo">356</span><a id="line.356">        try {</a>
+<span class="sourceLineNo">357</span><a id="line.357">            f.mkdirs();</a>
+<span class="sourceLineNo">358</span><a id="line.358">        } catch( final SecurityException e ) {</a>
+<span class="sourceLineNo">359</span><a id="line.359">            LOG.fatal( "Unable to find or create the working directory: {}", m_workDir, e );</a>
+<span class="sourceLineNo">360</span><a id="line.360">            throw new WikiException( "Unable to find or create the working dir: " + m_workDir, e );</a>
+<span class="sourceLineNo">361</span><a id="line.361">        }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">        //  A bunch of sanity checks</a>
+<span class="sourceLineNo">364</span><a id="line.364">        checkWorkingDirectory( !f.exists(), "Work directory does not exist: " + m_workDir );</a>
+<span class="sourceLineNo">365</span><a id="line.365">        checkWorkingDirectory( !f.canRead(), "No permission to read work directory: " + m_workDir );</a>
+<span class="sourceLineNo">366</span><a id="line.366">        checkWorkingDirectory( !f.canWrite(), "No permission to write to work directory: " + m_workDir );</a>
+<span class="sourceLineNo">367</span><a id="line.367">        checkWorkingDirectory( !f.isDirectory(), "jspwiki.workDir does not point to a directory: " + m_workDir );</a>
 <span class="sourceLineNo">368</span><a id="line.368"></a>
-<span class="sourceLineNo">369</span><a id="line.369">        final Map&lt; String, String &gt; extraComponents = ClassUtil.getExtraClassMappings();</a>
-<span class="sourceLineNo">370</span><a id="line.370">        initExtraComponents( extraComponents );</a>
+<span class="sourceLineNo">369</span><a id="line.369">        LOG.info( "JSPWiki working directory is '{}'", m_workDir );</a>
+<span class="sourceLineNo">370</span><a id="line.370">    }</a>
 <span class="sourceLineNo">371</span><a id="line.371"></a>
-<span class="sourceLineNo">372</span><a id="line.372">        fireEvent( WikiEngineEvent.INITIALIZED ); // initialization complete</a>
-<span class="sourceLineNo">373</span><a id="line.373"></a>
-<span class="sourceLineNo">374</span><a id="line.374">        LOG.info( "WikiEngine configured." );</a>
-<span class="sourceLineNo">375</span><a id="line.375">        m_isConfigured = true;</a>
+<span class="sourceLineNo">372</span><a id="line.372">    void checkWorkingDirectory( final boolean condition, final String errMsg ) throws WikiException {</a>
+<span class="sourceLineNo">373</span><a id="line.373">        if( condition ) {</a>
+<span class="sourceLineNo">374</span><a id="line.374">            throw new WikiException( errMsg );</a>
+<span class="sourceLineNo">375</span><a id="line.375">        }</a>
 <span class="sourceLineNo">376</span><a id="line.376">    }</a>
 <span class="sourceLineNo">377</span><a id="line.377"></a>
 <span class="sourceLineNo">378</span><a id="line.378">    void initExtraComponents( final Map&lt; String, String &gt; extraComponents ) {</a>
