@@ -350,144 +350,142 @@
 <span class="sourceLineNo">341</span><a id="line.341">        validator.validate( profile.getEmail(), rb.getString("security.user.email"), InputValidator.EMAIL );</a>
 <span class="sourceLineNo">342</span><a id="line.342"></a>
 <span class="sourceLineNo">343</span><a id="line.343">        if( !m_engine.getManager( AuthenticationManager.class ).isContainerAuthenticated() ) {</a>
-<span class="sourceLineNo">344</span><a id="line.344">            final String password = profile.getPassword();</a>
-<span class="sourceLineNo">345</span><a id="line.345">            if( password == null ) {</a>
-<span class="sourceLineNo">346</span><a id="line.346">                if( profile.isNew() ) {</a>
-<span class="sourceLineNo">347</span><a id="line.347">                    // If new profile, passwords must match and can't be null</a>
-<span class="sourceLineNo">348</span><a id="line.348">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.blankpassword" ) );</a>
-<span class="sourceLineNo">349</span><a id="line.349">                }</a>
-<span class="sourceLineNo">350</span><a id="line.350">            } else {</a>
-<span class="sourceLineNo">351</span><a id="line.351">                final HttpServletRequest request = context.getHttpRequest();</a>
-<span class="sourceLineNo">352</span><a id="line.352">                final String password0 = ( request == null ) ? null : request.getParameter( "password0" );</a>
-<span class="sourceLineNo">353</span><a id="line.353">                final String password2 = ( request == null ) ? null : request.getParameter( "password2" );</a>
-<span class="sourceLineNo">354</span><a id="line.354">                if( !password.equals( password2 ) ) {</a>
-<span class="sourceLineNo">355</span><a id="line.355">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.passwordnomatch" ) );</a>
-<span class="sourceLineNo">356</span><a id="line.356">                }</a>
-<span class="sourceLineNo">357</span><a id="line.357">                if( !profile.isNew() &amp;&amp; !getUserDatabase().validatePassword( profile.getLoginName(), password0 ) ) {</a>
-<span class="sourceLineNo">358</span><a id="line.358">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.passwordnomatch" ) );</a>
-<span class="sourceLineNo">359</span><a id="line.359">                }</a>
-<span class="sourceLineNo">360</span><a id="line.360">            }</a>
-<span class="sourceLineNo">361</span><a id="line.361">        }</a>
-<span class="sourceLineNo">362</span><a id="line.362"></a>
-<span class="sourceLineNo">363</span><a id="line.363">        UserProfile otherProfile;</a>
-<span class="sourceLineNo">364</span><a id="line.364">        final String fullName = profile.getFullname();</a>
-<span class="sourceLineNo">365</span><a id="line.365">        final String loginName = profile.getLoginName();</a>
-<span class="sourceLineNo">366</span><a id="line.366">        final String email = profile.getEmail();</a>
-<span class="sourceLineNo">367</span><a id="line.367"></a>
-<span class="sourceLineNo">368</span><a id="line.368">        // It's illegal to use as a full name someone else's login name</a>
-<span class="sourceLineNo">369</span><a id="line.369">        try {</a>
-<span class="sourceLineNo">370</span><a id="line.370">            otherProfile = getUserDatabase().find( fullName );</a>
-<span class="sourceLineNo">371</span><a id="line.371">            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !fullName.equals( otherProfile.getFullname() ) ) {</a>
-<span class="sourceLineNo">372</span><a id="line.372">                final Object[] args = { fullName };</a>
-<span class="sourceLineNo">373</span><a id="line.373">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalfullname" ), args ) );</a>
-<span class="sourceLineNo">374</span><a id="line.374">            }</a>
-<span class="sourceLineNo">375</span><a id="line.375">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
-<span class="sourceLineNo">376</span><a id="line.376"></a>
-<span class="sourceLineNo">377</span><a id="line.377">        // It's illegal to use as a login name someone else's full name</a>
-<span class="sourceLineNo">378</span><a id="line.378">        try {</a>
-<span class="sourceLineNo">379</span><a id="line.379">            otherProfile = getUserDatabase().find( loginName );</a>
-<span class="sourceLineNo">380</span><a id="line.380">            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !loginName.equals( otherProfile.getLoginName() ) ) {</a>
-<span class="sourceLineNo">381</span><a id="line.381">                final Object[] args = { loginName };</a>
-<span class="sourceLineNo">382</span><a id="line.382">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalloginname" ), args ) );</a>
-<span class="sourceLineNo">383</span><a id="line.383">            }</a>
-<span class="sourceLineNo">384</span><a id="line.384">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
-<span class="sourceLineNo">385</span><a id="line.385"></a>
-<span class="sourceLineNo">386</span><a id="line.386">        // It's illegal to use multiple accounts with the same email</a>
-<span class="sourceLineNo">387</span><a id="line.387">        try {</a>
-<span class="sourceLineNo">388</span><a id="line.388">            otherProfile = getUserDatabase().findByEmail( email );</a>
-<span class="sourceLineNo">389</span><a id="line.389">            if( otherProfile != null &amp;&amp; !profile.getUid().equals( otherProfile.getUid() ) // Issue JSPWIKI-1042</a>
-<span class="sourceLineNo">390</span><a id="line.390">                    &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; StringUtils.lowerCase( email )</a>
-<span class="sourceLineNo">391</span><a id="line.391">                    .equals( StringUtils.lowerCase( otherProfile.getEmail() ) ) ) {</a>
-<span class="sourceLineNo">392</span><a id="line.392">                final Object[] args = { email };</a>
-<span class="sourceLineNo">393</span><a id="line.393">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.email.taken" ), args ) );</a>
-<span class="sourceLineNo">394</span><a id="line.394">            }</a>
-<span class="sourceLineNo">395</span><a id="line.395">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
-<span class="sourceLineNo">396</span><a id="line.396">    }</a>
-<span class="sourceLineNo">397</span><a id="line.397"></a>
-<span class="sourceLineNo">398</span><a id="line.398">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">399</span><a id="line.399">    @Override</a>
-<span class="sourceLineNo">400</span><a id="line.400">    public Principal[] listWikiNames() throws WikiSecurityException {</a>
-<span class="sourceLineNo">401</span><a id="line.401">        return getUserDatabase().getWikiNames();</a>
-<span class="sourceLineNo">402</span><a id="line.402">    }</a>
+<span class="sourceLineNo">344</span><a id="line.344">            // passwords must match and can't be null</a>
+<span class="sourceLineNo">345</span><a id="line.345">            final String password = profile.getPassword();</a>
+<span class="sourceLineNo">346</span><a id="line.346">            if( password == null ) {</a>
+<span class="sourceLineNo">347</span><a id="line.347">                session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.blankpassword" ) );</a>
+<span class="sourceLineNo">348</span><a id="line.348">            } else {</a>
+<span class="sourceLineNo">349</span><a id="line.349">                final HttpServletRequest request = context.getHttpRequest();</a>
+<span class="sourceLineNo">350</span><a id="line.350">                final String password0 = ( request == null ) ? null : request.getParameter( "password0" );</a>
+<span class="sourceLineNo">351</span><a id="line.351">                final String password2 = ( request == null ) ? null : request.getParameter( "password2" );</a>
+<span class="sourceLineNo">352</span><a id="line.352">                if( !password.equals( password2 ) ) {</a>
+<span class="sourceLineNo">353</span><a id="line.353">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.passwordnomatch" ) );</a>
+<span class="sourceLineNo">354</span><a id="line.354">                }</a>
+<span class="sourceLineNo">355</span><a id="line.355">                if( !profile.isNew() &amp;&amp; !getUserDatabase().validatePassword( profile.getLoginName(), password0 ) ) {</a>
+<span class="sourceLineNo">356</span><a id="line.356">                    session.addMessage( SESSION_MESSAGES, rb.getString( "security.error.passwordnomatch" ) );</a>
+<span class="sourceLineNo">357</span><a id="line.357">                }</a>
+<span class="sourceLineNo">358</span><a id="line.358">            }</a>
+<span class="sourceLineNo">359</span><a id="line.359">        }</a>
+<span class="sourceLineNo">360</span><a id="line.360"></a>
+<span class="sourceLineNo">361</span><a id="line.361">        UserProfile otherProfile;</a>
+<span class="sourceLineNo">362</span><a id="line.362">        final String fullName = profile.getFullname();</a>
+<span class="sourceLineNo">363</span><a id="line.363">        final String loginName = profile.getLoginName();</a>
+<span class="sourceLineNo">364</span><a id="line.364">        final String email = profile.getEmail();</a>
+<span class="sourceLineNo">365</span><a id="line.365"></a>
+<span class="sourceLineNo">366</span><a id="line.366">        // It's illegal to use as a full name someone else's login name</a>
+<span class="sourceLineNo">367</span><a id="line.367">        try {</a>
+<span class="sourceLineNo">368</span><a id="line.368">            otherProfile = getUserDatabase().find( fullName );</a>
+<span class="sourceLineNo">369</span><a id="line.369">            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !fullName.equals( otherProfile.getFullname() ) ) {</a>
+<span class="sourceLineNo">370</span><a id="line.370">                final Object[] args = { fullName };</a>
+<span class="sourceLineNo">371</span><a id="line.371">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalfullname" ), args ) );</a>
+<span class="sourceLineNo">372</span><a id="line.372">            }</a>
+<span class="sourceLineNo">373</span><a id="line.373">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
+<span class="sourceLineNo">374</span><a id="line.374"></a>
+<span class="sourceLineNo">375</span><a id="line.375">        // It's illegal to use as a login name someone else's full name</a>
+<span class="sourceLineNo">376</span><a id="line.376">        try {</a>
+<span class="sourceLineNo">377</span><a id="line.377">            otherProfile = getUserDatabase().find( loginName );</a>
+<span class="sourceLineNo">378</span><a id="line.378">            if( otherProfile != null &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; !loginName.equals( otherProfile.getLoginName() ) ) {</a>
+<span class="sourceLineNo">379</span><a id="line.379">                final Object[] args = { loginName };</a>
+<span class="sourceLineNo">380</span><a id="line.380">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.illegalloginname" ), args ) );</a>
+<span class="sourceLineNo">381</span><a id="line.381">            }</a>
+<span class="sourceLineNo">382</span><a id="line.382">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
+<span class="sourceLineNo">383</span><a id="line.383"></a>
+<span class="sourceLineNo">384</span><a id="line.384">        // It's illegal to use multiple accounts with the same email</a>
+<span class="sourceLineNo">385</span><a id="line.385">        try {</a>
+<span class="sourceLineNo">386</span><a id="line.386">            otherProfile = getUserDatabase().findByEmail( email );</a>
+<span class="sourceLineNo">387</span><a id="line.387">            if( otherProfile != null &amp;&amp; !profile.getUid().equals( otherProfile.getUid() ) // Issue JSPWIKI-1042</a>
+<span class="sourceLineNo">388</span><a id="line.388">                    &amp;&amp; !profile.equals( otherProfile ) &amp;&amp; StringUtils.lowerCase( email )</a>
+<span class="sourceLineNo">389</span><a id="line.389">                    .equals( StringUtils.lowerCase( otherProfile.getEmail() ) ) ) {</a>
+<span class="sourceLineNo">390</span><a id="line.390">                final Object[] args = { email };</a>
+<span class="sourceLineNo">391</span><a id="line.391">                session.addMessage( SESSION_MESSAGES, MessageFormat.format( rb.getString( "security.error.email.taken" ), args ) );</a>
+<span class="sourceLineNo">392</span><a id="line.392">            }</a>
+<span class="sourceLineNo">393</span><a id="line.393">        } catch( final NoSuchPrincipalException e ) { /* It's clean */ }</a>
+<span class="sourceLineNo">394</span><a id="line.394">    }</a>
+<span class="sourceLineNo">395</span><a id="line.395"></a>
+<span class="sourceLineNo">396</span><a id="line.396">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">397</span><a id="line.397">    @Override</a>
+<span class="sourceLineNo">398</span><a id="line.398">    public Principal[] listWikiNames() throws WikiSecurityException {</a>
+<span class="sourceLineNo">399</span><a id="line.399">        return getUserDatabase().getWikiNames();</a>
+<span class="sourceLineNo">400</span><a id="line.400">    }</a>
+<span class="sourceLineNo">401</span><a id="line.401"></a>
+<span class="sourceLineNo">402</span><a id="line.402">    // events processing .......................................................</a>
 <span class="sourceLineNo">403</span><a id="line.403"></a>
-<span class="sourceLineNo">404</span><a id="line.404">    // events processing .......................................................</a>
-<span class="sourceLineNo">405</span><a id="line.405"></a>
-<span class="sourceLineNo">406</span><a id="line.406">    /**</a>
-<span class="sourceLineNo">407</span><a id="line.407">     * Registers a WikiEventListener with this instance.</a>
-<span class="sourceLineNo">408</span><a id="line.408">     * This is a convenience method.</a>
-<span class="sourceLineNo">409</span><a id="line.409">     * @param listener the event listener</a>
-<span class="sourceLineNo">410</span><a id="line.410">     */</a>
-<span class="sourceLineNo">411</span><a id="line.411">    @Override public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">412</span><a id="line.412">        WikiEventManager.addWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">413</span><a id="line.413">    }</a>
-<span class="sourceLineNo">414</span><a id="line.414"></a>
-<span class="sourceLineNo">415</span><a id="line.415">    /**</a>
-<span class="sourceLineNo">416</span><a id="line.416">     * Un-registers a WikiEventListener with this instance.</a>
-<span class="sourceLineNo">417</span><a id="line.417">     * This is a convenience method.</a>
-<span class="sourceLineNo">418</span><a id="line.418">     * @param listener the event listener</a>
-<span class="sourceLineNo">419</span><a id="line.419">     */</a>
-<span class="sourceLineNo">420</span><a id="line.420">    @Override public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">421</span><a id="line.421">        WikiEventManager.removeWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">422</span><a id="line.422">    }</a>
-<span class="sourceLineNo">423</span><a id="line.423"></a>
-<span class="sourceLineNo">424</span><a id="line.424">    /**</a>
-<span class="sourceLineNo">425</span><a id="line.425">     *  Implements the JSON API for usermanager.</a>
-<span class="sourceLineNo">426</span><a id="line.426">     *  &lt;p&gt;</a>
-<span class="sourceLineNo">427</span><a id="line.427">     *  Even though this gets serialized whenever container shuts down/restarts, this gets reinstalled to the session when JSPWiki starts.</a>
-<span class="sourceLineNo">428</span><a id="line.428">     *  This means that it's not actually necessary to save anything.</a>
-<span class="sourceLineNo">429</span><a id="line.429">     */</a>
-<span class="sourceLineNo">430</span><a id="line.430">    public static final class JSONUserModule implements WikiAjaxServlet {</a>
+<span class="sourceLineNo">404</span><a id="line.404">    /**</a>
+<span class="sourceLineNo">405</span><a id="line.405">     * Registers a WikiEventListener with this instance.</a>
+<span class="sourceLineNo">406</span><a id="line.406">     * This is a convenience method.</a>
+<span class="sourceLineNo">407</span><a id="line.407">     * @param listener the event listener</a>
+<span class="sourceLineNo">408</span><a id="line.408">     */</a>
+<span class="sourceLineNo">409</span><a id="line.409">    @Override public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">410</span><a id="line.410">        WikiEventManager.addWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">411</span><a id="line.411">    }</a>
+<span class="sourceLineNo">412</span><a id="line.412"></a>
+<span class="sourceLineNo">413</span><a id="line.413">    /**</a>
+<span class="sourceLineNo">414</span><a id="line.414">     * Un-registers a WikiEventListener with this instance.</a>
+<span class="sourceLineNo">415</span><a id="line.415">     * This is a convenience method.</a>
+<span class="sourceLineNo">416</span><a id="line.416">     * @param listener the event listener</a>
+<span class="sourceLineNo">417</span><a id="line.417">     */</a>
+<span class="sourceLineNo">418</span><a id="line.418">    @Override public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">419</span><a id="line.419">        WikiEventManager.removeWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">420</span><a id="line.420">    }</a>
+<span class="sourceLineNo">421</span><a id="line.421"></a>
+<span class="sourceLineNo">422</span><a id="line.422">    /**</a>
+<span class="sourceLineNo">423</span><a id="line.423">     *  Implements the JSON API for usermanager.</a>
+<span class="sourceLineNo">424</span><a id="line.424">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">425</span><a id="line.425">     *  Even though this gets serialized whenever container shuts down/restarts, this gets reinstalled to the session when JSPWiki starts.</a>
+<span class="sourceLineNo">426</span><a id="line.426">     *  This means that it's not actually necessary to save anything.</a>
+<span class="sourceLineNo">427</span><a id="line.427">     */</a>
+<span class="sourceLineNo">428</span><a id="line.428">    public static final class JSONUserModule implements WikiAjaxServlet {</a>
+<span class="sourceLineNo">429</span><a id="line.429"></a>
+<span class="sourceLineNo">430</span><a id="line.430">        private final DefaultUserManager m_manager;</a>
 <span class="sourceLineNo">431</span><a id="line.431"></a>
-<span class="sourceLineNo">432</span><a id="line.432">        private final DefaultUserManager m_manager;</a>
-<span class="sourceLineNo">433</span><a id="line.433"></a>
-<span class="sourceLineNo">434</span><a id="line.434">        /**</a>
-<span class="sourceLineNo">435</span><a id="line.435">         *  Create a new JSONUserModule.</a>
-<span class="sourceLineNo">436</span><a id="line.436">         *  @param mgr Manager</a>
-<span class="sourceLineNo">437</span><a id="line.437">         */</a>
-<span class="sourceLineNo">438</span><a id="line.438">        public JSONUserModule( final DefaultUserManager mgr )</a>
-<span class="sourceLineNo">439</span><a id="line.439">        {</a>
-<span class="sourceLineNo">440</span><a id="line.440">            m_manager = mgr;</a>
-<span class="sourceLineNo">441</span><a id="line.441">        }</a>
-<span class="sourceLineNo">442</span><a id="line.442"></a>
-<span class="sourceLineNo">443</span><a id="line.443">        @Override</a>
-<span class="sourceLineNo">444</span><a id="line.444">        public String getServletMapping() {</a>
-<span class="sourceLineNo">445</span><a id="line.445">            return JSON_USERS;</a>
-<span class="sourceLineNo">446</span><a id="line.446">        }</a>
-<span class="sourceLineNo">447</span><a id="line.447"></a>
-<span class="sourceLineNo">448</span><a id="line.448">        @Override</a>
-<span class="sourceLineNo">449</span><a id="line.449">        public void service( final HttpServletRequest req, final HttpServletResponse resp, final String actionName, final List&lt;String&gt; params) throws ServletException, IOException {</a>
-<span class="sourceLineNo">450</span><a id="line.450">            try {</a>
-<span class="sourceLineNo">451</span><a id="line.451">                if( params.size() &lt; 1 ) {</a>
-<span class="sourceLineNo">452</span><a id="line.452">                    return;</a>
-<span class="sourceLineNo">453</span><a id="line.453">                }</a>
-<span class="sourceLineNo">454</span><a id="line.454">                final String uid = params.get(0);</a>
-<span class="sourceLineNo">455</span><a id="line.455">                log.debug("uid="+uid);</a>
-<span class="sourceLineNo">456</span><a id="line.456">                if (StringUtils.isNotBlank(uid)) {</a>
-<span class="sourceLineNo">457</span><a id="line.457">                    final UserProfile prof = getUserInfo(uid);</a>
-<span class="sourceLineNo">458</span><a id="line.458">                    resp.getWriter().write(AjaxUtil.toJson(prof));</a>
-<span class="sourceLineNo">459</span><a id="line.459">                }</a>
-<span class="sourceLineNo">460</span><a id="line.460">            } catch (final NoSuchPrincipalException e) {</a>
-<span class="sourceLineNo">461</span><a id="line.461">                throw new ServletException(e);</a>
-<span class="sourceLineNo">462</span><a id="line.462">            }</a>
-<span class="sourceLineNo">463</span><a id="line.463">        }</a>
-<span class="sourceLineNo">464</span><a id="line.464"></a>
-<span class="sourceLineNo">465</span><a id="line.465">        /**</a>
-<span class="sourceLineNo">466</span><a id="line.466">         *  Directly returns the UserProfile object attached to an uid.</a>
-<span class="sourceLineNo">467</span><a id="line.467">         *</a>
-<span class="sourceLineNo">468</span><a id="line.468">         *  @param uid The user id (e.g. WikiName)</a>
-<span class="sourceLineNo">469</span><a id="line.469">         *  @return A UserProfile object</a>
-<span class="sourceLineNo">470</span><a id="line.470">         *  @throws NoSuchPrincipalException If such a name does not exist.</a>
-<span class="sourceLineNo">471</span><a id="line.471">         */</a>
-<span class="sourceLineNo">472</span><a id="line.472">        public UserProfile getUserInfo( final String uid ) throws NoSuchPrincipalException {</a>
-<span class="sourceLineNo">473</span><a id="line.473">            if( m_manager != null ) {</a>
-<span class="sourceLineNo">474</span><a id="line.474">                return m_manager.getUserDatabase().find( uid );</a>
-<span class="sourceLineNo">475</span><a id="line.475">            }</a>
-<span class="sourceLineNo">476</span><a id="line.476"></a>
-<span class="sourceLineNo">477</span><a id="line.477">            throw new IllegalStateException( "The manager is offline." );</a>
-<span class="sourceLineNo">478</span><a id="line.478">        }</a>
-<span class="sourceLineNo">479</span><a id="line.479">    }</a>
-<span class="sourceLineNo">480</span><a id="line.480"></a>
-<span class="sourceLineNo">481</span><a id="line.481">}</a>
+<span class="sourceLineNo">432</span><a id="line.432">        /**</a>
+<span class="sourceLineNo">433</span><a id="line.433">         *  Create a new JSONUserModule.</a>
+<span class="sourceLineNo">434</span><a id="line.434">         *  @param mgr Manager</a>
+<span class="sourceLineNo">435</span><a id="line.435">         */</a>
+<span class="sourceLineNo">436</span><a id="line.436">        public JSONUserModule( final DefaultUserManager mgr )</a>
+<span class="sourceLineNo">437</span><a id="line.437">        {</a>
+<span class="sourceLineNo">438</span><a id="line.438">            m_manager = mgr;</a>
+<span class="sourceLineNo">439</span><a id="line.439">        }</a>
+<span class="sourceLineNo">440</span><a id="line.440"></a>
+<span class="sourceLineNo">441</span><a id="line.441">        @Override</a>
+<span class="sourceLineNo">442</span><a id="line.442">        public String getServletMapping() {</a>
+<span class="sourceLineNo">443</span><a id="line.443">            return JSON_USERS;</a>
+<span class="sourceLineNo">444</span><a id="line.444">        }</a>
+<span class="sourceLineNo">445</span><a id="line.445"></a>
+<span class="sourceLineNo">446</span><a id="line.446">        @Override</a>
+<span class="sourceLineNo">447</span><a id="line.447">        public void service( final HttpServletRequest req, final HttpServletResponse resp, final String actionName, final List&lt;String&gt; params) throws ServletException, IOException {</a>
+<span class="sourceLineNo">448</span><a id="line.448">            try {</a>
+<span class="sourceLineNo">449</span><a id="line.449">                if( params.size() &lt; 1 ) {</a>
+<span class="sourceLineNo">450</span><a id="line.450">                    return;</a>
+<span class="sourceLineNo">451</span><a id="line.451">                }</a>
+<span class="sourceLineNo">452</span><a id="line.452">                final String uid = params.get(0);</a>
+<span class="sourceLineNo">453</span><a id="line.453">                log.debug("uid="+uid);</a>
+<span class="sourceLineNo">454</span><a id="line.454">                if (StringUtils.isNotBlank(uid)) {</a>
+<span class="sourceLineNo">455</span><a id="line.455">                    final UserProfile prof = getUserInfo(uid);</a>
+<span class="sourceLineNo">456</span><a id="line.456">                    resp.getWriter().write(AjaxUtil.toJson(prof));</a>
+<span class="sourceLineNo">457</span><a id="line.457">                }</a>
+<span class="sourceLineNo">458</span><a id="line.458">            } catch (final NoSuchPrincipalException e) {</a>
+<span class="sourceLineNo">459</span><a id="line.459">                throw new ServletException(e);</a>
+<span class="sourceLineNo">460</span><a id="line.460">            }</a>
+<span class="sourceLineNo">461</span><a id="line.461">        }</a>
+<span class="sourceLineNo">462</span><a id="line.462"></a>
+<span class="sourceLineNo">463</span><a id="line.463">        /**</a>
+<span class="sourceLineNo">464</span><a id="line.464">         *  Directly returns the UserProfile object attached to an uid.</a>
+<span class="sourceLineNo">465</span><a id="line.465">         *</a>
+<span class="sourceLineNo">466</span><a id="line.466">         *  @param uid The user id (e.g. WikiName)</a>
+<span class="sourceLineNo">467</span><a id="line.467">         *  @return A UserProfile object</a>
+<span class="sourceLineNo">468</span><a id="line.468">         *  @throws NoSuchPrincipalException If such a name does not exist.</a>
+<span class="sourceLineNo">469</span><a id="line.469">         */</a>
+<span class="sourceLineNo">470</span><a id="line.470">        public UserProfile getUserInfo( final String uid ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">471</span><a id="line.471">            if( m_manager != null ) {</a>
+<span class="sourceLineNo">472</span><a id="line.472">                return m_manager.getUserDatabase().find( uid );</a>
+<span class="sourceLineNo">473</span><a id="line.473">            }</a>
+<span class="sourceLineNo">474</span><a id="line.474"></a>
+<span class="sourceLineNo">475</span><a id="line.475">            throw new IllegalStateException( "The manager is offline." );</a>
+<span class="sourceLineNo">476</span><a id="line.476">        }</a>
+<span class="sourceLineNo">477</span><a id="line.477">    }</a>
+<span class="sourceLineNo">478</span><a id="line.478"></a>
+<span class="sourceLineNo">479</span><a id="line.479">}</a>
 
 
 
