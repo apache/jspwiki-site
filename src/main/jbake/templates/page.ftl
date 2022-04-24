@@ -254,24 +254,24 @@
                   <table class="wikitable table-condensed table-bordered" border="1">
                     <tbody>
                       <tr class="odd">
-                        <td><a class="external" href="http://www.apache.org/">Apache</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://www.apache.org/foundation/">Foundation</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://www.apache.org/">Apache</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://www.apache.org/foundation/">Foundation</a><img class="outlink" src="./images/out.png" alt=""></td>
                       </tr>
                       <tr>
-                        <td><a class="external" href="http://www.apache.org/foundation/contributing.html">Donations</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://projects.apache.org/">Projects</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://www.apache.org/foundation/contributing.html">Donations</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://projects.apache.org/">Projects</a><img class="outlink" src="./images/out.png" alt=""></td>
                       </tr>
                       <tr class="odd">
-                        <td><a class="external" href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://people.apache.org/">People</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://www.apache.org/foundation/sponsorship.html">Sponsorship</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://people.apache.org/">People</a><img class="outlink" src="./images/out.png" alt=""></td>
                       </tr>
                       <tr>
-                        <td><a class="external" href="http://www.apache.org/foundation/getinvolved.html">Get involved</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td><a class="external" href="http://www.apache.org/foundation/thanks.html">Thanks</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://privacy.apache.org/policies/privacy-policy-public.html">Privacy</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://www.apache.org/foundation/getinvolved.html">Get involved</a><img class="outlink" src="./images/out.png" alt=""></td>
                       </tr>
                       <tr class="odd">
-                        <td><a class="external" href="http://www.apache.org/events/current-event.html">Events</a><img class="outlink" src="./images/out.png" alt=""></td>
-                        <td>&nbsp;</td>
+                        <td><a class="external" href="https://www.apache.org/events/current-event.html">Events</a><img class="outlink" src="./images/out.png" alt=""></td>
+                        <td><a class="external" href="https://www.apache.org/foundation/thanks.html">Thanks</a><img class="outlink" src="./images/out.png" alt=""></td>
                       </tr>
                     </tbody>
                   </table>
@@ -298,7 +298,7 @@
       }
     </style>
     <div class="feather">
-      Copyright &copy; 2021 The Apache Software Foundation, <br>
+      Copyright &copy; 2022 The Apache Software Foundation, <br>
       Licensed under the <a class="external" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><img class="outlink" src="./images/out.png" alt="">.<br>
       Apache and the Apache feather logo are trademarks of The Apache Software Foundation.<br> <br>
     </div> 
