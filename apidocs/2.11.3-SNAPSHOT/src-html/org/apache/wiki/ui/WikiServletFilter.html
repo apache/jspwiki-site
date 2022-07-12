@@ -30,156 +30,160 @@
 <span class="sourceLineNo">021</span><a id="line.21">import org.apache.logging.log4j.LogManager;</a>
 <span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.Logger;</a>
 <span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.ThreadContext;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.WikiContext;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Context;</a>
-<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Engine;</a>
-<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.core.Session;</a>
-<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.spi.Wiki;</a>
-<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.auth.AuthenticationManager;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.auth.SessionMonitor;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.auth.WikiSecurityException;</a>
-<span class="sourceLineNo">032</span><a id="line.32"></a>
-<span class="sourceLineNo">033</span><a id="line.33">import javax.servlet.*;</a>
-<span class="sourceLineNo">034</span><a id="line.34">import javax.servlet.http.HttpServletRequest;</a>
-<span class="sourceLineNo">035</span><a id="line.35">import javax.servlet.http.HttpServletRequestWrapper;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import java.io.IOException;</a>
-<span class="sourceLineNo">037</span><a id="line.37">import java.io.PrintWriter;</a>
-<span class="sourceLineNo">038</span><a id="line.38"></a>
-<span class="sourceLineNo">039</span><a id="line.39">/**</a>
-<span class="sourceLineNo">040</span><a id="line.40"> * Filter that verifies that the {@link org.apache.wiki.api.core.Engine} is running, and sets the authentication status for the user's</a>
-<span class="sourceLineNo">041</span><a id="line.41"> * Session. Each HTTP request processed by this filter is wrapped by a {@link WikiRequestWrapper}. The wrapper's primary responsibility</a>
-<span class="sourceLineNo">042</span><a id="line.42"> * is to return the correct &lt;code&gt;userPrincipal&lt;/code&gt; and &lt;code&gt;remoteUser&lt;/code&gt; for authenticated JSPWiki users (whether authenticated</a>
-<span class="sourceLineNo">043</span><a id="line.43"> * by container or by JSPWiki's custom system). The wrapper's other responsibility is to incorporate JSPWiki built-in roles</a>
-<span class="sourceLineNo">044</span><a id="line.44"> * into the role-checking algorithm for {@link  HttpServletRequest#isUserInRole(String)}. Just before the request is wrapped, the method</a>
-<span class="sourceLineNo">045</span><a id="line.45"> * {@link org.apache.wiki.auth.AuthenticationManager#login(HttpServletRequest)} executes; this method contains all of the logic needed to</a>
-<span class="sourceLineNo">046</span><a id="line.46"> * grab any user login credentials set by the container or by cookies.</a>
-<span class="sourceLineNo">047</span><a id="line.47"> */</a>
-<span class="sourceLineNo">048</span><a id="line.48">public class WikiServletFilter implements Filter {</a>
-<span class="sourceLineNo">049</span><a id="line.49"></a>
-<span class="sourceLineNo">050</span><a id="line.50">    private static final Logger log = LogManager.getLogger( WikiServletFilter.class );</a>
-<span class="sourceLineNo">051</span><a id="line.51">    protected Engine m_engine;</a>
-<span class="sourceLineNo">052</span><a id="line.52"></a>
-<span class="sourceLineNo">053</span><a id="line.53">    /**</a>
-<span class="sourceLineNo">054</span><a id="line.54">     *  Creates a Wiki Servlet Filter.</a>
-<span class="sourceLineNo">055</span><a id="line.55">     */</a>
-<span class="sourceLineNo">056</span><a id="line.56">    public WikiServletFilter()</a>
-<span class="sourceLineNo">057</span><a id="line.57">    {</a>
-<span class="sourceLineNo">058</span><a id="line.58">        super();</a>
-<span class="sourceLineNo">059</span><a id="line.59">    }</a>
-<span class="sourceLineNo">060</span><a id="line.60"></a>
-<span class="sourceLineNo">061</span><a id="line.61">    /**</a>
-<span class="sourceLineNo">062</span><a id="line.62">     * Initializes the WikiServletFilter.</a>
-<span class="sourceLineNo">063</span><a id="line.63">     * </a>
-<span class="sourceLineNo">064</span><a id="line.64">     * @param config The FilterConfig.</a>
-<span class="sourceLineNo">065</span><a id="line.65">     * @throws ServletException If a Engine cannot be started.</a>
-<span class="sourceLineNo">066</span><a id="line.66">     */</a>
-<span class="sourceLineNo">067</span><a id="line.67">    @Override</a>
-<span class="sourceLineNo">068</span><a id="line.68">    public void init( final FilterConfig config ) throws ServletException {</a>
-<span class="sourceLineNo">069</span><a id="line.69">        final ServletContext context = config.getServletContext();</a>
-<span class="sourceLineNo">070</span><a id="line.70"></a>
-<span class="sourceLineNo">071</span><a id="line.71">        // TODO REMOVEME when resolving JSPWIKI-129</a>
-<span class="sourceLineNo">072</span><a id="line.72">        if( System.getSecurityManager() != null ) {</a>
-<span class="sourceLineNo">073</span><a id="line.73">            context.log( "== JSPWIKI WARNING ==  : This container is running with a security manager. JSPWiki does not yet really support that right now. See issue JSPWIKI-129 for details and information on how to proceed." );</a>
-<span class="sourceLineNo">074</span><a id="line.74">        }</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Session;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.auth.AuthenticationManager;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.auth.SessionMonitor;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">031</span><a id="line.31"></a>
+<span class="sourceLineNo">032</span><a id="line.32">import javax.servlet.Filter;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import javax.servlet.FilterChain;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import javax.servlet.FilterConfig;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import javax.servlet.ServletContext;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import javax.servlet.ServletException;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import javax.servlet.ServletRequest;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import javax.servlet.ServletResponse;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import javax.servlet.http.HttpServletRequestWrapper;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.io.IOException;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.io.PrintWriter;</a>
+<span class="sourceLineNo">043</span><a id="line.43"></a>
+<span class="sourceLineNo">044</span><a id="line.44">/**</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * Filter that verifies that the {@link org.apache.wiki.api.core.Engine} is running, and sets the authentication status for the user's</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * Session. Each HTTP request processed by this filter is wrapped by a {@link WikiRequestWrapper}. The wrapper's primary responsibility</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * is to return the correct &lt;code&gt;userPrincipal&lt;/code&gt; and &lt;code&gt;remoteUser&lt;/code&gt; for authenticated JSPWiki users (whether authenticated</a>
+<span class="sourceLineNo">048</span><a id="line.48"> * by container or by JSPWiki's custom system). The wrapper's other responsibility is to incorporate JSPWiki built-in roles</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * into the role-checking algorithm for {@link  HttpServletRequest#isUserInRole(String)}. Just before the request is wrapped, the method</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * {@link org.apache.wiki.auth.AuthenticationManager#login(HttpServletRequest)} executes; this method contains all of the logic needed to</a>
+<span class="sourceLineNo">051</span><a id="line.51"> * grab any user login credentials set by the container or by cookies.</a>
+<span class="sourceLineNo">052</span><a id="line.52"> */</a>
+<span class="sourceLineNo">053</span><a id="line.53">public class WikiServletFilter implements Filter {</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">    private static final Logger log = LogManager.getLogger( WikiServletFilter.class );</a>
+<span class="sourceLineNo">056</span><a id="line.56">    protected Engine m_engine;</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    /**</a>
+<span class="sourceLineNo">059</span><a id="line.59">     *  Creates a Wiki Servlet Filter.</a>
+<span class="sourceLineNo">060</span><a id="line.60">     */</a>
+<span class="sourceLineNo">061</span><a id="line.61">    public WikiServletFilter()</a>
+<span class="sourceLineNo">062</span><a id="line.62">    {</a>
+<span class="sourceLineNo">063</span><a id="line.63">        super();</a>
+<span class="sourceLineNo">064</span><a id="line.64">    }</a>
+<span class="sourceLineNo">065</span><a id="line.65"></a>
+<span class="sourceLineNo">066</span><a id="line.66">    /**</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * Initializes the WikiServletFilter.</a>
+<span class="sourceLineNo">068</span><a id="line.68">     * </a>
+<span class="sourceLineNo">069</span><a id="line.69">     * @param config The FilterConfig.</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * @throws ServletException If a Engine cannot be started.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     */</a>
+<span class="sourceLineNo">072</span><a id="line.72">    @Override</a>
+<span class="sourceLineNo">073</span><a id="line.73">    public void init( final FilterConfig config ) throws ServletException {</a>
+<span class="sourceLineNo">074</span><a id="line.74">        final ServletContext context = config.getServletContext();</a>
 <span class="sourceLineNo">075</span><a id="line.75"></a>
-<span class="sourceLineNo">076</span><a id="line.76">        m_engine = Wiki.engine().find( context, null );</a>
-<span class="sourceLineNo">077</span><a id="line.77">    }</a>
-<span class="sourceLineNo">078</span><a id="line.78"></a>
-<span class="sourceLineNo">079</span><a id="line.79">    /**</a>
-<span class="sourceLineNo">080</span><a id="line.80">     * Destroys the WikiServletFilter.</a>
-<span class="sourceLineNo">081</span><a id="line.81">     */</a>
-<span class="sourceLineNo">082</span><a id="line.82">    @Override</a>
-<span class="sourceLineNo">083</span><a id="line.83">    public void destroy() {</a>
-<span class="sourceLineNo">084</span><a id="line.84">    }</a>
-<span class="sourceLineNo">085</span><a id="line.85"></a>
-<span class="sourceLineNo">086</span><a id="line.86">    /**</a>
-<span class="sourceLineNo">087</span><a id="line.87">    * Checks that the Engine is running ok, wraps the current HTTP request, and sets the correct authentication state for the users's</a>
-<span class="sourceLineNo">088</span><a id="line.88">    * Session. First, the method {@link org.apache.wiki.auth.AuthenticationManager#login(HttpServletRequest)}</a>
-<span class="sourceLineNo">089</span><a id="line.89">    * executes, which sets the authentication state. Then, the request is wrapped with a</a>
-<span class="sourceLineNo">090</span><a id="line.90">    * {@link WikiRequestWrapper}.</a>
-<span class="sourceLineNo">091</span><a id="line.91">    * @param request the current HTTP request object</a>
-<span class="sourceLineNo">092</span><a id="line.92">    * @param response the current HTTP response object</a>
-<span class="sourceLineNo">093</span><a id="line.93">    * @param chain The Filter chain passed down.</a>
-<span class="sourceLineNo">094</span><a id="line.94">    * @throws ServletException if {@link org.apache.wiki.auth.AuthenticationManager#login(HttpServletRequest)} fails for any reason</a>
-<span class="sourceLineNo">095</span><a id="line.95">    * @throws IOException If writing to the servlet response fails. </a>
-<span class="sourceLineNo">096</span><a id="line.96">    */</a>
-<span class="sourceLineNo">097</span><a id="line.97">    @Override</a>
-<span class="sourceLineNo">098</span><a id="line.98">    public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain ) throws IOException, ServletException {</a>
-<span class="sourceLineNo">099</span><a id="line.99">        //  Sanity check; it might be true in some conditions, but we need to know where.</a>
-<span class="sourceLineNo">100</span><a id="line.100">        if( chain == null ) {</a>
-<span class="sourceLineNo">101</span><a id="line.101">            throw new ServletException("FilterChain is null, even if it should not be.  Please report this to the jspwiki development team.");</a>
-<span class="sourceLineNo">102</span><a id="line.102">        }</a>
-<span class="sourceLineNo">103</span><a id="line.103">        </a>
-<span class="sourceLineNo">104</span><a id="line.104">        if( m_engine == null ) {</a>
-<span class="sourceLineNo">105</span><a id="line.105">            final PrintWriter out = response.getWriter();</a>
-<span class="sourceLineNo">106</span><a id="line.106">            out.print("&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;&lt;title&gt;Fatal problem with JSPWiki&lt;/title&gt;&lt;/head&gt;");</a>
-<span class="sourceLineNo">107</span><a id="line.107">            out.print("&lt;body&gt;");</a>
-<span class="sourceLineNo">108</span><a id="line.108">            out.print("&lt;h1&gt;JSPWiki has not been started&lt;/h1&gt;");</a>
-<span class="sourceLineNo">109</span><a id="line.109">            out.print("&lt;p&gt;JSPWiki is not running.  This is probably due to a configuration error in your jspwiki.properties file, ");</a>
-<span class="sourceLineNo">110</span><a id="line.110">            out.print("or a problem with your servlet container.  Please double-check everything before issuing a bug report ");</a>
-<span class="sourceLineNo">111</span><a id="line.111">            out.print("at jspwiki.apache.org.&lt;/p&gt;");</a>
-<span class="sourceLineNo">112</span><a id="line.112">            out.print("&lt;p&gt;We apologize for the inconvenience.  No, really, we do.  We're trying to ");</a>
-<span class="sourceLineNo">113</span><a id="line.113">            out.print("JSPWiki as easy as we can, but there is only so much we have time to test ");</a>
-<span class="sourceLineNo">114</span><a id="line.114">            out.print("platforms.&lt;/p&gt;");</a>
-<span class="sourceLineNo">115</span><a id="line.115">            out.print( "&lt;p&gt;Please go to the &lt;a href='Install.jsp'&gt;installer&lt;/a&gt; to continue.&lt;/p&gt;" );</a>
-<span class="sourceLineNo">116</span><a id="line.116">            out.print("&lt;/body&gt;&lt;/html&gt;");</a>
-<span class="sourceLineNo">117</span><a id="line.117">            return;</a>
-<span class="sourceLineNo">118</span><a id="line.118">        }   </a>
-<span class="sourceLineNo">119</span><a id="line.119">        </a>
-<span class="sourceLineNo">120</span><a id="line.120">        // If we haven't done so, wrap the request</a>
-<span class="sourceLineNo">121</span><a id="line.121">        HttpServletRequest httpRequest = ( HttpServletRequest )request;</a>
-<span class="sourceLineNo">122</span><a id="line.122">        </a>
-<span class="sourceLineNo">123</span><a id="line.123">        // Set the character encoding</a>
-<span class="sourceLineNo">124</span><a id="line.124">        httpRequest.setCharacterEncoding( m_engine.getContentEncoding().displayName() );</a>
-<span class="sourceLineNo">125</span><a id="line.125">        </a>
-<span class="sourceLineNo">126</span><a id="line.126">        if ( !isWrapped( request ) ) {</a>
-<span class="sourceLineNo">127</span><a id="line.127">            // Prepare the Session</a>
-<span class="sourceLineNo">128</span><a id="line.128">            try {</a>
-<span class="sourceLineNo">129</span><a id="line.129">                m_engine.getManager( AuthenticationManager.class ).login( httpRequest );</a>
-<span class="sourceLineNo">130</span><a id="line.130">                final Session wikiSession = SessionMonitor.getInstance( m_engine ).find( httpRequest.getSession() );</a>
-<span class="sourceLineNo">131</span><a id="line.131">                httpRequest = new WikiRequestWrapper( m_engine, httpRequest );</a>
-<span class="sourceLineNo">132</span><a id="line.132">                log.debug( "Executed security filters for user={}, path={}",wikiSession.getLoginPrincipal().getName(), httpRequest.getRequestURI() );</a>
-<span class="sourceLineNo">133</span><a id="line.133">            } catch( final WikiSecurityException e ) {</a>
-<span class="sourceLineNo">134</span><a id="line.134">                throw new ServletException( e );</a>
-<span class="sourceLineNo">135</span><a id="line.135">            }</a>
-<span class="sourceLineNo">136</span><a id="line.136">        }</a>
-<span class="sourceLineNo">137</span><a id="line.137"></a>
-<span class="sourceLineNo">138</span><a id="line.138">        try {</a>
-<span class="sourceLineNo">139</span><a id="line.139">            ThreadContext.push( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
-<span class="sourceLineNo">140</span><a id="line.140">            chain.doFilter( httpRequest, response );</a>
-<span class="sourceLineNo">141</span><a id="line.141">        } finally {</a>
-<span class="sourceLineNo">142</span><a id="line.142">            ThreadContext.pop();</a>
-<span class="sourceLineNo">143</span><a id="line.143">            ThreadContext.remove( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
-<span class="sourceLineNo">144</span><a id="line.144">        }</a>
-<span class="sourceLineNo">145</span><a id="line.145"></a>
-<span class="sourceLineNo">146</span><a id="line.146">    }</a>
-<span class="sourceLineNo">147</span><a id="line.147"></a>
-<span class="sourceLineNo">148</span><a id="line.148">    /**</a>
-<span class="sourceLineNo">149</span><a id="line.149">     *  Figures out the wiki context from the request.  This method does not create the context if it does not exist.</a>
-<span class="sourceLineNo">150</span><a id="line.150">     *  </a>
-<span class="sourceLineNo">151</span><a id="line.151">     *  @param request The request to examine</a>
-<span class="sourceLineNo">152</span><a id="line.152">     *  @return A valid WikiContext value (or null, if the context could not be located).</a>
-<span class="sourceLineNo">153</span><a id="line.153">     */</a>
-<span class="sourceLineNo">154</span><a id="line.154">    protected WikiContext getWikiContext( final ServletRequest request ) {</a>
-<span class="sourceLineNo">155</span><a id="line.155">        final HttpServletRequest httpRequest = (HttpServletRequest) request;</a>
-<span class="sourceLineNo">156</span><a id="line.156">        return ( WikiContext )httpRequest.getAttribute( Context.ATTR_CONTEXT );</a>
-<span class="sourceLineNo">157</span><a id="line.157">    }</a>
-<span class="sourceLineNo">158</span><a id="line.158"></a>
-<span class="sourceLineNo">159</span><a id="line.159">    /** </a>
-<span class="sourceLineNo">160</span><a id="line.160">     * Determines whether the request has been previously wrapped with a WikiRequestWrapper. </a>
-<span class="sourceLineNo">161</span><a id="line.161">     * We find the wrapper by recursively unwrapping successive request wrappers, if they have been supplied.</a>
-<span class="sourceLineNo">162</span><a id="line.162">     *</a>
-<span class="sourceLineNo">163</span><a id="line.163">     * @param request the current HTTP request</a>
-<span class="sourceLineNo">164</span><a id="line.164">     * @return &lt;code&gt;true&lt;/code&gt; if the request has previously been wrapped; &lt;code&gt;false&lt;/code&gt; otherwise</a>
-<span class="sourceLineNo">165</span><a id="line.165">     */</a>
-<span class="sourceLineNo">166</span><a id="line.166">    private boolean isWrapped( ServletRequest request ) {</a>
-<span class="sourceLineNo">167</span><a id="line.167">        while( !(request instanceof WikiRequestWrapper ) &amp;&amp; request instanceof HttpServletRequestWrapper ) {</a>
-<span class="sourceLineNo">168</span><a id="line.168">            request = ( ( HttpServletRequestWrapper ) request ).getRequest();</a>
-<span class="sourceLineNo">169</span><a id="line.169">        }</a>
-<span class="sourceLineNo">170</span><a id="line.170">        return request instanceof WikiRequestWrapper;</a>
-<span class="sourceLineNo">171</span><a id="line.171">    }</a>
-<span class="sourceLineNo">172</span><a id="line.172"></a>
-<span class="sourceLineNo">173</span><a id="line.173">}</a>
+<span class="sourceLineNo">076</span><a id="line.76">        // TODO REMOVEME when resolving JSPWIKI-129</a>
+<span class="sourceLineNo">077</span><a id="line.77">        if( System.getSecurityManager() != null ) {</a>
+<span class="sourceLineNo">078</span><a id="line.78">            context.log( "== JSPWIKI WARNING ==  : This container is running with a security manager. JSPWiki does not yet really support that right now. See issue JSPWIKI-129 for details and information on how to proceed." );</a>
+<span class="sourceLineNo">079</span><a id="line.79">        }</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">        m_engine = Wiki.engine().find( context, null );</a>
+<span class="sourceLineNo">082</span><a id="line.82">    }</a>
+<span class="sourceLineNo">083</span><a id="line.83"></a>
+<span class="sourceLineNo">084</span><a id="line.84">    /**</a>
+<span class="sourceLineNo">085</span><a id="line.85">     * Destroys the WikiServletFilter.</a>
+<span class="sourceLineNo">086</span><a id="line.86">     */</a>
+<span class="sourceLineNo">087</span><a id="line.87">    @Override</a>
+<span class="sourceLineNo">088</span><a id="line.88">    public void destroy() {</a>
+<span class="sourceLineNo">089</span><a id="line.89">    }</a>
+<span class="sourceLineNo">090</span><a id="line.90"></a>
+<span class="sourceLineNo">091</span><a id="line.91">    /**</a>
+<span class="sourceLineNo">092</span><a id="line.92">    * Checks that the Engine is running ok, wraps the current HTTP request, and sets the correct authentication state for the users's</a>
+<span class="sourceLineNo">093</span><a id="line.93">    * Session. First, the method {@link org.apache.wiki.auth.AuthenticationManager#login(HttpServletRequest)}</a>
+<span class="sourceLineNo">094</span><a id="line.94">    * executes, which sets the authentication state. Then, the request is wrapped with a</a>
+<span class="sourceLineNo">095</span><a id="line.95">    * {@link WikiRequestWrapper}.</a>
+<span class="sourceLineNo">096</span><a id="line.96">    * @param request the current HTTP request object</a>
+<span class="sourceLineNo">097</span><a id="line.97">    * @param response the current HTTP response object</a>
+<span class="sourceLineNo">098</span><a id="line.98">    * @param chain The Filter chain passed down.</a>
+<span class="sourceLineNo">099</span><a id="line.99">    * @throws ServletException if {@link org.apache.wiki.auth.AuthenticationManager#login(HttpServletRequest)} fails for any reason</a>
+<span class="sourceLineNo">100</span><a id="line.100">    * @throws IOException If writing to the servlet response fails. </a>
+<span class="sourceLineNo">101</span><a id="line.101">    */</a>
+<span class="sourceLineNo">102</span><a id="line.102">    @Override</a>
+<span class="sourceLineNo">103</span><a id="line.103">    public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain ) throws IOException, ServletException {</a>
+<span class="sourceLineNo">104</span><a id="line.104">        //  Sanity check; it might be true in some conditions, but we need to know where.</a>
+<span class="sourceLineNo">105</span><a id="line.105">        if( chain == null ) {</a>
+<span class="sourceLineNo">106</span><a id="line.106">            throw new ServletException("FilterChain is null, even if it should not be.  Please report this to the jspwiki development team.");</a>
+<span class="sourceLineNo">107</span><a id="line.107">        }</a>
+<span class="sourceLineNo">108</span><a id="line.108">        </a>
+<span class="sourceLineNo">109</span><a id="line.109">        if( m_engine == null ) {</a>
+<span class="sourceLineNo">110</span><a id="line.110">            final PrintWriter out = response.getWriter();</a>
+<span class="sourceLineNo">111</span><a id="line.111">            out.print("&lt;!DOCTYPE html&gt;&lt;html lang=\"en\"&gt;&lt;head&gt;&lt;title&gt;Fatal problem with JSPWiki&lt;/title&gt;&lt;/head&gt;");</a>
+<span class="sourceLineNo">112</span><a id="line.112">            out.print("&lt;body&gt;");</a>
+<span class="sourceLineNo">113</span><a id="line.113">            out.print("&lt;h1&gt;JSPWiki has not been started&lt;/h1&gt;");</a>
+<span class="sourceLineNo">114</span><a id="line.114">            out.print("&lt;p&gt;JSPWiki is not running.  This is probably due to a configuration error in your jspwiki.properties file, ");</a>
+<span class="sourceLineNo">115</span><a id="line.115">            out.print("or a problem with your servlet container.  Please double-check everything before issuing a bug report ");</a>
+<span class="sourceLineNo">116</span><a id="line.116">            out.print("at jspwiki.apache.org.&lt;/p&gt;");</a>
+<span class="sourceLineNo">117</span><a id="line.117">            out.print("&lt;p&gt;We apologize for the inconvenience.  No, really, we do.  We're trying to ");</a>
+<span class="sourceLineNo">118</span><a id="line.118">            out.print("JSPWiki as easy as we can, but there is only so much we have time to test ");</a>
+<span class="sourceLineNo">119</span><a id="line.119">            out.print("platforms.&lt;/p&gt;");</a>
+<span class="sourceLineNo">120</span><a id="line.120">            out.print( "&lt;p&gt;Please go to the &lt;a href='Install.jsp'&gt;installer&lt;/a&gt; to continue.&lt;/p&gt;" );</a>
+<span class="sourceLineNo">121</span><a id="line.121">            out.print("&lt;/body&gt;&lt;/html&gt;");</a>
+<span class="sourceLineNo">122</span><a id="line.122">            return;</a>
+<span class="sourceLineNo">123</span><a id="line.123">        }   </a>
+<span class="sourceLineNo">124</span><a id="line.124">        </a>
+<span class="sourceLineNo">125</span><a id="line.125">        // If we haven't done so, wrap the request</a>
+<span class="sourceLineNo">126</span><a id="line.126">        HttpServletRequest httpRequest = ( HttpServletRequest )request;</a>
+<span class="sourceLineNo">127</span><a id="line.127">        </a>
+<span class="sourceLineNo">128</span><a id="line.128">        // Set the character encoding</a>
+<span class="sourceLineNo">129</span><a id="line.129">        httpRequest.setCharacterEncoding( m_engine.getContentEncoding().displayName() );</a>
+<span class="sourceLineNo">130</span><a id="line.130">        </a>
+<span class="sourceLineNo">131</span><a id="line.131">        if ( !isWrapped( request ) ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">            // Prepare the Session</a>
+<span class="sourceLineNo">133</span><a id="line.133">            try {</a>
+<span class="sourceLineNo">134</span><a id="line.134">                m_engine.getManager( AuthenticationManager.class ).login( httpRequest );</a>
+<span class="sourceLineNo">135</span><a id="line.135">                final Session wikiSession = SessionMonitor.getInstance( m_engine ).find( httpRequest.getSession() );</a>
+<span class="sourceLineNo">136</span><a id="line.136">                httpRequest = new WikiRequestWrapper( m_engine, httpRequest );</a>
+<span class="sourceLineNo">137</span><a id="line.137">                log.debug( "Executed security filters for user={}, path={}",wikiSession.getLoginPrincipal().getName(), httpRequest.getRequestURI() );</a>
+<span class="sourceLineNo">138</span><a id="line.138">            } catch( final WikiSecurityException e ) {</a>
+<span class="sourceLineNo">139</span><a id="line.139">                throw new ServletException( e );</a>
+<span class="sourceLineNo">140</span><a id="line.140">            }</a>
+<span class="sourceLineNo">141</span><a id="line.141">        }</a>
+<span class="sourceLineNo">142</span><a id="line.142"></a>
+<span class="sourceLineNo">143</span><a id="line.143">        try {</a>
+<span class="sourceLineNo">144</span><a id="line.144">            ThreadContext.push( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
+<span class="sourceLineNo">145</span><a id="line.145">            chain.doFilter( httpRequest, response );</a>
+<span class="sourceLineNo">146</span><a id="line.146">        } finally {</a>
+<span class="sourceLineNo">147</span><a id="line.147">            ThreadContext.pop();</a>
+<span class="sourceLineNo">148</span><a id="line.148">            ThreadContext.remove( m_engine.getApplicationName() + ":" + httpRequest.getRequestURL() );</a>
+<span class="sourceLineNo">149</span><a id="line.149">        }</a>
+<span class="sourceLineNo">150</span><a id="line.150">    }</a>
+<span class="sourceLineNo">151</span><a id="line.151"></a>
+<span class="sourceLineNo">152</span><a id="line.152">    /**</a>
+<span class="sourceLineNo">153</span><a id="line.153">     *  Figures out the wiki context from the request.  This method does not create the context if it does not exist.</a>
+<span class="sourceLineNo">154</span><a id="line.154">     *  </a>
+<span class="sourceLineNo">155</span><a id="line.155">     *  @param request The request to examine</a>
+<span class="sourceLineNo">156</span><a id="line.156">     *  @return A valid WikiContext value (or null, if the context could not be located).</a>
+<span class="sourceLineNo">157</span><a id="line.157">     */</a>
+<span class="sourceLineNo">158</span><a id="line.158">    protected Context getWikiContext( final ServletRequest request ) {</a>
+<span class="sourceLineNo">159</span><a id="line.159">        final HttpServletRequest httpRequest = (HttpServletRequest) request;</a>
+<span class="sourceLineNo">160</span><a id="line.160">        return ( Context )httpRequest.getAttribute( Context.ATTR_CONTEXT );</a>
+<span class="sourceLineNo">161</span><a id="line.161">    }</a>
+<span class="sourceLineNo">162</span><a id="line.162"></a>
+<span class="sourceLineNo">163</span><a id="line.163">    /** </a>
+<span class="sourceLineNo">164</span><a id="line.164">     * Determines whether the request has been previously wrapped with a WikiRequestWrapper. </a>
+<span class="sourceLineNo">165</span><a id="line.165">     * We find the wrapper by recursively unwrapping successive request wrappers, if they have been supplied.</a>
+<span class="sourceLineNo">166</span><a id="line.166">     *</a>
+<span class="sourceLineNo">167</span><a id="line.167">     * @param request the current HTTP request</a>
+<span class="sourceLineNo">168</span><a id="line.168">     * @return &lt;code&gt;true&lt;/code&gt; if the request has previously been wrapped; &lt;code&gt;false&lt;/code&gt; otherwise</a>
+<span class="sourceLineNo">169</span><a id="line.169">     */</a>
+<span class="sourceLineNo">170</span><a id="line.170">    private boolean isWrapped( ServletRequest request ) {</a>
+<span class="sourceLineNo">171</span><a id="line.171">        while( !(request instanceof WikiRequestWrapper ) &amp;&amp; request instanceof HttpServletRequestWrapper ) {</a>
+<span class="sourceLineNo">172</span><a id="line.172">            request = ( ( HttpServletRequestWrapper ) request ).getRequest();</a>
+<span class="sourceLineNo">173</span><a id="line.173">        }</a>
+<span class="sourceLineNo">174</span><a id="line.174">        return request instanceof WikiRequestWrapper;</a>
+<span class="sourceLineNo">175</span><a id="line.175">    }</a>
+<span class="sourceLineNo">176</span><a id="line.176"></a>
+<span class="sourceLineNo">177</span><a id="line.177">}</a>
 
 
 
