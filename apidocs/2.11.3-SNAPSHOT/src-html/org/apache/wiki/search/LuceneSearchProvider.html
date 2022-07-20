@@ -100,7 +100,7 @@
 <span class="sourceLineNo">091</span><a id="line.91"> */</a>
 <span class="sourceLineNo">092</span><a id="line.92">public class LuceneSearchProvider implements SearchProvider {</a>
 <span class="sourceLineNo">093</span><a id="line.93"></a>
-<span class="sourceLineNo">094</span><a id="line.94">    protected static final Logger log = LogManager.getLogger( LuceneSearchProvider.class );</a>
+<span class="sourceLineNo">094</span><a id="line.94">    protected static final Logger LOG = LogManager.getLogger( LuceneSearchProvider.class );</a>
 <span class="sourceLineNo">095</span><a id="line.95"></a>
 <span class="sourceLineNo">096</span><a id="line.96">    private Engine m_engine;</a>
 <span class="sourceLineNo">097</span><a id="line.97">    private Executor searchExecutor;</a>
@@ -154,14 +154,14 @@
 <span class="sourceLineNo">145</span><a id="line.145">        // FIXME: Just to be simple for now, we will do full reindex only if no files are in lucene directory.</a>
 <span class="sourceLineNo">146</span><a id="line.146"></a>
 <span class="sourceLineNo">147</span><a id="line.147">        final File dir = new File( m_luceneDirectory );</a>
-<span class="sourceLineNo">148</span><a id="line.148">        log.info( "Lucene enabled, cache will be in: {}", dir.getAbsolutePath() );</a>
+<span class="sourceLineNo">148</span><a id="line.148">        LOG.info( "Lucene enabled, cache will be in: {}", dir.getAbsolutePath() );</a>
 <span class="sourceLineNo">149</span><a id="line.149">        try {</a>
 <span class="sourceLineNo">150</span><a id="line.150">            if( !dir.exists() ) {</a>
 <span class="sourceLineNo">151</span><a id="line.151">                dir.mkdirs();</a>
 <span class="sourceLineNo">152</span><a id="line.152">            }</a>
 <span class="sourceLineNo">153</span><a id="line.153"></a>
 <span class="sourceLineNo">154</span><a id="line.154">            if( !dir.exists() || !dir.canWrite() || !dir.canRead() ) {</a>
-<span class="sourceLineNo">155</span><a id="line.155">                log.error( "Cannot write to Lucene directory, disabling Lucene: {}", dir.getAbsolutePath() );</a>
+<span class="sourceLineNo">155</span><a id="line.155">                LOG.error( "Cannot write to Lucene directory, disabling Lucene: {}", dir.getAbsolutePath() );</a>
 <span class="sourceLineNo">156</span><a id="line.156">                throw new IOException( "Invalid Lucene directory." );</a>
 <span class="sourceLineNo">157</span><a id="line.157">            }</a>
 <span class="sourceLineNo">158</span><a id="line.158"></a>
@@ -170,7 +170,7 @@
 <span class="sourceLineNo">161</span><a id="line.161">                throw new IOException( "Invalid Lucene directory: cannot produce listing: " + dir.getAbsolutePath() );</a>
 <span class="sourceLineNo">162</span><a id="line.162">            }</a>
 <span class="sourceLineNo">163</span><a id="line.163">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">164</span><a id="line.164">            log.error( "Problem while creating Lucene index - not using Lucene.", e );</a>
+<span class="sourceLineNo">164</span><a id="line.164">            LOG.error( "Problem while creating Lucene index - not using Lucene.", e );</a>
 <span class="sourceLineNo">165</span><a id="line.165">        }</a>
 <span class="sourceLineNo">166</span><a id="line.166"></a>
 <span class="sourceLineNo">167</span><a id="line.167">        // Start the Lucene update thread, which waits first for a little while before starting to go through</a>
@@ -207,7 +207,7 @@
 <span class="sourceLineNo">198</span><a id="line.198">                //</a>
 <span class="sourceLineNo">199</span><a id="line.199">                final Date start = new Date();</a>
 <span class="sourceLineNo">200</span><a id="line.200"></a>
-<span class="sourceLineNo">201</span><a id="line.201">                log.info( "Starting Lucene reindexing, this can take a couple of minutes..." );</a>
+<span class="sourceLineNo">201</span><a id="line.201">                LOG.info( "Starting Lucene reindexing, this can take a couple of minutes..." );</a>
 <span class="sourceLineNo">202</span><a id="line.202"></a>
 <span class="sourceLineNo">203</span><a id="line.203">                final Directory luceneDir = new NIOFSDirectory( dir.toPath() );</a>
 <span class="sourceLineNo">204</span><a id="line.204">                try( final IndexWriter writer = getIndexWriter( luceneDir ) ) {</a>
@@ -219,10 +219,10 @@
 <span class="sourceLineNo">210</span><a id="line.210">                            luceneIndexPage( page, text, writer );</a>
 <span class="sourceLineNo">211</span><a id="line.211">                            pagesIndexed++;</a>
 <span class="sourceLineNo">212</span><a id="line.212">                        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">213</span><a id="line.213">                            log.warn( "Unable to index page {}, continuing to next ", page.getName(), e );</a>
+<span class="sourceLineNo">213</span><a id="line.213">                            LOG.warn( "Unable to index page {}, continuing to next ", page.getName(), e );</a>
 <span class="sourceLineNo">214</span><a id="line.214">                        }</a>
 <span class="sourceLineNo">215</span><a id="line.215">                    }</a>
-<span class="sourceLineNo">216</span><a id="line.216">                    log.info( "Indexed {} pages", pagesIndexed );</a>
+<span class="sourceLineNo">216</span><a id="line.216">                    LOG.info( "Indexed {} pages", pagesIndexed );</a>
 <span class="sourceLineNo">217</span><a id="line.217"></a>
 <span class="sourceLineNo">218</span><a id="line.218">                    long attachmentsIndexed = 0L;</a>
 <span class="sourceLineNo">219</span><a id="line.219">                    final Collection&lt; Attachment &gt; allAttachments = m_engine.getManager( AttachmentManager.class ).getAllAttachments();</a>
@@ -232,24 +232,24 @@
 <span class="sourceLineNo">223</span><a id="line.223">                            luceneIndexPage( att, text, writer );</a>
 <span class="sourceLineNo">224</span><a id="line.224">                            attachmentsIndexed++;</a>
 <span class="sourceLineNo">225</span><a id="line.225">                        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">226</span><a id="line.226">                            log.warn( "Unable to index attachment {}, continuing to next", att.getName(), e );</a>
+<span class="sourceLineNo">226</span><a id="line.226">                            LOG.warn( "Unable to index attachment {}, continuing to next", att.getName(), e );</a>
 <span class="sourceLineNo">227</span><a id="line.227">                        }</a>
 <span class="sourceLineNo">228</span><a id="line.228">                    }</a>
-<span class="sourceLineNo">229</span><a id="line.229">                    log.info( "Indexed {} attachments", attachmentsIndexed );</a>
+<span class="sourceLineNo">229</span><a id="line.229">                    LOG.info( "Indexed {} attachments", attachmentsIndexed );</a>
 <span class="sourceLineNo">230</span><a id="line.230">                }</a>
 <span class="sourceLineNo">231</span><a id="line.231"></a>
 <span class="sourceLineNo">232</span><a id="line.232">                final Date end = new Date();</a>
-<span class="sourceLineNo">233</span><a id="line.233">                log.info( "Full Lucene index finished in {} milliseconds.", end.getTime() - start.getTime() );</a>
+<span class="sourceLineNo">233</span><a id="line.233">                LOG.info( "Full Lucene index finished in {} milliseconds.", end.getTime() - start.getTime() );</a>
 <span class="sourceLineNo">234</span><a id="line.234">            } else {</a>
-<span class="sourceLineNo">235</span><a id="line.235">                log.info( "Files found in Lucene directory, not reindexing." );</a>
+<span class="sourceLineNo">235</span><a id="line.235">                LOG.info( "Files found in Lucene directory, not reindexing." );</a>
 <span class="sourceLineNo">236</span><a id="line.236">            }</a>
 <span class="sourceLineNo">237</span><a id="line.237">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">238</span><a id="line.238">            log.error( "Problem while creating Lucene index - not using Lucene.", e );</a>
+<span class="sourceLineNo">238</span><a id="line.238">            LOG.error( "Problem while creating Lucene index - not using Lucene.", e );</a>
 <span class="sourceLineNo">239</span><a id="line.239">        } catch( final ProviderException e ) {</a>
-<span class="sourceLineNo">240</span><a id="line.240">            log.error( "Problem reading pages while creating Lucene index (JSPWiki won't start.)", e );</a>
+<span class="sourceLineNo">240</span><a id="line.240">            LOG.error( "Problem reading pages while creating Lucene index (JSPWiki won't start.)", e );</a>
 <span class="sourceLineNo">241</span><a id="line.241">            throw new IllegalArgumentException( "unable to create Lucene index" );</a>
 <span class="sourceLineNo">242</span><a id="line.242">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">243</span><a id="line.243">            log.error( "Unable to start lucene", e );</a>
+<span class="sourceLineNo">243</span><a id="line.243">            LOG.error( "Unable to start lucene", e );</a>
 <span class="sourceLineNo">244</span><a id="line.244">        }</a>
 <span class="sourceLineNo">245</span><a id="line.245"></a>
 <span class="sourceLineNo">246</span><a id="line.246">    }</a>
@@ -271,7 +271,7 @@
 <span class="sourceLineNo">262</span><a id="line.262">                return getAttachmentContent( att );</a>
 <span class="sourceLineNo">263</span><a id="line.263">            }</a>
 <span class="sourceLineNo">264</span><a id="line.264">        } catch( final ProviderException e ) {</a>
-<span class="sourceLineNo">265</span><a id="line.265">            log.error( "Attachment cannot be loaded", e );</a>
+<span class="sourceLineNo">265</span><a id="line.265">            LOG.error( "Attachment cannot be loaded", e );</a>
 <span class="sourceLineNo">266</span><a id="line.266">        }</a>
 <span class="sourceLineNo">267</span><a id="line.267">        return null;</a>
 <span class="sourceLineNo">268</span><a id="line.268">    }</a>
@@ -302,7 +302,7 @@
 <span class="sourceLineNo">293</span><a id="line.293">                FileUtil.copyContents( new InputStreamReader( attStream ), sout );</a>
 <span class="sourceLineNo">294</span><a id="line.294">                out = out + " " + sout;</a>
 <span class="sourceLineNo">295</span><a id="line.295">            } catch( final ProviderException | IOException e ) {</a>
-<span class="sourceLineNo">296</span><a id="line.296">                log.error( "Attachment cannot be loaded", e );</a>
+<span class="sourceLineNo">296</span><a id="line.296">                LOG.error( "Attachment cannot be loaded", e );</a>
 <span class="sourceLineNo">297</span><a id="line.297">            }</a>
 <span class="sourceLineNo">298</span><a id="line.298">        }</a>
 <span class="sourceLineNo">299</span><a id="line.299"></a>
@@ -316,7 +316,7 @@
 <span class="sourceLineNo">307</span><a id="line.307">     * @param text The page text to index.</a>
 <span class="sourceLineNo">308</span><a id="line.308">     */</a>
 <span class="sourceLineNo">309</span><a id="line.309">    protected synchronized void updateLuceneIndex( final Page page, final String text ) {</a>
-<span class="sourceLineNo">310</span><a id="line.310">        log.debug( "Updating Lucene index for page '{}'...", page.getName() );</a>
+<span class="sourceLineNo">310</span><a id="line.310">        LOG.debug( "Updating Lucene index for page '{}'...", page.getName() );</a>
 <span class="sourceLineNo">311</span><a id="line.311">        pageRemoved( page );</a>
 <span class="sourceLineNo">312</span><a id="line.312"></a>
 <span class="sourceLineNo">313</span><a id="line.313">        // Now add back the new version.</a>
@@ -324,14 +324,14 @@
 <span class="sourceLineNo">315</span><a id="line.315">             final IndexWriter writer = getIndexWriter( luceneDir ) ) {</a>
 <span class="sourceLineNo">316</span><a id="line.316">            luceneIndexPage( page, text, writer );</a>
 <span class="sourceLineNo">317</span><a id="line.317">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">318</span><a id="line.318">            log.error( "Unable to update page '{}' from Lucene index", page.getName(), e );</a>
+<span class="sourceLineNo">318</span><a id="line.318">            LOG.error( "Unable to update page '{}' from Lucene index", page.getName(), e );</a>
 <span class="sourceLineNo">319</span><a id="line.319">            // reindexPage( page );</a>
 <span class="sourceLineNo">320</span><a id="line.320">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">321</span><a id="line.321">            log.error( "Unexpected Lucene exception - please check configuration!", e );</a>
+<span class="sourceLineNo">321</span><a id="line.321">            LOG.error( "Unexpected Lucene exception - please check configuration!", e );</a>
 <span class="sourceLineNo">322</span><a id="line.322">            // reindexPage( page );</a>
 <span class="sourceLineNo">323</span><a id="line.323">        }</a>
 <span class="sourceLineNo">324</span><a id="line.324"></a>
-<span class="sourceLineNo">325</span><a id="line.325">        log.debug( "Done updating Lucene index for page '{}'.", page.getName() );</a>
+<span class="sourceLineNo">325</span><a id="line.325">        LOG.debug( "Done updating Lucene index for page '{}'.", page.getName() );</a>
 <span class="sourceLineNo">326</span><a id="line.326">    }</a>
 <span class="sourceLineNo">327</span><a id="line.327"></a>
 <span class="sourceLineNo">328</span><a id="line.328">    private Analyzer getLuceneAnalyzer() throws ProviderException {</a>
@@ -339,7 +339,7 @@
 <span class="sourceLineNo">330</span><a id="line.330">            return ClassUtil.buildInstance( m_analyzerClass );</a>
 <span class="sourceLineNo">331</span><a id="line.331">        } catch( final Exception e ) {</a>
 <span class="sourceLineNo">332</span><a id="line.332">            final String msg = "Could not get LuceneAnalyzer class " + m_analyzerClass + ", reason: ";</a>
-<span class="sourceLineNo">333</span><a id="line.333">            log.error( msg, e );</a>
+<span class="sourceLineNo">333</span><a id="line.333">            LOG.error( msg, e );</a>
 <span class="sourceLineNo">334</span><a id="line.334">            throw new ProviderException( msg + e );</a>
 <span class="sourceLineNo">335</span><a id="line.335">        }</a>
 <span class="sourceLineNo">336</span><a id="line.336">    }</a>
@@ -354,7 +354,7 @@
 <span class="sourceLineNo">345</span><a id="line.345">     * @throws IOException If there's an indexing problem</a>
 <span class="sourceLineNo">346</span><a id="line.346">     */</a>
 <span class="sourceLineNo">347</span><a id="line.347">    protected Document luceneIndexPage( final Page page, final String text, final IndexWriter writer ) throws IOException {</a>
-<span class="sourceLineNo">348</span><a id="line.348">        log.debug( "Indexing {}...", page.getName() );</a>
+<span class="sourceLineNo">348</span><a id="line.348">        LOG.debug( "Indexing {}...", page.getName() );</a>
 <span class="sourceLineNo">349</span><a id="line.349"></a>
 <span class="sourceLineNo">350</span><a id="line.350">        // make a new, empty document</a>
 <span class="sourceLineNo">351</span><a id="line.351">        final Document doc = new Document();</a>
@@ -396,7 +396,7 @@
 <span class="sourceLineNo">387</span><a id="line.387"></a>
 <span class="sourceLineNo">388</span><a id="line.388">        } catch( final ProviderException e ) {</a>
 <span class="sourceLineNo">389</span><a id="line.389">            // Unable to read attachments</a>
-<span class="sourceLineNo">390</span><a id="line.390">            log.error( "Failed to get attachments for page", e );</a>
+<span class="sourceLineNo">390</span><a id="line.390">            LOG.error( "Failed to get attachments for page", e );</a>
 <span class="sourceLineNo">391</span><a id="line.391">        }</a>
 <span class="sourceLineNo">392</span><a id="line.392"></a>
 <span class="sourceLineNo">393</span><a id="line.393">        // also index page keywords, if available</a>
@@ -421,7 +421,7 @@
 <span class="sourceLineNo">412</span><a id="line.412">            final Query query = new TermQuery( new Term( LUCENE_ID, page.getName() ) );</a>
 <span class="sourceLineNo">413</span><a id="line.413">            writer.deleteDocuments( query );</a>
 <span class="sourceLineNo">414</span><a id="line.414">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">415</span><a id="line.415">            log.error( "Unable to remove page '{}' from Lucene index", page.getName(), e );</a>
+<span class="sourceLineNo">415</span><a id="line.415">            LOG.error( "Unable to remove page '{}' from Lucene index", page.getName(), e );</a>
 <span class="sourceLineNo">416</span><a id="line.416">        }</a>
 <span class="sourceLineNo">417</span><a id="line.417">    }</a>
 <span class="sourceLineNo">418</span><a id="line.418"></a>
@@ -454,7 +454,7 @@
 <span class="sourceLineNo">445</span><a id="line.445">                pair[ 0 ] = page;</a>
 <span class="sourceLineNo">446</span><a id="line.446">                pair[ 1 ] = text;</a>
 <span class="sourceLineNo">447</span><a id="line.447">                m_updates.add( pair );</a>
-<span class="sourceLineNo">448</span><a id="line.448">                log.debug( "Scheduling page {} for index update", page.getName() );</a>
+<span class="sourceLineNo">448</span><a id="line.448">                LOG.debug( "Scheduling page {} for index update", page.getName() );</a>
 <span class="sourceLineNo">449</span><a id="line.449">            }</a>
 <span class="sourceLineNo">450</span><a id="line.450">        }</a>
 <span class="sourceLineNo">451</span><a id="line.451">    }</a>
@@ -521,17 +521,17 @@
 <span class="sourceLineNo">512</span><a id="line.512">                        list.add( result );</a>
 <span class="sourceLineNo">513</span><a id="line.513">                    }</a>
 <span class="sourceLineNo">514</span><a id="line.514">                } else {</a>
-<span class="sourceLineNo">515</span><a id="line.515">                    log.error( "Lucene found a result page '{}' that could not be loaded, removing from Lucene cache",  pageName );</a>
+<span class="sourceLineNo">515</span><a id="line.515">                    LOG.error( "Lucene found a result page '{}' that could not be loaded, removing from Lucene cache",  pageName );</a>
 <span class="sourceLineNo">516</span><a id="line.516">                    pageRemoved( Wiki.contents().page( m_engine, pageName ) );</a>
 <span class="sourceLineNo">517</span><a id="line.517">                }</a>
 <span class="sourceLineNo">518</span><a id="line.518">            }</a>
 <span class="sourceLineNo">519</span><a id="line.519">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">520</span><a id="line.520">            log.error( "Failed during lucene search", e );</a>
+<span class="sourceLineNo">520</span><a id="line.520">            LOG.error( "Failed during lucene search", e );</a>
 <span class="sourceLineNo">521</span><a id="line.521">        } catch( final ParseException e ) {</a>
-<span class="sourceLineNo">522</span><a id="line.522">            log.error( "Broken query; cannot parse query: {}", query, e );</a>
+<span class="sourceLineNo">522</span><a id="line.522">            LOG.error( "Broken query; cannot parse query: {}", query, e );</a>
 <span class="sourceLineNo">523</span><a id="line.523">            throw new ProviderException( "You have entered a query Lucene cannot process [" + query + "]: " + e.getMessage() );</a>
 <span class="sourceLineNo">524</span><a id="line.524">        } catch( final InvalidTokenOffsetsException e ) {</a>
-<span class="sourceLineNo">525</span><a id="line.525">            log.error( "Tokens are incompatible with provided text ", e );</a>
+<span class="sourceLineNo">525</span><a id="line.525">            LOG.error( "Tokens are incompatible with provided text ", e );</a>
 <span class="sourceLineNo">526</span><a id="line.526">        }</a>
 <span class="sourceLineNo">527</span><a id="line.527"></a>
 <span class="sourceLineNo">528</span><a id="line.528">        return list;</a>
