@@ -1,0 +1,478 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.ui;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.StringUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.i18n.InternationalizationManager;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.modules.ModuleManager;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.preferences.Preferences;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.util.ClassUtil;</a>
+<span class="sourceLineNo">028</span><a id="line.28"></a>
+<span class="sourceLineNo">029</span><a id="line.29">import javax.servlet.jsp.PageContext;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import javax.servlet.jsp.jstl.fmt.LocaleSupport;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import java.util.Enumeration;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import java.util.HashMap;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.util.LinkedHashMap;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import java.util.List;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.util.Locale;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.util.Map;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.util.ResourceBundle;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Set;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.TimeZone;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.Vector;</a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42"></a>
+<span class="sourceLineNo">043</span><a id="line.43">/**</a>
+<span class="sourceLineNo">044</span><a id="line.44"> *  This class takes care of managing JSPWiki templates.  This class also provides the ResourceRequest mechanism.</a>
+<span class="sourceLineNo">045</span><a id="line.45"> *</a>
+<span class="sourceLineNo">046</span><a id="line.46"> *  @since 2.1.62</a>
+<span class="sourceLineNo">047</span><a id="line.47"> */</a>
+<span class="sourceLineNo">048</span><a id="line.48">public interface TemplateManager extends ModuleManager {</a>
+<span class="sourceLineNo">049</span><a id="line.49"></a>
+<span class="sourceLineNo">050</span><a id="line.50">    String SKIN_DIRECTORY = "skins";</a>
+<span class="sourceLineNo">051</span><a id="line.51"></a>
+<span class="sourceLineNo">052</span><a id="line.52">    /** Requests a JavaScript function to be called during window.onload. Value is {@value}. */</a>
+<span class="sourceLineNo">053</span><a id="line.53">    String RESOURCE_JSFUNCTION = "jsfunction";</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">    /** Requests a JavaScript associative array with all localized strings. */</a>
+<span class="sourceLineNo">056</span><a id="line.56">    String RESOURCE_JSLOCALIZEDSTRINGS = "jslocalizedstrings";</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    /** Requests a stylesheet to be inserted. Value is {@value}. */</a>
+<span class="sourceLineNo">059</span><a id="line.59">    String RESOURCE_STYLESHEET = "stylesheet";</a>
+<span class="sourceLineNo">060</span><a id="line.60"></a>
+<span class="sourceLineNo">061</span><a id="line.61">    /** Requests a script to be loaded. Value is {@value}. */</a>
+<span class="sourceLineNo">062</span><a id="line.62">    String RESOURCE_SCRIPT = "script";</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">    /** Requests inlined CSS. Value is {@value}. */</a>
+<span class="sourceLineNo">065</span><a id="line.65">    String RESOURCE_INLINECSS = "inlinecss";</a>
+<span class="sourceLineNo">066</span><a id="line.66"></a>
+<span class="sourceLineNo">067</span><a id="line.67">    /** The default directory for the properties. Value is {@value}. */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    String DIRECTORY = "templates";</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">    /** The name of the default template. Value is {@value}. */</a>
+<span class="sourceLineNo">071</span><a id="line.71">    String DEFAULT_TEMPLATE = "default";</a>
+<span class="sourceLineNo">072</span><a id="line.72"></a>
+<span class="sourceLineNo">073</span><a id="line.73">    /** Name of the file that contains the properties. */</a>
+<span class="sourceLineNo">074</span><a id="line.74">    String PROPERTYFILE = "template.properties";</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    /** Location of I18N Resource bundles, and path prefix and suffixes */</a>
+<span class="sourceLineNo">077</span><a id="line.77">    String I18NRESOURCE_PREFIX = "templates/default_";</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    String I18NRESOURCE_SUFFIX = ".properties";</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">    /** The default (en) RESOURCE name and id. */</a>
+<span class="sourceLineNo">082</span><a id="line.82">    String I18NRESOURCE_EN = "templates/default.properties";</a>
+<span class="sourceLineNo">083</span><a id="line.83">    String I18NRESOURCE_EN_ID = "en";</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">    /** I18N string to mark the default locale */</a>
+<span class="sourceLineNo">086</span><a id="line.86">    String I18NDEFAULT_LOCALE = "prefs.user.language.default";</a>
+<span class="sourceLineNo">087</span><a id="line.87"></a>
+<span class="sourceLineNo">088</span><a id="line.88">    /** I18N string to mark the server timezone */</a>
+<span class="sourceLineNo">089</span><a id="line.89">    String I18NSERVER_TIMEZONE = "prefs.user.timezone.server";</a>
+<span class="sourceLineNo">090</span><a id="line.90"></a>
+<span class="sourceLineNo">091</span><a id="line.91">    /** Prefix of the default timeformat properties. */</a>
+<span class="sourceLineNo">092</span><a id="line.92">    String TIMEFORMATPROPERTIES = "jspwiki.defaultprefs.timeformat.";</a>
+<span class="sourceLineNo">093</span><a id="line.93"></a>
+<span class="sourceLineNo">094</span><a id="line.94">    /** The name under which the resource includes map is stored in the  WikiContext. */</a>
+<span class="sourceLineNo">095</span><a id="line.95">    String RESOURCE_INCLUDES = "jspwiki.resourceincludes";</a>
+<span class="sourceLineNo">096</span><a id="line.96"></a>
+<span class="sourceLineNo">097</span><a id="line.97">    /** Requests a HTTP header. Value is {@value}. */</a>
+<span class="sourceLineNo">098</span><a id="line.98">    String RESOURCE_HTTPHEADER = "httpheader";</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">    /**</a>
+<span class="sourceLineNo">101</span><a id="line.101">     *  Check the existence of a template.</a>
+<span class="sourceLineNo">102</span><a id="line.102">     */</a>
+<span class="sourceLineNo">103</span><a id="line.103">    boolean templateExists( String templateName );</a>
+<span class="sourceLineNo">104</span><a id="line.104"></a>
+<span class="sourceLineNo">105</span><a id="line.105">    /**</a>
+<span class="sourceLineNo">106</span><a id="line.106">     *  A utility method for finding a JSP page.  It searches only under either current context or by the absolute name.</a>
+<span class="sourceLineNo">107</span><a id="line.107">     *</a>
+<span class="sourceLineNo">108</span><a id="line.108">     *  @param pageContext the JSP PageContext</a>
+<span class="sourceLineNo">109</span><a id="line.109">     *  @param name The name of the JSP page to look for (e.g "Wiki.jsp")</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *  @return The context path to the resource</a>
+<span class="sourceLineNo">111</span><a id="line.111">     */</a>
+<span class="sourceLineNo">112</span><a id="line.112">    String findJSP( PageContext pageContext, String name );</a>
+<span class="sourceLineNo">113</span><a id="line.113"></a>
+<span class="sourceLineNo">114</span><a id="line.114">    /**</a>
+<span class="sourceLineNo">115</span><a id="line.115">     *  Attempts to locate a resource under the given template.  If that template does not exist, or the page does not exist under that</a>
+<span class="sourceLineNo">116</span><a id="line.116">     *  template, will attempt to locate a similarly named file under the default template.</a>
+<span class="sourceLineNo">117</span><a id="line.117">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">118</span><a id="line.118">     *  Even though the name suggests only JSP files can be located, but in fact this method can find also other resources than JSP files.</a>
+<span class="sourceLineNo">119</span><a id="line.119">     *</a>
+<span class="sourceLineNo">120</span><a id="line.120">     *  @param pageContext The JSP PageContext</a>
+<span class="sourceLineNo">121</span><a id="line.121">     *  @param template From which template we should seek initially?</a>
+<span class="sourceLineNo">122</span><a id="line.122">     *  @param name Which resource are we looking for (e.g. "ViewTemplate.jsp")</a>
+<span class="sourceLineNo">123</span><a id="line.123">     *  @return path to the JSP page; null, if it was not found.</a>
+<span class="sourceLineNo">124</span><a id="line.124">     */</a>
+<span class="sourceLineNo">125</span><a id="line.125">    String findJSP( PageContext pageContext, String template, String name );</a>
+<span class="sourceLineNo">126</span><a id="line.126"></a>
+<span class="sourceLineNo">127</span><a id="line.127">    /**</a>
+<span class="sourceLineNo">128</span><a id="line.128">     *  Attempts to locate a resource under the given template.  This matches the functionality findJSP(), but uses the WikiContext as</a>
+<span class="sourceLineNo">129</span><a id="line.129">     *  the argument.  If there is no servlet context (i.e. this is embedded), will just simply return a best-guess.</a>
+<span class="sourceLineNo">130</span><a id="line.130">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">131</span><a id="line.131">     *  This method is typically used to locate any resource, including JSP pages, images, scripts, etc.</a>
+<span class="sourceLineNo">132</span><a id="line.132">     *</a>
+<span class="sourceLineNo">133</span><a id="line.133">     *  @since 2.6</a>
+<span class="sourceLineNo">134</span><a id="line.134">     *  @param ctx the wiki context</a>
+<span class="sourceLineNo">135</span><a id="line.135">     *  @param template the name of the template to use</a>
+<span class="sourceLineNo">136</span><a id="line.136">     *  @param name the name of the resource to fine</a>
+<span class="sourceLineNo">137</span><a id="line.137">     *  @return the path to the resource</a>
+<span class="sourceLineNo">138</span><a id="line.138">     */</a>
+<span class="sourceLineNo">139</span><a id="line.139">    String findResource( Context ctx, String template, String name );</a>
+<span class="sourceLineNo">140</span><a id="line.140"></a>
+<span class="sourceLineNo">141</span><a id="line.141">    /**</a>
+<span class="sourceLineNo">142</span><a id="line.142">     *   Lists the skins available under this template.  Returns an empty Set, if there are no extra skins available.  Note that</a>
+<span class="sourceLineNo">143</span><a id="line.143">     *   this method does not check whether there is anything actually in the directories, it just lists them.  This may change</a>
+<span class="sourceLineNo">144</span><a id="line.144">     *   in the future.</a>
+<span class="sourceLineNo">145</span><a id="line.145">     *</a>
+<span class="sourceLineNo">146</span><a id="line.146">     *   @param pageContext the JSP PageContext</a>
+<span class="sourceLineNo">147</span><a id="line.147">     *   @param template The template to search</a>
+<span class="sourceLineNo">148</span><a id="line.148">     *   @return Set of Strings with the skin names.</a>
+<span class="sourceLineNo">149</span><a id="line.149">     *   @since 2.3.26</a>
+<span class="sourceLineNo">150</span><a id="line.150">     */</a>
+<span class="sourceLineNo">151</span><a id="line.151">    Set&lt; String &gt; listSkins( PageContext pageContext, String template );</a>
+<span class="sourceLineNo">152</span><a id="line.152"></a>
+<span class="sourceLineNo">153</span><a id="line.153">    /**</a>
+<span class="sourceLineNo">154</span><a id="line.154">     * List all installed i18n language properties by classpath searching for files like :</a>
+<span class="sourceLineNo">155</span><a id="line.155">     *    templates/default_*.properties</a>
+<span class="sourceLineNo">156</span><a id="line.156">     *    templates/default.properties</a>
+<span class="sourceLineNo">157</span><a id="line.157">     *</a>
+<span class="sourceLineNo">158</span><a id="line.158">     * @param pageContext page context</a>
+<span class="sourceLineNo">159</span><a id="line.159">     * @return map of installed Languages</a>
+<span class="sourceLineNo">160</span><a id="line.160">     * @since 2.7.x</a>
+<span class="sourceLineNo">161</span><a id="line.161">     */</a>
+<span class="sourceLineNo">162</span><a id="line.162">    default Map&lt; String, String &gt; listLanguages( final PageContext pageContext ) {</a>
+<span class="sourceLineNo">163</span><a id="line.163">        final Map&lt; String, String &gt; resultMap = new LinkedHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">164</span><a id="line.164">        final String clientLanguage = pageContext.getRequest().getLocale().toString();</a>
+<span class="sourceLineNo">165</span><a id="line.165">        final List&lt; String &gt; entries = ClassUtil.classpathEntriesUnder( DIRECTORY );</a>
+<span class="sourceLineNo">166</span><a id="line.166">        for( String name : entries ) {</a>
+<span class="sourceLineNo">167</span><a id="line.167">            if ( name.equals( I18NRESOURCE_EN ) || (name.startsWith( I18NRESOURCE_PREFIX ) &amp;&amp; name.endsWith( I18NRESOURCE_SUFFIX ) ) ) {</a>
+<span class="sourceLineNo">168</span><a id="line.168">                if( name.equals( I18NRESOURCE_EN ) ) {</a>
+<span class="sourceLineNo">169</span><a id="line.169">                    name = I18NRESOURCE_EN_ID;</a>
+<span class="sourceLineNo">170</span><a id="line.170">                } else {</a>
+<span class="sourceLineNo">171</span><a id="line.171">                    name = name.substring( I18NRESOURCE_PREFIX.length(), name.lastIndexOf( I18NRESOURCE_SUFFIX ) );</a>
+<span class="sourceLineNo">172</span><a id="line.172">                }</a>
+<span class="sourceLineNo">173</span><a id="line.173">                final Locale locale = new Locale( name.substring( 0, 2 ), !name.contains( "_" ) ? "" : name.substring( 3, 5 ) );</a>
+<span class="sourceLineNo">174</span><a id="line.174">                String defaultLanguage = "";</a>
+<span class="sourceLineNo">175</span><a id="line.175">                if( clientLanguage.startsWith( name ) ) {</a>
+<span class="sourceLineNo">176</span><a id="line.176">                    defaultLanguage = LocaleSupport.getLocalizedMessage( pageContext, I18NDEFAULT_LOCALE );</a>
+<span class="sourceLineNo">177</span><a id="line.177">                }</a>
+<span class="sourceLineNo">178</span><a id="line.178">                resultMap.put( name, locale.getDisplayName( locale ) + " " + defaultLanguage );</a>
+<span class="sourceLineNo">179</span><a id="line.179">            }</a>
+<span class="sourceLineNo">180</span><a id="line.180">        }</a>
+<span class="sourceLineNo">181</span><a id="line.181"></a>
+<span class="sourceLineNo">182</span><a id="line.182">        return resultMap;</a>
+<span class="sourceLineNo">183</span><a id="line.183">    }</a>
+<span class="sourceLineNo">184</span><a id="line.184"></a>
+<span class="sourceLineNo">185</span><a id="line.185"></a>
+<span class="sourceLineNo">186</span><a id="line.186">    /**</a>
+<span class="sourceLineNo">187</span><a id="line.187">     * List all available timeformats, read from the jspwiki.properties</a>
+<span class="sourceLineNo">188</span><a id="line.188">     *</a>
+<span class="sourceLineNo">189</span><a id="line.189">     * @param pageContext page context</a>
+<span class="sourceLineNo">190</span><a id="line.190">     * @return map of TimeFormats</a>
+<span class="sourceLineNo">191</span><a id="line.191">     * @since 2.7.x</a>
+<span class="sourceLineNo">192</span><a id="line.192">     */</a>
+<span class="sourceLineNo">193</span><a id="line.193">    Map&lt; String, String &gt; listTimeFormats( final PageContext pageContext );</a>
+<span class="sourceLineNo">194</span><a id="line.194"></a>
+<span class="sourceLineNo">195</span><a id="line.195">    /**</a>
+<span class="sourceLineNo">196</span><a id="line.196">     * List all timezones, with special marker for server timezone</a>
+<span class="sourceLineNo">197</span><a id="line.197">     *</a>
+<span class="sourceLineNo">198</span><a id="line.198">     * @param pageContext page context</a>
+<span class="sourceLineNo">199</span><a id="line.199">     * @return map of TimeZones</a>
+<span class="sourceLineNo">200</span><a id="line.200">     * @since 2.7.x</a>
+<span class="sourceLineNo">201</span><a id="line.201">     */</a>
+<span class="sourceLineNo">202</span><a id="line.202">    default Map&lt; String, String &gt; listTimeZones( final PageContext pageContext ) {</a>
+<span class="sourceLineNo">203</span><a id="line.203">        final Map&lt; String, String &gt; resultMap = new LinkedHashMap&lt;&gt;();</a>
+<span class="sourceLineNo">204</span><a id="line.204">        final String[][] tzs = {</a>
+<span class="sourceLineNo">205</span><a id="line.205">                          { "GMT-12", "Enitwetok, Kwajalien" },</a>
+<span class="sourceLineNo">206</span><a id="line.206">                          { "GMT-11", "Nome, Midway Island, Samoa" },</a>
+<span class="sourceLineNo">207</span><a id="line.207">                          { "GMT-10", "Hawaii" },</a>
+<span class="sourceLineNo">208</span><a id="line.208">                          { "GMT-9", "Alaska" },</a>
+<span class="sourceLineNo">209</span><a id="line.209">                          { "GMT-8", "Pacific Time" },</a>
+<span class="sourceLineNo">210</span><a id="line.210">                          { "GMT-7", "Mountain Time" },</a>
+<span class="sourceLineNo">211</span><a id="line.211">                          { "GMT-6", "Central Time, Mexico City" },</a>
+<span class="sourceLineNo">212</span><a id="line.212">                          { "GMT-5", "Eastern Time, Bogota, Lima, Quito" },</a>
+<span class="sourceLineNo">213</span><a id="line.213">                          { "GMT-4", "Atlantic Time, Caracas, La Paz" },</a>
+<span class="sourceLineNo">214</span><a id="line.214">                          { "GMT-3:30", "Newfoundland" },</a>
+<span class="sourceLineNo">215</span><a id="line.215">                          { "GMT-3", "Brazil, Buenos Aires, Georgetown, Falkland Is." },</a>
+<span class="sourceLineNo">216</span><a id="line.216">                          { "GMT-2", "Mid-Atlantic, Ascention Is., St Helena" },</a>
+<span class="sourceLineNo">217</span><a id="line.217">                          { "GMT-1", "Azores, Cape Verde Islands" },</a>
+<span class="sourceLineNo">218</span><a id="line.218">                          { "GMT", "Casablanca, Dublin, Edinburgh, London, Lisbon, Monrovia" },</a>
+<span class="sourceLineNo">219</span><a id="line.219">                          { "GMT+1", "Berlin, Brussels, Copenhagen, Madrid, Paris, Rome" },</a>
+<span class="sourceLineNo">220</span><a id="line.220">                          { "GMT+2", "Helsinki, Athens, Kaliningrad, South Africa, Warsaw" },</a>
+<span class="sourceLineNo">221</span><a id="line.221">                          { "GMT+3", "Baghdad, Riyadh, Moscow, Nairobi" },</a>
+<span class="sourceLineNo">222</span><a id="line.222">                          { "GMT+3:30", "Tehran" },</a>
+<span class="sourceLineNo">223</span><a id="line.223">                          { "GMT+4", "Adu Dhabi, Baku, Muscat, Tbilisi" },</a>
+<span class="sourceLineNo">224</span><a id="line.224">                          { "GMT+4:30", "Kabul" },</a>
+<span class="sourceLineNo">225</span><a id="line.225">                          { "GMT+5", "Islamabad, Karachi, Tashkent" },</a>
+<span class="sourceLineNo">226</span><a id="line.226">                          { "GMT+5:30", "Bombay, Calcutta, Madras, New Delhi" },</a>
+<span class="sourceLineNo">227</span><a id="line.227">                          { "GMT+6", "Almaty, Colomba, Dhakra" },</a>
+<span class="sourceLineNo">228</span><a id="line.228">                          { "GMT+7", "Bangkok, Hanoi, Jakarta" },</a>
+<span class="sourceLineNo">229</span><a id="line.229">                          { "GMT+8", "Beijing, Hong Kong, Perth, Singapore, Taipei" },</a>
+<span class="sourceLineNo">230</span><a id="line.230">                          { "GMT+9", "Osaka, Sapporo, Seoul, Tokyo, Yakutsk" },</a>
+<span class="sourceLineNo">231</span><a id="line.231">                          { "GMT+9:30", "Adelaide, Darwin" },</a>
+<span class="sourceLineNo">232</span><a id="line.232">                          { "GMT+10", "Melbourne, Papua New Guinea, Sydney, Vladivostok" },</a>
+<span class="sourceLineNo">233</span><a id="line.233">                          { "GMT+11", "Magadan, New Caledonia, Solomon Islands" },</a>
+<span class="sourceLineNo">234</span><a id="line.234">                          { "GMT+12", "Auckland, Wellington, Fiji, Marshall Island" } };</a>
+<span class="sourceLineNo">235</span><a id="line.235"></a>
+<span class="sourceLineNo">236</span><a id="line.236">        final TimeZone servertz = TimeZone.getDefault();</a>
+<span class="sourceLineNo">237</span><a id="line.237">        for( final String[] strings : tzs ) {</a>
+<span class="sourceLineNo">238</span><a id="line.238">            String tzID = strings[ 0 ];</a>
+<span class="sourceLineNo">239</span><a id="line.239">            final TimeZone tz = TimeZone.getTimeZone( tzID );</a>
+<span class="sourceLineNo">240</span><a id="line.240">            String serverTimeZone = "";</a>
+<span class="sourceLineNo">241</span><a id="line.241">            if( servertz.getRawOffset() == tz.getRawOffset() ) {</a>
+<span class="sourceLineNo">242</span><a id="line.242">                serverTimeZone = LocaleSupport.getLocalizedMessage( pageContext, I18NSERVER_TIMEZONE );</a>
+<span class="sourceLineNo">243</span><a id="line.243">                tzID = servertz.getID();</a>
+<span class="sourceLineNo">244</span><a id="line.244">            }</a>
+<span class="sourceLineNo">245</span><a id="line.245"></a>
+<span class="sourceLineNo">246</span><a id="line.246">            resultMap.put( tzID, "(" + strings[ 0 ] + ") " + strings[ 1 ] + " " + serverTimeZone );</a>
+<span class="sourceLineNo">247</span><a id="line.247">        }</a>
+<span class="sourceLineNo">248</span><a id="line.248"></a>
+<span class="sourceLineNo">249</span><a id="line.249">        return resultMap;</a>
+<span class="sourceLineNo">250</span><a id="line.250">    }</a>
+<span class="sourceLineNo">251</span><a id="line.251"></a>
+<span class="sourceLineNo">252</span><a id="line.252">    /**</a>
+<span class="sourceLineNo">253</span><a id="line.253">     *  Returns the include resources marker for a given type.  This is in an</a>
+<span class="sourceLineNo">254</span><a id="line.254">     *  HTML or Javascript comment format.</a>
+<span class="sourceLineNo">255</span><a id="line.255">     *</a>
+<span class="sourceLineNo">256</span><a id="line.256">     *  @param context the wiki context</a>
+<span class="sourceLineNo">257</span><a id="line.257">     *  @param type the marker</a>
+<span class="sourceLineNo">258</span><a id="line.258">     *  @return the generated marker comment</a>
+<span class="sourceLineNo">259</span><a id="line.259">     */</a>
+<span class="sourceLineNo">260</span><a id="line.260">    static String getMarker( final Context context, final String type ) {</a>
+<span class="sourceLineNo">261</span><a id="line.261">        if( type.equals( RESOURCE_JSLOCALIZEDSTRINGS ) ) {</a>
+<span class="sourceLineNo">262</span><a id="line.262">            return getJSLocalizedStrings( context );</a>
+<span class="sourceLineNo">263</span><a id="line.263">        } else if( type.equals( RESOURCE_JSFUNCTION ) ) {</a>
+<span class="sourceLineNo">264</span><a id="line.264">            return "/* INCLUDERESOURCES ("+type+") */";</a>
+<span class="sourceLineNo">265</span><a id="line.265">        }</a>
+<span class="sourceLineNo">266</span><a id="line.266">        return "&lt;!-- INCLUDERESOURCES ("+type+") --&gt;";</a>
+<span class="sourceLineNo">267</span><a id="line.267">    }</a>
+<span class="sourceLineNo">268</span><a id="line.268"></a>
+<span class="sourceLineNo">269</span><a id="line.269">    /**</a>
+<span class="sourceLineNo">270</span><a id="line.270">     *  Extract all i18n strings in the javascript domain. (javascript.*) Returns a javascript snippet which defines the LocalizedStings array.</a>
+<span class="sourceLineNo">271</span><a id="line.271">     *</a>
+<span class="sourceLineNo">272</span><a id="line.272">     *  @param context the {@link Context}</a>
+<span class="sourceLineNo">273</span><a id="line.273">     *  @return Javascript snippet which defines the LocalizedStrings array</a>
+<span class="sourceLineNo">274</span><a id="line.274">     *  @since 2.5.108</a>
+<span class="sourceLineNo">275</span><a id="line.275">     */</a>
+<span class="sourceLineNo">276</span><a id="line.276">    static String getJSLocalizedStrings( final Context context ) {</a>
+<span class="sourceLineNo">277</span><a id="line.277">        final StringBuilder sb = new StringBuilder();</a>
+<span class="sourceLineNo">278</span><a id="line.278">        sb.append( "var LocalizedStrings = {\n");</a>
+<span class="sourceLineNo">279</span><a id="line.279">        final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.DEF_TEMPLATE );</a>
+<span class="sourceLineNo">280</span><a id="line.280">        boolean first = true;</a>
+<span class="sourceLineNo">281</span><a id="line.281"></a>
+<span class="sourceLineNo">282</span><a id="line.282">        for( final Enumeration&lt; String &gt; en = rb.getKeys(); en.hasMoreElements(); ) {</a>
+<span class="sourceLineNo">283</span><a id="line.283">            final String key = en.nextElement();</a>
+<span class="sourceLineNo">284</span><a id="line.284">            if( key.startsWith("javascript") ) {</a>
+<span class="sourceLineNo">285</span><a id="line.285">                if( first ) {</a>
+<span class="sourceLineNo">286</span><a id="line.286">                    first = false;</a>
+<span class="sourceLineNo">287</span><a id="line.287">                } else {</a>
+<span class="sourceLineNo">288</span><a id="line.288">                    sb.append( ",\n" );</a>
+<span class="sourceLineNo">289</span><a id="line.289">                }</a>
+<span class="sourceLineNo">290</span><a id="line.290">                sb.append( "\"" ).append( key ).append( "\":\"" ).append( rb.getString( key ) ).append( "\"" );</a>
+<span class="sourceLineNo">291</span><a id="line.291">            }</a>
+<span class="sourceLineNo">292</span><a id="line.292">        }</a>
+<span class="sourceLineNo">293</span><a id="line.293">        sb.append("\n};\n");</a>
+<span class="sourceLineNo">294</span><a id="line.294"></a>
+<span class="sourceLineNo">295</span><a id="line.295">        return( sb.toString() );</a>
+<span class="sourceLineNo">296</span><a id="line.296">    }</a>
+<span class="sourceLineNo">297</span><a id="line.297"></a>
+<span class="sourceLineNo">298</span><a id="line.298">    /**</a>
+<span class="sourceLineNo">299</span><a id="line.299">     *  Adds a resource request to the current request context. The content will be added at the resource-type marker</a>
+<span class="sourceLineNo">300</span><a id="line.300">     *  (see IncludeResourcesTag) in WikiJSPFilter.</a>
+<span class="sourceLineNo">301</span><a id="line.301">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">302</span><a id="line.302">     *  The resources can be of different types.  For RESOURCE_SCRIPT and RESOURCE_STYLESHEET this is a URI path to the resource</a>
+<span class="sourceLineNo">303</span><a id="line.303">     *  (a script file or an external stylesheet) that needs to be included.  For RESOURCE_INLINECSS the resource should be something</a>
+<span class="sourceLineNo">304</span><a id="line.304">     *  that can be added between &amp;lt;style&gt;&amp;lt;/style&gt; in the header file (commonheader.jsp).  For RESOURCE_JSFUNCTION it is the name</a>
+<span class="sourceLineNo">305</span><a id="line.305">     *  of the Javascript function that should be run at page load.</a>
+<span class="sourceLineNo">306</span><a id="line.306">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">307</span><a id="line.307">     *  The IncludeResourceTag inserts code in the template files, which is then filled by the WikiFilter after the request has been</a>
+<span class="sourceLineNo">308</span><a id="line.308">     *  rendered but not yet sent to the recipient.</a>
+<span class="sourceLineNo">309</span><a id="line.309">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">310</span><a id="line.310">     *  Note that ALL resource requests get rendered, so this method does not check if the request already exists in the resources.</a>
+<span class="sourceLineNo">311</span><a id="line.311">     *  Therefore, if you have a plugin which makes a new resource request every time, you'll end up with multiple resource requests</a>
+<span class="sourceLineNo">312</span><a id="line.312">     *  rendered.  It's thus a good idea to make this request only once during the page life cycle.</a>
+<span class="sourceLineNo">313</span><a id="line.313">     *</a>
+<span class="sourceLineNo">314</span><a id="line.314">     *  @param ctx The current wiki context</a>
+<span class="sourceLineNo">315</span><a id="line.315">     *  @param type What kind of resource should be added?</a>
+<span class="sourceLineNo">316</span><a id="line.316">     *  @param resource The resource to add.</a>
+<span class="sourceLineNo">317</span><a id="line.317">     */</a>
+<span class="sourceLineNo">318</span><a id="line.318">    static void addResourceRequest( final Context ctx, final String type, final String resource ) {</a>
+<span class="sourceLineNo">319</span><a id="line.319">        HashMap&lt; String, Vector&lt; String &gt; &gt; resourcemap = ctx.getVariable( RESOURCE_INCLUDES );</a>
+<span class="sourceLineNo">320</span><a id="line.320">        if( resourcemap == null ) {</a>
+<span class="sourceLineNo">321</span><a id="line.321">            resourcemap = new HashMap&lt;&gt;();</a>
+<span class="sourceLineNo">322</span><a id="line.322">        }</a>
+<span class="sourceLineNo">323</span><a id="line.323"></a>
+<span class="sourceLineNo">324</span><a id="line.324">        Vector&lt; String &gt; resources = resourcemap.get( type );</a>
+<span class="sourceLineNo">325</span><a id="line.325">        if( resources == null ) {</a>
+<span class="sourceLineNo">326</span><a id="line.326">            resources = new Vector&lt;&gt;();</a>
+<span class="sourceLineNo">327</span><a id="line.327">        }</a>
+<span class="sourceLineNo">328</span><a id="line.328">        String resolvedResource = resource;</a>
+<span class="sourceLineNo">329</span><a id="line.329">        if( StringUtils.startsWith( resource, "engine://" ) ) {</a>
+<span class="sourceLineNo">330</span><a id="line.330">            final String val = ctx.getEngine().getWikiProperties().getProperty( resource.substring( 9 ) ); // "engine//:".length() == 9</a>
+<span class="sourceLineNo">331</span><a id="line.331">            if( StringUtils.isNotBlank( val ) ) {</a>
+<span class="sourceLineNo">332</span><a id="line.332">                resolvedResource = val;</a>
+<span class="sourceLineNo">333</span><a id="line.333">            }</a>
+<span class="sourceLineNo">334</span><a id="line.334">        }</a>
+<span class="sourceLineNo">335</span><a id="line.335"></a>
+<span class="sourceLineNo">336</span><a id="line.336">        String resourceString = null;</a>
+<span class="sourceLineNo">337</span><a id="line.337">        switch( type ) {</a>
+<span class="sourceLineNo">338</span><a id="line.338">        case RESOURCE_SCRIPT:</a>
+<span class="sourceLineNo">339</span><a id="line.339">            resourceString = "&lt;script type='text/javascript' src='" + resolvedResource + "'&gt;&lt;/script&gt;";</a>
+<span class="sourceLineNo">340</span><a id="line.340">            break;</a>
+<span class="sourceLineNo">341</span><a id="line.341">        case RESOURCE_STYLESHEET:</a>
+<span class="sourceLineNo">342</span><a id="line.342">            resourceString = "&lt;link rel='stylesheet' type='text/css' href='" + resolvedResource + "' /&gt;";</a>
+<span class="sourceLineNo">343</span><a id="line.343">            break;</a>
+<span class="sourceLineNo">344</span><a id="line.344">        case RESOURCE_INLINECSS:</a>
+<span class="sourceLineNo">345</span><a id="line.345">            resourceString = "&lt;style type='text/css'&gt;\n" + resolvedResource + "\n&lt;/style&gt;\n";</a>
+<span class="sourceLineNo">346</span><a id="line.346">            break;</a>
+<span class="sourceLineNo">347</span><a id="line.347">        case RESOURCE_JSFUNCTION:</a>
+<span class="sourceLineNo">348</span><a id="line.348">        case RESOURCE_HTTPHEADER:</a>
+<span class="sourceLineNo">349</span><a id="line.349">            resourceString = resolvedResource;</a>
+<span class="sourceLineNo">350</span><a id="line.350">            break;</a>
+<span class="sourceLineNo">351</span><a id="line.351">        }</a>
+<span class="sourceLineNo">352</span><a id="line.352"></a>
+<span class="sourceLineNo">353</span><a id="line.353">        if( resourceString != null ) {</a>
+<span class="sourceLineNo">354</span><a id="line.354">            resources.add( resourceString );</a>
+<span class="sourceLineNo">355</span><a id="line.355">        }</a>
+<span class="sourceLineNo">356</span><a id="line.356"></a>
+<span class="sourceLineNo">357</span><a id="line.357">        LogManager.getLogger( TemplateManager.class ).debug( "Request to add a resource: {}", resourceString );</a>
+<span class="sourceLineNo">358</span><a id="line.358"></a>
+<span class="sourceLineNo">359</span><a id="line.359">        resourcemap.put( type, resources );</a>
+<span class="sourceLineNo">360</span><a id="line.360">        ctx.setVariable( RESOURCE_INCLUDES, resourcemap );</a>
+<span class="sourceLineNo">361</span><a id="line.361">    }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">    /**</a>
+<span class="sourceLineNo">364</span><a id="line.364">     *  Returns resource requests for a particular type.  If there are no resources, returns an empty array.</a>
+<span class="sourceLineNo">365</span><a id="line.365">     *</a>
+<span class="sourceLineNo">366</span><a id="line.366">     *  @param ctx WikiContext</a>
+<span class="sourceLineNo">367</span><a id="line.367">     *  @param type The resource request type</a>
+<span class="sourceLineNo">368</span><a id="line.368">     *  @return a String array for the resource requests</a>
+<span class="sourceLineNo">369</span><a id="line.369">     */</a>
+<span class="sourceLineNo">370</span><a id="line.370">    static String[] getResourceRequests( final Context ctx, final String type ) {</a>
+<span class="sourceLineNo">371</span><a id="line.371">        final HashMap&lt; String, Vector&lt; String &gt; &gt; hm = ctx.getVariable( RESOURCE_INCLUDES );</a>
+<span class="sourceLineNo">372</span><a id="line.372">        if( hm == null ) {</a>
+<span class="sourceLineNo">373</span><a id="line.373">            return new String[0];</a>
+<span class="sourceLineNo">374</span><a id="line.374">        }</a>
+<span class="sourceLineNo">375</span><a id="line.375"></a>
+<span class="sourceLineNo">376</span><a id="line.376">        final Vector&lt;String&gt; resources = hm.get( type );</a>
+<span class="sourceLineNo">377</span><a id="line.377">        if( resources == null ){</a>
+<span class="sourceLineNo">378</span><a id="line.378">            return new String[0];</a>
+<span class="sourceLineNo">379</span><a id="line.379">        }</a>
+<span class="sourceLineNo">380</span><a id="line.380"></a>
+<span class="sourceLineNo">381</span><a id="line.381">        final String[] res = new String[resources.size()];</a>
+<span class="sourceLineNo">382</span><a id="line.382">        return resources.toArray( res );</a>
+<span class="sourceLineNo">383</span><a id="line.383">    }</a>
+<span class="sourceLineNo">384</span><a id="line.384"></a>
+<span class="sourceLineNo">385</span><a id="line.385">    /**</a>
+<span class="sourceLineNo">386</span><a id="line.386">     *  Returns all those types that have been requested so far.</a>
+<span class="sourceLineNo">387</span><a id="line.387">     *</a>
+<span class="sourceLineNo">388</span><a id="line.388">     * @param ctx the wiki context</a>
+<span class="sourceLineNo">389</span><a id="line.389">     * @return the array of types requested</a>
+<span class="sourceLineNo">390</span><a id="line.390">     */</a>
+<span class="sourceLineNo">391</span><a id="line.391">    static String[] getResourceTypes( final Context ctx ) {</a>
+<span class="sourceLineNo">392</span><a id="line.392">        String[] res = new String[0];</a>
+<span class="sourceLineNo">393</span><a id="line.393">        if( ctx != null ) {</a>
+<span class="sourceLineNo">394</span><a id="line.394">            final HashMap&lt; String, String &gt; hm = ctx.getVariable( RESOURCE_INCLUDES );</a>
+<span class="sourceLineNo">395</span><a id="line.395">            if( hm != null ) {</a>
+<span class="sourceLineNo">396</span><a id="line.396">                final Set&lt; String &gt; keys = hm.keySet();</a>
+<span class="sourceLineNo">397</span><a id="line.397">                res = keys.toArray( res );</a>
+<span class="sourceLineNo">398</span><a id="line.398">            }</a>
+<span class="sourceLineNo">399</span><a id="line.399">        }</a>
+<span class="sourceLineNo">400</span><a id="line.400"></a>
+<span class="sourceLineNo">401</span><a id="line.401">        return res;</a>
+<span class="sourceLineNo">402</span><a id="line.402">    }</a>
+<span class="sourceLineNo">403</span><a id="line.403"></a>
+<span class="sourceLineNo">404</span><a id="line.404">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
