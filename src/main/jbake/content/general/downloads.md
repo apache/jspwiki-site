@@ -5,7 +5,7 @@ type=page
 ~~~~~~
 Apache JSPWiki is distributed in source format, under the <a class="external" href="http://www.apache.org/licenses/">Apache License, version 2.0</a>. 
 
-**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.2/">Apache mirrors</a>.
+**Current source and binary distributions** are available through the <a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.3/">Apache mirrors</a>.
 
 You will be prompted for a mirror - if the file is not found on yours, please be patient, as it may take 24 hours to reach all mirrors. 
 
@@ -19,9 +19,12 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 **Release Index**
 
+* **02-Aug-2022**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.3ReleasedOn02028022">2.11.3</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12351386 
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.3/source/jspwiki-builder-2.11.3-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.3/source/jspwiki-builder-2.11.3-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.3/source/jspwiki-builder-2.11.3-source-release.zip.asc">signature</a></strong>
+
 * **24-Feb-2022**: The current release version is <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.2ReleasedOn24022022">2.11.2</a>. This release fixes the following issues:
-https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12351120 
-<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.11.2/source/jspwiki-builder-2.11.2-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.2/source/jspwiki-builder-2.11.2-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.11.2/source/jspwiki-builder-2.11.2-source-release.zip.asc">signature</a></strong>
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12351120
 
 * **18-Dec-2021**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.1ReleasedOn18122021">2.11.1</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12350872

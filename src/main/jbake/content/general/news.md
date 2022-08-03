@@ -6,9 +6,11 @@ type=page
 
 ## Project News
 
-  * **24-Feb-2021:** Apache JSPWiki [CVE-2022-24947][] and [CVE-2022-24948][] vulnerability disclosures
+  * **02-Aug-2022:** Official [Apache JSPWiki 2.11.3 release][] is out!
 
-  * **24-Feb-2021:** Official [Apache JSPWiki 2.11.2 release][] is out!
+  * **24-Feb-2022:** Apache JSPWiki [CVE-2022-24947][] and [CVE-2022-24948][] vulnerability disclosures
+
+  * **24-Feb-2022:** Official [Apache JSPWiki 2.11.2 release][] is out!
 
   * **18-Dec-2021:** Official [Apache JSPWiki 2.11.1 release][] is out!
 
@@ -106,6 +108,7 @@ type=page
 [Apache JSPWiki 2.11.0 release]: downloads.html
 [Apache JSPWiki 2.11.1 release]: downloads.html
 [Apache JSPWiki 2.11.2 release]: downloads.html
+[Apache JSPWiki 2.11.3 release]: downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
