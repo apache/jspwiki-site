@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.render;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.parser.PluginContent;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.parser.WikiDocument;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.jdom2.Content;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.jdom2.Element;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.jdom2.Text;</a>
+<span class="sourceLineNo">027</span><a id="line.27"></a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.util.ArrayList;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import java.util.List;</a>
+<span class="sourceLineNo">030</span><a id="line.30"></a>
+<span class="sourceLineNo">031</span><a id="line.31">/**</a>
+<span class="sourceLineNo">032</span><a id="line.32"> *  Implements DOM-to-Creole rendering.</a>
+<span class="sourceLineNo">033</span><a id="line.33"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> *  FIXME: This class is not yet completely done.</a>
+<span class="sourceLineNo">035</span><a id="line.35"> *</a>
+<span class="sourceLineNo">036</span><a id="line.36"> */</a>
+<span class="sourceLineNo">037</span><a id="line.37">public class CreoleRenderer extends WikiRenderer {</a>
+<span class="sourceLineNo">038</span><a id="line.38"></a>
+<span class="sourceLineNo">039</span><a id="line.39">    private static final String IMG_START = "{{";</a>
+<span class="sourceLineNo">040</span><a id="line.40">    private static final String IMG_END = "}}";</a>
+<span class="sourceLineNo">041</span><a id="line.41">    private static final String PLUGIN_START = "&lt;&lt;";</a>
+<span class="sourceLineNo">042</span><a id="line.42">    private static final String PLUGIN_END = "&gt;&gt;";</a>
+<span class="sourceLineNo">043</span><a id="line.43">    private static final String HREF_START = "[[";</a>
+<span class="sourceLineNo">044</span><a id="line.44">    private static final String HREF_DELIMITER = "|";</a>
+<span class="sourceLineNo">045</span><a id="line.45">    private static final String HREF_END = "]]";</a>
+<span class="sourceLineNo">046</span><a id="line.46">    private static final String PRE_START = "{{{";</a>
+<span class="sourceLineNo">047</span><a id="line.47">    private static final String PRE_END = "}}}";</a>
+<span class="sourceLineNo">048</span><a id="line.48">    private static final String PLUGIN_IMAGE = "Image";</a>
+<span class="sourceLineNo">049</span><a id="line.49">    private static final String PARAM_SRC = "src";</a>
+<span class="sourceLineNo">050</span><a id="line.50">    private static final String HREF_ATTRIBUTE = "href";</a>
+<span class="sourceLineNo">051</span><a id="line.51">    private static final String ONE_SPACE = " ";</a>
+<span class="sourceLineNo">052</span><a id="line.52">    private static final String EMPTY_STRING = "";</a>
+<span class="sourceLineNo">053</span><a id="line.53">    private static final String LINEBREAK = "\n";</a>
+<span class="sourceLineNo">054</span><a id="line.54">    private static final String LI = "li";</a>
+<span class="sourceLineNo">055</span><a id="line.55">    private static final String UL = "ul";</a>
+<span class="sourceLineNo">056</span><a id="line.56">    private static final String OL = "ol";</a>
+<span class="sourceLineNo">057</span><a id="line.57">    private static final String P  = "p";</a>
+<span class="sourceLineNo">058</span><a id="line.58">    private static final String A  = "a";</a>
+<span class="sourceLineNo">059</span><a id="line.59">    private static final String PRE = "pre";</a>
+<span class="sourceLineNo">060</span><a id="line.60"></a>
+<span class="sourceLineNo">061</span><a id="line.61">    /**</a>
+<span class="sourceLineNo">062</span><a id="line.62">     * Contains element, start markup, end markup</a>
+<span class="sourceLineNo">063</span><a id="line.63">     */</a>
+<span class="sourceLineNo">064</span><a id="line.64">    private static final String[] ELEMENTS = {</a>
+<span class="sourceLineNo">065</span><a id="line.65">       "i" , "//"    , "//",</a>
+<span class="sourceLineNo">066</span><a id="line.66">       "b" , "**"    , "**",</a>
+<span class="sourceLineNo">067</span><a id="line.67">       "h2", "== "   , " ==",</a>
+<span class="sourceLineNo">068</span><a id="line.68">       "h3", "=== "  , " ===",</a>
+<span class="sourceLineNo">069</span><a id="line.69">       "h4", "==== " , " ====",</a>
+<span class="sourceLineNo">070</span><a id="line.70">       "hr", "----"  , EMPTY_STRING,</a>
+<span class="sourceLineNo">071</span><a id="line.71">       "tt", "&lt;&lt;{{&gt;&gt;", "&lt;&lt;}}&gt;&gt;"</a>
+<span class="sourceLineNo">072</span><a id="line.72">    };</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">    private int m_listCount;</a>
+<span class="sourceLineNo">075</span><a id="line.75">    private char m_listChar = 'x';</a>
+<span class="sourceLineNo">076</span><a id="line.76"></a>
+<span class="sourceLineNo">077</span><a id="line.77">    private final List&lt; PluginContent &gt; m_plugins = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">    /**</a>
+<span class="sourceLineNo">080</span><a id="line.80">     *  Creates a new Creole Renderer.</a>
+<span class="sourceLineNo">081</span><a id="line.81">     */</a>
+<span class="sourceLineNo">082</span><a id="line.82">    public CreoleRenderer( final Context ctx, final WikiDocument doc )</a>
+<span class="sourceLineNo">083</span><a id="line.83">    {</a>
+<span class="sourceLineNo">084</span><a id="line.84">        super( ctx, doc );</a>
+<span class="sourceLineNo">085</span><a id="line.85">    }</a>
+<span class="sourceLineNo">086</span><a id="line.86"></a>
+<span class="sourceLineNo">087</span><a id="line.87">    /**</a>
+<span class="sourceLineNo">088</span><a id="line.88">     * Renders an element into the StringBuilder given</a>
+<span class="sourceLineNo">089</span><a id="line.89">     * @param ce element to render</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * @param sb stringbuilder holding the element render</a>
+<span class="sourceLineNo">091</span><a id="line.91">     */</a>
+<span class="sourceLineNo">092</span><a id="line.92">    private void renderElement( final Element ce, final StringBuilder sb ) {</a>
+<span class="sourceLineNo">093</span><a id="line.93">        String endEl = EMPTY_STRING;</a>
+<span class="sourceLineNo">094</span><a id="line.94">        for( int i = 0; i &lt; ELEMENTS.length; i+=3 ) {</a>
+<span class="sourceLineNo">095</span><a id="line.95">            if( ELEMENTS[i].equals(ce.getName()) ) {</a>
+<span class="sourceLineNo">096</span><a id="line.96">                sb.append( ELEMENTS[i+1] );</a>
+<span class="sourceLineNo">097</span><a id="line.97">                endEl = ELEMENTS[i+2];</a>
+<span class="sourceLineNo">098</span><a id="line.98">            }</a>
+<span class="sourceLineNo">099</span><a id="line.99">        }</a>
+<span class="sourceLineNo">100</span><a id="line.100"></a>
+<span class="sourceLineNo">101</span><a id="line.101">        if( UL.equals(ce.getName()) ) {</a>
+<span class="sourceLineNo">102</span><a id="line.102">            m_listCount++;</a>
+<span class="sourceLineNo">103</span><a id="line.103">            m_listChar = '*';</a>
+<span class="sourceLineNo">104</span><a id="line.104">        } else if( OL.equals(ce.getName()) ) {</a>
+<span class="sourceLineNo">105</span><a id="line.105">            m_listCount++;</a>
+<span class="sourceLineNo">106</span><a id="line.106">            m_listChar = '#';</a>
+<span class="sourceLineNo">107</span><a id="line.107">        } else if( LI.equals(ce.getName()) ) {</a>
+<span class="sourceLineNo">108</span><a id="line.108">            for(int i = 0; i &lt; m_listCount; i++ ) sb.append( m_listChar );</a>
+<span class="sourceLineNo">109</span><a id="line.109">            sb.append( ONE_SPACE );</a>
+<span class="sourceLineNo">110</span><a id="line.110">        } else if( A.equals( ce.getName() ) ) {</a>
+<span class="sourceLineNo">111</span><a id="line.111">            final String href = ce.getAttributeValue( HREF_ATTRIBUTE );</a>
+<span class="sourceLineNo">112</span><a id="line.112">            final String text = ce.getText();</a>
+<span class="sourceLineNo">113</span><a id="line.113"></a>
+<span class="sourceLineNo">114</span><a id="line.114">            if( href.equals( text ) ) {</a>
+<span class="sourceLineNo">115</span><a id="line.115">                sb.append( HREF_START ).append( href ).append( HREF_END );</a>
+<span class="sourceLineNo">116</span><a id="line.116">            } else {</a>
+<span class="sourceLineNo">117</span><a id="line.117">                sb.append( HREF_START ).append( href ).append( HREF_DELIMITER ).append( text ).append( HREF_END);</a>
+<span class="sourceLineNo">118</span><a id="line.118">            }</a>
+<span class="sourceLineNo">119</span><a id="line.119">            // Do not render anything else</a>
+<span class="sourceLineNo">120</span><a id="line.120">            return;</a>
+<span class="sourceLineNo">121</span><a id="line.121">        } else if( PRE.equals( ce.getName() ) ) {</a>
+<span class="sourceLineNo">122</span><a id="line.122">            sb.append( PRE_START );</a>
+<span class="sourceLineNo">123</span><a id="line.123">            sb.append( ce.getText() );</a>
+<span class="sourceLineNo">124</span><a id="line.124">            sb.append( PRE_END );</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">            return;</a>
+<span class="sourceLineNo">127</span><a id="line.127">        }</a>
+<span class="sourceLineNo">128</span><a id="line.128"></a>
+<span class="sourceLineNo">129</span><a id="line.129">        //  Go through the children</a>
+<span class="sourceLineNo">130</span><a id="line.130">        for( final Content c : ce.getContent() ) {</a>
+<span class="sourceLineNo">131</span><a id="line.131">            if( c instanceof PluginContent ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">                final PluginContent pc = ( PluginContent )c;</a>
+<span class="sourceLineNo">133</span><a id="line.133"></a>
+<span class="sourceLineNo">134</span><a id="line.134">                if( pc.getPluginName().equals( PLUGIN_IMAGE ) ) {</a>
+<span class="sourceLineNo">135</span><a id="line.135">                    sb.append( IMG_START ).append( pc.getParameter( PARAM_SRC ) ).append( IMG_END );</a>
+<span class="sourceLineNo">136</span><a id="line.136">                } else {</a>
+<span class="sourceLineNo">137</span><a id="line.137">                    m_plugins.add(pc);</a>
+<span class="sourceLineNo">138</span><a id="line.138">                    sb.append( PLUGIN_START ).append( pc.getPluginName() ).append( ONE_SPACE ).append( m_plugins.size() ).append( PLUGIN_END );</a>
+<span class="sourceLineNo">139</span><a id="line.139">                }</a>
+<span class="sourceLineNo">140</span><a id="line.140">            } else if( c instanceof Text ) {</a>
+<span class="sourceLineNo">141</span><a id="line.141">                sb.append( ( ( Text )c ).getText() );</a>
+<span class="sourceLineNo">142</span><a id="line.142">            } else if( c instanceof Element ) {</a>
+<span class="sourceLineNo">143</span><a id="line.143">                renderElement( ( Element )c, sb );</a>
+<span class="sourceLineNo">144</span><a id="line.144">            }</a>
+<span class="sourceLineNo">145</span><a id="line.145">        }</a>
+<span class="sourceLineNo">146</span><a id="line.146"></a>
+<span class="sourceLineNo">147</span><a id="line.147">        if( UL.equals( ce.getName() ) || OL.equals( ce.getName() ) ) {</a>
+<span class="sourceLineNo">148</span><a id="line.148">            m_listCount--;</a>
+<span class="sourceLineNo">149</span><a id="line.149">        } else if( P.equals( ce.getName() ) ) {</a>
+<span class="sourceLineNo">150</span><a id="line.150">            sb.append( LINEBREAK );</a>
+<span class="sourceLineNo">151</span><a id="line.151">        }</a>
+<span class="sourceLineNo">152</span><a id="line.152"></a>
+<span class="sourceLineNo">153</span><a id="line.153">        sb.append(endEl);</a>
+<span class="sourceLineNo">154</span><a id="line.154">    }</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">    /**</a>
+<span class="sourceLineNo">157</span><a id="line.157">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">158</span><a id="line.158">     */</a>
+<span class="sourceLineNo">159</span><a id="line.159">    @Override</a>
+<span class="sourceLineNo">160</span><a id="line.160">    public String getString() {</a>
+<span class="sourceLineNo">161</span><a id="line.161">        final StringBuilder sb = new StringBuilder(1000);</a>
+<span class="sourceLineNo">162</span><a id="line.162">        final Element ce = m_document.getRootElement();</a>
+<span class="sourceLineNo">163</span><a id="line.163"></a>
+<span class="sourceLineNo">164</span><a id="line.164">        //  Traverse through the entire tree of everything.</a>
+<span class="sourceLineNo">165</span><a id="line.165">        renderElement( ce, sb );</a>
+<span class="sourceLineNo">166</span><a id="line.166">        return sb.toString();</a>
+<span class="sourceLineNo">167</span><a id="line.167">    }</a>
+<span class="sourceLineNo">168</span><a id="line.168"></a>
+<span class="sourceLineNo">169</span><a id="line.169">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
