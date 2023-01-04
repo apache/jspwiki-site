@@ -23,7 +23,7 @@
 <span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
 <span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
 <span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
-<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
 <span class="sourceLineNo">018</span><a id="line.18"> */</a>
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.plugin;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
@@ -40,185 +40,186 @@
 <span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.pages.PageManager;</a>
 <span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.parser.MarkupParser;</a>
 <span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.preferences.Preferences;</a>
-<span class="sourceLineNo">034</span><a id="line.34"></a>
-<span class="sourceLineNo">035</span><a id="line.35">import java.io.PrintWriter;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import java.io.StringWriter;</a>
-<span class="sourceLineNo">037</span><a id="line.37">import java.security.Principal;</a>
-<span class="sourceLineNo">038</span><a id="line.38">import java.text.MessageFormat;</a>
-<span class="sourceLineNo">039</span><a id="line.39">import java.text.SimpleDateFormat;</a>
-<span class="sourceLineNo">040</span><a id="line.40">import java.util.Date;</a>
-<span class="sourceLineNo">041</span><a id="line.41">import java.util.Map;</a>
-<span class="sourceLineNo">042</span><a id="line.42">import java.util.Properties;</a>
-<span class="sourceLineNo">043</span><a id="line.43">import java.util.ResourceBundle;</a>
-<span class="sourceLineNo">044</span><a id="line.44">import java.util.StringTokenizer;</a>
-<span class="sourceLineNo">045</span><a id="line.45"></a>
-<span class="sourceLineNo">046</span><a id="line.46">/**</a>
-<span class="sourceLineNo">047</span><a id="line.47"> *  Provides a handler for bug reports.  Still under construction.</a>
-<span class="sourceLineNo">048</span><a id="line.48"> *</a>
-<span class="sourceLineNo">049</span><a id="line.49"> *  &lt;p&gt;Parameters : &lt;/p&gt;</a>
-<span class="sourceLineNo">050</span><a id="line.50"> *  &lt;ul&gt;</a>
-<span class="sourceLineNo">051</span><a id="line.51"> *  &lt;li&gt;&lt;b&gt;title&lt;/b&gt; -  title of the bug, this is required.  If it is empty (as in "")  it is a signal to the handler to return quietly.&lt;/li&gt;</a>
-<span class="sourceLineNo">052</span><a id="line.52"> *  &lt;li&gt;&lt;b&gt;description&lt;/b&gt; - description of the bug.&lt;/li&gt;</a>
-<span class="sourceLineNo">053</span><a id="line.53"> *  &lt;li&gt;&lt;b&gt;version&lt;/b&gt; - version&lt;/li&gt;</a>
-<span class="sourceLineNo">054</span><a id="line.54"> *  &lt;li&gt;&lt;b&gt;map&lt;/b&gt; - I have no idea &lt;/li&gt;</a>
-<span class="sourceLineNo">055</span><a id="line.55"> *  &lt;li&gt;&lt;b&gt;page&lt;/b&gt; - The name of the page to be created for this bug report &lt;/li&gt;</a>
-<span class="sourceLineNo">056</span><a id="line.56"> *  &lt;/ul&gt;</a>
-<span class="sourceLineNo">057</span><a id="line.57"> *</a>
-<span class="sourceLineNo">058</span><a id="line.58"> */</a>
-<span class="sourceLineNo">059</span><a id="line.59">public class BugReportHandler implements Plugin {</a>
-<span class="sourceLineNo">060</span><a id="line.60"></a>
-<span class="sourceLineNo">061</span><a id="line.61">    private static final Logger LOG = LogManager.getLogger( BugReportHandler.class );</a>
-<span class="sourceLineNo">062</span><a id="line.62">    private static final String DEFAULT_DATEFORMAT = "dd-MMM-yyyy HH:mm:ss zzz";</a>
-<span class="sourceLineNo">063</span><a id="line.63"></a>
-<span class="sourceLineNo">064</span><a id="line.64">    /** Parameter name for setting the title.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
-<span class="sourceLineNo">065</span><a id="line.65">    public static final String PARAM_TITLE          = "title";</a>
-<span class="sourceLineNo">066</span><a id="line.66">    /** Parameter name for setting the description.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
-<span class="sourceLineNo">067</span><a id="line.67">    public static final String PARAM_DESCRIPTION    = "description";</a>
-<span class="sourceLineNo">068</span><a id="line.68">    /** Parameter name for setting the version.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
-<span class="sourceLineNo">069</span><a id="line.69">    public static final String PARAM_VERSION        = "version";</a>
-<span class="sourceLineNo">070</span><a id="line.70">    /** Parameter name for setting the map.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
-<span class="sourceLineNo">071</span><a id="line.71">    public static final String PARAM_MAPPINGS       = "map";</a>
-<span class="sourceLineNo">072</span><a id="line.72">    /** Parameter name for setting the page.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
-<span class="sourceLineNo">073</span><a id="line.73">    public static final String PARAM_PAGE           = "page";</a>
-<span class="sourceLineNo">074</span><a id="line.74"></a>
-<span class="sourceLineNo">075</span><a id="line.75">    /**</a>
-<span class="sourceLineNo">076</span><a id="line.76">     *  {@inheritDoc}</a>
-<span class="sourceLineNo">077</span><a id="line.77">     */</a>
-<span class="sourceLineNo">078</span><a id="line.78">    @Override</a>
-<span class="sourceLineNo">079</span><a id="line.79">    public String execute( final Context context, final Map&lt; String, String &gt; params ) throws PluginException {</a>
-<span class="sourceLineNo">080</span><a id="line.80">        final String title = params.get( PARAM_TITLE );</a>
-<span class="sourceLineNo">081</span><a id="line.81">        String description = params.get( PARAM_DESCRIPTION );</a>
-<span class="sourceLineNo">082</span><a id="line.82">        String version = params.get( PARAM_VERSION );</a>
-<span class="sourceLineNo">083</span><a id="line.83">        String submitter = null;</a>
-<span class="sourceLineNo">084</span><a id="line.84">        final SimpleDateFormat format = new SimpleDateFormat( DEFAULT_DATEFORMAT );</a>
-<span class="sourceLineNo">085</span><a id="line.85">        final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE );</a>
-<span class="sourceLineNo">086</span><a id="line.86">        final Principal wup = context.getCurrentUser();</a>
-<span class="sourceLineNo">087</span><a id="line.87"></a>
-<span class="sourceLineNo">088</span><a id="line.88">        if( wup != null ) {</a>
-<span class="sourceLineNo">089</span><a id="line.89">            submitter = wup.getName();</a>
-<span class="sourceLineNo">090</span><a id="line.90">        }</a>
-<span class="sourceLineNo">091</span><a id="line.91"></a>
-<span class="sourceLineNo">092</span><a id="line.92">        if( title == null ) {</a>
-<span class="sourceLineNo">093</span><a id="line.93">            throw new PluginException(rb.getString("bugreporthandler.titlerequired"));</a>
-<span class="sourceLineNo">094</span><a id="line.94">        }</a>
-<span class="sourceLineNo">095</span><a id="line.95">        if( title.isEmpty() ) {</a>
-<span class="sourceLineNo">096</span><a id="line.96">            return "";</a>
-<span class="sourceLineNo">097</span><a id="line.97">        }</a>
-<span class="sourceLineNo">098</span><a id="line.98"></a>
-<span class="sourceLineNo">099</span><a id="line.99">        if( description == null ) {</a>
-<span class="sourceLineNo">100</span><a id="line.100">            description = "";</a>
-<span class="sourceLineNo">101</span><a id="line.101">        }</a>
-<span class="sourceLineNo">102</span><a id="line.102">        if( version == null ) {</a>
-<span class="sourceLineNo">103</span><a id="line.103">            version = "unknown";</a>
-<span class="sourceLineNo">104</span><a id="line.104">        }</a>
-<span class="sourceLineNo">105</span><a id="line.105"></a>
-<span class="sourceLineNo">106</span><a id="line.106">        final Properties mappings = parseMappings( params.get( PARAM_MAPPINGS ) );</a>
-<span class="sourceLineNo">107</span><a id="line.107"></a>
-<span class="sourceLineNo">108</span><a id="line.108">        //  Start things</a>
-<span class="sourceLineNo">109</span><a id="line.109">        try {</a>
-<span class="sourceLineNo">110</span><a id="line.110">            final StringWriter str = new StringWriter();</a>
-<span class="sourceLineNo">111</span><a id="line.111">            final PrintWriter out = new PrintWriter( str );</a>
-<span class="sourceLineNo">112</span><a id="line.112">            final Date d = new Date();</a>
-<span class="sourceLineNo">113</span><a id="line.113"></a>
-<span class="sourceLineNo">114</span><a id="line.114">            //  Outputting of basic data</a>
-<span class="sourceLineNo">115</span><a id="line.115">            out.println( "|" + mappings.getProperty(PARAM_TITLE,"Title" ) + "|" + title );</a>
-<span class="sourceLineNo">116</span><a id="line.116">            out.println( "|" + mappings.getProperty("date","Date" ) + "|" + format.format( d ) );</a>
-<span class="sourceLineNo">117</span><a id="line.117">            out.println( "|" + mappings.getProperty(PARAM_VERSION,"Version" ) + "|" + version );</a>
-<span class="sourceLineNo">118</span><a id="line.118">            if( submitter != null ) {</a>
-<span class="sourceLineNo">119</span><a id="line.119">                out.println("|"+mappings.getProperty("submitter","Submitter") + "|" + submitter );</a>
-<span class="sourceLineNo">120</span><a id="line.120">            }</a>
-<span class="sourceLineNo">121</span><a id="line.121"></a>
-<span class="sourceLineNo">122</span><a id="line.122">            //  Outputting the other parameters added to this.</a>
-<span class="sourceLineNo">123</span><a id="line.123">            for( final Map.Entry&lt; String, String &gt; entry : params.entrySet() ) {</a>
-<span class="sourceLineNo">124</span><a id="line.124">                if( !( entry.getKey().equals( PARAM_TITLE ) ||</a>
-<span class="sourceLineNo">125</span><a id="line.125">                       entry.getKey().equals( PARAM_DESCRIPTION ) ||</a>
-<span class="sourceLineNo">126</span><a id="line.126">                       entry.getKey().equals( PARAM_VERSION ) ||</a>
-<span class="sourceLineNo">127</span><a id="line.127">                       entry.getKey().equals( PARAM_MAPPINGS ) ||</a>
-<span class="sourceLineNo">128</span><a id="line.128">                       entry.getKey().equals( PARAM_PAGE ) ||</a>
-<span class="sourceLineNo">129</span><a id="line.129">                       entry.getKey().startsWith( "_" )</a>
-<span class="sourceLineNo">130</span><a id="line.130">                     ) ) {</a>
-<span class="sourceLineNo">131</span><a id="line.131">                    //  If no mapping has been defined, just ignore it.</a>
-<span class="sourceLineNo">132</span><a id="line.132">                    final String head = mappings.getProperty( entry.getKey(), entry.getKey() );</a>
-<span class="sourceLineNo">133</span><a id="line.133">                    if( !head.isEmpty() ) {</a>
-<span class="sourceLineNo">134</span><a id="line.134">                        out.println( "|" + head + "|" + entry.getValue() );</a>
-<span class="sourceLineNo">135</span><a id="line.135">                    }</a>
-<span class="sourceLineNo">136</span><a id="line.136">                }</a>
-<span class="sourceLineNo">137</span><a id="line.137">            }</a>
-<span class="sourceLineNo">138</span><a id="line.138"></a>
-<span class="sourceLineNo">139</span><a id="line.139">            out.println();</a>
-<span class="sourceLineNo">140</span><a id="line.140">            out.println( description );</a>
-<span class="sourceLineNo">141</span><a id="line.141">            out.close();</a>
-<span class="sourceLineNo">142</span><a id="line.142"></a>
-<span class="sourceLineNo">143</span><a id="line.143">            //  Now create a new page for this bug report</a>
-<span class="sourceLineNo">144</span><a id="line.144">            final String pageName = findNextPage( context, title, params.get( PARAM_PAGE ) );</a>
-<span class="sourceLineNo">145</span><a id="line.145">            final Page newPage = Wiki.contents().page( context.getEngine(), pageName );</a>
-<span class="sourceLineNo">146</span><a id="line.146">            final Context newContext = context.clone();</a>
-<span class="sourceLineNo">147</span><a id="line.147">            newContext.setPage( newPage );</a>
-<span class="sourceLineNo">148</span><a id="line.148">            context.getEngine().getManager( PageManager.class ).saveText( newContext, str.toString() );</a>
-<span class="sourceLineNo">149</span><a id="line.149"></a>
-<span class="sourceLineNo">150</span><a id="line.150">            final MessageFormat formatter = new MessageFormat("");</a>
-<span class="sourceLineNo">151</span><a id="line.151">            formatter.applyPattern( rb.getString("bugreporthandler.new") );</a>
-<span class="sourceLineNo">152</span><a id="line.152">            final String[] args = { "&lt;a href=\""+context.getViewURL(pageName)+"\"&gt;"+pageName+"&lt;/a&gt;" };</a>
-<span class="sourceLineNo">153</span><a id="line.153"></a>
-<span class="sourceLineNo">154</span><a id="line.154">            return formatter.format( args );</a>
-<span class="sourceLineNo">155</span><a id="line.155">        } catch( final RedirectException e ) {</a>
-<span class="sourceLineNo">156</span><a id="line.156">            LOG.info("Saving not allowed, reason: '"+e.getMessage()+"', can't redirect to "+e.getRedirect());</a>
-<span class="sourceLineNo">157</span><a id="line.157">            throw new PluginException("Saving not allowed, reason: "+e.getMessage());</a>
-<span class="sourceLineNo">158</span><a id="line.158">        } catch( final WikiException e ) {</a>
-<span class="sourceLineNo">159</span><a id="line.159">            LOG.error( "Unable to save page!", e );</a>
-<span class="sourceLineNo">160</span><a id="line.160">            return rb.getString("bugreporthandler.unable" );</a>
-<span class="sourceLineNo">161</span><a id="line.161">        }</a>
-<span class="sourceLineNo">162</span><a id="line.162">    }</a>
-<span class="sourceLineNo">163</span><a id="line.163"></a>
-<span class="sourceLineNo">164</span><a id="line.164">    /**</a>
-<span class="sourceLineNo">165</span><a id="line.165">     *  Finds a free page name for adding the bug report.  Tries to construct a page, and if it's found, adds a number to it</a>
-<span class="sourceLineNo">166</span><a id="line.166">     *  and tries again.</a>
-<span class="sourceLineNo">167</span><a id="line.167">     */</a>
-<span class="sourceLineNo">168</span><a id="line.168">    private synchronized String findNextPage( final Context context, final String title, final String baseName ) {</a>
-<span class="sourceLineNo">169</span><a id="line.169">        final String basicPageName = ( ( baseName != null ) ? baseName : "Bug" ) + MarkupParser.cleanLink( title );</a>
-<span class="sourceLineNo">170</span><a id="line.170">        final Engine engine = context.getEngine();</a>
-<span class="sourceLineNo">171</span><a id="line.171"></a>
-<span class="sourceLineNo">172</span><a id="line.172">        String pageName = basicPageName;</a>
-<span class="sourceLineNo">173</span><a id="line.173">        long   lastbug  = 2;</a>
-<span class="sourceLineNo">174</span><a id="line.174">        while( engine.getManager( PageManager.class ).wikiPageExists( pageName ) ) {</a>
-<span class="sourceLineNo">175</span><a id="line.175">            pageName = basicPageName + lastbug++;</a>
-<span class="sourceLineNo">176</span><a id="line.176">        }</a>
-<span class="sourceLineNo">177</span><a id="line.177"></a>
-<span class="sourceLineNo">178</span><a id="line.178">        return pageName;</a>
-<span class="sourceLineNo">179</span><a id="line.179">    }</a>
-<span class="sourceLineNo">180</span><a id="line.180"></a>
-<span class="sourceLineNo">181</span><a id="line.181">    /**</a>
-<span class="sourceLineNo">182</span><a id="line.182">     *  Just parses a mappings list in the form of "a=b;b=c;c=d".</a>
-<span class="sourceLineNo">183</span><a id="line.183">     *  &lt;p&gt;</a>
-<span class="sourceLineNo">184</span><a id="line.184">     *  FIXME: Should probably be in TextUtil or somewhere.</a>
-<span class="sourceLineNo">185</span><a id="line.185">     */</a>
-<span class="sourceLineNo">186</span><a id="line.186">    private Properties parseMappings( final String mappings ) {</a>
-<span class="sourceLineNo">187</span><a id="line.187">        final Properties props = new Properties();</a>
-<span class="sourceLineNo">188</span><a id="line.188">        if( mappings == null ) {</a>
-<span class="sourceLineNo">189</span><a id="line.189">            return props;</a>
-<span class="sourceLineNo">190</span><a id="line.190">        }</a>
-<span class="sourceLineNo">191</span><a id="line.191"></a>
-<span class="sourceLineNo">192</span><a id="line.192">        final StringTokenizer tok = new StringTokenizer( mappings, ";" );</a>
-<span class="sourceLineNo">193</span><a id="line.193">        while( tok.hasMoreTokens() ) {</a>
-<span class="sourceLineNo">194</span><a id="line.194">            final String t = tok.nextToken();</a>
-<span class="sourceLineNo">195</span><a id="line.195">            final int colon = t.indexOf("=");</a>
-<span class="sourceLineNo">196</span><a id="line.196">            final String key;</a>
-<span class="sourceLineNo">197</span><a id="line.197">            final String value;</a>
-<span class="sourceLineNo">198</span><a id="line.198"></a>
-<span class="sourceLineNo">199</span><a id="line.199">            if( colon &gt; 0 ) {</a>
-<span class="sourceLineNo">200</span><a id="line.200">                key = t.substring(0,colon);</a>
-<span class="sourceLineNo">201</span><a id="line.201">                value = t.substring(colon+1);</a>
-<span class="sourceLineNo">202</span><a id="line.202">            } else {</a>
-<span class="sourceLineNo">203</span><a id="line.203">                key = t;</a>
-<span class="sourceLineNo">204</span><a id="line.204">                value = "";</a>
-<span class="sourceLineNo">205</span><a id="line.205">            }</a>
-<span class="sourceLineNo">206</span><a id="line.206"></a>
-<span class="sourceLineNo">207</span><a id="line.207">            props.setProperty( key, value );</a>
-<span class="sourceLineNo">208</span><a id="line.208">        }</a>
-<span class="sourceLineNo">209</span><a id="line.209">        return props;</a>
-<span class="sourceLineNo">210</span><a id="line.210">    }</a>
-<span class="sourceLineNo">211</span><a id="line.211"></a>
-<span class="sourceLineNo">212</span><a id="line.212">}</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.io.PrintWriter;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.io.StringWriter;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.security.Principal;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.text.MessageFormat;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.text.SimpleDateFormat;</a>
+<span class="sourceLineNo">041</span><a id="line.41">import java.util.Date;</a>
+<span class="sourceLineNo">042</span><a id="line.42">import java.util.Map;</a>
+<span class="sourceLineNo">043</span><a id="line.43">import java.util.Properties;</a>
+<span class="sourceLineNo">044</span><a id="line.44">import java.util.ResourceBundle;</a>
+<span class="sourceLineNo">045</span><a id="line.45">import java.util.StringTokenizer;</a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">/**</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *  Provides a handler for bug reports.  Still under construction.</a>
+<span class="sourceLineNo">049</span><a id="line.49"> *</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *  &lt;p&gt;Parameters : &lt;/p&gt;</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *  &lt;ul&gt;</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *  &lt;li&gt;&lt;b&gt;title&lt;/b&gt; -  title of the bug, this is required.  If it is empty (as in "")  it is a signal to the handler to return quietly.&lt;/li&gt;</a>
+<span class="sourceLineNo">053</span><a id="line.53"> *  &lt;li&gt;&lt;b&gt;description&lt;/b&gt; - description of the bug.&lt;/li&gt;</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *  &lt;li&gt;&lt;b&gt;version&lt;/b&gt; - version&lt;/li&gt;</a>
+<span class="sourceLineNo">055</span><a id="line.55"> *  &lt;li&gt;&lt;b&gt;map&lt;/b&gt; - I have no idea &lt;/li&gt;</a>
+<span class="sourceLineNo">056</span><a id="line.56"> *  &lt;li&gt;&lt;b&gt;page&lt;/b&gt; - The name of the page to be created for this bug report &lt;/li&gt;</a>
+<span class="sourceLineNo">057</span><a id="line.57"> *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">058</span><a id="line.58"> *</a>
+<span class="sourceLineNo">059</span><a id="line.59"> */</a>
+<span class="sourceLineNo">060</span><a id="line.60">public class BugReportHandler implements Plugin {</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">    private static final Logger LOG = LogManager.getLogger( BugReportHandler.class );</a>
+<span class="sourceLineNo">063</span><a id="line.63">    private static final String DEFAULT_DATEFORMAT = "dd-MMM-yyyy HH:mm:ss zzz";</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    /** Parameter name for setting the title.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    public static final String PARAM_TITLE          = "title";</a>
+<span class="sourceLineNo">067</span><a id="line.67">    /** Parameter name for setting the description.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    public static final String PARAM_DESCRIPTION    = "description";</a>
+<span class="sourceLineNo">069</span><a id="line.69">    /** Parameter name for setting the version.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">070</span><a id="line.70">    public static final String PARAM_VERSION        = "version";</a>
+<span class="sourceLineNo">071</span><a id="line.71">    /** Parameter name for setting the map.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">072</span><a id="line.72">    public static final String PARAM_MAPPINGS       = "map";</a>
+<span class="sourceLineNo">073</span><a id="line.73">    /** Parameter name for setting the page.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">074</span><a id="line.74">    public static final String PARAM_PAGE           = "page";</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    /**</a>
+<span class="sourceLineNo">077</span><a id="line.77">     *  {@inheritDoc}</a>
+<span class="sourceLineNo">078</span><a id="line.78">     */</a>
+<span class="sourceLineNo">079</span><a id="line.79">    @Override</a>
+<span class="sourceLineNo">080</span><a id="line.80">    public String execute( final Context context, final Map&lt; String, String &gt; params ) throws PluginException {</a>
+<span class="sourceLineNo">081</span><a id="line.81">        final String title = params.get( PARAM_TITLE );</a>
+<span class="sourceLineNo">082</span><a id="line.82">        String description = params.get( PARAM_DESCRIPTION );</a>
+<span class="sourceLineNo">083</span><a id="line.83">        String version = params.get( PARAM_VERSION );</a>
+<span class="sourceLineNo">084</span><a id="line.84">        String submitter = null;</a>
+<span class="sourceLineNo">085</span><a id="line.85">        final SimpleDateFormat format = new SimpleDateFormat( DEFAULT_DATEFORMAT );</a>
+<span class="sourceLineNo">086</span><a id="line.86">        final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE );</a>
+<span class="sourceLineNo">087</span><a id="line.87">        final Principal wup = context.getCurrentUser();</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">        if( wup != null ) {</a>
+<span class="sourceLineNo">090</span><a id="line.90">            submitter = wup.getName();</a>
+<span class="sourceLineNo">091</span><a id="line.91">        }</a>
+<span class="sourceLineNo">092</span><a id="line.92"></a>
+<span class="sourceLineNo">093</span><a id="line.93">        if( title == null ) {</a>
+<span class="sourceLineNo">094</span><a id="line.94">            throw new PluginException(rb.getString("bugreporthandler.titlerequired"));</a>
+<span class="sourceLineNo">095</span><a id="line.95">        }</a>
+<span class="sourceLineNo">096</span><a id="line.96">        if( title.isEmpty() ) {</a>
+<span class="sourceLineNo">097</span><a id="line.97">            return "";</a>
+<span class="sourceLineNo">098</span><a id="line.98">        }</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">        if( description == null ) {</a>
+<span class="sourceLineNo">101</span><a id="line.101">            description = "";</a>
+<span class="sourceLineNo">102</span><a id="line.102">        }</a>
+<span class="sourceLineNo">103</span><a id="line.103">        if( version == null ) {</a>
+<span class="sourceLineNo">104</span><a id="line.104">            version = "unknown";</a>
+<span class="sourceLineNo">105</span><a id="line.105">        }</a>
+<span class="sourceLineNo">106</span><a id="line.106"></a>
+<span class="sourceLineNo">107</span><a id="line.107">        final Properties mappings = parseMappings( params.get( PARAM_MAPPINGS ) );</a>
+<span class="sourceLineNo">108</span><a id="line.108"></a>
+<span class="sourceLineNo">109</span><a id="line.109">        //  Start things</a>
+<span class="sourceLineNo">110</span><a id="line.110">        try {</a>
+<span class="sourceLineNo">111</span><a id="line.111">            final StringWriter str = new StringWriter();</a>
+<span class="sourceLineNo">112</span><a id="line.112">            final PrintWriter out = new PrintWriter( str );</a>
+<span class="sourceLineNo">113</span><a id="line.113">            final Date d = new Date();</a>
+<span class="sourceLineNo">114</span><a id="line.114"></a>
+<span class="sourceLineNo">115</span><a id="line.115">            //  Outputting of basic data</a>
+<span class="sourceLineNo">116</span><a id="line.116">            out.println( "|" + mappings.getProperty(PARAM_TITLE,"Title" ) + "|" + title );</a>
+<span class="sourceLineNo">117</span><a id="line.117">            out.println( "|" + mappings.getProperty("date","Date" ) + "|" + format.format( d ) );</a>
+<span class="sourceLineNo">118</span><a id="line.118">            out.println( "|" + mappings.getProperty(PARAM_VERSION,"Version" ) + "|" + version );</a>
+<span class="sourceLineNo">119</span><a id="line.119">            if( submitter != null ) {</a>
+<span class="sourceLineNo">120</span><a id="line.120">                out.println("|"+mappings.getProperty("submitter","Submitter") + "|" + submitter );</a>
+<span class="sourceLineNo">121</span><a id="line.121">            }</a>
+<span class="sourceLineNo">122</span><a id="line.122"></a>
+<span class="sourceLineNo">123</span><a id="line.123">            //  Outputting the other parameters added to this.</a>
+<span class="sourceLineNo">124</span><a id="line.124">            for( final Map.Entry&lt; String, String &gt; entry : params.entrySet() ) {</a>
+<span class="sourceLineNo">125</span><a id="line.125">                if( !( entry.getKey().equals( PARAM_TITLE ) ||</a>
+<span class="sourceLineNo">126</span><a id="line.126">                       entry.getKey().equals( PARAM_DESCRIPTION ) ||</a>
+<span class="sourceLineNo">127</span><a id="line.127">                       entry.getKey().equals( PARAM_VERSION ) ||</a>
+<span class="sourceLineNo">128</span><a id="line.128">                       entry.getKey().equals( PARAM_MAPPINGS ) ||</a>
+<span class="sourceLineNo">129</span><a id="line.129">                       entry.getKey().equals( PARAM_PAGE ) ||</a>
+<span class="sourceLineNo">130</span><a id="line.130">                       entry.getKey().startsWith( "_" )</a>
+<span class="sourceLineNo">131</span><a id="line.131">                     ) ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">                    //  If no mapping has been defined, just ignore it.</a>
+<span class="sourceLineNo">133</span><a id="line.133">                    final String head = mappings.getProperty( entry.getKey(), entry.getKey() );</a>
+<span class="sourceLineNo">134</span><a id="line.134">                    if( !head.isEmpty() ) {</a>
+<span class="sourceLineNo">135</span><a id="line.135">                        out.println( "|" + head + "|" + entry.getValue() );</a>
+<span class="sourceLineNo">136</span><a id="line.136">                    }</a>
+<span class="sourceLineNo">137</span><a id="line.137">                }</a>
+<span class="sourceLineNo">138</span><a id="line.138">            }</a>
+<span class="sourceLineNo">139</span><a id="line.139"></a>
+<span class="sourceLineNo">140</span><a id="line.140">            out.println();</a>
+<span class="sourceLineNo">141</span><a id="line.141">            out.println( description );</a>
+<span class="sourceLineNo">142</span><a id="line.142">            out.close();</a>
+<span class="sourceLineNo">143</span><a id="line.143"></a>
+<span class="sourceLineNo">144</span><a id="line.144">            //  Now create a new page for this bug report</a>
+<span class="sourceLineNo">145</span><a id="line.145">            final String pageName = findNextPage( context, title, TextUtil.replaceEntities(params.get( PARAM_PAGE )) );</a>
+<span class="sourceLineNo">146</span><a id="line.146">            final Page newPage = Wiki.contents().page( context.getEngine(), pageName );</a>
+<span class="sourceLineNo">147</span><a id="line.147">            final Context newContext = context.clone();</a>
+<span class="sourceLineNo">148</span><a id="line.148">            newContext.setPage( newPage );</a>
+<span class="sourceLineNo">149</span><a id="line.149">            context.getEngine().getManager( PageManager.class ).saveText( newContext, str.toString() );</a>
+<span class="sourceLineNo">150</span><a id="line.150"></a>
+<span class="sourceLineNo">151</span><a id="line.151">            final MessageFormat formatter = new MessageFormat("");</a>
+<span class="sourceLineNo">152</span><a id="line.152">            formatter.applyPattern( rb.getString("bugreporthandler.new") );</a>
+<span class="sourceLineNo">153</span><a id="line.153">            final String[] args = { "&lt;a href=\""+context.getViewURL(pageName)+"\"&gt;"+pageName+"&lt;/a&gt;" };</a>
+<span class="sourceLineNo">154</span><a id="line.154"></a>
+<span class="sourceLineNo">155</span><a id="line.155">            return formatter.format( args );</a>
+<span class="sourceLineNo">156</span><a id="line.156">        } catch( final RedirectException e ) {</a>
+<span class="sourceLineNo">157</span><a id="line.157">            LOG.info("Saving not allowed, reason: '"+e.getMessage()+"', can't redirect to "+e.getRedirect());</a>
+<span class="sourceLineNo">158</span><a id="line.158">            throw new PluginException("Saving not allowed, reason: "+e.getMessage());</a>
+<span class="sourceLineNo">159</span><a id="line.159">        } catch( final WikiException e ) {</a>
+<span class="sourceLineNo">160</span><a id="line.160">            LOG.error( "Unable to save page!", e );</a>
+<span class="sourceLineNo">161</span><a id="line.161">            return rb.getString("bugreporthandler.unable" );</a>
+<span class="sourceLineNo">162</span><a id="line.162">        }</a>
+<span class="sourceLineNo">163</span><a id="line.163">    }</a>
+<span class="sourceLineNo">164</span><a id="line.164"></a>
+<span class="sourceLineNo">165</span><a id="line.165">    /**</a>
+<span class="sourceLineNo">166</span><a id="line.166">     *  Finds a free page name for adding the bug report.  Tries to construct a page, and if it's found, adds a number to it</a>
+<span class="sourceLineNo">167</span><a id="line.167">     *  and tries again.</a>
+<span class="sourceLineNo">168</span><a id="line.168">     */</a>
+<span class="sourceLineNo">169</span><a id="line.169">    private synchronized String findNextPage( final Context context, final String title, final String baseName ) {</a>
+<span class="sourceLineNo">170</span><a id="line.170">        final String basicPageName = ( ( baseName != null ) ? baseName : "Bug" ) + MarkupParser.cleanLink( title );</a>
+<span class="sourceLineNo">171</span><a id="line.171">        final Engine engine = context.getEngine();</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">        String pageName = basicPageName;</a>
+<span class="sourceLineNo">174</span><a id="line.174">        long   lastbug  = 2;</a>
+<span class="sourceLineNo">175</span><a id="line.175">        while( engine.getManager( PageManager.class ).wikiPageExists( pageName ) ) {</a>
+<span class="sourceLineNo">176</span><a id="line.176">            pageName = basicPageName + lastbug++;</a>
+<span class="sourceLineNo">177</span><a id="line.177">        }</a>
+<span class="sourceLineNo">178</span><a id="line.178"></a>
+<span class="sourceLineNo">179</span><a id="line.179">        return pageName;</a>
+<span class="sourceLineNo">180</span><a id="line.180">    }</a>
+<span class="sourceLineNo">181</span><a id="line.181"></a>
+<span class="sourceLineNo">182</span><a id="line.182">    /**</a>
+<span class="sourceLineNo">183</span><a id="line.183">     *  Just parses a mappings list in the form of "a=b;b=c;c=d".</a>
+<span class="sourceLineNo">184</span><a id="line.184">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">185</span><a id="line.185">     *  FIXME: Should probably be in TextUtil or somewhere.</a>
+<span class="sourceLineNo">186</span><a id="line.186">     */</a>
+<span class="sourceLineNo">187</span><a id="line.187">    private Properties parseMappings( final String mappings ) {</a>
+<span class="sourceLineNo">188</span><a id="line.188">        final Properties props = new Properties();</a>
+<span class="sourceLineNo">189</span><a id="line.189">        if( mappings == null ) {</a>
+<span class="sourceLineNo">190</span><a id="line.190">            return props;</a>
+<span class="sourceLineNo">191</span><a id="line.191">        }</a>
+<span class="sourceLineNo">192</span><a id="line.192"></a>
+<span class="sourceLineNo">193</span><a id="line.193">        final StringTokenizer tok = new StringTokenizer( mappings, ";" );</a>
+<span class="sourceLineNo">194</span><a id="line.194">        while( tok.hasMoreTokens() ) {</a>
+<span class="sourceLineNo">195</span><a id="line.195">            final String t = tok.nextToken();</a>
+<span class="sourceLineNo">196</span><a id="line.196">            final int colon = t.indexOf("=");</a>
+<span class="sourceLineNo">197</span><a id="line.197">            final String key;</a>
+<span class="sourceLineNo">198</span><a id="line.198">            final String value;</a>
+<span class="sourceLineNo">199</span><a id="line.199"></a>
+<span class="sourceLineNo">200</span><a id="line.200">            if( colon &gt; 0 ) {</a>
+<span class="sourceLineNo">201</span><a id="line.201">                key = t.substring(0,colon);</a>
+<span class="sourceLineNo">202</span><a id="line.202">                value = t.substring(colon+1);</a>
+<span class="sourceLineNo">203</span><a id="line.203">            } else {</a>
+<span class="sourceLineNo">204</span><a id="line.204">                key = t;</a>
+<span class="sourceLineNo">205</span><a id="line.205">                value = "";</a>
+<span class="sourceLineNo">206</span><a id="line.206">            }</a>
+<span class="sourceLineNo">207</span><a id="line.207"></a>
+<span class="sourceLineNo">208</span><a id="line.208">            props.setProperty( key, value );</a>
+<span class="sourceLineNo">209</span><a id="line.209">        }</a>
+<span class="sourceLineNo">210</span><a id="line.210">        return props;</a>
+<span class="sourceLineNo">211</span><a id="line.211">    }</a>
+<span class="sourceLineNo">212</span><a id="line.212"></a>
+<span class="sourceLineNo">213</span><a id="line.213">}</a>
 
 
 
