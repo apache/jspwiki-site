@@ -8,7 +8,7 @@ status=published
 
 Some of its [features](https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiFeatures) include:
 
-  * [WikiMarkup](https://jspwiki-wiki.apache.org/Wiki.jsp?page=TextFormattingRules) / Structured Text
+  * Two wiki syntaxes: [JSPWiki](https://jspwiki-wiki.apache.org/Wiki.jsp?page=TextFormattingRules) and [Markdown](https://jspwiki-wiki.apache.org/Wiki.jsp?page=Markdown%20Support), with the capability to create and plug in new ones
   * File attachments 
   * Templates support
   * Data storage through your choice of two [WikiPage Providers][], with the capability to create and plug in new ones
