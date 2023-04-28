@@ -56,7 +56,7 @@
 <span class="sourceLineNo">047</span><a id="line.47"> * users or groups expected to approve particular Workflows.</a>
 <span class="sourceLineNo">048</span><a id="line.48"> * &lt;/p&gt;</a>
 <span class="sourceLineNo">049</span><a id="line.49"> */</a>
-<span class="sourceLineNo">050</span><a id="line.50">public class DefaultWorkflowManager implements WorkflowManager {</a>
+<span class="sourceLineNo">050</span><a id="line.50">public class DefaultWorkflowManager implements WorkflowManager, Serializable {</a>
 <span class="sourceLineNo">051</span><a id="line.51"></a>
 <span class="sourceLineNo">052</span><a id="line.52">    private static final Logger LOG = LogManager.getLogger( DefaultWorkflowManager.class );</a>
 <span class="sourceLineNo">053</span><a id="line.53">    static final String SERIALIZATION_FILE = "wkflmgr.ser";</a>
@@ -250,98 +250,95 @@
 <span class="sourceLineNo">241</span><a id="line.241">            final Principal[] sessionPrincipals = session.getPrincipals();</a>
 <span class="sourceLineNo">242</span><a id="line.242">            for( final Workflow w : m_workflows ) {</a>
 <span class="sourceLineNo">243</span><a id="line.243">                final Principal owner = w.getOwner();</a>
-<span class="sourceLineNo">244</span><a id="line.244">                for ( final Principal sessionPrincipal : sessionPrincipals ) {</a>
-<span class="sourceLineNo">245</span><a id="line.245">                    if ( sessionPrincipal.equals( owner ) ) {</a>
-<span class="sourceLineNo">246</span><a id="line.246">                        workflows.add( w );</a>
-<span class="sourceLineNo">247</span><a id="line.247">                        break;</a>
-<span class="sourceLineNo">248</span><a id="line.248">                    }</a>
-<span class="sourceLineNo">249</span><a id="line.249">                }</a>
-<span class="sourceLineNo">250</span><a id="line.250">            }</a>
-<span class="sourceLineNo">251</span><a id="line.251">        }</a>
-<span class="sourceLineNo">252</span><a id="line.252">        return workflows;</a>
-<span class="sourceLineNo">253</span><a id="line.253">    }</a>
-<span class="sourceLineNo">254</span><a id="line.254"></a>
-<span class="sourceLineNo">255</span><a id="line.255">    /**</a>
-<span class="sourceLineNo">256</span><a id="line.256">     * Listens for {@link WorkflowEvent} objects emitted by Workflows. In particular, this method listens for {@link WorkflowEvent#CREATED},</a>
-<span class="sourceLineNo">257</span><a id="line.257">     * {@link WorkflowEvent#ABORTED}, {@link WorkflowEvent#COMPLETED} and {@link WorkflowEvent#DQ_REMOVAL} events. If a workflow is created,</a>
-<span class="sourceLineNo">258</span><a id="line.258">     * it is automatically added to the cache. If one is aborted or completed, it is automatically removed. If a removal from decision queue</a>
-<span class="sourceLineNo">259</span><a id="line.259">     * is issued, the current step from workflow, which is assumed to be a {@link Decision}, is removed from the {@link DecisionQueue}.</a>
-<span class="sourceLineNo">260</span><a id="line.260">     * </a>
-<span class="sourceLineNo">261</span><a id="line.261">     * @param event the event passed to this listener</a>
-<span class="sourceLineNo">262</span><a id="line.262">     */</a>
-<span class="sourceLineNo">263</span><a id="line.263">    @Override</a>
-<span class="sourceLineNo">264</span><a id="line.264">    public void actionPerformed( final WikiEvent event ) {</a>
-<span class="sourceLineNo">265</span><a id="line.265">        if( event instanceof WorkflowEvent ) {</a>
-<span class="sourceLineNo">266</span><a id="line.266">            if( event.getSrc() instanceof Workflow ) {</a>
-<span class="sourceLineNo">267</span><a id="line.267">                final Workflow workflow = event.getSrc();</a>
-<span class="sourceLineNo">268</span><a id="line.268">                switch( event.getType() ) {</a>
-<span class="sourceLineNo">269</span><a id="line.269">                // Remove from manager</a>
-<span class="sourceLineNo">270</span><a id="line.270">                case WorkflowEvent.ABORTED   :</a>
-<span class="sourceLineNo">271</span><a id="line.271">                case WorkflowEvent.COMPLETED : remove( workflow ); break;</a>
-<span class="sourceLineNo">272</span><a id="line.272">                // Add to manager</a>
-<span class="sourceLineNo">273</span><a id="line.273">                case WorkflowEvent.CREATED   : add( workflow ); break;</a>
-<span class="sourceLineNo">274</span><a id="line.274">                default: break;</a>
-<span class="sourceLineNo">275</span><a id="line.275">                }</a>
-<span class="sourceLineNo">276</span><a id="line.276">            } else if( event.getSrc() instanceof Decision ) {</a>
-<span class="sourceLineNo">277</span><a id="line.277">                final Decision decision = event.getSrc();</a>
-<span class="sourceLineNo">278</span><a id="line.278">                switch( event.getType() ) {</a>
-<span class="sourceLineNo">279</span><a id="line.279">                // Add to DecisionQueue</a>
-<span class="sourceLineNo">280</span><a id="line.280">                case WorkflowEvent.DQ_ADDITION : addToDecisionQueue( decision ); break;</a>
-<span class="sourceLineNo">281</span><a id="line.281">                // Remove from DecisionQueue</a>
-<span class="sourceLineNo">282</span><a id="line.282">                case WorkflowEvent.DQ_REMOVAL  : removeFromDecisionQueue( decision, event.getArg( 0, Context.class ) ); break;</a>
-<span class="sourceLineNo">283</span><a id="line.283">                default: break;</a>
-<span class="sourceLineNo">284</span><a id="line.284">                }</a>
-<span class="sourceLineNo">285</span><a id="line.285">            }</a>
-<span class="sourceLineNo">286</span><a id="line.286">            serializeToDisk( new File( m_engine.getWorkDir(), SERIALIZATION_FILE ) );</a>
-<span class="sourceLineNo">287</span><a id="line.287">        }</a>
-<span class="sourceLineNo">288</span><a id="line.288">    }</a>
-<span class="sourceLineNo">289</span><a id="line.289"></a>
-<span class="sourceLineNo">290</span><a id="line.290">    /**</a>
-<span class="sourceLineNo">291</span><a id="line.291">     * Protected helper method that adds a newly created Workflow to the cache, and sets its {@code workflowManager} and</a>
-<span class="sourceLineNo">292</span><a id="line.292">     * {@code Id} properties if not set.</a>
-<span class="sourceLineNo">293</span><a id="line.293">     *</a>
-<span class="sourceLineNo">294</span><a id="line.294">     * @param workflow the workflow to add</a>
-<span class="sourceLineNo">295</span><a id="line.295">     */</a>
-<span class="sourceLineNo">296</span><a id="line.296">    protected void add( final Workflow workflow ) {</a>
-<span class="sourceLineNo">297</span><a id="line.297">        m_workflows.add( workflow );</a>
-<span class="sourceLineNo">298</span><a id="line.298">    }</a>
-<span class="sourceLineNo">299</span><a id="line.299"></a>
-<span class="sourceLineNo">300</span><a id="line.300">    /**</a>
-<span class="sourceLineNo">301</span><a id="line.301">     * Protected helper method that removes a specified Workflow from the cache, and moves it to the workflow history list. This method</a>
-<span class="sourceLineNo">302</span><a id="line.302">     * defensively checks to see if the workflow has not yet been removed.</a>
-<span class="sourceLineNo">303</span><a id="line.303">     *</a>
-<span class="sourceLineNo">304</span><a id="line.304">     * @param workflow the workflow to remove</a>
-<span class="sourceLineNo">305</span><a id="line.305">     */</a>
-<span class="sourceLineNo">306</span><a id="line.306">    protected void remove( final Workflow workflow ) {</a>
-<span class="sourceLineNo">307</span><a id="line.307">        if( m_workflows.contains( workflow ) ) {</a>
-<span class="sourceLineNo">308</span><a id="line.308">            m_workflows.remove( workflow );</a>
-<span class="sourceLineNo">309</span><a id="line.309">            m_completed.add( workflow );</a>
-<span class="sourceLineNo">310</span><a id="line.310">        }</a>
-<span class="sourceLineNo">311</span><a id="line.311">    }</a>
-<span class="sourceLineNo">312</span><a id="line.312"></a>
-<span class="sourceLineNo">313</span><a id="line.313">    protected void removeFromDecisionQueue( final Decision decision, final Context context ) {</a>
-<span class="sourceLineNo">314</span><a id="line.314">        // If current workflow is waiting for input, restart it and remove Decision from DecisionQueue</a>
-<span class="sourceLineNo">315</span><a id="line.315">        final int workflowId = decision.getWorkflowId();</a>
-<span class="sourceLineNo">316</span><a id="line.316">        final Optional&lt; Workflow &gt; optw = m_workflows.stream().filter( w -&gt; w.getId() == workflowId ).findAny();</a>
-<span class="sourceLineNo">317</span><a id="line.317">        if( optw.isPresent() ) {</a>
-<span class="sourceLineNo">318</span><a id="line.318">            final Workflow w = optw.get();</a>
-<span class="sourceLineNo">319</span><a id="line.319">            if( w.getCurrentState() == Workflow.WAITING &amp;&amp; decision.equals( w.getCurrentStep() ) ) {</a>
-<span class="sourceLineNo">320</span><a id="line.320">                getDecisionQueue().remove( decision );</a>
-<span class="sourceLineNo">321</span><a id="line.321">                // Restart workflow</a>
-<span class="sourceLineNo">322</span><a id="line.322">                try {</a>
-<span class="sourceLineNo">323</span><a id="line.323">                    w.restart( context );</a>
-<span class="sourceLineNo">324</span><a id="line.324">                } catch( final WikiException e ) {</a>
-<span class="sourceLineNo">325</span><a id="line.325">                    LOG.error( "restarting workflow #" + w.getId() + " caused " + e.getMessage(), e );</a>
-<span class="sourceLineNo">326</span><a id="line.326">                }</a>
-<span class="sourceLineNo">327</span><a id="line.327">            }</a>
-<span class="sourceLineNo">328</span><a id="line.328">        }</a>
-<span class="sourceLineNo">329</span><a id="line.329">    }</a>
-<span class="sourceLineNo">330</span><a id="line.330"></a>
-<span class="sourceLineNo">331</span><a id="line.331">    protected void addToDecisionQueue( final Decision decision ) {</a>
-<span class="sourceLineNo">332</span><a id="line.332">        getDecisionQueue().add( decision );</a>
-<span class="sourceLineNo">333</span><a id="line.333">    }</a>
-<span class="sourceLineNo">334</span><a id="line.334"></a>
-<span class="sourceLineNo">335</span><a id="line.335">}</a>
+<span class="sourceLineNo">244</span><a id="line.244">                if (Arrays.stream(sessionPrincipals).anyMatch(sessionPrincipal -&gt; sessionPrincipal.equals(owner))) {</a>
+<span class="sourceLineNo">245</span><a id="line.245">                    workflows.add(w);</a>
+<span class="sourceLineNo">246</span><a id="line.246">                }</a>
+<span class="sourceLineNo">247</span><a id="line.247">            }</a>
+<span class="sourceLineNo">248</span><a id="line.248">        }</a>
+<span class="sourceLineNo">249</span><a id="line.249">        return workflows;</a>
+<span class="sourceLineNo">250</span><a id="line.250">    }</a>
+<span class="sourceLineNo">251</span><a id="line.251"></a>
+<span class="sourceLineNo">252</span><a id="line.252">    /**</a>
+<span class="sourceLineNo">253</span><a id="line.253">     * Listens for {@link WorkflowEvent} objects emitted by Workflows. In particular, this method listens for {@link WorkflowEvent#CREATED},</a>
+<span class="sourceLineNo">254</span><a id="line.254">     * {@link WorkflowEvent#ABORTED}, {@link WorkflowEvent#COMPLETED} and {@link WorkflowEvent#DQ_REMOVAL} events. If a workflow is created,</a>
+<span class="sourceLineNo">255</span><a id="line.255">     * it is automatically added to the cache. If one is aborted or completed, it is automatically removed. If a removal from decision queue</a>
+<span class="sourceLineNo">256</span><a id="line.256">     * is issued, the current step from workflow, which is assumed to be a {@link Decision}, is removed from the {@link DecisionQueue}.</a>
+<span class="sourceLineNo">257</span><a id="line.257">     * </a>
+<span class="sourceLineNo">258</span><a id="line.258">     * @param event the event passed to this listener</a>
+<span class="sourceLineNo">259</span><a id="line.259">     */</a>
+<span class="sourceLineNo">260</span><a id="line.260">    @Override</a>
+<span class="sourceLineNo">261</span><a id="line.261">    public void actionPerformed( final WikiEvent event ) {</a>
+<span class="sourceLineNo">262</span><a id="line.262">        if( event instanceof WorkflowEvent ) {</a>
+<span class="sourceLineNo">263</span><a id="line.263">            if( event.getSrc() instanceof Workflow ) {</a>
+<span class="sourceLineNo">264</span><a id="line.264">                final Workflow workflow = event.getSrc();</a>
+<span class="sourceLineNo">265</span><a id="line.265">                switch( event.getType() ) {</a>
+<span class="sourceLineNo">266</span><a id="line.266">                // Remove from manager</a>
+<span class="sourceLineNo">267</span><a id="line.267">                case WorkflowEvent.ABORTED   :</a>
+<span class="sourceLineNo">268</span><a id="line.268">                case WorkflowEvent.COMPLETED : remove( workflow ); break;</a>
+<span class="sourceLineNo">269</span><a id="line.269">                // Add to manager</a>
+<span class="sourceLineNo">270</span><a id="line.270">                case WorkflowEvent.CREATED   : add( workflow ); break;</a>
+<span class="sourceLineNo">271</span><a id="line.271">                default: break;</a>
+<span class="sourceLineNo">272</span><a id="line.272">                }</a>
+<span class="sourceLineNo">273</span><a id="line.273">            } else if( event.getSrc() instanceof Decision ) {</a>
+<span class="sourceLineNo">274</span><a id="line.274">                final Decision decision = event.getSrc();</a>
+<span class="sourceLineNo">275</span><a id="line.275">                switch( event.getType() ) {</a>
+<span class="sourceLineNo">276</span><a id="line.276">                // Add to DecisionQueue</a>
+<span class="sourceLineNo">277</span><a id="line.277">                case WorkflowEvent.DQ_ADDITION : addToDecisionQueue( decision ); break;</a>
+<span class="sourceLineNo">278</span><a id="line.278">                // Remove from DecisionQueue</a>
+<span class="sourceLineNo">279</span><a id="line.279">                case WorkflowEvent.DQ_REMOVAL  : removeFromDecisionQueue( decision, event.getArg( 0, Context.class ) ); break;</a>
+<span class="sourceLineNo">280</span><a id="line.280">                default: break;</a>
+<span class="sourceLineNo">281</span><a id="line.281">                }</a>
+<span class="sourceLineNo">282</span><a id="line.282">            }</a>
+<span class="sourceLineNo">283</span><a id="line.283">            serializeToDisk( new File( m_engine.getWorkDir(), SERIALIZATION_FILE ) );</a>
+<span class="sourceLineNo">284</span><a id="line.284">        }</a>
+<span class="sourceLineNo">285</span><a id="line.285">    }</a>
+<span class="sourceLineNo">286</span><a id="line.286"></a>
+<span class="sourceLineNo">287</span><a id="line.287">    /**</a>
+<span class="sourceLineNo">288</span><a id="line.288">     * Protected helper method that adds a newly created Workflow to the cache, and sets its {@code workflowManager} and</a>
+<span class="sourceLineNo">289</span><a id="line.289">     * {@code Id} properties if not set.</a>
+<span class="sourceLineNo">290</span><a id="line.290">     *</a>
+<span class="sourceLineNo">291</span><a id="line.291">     * @param workflow the workflow to add</a>
+<span class="sourceLineNo">292</span><a id="line.292">     */</a>
+<span class="sourceLineNo">293</span><a id="line.293">    protected void add( final Workflow workflow ) {</a>
+<span class="sourceLineNo">294</span><a id="line.294">        m_workflows.add( workflow );</a>
+<span class="sourceLineNo">295</span><a id="line.295">    }</a>
+<span class="sourceLineNo">296</span><a id="line.296"></a>
+<span class="sourceLineNo">297</span><a id="line.297">    /**</a>
+<span class="sourceLineNo">298</span><a id="line.298">     * Protected helper method that removes a specified Workflow from the cache, and moves it to the workflow history list. This method</a>
+<span class="sourceLineNo">299</span><a id="line.299">     * defensively checks to see if the workflow has not yet been removed.</a>
+<span class="sourceLineNo">300</span><a id="line.300">     *</a>
+<span class="sourceLineNo">301</span><a id="line.301">     * @param workflow the workflow to remove</a>
+<span class="sourceLineNo">302</span><a id="line.302">     */</a>
+<span class="sourceLineNo">303</span><a id="line.303">    protected void remove( final Workflow workflow ) {</a>
+<span class="sourceLineNo">304</span><a id="line.304">        if( m_workflows.contains( workflow ) ) {</a>
+<span class="sourceLineNo">305</span><a id="line.305">            m_workflows.remove( workflow );</a>
+<span class="sourceLineNo">306</span><a id="line.306">            m_completed.add( workflow );</a>
+<span class="sourceLineNo">307</span><a id="line.307">        }</a>
+<span class="sourceLineNo">308</span><a id="line.308">    }</a>
+<span class="sourceLineNo">309</span><a id="line.309"></a>
+<span class="sourceLineNo">310</span><a id="line.310">    protected void removeFromDecisionQueue( final Decision decision, final Context context ) {</a>
+<span class="sourceLineNo">311</span><a id="line.311">        // If current workflow is waiting for input, restart it and remove Decision from DecisionQueue</a>
+<span class="sourceLineNo">312</span><a id="line.312">        final int workflowId = decision.getWorkflowId();</a>
+<span class="sourceLineNo">313</span><a id="line.313">        final Optional&lt; Workflow &gt; optw = m_workflows.stream().filter( w -&gt; w.getId() == workflowId ).findAny();</a>
+<span class="sourceLineNo">314</span><a id="line.314">        if( optw.isPresent() ) {</a>
+<span class="sourceLineNo">315</span><a id="line.315">            final Workflow w = optw.get();</a>
+<span class="sourceLineNo">316</span><a id="line.316">            if( w.getCurrentState() == Workflow.WAITING &amp;&amp; decision.equals( w.getCurrentStep() ) ) {</a>
+<span class="sourceLineNo">317</span><a id="line.317">                getDecisionQueue().remove( decision );</a>
+<span class="sourceLineNo">318</span><a id="line.318">                // Restart workflow</a>
+<span class="sourceLineNo">319</span><a id="line.319">                try {</a>
+<span class="sourceLineNo">320</span><a id="line.320">                    w.restart( context );</a>
+<span class="sourceLineNo">321</span><a id="line.321">                } catch( final WikiException e ) {</a>
+<span class="sourceLineNo">322</span><a id="line.322">                    LOG.error( "restarting workflow #" + w.getId() + " caused " + e.getMessage(), e );</a>
+<span class="sourceLineNo">323</span><a id="line.323">                }</a>
+<span class="sourceLineNo">324</span><a id="line.324">            }</a>
+<span class="sourceLineNo">325</span><a id="line.325">        }</a>
+<span class="sourceLineNo">326</span><a id="line.326">    }</a>
+<span class="sourceLineNo">327</span><a id="line.327"></a>
+<span class="sourceLineNo">328</span><a id="line.328">    protected void addToDecisionQueue( final Decision decision ) {</a>
+<span class="sourceLineNo">329</span><a id="line.329">        getDecisionQueue().add( decision );</a>
+<span class="sourceLineNo">330</span><a id="line.330">    }</a>
+<span class="sourceLineNo">331</span><a id="line.331"></a>
+<span class="sourceLineNo">332</span><a id="line.332">}</a>
 
 
 

@@ -198,205 +198,201 @@
 <span class="sourceLineNo">189</span><a id="line.189">        if( session.isAuthenticated() &amp;&amp; AuthenticationManager.isUserPrincipal( principal ) ) {</a>
 <span class="sourceLineNo">190</span><a id="line.190">            final String principalName = principal.getName();</a>
 <span class="sourceLineNo">191</span><a id="line.191">            final Principal[] userPrincipals = session.getPrincipals();</a>
-<span class="sourceLineNo">192</span><a id="line.192">            for( final Principal userPrincipal : userPrincipals ) {</a>
-<span class="sourceLineNo">193</span><a id="line.193">                if( userPrincipal.getName().equals( principalName ) ) {</a>
-<span class="sourceLineNo">194</span><a id="line.194">                    return true;</a>
-<span class="sourceLineNo">195</span><a id="line.195">                }</a>
-<span class="sourceLineNo">196</span><a id="line.196">            }</a>
-<span class="sourceLineNo">197</span><a id="line.197">        }</a>
-<span class="sourceLineNo">198</span><a id="line.198">        return false;</a>
-<span class="sourceLineNo">199</span><a id="line.199">    }</a>
-<span class="sourceLineNo">200</span><a id="line.200"></a>
-<span class="sourceLineNo">201</span><a id="line.201">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">202</span><a id="line.202">    @Override</a>
-<span class="sourceLineNo">203</span><a id="line.203">    public boolean hasAccess( final Context context, final HttpServletResponse response, final boolean redirect ) throws IOException {</a>
-<span class="sourceLineNo">204</span><a id="line.204">        final boolean allowed = checkPermission( context.getWikiSession(), context.requiredPermission() );</a>
-<span class="sourceLineNo">205</span><a id="line.205"></a>
-<span class="sourceLineNo">206</span><a id="line.206">        // Stash the wiki context</a>
-<span class="sourceLineNo">207</span><a id="line.207">        if ( context.getHttpRequest() != null &amp;&amp; context.getHttpRequest().getAttribute( Context.ATTR_CONTEXT ) == null ) {</a>
-<span class="sourceLineNo">208</span><a id="line.208">            context.getHttpRequest().setAttribute( Context.ATTR_CONTEXT, context );</a>
-<span class="sourceLineNo">209</span><a id="line.209">        }</a>
-<span class="sourceLineNo">210</span><a id="line.210"></a>
-<span class="sourceLineNo">211</span><a id="line.211">        // If access not allowed, redirect</a>
-<span class="sourceLineNo">212</span><a id="line.212">        if( !allowed &amp;&amp; redirect ) {</a>
-<span class="sourceLineNo">213</span><a id="line.213">            final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE );</a>
-<span class="sourceLineNo">214</span><a id="line.214">            final Principal currentUser  = context.getWikiSession().getUserPrincipal();</a>
-<span class="sourceLineNo">215</span><a id="line.215">            final String pageurl = context.getPage().getName();</a>
-<span class="sourceLineNo">216</span><a id="line.216">            if( context.getWikiSession().isAuthenticated() ) {</a>
-<span class="sourceLineNo">217</span><a id="line.217">                LOG.info( "User {} has no access - forbidden (permission={})", currentUser.getName(), context.requiredPermission() );</a>
-<span class="sourceLineNo">218</span><a id="line.218">                context.getWikiSession().addMessage( MessageFormat.format( rb.getString( "security.error.noaccess.logged" ), context.getName()) );</a>
-<span class="sourceLineNo">219</span><a id="line.219">            } else {</a>
-<span class="sourceLineNo">220</span><a id="line.220">                LOG.info( "User {} has no access - redirecting (permission={})", currentUser.getName(), context.requiredPermission() );</a>
-<span class="sourceLineNo">221</span><a id="line.221">                context.getWikiSession().addMessage( MessageFormat.format( rb.getString( "security.error.noaccess" ), context.getName() ) );</a>
-<span class="sourceLineNo">222</span><a id="line.222">            }</a>
-<span class="sourceLineNo">223</span><a id="line.223">            response.sendRedirect( m_engine.getURL( ContextEnum.WIKI_LOGIN.getRequestContext(), pageurl, null ) );</a>
-<span class="sourceLineNo">224</span><a id="line.224">        }</a>
-<span class="sourceLineNo">225</span><a id="line.225">        return allowed;</a>
-<span class="sourceLineNo">226</span><a id="line.226">    }</a>
-<span class="sourceLineNo">227</span><a id="line.227"></a>
-<span class="sourceLineNo">228</span><a id="line.228">    /**</a>
-<span class="sourceLineNo">229</span><a id="line.229">     * {@inheritDoc}</a>
-<span class="sourceLineNo">230</span><a id="line.230">     *</a>
-<span class="sourceLineNo">231</span><a id="line.231">     * Expects to find property 'jspwiki.authorizer' with a valid Authorizer implementation name to take care of role lookup operations.</a>
-<span class="sourceLineNo">232</span><a id="line.232">     */</a>
-<span class="sourceLineNo">233</span><a id="line.233">    @Override</a>
-<span class="sourceLineNo">234</span><a id="line.234">    public void initialize( final Engine engine, final Properties properties ) throws WikiException {</a>
-<span class="sourceLineNo">235</span><a id="line.235">        m_engine = engine;</a>
+<span class="sourceLineNo">192</span><a id="line.192">            return Arrays.stream(userPrincipals).anyMatch(userPrincipal -&gt; userPrincipal.getName().equals(principalName));</a>
+<span class="sourceLineNo">193</span><a id="line.193">        }</a>
+<span class="sourceLineNo">194</span><a id="line.194">        return false;</a>
+<span class="sourceLineNo">195</span><a id="line.195">    }</a>
+<span class="sourceLineNo">196</span><a id="line.196"></a>
+<span class="sourceLineNo">197</span><a id="line.197">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">198</span><a id="line.198">    @Override</a>
+<span class="sourceLineNo">199</span><a id="line.199">    public boolean hasAccess( final Context context, final HttpServletResponse response, final boolean redirect ) throws IOException {</a>
+<span class="sourceLineNo">200</span><a id="line.200">        final boolean allowed = checkPermission( context.getWikiSession(), context.requiredPermission() );</a>
+<span class="sourceLineNo">201</span><a id="line.201"></a>
+<span class="sourceLineNo">202</span><a id="line.202">        // Stash the wiki context</a>
+<span class="sourceLineNo">203</span><a id="line.203">        if ( context.getHttpRequest() != null &amp;&amp; context.getHttpRequest().getAttribute( Context.ATTR_CONTEXT ) == null ) {</a>
+<span class="sourceLineNo">204</span><a id="line.204">            context.getHttpRequest().setAttribute( Context.ATTR_CONTEXT, context );</a>
+<span class="sourceLineNo">205</span><a id="line.205">        }</a>
+<span class="sourceLineNo">206</span><a id="line.206"></a>
+<span class="sourceLineNo">207</span><a id="line.207">        // If access not allowed, redirect</a>
+<span class="sourceLineNo">208</span><a id="line.208">        if( !allowed &amp;&amp; redirect ) {</a>
+<span class="sourceLineNo">209</span><a id="line.209">            final ResourceBundle rb = Preferences.getBundle( context, InternationalizationManager.CORE_BUNDLE );</a>
+<span class="sourceLineNo">210</span><a id="line.210">            final Principal currentUser  = context.getWikiSession().getUserPrincipal();</a>
+<span class="sourceLineNo">211</span><a id="line.211">            final String pageurl = context.getPage().getName();</a>
+<span class="sourceLineNo">212</span><a id="line.212">            if( context.getWikiSession().isAuthenticated() ) {</a>
+<span class="sourceLineNo">213</span><a id="line.213">                LOG.info( "User {} has no access - forbidden (permission={})", currentUser.getName(), context.requiredPermission() );</a>
+<span class="sourceLineNo">214</span><a id="line.214">                context.getWikiSession().addMessage( MessageFormat.format( rb.getString( "security.error.noaccess.logged" ), context.getName()) );</a>
+<span class="sourceLineNo">215</span><a id="line.215">            } else {</a>
+<span class="sourceLineNo">216</span><a id="line.216">                LOG.info( "User {} has no access - redirecting (permission={})", currentUser.getName(), context.requiredPermission() );</a>
+<span class="sourceLineNo">217</span><a id="line.217">                context.getWikiSession().addMessage( MessageFormat.format( rb.getString( "security.error.noaccess" ), context.getName() ) );</a>
+<span class="sourceLineNo">218</span><a id="line.218">            }</a>
+<span class="sourceLineNo">219</span><a id="line.219">            response.sendRedirect( m_engine.getURL( ContextEnum.WIKI_LOGIN.getRequestContext(), pageurl, null ) );</a>
+<span class="sourceLineNo">220</span><a id="line.220">        }</a>
+<span class="sourceLineNo">221</span><a id="line.221">        return allowed;</a>
+<span class="sourceLineNo">222</span><a id="line.222">    }</a>
+<span class="sourceLineNo">223</span><a id="line.223"></a>
+<span class="sourceLineNo">224</span><a id="line.224">    /**</a>
+<span class="sourceLineNo">225</span><a id="line.225">     * {@inheritDoc}</a>
+<span class="sourceLineNo">226</span><a id="line.226">     *</a>
+<span class="sourceLineNo">227</span><a id="line.227">     * Expects to find property 'jspwiki.authorizer' with a valid Authorizer implementation name to take care of role lookup operations.</a>
+<span class="sourceLineNo">228</span><a id="line.228">     */</a>
+<span class="sourceLineNo">229</span><a id="line.229">    @Override</a>
+<span class="sourceLineNo">230</span><a id="line.230">    public void initialize( final Engine engine, final Properties properties ) throws WikiException {</a>
+<span class="sourceLineNo">231</span><a id="line.231">        m_engine = engine;</a>
+<span class="sourceLineNo">232</span><a id="line.232"></a>
+<span class="sourceLineNo">233</span><a id="line.233">        //  JAAS authorization continues</a>
+<span class="sourceLineNo">234</span><a id="line.234">        m_authorizer = getAuthorizerImplementation( properties );</a>
+<span class="sourceLineNo">235</span><a id="line.235">        m_authorizer.initialize( engine, properties );</a>
 <span class="sourceLineNo">236</span><a id="line.236"></a>
-<span class="sourceLineNo">237</span><a id="line.237">        //  JAAS authorization continues</a>
-<span class="sourceLineNo">238</span><a id="line.238">        m_authorizer = getAuthorizerImplementation( properties );</a>
-<span class="sourceLineNo">239</span><a id="line.239">        m_authorizer.initialize( engine, properties );</a>
-<span class="sourceLineNo">240</span><a id="line.240"></a>
-<span class="sourceLineNo">241</span><a id="line.241">        // Initialize local security policy</a>
-<span class="sourceLineNo">242</span><a id="line.242">        try {</a>
-<span class="sourceLineNo">243</span><a id="line.243">            final String policyFileName = properties.getProperty( POLICY, DEFAULT_POLICY );</a>
-<span class="sourceLineNo">244</span><a id="line.244">            final URL policyURL = engine.findConfigFile( policyFileName );</a>
-<span class="sourceLineNo">245</span><a id="line.245"></a>
-<span class="sourceLineNo">246</span><a id="line.246">            if (policyURL != null) {</a>
-<span class="sourceLineNo">247</span><a id="line.247">                final File policyFile = new File( policyURL.toURI().getPath() );</a>
-<span class="sourceLineNo">248</span><a id="line.248">                LOG.info("We found security policy URL: {} and transformed it to file {}",policyURL, policyFile.getAbsolutePath());</a>
-<span class="sourceLineNo">249</span><a id="line.249">                m_localPolicy = new LocalPolicy( policyFile, engine.getContentEncoding().displayName() );</a>
-<span class="sourceLineNo">250</span><a id="line.250">                m_localPolicy.refresh();</a>
-<span class="sourceLineNo">251</span><a id="line.251">                LOG.info( "Initialized default security policy: {}", policyFile.getAbsolutePath() );</a>
-<span class="sourceLineNo">252</span><a id="line.252">            } else {</a>
-<span class="sourceLineNo">253</span><a id="line.253">                final String sb = "JSPWiki was unable to initialize the default security policy (WEB-INF/jspwiki.policy) file. " +</a>
-<span class="sourceLineNo">254</span><a id="line.254">                                  "Please ensure that the jspwiki.policy file exists in the default location. " +</a>
-<span class="sourceLineNo">255</span><a id="line.255">                                  "This file should exist regardless of the existance of a global policy file. " +</a>
-<span class="sourceLineNo">256</span><a id="line.256">                                  "The global policy file is identified by the java.security.policy variable. ";</a>
-<span class="sourceLineNo">257</span><a id="line.257">                final WikiSecurityException wse = new WikiSecurityException( sb );</a>
-<span class="sourceLineNo">258</span><a id="line.258">                LOG.fatal( sb, wse );</a>
-<span class="sourceLineNo">259</span><a id="line.259">                throw wse;</a>
-<span class="sourceLineNo">260</span><a id="line.260">            }</a>
-<span class="sourceLineNo">261</span><a id="line.261">        } catch ( final Exception e) {</a>
-<span class="sourceLineNo">262</span><a id="line.262">            LOG.error("Could not initialize local security policy: {}", e.getMessage() );</a>
-<span class="sourceLineNo">263</span><a id="line.263">            throw new WikiException( "Could not initialize local security policy: " + e.getMessage(), e );</a>
-<span class="sourceLineNo">264</span><a id="line.264">        }</a>
-<span class="sourceLineNo">265</span><a id="line.265">    }</a>
-<span class="sourceLineNo">266</span><a id="line.266"></a>
-<span class="sourceLineNo">267</span><a id="line.267">    /**</a>
-<span class="sourceLineNo">268</span><a id="line.268">     * Attempts to locate and initialize an Authorizer to use with this manager. Throws a WikiException if no entry is found, or if one</a>
-<span class="sourceLineNo">269</span><a id="line.269">     * fails to initialize.</a>
-<span class="sourceLineNo">270</span><a id="line.270">     *</a>
-<span class="sourceLineNo">271</span><a id="line.271">     * @param props jspwiki.properties, containing a 'jspwiki.authorization.provider' class name.</a>
-<span class="sourceLineNo">272</span><a id="line.272">     * @return an Authorizer used to get page authorization information.</a>
-<span class="sourceLineNo">273</span><a id="line.273">     * @throws WikiException if there are problems finding the authorizer implementation.</a>
-<span class="sourceLineNo">274</span><a id="line.274">     */</a>
-<span class="sourceLineNo">275</span><a id="line.275">    private Authorizer getAuthorizerImplementation( final Properties props ) throws WikiException {</a>
-<span class="sourceLineNo">276</span><a id="line.276">        final String authClassName = props.getProperty( PROP_AUTHORIZER, DEFAULT_AUTHORIZER );</a>
-<span class="sourceLineNo">277</span><a id="line.277">        return locateImplementation( authClassName );</a>
-<span class="sourceLineNo">278</span><a id="line.278">    }</a>
-<span class="sourceLineNo">279</span><a id="line.279"></a>
-<span class="sourceLineNo">280</span><a id="line.280">    private Authorizer locateImplementation( final String clazz ) throws WikiException {</a>
-<span class="sourceLineNo">281</span><a id="line.281">        if ( clazz != null ) {</a>
-<span class="sourceLineNo">282</span><a id="line.282">            try {</a>
-<span class="sourceLineNo">283</span><a id="line.283">                return ClassUtil.buildInstance( "org.apache.wiki.auth.authorize", clazz );</a>
-<span class="sourceLineNo">284</span><a id="line.284">            } catch( final ReflectiveOperationException e ) {</a>
-<span class="sourceLineNo">285</span><a id="line.285">                LOG.fatal( "Authorizer {} cannot be instantiated", clazz, e );</a>
-<span class="sourceLineNo">286</span><a id="line.286">                throw new WikiException( "Authorizer " + clazz + " cannot be instantiated", e );</a>
-<span class="sourceLineNo">287</span><a id="line.287">            }</a>
-<span class="sourceLineNo">288</span><a id="line.288">        }</a>
-<span class="sourceLineNo">289</span><a id="line.289"></a>
-<span class="sourceLineNo">290</span><a id="line.290">        throw new NoRequiredPropertyException( "Unable to find a " + PROP_AUTHORIZER + " entry in the properties.", PROP_AUTHORIZER );</a>
-<span class="sourceLineNo">291</span><a id="line.291">    }</a>
-<span class="sourceLineNo">292</span><a id="line.292"></a>
-<span class="sourceLineNo">293</span><a id="line.293">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">294</span><a id="line.294">    @Override</a>
-<span class="sourceLineNo">295</span><a id="line.295">    public boolean allowedByLocalPolicy( final Principal[] principals, final Permission permission ) {</a>
-<span class="sourceLineNo">296</span><a id="line.296">        for ( final Principal principal : principals ) {</a>
-<span class="sourceLineNo">297</span><a id="line.297">            // Get ProtectionDomain for this Principal from cache, or create new one</a>
-<span class="sourceLineNo">298</span><a id="line.298">            ProtectionDomain pd = m_cachedPds.get( principal );</a>
-<span class="sourceLineNo">299</span><a id="line.299">            if ( pd == null ) {</a>
-<span class="sourceLineNo">300</span><a id="line.300">                final ClassLoader cl = this.getClass().getClassLoader();</a>
-<span class="sourceLineNo">301</span><a id="line.301">                final CodeSource cs = new CodeSource( null, (Certificate[])null );</a>
-<span class="sourceLineNo">302</span><a id="line.302">                pd = new ProtectionDomain( cs, null, cl, new Principal[]{ principal } );</a>
-<span class="sourceLineNo">303</span><a id="line.303">                m_cachedPds.put( principal, pd );</a>
-<span class="sourceLineNo">304</span><a id="line.304">            }</a>
-<span class="sourceLineNo">305</span><a id="line.305"></a>
-<span class="sourceLineNo">306</span><a id="line.306">            // Consult the local policy and get the answer</a>
-<span class="sourceLineNo">307</span><a id="line.307">            if ( m_localPolicy.implies( pd, permission ) ) {</a>
-<span class="sourceLineNo">308</span><a id="line.308">                return true;</a>
-<span class="sourceLineNo">309</span><a id="line.309">            }</a>
-<span class="sourceLineNo">310</span><a id="line.310">        }</a>
-<span class="sourceLineNo">311</span><a id="line.311">        return false;</a>
-<span class="sourceLineNo">312</span><a id="line.312">    }</a>
-<span class="sourceLineNo">313</span><a id="line.313"></a>
-<span class="sourceLineNo">314</span><a id="line.314">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">315</span><a id="line.315">    @Override</a>
-<span class="sourceLineNo">316</span><a id="line.316">    public boolean checkStaticPermission( final Session session, final Permission permission ) {</a>
-<span class="sourceLineNo">317</span><a id="line.317">        return ( Boolean )Session.doPrivileged( session, ( PrivilegedAction&lt; Boolean &gt; )() -&gt; {</a>
-<span class="sourceLineNo">318</span><a id="line.318">            try {</a>
-<span class="sourceLineNo">319</span><a id="line.319">                // Check the JVM-wide security policy first</a>
-<span class="sourceLineNo">320</span><a id="line.320">                AccessController.checkPermission( permission );</a>
-<span class="sourceLineNo">321</span><a id="line.321">                return Boolean.TRUE;</a>
-<span class="sourceLineNo">322</span><a id="line.322">            } catch( final AccessControlException e ) {</a>
-<span class="sourceLineNo">323</span><a id="line.323">                // Global policy denied the permission</a>
-<span class="sourceLineNo">324</span><a id="line.324">            }</a>
-<span class="sourceLineNo">325</span><a id="line.325"></a>
-<span class="sourceLineNo">326</span><a id="line.326">            // Try the local policy - check each Role/Group and User Principal</a>
-<span class="sourceLineNo">327</span><a id="line.327">            if ( allowedByLocalPolicy( session.getRoles(), permission ) || allowedByLocalPolicy( session.getPrincipals(), permission ) ) {</a>
-<span class="sourceLineNo">328</span><a id="line.328">                return Boolean.TRUE;</a>
-<span class="sourceLineNo">329</span><a id="line.329">            }</a>
-<span class="sourceLineNo">330</span><a id="line.330">            return Boolean.FALSE;</a>
-<span class="sourceLineNo">331</span><a id="line.331">        } );</a>
-<span class="sourceLineNo">332</span><a id="line.332">    }</a>
-<span class="sourceLineNo">333</span><a id="line.333"></a>
-<span class="sourceLineNo">334</span><a id="line.334">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">335</span><a id="line.335">    @Override</a>
-<span class="sourceLineNo">336</span><a id="line.336">    public Principal resolvePrincipal( final String name ) {</a>
-<span class="sourceLineNo">337</span><a id="line.337">        // Check built-in Roles first</a>
-<span class="sourceLineNo">338</span><a id="line.338">        final Role role = new Role(name);</a>
-<span class="sourceLineNo">339</span><a id="line.339">        if ( Role.isBuiltInRole( role ) ) {</a>
-<span class="sourceLineNo">340</span><a id="line.340">            return role;</a>
-<span class="sourceLineNo">341</span><a id="line.341">        }</a>
-<span class="sourceLineNo">342</span><a id="line.342"></a>
-<span class="sourceLineNo">343</span><a id="line.343">        // Check Authorizer Roles</a>
-<span class="sourceLineNo">344</span><a id="line.344">        Principal principal = m_authorizer.findRole( name );</a>
-<span class="sourceLineNo">345</span><a id="line.345">        if ( principal != null ) {</a>
-<span class="sourceLineNo">346</span><a id="line.346">            return principal;</a>
-<span class="sourceLineNo">347</span><a id="line.347">        }</a>
-<span class="sourceLineNo">348</span><a id="line.348"></a>
-<span class="sourceLineNo">349</span><a id="line.349">        // Check Groups</a>
-<span class="sourceLineNo">350</span><a id="line.350">        principal = m_engine.getManager( GroupManager.class ).findRole( name );</a>
-<span class="sourceLineNo">351</span><a id="line.351">        if ( principal != null ) {</a>
-<span class="sourceLineNo">352</span><a id="line.352">            return principal;</a>
-<span class="sourceLineNo">353</span><a id="line.353">        }</a>
-<span class="sourceLineNo">354</span><a id="line.354"></a>
-<span class="sourceLineNo">355</span><a id="line.355">        // Ok, no luck---this must be a user principal</a>
-<span class="sourceLineNo">356</span><a id="line.356">        final Principal[] principals;</a>
-<span class="sourceLineNo">357</span><a id="line.357">        final UserProfile profile;</a>
-<span class="sourceLineNo">358</span><a id="line.358">        final UserDatabase db = m_engine.getManager( UserManager.class ).getUserDatabase();</a>
-<span class="sourceLineNo">359</span><a id="line.359">        try {</a>
-<span class="sourceLineNo">360</span><a id="line.360">            profile = db.find( name );</a>
-<span class="sourceLineNo">361</span><a id="line.361">            principals = db.getPrincipals( profile.getLoginName() );</a>
-<span class="sourceLineNo">362</span><a id="line.362">            for( final Principal value : principals ) {</a>
-<span class="sourceLineNo">363</span><a id="line.363">                principal = value;</a>
-<span class="sourceLineNo">364</span><a id="line.364">                if( principal.getName().equals( name ) ) {</a>
-<span class="sourceLineNo">365</span><a id="line.365">                    return principal;</a>
-<span class="sourceLineNo">366</span><a id="line.366">                }</a>
-<span class="sourceLineNo">367</span><a id="line.367">            }</a>
-<span class="sourceLineNo">368</span><a id="line.368">        } catch( final NoSuchPrincipalException e ) {</a>
-<span class="sourceLineNo">369</span><a id="line.369">            // We couldn't find the user...</a>
-<span class="sourceLineNo">370</span><a id="line.370">        }</a>
-<span class="sourceLineNo">371</span><a id="line.371">        // Ok, no luck---mark this as unresolved and move on</a>
-<span class="sourceLineNo">372</span><a id="line.372">        return new UnresolvedPrincipal( name );</a>
-<span class="sourceLineNo">373</span><a id="line.373">    }</a>
-<span class="sourceLineNo">374</span><a id="line.374"></a>
-<span class="sourceLineNo">375</span><a id="line.375"></a>
-<span class="sourceLineNo">376</span><a id="line.376">    // events processing .......................................................</a>
-<span class="sourceLineNo">377</span><a id="line.377"></a>
-<span class="sourceLineNo">378</span><a id="line.378">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">379</span><a id="line.379">    @Override</a>
-<span class="sourceLineNo">380</span><a id="line.380">    public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">381</span><a id="line.381">        WikiEventManager.addWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">382</span><a id="line.382">    }</a>
-<span class="sourceLineNo">383</span><a id="line.383"></a>
-<span class="sourceLineNo">384</span><a id="line.384">    /** {@inheritDoc} */</a>
-<span class="sourceLineNo">385</span><a id="line.385">    @Override</a>
-<span class="sourceLineNo">386</span><a id="line.386">    public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
-<span class="sourceLineNo">387</span><a id="line.387">        WikiEventManager.removeWikiEventListener( this, listener );</a>
-<span class="sourceLineNo">388</span><a id="line.388">    }</a>
-<span class="sourceLineNo">389</span><a id="line.389"></a>
-<span class="sourceLineNo">390</span><a id="line.390">}</a>
+<span class="sourceLineNo">237</span><a id="line.237">        // Initialize local security policy</a>
+<span class="sourceLineNo">238</span><a id="line.238">        try {</a>
+<span class="sourceLineNo">239</span><a id="line.239">            final String policyFileName = properties.getProperty( POLICY, DEFAULT_POLICY );</a>
+<span class="sourceLineNo">240</span><a id="line.240">            final URL policyURL = engine.findConfigFile( policyFileName );</a>
+<span class="sourceLineNo">241</span><a id="line.241"></a>
+<span class="sourceLineNo">242</span><a id="line.242">            if (policyURL != null) {</a>
+<span class="sourceLineNo">243</span><a id="line.243">                final File policyFile = new File( policyURL.toURI().getPath() );</a>
+<span class="sourceLineNo">244</span><a id="line.244">                LOG.info("We found security policy URL: {} and transformed it to file {}",policyURL, policyFile.getAbsolutePath());</a>
+<span class="sourceLineNo">245</span><a id="line.245">                m_localPolicy = new LocalPolicy( policyFile, engine.getContentEncoding().displayName() );</a>
+<span class="sourceLineNo">246</span><a id="line.246">                m_localPolicy.refresh();</a>
+<span class="sourceLineNo">247</span><a id="line.247">                LOG.info( "Initialized default security policy: {}", policyFile.getAbsolutePath() );</a>
+<span class="sourceLineNo">248</span><a id="line.248">            } else {</a>
+<span class="sourceLineNo">249</span><a id="line.249">                final String sb = "JSPWiki was unable to initialize the default security policy (WEB-INF/jspwiki.policy) file. " +</a>
+<span class="sourceLineNo">250</span><a id="line.250">                                  "Please ensure that the jspwiki.policy file exists in the default location. " +</a>
+<span class="sourceLineNo">251</span><a id="line.251">                                  "This file should exist regardless of the existance of a global policy file. " +</a>
+<span class="sourceLineNo">252</span><a id="line.252">                                  "The global policy file is identified by the java.security.policy variable. ";</a>
+<span class="sourceLineNo">253</span><a id="line.253">                final WikiSecurityException wse = new WikiSecurityException( sb );</a>
+<span class="sourceLineNo">254</span><a id="line.254">                LOG.fatal( sb, wse );</a>
+<span class="sourceLineNo">255</span><a id="line.255">                throw wse;</a>
+<span class="sourceLineNo">256</span><a id="line.256">            }</a>
+<span class="sourceLineNo">257</span><a id="line.257">        } catch ( final Exception e) {</a>
+<span class="sourceLineNo">258</span><a id="line.258">            LOG.error("Could not initialize local security policy: {}", e.getMessage() );</a>
+<span class="sourceLineNo">259</span><a id="line.259">            throw new WikiException( "Could not initialize local security policy: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">260</span><a id="line.260">        }</a>
+<span class="sourceLineNo">261</span><a id="line.261">    }</a>
+<span class="sourceLineNo">262</span><a id="line.262"></a>
+<span class="sourceLineNo">263</span><a id="line.263">    /**</a>
+<span class="sourceLineNo">264</span><a id="line.264">     * Attempts to locate and initialize an Authorizer to use with this manager. Throws a WikiException if no entry is found, or if one</a>
+<span class="sourceLineNo">265</span><a id="line.265">     * fails to initialize.</a>
+<span class="sourceLineNo">266</span><a id="line.266">     *</a>
+<span class="sourceLineNo">267</span><a id="line.267">     * @param props jspwiki.properties, containing a 'jspwiki.authorization.provider' class name.</a>
+<span class="sourceLineNo">268</span><a id="line.268">     * @return an Authorizer used to get page authorization information.</a>
+<span class="sourceLineNo">269</span><a id="line.269">     * @throws WikiException if there are problems finding the authorizer implementation.</a>
+<span class="sourceLineNo">270</span><a id="line.270">     */</a>
+<span class="sourceLineNo">271</span><a id="line.271">    private Authorizer getAuthorizerImplementation( final Properties props ) throws WikiException {</a>
+<span class="sourceLineNo">272</span><a id="line.272">        final String authClassName = props.getProperty( PROP_AUTHORIZER, DEFAULT_AUTHORIZER );</a>
+<span class="sourceLineNo">273</span><a id="line.273">        return locateImplementation( authClassName );</a>
+<span class="sourceLineNo">274</span><a id="line.274">    }</a>
+<span class="sourceLineNo">275</span><a id="line.275"></a>
+<span class="sourceLineNo">276</span><a id="line.276">    private Authorizer locateImplementation( final String clazz ) throws WikiException {</a>
+<span class="sourceLineNo">277</span><a id="line.277">        if ( clazz != null ) {</a>
+<span class="sourceLineNo">278</span><a id="line.278">            try {</a>
+<span class="sourceLineNo">279</span><a id="line.279">                return ClassUtil.buildInstance( "org.apache.wiki.auth.authorize", clazz );</a>
+<span class="sourceLineNo">280</span><a id="line.280">            } catch( final ReflectiveOperationException e ) {</a>
+<span class="sourceLineNo">281</span><a id="line.281">                LOG.fatal( "Authorizer {} cannot be instantiated", clazz, e );</a>
+<span class="sourceLineNo">282</span><a id="line.282">                throw new WikiException( "Authorizer " + clazz + " cannot be instantiated", e );</a>
+<span class="sourceLineNo">283</span><a id="line.283">            }</a>
+<span class="sourceLineNo">284</span><a id="line.284">        }</a>
+<span class="sourceLineNo">285</span><a id="line.285"></a>
+<span class="sourceLineNo">286</span><a id="line.286">        throw new NoRequiredPropertyException( "Unable to find a " + PROP_AUTHORIZER + " entry in the properties.", PROP_AUTHORIZER );</a>
+<span class="sourceLineNo">287</span><a id="line.287">    }</a>
+<span class="sourceLineNo">288</span><a id="line.288"></a>
+<span class="sourceLineNo">289</span><a id="line.289">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">290</span><a id="line.290">    @Override</a>
+<span class="sourceLineNo">291</span><a id="line.291">    public boolean allowedByLocalPolicy( final Principal[] principals, final Permission permission ) {</a>
+<span class="sourceLineNo">292</span><a id="line.292">        for ( final Principal principal : principals ) {</a>
+<span class="sourceLineNo">293</span><a id="line.293">            // Get ProtectionDomain for this Principal from cache, or create new one</a>
+<span class="sourceLineNo">294</span><a id="line.294">            ProtectionDomain pd = m_cachedPds.get( principal );</a>
+<span class="sourceLineNo">295</span><a id="line.295">            if ( pd == null ) {</a>
+<span class="sourceLineNo">296</span><a id="line.296">                final ClassLoader cl = this.getClass().getClassLoader();</a>
+<span class="sourceLineNo">297</span><a id="line.297">                final CodeSource cs = new CodeSource( null, (Certificate[])null );</a>
+<span class="sourceLineNo">298</span><a id="line.298">                pd = new ProtectionDomain( cs, null, cl, new Principal[]{ principal } );</a>
+<span class="sourceLineNo">299</span><a id="line.299">                m_cachedPds.put( principal, pd );</a>
+<span class="sourceLineNo">300</span><a id="line.300">            }</a>
+<span class="sourceLineNo">301</span><a id="line.301"></a>
+<span class="sourceLineNo">302</span><a id="line.302">            // Consult the local policy and get the answer</a>
+<span class="sourceLineNo">303</span><a id="line.303">            if ( m_localPolicy.implies( pd, permission ) ) {</a>
+<span class="sourceLineNo">304</span><a id="line.304">                return true;</a>
+<span class="sourceLineNo">305</span><a id="line.305">            }</a>
+<span class="sourceLineNo">306</span><a id="line.306">        }</a>
+<span class="sourceLineNo">307</span><a id="line.307">        return false;</a>
+<span class="sourceLineNo">308</span><a id="line.308">    }</a>
+<span class="sourceLineNo">309</span><a id="line.309"></a>
+<span class="sourceLineNo">310</span><a id="line.310">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">311</span><a id="line.311">    @Override</a>
+<span class="sourceLineNo">312</span><a id="line.312">    public boolean checkStaticPermission( final Session session, final Permission permission ) {</a>
+<span class="sourceLineNo">313</span><a id="line.313">        return ( Boolean )Session.doPrivileged( session, ( PrivilegedAction&lt; Boolean &gt; )() -&gt; {</a>
+<span class="sourceLineNo">314</span><a id="line.314">            try {</a>
+<span class="sourceLineNo">315</span><a id="line.315">                // Check the JVM-wide security policy first</a>
+<span class="sourceLineNo">316</span><a id="line.316">                AccessController.checkPermission( permission );</a>
+<span class="sourceLineNo">317</span><a id="line.317">                return Boolean.TRUE;</a>
+<span class="sourceLineNo">318</span><a id="line.318">            } catch( final AccessControlException e ) {</a>
+<span class="sourceLineNo">319</span><a id="line.319">                // Global policy denied the permission</a>
+<span class="sourceLineNo">320</span><a id="line.320">            }</a>
+<span class="sourceLineNo">321</span><a id="line.321"></a>
+<span class="sourceLineNo">322</span><a id="line.322">            // Try the local policy - check each Role/Group and User Principal</a>
+<span class="sourceLineNo">323</span><a id="line.323">            if ( allowedByLocalPolicy( session.getRoles(), permission ) || allowedByLocalPolicy( session.getPrincipals(), permission ) ) {</a>
+<span class="sourceLineNo">324</span><a id="line.324">                return Boolean.TRUE;</a>
+<span class="sourceLineNo">325</span><a id="line.325">            }</a>
+<span class="sourceLineNo">326</span><a id="line.326">            return Boolean.FALSE;</a>
+<span class="sourceLineNo">327</span><a id="line.327">        } );</a>
+<span class="sourceLineNo">328</span><a id="line.328">    }</a>
+<span class="sourceLineNo">329</span><a id="line.329"></a>
+<span class="sourceLineNo">330</span><a id="line.330">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">331</span><a id="line.331">    @Override</a>
+<span class="sourceLineNo">332</span><a id="line.332">    public Principal resolvePrincipal( final String name ) {</a>
+<span class="sourceLineNo">333</span><a id="line.333">        // Check built-in Roles first</a>
+<span class="sourceLineNo">334</span><a id="line.334">        final Role role = new Role(name);</a>
+<span class="sourceLineNo">335</span><a id="line.335">        if ( Role.isBuiltInRole( role ) ) {</a>
+<span class="sourceLineNo">336</span><a id="line.336">            return role;</a>
+<span class="sourceLineNo">337</span><a id="line.337">        }</a>
+<span class="sourceLineNo">338</span><a id="line.338"></a>
+<span class="sourceLineNo">339</span><a id="line.339">        // Check Authorizer Roles</a>
+<span class="sourceLineNo">340</span><a id="line.340">        Principal principal = m_authorizer.findRole( name );</a>
+<span class="sourceLineNo">341</span><a id="line.341">        if ( principal != null ) {</a>
+<span class="sourceLineNo">342</span><a id="line.342">            return principal;</a>
+<span class="sourceLineNo">343</span><a id="line.343">        }</a>
+<span class="sourceLineNo">344</span><a id="line.344"></a>
+<span class="sourceLineNo">345</span><a id="line.345">        // Check Groups</a>
+<span class="sourceLineNo">346</span><a id="line.346">        principal = m_engine.getManager( GroupManager.class ).findRole( name );</a>
+<span class="sourceLineNo">347</span><a id="line.347">        if ( principal != null ) {</a>
+<span class="sourceLineNo">348</span><a id="line.348">            return principal;</a>
+<span class="sourceLineNo">349</span><a id="line.349">        }</a>
+<span class="sourceLineNo">350</span><a id="line.350"></a>
+<span class="sourceLineNo">351</span><a id="line.351">        // Ok, no luck---this must be a user principal</a>
+<span class="sourceLineNo">352</span><a id="line.352">        final Principal[] principals;</a>
+<span class="sourceLineNo">353</span><a id="line.353">        final UserProfile profile;</a>
+<span class="sourceLineNo">354</span><a id="line.354">        final UserDatabase db = m_engine.getManager( UserManager.class ).getUserDatabase();</a>
+<span class="sourceLineNo">355</span><a id="line.355">        try {</a>
+<span class="sourceLineNo">356</span><a id="line.356">            profile = db.find( name );</a>
+<span class="sourceLineNo">357</span><a id="line.357">            principals = db.getPrincipals( profile.getLoginName() );</a>
+<span class="sourceLineNo">358</span><a id="line.358">            for( final Principal value : principals ) {</a>
+<span class="sourceLineNo">359</span><a id="line.359">                principal = value;</a>
+<span class="sourceLineNo">360</span><a id="line.360">                if( principal.getName().equals( name ) ) {</a>
+<span class="sourceLineNo">361</span><a id="line.361">                    return principal;</a>
+<span class="sourceLineNo">362</span><a id="line.362">                }</a>
+<span class="sourceLineNo">363</span><a id="line.363">            }</a>
+<span class="sourceLineNo">364</span><a id="line.364">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">365</span><a id="line.365">            // We couldn't find the user...</a>
+<span class="sourceLineNo">366</span><a id="line.366">        }</a>
+<span class="sourceLineNo">367</span><a id="line.367">        // Ok, no luck---mark this as unresolved and move on</a>
+<span class="sourceLineNo">368</span><a id="line.368">        return new UnresolvedPrincipal( name );</a>
+<span class="sourceLineNo">369</span><a id="line.369">    }</a>
+<span class="sourceLineNo">370</span><a id="line.370"></a>
+<span class="sourceLineNo">371</span><a id="line.371"></a>
+<span class="sourceLineNo">372</span><a id="line.372">    // events processing .......................................................</a>
+<span class="sourceLineNo">373</span><a id="line.373"></a>
+<span class="sourceLineNo">374</span><a id="line.374">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">375</span><a id="line.375">    @Override</a>
+<span class="sourceLineNo">376</span><a id="line.376">    public synchronized void addWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">377</span><a id="line.377">        WikiEventManager.addWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">378</span><a id="line.378">    }</a>
+<span class="sourceLineNo">379</span><a id="line.379"></a>
+<span class="sourceLineNo">380</span><a id="line.380">    /** {@inheritDoc} */</a>
+<span class="sourceLineNo">381</span><a id="line.381">    @Override</a>
+<span class="sourceLineNo">382</span><a id="line.382">    public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</a>
+<span class="sourceLineNo">383</span><a id="line.383">        WikiEventManager.removeWikiEventListener( this, listener );</a>
+<span class="sourceLineNo">384</span><a id="line.384">    }</a>
+<span class="sourceLineNo">385</span><a id="line.385"></a>
+<span class="sourceLineNo">386</span><a id="line.386">}</a>
 
 
 
