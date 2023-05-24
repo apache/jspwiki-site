@@ -28,6 +28,8 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **24-May-2023**: Apache JSPWiki [CVE-2022-46907][] vulnerability disclosure
+
   * **23-May-2023:** Official [Apache JSPWiki 2.12.0 release][] is out!
 
   * **02-Aug-2022:** Apache JSPWiki [CVE-2022-27166][], [CVE-2022-28730][], [CVE-2022-28731][], [CVE-2022-28732][] and [CVE-2022-34158][] vulnerability disclosures 
@@ -39,8 +41,6 @@ JSPWiki is open-source software that is released under the Apache Public License
   * **24-Feb-2022:** Official [Apache JSPWiki 2.11.2 release][] is out!
 
   * **18-Dec-2021:** Official [Apache JSPWiki 2.11.1 release][] is out!
-
-  * **13-Dec-2021:** Apache JSPWiki affected by [Apache Log4J's CVE-2021-44228][]
 
 [Apache JSPWiki]: https://jspwiki.apache.org
 [WikiWiki]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiWiki
@@ -66,4 +66,4 @@ JSPWiki is open-source software that is released under the Apache Public License
 [CVE-2022-28731]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-28731
 [CVE-2022-28732]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-28732
 [CVE-2022-34158]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-34158
-[Apache Log4J's CVE-2021-44228]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Log4J-CVE-2021-44228
+[CVE-2022-46907]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-46907
