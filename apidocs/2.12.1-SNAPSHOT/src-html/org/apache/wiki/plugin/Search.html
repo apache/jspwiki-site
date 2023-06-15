@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18">*/</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.plugin;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.exceptions.PluginException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.plugin.Plugin;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.search.SearchResult;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.render.RenderingManager;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.search.SearchManager;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.util.XHTML;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.util.XhtmlUtil;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import org.jdom2.Element;</a>
+<span class="sourceLineNo">036</span><a id="line.36"></a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.io.IOException;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Collection;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.Iterator;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.Map;</a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42">/**</a>
+<span class="sourceLineNo">043</span><a id="line.43"> *  The "Search" plugin allows you to access the JSPWiki search routines and show the displays in an array on your page.</a>
+<span class="sourceLineNo">044</span><a id="line.44"> *</a>
+<span class="sourceLineNo">045</span><a id="line.45"> *  &lt;p&gt;Parameters : &lt;/p&gt;</a>
+<span class="sourceLineNo">046</span><a id="line.46"> *  &lt;ul&gt;</a>
+<span class="sourceLineNo">047</span><a id="line.47"> *  &lt;li&gt;&lt;b&gt;query&lt;/b&gt; - String. A standard JSPWiki search query.&lt;/li&gt;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *  &lt;li&gt;&lt;b&gt;set&lt;/b&gt; - String. The JSPWiki context variable that will hold the results of the query. This allows you to pass your queries to other plugins on the same page as well. &lt;/li&gt;</a>
+<span class="sourceLineNo">049</span><a id="line.49"> *  &lt;li&gt;&lt;b&gt;max&lt;/b&gt; - Integer. How many search results are shown at maximum.&lt;/li&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *  @since</a>
+<span class="sourceLineNo">053</span><a id="line.53"> */</a>
+<span class="sourceLineNo">054</span><a id="line.54">public class Search implements Plugin {</a>
+<span class="sourceLineNo">055</span><a id="line.55"></a>
+<span class="sourceLineNo">056</span><a id="line.56">    private static final Logger LOG = LogManager.getLogger(Search.class);</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    /** Parameter name for setting the query string.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">059</span><a id="line.59">    public static final String PARAM_QUERY = "query";</a>
+<span class="sourceLineNo">060</span><a id="line.60"></a>
+<span class="sourceLineNo">061</span><a id="line.61">    /** Parameter name for setting the name of the set where the results are stored. Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">062</span><a id="line.62">    public static final String PARAM_SET   = "set";</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">    /** The default name of the result set. */</a>
+<span class="sourceLineNo">065</span><a id="line.65">    public static final String DEFAULT_SETNAME = "_defaultSet";</a>
+<span class="sourceLineNo">066</span><a id="line.66"></a>
+<span class="sourceLineNo">067</span><a id="line.67">    /** The parameter name for setting the how many results will be fetched. Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    public static final String PARAM_MAX   = "max";</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">    /**</a>
+<span class="sourceLineNo">071</span><a id="line.71">     * {@inheritDoc}</a>
+<span class="sourceLineNo">072</span><a id="line.72">     */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    @Override</a>
+<span class="sourceLineNo">074</span><a id="line.74">    public String execute( final Context context, final Map&lt;String, String&gt; params ) throws PluginException {</a>
+<span class="sourceLineNo">075</span><a id="line.75">        int maxItems = Integer.MAX_VALUE;</a>
+<span class="sourceLineNo">076</span><a id="line.76">        final Collection&lt; SearchResult &gt; results;</a>
+<span class="sourceLineNo">077</span><a id="line.77"></a>
+<span class="sourceLineNo">078</span><a id="line.78">        final String queryString = params.get( PARAM_QUERY );</a>
+<span class="sourceLineNo">079</span><a id="line.79">        String set               = params.get( PARAM_SET );</a>
+<span class="sourceLineNo">080</span><a id="line.80">        final String max         = params.get( PARAM_MAX );</a>
+<span class="sourceLineNo">081</span><a id="line.81"></a>
+<span class="sourceLineNo">082</span><a id="line.82">        if ( set == null ) set = DEFAULT_SETNAME;</a>
+<span class="sourceLineNo">083</span><a id="line.83">        if ( max != null ) maxItems = Integer.parseInt( max );</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">        if ( queryString == null ) {</a>
+<span class="sourceLineNo">086</span><a id="line.86">            results = context.getVariable( set );</a>
+<span class="sourceLineNo">087</span><a id="line.87">        } else {</a>
+<span class="sourceLineNo">088</span><a id="line.88">            try {</a>
+<span class="sourceLineNo">089</span><a id="line.89">                results = doBasicQuery( context, queryString );</a>
+<span class="sourceLineNo">090</span><a id="line.90">                context.setVariable( set, results );</a>
+<span class="sourceLineNo">091</span><a id="line.91">            } catch( final Exception e ) {</a>
+<span class="sourceLineNo">092</span><a id="line.92">                return "&lt;div class='error'&gt;" + TextUtil.replaceEntities(e.getMessage()) + "&lt;/div&gt;\n";</a>
+<span class="sourceLineNo">093</span><a id="line.93">            }</a>
+<span class="sourceLineNo">094</span><a id="line.94">        }</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">        String res = "";</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">        if ( results != null ) {</a>
+<span class="sourceLineNo">099</span><a id="line.99">            res = renderResults(results,context,maxItems);</a>
+<span class="sourceLineNo">100</span><a id="line.100">        }</a>
+<span class="sourceLineNo">101</span><a id="line.101"></a>
+<span class="sourceLineNo">102</span><a id="line.102">        return res;</a>
+<span class="sourceLineNo">103</span><a id="line.103">    }</a>
+<span class="sourceLineNo">104</span><a id="line.104"></a>
+<span class="sourceLineNo">105</span><a id="line.105">    private Collection&lt;SearchResult&gt; doBasicQuery( final Context context, final String query ) throws ProviderException, IOException {</a>
+<span class="sourceLineNo">106</span><a id="line.106">        LOG.debug( "Searching for string " + query );</a>
+<span class="sourceLineNo">107</span><a id="line.107">        return context.getEngine().getManager( SearchManager.class ).findPages( query, context );</a>
+<span class="sourceLineNo">108</span><a id="line.108">    }</a>
+<span class="sourceLineNo">109</span><a id="line.109"></a>
+<span class="sourceLineNo">110</span><a id="line.110">    private String renderResults( final Collection&lt;SearchResult&gt; results, final Context context, final int maxItems ) {</a>
+<span class="sourceLineNo">111</span><a id="line.111">        final Engine engine = context.getEngine();</a>
+<span class="sourceLineNo">112</span><a id="line.112"></a>
+<span class="sourceLineNo">113</span><a id="line.113">        final Element table = XhtmlUtil.element(XHTML.table);</a>
+<span class="sourceLineNo">114</span><a id="line.114">        //table.setAttribute(XHTML.ATTR_border,"0");</a>
+<span class="sourceLineNo">115</span><a id="line.115">        //table.setAttribute(XHTML.ATTR_cellpadding,"4");</a>
+<span class="sourceLineNo">116</span><a id="line.116">        table.setAttribute(XHTML.ATTR_class,"wikitable search-result");</a>
+<span class="sourceLineNo">117</span><a id="line.117"></a>
+<span class="sourceLineNo">118</span><a id="line.118">        Element row = XhtmlUtil.element(XHTML.tr);</a>
+<span class="sourceLineNo">119</span><a id="line.119">        table.addContent(row);</a>
+<span class="sourceLineNo">120</span><a id="line.120"></a>
+<span class="sourceLineNo">121</span><a id="line.121">        final Element th1 = XhtmlUtil.element(XHTML.th,"Page");</a>
+<span class="sourceLineNo">122</span><a id="line.122">        th1.setAttribute(XHTML.ATTR_width,"30%");</a>
+<span class="sourceLineNo">123</span><a id="line.123">        th1.setAttribute(XHTML.ATTR_align,"left");</a>
+<span class="sourceLineNo">124</span><a id="line.124">        row.addContent(th1);</a>
+<span class="sourceLineNo">125</span><a id="line.125"></a>
+<span class="sourceLineNo">126</span><a id="line.126">        final Element th2 = XhtmlUtil.element(XHTML.th,"Score");</a>
+<span class="sourceLineNo">127</span><a id="line.127">        th2.setAttribute(XHTML.ATTR_align,"left");</a>
+<span class="sourceLineNo">128</span><a id="line.128">        row.addContent(th2);</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">        int idx = 0;</a>
+<span class="sourceLineNo">131</span><a id="line.131">        for ( final Iterator&lt;SearchResult&gt; i = results.iterator(); i.hasNext() &amp;&amp; idx++ &lt;= maxItems; ) {</a>
+<span class="sourceLineNo">132</span><a id="line.132">            final SearchResult sr = i.next();</a>
+<span class="sourceLineNo">133</span><a id="line.133">            row = XhtmlUtil.element(XHTML.tr);</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">            final Element name = XhtmlUtil.element(XHTML.td);</a>
+<span class="sourceLineNo">136</span><a id="line.136">            name.setAttribute(XHTML.ATTR_width,"30%");</a>
+<span class="sourceLineNo">137</span><a id="line.137"></a>
+<span class="sourceLineNo">138</span><a id="line.138">            name.addContent( XhtmlUtil.link(context.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), sr.getPage().getName() ),</a>
+<span class="sourceLineNo">139</span><a id="line.139">                             engine.getManager( RenderingManager.class ).beautifyTitle(sr.getPage().getName() ) ) );</a>
+<span class="sourceLineNo">140</span><a id="line.140"></a>
+<span class="sourceLineNo">141</span><a id="line.141">            row.addContent(name);</a>
+<span class="sourceLineNo">142</span><a id="line.142"></a>
+<span class="sourceLineNo">143</span><a id="line.143">            row.addContent(XhtmlUtil.element(XHTML.td,""+sr.getScore()));</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">            table.addContent(row);</a>
+<span class="sourceLineNo">146</span><a id="line.146">        }</a>
+<span class="sourceLineNo">147</span><a id="line.147"></a>
+<span class="sourceLineNo">148</span><a id="line.148">        if ( results.isEmpty() ) {</a>
+<span class="sourceLineNo">149</span><a id="line.149">            row = XhtmlUtil.element(XHTML.tr);</a>
+<span class="sourceLineNo">150</span><a id="line.150"></a>
+<span class="sourceLineNo">151</span><a id="line.151">            final Element td = XhtmlUtil.element(XHTML.td);</a>
+<span class="sourceLineNo">152</span><a id="line.152">            td.setAttribute(XHTML.ATTR_colspan,"2");</a>
+<span class="sourceLineNo">153</span><a id="line.153">            final Element b = XhtmlUtil.element(XHTML.b,"No results");</a>
+<span class="sourceLineNo">154</span><a id="line.154">            td.addContent(b);</a>
+<span class="sourceLineNo">155</span><a id="line.155"></a>
+<span class="sourceLineNo">156</span><a id="line.156">            row.addContent(td);</a>
+<span class="sourceLineNo">157</span><a id="line.157"></a>
+<span class="sourceLineNo">158</span><a id="line.158">            table.addContent(row);</a>
+<span class="sourceLineNo">159</span><a id="line.159">        }</a>
+<span class="sourceLineNo">160</span><a id="line.160"></a>
+<span class="sourceLineNo">161</span><a id="line.161">        return XhtmlUtil.serialize(table);</a>
+<span class="sourceLineNo">162</span><a id="line.162">    }</a>
+<span class="sourceLineNo">163</span><a id="line.163">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
