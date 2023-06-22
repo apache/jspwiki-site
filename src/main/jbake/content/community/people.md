@@ -20,6 +20,7 @@ The current JSPWiki committer list:
   * Juan Pablo Santos
   * Christoph Sauer
   * David Vittor
+  * Arturo Benal
   
   
 And, of course, all the fine people of the jspwiki-dev [mailing list]!
@@ -38,5 +39,6 @@ The Project Management Committee consists of
   * Craig Russell
   * Juan Pablo Santos
   * David Vittor
+  * Arturo Bernal
   
 [mailing list]: mailing_lists.html
