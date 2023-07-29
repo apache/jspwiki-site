@@ -148,261 +148,293 @@
 <span class="sourceLineNo">139</span><a id="line.139">            // now load the cascade (new in 2.5)</a>
 <span class="sourceLineNo">140</span><a id="line.140">            loadWebAppPropsCascade( context, props );</a>
 <span class="sourceLineNo">141</span><a id="line.141"></a>
-<span class="sourceLineNo">142</span><a id="line.142">            // add system properties beginning with jspwiki...</a>
-<span class="sourceLineNo">143</span><a id="line.143">            final Map&lt; String, String &gt; sysprops = collectPropertiesFrom( System.getProperties().entrySet().stream()</a>
-<span class="sourceLineNo">144</span><a id="line.144">                                                                                .collect( Collectors.toMap( Object::toString, Object::toString ) ) );</a>
-<span class="sourceLineNo">145</span><a id="line.145">            props.putAll( sysprops );</a>
-<span class="sourceLineNo">146</span><a id="line.146"></a>
-<span class="sourceLineNo">147</span><a id="line.147">            // finally, expand the variables (new in 2.5)</a>
-<span class="sourceLineNo">148</span><a id="line.148">            expandVars( props );</a>
+<span class="sourceLineNo">142</span><a id="line.142">            // sets the JSPWiki working directory (jspwiki.workDir)</a>
+<span class="sourceLineNo">143</span><a id="line.143">            setWorkDir( context, props );</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">            // add system properties beginning with jspwiki...</a>
+<span class="sourceLineNo">146</span><a id="line.146">            final Map&lt; String, String &gt; sysprops = collectPropertiesFrom( System.getProperties().entrySet().stream()</a>
+<span class="sourceLineNo">147</span><a id="line.147">                                                                                .collect( Collectors.toMap( Object::toString, Object::toString ) ) );</a>
+<span class="sourceLineNo">148</span><a id="line.148">            props.putAll( sysprops );</a>
 <span class="sourceLineNo">149</span><a id="line.149"></a>
-<span class="sourceLineNo">150</span><a id="line.150">            return props;</a>
-<span class="sourceLineNo">151</span><a id="line.151">        } catch( final Exception e ) {</a>
-<span class="sourceLineNo">152</span><a id="line.152">            LOG.error( "JSPWiki: Unable to load and setup properties from jspwiki.properties. " + e.getMessage(), e );</a>
-<span class="sourceLineNo">153</span><a id="line.153">        }</a>
-<span class="sourceLineNo">154</span><a id="line.154"></a>
-<span class="sourceLineNo">155</span><a id="line.155">        return null;</a>
-<span class="sourceLineNo">156</span><a id="line.156">    }</a>
+<span class="sourceLineNo">150</span><a id="line.150">            // finally, expand the variables (new in 2.5)</a>
+<span class="sourceLineNo">151</span><a id="line.151">            expandVars( props );</a>
+<span class="sourceLineNo">152</span><a id="line.152"></a>
+<span class="sourceLineNo">153</span><a id="line.153">            return props;</a>
+<span class="sourceLineNo">154</span><a id="line.154">        } catch( final Exception e ) {</a>
+<span class="sourceLineNo">155</span><a id="line.155">            LOG.error( "JSPWiki: Unable to load and setup properties from jspwiki.properties. " + e.getMessage(), e );</a>
+<span class="sourceLineNo">156</span><a id="line.156">        }</a>
 <span class="sourceLineNo">157</span><a id="line.157"></a>
-<span class="sourceLineNo">158</span><a id="line.158">    static Map&lt; String, String &gt; collectPropertiesFrom( final Map&lt; String, String &gt; map ) {</a>
-<span class="sourceLineNo">159</span><a id="line.159">        return map.entrySet().stream()</a>
-<span class="sourceLineNo">160</span><a id="line.160">                  .filter( entry -&gt; entry.getKey().toLowerCase().startsWith( "jspwiki" ) )</a>
-<span class="sourceLineNo">161</span><a id="line.161">                  .map( entry -&gt; new AbstractMap.SimpleEntry&lt;&gt;( entry.getKey().replace( "_", "." ), entry.getValue() ) )</a>
-<span class="sourceLineNo">162</span><a id="line.162">                  .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );</a>
-<span class="sourceLineNo">163</span><a id="line.163">    }</a>
-<span class="sourceLineNo">164</span><a id="line.164"></a>
-<span class="sourceLineNo">165</span><a id="line.165">    /**</a>
-<span class="sourceLineNo">166</span><a id="line.166">     * Figure out where our properties lie.</a>
-<span class="sourceLineNo">167</span><a id="line.167">     * </a>
-<span class="sourceLineNo">168</span><a id="line.168">     * @param context servlet context</a>
-<span class="sourceLineNo">169</span><a id="line.169">     * @param propertyFile property file</a>
-<span class="sourceLineNo">170</span><a id="line.170">     * @return inputstream holding the properties file</a>
-<span class="sourceLineNo">171</span><a id="line.171">     * @throws FileNotFoundException properties file not found</a>
-<span class="sourceLineNo">172</span><a id="line.172">     */</a>
-<span class="sourceLineNo">173</span><a id="line.173">    static InputStream loadCustomPropertiesFile( final ServletContext context, final String propertyFile ) throws IOException {</a>
-<span class="sourceLineNo">174</span><a id="line.174">        final InputStream propertyStream;</a>
-<span class="sourceLineNo">175</span><a id="line.175">        if( propertyFile == null ) {</a>
-<span class="sourceLineNo">176</span><a id="line.176">            LOG.debug( "No " + PARAM_CUSTOMCONFIG + " defined for this context, looking for custom properties file with default name of: " + CUSTOM_JSPWIKI_CONFIG );</a>
-<span class="sourceLineNo">177</span><a id="line.177">            //  Use the custom property file at the default location</a>
-<span class="sourceLineNo">178</span><a id="line.178">            propertyStream =  locateClassPathResource(context, CUSTOM_JSPWIKI_CONFIG);</a>
-<span class="sourceLineNo">179</span><a id="line.179">        } else {</a>
-<span class="sourceLineNo">180</span><a id="line.180">            LOG.debug( PARAM_CUSTOMCONFIG + " defined, using " + propertyFile + " as the custom properties file." );</a>
-<span class="sourceLineNo">181</span><a id="line.181">            propertyStream = Files.newInputStream( new File(propertyFile).toPath() );</a>
-<span class="sourceLineNo">182</span><a id="line.182">        }</a>
-<span class="sourceLineNo">183</span><a id="line.183">        return propertyStream;</a>
-<span class="sourceLineNo">184</span><a id="line.184">    }</a>
-<span class="sourceLineNo">185</span><a id="line.185"></a>
-<span class="sourceLineNo">186</span><a id="line.186"></a>
-<span class="sourceLineNo">187</span><a id="line.187">    /**</a>
-<span class="sourceLineNo">188</span><a id="line.188">     *  Returns the property set as a Properties object.</a>
-<span class="sourceLineNo">189</span><a id="line.189">     *</a>
-<span class="sourceLineNo">190</span><a id="line.190">     *  @return A property set.</a>
-<span class="sourceLineNo">191</span><a id="line.191">     */</a>
-<span class="sourceLineNo">192</span><a id="line.192">    public static Properties getDefaultProperties() {</a>
-<span class="sourceLineNo">193</span><a id="line.193">        final Properties props = new Properties();</a>
-<span class="sourceLineNo">194</span><a id="line.194">        try( final InputStream in = PropertyReader.class.getResourceAsStream( DEFAULT_JSPWIKI_CONFIG ) ) {</a>
-<span class="sourceLineNo">195</span><a id="line.195">            if( in != null ) {</a>
-<span class="sourceLineNo">196</span><a id="line.196">                props.load( in );</a>
-<span class="sourceLineNo">197</span><a id="line.197">            }</a>
-<span class="sourceLineNo">198</span><a id="line.198">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">199</span><a id="line.199">            LOG.error( "Unable to load default propertyfile '" + DEFAULT_JSPWIKI_CONFIG + "'" + e.getMessage(), e );</a>
-<span class="sourceLineNo">200</span><a id="line.200">        }</a>
-<span class="sourceLineNo">201</span><a id="line.201">        </a>
-<span class="sourceLineNo">202</span><a id="line.202">        return props;</a>
-<span class="sourceLineNo">203</span><a id="line.203">    }</a>
-<span class="sourceLineNo">204</span><a id="line.204"></a>
-<span class="sourceLineNo">205</span><a id="line.205">    /**</a>
-<span class="sourceLineNo">206</span><a id="line.206">     *  Returns a property set consisting of the default Property Set overlaid with a custom property set</a>
-<span class="sourceLineNo">207</span><a id="line.207">     *</a>
-<span class="sourceLineNo">208</span><a id="line.208">     *  @param fileName Reference to the custom override file</a>
-<span class="sourceLineNo">209</span><a id="line.209">     *  @return A property set consisting of the default property set and custom property set, with</a>
-<span class="sourceLineNo">210</span><a id="line.210">     *          the latter's properties replacing the former for any common values</a>
-<span class="sourceLineNo">211</span><a id="line.211">     */</a>
-<span class="sourceLineNo">212</span><a id="line.212">    public static Properties getCombinedProperties( final String fileName ) {</a>
-<span class="sourceLineNo">213</span><a id="line.213">        final Properties newPropertySet = getDefaultProperties();</a>
-<span class="sourceLineNo">214</span><a id="line.214">        try( final InputStream in = PropertyReader.class.getResourceAsStream( fileName ) ) {</a>
-<span class="sourceLineNo">215</span><a id="line.215">            if( in != null ) {</a>
-<span class="sourceLineNo">216</span><a id="line.216">                newPropertySet.load( in );</a>
-<span class="sourceLineNo">217</span><a id="line.217">            } else {</a>
-<span class="sourceLineNo">218</span><a id="line.218">                LOG.error( "*** Custom property file \"" + fileName + "\" not found, relying on default file alone." );</a>
-<span class="sourceLineNo">219</span><a id="line.219">            }</a>
-<span class="sourceLineNo">220</span><a id="line.220">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">221</span><a id="line.221">            LOG.error( "Unable to load propertyfile '" + fileName + "'" + e.getMessage(), e );</a>
-<span class="sourceLineNo">222</span><a id="line.222">        }</a>
-<span class="sourceLineNo">223</span><a id="line.223"></a>
-<span class="sourceLineNo">224</span><a id="line.224">        return newPropertySet;</a>
-<span class="sourceLineNo">225</span><a id="line.225">    }</a>
+<span class="sourceLineNo">158</span><a id="line.158">        return null;</a>
+<span class="sourceLineNo">159</span><a id="line.159">    }</a>
+<span class="sourceLineNo">160</span><a id="line.160"></a>
+<span class="sourceLineNo">161</span><a id="line.161">    static Map&lt; String, String &gt; collectPropertiesFrom( final Map&lt; String, String &gt; map ) {</a>
+<span class="sourceLineNo">162</span><a id="line.162">        return map.entrySet().stream()</a>
+<span class="sourceLineNo">163</span><a id="line.163">                  .filter( entry -&gt; entry.getKey().toLowerCase().startsWith( "jspwiki" ) )</a>
+<span class="sourceLineNo">164</span><a id="line.164">                  .map( entry -&gt; new AbstractMap.SimpleEntry&lt;&gt;( entry.getKey().replace( "_", "." ), entry.getValue() ) )</a>
+<span class="sourceLineNo">165</span><a id="line.165">                  .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );</a>
+<span class="sourceLineNo">166</span><a id="line.166">    }</a>
+<span class="sourceLineNo">167</span><a id="line.167"></a>
+<span class="sourceLineNo">168</span><a id="line.168">    /**</a>
+<span class="sourceLineNo">169</span><a id="line.169">     * Figure out where our properties lie.</a>
+<span class="sourceLineNo">170</span><a id="line.170">     * </a>
+<span class="sourceLineNo">171</span><a id="line.171">     * @param context servlet context</a>
+<span class="sourceLineNo">172</span><a id="line.172">     * @param propertyFile property file</a>
+<span class="sourceLineNo">173</span><a id="line.173">     * @return inputstream holding the properties file</a>
+<span class="sourceLineNo">174</span><a id="line.174">     * @throws FileNotFoundException properties file not found</a>
+<span class="sourceLineNo">175</span><a id="line.175">     */</a>
+<span class="sourceLineNo">176</span><a id="line.176">    static InputStream loadCustomPropertiesFile( final ServletContext context, final String propertyFile ) throws IOException {</a>
+<span class="sourceLineNo">177</span><a id="line.177">        final InputStream propertyStream;</a>
+<span class="sourceLineNo">178</span><a id="line.178">        if( propertyFile == null ) {</a>
+<span class="sourceLineNo">179</span><a id="line.179">            LOG.debug( "No " + PARAM_CUSTOMCONFIG + " defined for this context, looking for custom properties file with default name of: " + CUSTOM_JSPWIKI_CONFIG );</a>
+<span class="sourceLineNo">180</span><a id="line.180">            //  Use the custom property file at the default location</a>
+<span class="sourceLineNo">181</span><a id="line.181">            propertyStream =  locateClassPathResource(context, CUSTOM_JSPWIKI_CONFIG);</a>
+<span class="sourceLineNo">182</span><a id="line.182">        } else {</a>
+<span class="sourceLineNo">183</span><a id="line.183">            LOG.debug( PARAM_CUSTOMCONFIG + " defined, using " + propertyFile + " as the custom properties file." );</a>
+<span class="sourceLineNo">184</span><a id="line.184">            propertyStream = Files.newInputStream( new File(propertyFile).toPath() );</a>
+<span class="sourceLineNo">185</span><a id="line.185">        }</a>
+<span class="sourceLineNo">186</span><a id="line.186">        return propertyStream;</a>
+<span class="sourceLineNo">187</span><a id="line.187">    }</a>
+<span class="sourceLineNo">188</span><a id="line.188"></a>
+<span class="sourceLineNo">189</span><a id="line.189"></a>
+<span class="sourceLineNo">190</span><a id="line.190">    /**</a>
+<span class="sourceLineNo">191</span><a id="line.191">     *  Returns the property set as a Properties object.</a>
+<span class="sourceLineNo">192</span><a id="line.192">     *</a>
+<span class="sourceLineNo">193</span><a id="line.193">     *  @return A property set.</a>
+<span class="sourceLineNo">194</span><a id="line.194">     */</a>
+<span class="sourceLineNo">195</span><a id="line.195">    public static Properties getDefaultProperties() {</a>
+<span class="sourceLineNo">196</span><a id="line.196">        final Properties props = new Properties();</a>
+<span class="sourceLineNo">197</span><a id="line.197">        try( final InputStream in = PropertyReader.class.getResourceAsStream( DEFAULT_JSPWIKI_CONFIG ) ) {</a>
+<span class="sourceLineNo">198</span><a id="line.198">            if( in != null ) {</a>
+<span class="sourceLineNo">199</span><a id="line.199">                props.load( in );</a>
+<span class="sourceLineNo">200</span><a id="line.200">            }</a>
+<span class="sourceLineNo">201</span><a id="line.201">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">202</span><a id="line.202">            LOG.error( "Unable to load default propertyfile '" + DEFAULT_JSPWIKI_CONFIG + "'" + e.getMessage(), e );</a>
+<span class="sourceLineNo">203</span><a id="line.203">        }</a>
+<span class="sourceLineNo">204</span><a id="line.204">        </a>
+<span class="sourceLineNo">205</span><a id="line.205">        return props;</a>
+<span class="sourceLineNo">206</span><a id="line.206">    }</a>
+<span class="sourceLineNo">207</span><a id="line.207"></a>
+<span class="sourceLineNo">208</span><a id="line.208">    /**</a>
+<span class="sourceLineNo">209</span><a id="line.209">     *  Returns a property set consisting of the default Property Set overlaid with a custom property set</a>
+<span class="sourceLineNo">210</span><a id="line.210">     *</a>
+<span class="sourceLineNo">211</span><a id="line.211">     *  @param fileName Reference to the custom override file</a>
+<span class="sourceLineNo">212</span><a id="line.212">     *  @return A property set consisting of the default property set and custom property set, with</a>
+<span class="sourceLineNo">213</span><a id="line.213">     *          the latter's properties replacing the former for any common values</a>
+<span class="sourceLineNo">214</span><a id="line.214">     */</a>
+<span class="sourceLineNo">215</span><a id="line.215">    public static Properties getCombinedProperties( final String fileName ) {</a>
+<span class="sourceLineNo">216</span><a id="line.216">        final Properties newPropertySet = getDefaultProperties();</a>
+<span class="sourceLineNo">217</span><a id="line.217">        try( final InputStream in = PropertyReader.class.getResourceAsStream( fileName ) ) {</a>
+<span class="sourceLineNo">218</span><a id="line.218">            if( in != null ) {</a>
+<span class="sourceLineNo">219</span><a id="line.219">                newPropertySet.load( in );</a>
+<span class="sourceLineNo">220</span><a id="line.220">            } else {</a>
+<span class="sourceLineNo">221</span><a id="line.221">                LOG.error( "*** Custom property file \"" + fileName + "\" not found, relying on default file alone." );</a>
+<span class="sourceLineNo">222</span><a id="line.222">            }</a>
+<span class="sourceLineNo">223</span><a id="line.223">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">224</span><a id="line.224">            LOG.error( "Unable to load propertyfile '" + fileName + "'" + e.getMessage(), e );</a>
+<span class="sourceLineNo">225</span><a id="line.225">        }</a>
 <span class="sourceLineNo">226</span><a id="line.226"></a>
-<span class="sourceLineNo">227</span><a id="line.227">    /**</a>
-<span class="sourceLineNo">228</span><a id="line.228">     * Returns the ServletContext Init parameter if has been set, otherwise checks for a System property of the same name. If neither are</a>
-<span class="sourceLineNo">229</span><a id="line.229">     * defined, returns null. This permits both Servlet- and System-defined cascading properties.</a>
-<span class="sourceLineNo">230</span><a id="line.230">     */</a>
-<span class="sourceLineNo">231</span><a id="line.231">    private static String getInitParameter( final ServletContext context, final String name ) {</a>
-<span class="sourceLineNo">232</span><a id="line.232">        final String value = context.getInitParameter( name );</a>
-<span class="sourceLineNo">233</span><a id="line.233">        return value != null ? value</a>
-<span class="sourceLineNo">234</span><a id="line.234">                             : System.getProperty( name ) ;</a>
-<span class="sourceLineNo">235</span><a id="line.235">    }</a>
-<span class="sourceLineNo">236</span><a id="line.236"></a>
-<span class="sourceLineNo">237</span><a id="line.237"></a>
-<span class="sourceLineNo">238</span><a id="line.238">    /**</a>
-<span class="sourceLineNo">239</span><a id="line.239">     *  Implement the cascade functionality.</a>
-<span class="sourceLineNo">240</span><a id="line.240">     *</a>
-<span class="sourceLineNo">241</span><a id="line.241">     * @param context             where to read the cascade from</a>
-<span class="sourceLineNo">242</span><a id="line.242">     * @param defaultProperties   properties to merge the cascading properties to</a>
-<span class="sourceLineNo">243</span><a id="line.243">     * @since 2.5.x</a>
-<span class="sourceLineNo">244</span><a id="line.244">     */</a>
-<span class="sourceLineNo">245</span><a id="line.245">    private static void loadWebAppPropsCascade( final ServletContext context, final Properties defaultProperties ) {</a>
-<span class="sourceLineNo">246</span><a id="line.246">        if( getInitParameter( context, PARAM_CUSTOMCONFIG_CASCADEPREFIX + "1" ) == null ) {</a>
-<span class="sourceLineNo">247</span><a id="line.247">            LOG.debug( " No cascading properties defined for this context" );</a>
-<span class="sourceLineNo">248</span><a id="line.248">            return;</a>
-<span class="sourceLineNo">249</span><a id="line.249">        }</a>
-<span class="sourceLineNo">250</span><a id="line.250"></a>
-<span class="sourceLineNo">251</span><a id="line.251">        // get into cascade...</a>
-<span class="sourceLineNo">252</span><a id="line.252">        int depth = 0;</a>
-<span class="sourceLineNo">253</span><a id="line.253">        while( true ) {</a>
-<span class="sourceLineNo">254</span><a id="line.254">            depth++;</a>
-<span class="sourceLineNo">255</span><a id="line.255">            final String propertyFile = getInitParameter( context, PARAM_CUSTOMCONFIG_CASCADEPREFIX + depth );</a>
-<span class="sourceLineNo">256</span><a id="line.256">            if( propertyFile == null ) {</a>
-<span class="sourceLineNo">257</span><a id="line.257">                break;</a>
-<span class="sourceLineNo">258</span><a id="line.258">            }</a>
-<span class="sourceLineNo">259</span><a id="line.259"></a>
-<span class="sourceLineNo">260</span><a id="line.260">            try( final InputStream propertyStream = Files.newInputStream(Paths.get(( propertyFile ) ))) {</a>
-<span class="sourceLineNo">261</span><a id="line.261">                LOG.info( " Reading additional properties from " + propertyFile + " and merge to cascade." );</a>
-<span class="sourceLineNo">262</span><a id="line.262">                final Properties additionalProps = new Properties();</a>
-<span class="sourceLineNo">263</span><a id="line.263">                additionalProps.load( propertyStream );</a>
-<span class="sourceLineNo">264</span><a id="line.264">                defaultProperties.putAll( additionalProps );</a>
-<span class="sourceLineNo">265</span><a id="line.265">            } catch( final Exception e ) {</a>
-<span class="sourceLineNo">266</span><a id="line.266">                LOG.error( "JSPWiki: Unable to load and setup properties from " + propertyFile + "." + e.getMessage() );</a>
-<span class="sourceLineNo">267</span><a id="line.267">            }</a>
-<span class="sourceLineNo">268</span><a id="line.268">        }</a>
-<span class="sourceLineNo">269</span><a id="line.269">    }</a>
-<span class="sourceLineNo">270</span><a id="line.270"></a>
-<span class="sourceLineNo">271</span><a id="line.271">    /**</a>
-<span class="sourceLineNo">272</span><a id="line.272">     *  You define a property variable by using the prefix "var.x" as a property. In property values you can then use the "$x" identifier</a>
-<span class="sourceLineNo">273</span><a id="line.273">     *  to use this variable.</a>
-<span class="sourceLineNo">274</span><a id="line.274">     *</a>
-<span class="sourceLineNo">275</span><a id="line.275">     *  For example, you could declare a base directory for all your files like this and use it in all your other property definitions with</a>
-<span class="sourceLineNo">276</span><a id="line.276">     *  a "$basedir". Note that it does not matter if you define the variable before its usage.</a>
-<span class="sourceLineNo">277</span><a id="line.277">     *  &lt;pre&gt;</a>
-<span class="sourceLineNo">278</span><a id="line.278">     *  var.basedir = /p/mywiki;</a>
-<span class="sourceLineNo">279</span><a id="line.279">     *  jspwiki.fileSystemProvider.pageDir =         $basedir/www/</a>
-<span class="sourceLineNo">280</span><a id="line.280">     *  jspwiki.basicAttachmentProvider.storageDir = $basedir/www/</a>
-<span class="sourceLineNo">281</span><a id="line.281">     *  jspwiki.workDir =                            $basedir/wrk/</a>
-<span class="sourceLineNo">282</span><a id="line.282">     *  &lt;/pre&gt;</a>
-<span class="sourceLineNo">283</span><a id="line.283">     *</a>
-<span class="sourceLineNo">284</span><a id="line.284">     * @param properties - properties to expand;</a>
-<span class="sourceLineNo">285</span><a id="line.285">     */</a>
-<span class="sourceLineNo">286</span><a id="line.286">    public static void expandVars( final Properties properties ) {</a>
-<span class="sourceLineNo">287</span><a id="line.287">        //get variable name/values from properties...</a>
-<span class="sourceLineNo">288</span><a id="line.288">        final Map&lt; String, String &gt; vars = new HashMap&lt;&gt;();</a>
-<span class="sourceLineNo">289</span><a id="line.289">        Enumeration&lt; ? &gt; propertyList = properties.propertyNames();</a>
-<span class="sourceLineNo">290</span><a id="line.290">        while( propertyList.hasMoreElements() ) {</a>
-<span class="sourceLineNo">291</span><a id="line.291">            final String propertyName = ( String )propertyList.nextElement();</a>
-<span class="sourceLineNo">292</span><a id="line.292">            final String propertyValue = properties.getProperty( propertyName );</a>
-<span class="sourceLineNo">293</span><a id="line.293"></a>
-<span class="sourceLineNo">294</span><a id="line.294">            if ( propertyName.startsWith( PARAM_VAR_DECLARATION ) ) {</a>
-<span class="sourceLineNo">295</span><a id="line.295">                final String varName = propertyName.substring( 4 ).trim();</a>
-<span class="sourceLineNo">296</span><a id="line.296">                final String varValue = propertyValue.trim();</a>
-<span class="sourceLineNo">297</span><a id="line.297">                vars.put( varName, varValue );</a>
-<span class="sourceLineNo">298</span><a id="line.298">            }</a>
-<span class="sourceLineNo">299</span><a id="line.299">        }</a>
-<span class="sourceLineNo">300</span><a id="line.300"></a>
-<span class="sourceLineNo">301</span><a id="line.301">        //now, substitute $ values in property values with vars...</a>
-<span class="sourceLineNo">302</span><a id="line.302">        propertyList = properties.propertyNames();</a>
-<span class="sourceLineNo">303</span><a id="line.303">        while( propertyList.hasMoreElements() ) {</a>
-<span class="sourceLineNo">304</span><a id="line.304">            final String propertyName = ( String )propertyList.nextElement();</a>
-<span class="sourceLineNo">305</span><a id="line.305">            String propertyValue = properties.getProperty( propertyName );</a>
-<span class="sourceLineNo">306</span><a id="line.306"></a>
-<span class="sourceLineNo">307</span><a id="line.307">            //skip var properties itself...</a>
-<span class="sourceLineNo">308</span><a id="line.308">            if( propertyName.startsWith( PARAM_VAR_DECLARATION ) ) {</a>
-<span class="sourceLineNo">309</span><a id="line.309">                continue;</a>
-<span class="sourceLineNo">310</span><a id="line.310">            }</a>
-<span class="sourceLineNo">311</span><a id="line.311"></a>
-<span class="sourceLineNo">312</span><a id="line.312">            for( final Map.Entry&lt; String, String &gt; entry : vars.entrySet() ) {</a>
-<span class="sourceLineNo">313</span><a id="line.313">                final String varName = entry.getKey();</a>
-<span class="sourceLineNo">314</span><a id="line.314">                final String varValue = entry.getValue();</a>
-<span class="sourceLineNo">315</span><a id="line.315"></a>
-<span class="sourceLineNo">316</span><a id="line.316">                //replace old property value, using the same variabe. If we don't overwrite</a>
-<span class="sourceLineNo">317</span><a id="line.317">                //the same one the next loop works with the original one again and</a>
-<span class="sourceLineNo">318</span><a id="line.318">                //multiple var expansion won't work...</a>
-<span class="sourceLineNo">319</span><a id="line.319">                propertyValue = TextUtil.replaceString( propertyValue, PARAM_VAR_IDENTIFIER + varName, varValue );</a>
-<span class="sourceLineNo">320</span><a id="line.320"></a>
-<span class="sourceLineNo">321</span><a id="line.321">                //add the new PropertyValue to the properties</a>
-<span class="sourceLineNo">322</span><a id="line.322">                properties.put( propertyName, propertyValue );</a>
-<span class="sourceLineNo">323</span><a id="line.323">            }</a>
-<span class="sourceLineNo">324</span><a id="line.324">        }</a>
-<span class="sourceLineNo">325</span><a id="line.325">    }</a>
-<span class="sourceLineNo">326</span><a id="line.326"></a>
-<span class="sourceLineNo">327</span><a id="line.327">    /**</a>
-<span class="sourceLineNo">328</span><a id="line.328">     * Locate a resource stored in the class path. Try first with "WEB-INF/classes"</a>
-<span class="sourceLineNo">329</span><a id="line.329">     * from the web app and fallback to "resourceName".</a>
-<span class="sourceLineNo">330</span><a id="line.330">     *</a>
-<span class="sourceLineNo">331</span><a id="line.331">     * @param context the servlet context</a>
-<span class="sourceLineNo">332</span><a id="line.332">     * @param resourceName the name of the resource</a>
-<span class="sourceLineNo">333</span><a id="line.333">     * @return the input stream of the resource or &lt;b&gt;null&lt;/b&gt; if the resource was not found</a>
-<span class="sourceLineNo">334</span><a id="line.334">     */</a>
-<span class="sourceLineNo">335</span><a id="line.335">    public static InputStream locateClassPathResource( final ServletContext context, final String resourceName ) {</a>
-<span class="sourceLineNo">336</span><a id="line.336">        InputStream result;</a>
-<span class="sourceLineNo">337</span><a id="line.337">        String currResourceLocation;</a>
-<span class="sourceLineNo">338</span><a id="line.338"></a>
-<span class="sourceLineNo">339</span><a id="line.339">        // garbage in - garbage out</a>
-<span class="sourceLineNo">340</span><a id="line.340">        if( StringUtils.isEmpty( resourceName ) ) {</a>
-<span class="sourceLineNo">341</span><a id="line.341">            return null;</a>
-<span class="sourceLineNo">342</span><a id="line.342">        }</a>
-<span class="sourceLineNo">343</span><a id="line.343"></a>
-<span class="sourceLineNo">344</span><a id="line.344">        // try with web app class loader searching in "WEB-INF/classes"</a>
-<span class="sourceLineNo">345</span><a id="line.345">        currResourceLocation = createResourceLocation( "/WEB-INF/classes", resourceName );</a>
-<span class="sourceLineNo">346</span><a id="line.346">        result = context.getResourceAsStream( currResourceLocation );</a>
-<span class="sourceLineNo">347</span><a id="line.347">        if( result != null ) {</a>
-<span class="sourceLineNo">348</span><a id="line.348">            LOG.debug( " Successfully located the following classpath resource : " + currResourceLocation );</a>
-<span class="sourceLineNo">349</span><a id="line.349">            return result;</a>
-<span class="sourceLineNo">350</span><a id="line.350">        }</a>
-<span class="sourceLineNo">351</span><a id="line.351"></a>
-<span class="sourceLineNo">352</span><a id="line.352">        // if not found - try with the current class loader and the given name</a>
-<span class="sourceLineNo">353</span><a id="line.353">        currResourceLocation = createResourceLocation( "", resourceName );</a>
-<span class="sourceLineNo">354</span><a id="line.354">        result = PropertyReader.class.getResourceAsStream( currResourceLocation );</a>
-<span class="sourceLineNo">355</span><a id="line.355">        if( result != null ) {</a>
-<span class="sourceLineNo">356</span><a id="line.356">            LOG.debug( " Successfully located the following classpath resource : " + currResourceLocation );</a>
-<span class="sourceLineNo">357</span><a id="line.357">            return result;</a>
-<span class="sourceLineNo">358</span><a id="line.358">        }</a>
-<span class="sourceLineNo">359</span><a id="line.359"></a>
-<span class="sourceLineNo">360</span><a id="line.360">        LOG.debug( " Unable to resolve the following classpath resource : " + resourceName );</a>
-<span class="sourceLineNo">361</span><a id="line.361"></a>
-<span class="sourceLineNo">362</span><a id="line.362">        return result;</a>
-<span class="sourceLineNo">363</span><a id="line.363">    }</a>
+<span class="sourceLineNo">227</span><a id="line.227">        return newPropertySet;</a>
+<span class="sourceLineNo">228</span><a id="line.228">    }</a>
+<span class="sourceLineNo">229</span><a id="line.229"></a>
+<span class="sourceLineNo">230</span><a id="line.230">    /**</a>
+<span class="sourceLineNo">231</span><a id="line.231">     * Returns the ServletContext Init parameter if has been set, otherwise checks for a System property of the same name. If neither are</a>
+<span class="sourceLineNo">232</span><a id="line.232">     * defined, returns null. This permits both Servlet- and System-defined cascading properties.</a>
+<span class="sourceLineNo">233</span><a id="line.233">     */</a>
+<span class="sourceLineNo">234</span><a id="line.234">    private static String getInitParameter( final ServletContext context, final String name ) {</a>
+<span class="sourceLineNo">235</span><a id="line.235">        final String value = context.getInitParameter( name );</a>
+<span class="sourceLineNo">236</span><a id="line.236">        return value != null ? value</a>
+<span class="sourceLineNo">237</span><a id="line.237">                             : System.getProperty( name ) ;</a>
+<span class="sourceLineNo">238</span><a id="line.238">    }</a>
+<span class="sourceLineNo">239</span><a id="line.239"></a>
+<span class="sourceLineNo">240</span><a id="line.240"></a>
+<span class="sourceLineNo">241</span><a id="line.241">    /**</a>
+<span class="sourceLineNo">242</span><a id="line.242">     *  Implement the cascade functionality.</a>
+<span class="sourceLineNo">243</span><a id="line.243">     *</a>
+<span class="sourceLineNo">244</span><a id="line.244">     * @param context             where to read the cascade from</a>
+<span class="sourceLineNo">245</span><a id="line.245">     * @param defaultProperties   properties to merge the cascading properties to</a>
+<span class="sourceLineNo">246</span><a id="line.246">     * @since 2.5.x</a>
+<span class="sourceLineNo">247</span><a id="line.247">     */</a>
+<span class="sourceLineNo">248</span><a id="line.248">    private static void loadWebAppPropsCascade( final ServletContext context, final Properties defaultProperties ) {</a>
+<span class="sourceLineNo">249</span><a id="line.249">        if( getInitParameter( context, PARAM_CUSTOMCONFIG_CASCADEPREFIX + "1" ) == null ) {</a>
+<span class="sourceLineNo">250</span><a id="line.250">            LOG.debug( " No cascading properties defined for this context" );</a>
+<span class="sourceLineNo">251</span><a id="line.251">            return;</a>
+<span class="sourceLineNo">252</span><a id="line.252">        }</a>
+<span class="sourceLineNo">253</span><a id="line.253"></a>
+<span class="sourceLineNo">254</span><a id="line.254">        // get into cascade...</a>
+<span class="sourceLineNo">255</span><a id="line.255">        int depth = 0;</a>
+<span class="sourceLineNo">256</span><a id="line.256">        while( true ) {</a>
+<span class="sourceLineNo">257</span><a id="line.257">            depth++;</a>
+<span class="sourceLineNo">258</span><a id="line.258">            final String propertyFile = getInitParameter( context, PARAM_CUSTOMCONFIG_CASCADEPREFIX + depth );</a>
+<span class="sourceLineNo">259</span><a id="line.259">            if( propertyFile == null ) {</a>
+<span class="sourceLineNo">260</span><a id="line.260">                break;</a>
+<span class="sourceLineNo">261</span><a id="line.261">            }</a>
+<span class="sourceLineNo">262</span><a id="line.262"></a>
+<span class="sourceLineNo">263</span><a id="line.263">            try( final InputStream propertyStream = Files.newInputStream(Paths.get(( propertyFile ) ))) {</a>
+<span class="sourceLineNo">264</span><a id="line.264">                LOG.info( " Reading additional properties from " + propertyFile + " and merge to cascade." );</a>
+<span class="sourceLineNo">265</span><a id="line.265">                final Properties additionalProps = new Properties();</a>
+<span class="sourceLineNo">266</span><a id="line.266">                additionalProps.load( propertyStream );</a>
+<span class="sourceLineNo">267</span><a id="line.267">                defaultProperties.putAll( additionalProps );</a>
+<span class="sourceLineNo">268</span><a id="line.268">            } catch( final Exception e ) {</a>
+<span class="sourceLineNo">269</span><a id="line.269">                LOG.error( "JSPWiki: Unable to load and setup properties from " + propertyFile + "." + e.getMessage() );</a>
+<span class="sourceLineNo">270</span><a id="line.270">            }</a>
+<span class="sourceLineNo">271</span><a id="line.271">        }</a>
+<span class="sourceLineNo">272</span><a id="line.272">    }</a>
+<span class="sourceLineNo">273</span><a id="line.273"></a>
+<span class="sourceLineNo">274</span><a id="line.274">    /**</a>
+<span class="sourceLineNo">275</span><a id="line.275">     *  You define a property variable by using the prefix "var.x" as a property. In property values you can then use the "$x" identifier</a>
+<span class="sourceLineNo">276</span><a id="line.276">     *  to use this variable.</a>
+<span class="sourceLineNo">277</span><a id="line.277">     *</a>
+<span class="sourceLineNo">278</span><a id="line.278">     *  For example, you could declare a base directory for all your files like this and use it in all your other property definitions with</a>
+<span class="sourceLineNo">279</span><a id="line.279">     *  a "$basedir". Note that it does not matter if you define the variable before its usage.</a>
+<span class="sourceLineNo">280</span><a id="line.280">     *  &lt;pre&gt;</a>
+<span class="sourceLineNo">281</span><a id="line.281">     *  var.basedir = /p/mywiki;</a>
+<span class="sourceLineNo">282</span><a id="line.282">     *  jspwiki.fileSystemProvider.pageDir =         $basedir/www/</a>
+<span class="sourceLineNo">283</span><a id="line.283">     *  jspwiki.basicAttachmentProvider.storageDir = $basedir/www/</a>
+<span class="sourceLineNo">284</span><a id="line.284">     *  jspwiki.workDir =                            $basedir/wrk/</a>
+<span class="sourceLineNo">285</span><a id="line.285">     *  &lt;/pre&gt;</a>
+<span class="sourceLineNo">286</span><a id="line.286">     *</a>
+<span class="sourceLineNo">287</span><a id="line.287">     * @param properties - properties to expand;</a>
+<span class="sourceLineNo">288</span><a id="line.288">     */</a>
+<span class="sourceLineNo">289</span><a id="line.289">    public static void expandVars( final Properties properties ) {</a>
+<span class="sourceLineNo">290</span><a id="line.290">        //get variable name/values from properties...</a>
+<span class="sourceLineNo">291</span><a id="line.291">        final Map&lt; String, String &gt; vars = new HashMap&lt;&gt;();</a>
+<span class="sourceLineNo">292</span><a id="line.292">        Enumeration&lt; ? &gt; propertyList = properties.propertyNames();</a>
+<span class="sourceLineNo">293</span><a id="line.293">        while( propertyList.hasMoreElements() ) {</a>
+<span class="sourceLineNo">294</span><a id="line.294">            final String propertyName = ( String )propertyList.nextElement();</a>
+<span class="sourceLineNo">295</span><a id="line.295">            final String propertyValue = properties.getProperty( propertyName );</a>
+<span class="sourceLineNo">296</span><a id="line.296"></a>
+<span class="sourceLineNo">297</span><a id="line.297">            if ( propertyName.startsWith( PARAM_VAR_DECLARATION ) ) {</a>
+<span class="sourceLineNo">298</span><a id="line.298">                final String varName = propertyName.substring( 4 ).trim();</a>
+<span class="sourceLineNo">299</span><a id="line.299">                final String varValue = propertyValue.trim();</a>
+<span class="sourceLineNo">300</span><a id="line.300">                vars.put( varName, varValue );</a>
+<span class="sourceLineNo">301</span><a id="line.301">            }</a>
+<span class="sourceLineNo">302</span><a id="line.302">        }</a>
+<span class="sourceLineNo">303</span><a id="line.303"></a>
+<span class="sourceLineNo">304</span><a id="line.304">        //now, substitute $ values in property values with vars...</a>
+<span class="sourceLineNo">305</span><a id="line.305">        propertyList = properties.propertyNames();</a>
+<span class="sourceLineNo">306</span><a id="line.306">        while( propertyList.hasMoreElements() ) {</a>
+<span class="sourceLineNo">307</span><a id="line.307">            final String propertyName = ( String )propertyList.nextElement();</a>
+<span class="sourceLineNo">308</span><a id="line.308">            String propertyValue = properties.getProperty( propertyName );</a>
+<span class="sourceLineNo">309</span><a id="line.309"></a>
+<span class="sourceLineNo">310</span><a id="line.310">            //skip var properties itself...</a>
+<span class="sourceLineNo">311</span><a id="line.311">            if( propertyName.startsWith( PARAM_VAR_DECLARATION ) ) {</a>
+<span class="sourceLineNo">312</span><a id="line.312">                continue;</a>
+<span class="sourceLineNo">313</span><a id="line.313">            }</a>
+<span class="sourceLineNo">314</span><a id="line.314"></a>
+<span class="sourceLineNo">315</span><a id="line.315">            for( final Map.Entry&lt; String, String &gt; entry : vars.entrySet() ) {</a>
+<span class="sourceLineNo">316</span><a id="line.316">                final String varName = entry.getKey();</a>
+<span class="sourceLineNo">317</span><a id="line.317">                final String varValue = entry.getValue();</a>
+<span class="sourceLineNo">318</span><a id="line.318"></a>
+<span class="sourceLineNo">319</span><a id="line.319">                //replace old property value, using the same variabe. If we don't overwrite</a>
+<span class="sourceLineNo">320</span><a id="line.320">                //the same one the next loop works with the original one again and</a>
+<span class="sourceLineNo">321</span><a id="line.321">                //multiple var expansion won't work...</a>
+<span class="sourceLineNo">322</span><a id="line.322">                propertyValue = TextUtil.replaceString( propertyValue, PARAM_VAR_IDENTIFIER + varName, varValue );</a>
+<span class="sourceLineNo">323</span><a id="line.323"></a>
+<span class="sourceLineNo">324</span><a id="line.324">                //add the new PropertyValue to the properties</a>
+<span class="sourceLineNo">325</span><a id="line.325">                properties.put( propertyName, propertyValue );</a>
+<span class="sourceLineNo">326</span><a id="line.326">            }</a>
+<span class="sourceLineNo">327</span><a id="line.327">        }</a>
+<span class="sourceLineNo">328</span><a id="line.328">    }</a>
+<span class="sourceLineNo">329</span><a id="line.329"></a>
+<span class="sourceLineNo">330</span><a id="line.330">    /**</a>
+<span class="sourceLineNo">331</span><a id="line.331">     * Locate a resource stored in the class path. Try first with "WEB-INF/classes"</a>
+<span class="sourceLineNo">332</span><a id="line.332">     * from the web app and fallback to "resourceName".</a>
+<span class="sourceLineNo">333</span><a id="line.333">     *</a>
+<span class="sourceLineNo">334</span><a id="line.334">     * @param context the servlet context</a>
+<span class="sourceLineNo">335</span><a id="line.335">     * @param resourceName the name of the resource</a>
+<span class="sourceLineNo">336</span><a id="line.336">     * @return the input stream of the resource or &lt;b&gt;null&lt;/b&gt; if the resource was not found</a>
+<span class="sourceLineNo">337</span><a id="line.337">     */</a>
+<span class="sourceLineNo">338</span><a id="line.338">    public static InputStream locateClassPathResource( final ServletContext context, final String resourceName ) {</a>
+<span class="sourceLineNo">339</span><a id="line.339">        InputStream result;</a>
+<span class="sourceLineNo">340</span><a id="line.340">        String currResourceLocation;</a>
+<span class="sourceLineNo">341</span><a id="line.341"></a>
+<span class="sourceLineNo">342</span><a id="line.342">        // garbage in - garbage out</a>
+<span class="sourceLineNo">343</span><a id="line.343">        if( StringUtils.isEmpty( resourceName ) ) {</a>
+<span class="sourceLineNo">344</span><a id="line.344">            return null;</a>
+<span class="sourceLineNo">345</span><a id="line.345">        }</a>
+<span class="sourceLineNo">346</span><a id="line.346"></a>
+<span class="sourceLineNo">347</span><a id="line.347">        // try with web app class loader searching in "WEB-INF/classes"</a>
+<span class="sourceLineNo">348</span><a id="line.348">        currResourceLocation = createResourceLocation( "/WEB-INF/classes", resourceName );</a>
+<span class="sourceLineNo">349</span><a id="line.349">        result = context.getResourceAsStream( currResourceLocation );</a>
+<span class="sourceLineNo">350</span><a id="line.350">        if( result != null ) {</a>
+<span class="sourceLineNo">351</span><a id="line.351">            LOG.debug( " Successfully located the following classpath resource : " + currResourceLocation );</a>
+<span class="sourceLineNo">352</span><a id="line.352">            return result;</a>
+<span class="sourceLineNo">353</span><a id="line.353">        }</a>
+<span class="sourceLineNo">354</span><a id="line.354"></a>
+<span class="sourceLineNo">355</span><a id="line.355">        // if not found - try with the current class loader and the given name</a>
+<span class="sourceLineNo">356</span><a id="line.356">        currResourceLocation = createResourceLocation( "", resourceName );</a>
+<span class="sourceLineNo">357</span><a id="line.357">        result = PropertyReader.class.getResourceAsStream( currResourceLocation );</a>
+<span class="sourceLineNo">358</span><a id="line.358">        if( result != null ) {</a>
+<span class="sourceLineNo">359</span><a id="line.359">            LOG.debug( " Successfully located the following classpath resource : " + currResourceLocation );</a>
+<span class="sourceLineNo">360</span><a id="line.360">            return result;</a>
+<span class="sourceLineNo">361</span><a id="line.361">        }</a>
+<span class="sourceLineNo">362</span><a id="line.362"></a>
+<span class="sourceLineNo">363</span><a id="line.363">        LOG.debug( " Unable to resolve the following classpath resource : " + resourceName );</a>
 <span class="sourceLineNo">364</span><a id="line.364"></a>
-<span class="sourceLineNo">365</span><a id="line.365">    /**</a>
-<span class="sourceLineNo">366</span><a id="line.366">     * Create a resource location with proper usage of "/".</a>
-<span class="sourceLineNo">367</span><a id="line.367">     *</a>
-<span class="sourceLineNo">368</span><a id="line.368">     * @param path a path</a>
-<span class="sourceLineNo">369</span><a id="line.369">     * @param name a resource name</a>
-<span class="sourceLineNo">370</span><a id="line.370">     * @return a resource location</a>
-<span class="sourceLineNo">371</span><a id="line.371">     */</a>
-<span class="sourceLineNo">372</span><a id="line.372">    static String createResourceLocation( final String path, final String name ) {</a>
-<span class="sourceLineNo">373</span><a id="line.373">        Validate.notEmpty( name, "name is empty" );</a>
-<span class="sourceLineNo">374</span><a id="line.374">        final StringBuilder result = new StringBuilder();</a>
-<span class="sourceLineNo">375</span><a id="line.375"></a>
-<span class="sourceLineNo">376</span><a id="line.376">        // strip an ending "/"</a>
-<span class="sourceLineNo">377</span><a id="line.377">        final String sanitizedPath = ( path != null &amp;&amp; !path.isEmpty() &amp;&amp; path.endsWith( "/" ) ? path.substring( 0, path.length() - 1 ) : path );</a>
+<span class="sourceLineNo">365</span><a id="line.365">        return result;</a>
+<span class="sourceLineNo">366</span><a id="line.366">    }</a>
+<span class="sourceLineNo">367</span><a id="line.367"></a>
+<span class="sourceLineNo">368</span><a id="line.368">    /**</a>
+<span class="sourceLineNo">369</span><a id="line.369">     * Create a resource location with proper usage of "/".</a>
+<span class="sourceLineNo">370</span><a id="line.370">     *</a>
+<span class="sourceLineNo">371</span><a id="line.371">     * @param path a path</a>
+<span class="sourceLineNo">372</span><a id="line.372">     * @param name a resource name</a>
+<span class="sourceLineNo">373</span><a id="line.373">     * @return a resource location</a>
+<span class="sourceLineNo">374</span><a id="line.374">     */</a>
+<span class="sourceLineNo">375</span><a id="line.375">    static String createResourceLocation( final String path, final String name ) {</a>
+<span class="sourceLineNo">376</span><a id="line.376">        Validate.notEmpty( name, "name is empty" );</a>
+<span class="sourceLineNo">377</span><a id="line.377">        final StringBuilder result = new StringBuilder();</a>
 <span class="sourceLineNo">378</span><a id="line.378"></a>
-<span class="sourceLineNo">379</span><a id="line.379">        // strip leading "/"</a>
-<span class="sourceLineNo">380</span><a id="line.380">        final String sanitizedName = ( name.startsWith( "/" ) ? name.substring( 1 ) : name );</a>
+<span class="sourceLineNo">379</span><a id="line.379">        // strip an ending "/"</a>
+<span class="sourceLineNo">380</span><a id="line.380">        final String sanitizedPath = ( path != null &amp;&amp; !path.isEmpty() &amp;&amp; path.endsWith( "/" ) ? path.substring( 0, path.length() - 1 ) : path );</a>
 <span class="sourceLineNo">381</span><a id="line.381"></a>
-<span class="sourceLineNo">382</span><a id="line.382">        // append the optional path</a>
-<span class="sourceLineNo">383</span><a id="line.383">        if( sanitizedPath != null &amp;&amp; !sanitizedPath.isEmpty() ) {</a>
-<span class="sourceLineNo">384</span><a id="line.384">            if( !sanitizedPath.startsWith( "/" ) ) {</a>
-<span class="sourceLineNo">385</span><a id="line.385">                result.append( "/" );</a>
-<span class="sourceLineNo">386</span><a id="line.386">            }</a>
-<span class="sourceLineNo">387</span><a id="line.387">            result.append( sanitizedPath );</a>
-<span class="sourceLineNo">388</span><a id="line.388">        }</a>
-<span class="sourceLineNo">389</span><a id="line.389">        result.append( "/" );</a>
-<span class="sourceLineNo">390</span><a id="line.390"></a>
-<span class="sourceLineNo">391</span><a id="line.391">        // append the name</a>
-<span class="sourceLineNo">392</span><a id="line.392">        result.append( sanitizedName );</a>
-<span class="sourceLineNo">393</span><a id="line.393">        return result.toString();</a>
-<span class="sourceLineNo">394</span><a id="line.394">    }</a>
-<span class="sourceLineNo">395</span><a id="line.395"></a>
-<span class="sourceLineNo">396</span><a id="line.396">}</a>
+<span class="sourceLineNo">382</span><a id="line.382">        // strip leading "/"</a>
+<span class="sourceLineNo">383</span><a id="line.383">        final String sanitizedName = ( name.startsWith( "/" ) ? name.substring( 1 ) : name );</a>
+<span class="sourceLineNo">384</span><a id="line.384"></a>
+<span class="sourceLineNo">385</span><a id="line.385">        // append the optional path</a>
+<span class="sourceLineNo">386</span><a id="line.386">        if( sanitizedPath != null &amp;&amp; !sanitizedPath.isEmpty() ) {</a>
+<span class="sourceLineNo">387</span><a id="line.387">            if( !sanitizedPath.startsWith( "/" ) ) {</a>
+<span class="sourceLineNo">388</span><a id="line.388">                result.append( "/" );</a>
+<span class="sourceLineNo">389</span><a id="line.389">            }</a>
+<span class="sourceLineNo">390</span><a id="line.390">            result.append( sanitizedPath );</a>
+<span class="sourceLineNo">391</span><a id="line.391">        }</a>
+<span class="sourceLineNo">392</span><a id="line.392">        result.append( "/" );</a>
+<span class="sourceLineNo">393</span><a id="line.393"></a>
+<span class="sourceLineNo">394</span><a id="line.394">        // append the name</a>
+<span class="sourceLineNo">395</span><a id="line.395">        result.append( sanitizedName );</a>
+<span class="sourceLineNo">396</span><a id="line.396">        return result.toString();</a>
+<span class="sourceLineNo">397</span><a id="line.397">    }</a>
+<span class="sourceLineNo">398</span><a id="line.398"></a>
+<span class="sourceLineNo">399</span><a id="line.399">    /**</a>
+<span class="sourceLineNo">400</span><a id="line.400">     * This method sets the JSPWiki working directory (jspwiki.workDir). It first checks if this property</a>
+<span class="sourceLineNo">401</span><a id="line.401">     * is already set. If it isn't, it attempts to use the servlet container's temporary directory</a>
+<span class="sourceLineNo">402</span><a id="line.402">     * (javax.servlet.context.tempdir). If that is also unavailable, it defaults to the system's temporary</a>
+<span class="sourceLineNo">403</span><a id="line.403">     * directory (java.io.tmpdir).</a>
+<span class="sourceLineNo">404</span><a id="line.404">     * &lt;p&gt;</a>
+<span class="sourceLineNo">405</span><a id="line.405">     * This method is package-private to allow for unit testing.</a>
+<span class="sourceLineNo">406</span><a id="line.406">     *</a>
+<span class="sourceLineNo">407</span><a id="line.407">     * @param properties     the JSPWiki properties</a>
+<span class="sourceLineNo">408</span><a id="line.408">     * @param servletContext the Servlet context from which to fetch the tempdir if needed</a>
+<span class="sourceLineNo">409</span><a id="line.409">     * @since JSPWiki 2.11.1</a>
+<span class="sourceLineNo">410</span><a id="line.410">     */</a>
+<span class="sourceLineNo">411</span><a id="line.411">    static void setWorkDir( final ServletContext servletContext, final Properties properties ) {</a>
+<span class="sourceLineNo">412</span><a id="line.412">        final String workDir = TextUtil.getStringProperty(properties, "jspwiki.workDir", null);</a>
+<span class="sourceLineNo">413</span><a id="line.413">        if (workDir == null) {</a>
+<span class="sourceLineNo">414</span><a id="line.414">            final File tempDir = (File) servletContext.getAttribute("javax.servlet.context.tempdir");</a>
+<span class="sourceLineNo">415</span><a id="line.415">            if (tempDir != null) {</a>
+<span class="sourceLineNo">416</span><a id="line.416">                properties.setProperty("jspwiki.workDir", tempDir.getAbsolutePath());</a>
+<span class="sourceLineNo">417</span><a id="line.417">                LOG.info("Setting jspwiki.workDir to ServletContext's temporary directory: {}", tempDir.getAbsolutePath());</a>
+<span class="sourceLineNo">418</span><a id="line.418">            } else {</a>
+<span class="sourceLineNo">419</span><a id="line.419">                final String defaultTmpDir = System.getProperty("java.io.tmpdir");</a>
+<span class="sourceLineNo">420</span><a id="line.420">                properties.setProperty("jspwiki.workDir", defaultTmpDir);</a>
+<span class="sourceLineNo">421</span><a id="line.421">                LOG.info("ServletContext's temporary directory not found. Setting jspwiki.workDir to system's temporary directory: {}", defaultTmpDir);</a>
+<span class="sourceLineNo">422</span><a id="line.422">            }</a>
+<span class="sourceLineNo">423</span><a id="line.423">        } else {</a>
+<span class="sourceLineNo">424</span><a id="line.424">            LOG.info("jspwiki.workDir is already set to: {}", workDir);</a>
+<span class="sourceLineNo">425</span><a id="line.425">        }</a>
+<span class="sourceLineNo">426</span><a id="line.426">    }</a>
+<span class="sourceLineNo">427</span><a id="line.427"></a>
+<span class="sourceLineNo">428</span><a id="line.428">}</a>
 
 
 

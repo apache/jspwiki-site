@@ -75,7 +75,7 @@
 <span class="sourceLineNo">066</span><a id="line.66">    public static final String WORK_DIR = Engine.PROP_WORKDIR;</a>
 <span class="sourceLineNo">067</span><a id="line.67">    public static final String ADMIN_GROUP = "Admin";</a>
 <span class="sourceLineNo">068</span><a id="line.68">    public static final String PROPFILENAME = "jspwiki-custom.properties" ;</a>
-<span class="sourceLineNo">069</span><a id="line.69">    public static final String TMP_DIR = System.getProperty("java.io.tmpdir");</a>
+<span class="sourceLineNo">069</span><a id="line.69">    public static String TMP_DIR;</a>
 <span class="sourceLineNo">070</span><a id="line.70">    private final Session m_session;</a>
 <span class="sourceLineNo">071</span><a id="line.71">    private final File m_propertyFile;</a>
 <span class="sourceLineNo">072</span><a id="line.72">    private final Properties m_props;</a>
@@ -95,179 +95,180 @@
 <span class="sourceLineNo">086</span><a id="line.86">        // Stash the request</a>
 <span class="sourceLineNo">087</span><a id="line.87">        m_request = request;</a>
 <span class="sourceLineNo">088</span><a id="line.88">        m_validated = false;</a>
-<span class="sourceLineNo">089</span><a id="line.89">    }</a>
-<span class="sourceLineNo">090</span><a id="line.90">    </a>
-<span class="sourceLineNo">091</span><a id="line.91">    /**</a>
-<span class="sourceLineNo">092</span><a id="line.92">     * Returns &lt;code&gt;true&lt;/code&gt; if the administrative user had been created previously.</a>
-<span class="sourceLineNo">093</span><a id="line.93">     *</a>
-<span class="sourceLineNo">094</span><a id="line.94">     * @return the result</a>
-<span class="sourceLineNo">095</span><a id="line.95">     */</a>
-<span class="sourceLineNo">096</span><a id="line.96">    public boolean adminExists() {</a>
-<span class="sourceLineNo">097</span><a id="line.97">        // See if the admin user exists already</a>
-<span class="sourceLineNo">098</span><a id="line.98">        final UserManager userMgr = m_engine.getManager( UserManager.class );</a>
-<span class="sourceLineNo">099</span><a id="line.99">        final UserDatabase userDb = userMgr.getUserDatabase();</a>
-<span class="sourceLineNo">100</span><a id="line.100">        try {</a>
-<span class="sourceLineNo">101</span><a id="line.101">            userDb.findByLoginName( ADMIN_ID );</a>
-<span class="sourceLineNo">102</span><a id="line.102">            return true;</a>
-<span class="sourceLineNo">103</span><a id="line.103">        } catch ( final NoSuchPrincipalException e ) {</a>
-<span class="sourceLineNo">104</span><a id="line.104">            return false;</a>
-<span class="sourceLineNo">105</span><a id="line.105">        }</a>
-<span class="sourceLineNo">106</span><a id="line.106">    }</a>
-<span class="sourceLineNo">107</span><a id="line.107">    </a>
-<span class="sourceLineNo">108</span><a id="line.108">    /**</a>
-<span class="sourceLineNo">109</span><a id="line.109">     * Creates an administrative user and returns the new password. If the admin user exists, the password will be &lt;code&gt;null&lt;/code&gt;.</a>
-<span class="sourceLineNo">110</span><a id="line.110">     *</a>
-<span class="sourceLineNo">111</span><a id="line.111">     * @return the password</a>
-<span class="sourceLineNo">112</span><a id="line.112">     */</a>
-<span class="sourceLineNo">113</span><a id="line.113">    public String createAdministrator() throws WikiSecurityException {</a>
-<span class="sourceLineNo">114</span><a id="line.114">        if ( !m_validated ) {</a>
-<span class="sourceLineNo">115</span><a id="line.115">            throw new WikiSecurityException( "Cannot create administrator because one or more of the installation settings are invalid." );</a>
-<span class="sourceLineNo">116</span><a id="line.116">        }</a>
-<span class="sourceLineNo">117</span><a id="line.117">        </a>
-<span class="sourceLineNo">118</span><a id="line.118">        if ( adminExists() ) {</a>
-<span class="sourceLineNo">119</span><a id="line.119">            return null;</a>
-<span class="sourceLineNo">120</span><a id="line.120">        }</a>
-<span class="sourceLineNo">121</span><a id="line.121">        </a>
-<span class="sourceLineNo">122</span><a id="line.122">        // See if the admin user exists already</a>
-<span class="sourceLineNo">123</span><a id="line.123">        final UserManager userMgr = m_engine.getManager( UserManager.class );</a>
-<span class="sourceLineNo">124</span><a id="line.124">        final UserDatabase userDb = userMgr.getUserDatabase();</a>
-<span class="sourceLineNo">125</span><a id="line.125">        String password = null;</a>
-<span class="sourceLineNo">126</span><a id="line.126">        </a>
-<span class="sourceLineNo">127</span><a id="line.127">        try {</a>
-<span class="sourceLineNo">128</span><a id="line.128">            userDb.findByLoginName( ADMIN_ID );</a>
-<span class="sourceLineNo">129</span><a id="line.129">        } catch( final NoSuchPrincipalException e ) {</a>
-<span class="sourceLineNo">130</span><a id="line.130">            // Create a random 12-character password</a>
-<span class="sourceLineNo">131</span><a id="line.131">            password = TextUtil.generateRandomPassword();</a>
-<span class="sourceLineNo">132</span><a id="line.132">            final UserProfile profile = userDb.newProfile();</a>
-<span class="sourceLineNo">133</span><a id="line.133">            profile.setLoginName( ADMIN_ID );</a>
-<span class="sourceLineNo">134</span><a id="line.134">            profile.setFullname( ADMIN_NAME );</a>
-<span class="sourceLineNo">135</span><a id="line.135">            profile.setPassword( password );</a>
-<span class="sourceLineNo">136</span><a id="line.136">            userDb.save( profile );</a>
-<span class="sourceLineNo">137</span><a id="line.137">        }</a>
-<span class="sourceLineNo">138</span><a id="line.138">        </a>
-<span class="sourceLineNo">139</span><a id="line.139">        // Create a new admin group</a>
-<span class="sourceLineNo">140</span><a id="line.140">        final GroupManager groupMgr = m_engine.getManager( GroupManager.class );</a>
-<span class="sourceLineNo">141</span><a id="line.141">        Group group;</a>
-<span class="sourceLineNo">142</span><a id="line.142">        try {</a>
-<span class="sourceLineNo">143</span><a id="line.143">            group = groupMgr.getGroup( ADMIN_GROUP );</a>
-<span class="sourceLineNo">144</span><a id="line.144">            group.add( new WikiPrincipal( ADMIN_NAME ) );</a>
-<span class="sourceLineNo">145</span><a id="line.145">        } catch( final NoSuchPrincipalException e ) {</a>
-<span class="sourceLineNo">146</span><a id="line.146">            group = groupMgr.parseGroup( ADMIN_GROUP, ADMIN_NAME, true );</a>
-<span class="sourceLineNo">147</span><a id="line.147">        }</a>
-<span class="sourceLineNo">148</span><a id="line.148">        groupMgr.setGroup( m_session, group );</a>
-<span class="sourceLineNo">149</span><a id="line.149">        </a>
-<span class="sourceLineNo">150</span><a id="line.150">        return password;</a>
-<span class="sourceLineNo">151</span><a id="line.151">    }</a>
-<span class="sourceLineNo">152</span><a id="line.152">    </a>
-<span class="sourceLineNo">153</span><a id="line.153">    /**</a>
-<span class="sourceLineNo">154</span><a id="line.154">     * Returns the properties as a "key=value" string separated by newlines</a>
-<span class="sourceLineNo">155</span><a id="line.155">     * @return the string</a>
-<span class="sourceLineNo">156</span><a id="line.156">     */</a>
-<span class="sourceLineNo">157</span><a id="line.157">    public String getPropertiesList() {</a>
-<span class="sourceLineNo">158</span><a id="line.158">        final String result;</a>
-<span class="sourceLineNo">159</span><a id="line.159">        final Set&lt; String &gt; keys = m_props.stringPropertyNames();</a>
-<span class="sourceLineNo">160</span><a id="line.160">        result = keys.stream().map(key -&gt; key + " = " + m_props.getProperty(key) + "\n").collect(Collectors.joining());</a>
-<span class="sourceLineNo">161</span><a id="line.161">        return result;</a>
-<span class="sourceLineNo">162</span><a id="line.162">    }</a>
-<span class="sourceLineNo">163</span><a id="line.163"></a>
-<span class="sourceLineNo">164</span><a id="line.164">    public String getPropertiesPath() {</a>
-<span class="sourceLineNo">165</span><a id="line.165">        return m_propertyFile.getAbsolutePath();</a>
-<span class="sourceLineNo">166</span><a id="line.166">    }</a>
-<span class="sourceLineNo">167</span><a id="line.167"></a>
-<span class="sourceLineNo">168</span><a id="line.168">    /**</a>
-<span class="sourceLineNo">169</span><a id="line.169">     * Returns a property from the Engine's properties.</a>
-<span class="sourceLineNo">170</span><a id="line.170">     * @param key the property key</a>
-<span class="sourceLineNo">171</span><a id="line.171">     * @return the property value</a>
-<span class="sourceLineNo">172</span><a id="line.172">     */</a>
-<span class="sourceLineNo">173</span><a id="line.173">    public String getProperty( final String key ) {</a>
-<span class="sourceLineNo">174</span><a id="line.174">        return m_props.getProperty( key );</a>
-<span class="sourceLineNo">175</span><a id="line.175">    }</a>
-<span class="sourceLineNo">176</span><a id="line.176">    </a>
-<span class="sourceLineNo">177</span><a id="line.177">    public void parseProperties () {</a>
-<span class="sourceLineNo">178</span><a id="line.178">        final ResourceBundle rb = ResourceBundle.getBundle( InternationalizationManager.CORE_BUNDLE, m_session.getLocale() );</a>
-<span class="sourceLineNo">179</span><a id="line.179">        m_validated = false;</a>
-<span class="sourceLineNo">180</span><a id="line.180"></a>
-<span class="sourceLineNo">181</span><a id="line.181">        // Get application name</a>
-<span class="sourceLineNo">182</span><a id="line.182">        String nullValue = m_props.getProperty( APP_NAME, rb.getString( "install.installer.default.appname" ) );</a>
-<span class="sourceLineNo">183</span><a id="line.183">        parseProperty( APP_NAME, nullValue );</a>
-<span class="sourceLineNo">184</span><a id="line.184"></a>
-<span class="sourceLineNo">185</span><a id="line.185">        // Get/sanitize page directory</a>
-<span class="sourceLineNo">186</span><a id="line.186">        nullValue = m_props.getProperty( PAGE_DIR, rb.getString( "install.installer.default.pagedir" ) );</a>
-<span class="sourceLineNo">187</span><a id="line.187">        parseProperty( PAGE_DIR, nullValue );</a>
-<span class="sourceLineNo">188</span><a id="line.188">        sanitizePath( PAGE_DIR );</a>
-<span class="sourceLineNo">189</span><a id="line.189"></a>
-<span class="sourceLineNo">190</span><a id="line.190">        // Get/sanitize work directory</a>
-<span class="sourceLineNo">191</span><a id="line.191">        nullValue = m_props.getProperty( WORK_DIR, TMP_DIR );</a>
-<span class="sourceLineNo">192</span><a id="line.192">        parseProperty( WORK_DIR, nullValue );</a>
-<span class="sourceLineNo">193</span><a id="line.193">        sanitizePath( WORK_DIR );</a>
-<span class="sourceLineNo">194</span><a id="line.194">        </a>
-<span class="sourceLineNo">195</span><a id="line.195">        // Set a few more default properties, for easy setup</a>
-<span class="sourceLineNo">196</span><a id="line.196">        m_props.setProperty( STORAGE_DIR, m_props.getProperty( PAGE_DIR ) );</a>
-<span class="sourceLineNo">197</span><a id="line.197">        m_props.setProperty( PageManager.PROP_PAGEPROVIDER, "VersioningFileProvider" );</a>
-<span class="sourceLineNo">198</span><a id="line.198">    }</a>
-<span class="sourceLineNo">199</span><a id="line.199">    </a>
-<span class="sourceLineNo">200</span><a id="line.200">    public void saveProperties() {</a>
-<span class="sourceLineNo">201</span><a id="line.201">        final ResourceBundle rb = ResourceBundle.getBundle( InternationalizationManager.CORE_BUNDLE, m_session.getLocale() );</a>
-<span class="sourceLineNo">202</span><a id="line.202">        // Write the file back to disk</a>
-<span class="sourceLineNo">203</span><a id="line.203">        try {</a>
-<span class="sourceLineNo">204</span><a id="line.204">            try( final OutputStream out = Files.newOutputStream( m_propertyFile.toPath() ) ) {</a>
-<span class="sourceLineNo">205</span><a id="line.205">                m_props.store( out, null );</a>
-<span class="sourceLineNo">206</span><a id="line.206">            }</a>
-<span class="sourceLineNo">207</span><a id="line.207">            m_session.addMessage( INSTALL_INFO, MessageFormat.format(rb.getString("install.installer.props.saved"), m_propertyFile) );</a>
-<span class="sourceLineNo">208</span><a id="line.208">        } catch( final IOException e ) {</a>
-<span class="sourceLineNo">209</span><a id="line.209">            final Object[] args = { e.getMessage(), m_props.toString() };</a>
-<span class="sourceLineNo">210</span><a id="line.210">            m_session.addMessage( INSTALL_ERROR, MessageFormat.format( rb.getString( "install.installer.props.notsaved" ), args ) );</a>
-<span class="sourceLineNo">211</span><a id="line.211">        }</a>
-<span class="sourceLineNo">212</span><a id="line.212">    }</a>
-<span class="sourceLineNo">213</span><a id="line.213">    </a>
-<span class="sourceLineNo">214</span><a id="line.214">    public boolean validateProperties() {</a>
-<span class="sourceLineNo">215</span><a id="line.215">        final ResourceBundle rb = ResourceBundle.getBundle( InternationalizationManager.CORE_BUNDLE, m_session.getLocale() );</a>
-<span class="sourceLineNo">216</span><a id="line.216">        m_session.clearMessages( INSTALL_ERROR );</a>
-<span class="sourceLineNo">217</span><a id="line.217">        parseProperties();</a>
-<span class="sourceLineNo">218</span><a id="line.218">        validateNotNull( PAGE_DIR, rb.getString( "install.installer.validate.pagedir" ) );</a>
-<span class="sourceLineNo">219</span><a id="line.219">        validateNotNull( APP_NAME, rb.getString( "install.installer.validate.appname" ) );</a>
-<span class="sourceLineNo">220</span><a id="line.220">        validateNotNull( WORK_DIR, rb.getString( "install.installer.validate.workdir" ) );</a>
-<span class="sourceLineNo">221</span><a id="line.221"></a>
-<span class="sourceLineNo">222</span><a id="line.222">        if ( m_session.getMessages( INSTALL_ERROR ).length == 0 ) {</a>
-<span class="sourceLineNo">223</span><a id="line.223">            m_validated = true;</a>
-<span class="sourceLineNo">224</span><a id="line.224">        }</a>
-<span class="sourceLineNo">225</span><a id="line.225">        return m_validated;</a>
-<span class="sourceLineNo">226</span><a id="line.226">    }</a>
-<span class="sourceLineNo">227</span><a id="line.227">        </a>
-<span class="sourceLineNo">228</span><a id="line.228">    /**</a>
-<span class="sourceLineNo">229</span><a id="line.229">     * Sets a property based on the value of an HTTP request parameter. If the parameter is not found, a default value is used instead.</a>
-<span class="sourceLineNo">230</span><a id="line.230">     *</a>
-<span class="sourceLineNo">231</span><a id="line.231">     * @param param the parameter containing the value we will extract</a>
-<span class="sourceLineNo">232</span><a id="line.232">     * @param defaultValue the default to use if the parameter was not passed in the request</a>
-<span class="sourceLineNo">233</span><a id="line.233">     */</a>
-<span class="sourceLineNo">234</span><a id="line.234">    private void parseProperty( final String param, final String defaultValue ) {</a>
-<span class="sourceLineNo">235</span><a id="line.235">        String value = m_request.getParameter( param );</a>
-<span class="sourceLineNo">236</span><a id="line.236">        if( value == null ) {</a>
-<span class="sourceLineNo">237</span><a id="line.237">            value = defaultValue;</a>
-<span class="sourceLineNo">238</span><a id="line.238">        }</a>
-<span class="sourceLineNo">239</span><a id="line.239">        m_props.put( param, value );</a>
-<span class="sourceLineNo">240</span><a id="line.240">    }</a>
-<span class="sourceLineNo">241</span><a id="line.241">    </a>
-<span class="sourceLineNo">242</span><a id="line.242">    /**</a>
-<span class="sourceLineNo">243</span><a id="line.243">     * Simply sanitizes any path which contains backslashes (sometimes Windows users may have them) by expanding them to double-backslashes</a>
-<span class="sourceLineNo">244</span><a id="line.244">     *</a>
-<span class="sourceLineNo">245</span><a id="line.245">     * @param key the key of the property to sanitize</a>
-<span class="sourceLineNo">246</span><a id="line.246">     */</a>
-<span class="sourceLineNo">247</span><a id="line.247">    private void sanitizePath( final String key ) {</a>
-<span class="sourceLineNo">248</span><a id="line.248">        String s = m_props.getProperty( key );</a>
-<span class="sourceLineNo">249</span><a id="line.249">        s = TextUtil.replaceString(s, "\\", "\\\\" );</a>
-<span class="sourceLineNo">250</span><a id="line.250">        s = s.trim();</a>
-<span class="sourceLineNo">251</span><a id="line.251">        m_props.put( key, s );</a>
-<span class="sourceLineNo">252</span><a id="line.252">    }</a>
-<span class="sourceLineNo">253</span><a id="line.253">    </a>
-<span class="sourceLineNo">254</span><a id="line.254">    private void validateNotNull( final String key, final String message ) {</a>
-<span class="sourceLineNo">255</span><a id="line.255">        final String value = m_props.getProperty( key );</a>
-<span class="sourceLineNo">256</span><a id="line.256">        if ( value == null || value.isEmpty() ) {</a>
-<span class="sourceLineNo">257</span><a id="line.257">            m_session.addMessage( INSTALL_ERROR, message );</a>
-<span class="sourceLineNo">258</span><a id="line.258">        }</a>
-<span class="sourceLineNo">259</span><a id="line.259">    }</a>
-<span class="sourceLineNo">260</span><a id="line.260">    </a>
-<span class="sourceLineNo">261</span><a id="line.261">}</a>
+<span class="sourceLineNo">089</span><a id="line.89">        TMP_DIR = m_engine.getWikiProperties().getProperty( "jspwiki.workDir" );</a>
+<span class="sourceLineNo">090</span><a id="line.90">    }</a>
+<span class="sourceLineNo">091</span><a id="line.91">    </a>
+<span class="sourceLineNo">092</span><a id="line.92">    /**</a>
+<span class="sourceLineNo">093</span><a id="line.93">     * Returns &lt;code&gt;true&lt;/code&gt; if the administrative user had been created previously.</a>
+<span class="sourceLineNo">094</span><a id="line.94">     *</a>
+<span class="sourceLineNo">095</span><a id="line.95">     * @return the result</a>
+<span class="sourceLineNo">096</span><a id="line.96">     */</a>
+<span class="sourceLineNo">097</span><a id="line.97">    public boolean adminExists() {</a>
+<span class="sourceLineNo">098</span><a id="line.98">        // See if the admin user exists already</a>
+<span class="sourceLineNo">099</span><a id="line.99">        final UserManager userMgr = m_engine.getManager( UserManager.class );</a>
+<span class="sourceLineNo">100</span><a id="line.100">        final UserDatabase userDb = userMgr.getUserDatabase();</a>
+<span class="sourceLineNo">101</span><a id="line.101">        try {</a>
+<span class="sourceLineNo">102</span><a id="line.102">            userDb.findByLoginName( ADMIN_ID );</a>
+<span class="sourceLineNo">103</span><a id="line.103">            return true;</a>
+<span class="sourceLineNo">104</span><a id="line.104">        } catch ( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">105</span><a id="line.105">            return false;</a>
+<span class="sourceLineNo">106</span><a id="line.106">        }</a>
+<span class="sourceLineNo">107</span><a id="line.107">    }</a>
+<span class="sourceLineNo">108</span><a id="line.108">    </a>
+<span class="sourceLineNo">109</span><a id="line.109">    /**</a>
+<span class="sourceLineNo">110</span><a id="line.110">     * Creates an administrative user and returns the new password. If the admin user exists, the password will be &lt;code&gt;null&lt;/code&gt;.</a>
+<span class="sourceLineNo">111</span><a id="line.111">     *</a>
+<span class="sourceLineNo">112</span><a id="line.112">     * @return the password</a>
+<span class="sourceLineNo">113</span><a id="line.113">     */</a>
+<span class="sourceLineNo">114</span><a id="line.114">    public String createAdministrator() throws WikiSecurityException {</a>
+<span class="sourceLineNo">115</span><a id="line.115">        if ( !m_validated ) {</a>
+<span class="sourceLineNo">116</span><a id="line.116">            throw new WikiSecurityException( "Cannot create administrator because one or more of the installation settings are invalid." );</a>
+<span class="sourceLineNo">117</span><a id="line.117">        }</a>
+<span class="sourceLineNo">118</span><a id="line.118">        </a>
+<span class="sourceLineNo">119</span><a id="line.119">        if ( adminExists() ) {</a>
+<span class="sourceLineNo">120</span><a id="line.120">            return null;</a>
+<span class="sourceLineNo">121</span><a id="line.121">        }</a>
+<span class="sourceLineNo">122</span><a id="line.122">        </a>
+<span class="sourceLineNo">123</span><a id="line.123">        // See if the admin user exists already</a>
+<span class="sourceLineNo">124</span><a id="line.124">        final UserManager userMgr = m_engine.getManager( UserManager.class );</a>
+<span class="sourceLineNo">125</span><a id="line.125">        final UserDatabase userDb = userMgr.getUserDatabase();</a>
+<span class="sourceLineNo">126</span><a id="line.126">        String password = null;</a>
+<span class="sourceLineNo">127</span><a id="line.127">        </a>
+<span class="sourceLineNo">128</span><a id="line.128">        try {</a>
+<span class="sourceLineNo">129</span><a id="line.129">            userDb.findByLoginName( ADMIN_ID );</a>
+<span class="sourceLineNo">130</span><a id="line.130">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">131</span><a id="line.131">            // Create a random 12-character password</a>
+<span class="sourceLineNo">132</span><a id="line.132">            password = TextUtil.generateRandomPassword();</a>
+<span class="sourceLineNo">133</span><a id="line.133">            final UserProfile profile = userDb.newProfile();</a>
+<span class="sourceLineNo">134</span><a id="line.134">            profile.setLoginName( ADMIN_ID );</a>
+<span class="sourceLineNo">135</span><a id="line.135">            profile.setFullname( ADMIN_NAME );</a>
+<span class="sourceLineNo">136</span><a id="line.136">            profile.setPassword( password );</a>
+<span class="sourceLineNo">137</span><a id="line.137">            userDb.save( profile );</a>
+<span class="sourceLineNo">138</span><a id="line.138">        }</a>
+<span class="sourceLineNo">139</span><a id="line.139">        </a>
+<span class="sourceLineNo">140</span><a id="line.140">        // Create a new admin group</a>
+<span class="sourceLineNo">141</span><a id="line.141">        final GroupManager groupMgr = m_engine.getManager( GroupManager.class );</a>
+<span class="sourceLineNo">142</span><a id="line.142">        Group group;</a>
+<span class="sourceLineNo">143</span><a id="line.143">        try {</a>
+<span class="sourceLineNo">144</span><a id="line.144">            group = groupMgr.getGroup( ADMIN_GROUP );</a>
+<span class="sourceLineNo">145</span><a id="line.145">            group.add( new WikiPrincipal( ADMIN_NAME ) );</a>
+<span class="sourceLineNo">146</span><a id="line.146">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">147</span><a id="line.147">            group = groupMgr.parseGroup( ADMIN_GROUP, ADMIN_NAME, true );</a>
+<span class="sourceLineNo">148</span><a id="line.148">        }</a>
+<span class="sourceLineNo">149</span><a id="line.149">        groupMgr.setGroup( m_session, group );</a>
+<span class="sourceLineNo">150</span><a id="line.150">        </a>
+<span class="sourceLineNo">151</span><a id="line.151">        return password;</a>
+<span class="sourceLineNo">152</span><a id="line.152">    }</a>
+<span class="sourceLineNo">153</span><a id="line.153">    </a>
+<span class="sourceLineNo">154</span><a id="line.154">    /**</a>
+<span class="sourceLineNo">155</span><a id="line.155">     * Returns the properties as a "key=value" string separated by newlines</a>
+<span class="sourceLineNo">156</span><a id="line.156">     * @return the string</a>
+<span class="sourceLineNo">157</span><a id="line.157">     */</a>
+<span class="sourceLineNo">158</span><a id="line.158">    public String getPropertiesList() {</a>
+<span class="sourceLineNo">159</span><a id="line.159">        final String result;</a>
+<span class="sourceLineNo">160</span><a id="line.160">        final Set&lt; String &gt; keys = m_props.stringPropertyNames();</a>
+<span class="sourceLineNo">161</span><a id="line.161">        result = keys.stream().map(key -&gt; key + " = " + m_props.getProperty(key) + "\n").collect(Collectors.joining());</a>
+<span class="sourceLineNo">162</span><a id="line.162">        return result;</a>
+<span class="sourceLineNo">163</span><a id="line.163">    }</a>
+<span class="sourceLineNo">164</span><a id="line.164"></a>
+<span class="sourceLineNo">165</span><a id="line.165">    public String getPropertiesPath() {</a>
+<span class="sourceLineNo">166</span><a id="line.166">        return m_propertyFile.getAbsolutePath();</a>
+<span class="sourceLineNo">167</span><a id="line.167">    }</a>
+<span class="sourceLineNo">168</span><a id="line.168"></a>
+<span class="sourceLineNo">169</span><a id="line.169">    /**</a>
+<span class="sourceLineNo">170</span><a id="line.170">     * Returns a property from the Engine's properties.</a>
+<span class="sourceLineNo">171</span><a id="line.171">     * @param key the property key</a>
+<span class="sourceLineNo">172</span><a id="line.172">     * @return the property value</a>
+<span class="sourceLineNo">173</span><a id="line.173">     */</a>
+<span class="sourceLineNo">174</span><a id="line.174">    public String getProperty( final String key ) {</a>
+<span class="sourceLineNo">175</span><a id="line.175">        return m_props.getProperty( key );</a>
+<span class="sourceLineNo">176</span><a id="line.176">    }</a>
+<span class="sourceLineNo">177</span><a id="line.177">    </a>
+<span class="sourceLineNo">178</span><a id="line.178">    public void parseProperties () {</a>
+<span class="sourceLineNo">179</span><a id="line.179">        final ResourceBundle rb = ResourceBundle.getBundle( InternationalizationManager.CORE_BUNDLE, m_session.getLocale() );</a>
+<span class="sourceLineNo">180</span><a id="line.180">        m_validated = false;</a>
+<span class="sourceLineNo">181</span><a id="line.181"></a>
+<span class="sourceLineNo">182</span><a id="line.182">        // Get application name</a>
+<span class="sourceLineNo">183</span><a id="line.183">        String nullValue = m_props.getProperty( APP_NAME, rb.getString( "install.installer.default.appname" ) );</a>
+<span class="sourceLineNo">184</span><a id="line.184">        parseProperty( APP_NAME, nullValue );</a>
+<span class="sourceLineNo">185</span><a id="line.185"></a>
+<span class="sourceLineNo">186</span><a id="line.186">        // Get/sanitize page directory</a>
+<span class="sourceLineNo">187</span><a id="line.187">        nullValue = m_props.getProperty( PAGE_DIR, rb.getString( "install.installer.default.pagedir" ) );</a>
+<span class="sourceLineNo">188</span><a id="line.188">        parseProperty( PAGE_DIR, nullValue );</a>
+<span class="sourceLineNo">189</span><a id="line.189">        sanitizePath( PAGE_DIR );</a>
+<span class="sourceLineNo">190</span><a id="line.190"></a>
+<span class="sourceLineNo">191</span><a id="line.191">        // Get/sanitize work directory</a>
+<span class="sourceLineNo">192</span><a id="line.192">        nullValue = m_props.getProperty( WORK_DIR, TMP_DIR );</a>
+<span class="sourceLineNo">193</span><a id="line.193">        parseProperty( WORK_DIR, nullValue );</a>
+<span class="sourceLineNo">194</span><a id="line.194">        sanitizePath( WORK_DIR );</a>
+<span class="sourceLineNo">195</span><a id="line.195">        </a>
+<span class="sourceLineNo">196</span><a id="line.196">        // Set a few more default properties, for easy setup</a>
+<span class="sourceLineNo">197</span><a id="line.197">        m_props.setProperty( STORAGE_DIR, m_props.getProperty( PAGE_DIR ) );</a>
+<span class="sourceLineNo">198</span><a id="line.198">        m_props.setProperty( PageManager.PROP_PAGEPROVIDER, "VersioningFileProvider" );</a>
+<span class="sourceLineNo">199</span><a id="line.199">    }</a>
+<span class="sourceLineNo">200</span><a id="line.200">    </a>
+<span class="sourceLineNo">201</span><a id="line.201">    public void saveProperties() {</a>
+<span class="sourceLineNo">202</span><a id="line.202">        final ResourceBundle rb = ResourceBundle.getBundle( InternationalizationManager.CORE_BUNDLE, m_session.getLocale() );</a>
+<span class="sourceLineNo">203</span><a id="line.203">        // Write the file back to disk</a>
+<span class="sourceLineNo">204</span><a id="line.204">        try {</a>
+<span class="sourceLineNo">205</span><a id="line.205">            try( final OutputStream out = Files.newOutputStream( m_propertyFile.toPath() ) ) {</a>
+<span class="sourceLineNo">206</span><a id="line.206">                m_props.store( out, null );</a>
+<span class="sourceLineNo">207</span><a id="line.207">            }</a>
+<span class="sourceLineNo">208</span><a id="line.208">            m_session.addMessage( INSTALL_INFO, MessageFormat.format(rb.getString("install.installer.props.saved"), m_propertyFile) );</a>
+<span class="sourceLineNo">209</span><a id="line.209">        } catch( final IOException e ) {</a>
+<span class="sourceLineNo">210</span><a id="line.210">            final Object[] args = { e.getMessage(), m_props.toString() };</a>
+<span class="sourceLineNo">211</span><a id="line.211">            m_session.addMessage( INSTALL_ERROR, MessageFormat.format( rb.getString( "install.installer.props.notsaved" ), args ) );</a>
+<span class="sourceLineNo">212</span><a id="line.212">        }</a>
+<span class="sourceLineNo">213</span><a id="line.213">    }</a>
+<span class="sourceLineNo">214</span><a id="line.214">    </a>
+<span class="sourceLineNo">215</span><a id="line.215">    public boolean validateProperties() {</a>
+<span class="sourceLineNo">216</span><a id="line.216">        final ResourceBundle rb = ResourceBundle.getBundle( InternationalizationManager.CORE_BUNDLE, m_session.getLocale() );</a>
+<span class="sourceLineNo">217</span><a id="line.217">        m_session.clearMessages( INSTALL_ERROR );</a>
+<span class="sourceLineNo">218</span><a id="line.218">        parseProperties();</a>
+<span class="sourceLineNo">219</span><a id="line.219">        validateNotNull( PAGE_DIR, rb.getString( "install.installer.validate.pagedir" ) );</a>
+<span class="sourceLineNo">220</span><a id="line.220">        validateNotNull( APP_NAME, rb.getString( "install.installer.validate.appname" ) );</a>
+<span class="sourceLineNo">221</span><a id="line.221">        validateNotNull( WORK_DIR, rb.getString( "install.installer.validate.workdir" ) );</a>
+<span class="sourceLineNo">222</span><a id="line.222"></a>
+<span class="sourceLineNo">223</span><a id="line.223">        if ( m_session.getMessages( INSTALL_ERROR ).length == 0 ) {</a>
+<span class="sourceLineNo">224</span><a id="line.224">            m_validated = true;</a>
+<span class="sourceLineNo">225</span><a id="line.225">        }</a>
+<span class="sourceLineNo">226</span><a id="line.226">        return m_validated;</a>
+<span class="sourceLineNo">227</span><a id="line.227">    }</a>
+<span class="sourceLineNo">228</span><a id="line.228">        </a>
+<span class="sourceLineNo">229</span><a id="line.229">    /**</a>
+<span class="sourceLineNo">230</span><a id="line.230">     * Sets a property based on the value of an HTTP request parameter. If the parameter is not found, a default value is used instead.</a>
+<span class="sourceLineNo">231</span><a id="line.231">     *</a>
+<span class="sourceLineNo">232</span><a id="line.232">     * @param param the parameter containing the value we will extract</a>
+<span class="sourceLineNo">233</span><a id="line.233">     * @param defaultValue the default to use if the parameter was not passed in the request</a>
+<span class="sourceLineNo">234</span><a id="line.234">     */</a>
+<span class="sourceLineNo">235</span><a id="line.235">    private void parseProperty( final String param, final String defaultValue ) {</a>
+<span class="sourceLineNo">236</span><a id="line.236">        String value = m_request.getParameter( param );</a>
+<span class="sourceLineNo">237</span><a id="line.237">        if( value == null ) {</a>
+<span class="sourceLineNo">238</span><a id="line.238">            value = defaultValue;</a>
+<span class="sourceLineNo">239</span><a id="line.239">        }</a>
+<span class="sourceLineNo">240</span><a id="line.240">        m_props.put( param, value );</a>
+<span class="sourceLineNo">241</span><a id="line.241">    }</a>
+<span class="sourceLineNo">242</span><a id="line.242">    </a>
+<span class="sourceLineNo">243</span><a id="line.243">    /**</a>
+<span class="sourceLineNo">244</span><a id="line.244">     * Simply sanitizes any path which contains backslashes (sometimes Windows users may have them) by expanding them to double-backslashes</a>
+<span class="sourceLineNo">245</span><a id="line.245">     *</a>
+<span class="sourceLineNo">246</span><a id="line.246">     * @param key the key of the property to sanitize</a>
+<span class="sourceLineNo">247</span><a id="line.247">     */</a>
+<span class="sourceLineNo">248</span><a id="line.248">    private void sanitizePath( final String key ) {</a>
+<span class="sourceLineNo">249</span><a id="line.249">        String s = m_props.getProperty( key );</a>
+<span class="sourceLineNo">250</span><a id="line.250">        s = TextUtil.replaceString(s, "\\", "\\\\" );</a>
+<span class="sourceLineNo">251</span><a id="line.251">        s = s.trim();</a>
+<span class="sourceLineNo">252</span><a id="line.252">        m_props.put( key, s );</a>
+<span class="sourceLineNo">253</span><a id="line.253">    }</a>
+<span class="sourceLineNo">254</span><a id="line.254">    </a>
+<span class="sourceLineNo">255</span><a id="line.255">    private void validateNotNull( final String key, final String message ) {</a>
+<span class="sourceLineNo">256</span><a id="line.256">        final String value = m_props.getProperty( key );</a>
+<span class="sourceLineNo">257</span><a id="line.257">        if ( value == null || value.isEmpty() ) {</a>
+<span class="sourceLineNo">258</span><a id="line.258">            m_session.addMessage( INSTALL_ERROR, message );</a>
+<span class="sourceLineNo">259</span><a id="line.259">        }</a>
+<span class="sourceLineNo">260</span><a id="line.260">    }</a>
+<span class="sourceLineNo">261</span><a id="line.261">    </a>
+<span class="sourceLineNo">262</span><a id="line.262">}</a>
 
 
 
