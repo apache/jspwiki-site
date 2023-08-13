@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.plugin;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.core.Context;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.ContextEnum;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.api.exceptions.PluginException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.api.plugin.Plugin;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.api.spi.Wiki;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.pages.PageLock;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.pages.PageManager;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.preferences.Preferences;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.text.SimpleDateFormat;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.util.Collection;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Date;</a>
+<span class="sourceLineNo">039</span><a id="line.39">import java.util.Map;</a>
+<span class="sourceLineNo">040</span><a id="line.40">import java.util.ResourceBundle;</a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42">/**</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * Builds a simple weblog.</a>
+<span class="sourceLineNo">044</span><a id="line.44"> * &lt;p/&gt;</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * &lt;p&gt;Parameters : &lt;/p&gt;</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * &lt;ul&gt;</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * &lt;li&gt;&lt;b&gt;entrytext&lt;/b&gt; - text of the link &lt;/li&gt;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> * &lt;li&gt;&lt;b&gt;page&lt;/b&gt; - if set, the entry is added to the named blog page. The default is the current page. &lt;/li&gt;</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * &lt;/ul&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> *</a>
+<span class="sourceLineNo">051</span><a id="line.51"> * @since 1.9.21</a>
+<span class="sourceLineNo">052</span><a id="line.52"> */</a>
+<span class="sourceLineNo">053</span><a id="line.53">public class WeblogEntryPlugin implements Plugin {</a>
+<span class="sourceLineNo">054</span><a id="line.54"></a>
+<span class="sourceLineNo">055</span><a id="line.55">    private static final Logger LOG = LogManager.getLogger(WeblogEntryPlugin.class);</a>
+<span class="sourceLineNo">056</span><a id="line.56">    private static final int MAX_BLOG_ENTRIES = 10_000; // Just a precaution.</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    /**</a>
+<span class="sourceLineNo">059</span><a id="line.59">     * Parameter name for setting the entrytext  Value is &lt;tt&gt;{@value}&lt;/tt&gt;.</a>
+<span class="sourceLineNo">060</span><a id="line.60">     */</a>
+<span class="sourceLineNo">061</span><a id="line.61">    public static final String PARAM_ENTRYTEXT = "entrytext";</a>
+<span class="sourceLineNo">062</span><a id="line.62"></a>
+<span class="sourceLineNo">063</span><a id="line.63">    /*</a>
+<span class="sourceLineNo">064</span><a id="line.64">     * Optional parameter: page that actually contains the blog. This lets us provide a "new entry" link for a blog page</a>
+<span class="sourceLineNo">065</span><a id="line.65">     * somewhere else than on the page itself.</a>
+<span class="sourceLineNo">066</span><a id="line.66">     */</a>
+<span class="sourceLineNo">067</span><a id="line.67">    // "page" for uniform naming with WeblogPlugin...</a>
+<span class="sourceLineNo">068</span><a id="line.68">    </a>
+<span class="sourceLineNo">069</span><a id="line.69">    /**</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * Parameter name for setting the page Value is &lt;tt&gt;{@value}&lt;/tt&gt;.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     */</a>
+<span class="sourceLineNo">072</span><a id="line.72">    public static final String PARAM_BLOGNAME = "page";</a>
+<span class="sourceLineNo">073</span><a id="line.73"></a>
+<span class="sourceLineNo">074</span><a id="line.74">    /**</a>
+<span class="sourceLineNo">075</span><a id="line.75">     * Returns a new page name for entries.  It goes through the list of all blog pages, and finds out the next in line.</a>
+<span class="sourceLineNo">076</span><a id="line.76">     *</a>
+<span class="sourceLineNo">077</span><a id="line.77">     * @param engine   A Engine</a>
+<span class="sourceLineNo">078</span><a id="line.78">     * @param blogName The page (or blog) name.</a>
+<span class="sourceLineNo">079</span><a id="line.79">     * @return A new name.</a>
+<span class="sourceLineNo">080</span><a id="line.80">     * @throws ProviderException If something goes wrong.</a>
+<span class="sourceLineNo">081</span><a id="line.81">     */</a>
+<span class="sourceLineNo">082</span><a id="line.82">    public String getNewEntryPage( final Engine engine, final String blogName ) throws ProviderException {</a>
+<span class="sourceLineNo">083</span><a id="line.83">        final SimpleDateFormat fmt = new SimpleDateFormat(WeblogPlugin.DEFAULT_DATEFORMAT);</a>
+<span class="sourceLineNo">084</span><a id="line.84">        final String today = fmt.format(new Date());</a>
+<span class="sourceLineNo">085</span><a id="line.85">        final int entryNum = findFreeEntry( engine, blogName, today );</a>
+<span class="sourceLineNo">086</span><a id="line.86"></a>
+<span class="sourceLineNo">087</span><a id="line.87">        return WeblogPlugin.makeEntryPage( blogName, today,"" + entryNum );</a>
+<span class="sourceLineNo">088</span><a id="line.88">    }</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">    /**</a>
+<span class="sourceLineNo">091</span><a id="line.91">     * {@inheritDoc}</a>
+<span class="sourceLineNo">092</span><a id="line.92">     */</a>
+<span class="sourceLineNo">093</span><a id="line.93">    @Override</a>
+<span class="sourceLineNo">094</span><a id="line.94">    public String execute( final Context context, final Map&lt; String, String &gt; params ) throws PluginException {</a>
+<span class="sourceLineNo">095</span><a id="line.95">        final ResourceBundle rb = Preferences.getBundle(context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE);</a>
+<span class="sourceLineNo">096</span><a id="line.96">        final Engine engine = context.getEngine();</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">        String weblogName = params.get(PARAM_BLOGNAME);</a>
+<span class="sourceLineNo">099</span><a id="line.99">        if (weblogName == null) {</a>
+<span class="sourceLineNo">100</span><a id="line.100">            weblogName = context.getPage().getName();</a>
+<span class="sourceLineNo">101</span><a id="line.101">        }</a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">        String entryText = TextUtil.replaceEntities( params.get( PARAM_ENTRYTEXT ) );</a>
+<span class="sourceLineNo">104</span><a id="line.104">        if (entryText == null) {</a>
+<span class="sourceLineNo">105</span><a id="line.105">            entryText = rb.getString("weblogentryplugin.newentry");</a>
+<span class="sourceLineNo">106</span><a id="line.106">        }</a>
+<span class="sourceLineNo">107</span><a id="line.107"></a>
+<span class="sourceLineNo">108</span><a id="line.108">        final String url = context.getURL( ContextEnum.PAGE_NONE.getRequestContext(), "NewBlogEntry.jsp", "page=" + engine.encodeName( weblogName ) );</a>
+<span class="sourceLineNo">109</span><a id="line.109">        return "&lt;a href=\"" + url + "\"&gt;" + entryText + "&lt;/a&gt;";</a>
+<span class="sourceLineNo">110</span><a id="line.110">    }</a>
+<span class="sourceLineNo">111</span><a id="line.111"></a>
+<span class="sourceLineNo">112</span><a id="line.112">    private int findFreeEntry( final Engine engine, final String baseName, final String date ) throws ProviderException {</a>
+<span class="sourceLineNo">113</span><a id="line.113">        final Collection&lt; Page &gt; everyone = engine.getManager( PageManager.class ).getAllPages();</a>
+<span class="sourceLineNo">114</span><a id="line.114">        final String startString = WeblogPlugin.makeEntryPage(baseName, date, "");</a>
+<span class="sourceLineNo">115</span><a id="line.115">        int max = 0;</a>
+<span class="sourceLineNo">116</span><a id="line.116"></a>
+<span class="sourceLineNo">117</span><a id="line.117">        for( final Page p : everyone ) {</a>
+<span class="sourceLineNo">118</span><a id="line.118">            if( p.getName().startsWith( startString ) ) {</a>
+<span class="sourceLineNo">119</span><a id="line.119">                try {</a>
+<span class="sourceLineNo">120</span><a id="line.120">                    final String probableId = p.getName().substring( startString.length() );</a>
+<span class="sourceLineNo">121</span><a id="line.121">                    final int id = Integer.parseInt( probableId );</a>
+<span class="sourceLineNo">122</span><a id="line.122">                    if( id &gt; max ) {</a>
+<span class="sourceLineNo">123</span><a id="line.123">                        max = id;</a>
+<span class="sourceLineNo">124</span><a id="line.124">                    }</a>
+<span class="sourceLineNo">125</span><a id="line.125">                } catch( final NumberFormatException e ) {</a>
+<span class="sourceLineNo">126</span><a id="line.126">                    LOG.debug( "Was not a log entry: " + p.getName() );</a>
+<span class="sourceLineNo">127</span><a id="line.127">                }</a>
+<span class="sourceLineNo">128</span><a id="line.128">            }</a>
+<span class="sourceLineNo">129</span><a id="line.129">        }</a>
+<span class="sourceLineNo">130</span><a id="line.130"></a>
+<span class="sourceLineNo">131</span><a id="line.131">        //  Find the first page that has no page lock.</a>
+<span class="sourceLineNo">132</span><a id="line.132">        int idx = max + 1;</a>
+<span class="sourceLineNo">133</span><a id="line.133">        while( idx &lt; MAX_BLOG_ENTRIES ) {</a>
+<span class="sourceLineNo">134</span><a id="line.134">            final Page page = Wiki.contents().page( engine, WeblogPlugin.makeEntryPage( baseName, date, Integer.toString( idx ) ) );</a>
+<span class="sourceLineNo">135</span><a id="line.135">            final PageLock lock = engine.getManager( PageManager.class ).getCurrentLock(page);</a>
+<span class="sourceLineNo">136</span><a id="line.136">            if (lock == null) {</a>
+<span class="sourceLineNo">137</span><a id="line.137">                break;</a>
+<span class="sourceLineNo">138</span><a id="line.138">            }</a>
+<span class="sourceLineNo">139</span><a id="line.139"></a>
+<span class="sourceLineNo">140</span><a id="line.140">            idx++;</a>
+<span class="sourceLineNo">141</span><a id="line.141">        }</a>
+<span class="sourceLineNo">142</span><a id="line.142"></a>
+<span class="sourceLineNo">143</span><a id="line.143">        return idx;</a>
+<span class="sourceLineNo">144</span><a id="line.144">    }</a>
+<span class="sourceLineNo">145</span><a id="line.145"></a>
+<span class="sourceLineNo">146</span><a id="line.146">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

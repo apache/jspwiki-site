@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.api.core;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import java.security.Permission;</a>
+<span class="sourceLineNo">022</span><a id="line.22"></a>
+<span class="sourceLineNo">023</span><a id="line.23"></a>
+<span class="sourceLineNo">024</span><a id="line.24">/**</a>
+<span class="sourceLineNo">025</span><a id="line.25"> * &lt;p&gt;Represents a logical "unit of work" that includes a request context, JSP, URLPattern, content template and (optionally) a target and</a>
+<span class="sourceLineNo">026</span><a id="line.26"> * required security permission. Examples of Commands include "view a page," "create a group," and "edit user preferences." &lt;/p&gt;</a>
+<span class="sourceLineNo">027</span><a id="line.27"> * &lt;p&gt; Commands come in two flavors: "static" and "targeted." &lt;/p&gt;</a>
+<span class="sourceLineNo">028</span><a id="line.28"> * &lt;ul&gt;</a>
+<span class="sourceLineNo">029</span><a id="line.29"> * &lt;li&gt;&lt;strong&gt;Static commands&lt;/strong&gt; are exactly what they sound like: static. They are &lt;code&gt;final&lt;/code&gt;, threadsafe, and immutable.</a>
+<span class="sourceLineNo">030</span><a id="line.30"> * They have no intrinsic idea of the context they are acting in. For example, the static command {@code org.apache.wiki.ui.PageCommand#VIEW} embodies the</a>
+<span class="sourceLineNo">031</span><a id="line.31"> * idea of viewing a page &amp;#8212; but exactly &lt;em&gt;which&lt;/em&gt; page is left undefined. Static commands exist so that they can be freely</a>
+<span class="sourceLineNo">032</span><a id="line.32"> * shared and passed around without incurring the penalties of object creation. Static commands are a lot like naked request contexts</a>
+<span class="sourceLineNo">033</span><a id="line.33"> * ("edit", "view", etc.) except that they include additional, essential properties such as the associated URL pattern and content JSP.&lt;/li&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> * &lt;li&gt;&lt;strong&gt;Targeted commands&lt;/strong&gt; "decorate" static commands by scoping a static Command at a specific target such as a WikiPage or</a>
+<span class="sourceLineNo">035</span><a id="line.35"> * GroupPrincipal. Targeted commands are created by calling an existing Command's {@link #targetedCommand(Object)} and supplying the target</a>
+<span class="sourceLineNo">036</span><a id="line.36"> * object. Implementing classes generally require a specific target type. For example, the {@code org.apache.wiki.ui.PageCommand} class requires that the</a>
+<span class="sourceLineNo">037</span><a id="line.37"> * target object be of type {@link org.apache.wiki.api.core.Page}.&lt;/li&gt;</a>
+<span class="sourceLineNo">038</span><a id="line.38"> * &lt;/ul&gt;</a>
+<span class="sourceLineNo">039</span><a id="line.39"> * &lt;p&gt; Concrete implementations of Command include: &lt;/p&gt;</a>
+<span class="sourceLineNo">040</span><a id="line.40"> * &lt;ul&gt;</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * &lt;li&gt;&lt;strong&gt;PageCommand&lt;/strong&gt;: commands for editing, renaming, and viewing pages&lt;/li&gt;</a>
+<span class="sourceLineNo">042</span><a id="line.42"> * &lt;li&gt;&lt;strong&gt;GroupCommand&lt;/strong&gt;: commands for viewing, editing and</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * deleting wiki groups&lt;/li&gt;</a>
+<span class="sourceLineNo">044</span><a id="line.44"> * &lt;li&gt;&lt;strong&gt;WikiCommand&lt;/strong&gt;: commands for wiki-wide operations such as</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * creating groups, editing preferences and profiles, and logging in/out&lt;/li&gt;</a>
+<span class="sourceLineNo">046</span><a id="line.46"> * &lt;li&gt;&lt;strong&gt;RedirectCommand&lt;/strong&gt;: commands for redirections to off-site</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * special pages&lt;/li&gt;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> * &lt;/ul&gt;</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * &lt;p&gt;</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * For a given targeted Command, its {@link #getTarget()} method will return a non-&lt;code&gt;null&lt;/code&gt; value. In addition, its</a>
+<span class="sourceLineNo">051</span><a id="line.51"> * {@link #requiredPermission()} method will generally also return a non-&lt;code&gt;null&lt;/code&gt; value. It is each implementation's responsibility</a>
+<span class="sourceLineNo">052</span><a id="line.52"> * to construct and store the correct Permission for a given Command and Target. For example, when PageCommand.VIEW is targeted at the</a>
+<span class="sourceLineNo">053</span><a id="line.53"> * WikiPage &lt;code&gt;Main&lt;/code&gt;, the Command's associated permission is &lt;code&gt;PagePermission "&lt;em&gt;theWiki&lt;/em&gt;:Main", "view".&lt;/code&gt;&lt;/p&gt;</a>
+<span class="sourceLineNo">054</span><a id="line.54"> * &lt;p&gt;Static Commands, and targeted Commands that do not require specific permissions to execute, return a &lt;code&gt;null&lt;/code&gt; result for</a>
+<span class="sourceLineNo">055</span><a id="line.55"> * {@link #requiredPermission()}.&lt;/p&gt;</a>
+<span class="sourceLineNo">056</span><a id="line.56"> * @since 2.4.22</a>
+<span class="sourceLineNo">057</span><a id="line.57"> */</a>
+<span class="sourceLineNo">058</span><a id="line.58">public interface Command {</a>
+<span class="sourceLineNo">059</span><a id="line.59"></a>
+<span class="sourceLineNo">060</span><a id="line.60">    /**</a>
+<span class="sourceLineNo">061</span><a id="line.61">     * Creates and returns a targeted Command by combining a target, such as a WikiPage or GroupPrincipal into the existing Command.</a>
+<span class="sourceLineNo">062</span><a id="line.62">     * Subclasses should check to make sure the supplied &lt;code&gt;target&lt;/code&gt; object is of the correct type. This method is guaranteed</a>
+<span class="sourceLineNo">063</span><a id="line.63">     * to return a non-&lt;code&gt;null&lt;/code&gt; Command (unless the target is an incorrect type).</a>
+<span class="sourceLineNo">064</span><a id="line.64">     *</a>
+<span class="sourceLineNo">065</span><a id="line.65">     * @param target the object to combine, such as a GroupPrincipal or WikiPage</a>
+<span class="sourceLineNo">066</span><a id="line.66">     * @return the new, targeted Command</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * @throws IllegalArgumentException if the target is not of the correct type</a>
+<span class="sourceLineNo">068</span><a id="line.68">     */</a>
+<span class="sourceLineNo">069</span><a id="line.69">    Command targetedCommand( Object target );</a>
+<span class="sourceLineNo">070</span><a id="line.70"></a>
+<span class="sourceLineNo">071</span><a id="line.71">    /**</a>
+<span class="sourceLineNo">072</span><a id="line.72">     * Returns the content template associated with a Command, such as &lt;code&gt;PreferencesContent.jsp&lt;/code&gt;. For Commands that are not</a>
+<span class="sourceLineNo">073</span><a id="line.73">     * page-related, this method will always return &lt;code&gt;null&lt;/code&gt;. &lt;em&gt;Calling methods should always check to see if the result</a>
+<span class="sourceLineNo">074</span><a id="line.74">     * of this method is &lt;code&gt;null&lt;/code&gt;&lt;/em&gt;.</a>
+<span class="sourceLineNo">075</span><a id="line.75">     *</a>
+<span class="sourceLineNo">076</span><a id="line.76">     * @return the content template</a>
+<span class="sourceLineNo">077</span><a id="line.77">     */</a>
+<span class="sourceLineNo">078</span><a id="line.78">    String getContentTemplate();</a>
+<span class="sourceLineNo">079</span><a id="line.79"></a>
+<span class="sourceLineNo">080</span><a id="line.80">    /**</a>
+<span class="sourceLineNo">081</span><a id="line.81">     * Returns the JSP associated with the Command. The JSP is a "local" JSP within the JSPWiki webapp; it is not a general HTTP URL.</a>
+<span class="sourceLineNo">082</span><a id="line.82">     * If it exists, the JSP will be expressed relative to the webapp root, without a leading slash. This method is guaranteed to return</a>
+<span class="sourceLineNo">083</span><a id="line.83">     * a non-&lt;code&gt;null&lt;/code&gt; result, although in some cases the result may be an empty string.</a>
+<span class="sourceLineNo">084</span><a id="line.84">     *</a>
+<span class="sourceLineNo">085</span><a id="line.85">     * @return the JSP or url associated with the wiki command</a>
+<span class="sourceLineNo">086</span><a id="line.86">     */</a>
+<span class="sourceLineNo">087</span><a id="line.87">    String getJSP();</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">    /**</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * Returns the human-friendly name for this command.</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *</a>
+<span class="sourceLineNo">092</span><a id="line.92">     * @return the name</a>
+<span class="sourceLineNo">093</span><a id="line.93">     */</a>
+<span class="sourceLineNo">094</span><a id="line.94">    String getName();</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">    /**</a>
+<span class="sourceLineNo">097</span><a id="line.97">     * Returns the name of the request context (e.g. VIEW) associated with this Command. This method is guaranteed to return a</a>
+<span class="sourceLineNo">098</span><a id="line.98">     * non-&lt;code&gt;null&lt;/code&gt; String.</a>
+<span class="sourceLineNo">099</span><a id="line.99">     *</a>
+<span class="sourceLineNo">100</span><a id="line.100">     * @return the request context</a>
+<span class="sourceLineNo">101</span><a id="line.101">     */</a>
+<span class="sourceLineNo">102</span><a id="line.102">    String getRequestContext();</a>
+<span class="sourceLineNo">103</span><a id="line.103"></a>
+<span class="sourceLineNo">104</span><a id="line.104">    /**</a>
+<span class="sourceLineNo">105</span><a id="line.105">     * Returns the Permission required to successfully execute this Command. If no Permission is required, this method returns</a>
+<span class="sourceLineNo">106</span><a id="line.106">     * &lt;code&gt;null&lt;/code&gt;. For example, the static command {@code org.apache.wiki.ui.PageCommand#VIEW} doesn't require a permission because</a>
+<span class="sourceLineNo">107</span><a id="line.107">     * it isn't referring to a particular WikiPage. However, if this command targets a WikiPage called &lt;code&gt;Main&lt;/code&gt;(via</a>
+<span class="sourceLineNo">108</span><a id="line.108">     * {@code org.apache.wiki.ui.PageCommand#targetedCommand(Object)}, the resulting Command would require the permission</a>
+<span class="sourceLineNo">109</span><a id="line.109">     * &lt;code&gt;PagePermission "&lt;em&gt;yourWiki&lt;/em&gt;:Main", "view"&lt;/code&gt;.</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *</a>
+<span class="sourceLineNo">111</span><a id="line.111">     * @return the required permission, or &lt;code&gt;null&lt;/code&gt; if not required</a>
+<span class="sourceLineNo">112</span><a id="line.112">     */</a>
+<span class="sourceLineNo">113</span><a id="line.113">    Permission requiredPermission();</a>
+<span class="sourceLineNo">114</span><a id="line.114"></a>
+<span class="sourceLineNo">115</span><a id="line.115">    /**</a>
+<span class="sourceLineNo">116</span><a id="line.116">     * Returns the target associated with a Command, if it was created with one. Commands created with {@link #targetedCommand(Object)} will</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * &lt;em&gt;always&lt;/em&gt; return a non-&lt;code&gt;null&lt;/code&gt; object. &lt;em&gt;Calling methods should always check to see if the result of this method</a>
+<span class="sourceLineNo">118</span><a id="line.118">     * is &lt;code&gt;null&lt;/code&gt;&lt;/em&gt;.</a>
+<span class="sourceLineNo">119</span><a id="line.119">     *</a>
+<span class="sourceLineNo">120</span><a id="line.120">     * @return the wiki page</a>
+<span class="sourceLineNo">121</span><a id="line.121">     */</a>
+<span class="sourceLineNo">122</span><a id="line.122">    Object getTarget();</a>
+<span class="sourceLineNo">123</span><a id="line.123"></a>
+<span class="sourceLineNo">124</span><a id="line.124">    /**</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * Returns the URL pattern associated with this Command. This method is guaranteed to return a non-&lt;code&gt;null&lt;/code&gt; String.</a>
+<span class="sourceLineNo">126</span><a id="line.126">     *</a>
+<span class="sourceLineNo">127</span><a id="line.127">     * @return the URL pattern</a>
+<span class="sourceLineNo">128</span><a id="line.128">     */</a>
+<span class="sourceLineNo">129</span><a id="line.129">    String getURLPattern();</a>
+<span class="sourceLineNo">130</span><a id="line.130"></a>
+<span class="sourceLineNo">131</span><a id="line.131">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
