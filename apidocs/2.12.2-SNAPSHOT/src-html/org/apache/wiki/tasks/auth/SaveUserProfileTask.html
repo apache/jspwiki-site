@@ -36,75 +36,79 @@
 <span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.auth.user.UserProfile;</a>
 <span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.i18n.InternationalizationManager;</a>
 <span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.tasks.TasksManager;</a>
-<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.util.MailUtil;</a>
-<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.workflow.Outcome;</a>
-<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.workflow.Task;</a>
-<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.workflow.WorkflowManager;</a>
-<span class="sourceLineNo">034</span><a id="line.34"></a>
-<span class="sourceLineNo">035</span><a id="line.35">import javax.mail.MessagingException;</a>
-<span class="sourceLineNo">036</span><a id="line.36">import javax.mail.internet.AddressException;</a>
-<span class="sourceLineNo">037</span><a id="line.37">import java.util.Locale;</a>
-<span class="sourceLineNo">038</span><a id="line.38"></a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.util.HttpUtil;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import org.apache.wiki.util.MailUtil;</a>
+<span class="sourceLineNo">032</span><a id="line.32">import org.apache.wiki.workflow.Outcome;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import org.apache.wiki.workflow.Task;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import org.apache.wiki.workflow.WorkflowManager;</a>
+<span class="sourceLineNo">035</span><a id="line.35"></a>
+<span class="sourceLineNo">036</span><a id="line.36">import javax.mail.MessagingException;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import javax.mail.internet.AddressException;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.Locale;</a>
 <span class="sourceLineNo">039</span><a id="line.39"></a>
-<span class="sourceLineNo">040</span><a id="line.40">/**</a>
-<span class="sourceLineNo">041</span><a id="line.41"> * Handles the actual profile save action. </a>
-<span class="sourceLineNo">042</span><a id="line.42"> */</a>
-<span class="sourceLineNo">043</span><a id="line.43">public class SaveUserProfileTask extends Task {</a>
-<span class="sourceLineNo">044</span><a id="line.44"></a>
-<span class="sourceLineNo">045</span><a id="line.45">    private static final long serialVersionUID = 6994297086560480285L;</a>
-<span class="sourceLineNo">046</span><a id="line.46">    private static final Logger LOG = LogManager.getLogger( SaveUserProfileTask.class );</a>
-<span class="sourceLineNo">047</span><a id="line.47">    private final Locale m_loc;</a>
-<span class="sourceLineNo">048</span><a id="line.48"></a>
-<span class="sourceLineNo">049</span><a id="line.49">    /**</a>
-<span class="sourceLineNo">050</span><a id="line.50">     * Constructs a new Task for saving a user profile.</a>
-<span class="sourceLineNo">051</span><a id="line.51">     */</a>
-<span class="sourceLineNo">052</span><a id="line.52">    public SaveUserProfileTask( final Locale loc ) {</a>
-<span class="sourceLineNo">053</span><a id="line.53">        super( TasksManager.USER_PROFILE_SAVE_TASK_MESSAGE_KEY );</a>
-<span class="sourceLineNo">054</span><a id="line.54">        m_loc = loc;</a>
-<span class="sourceLineNo">055</span><a id="line.55">    }</a>
-<span class="sourceLineNo">056</span><a id="line.56"></a>
-<span class="sourceLineNo">057</span><a id="line.57">    /**</a>
-<span class="sourceLineNo">058</span><a id="line.58">     * Saves the user profile to the user database.</a>
-<span class="sourceLineNo">059</span><a id="line.59">     *</a>
-<span class="sourceLineNo">060</span><a id="line.60">     * @return {@link org.apache.wiki.workflow.Outcome#STEP_COMPLETE} if the task completed successfully</a>
-<span class="sourceLineNo">061</span><a id="line.61">     * @throws WikiException if the save did not complete for some reason</a>
-<span class="sourceLineNo">062</span><a id="line.62">     */</a>
-<span class="sourceLineNo">063</span><a id="line.63">    @Override</a>
-<span class="sourceLineNo">064</span><a id="line.64">    public Outcome execute( final Context context ) throws WikiException {</a>
-<span class="sourceLineNo">065</span><a id="line.65">        // Retrieve user profile</a>
-<span class="sourceLineNo">066</span><a id="line.66">        final UserProfile profile = ( UserProfile )getWorkflowContext().get( WorkflowManager.WF_UP_CREATE_SAVE_ATTR_SAVED_PROFILE );</a>
-<span class="sourceLineNo">067</span><a id="line.67"></a>
-<span class="sourceLineNo">068</span><a id="line.68">        // Save the profile (userdatabase will take care of timestamps for us)</a>
-<span class="sourceLineNo">069</span><a id="line.69">        context.getEngine().getManager( UserManager.class ).getUserDatabase().save( profile );</a>
-<span class="sourceLineNo">070</span><a id="line.70"></a>
-<span class="sourceLineNo">071</span><a id="line.71">        // Send e-mail if user supplied an e-mail address</a>
-<span class="sourceLineNo">072</span><a id="line.72">        if ( profile != null &amp;&amp; profile.getEmail() != null ) {</a>
-<span class="sourceLineNo">073</span><a id="line.73">            try {</a>
-<span class="sourceLineNo">074</span><a id="line.74">                final InternationalizationManager i18n = context.getEngine().getManager( InternationalizationManager.class );</a>
-<span class="sourceLineNo">075</span><a id="line.75">                final String app = context.getEngine().getApplicationName();</a>
-<span class="sourceLineNo">076</span><a id="line.76">                final String to = profile.getEmail();</a>
-<span class="sourceLineNo">077</span><a id="line.77">                final String subject = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</a>
-<span class="sourceLineNo">078</span><a id="line.78">                                                 "notification.createUserProfile.accept.subject", app );</a>
-<span class="sourceLineNo">079</span><a id="line.79"></a>
-<span class="sourceLineNo">080</span><a id="line.80">                final String loginUrl = context.getEngine().getURL( ContextEnum.WIKI_LOGIN.getRequestContext(), null, null );</a>
-<span class="sourceLineNo">081</span><a id="line.81">                final String content = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</a>
-<span class="sourceLineNo">082</span><a id="line.82">                                                 "notification.createUserProfile.accept.content", app,</a>
-<span class="sourceLineNo">083</span><a id="line.83">                                                 profile.getLoginName(),</a>
-<span class="sourceLineNo">084</span><a id="line.84">                                                 profile.getFullname(),</a>
-<span class="sourceLineNo">085</span><a id="line.85">                                                 profile.getEmail(),</a>
-<span class="sourceLineNo">086</span><a id="line.86">                                                 loginUrl );</a>
-<span class="sourceLineNo">087</span><a id="line.87">                MailUtil.sendMessage( context.getEngine().getWikiProperties(), to, subject, content );</a>
-<span class="sourceLineNo">088</span><a id="line.88">            } catch ( final AddressException e) {</a>
-<span class="sourceLineNo">089</span><a id="line.89">                LOG.debug( e.getMessage(), e );</a>
-<span class="sourceLineNo">090</span><a id="line.90">            } catch ( final MessagingException me ) {</a>
-<span class="sourceLineNo">091</span><a id="line.91">                LOG.error( "Could not send registration confirmation e-mail. Is the e-mail server running?", me );</a>
-<span class="sourceLineNo">092</span><a id="line.92">            }</a>
-<span class="sourceLineNo">093</span><a id="line.93">        }</a>
-<span class="sourceLineNo">094</span><a id="line.94"></a>
-<span class="sourceLineNo">095</span><a id="line.95">        return Outcome.STEP_COMPLETE;</a>
-<span class="sourceLineNo">096</span><a id="line.96">    }</a>
-<span class="sourceLineNo">097</span><a id="line.97"></a>
-<span class="sourceLineNo">098</span><a id="line.98">}</a>
+<span class="sourceLineNo">040</span><a id="line.40"></a>
+<span class="sourceLineNo">041</span><a id="line.41">/**</a>
+<span class="sourceLineNo">042</span><a id="line.42"> * Handles the actual profile save action. </a>
+<span class="sourceLineNo">043</span><a id="line.43"> */</a>
+<span class="sourceLineNo">044</span><a id="line.44">public class SaveUserProfileTask extends Task {</a>
+<span class="sourceLineNo">045</span><a id="line.45"></a>
+<span class="sourceLineNo">046</span><a id="line.46">    private static final long serialVersionUID = 6994297086560480285L;</a>
+<span class="sourceLineNo">047</span><a id="line.47">    private static final Logger LOG = LogManager.getLogger( SaveUserProfileTask.class );</a>
+<span class="sourceLineNo">048</span><a id="line.48">    private final Locale m_loc;</a>
+<span class="sourceLineNo">049</span><a id="line.49"></a>
+<span class="sourceLineNo">050</span><a id="line.50">    /**</a>
+<span class="sourceLineNo">051</span><a id="line.51">     * Constructs a new Task for saving a user profile.</a>
+<span class="sourceLineNo">052</span><a id="line.52">     */</a>
+<span class="sourceLineNo">053</span><a id="line.53">    public SaveUserProfileTask( final Locale loc ) {</a>
+<span class="sourceLineNo">054</span><a id="line.54">        super( TasksManager.USER_PROFILE_SAVE_TASK_MESSAGE_KEY );</a>
+<span class="sourceLineNo">055</span><a id="line.55">        m_loc = loc;</a>
+<span class="sourceLineNo">056</span><a id="line.56">    }</a>
+<span class="sourceLineNo">057</span><a id="line.57"></a>
+<span class="sourceLineNo">058</span><a id="line.58">    /**</a>
+<span class="sourceLineNo">059</span><a id="line.59">     * Saves the user profile to the user database.</a>
+<span class="sourceLineNo">060</span><a id="line.60">     *</a>
+<span class="sourceLineNo">061</span><a id="line.61">     * @return {@link org.apache.wiki.workflow.Outcome#STEP_COMPLETE} if the task completed successfully</a>
+<span class="sourceLineNo">062</span><a id="line.62">     * @throws WikiException if the save did not complete for some reason</a>
+<span class="sourceLineNo">063</span><a id="line.63">     */</a>
+<span class="sourceLineNo">064</span><a id="line.64">    @Override</a>
+<span class="sourceLineNo">065</span><a id="line.65">    public Outcome execute( final Context context ) throws WikiException {</a>
+<span class="sourceLineNo">066</span><a id="line.66">        // Retrieve user profile</a>
+<span class="sourceLineNo">067</span><a id="line.67">        final UserProfile profile = ( UserProfile )getWorkflowContext().get( WorkflowManager.WF_UP_CREATE_SAVE_ATTR_SAVED_PROFILE );</a>
+<span class="sourceLineNo">068</span><a id="line.68"></a>
+<span class="sourceLineNo">069</span><a id="line.69">        // Save the profile (userdatabase will take care of timestamps for us)</a>
+<span class="sourceLineNo">070</span><a id="line.70">        context.getEngine().getManager( UserManager.class ).getUserDatabase().save( profile );</a>
+<span class="sourceLineNo">071</span><a id="line.71"></a>
+<span class="sourceLineNo">072</span><a id="line.72">        // Send e-mail if user supplied an e-mail address</a>
+<span class="sourceLineNo">073</span><a id="line.73">        if ( profile != null &amp;&amp; profile.getEmail() != null ) {</a>
+<span class="sourceLineNo">074</span><a id="line.74">            try {</a>
+<span class="sourceLineNo">075</span><a id="line.75">                final InternationalizationManager i18n = context.getEngine().getManager( InternationalizationManager.class );</a>
+<span class="sourceLineNo">076</span><a id="line.76">                final String app = context.getEngine().getApplicationName();</a>
+<span class="sourceLineNo">077</span><a id="line.77">                final String to = profile.getEmail();</a>
+<span class="sourceLineNo">078</span><a id="line.78">                final String subject = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</a>
+<span class="sourceLineNo">079</span><a id="line.79">                                                 "notification.createUserProfile.accept.subject", app );</a>
+<span class="sourceLineNo">080</span><a id="line.80"></a>
+<span class="sourceLineNo">081</span><a id="line.81">                final String loginUrl = context.getEngine().getURL( ContextEnum.WIKI_LOGIN.getRequestContext(), null, null );</a>
+<span class="sourceLineNo">082</span><a id="line.82"></a>
+<span class="sourceLineNo">083</span><a id="line.83">                final String absoluteLoginUrl = HttpUtil.getAbsoluteUrl(context.getHttpRequest(), loginUrl);</a>
+<span class="sourceLineNo">084</span><a id="line.84"></a>
+<span class="sourceLineNo">085</span><a id="line.85">                final String content = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</a>
+<span class="sourceLineNo">086</span><a id="line.86">                                                 "notification.createUserProfile.accept.content", app,</a>
+<span class="sourceLineNo">087</span><a id="line.87">                                                 profile.getLoginName(),</a>
+<span class="sourceLineNo">088</span><a id="line.88">                                                 profile.getFullname(),</a>
+<span class="sourceLineNo">089</span><a id="line.89">                                                 profile.getEmail(),</a>
+<span class="sourceLineNo">090</span><a id="line.90">                                                 absoluteLoginUrl );</a>
+<span class="sourceLineNo">091</span><a id="line.91">                MailUtil.sendMessage( context.getEngine().getWikiProperties(), to, subject, content );</a>
+<span class="sourceLineNo">092</span><a id="line.92">            } catch ( final AddressException e) {</a>
+<span class="sourceLineNo">093</span><a id="line.93">                LOG.debug( e.getMessage(), e );</a>
+<span class="sourceLineNo">094</span><a id="line.94">            } catch ( final MessagingException me ) {</a>
+<span class="sourceLineNo">095</span><a id="line.95">                LOG.error( "Could not send registration confirmation e-mail. Is the e-mail server running?", me );</a>
+<span class="sourceLineNo">096</span><a id="line.96">            }</a>
+<span class="sourceLineNo">097</span><a id="line.97">        }</a>
+<span class="sourceLineNo">098</span><a id="line.98"></a>
+<span class="sourceLineNo">099</span><a id="line.99">        return Outcome.STEP_COMPLETE;</a>
+<span class="sourceLineNo">100</span><a id="line.100">    }</a>
+<span class="sourceLineNo">101</span><a id="line.101"></a>
+<span class="sourceLineNo">102</span><a id="line.102">}</a>
 
 
 
