@@ -28,76 +28,75 @@
 <span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.url;</a>
 <span class="sourceLineNo">020</span><a id="line.20"></a>
 <span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.engine.Initializable;</a>
-<span class="sourceLineNo">022</span><a id="line.22"></a>
-<span class="sourceLineNo">023</span><a id="line.23">import javax.servlet.http.HttpServletRequest;</a>
-<span class="sourceLineNo">024</span><a id="line.24">import java.io.IOException;</a>
-<span class="sourceLineNo">025</span><a id="line.25">import java.nio.charset.Charset;</a>
-<span class="sourceLineNo">026</span><a id="line.26"></a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.util.TextUtil;</a>
+<span class="sourceLineNo">023</span><a id="line.23"></a>
+<span class="sourceLineNo">024</span><a id="line.24">import javax.servlet.http.HttpServletRequest;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import java.io.IOException;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import java.nio.charset.Charset;</a>
 <span class="sourceLineNo">027</span><a id="line.27"></a>
-<span class="sourceLineNo">028</span><a id="line.28">/**</a>
-<span class="sourceLineNo">029</span><a id="line.29"> *  Provides an interface through which JSPWiki constructs URLs. JSPWiki calls the methods of this interface whenever an URL</a>
-<span class="sourceLineNo">030</span><a id="line.30"> *  that points to any JSPWiki internals is required.  For example, if you need to find an URL to the editor page for page</a>
-<span class="sourceLineNo">031</span><a id="line.31"> *  "TextFormattingRules", you would call makeURL( WikiContext.EDIT, "TextFormattingRules", false, null );</a>
-<span class="sourceLineNo">032</span><a id="line.32"> *</a>
-<span class="sourceLineNo">033</span><a id="line.33"> *  @since 2.2</a>
-<span class="sourceLineNo">034</span><a id="line.34"> */</a>
-<span class="sourceLineNo">035</span><a id="line.35">public interface URLConstructor extends Initializable {</a>
-<span class="sourceLineNo">036</span><a id="line.36"></a>
-<span class="sourceLineNo">037</span><a id="line.37">    /**</a>
-<span class="sourceLineNo">038</span><a id="line.38">     *  Constructs the URL with a bunch of parameters.</a>
-<span class="sourceLineNo">039</span><a id="line.39">     *</a>
-<span class="sourceLineNo">040</span><a id="line.40">     *  @param context The request context (@see WikiContext) that you want the URL for</a>
-<span class="sourceLineNo">041</span><a id="line.41">     *  @param name The page name (or in case of WikiContext.NONE, the auxiliary JSP page</a>
-<span class="sourceLineNo">042</span><a id="line.42">     *              or resource you want to point at).  This must be URL encoded.  Null is NOT safe.</a>
-<span class="sourceLineNo">043</span><a id="line.43">     *  @param parameters An URL parameter string (these must be URL-encoded, and separated with &amp;amp;amp;)</a>
-<span class="sourceLineNo">044</span><a id="line.44">     *  @return An URL pointing to the resource.  Must never return null - throw an InternalWikiException  if something goes wrong.</a>
-<span class="sourceLineNo">045</span><a id="line.45">     */</a>
-<span class="sourceLineNo">046</span><a id="line.46">    String makeURL( String context, String name, String parameters );</a>
-<span class="sourceLineNo">047</span><a id="line.47"></a>
-<span class="sourceLineNo">048</span><a id="line.48">    /**</a>
-<span class="sourceLineNo">049</span><a id="line.49">     *  Should parse the "page" parameter from the actual request. This is essentially the reverse of makeURL() - whenever</a>
-<span class="sourceLineNo">050</span><a id="line.50">     *  a request constructed by calls to makeURL() is passed to this routine, it MUST be able to parse the resource name</a>
-<span class="sourceLineNo">051</span><a id="line.51">     *  (WikiPage, Attachment, other resource) from the request.</a>
-<span class="sourceLineNo">052</span><a id="line.52">     *</a>
-<span class="sourceLineNo">053</span><a id="line.53">     *  @param context In which request context the request was made (this should help in parsing)</a>
-<span class="sourceLineNo">054</span><a id="line.54">     *  @param request The HTTP request that was used when coming here</a>
-<span class="sourceLineNo">055</span><a id="line.55">     *  @param encoding The encoding with which the request was made (UTF-8 or ISO-8859-1).</a>
-<span class="sourceLineNo">056</span><a id="line.56">     *  @return This method must return the name of the resource.</a>
-<span class="sourceLineNo">057</span><a id="line.57">     *  @throws IOException If parsing failes</a>
-<span class="sourceLineNo">058</span><a id="line.58">     */</a>
-<span class="sourceLineNo">059</span><a id="line.59">    String parsePage( String context, HttpServletRequest request, Charset encoding ) throws IOException;</a>
-<span class="sourceLineNo">060</span><a id="line.60"></a>
-<span class="sourceLineNo">061</span><a id="line.61">    /**</a>
-<span class="sourceLineNo">062</span><a id="line.62">     *  Returns information which JSP page should continue handling this type of request.</a>
-<span class="sourceLineNo">063</span><a id="line.63">     *</a>
-<span class="sourceLineNo">064</span><a id="line.64">     * @param request The HTTP Request that was used to end up in this page.</a>
-<span class="sourceLineNo">065</span><a id="line.65">     * @return "Wiki.jsp", "PageInfo.jsp", etc.  Just return the name, JSPWiki will figure out the page.</a>
-<span class="sourceLineNo">066</span><a id="line.66">     */</a>
-<span class="sourceLineNo">067</span><a id="line.67">    String getForwardPage( HttpServletRequest request );</a>
-<span class="sourceLineNo">068</span><a id="line.68"></a>
-<span class="sourceLineNo">069</span><a id="line.69">    /**</a>
-<span class="sourceLineNo">070</span><a id="line.70">     *  Takes the name of the page from the request URI. The initial slash is also removed.  If there is no page, returns null.</a>
-<span class="sourceLineNo">071</span><a id="line.71">     *</a>
-<span class="sourceLineNo">072</span><a id="line.72">     *  @param request The request to parse</a>
-<span class="sourceLineNo">073</span><a id="line.73">     *  @param encoding The encoding to use</a>
-<span class="sourceLineNo">074</span><a id="line.74">     *</a>
-<span class="sourceLineNo">075</span><a id="line.75">     *  @return a parsed page name, or null, if it cannot be found</a>
-<span class="sourceLineNo">076</span><a id="line.76">     */</a>
-<span class="sourceLineNo">077</span><a id="line.77">    static String parsePageFromURL( final HttpServletRequest request, final Charset encoding ) {</a>
-<span class="sourceLineNo">078</span><a id="line.78">        final String name = request.getPathInfo();</a>
-<span class="sourceLineNo">079</span><a id="line.79">        if( name == null || name.length() &lt;= 1 ) {</a>
-<span class="sourceLineNo">080</span><a id="line.80">            return request.getParameter("page");</a>
-<span class="sourceLineNo">081</span><a id="line.81">        } else if( name.charAt(0) == '/' ) {</a>
-<span class="sourceLineNo">082</span><a id="line.82">            return name.substring(1);</a>
-<span class="sourceLineNo">083</span><a id="line.83">        }</a>
-<span class="sourceLineNo">084</span><a id="line.84"></a>
-<span class="sourceLineNo">085</span><a id="line.85">        //  This is required, because by default all URLs are handled as Latin1, even if they are really UTF-8.</a>
-<span class="sourceLineNo">086</span><a id="line.86">        // name = TextUtil.urlDecode( name, encoding );</a>
-<span class="sourceLineNo">087</span><a id="line.87"></a>
-<span class="sourceLineNo">088</span><a id="line.88">        return name;</a>
-<span class="sourceLineNo">089</span><a id="line.89">    }</a>
-<span class="sourceLineNo">090</span><a id="line.90"></a>
-<span class="sourceLineNo">091</span><a id="line.91">}</a>
+<span class="sourceLineNo">028</span><a id="line.28"></a>
+<span class="sourceLineNo">029</span><a id="line.29">/**</a>
+<span class="sourceLineNo">030</span><a id="line.30"> *  Provides an interface through which JSPWiki constructs URLs. JSPWiki calls the methods of this interface whenever an URL</a>
+<span class="sourceLineNo">031</span><a id="line.31"> *  that points to any JSPWiki internals is required.  For example, if you need to find an URL to the editor page for page</a>
+<span class="sourceLineNo">032</span><a id="line.32"> *  "TextFormattingRules", you would call makeURL( WikiContext.EDIT, "TextFormattingRules", false, null );</a>
+<span class="sourceLineNo">033</span><a id="line.33"> *</a>
+<span class="sourceLineNo">034</span><a id="line.34"> *  @since 2.2</a>
+<span class="sourceLineNo">035</span><a id="line.35"> */</a>
+<span class="sourceLineNo">036</span><a id="line.36">public interface URLConstructor extends Initializable {</a>
+<span class="sourceLineNo">037</span><a id="line.37"></a>
+<span class="sourceLineNo">038</span><a id="line.38">    /**</a>
+<span class="sourceLineNo">039</span><a id="line.39">     *  Constructs the URL with a bunch of parameters.</a>
+<span class="sourceLineNo">040</span><a id="line.40">     *</a>
+<span class="sourceLineNo">041</span><a id="line.41">     *  @param context The request context (@see WikiContext) that you want the URL for</a>
+<span class="sourceLineNo">042</span><a id="line.42">     *  @param name The page name (or in case of WikiContext.NONE, the auxiliary JSP page</a>
+<span class="sourceLineNo">043</span><a id="line.43">     *              or resource you want to point at).  This must be URL encoded.  Null is NOT safe.</a>
+<span class="sourceLineNo">044</span><a id="line.44">     *  @param parameters An URL parameter string (these must be URL-encoded, and separated with &amp;amp;amp;)</a>
+<span class="sourceLineNo">045</span><a id="line.45">     *  @return An URL pointing to the resource.  Must never return null - throw an InternalWikiException  if something goes wrong.</a>
+<span class="sourceLineNo">046</span><a id="line.46">     */</a>
+<span class="sourceLineNo">047</span><a id="line.47">    String makeURL( String context, String name, String parameters );</a>
+<span class="sourceLineNo">048</span><a id="line.48"></a>
+<span class="sourceLineNo">049</span><a id="line.49">    /**</a>
+<span class="sourceLineNo">050</span><a id="line.50">     *  Should parse the "page" parameter from the actual request. This is essentially the reverse of makeURL() - whenever</a>
+<span class="sourceLineNo">051</span><a id="line.51">     *  a request constructed by calls to makeURL() is passed to this routine, it MUST be able to parse the resource name</a>
+<span class="sourceLineNo">052</span><a id="line.52">     *  (WikiPage, Attachment, other resource) from the request.</a>
+<span class="sourceLineNo">053</span><a id="line.53">     *</a>
+<span class="sourceLineNo">054</span><a id="line.54">     *  @param context In which request context the request was made (this should help in parsing)</a>
+<span class="sourceLineNo">055</span><a id="line.55">     *  @param request The HTTP request that was used when coming here</a>
+<span class="sourceLineNo">056</span><a id="line.56">     *  @param encoding The encoding with which the request was made (UTF-8 or ISO-8859-1).</a>
+<span class="sourceLineNo">057</span><a id="line.57">     *  @return This method must return the name of the resource.</a>
+<span class="sourceLineNo">058</span><a id="line.58">     *  @throws IOException If parsing failes</a>
+<span class="sourceLineNo">059</span><a id="line.59">     */</a>
+<span class="sourceLineNo">060</span><a id="line.60">    String parsePage( String context, HttpServletRequest request, Charset encoding ) throws IOException;</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">    /**</a>
+<span class="sourceLineNo">063</span><a id="line.63">     *  Returns information which JSP page should continue handling this type of request.</a>
+<span class="sourceLineNo">064</span><a id="line.64">     *</a>
+<span class="sourceLineNo">065</span><a id="line.65">     * @param request The HTTP Request that was used to end up in this page.</a>
+<span class="sourceLineNo">066</span><a id="line.66">     * @return "Wiki.jsp", "PageInfo.jsp", etc.  Just return the name, JSPWiki will figure out the page.</a>
+<span class="sourceLineNo">067</span><a id="line.67">     */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    String getForwardPage( HttpServletRequest request );</a>
+<span class="sourceLineNo">069</span><a id="line.69"></a>
+<span class="sourceLineNo">070</span><a id="line.70">    /**</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *  Takes the name of the page from the request URI. The initial slash is also removed.  If there is no page, returns null.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     *</a>
+<span class="sourceLineNo">073</span><a id="line.73">     *  @param request The request to parse</a>
+<span class="sourceLineNo">074</span><a id="line.74">     *  @param encoding The encoding to use</a>
+<span class="sourceLineNo">075</span><a id="line.75">     *</a>
+<span class="sourceLineNo">076</span><a id="line.76">     *  @return a parsed page name, or null, if it cannot be found</a>
+<span class="sourceLineNo">077</span><a id="line.77">     */</a>
+<span class="sourceLineNo">078</span><a id="line.78">    static String parsePageFromURL( final HttpServletRequest request, final Charset encoding ) {</a>
+<span class="sourceLineNo">079</span><a id="line.79">        final String name = request.getPathInfo();</a>
+<span class="sourceLineNo">080</span><a id="line.80">        if( name == null || name.length() &lt;= 1 ) {</a>
+<span class="sourceLineNo">081</span><a id="line.81">            return request.getParameter("page");</a>
+<span class="sourceLineNo">082</span><a id="line.82">        } else if( name.charAt(0) == '/' ) {</a>
+<span class="sourceLineNo">083</span><a id="line.83">            return name.substring(1);</a>
+<span class="sourceLineNo">084</span><a id="line.84">        }</a>
+<span class="sourceLineNo">085</span><a id="line.85"></a>
+<span class="sourceLineNo">086</span><a id="line.86">        //  This is required, because by default all URLs are handled as Latin1, even if they are really UTF-8.</a>
+<span class="sourceLineNo">087</span><a id="line.87">        return TextUtil.urlDecode( name, encoding.name() );</a>
+<span class="sourceLineNo">088</span><a id="line.88">    }</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">}</a>
 
 
 
