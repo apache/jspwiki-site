@@ -1,0 +1,374 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth.user;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.commons.lang3.math.NumberUtils;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.logging.log4j.LogManager;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.logging.log4j.Logger;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.api.exceptions.NoRequiredPropertyException;</a>
+<span class="sourceLineNo">026</span><a id="line.26">import org.apache.wiki.auth.NoSuchPrincipalException;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import org.apache.wiki.auth.WikiPrincipal;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import org.apache.wiki.auth.WikiSecurityException;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import org.apache.wiki.util.ByteUtils;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import org.apache.wiki.util.CryptoUtil;</a>
+<span class="sourceLineNo">031</span><a id="line.31"></a>
+<span class="sourceLineNo">032</span><a id="line.32">import java.nio.charset.StandardCharsets;</a>
+<span class="sourceLineNo">033</span><a id="line.33">import java.security.MessageDigest;</a>
+<span class="sourceLineNo">034</span><a id="line.34">import java.security.NoSuchAlgorithmException;</a>
+<span class="sourceLineNo">035</span><a id="line.35">import java.security.Principal;</a>
+<span class="sourceLineNo">036</span><a id="line.36">import java.util.ArrayList;</a>
+<span class="sourceLineNo">037</span><a id="line.37">import java.util.Properties;</a>
+<span class="sourceLineNo">038</span><a id="line.38">import java.util.UUID;</a>
+<span class="sourceLineNo">039</span><a id="line.39"></a>
+<span class="sourceLineNo">040</span><a id="line.40">/**</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * Abstract UserDatabase class that provides convenience methods for finding profiles, building Principal collections and hashing passwords.</a>
+<span class="sourceLineNo">042</span><a id="line.42"> *</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * @since 2.3</a>
+<span class="sourceLineNo">044</span><a id="line.44"> */</a>
+<span class="sourceLineNo">045</span><a id="line.45">public abstract class AbstractUserDatabase implements UserDatabase {</a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">    protected static final Logger LOG = LogManager.getLogger( AbstractUserDatabase.class );</a>
+<span class="sourceLineNo">048</span><a id="line.48">    protected static final String SHA_PREFIX = "{SHA}";</a>
+<span class="sourceLineNo">049</span><a id="line.49">    protected static final String SSHA_PREFIX = "{SSHA}";</a>
+<span class="sourceLineNo">050</span><a id="line.50">    protected static final String SHA256_PREFIX = "{SHA-256}";</a>
+<span class="sourceLineNo">051</span><a id="line.51"></a>
+<span class="sourceLineNo">052</span><a id="line.52">    /**</a>
+<span class="sourceLineNo">053</span><a id="line.53">     * Looks up and returns the first {@link UserProfile} in the user database that whose login name, full name, or wiki name matches the</a>
+<span class="sourceLineNo">054</span><a id="line.54">     * supplied string. This method provides a "forgiving" search algorithm for resolving principal names when the exact profile attribute</a>
+<span class="sourceLineNo">055</span><a id="line.55">     * that supplied the name is unknown.</a>
+<span class="sourceLineNo">056</span><a id="line.56">     *</a>
+<span class="sourceLineNo">057</span><a id="line.57">     * @param index the login name, full name, or wiki name</a>
+<span class="sourceLineNo">058</span><a id="line.58">     * @see org.apache.wiki.auth.user.UserDatabase#find(java.lang.String)</a>
+<span class="sourceLineNo">059</span><a id="line.59">     */</a>
+<span class="sourceLineNo">060</span><a id="line.60">    @Override</a>
+<span class="sourceLineNo">061</span><a id="line.61">    public UserProfile find( final String index ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">062</span><a id="line.62">        UserProfile profile = null;</a>
+<span class="sourceLineNo">063</span><a id="line.63"></a>
+<span class="sourceLineNo">064</span><a id="line.64">        // Try finding by full name</a>
+<span class="sourceLineNo">065</span><a id="line.65">        try {</a>
+<span class="sourceLineNo">066</span><a id="line.66">            profile = findByFullName( index );</a>
+<span class="sourceLineNo">067</span><a id="line.67">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">068</span><a id="line.68">        }</a>
+<span class="sourceLineNo">069</span><a id="line.69">        if( profile != null ) {</a>
+<span class="sourceLineNo">070</span><a id="line.70">            return profile;</a>
+<span class="sourceLineNo">071</span><a id="line.71">        }</a>
+<span class="sourceLineNo">072</span><a id="line.72"></a>
+<span class="sourceLineNo">073</span><a id="line.73">        // Try finding by wiki name</a>
+<span class="sourceLineNo">074</span><a id="line.74">        try {</a>
+<span class="sourceLineNo">075</span><a id="line.75">            profile = findByWikiName( index );</a>
+<span class="sourceLineNo">076</span><a id="line.76">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">077</span><a id="line.77">        }</a>
+<span class="sourceLineNo">078</span><a id="line.78">        if( profile != null ) {</a>
+<span class="sourceLineNo">079</span><a id="line.79">            return profile;</a>
+<span class="sourceLineNo">080</span><a id="line.80">        }</a>
+<span class="sourceLineNo">081</span><a id="line.81"></a>
+<span class="sourceLineNo">082</span><a id="line.82">        // Try finding by login name</a>
+<span class="sourceLineNo">083</span><a id="line.83">        try {</a>
+<span class="sourceLineNo">084</span><a id="line.84">            profile = findByLoginName( index );</a>
+<span class="sourceLineNo">085</span><a id="line.85">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">086</span><a id="line.86">        }</a>
+<span class="sourceLineNo">087</span><a id="line.87">        if( profile != null ) {</a>
+<span class="sourceLineNo">088</span><a id="line.88">            return profile;</a>
+<span class="sourceLineNo">089</span><a id="line.89">        }</a>
+<span class="sourceLineNo">090</span><a id="line.90"></a>
+<span class="sourceLineNo">091</span><a id="line.91">        throw new NoSuchPrincipalException( "Not in database: " + index );</a>
+<span class="sourceLineNo">092</span><a id="line.92">    }</a>
+<span class="sourceLineNo">093</span><a id="line.93"></a>
+<span class="sourceLineNo">094</span><a id="line.94">    /**</a>
+<span class="sourceLineNo">095</span><a id="line.95">     * {@inheritDoc}</a>
+<span class="sourceLineNo">096</span><a id="line.96">     * @see org.apache.wiki.auth.user.UserDatabase#findByEmail(java.lang.String)</a>
+<span class="sourceLineNo">097</span><a id="line.97">     */</a>
+<span class="sourceLineNo">098</span><a id="line.98">    @Override</a>
+<span class="sourceLineNo">099</span><a id="line.99">    public abstract UserProfile findByEmail( String index ) throws NoSuchPrincipalException;</a>
+<span class="sourceLineNo">100</span><a id="line.100"></a>
+<span class="sourceLineNo">101</span><a id="line.101">    /**</a>
+<span class="sourceLineNo">102</span><a id="line.102">     * {@inheritDoc}</a>
+<span class="sourceLineNo">103</span><a id="line.103">     * @see org.apache.wiki.auth.user.UserDatabase#findByFullName(java.lang.String)</a>
+<span class="sourceLineNo">104</span><a id="line.104">     */</a>
+<span class="sourceLineNo">105</span><a id="line.105">    @Override</a>
+<span class="sourceLineNo">106</span><a id="line.106">    public abstract UserProfile findByFullName( String index ) throws NoSuchPrincipalException;</a>
+<span class="sourceLineNo">107</span><a id="line.107"></a>
+<span class="sourceLineNo">108</span><a id="line.108">    /**</a>
+<span class="sourceLineNo">109</span><a id="line.109">     * {@inheritDoc}</a>
+<span class="sourceLineNo">110</span><a id="line.110">     * @see org.apache.wiki.auth.user.UserDatabase#findByLoginName(java.lang.String)</a>
+<span class="sourceLineNo">111</span><a id="line.111">     */</a>
+<span class="sourceLineNo">112</span><a id="line.112">    @Override</a>
+<span class="sourceLineNo">113</span><a id="line.113">    public abstract UserProfile findByLoginName( String index ) throws NoSuchPrincipalException;</a>
+<span class="sourceLineNo">114</span><a id="line.114"></a>
+<span class="sourceLineNo">115</span><a id="line.115">    /**</a>
+<span class="sourceLineNo">116</span><a id="line.116">     * {@inheritDoc}</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * @see org.apache.wiki.auth.user.UserDatabase#findByWikiName(java.lang.String)</a>
+<span class="sourceLineNo">118</span><a id="line.118">     */</a>
+<span class="sourceLineNo">119</span><a id="line.119">    @Override</a>
+<span class="sourceLineNo">120</span><a id="line.120">    public abstract UserProfile findByWikiName( String index ) throws NoSuchPrincipalException;</a>
+<span class="sourceLineNo">121</span><a id="line.121"></a>
+<span class="sourceLineNo">122</span><a id="line.122">    /**</a>
+<span class="sourceLineNo">123</span><a id="line.123">     * &lt;p&gt;Looks up the Principals representing a user from the user database. These</a>
+<span class="sourceLineNo">124</span><a id="line.124">     * are defined as a set of WikiPrincipals manufactured from the login name,</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * full name, and wiki name. If the user database does not contain a user</a>
+<span class="sourceLineNo">126</span><a id="line.126">     * with the supplied identifier, throws a {@link NoSuchPrincipalException}.&lt;/p&gt;</a>
+<span class="sourceLineNo">127</span><a id="line.127">     * &lt;p&gt;When this method creates WikiPrincipals, the Principal containing</a>
+<span class="sourceLineNo">128</span><a id="line.128">     * the user's full name is marked as containing the common name (see</a>
+<span class="sourceLineNo">129</span><a id="line.129">     * {@link org.apache.wiki.auth.WikiPrincipal#WikiPrincipal(String, String)}).</a>
+<span class="sourceLineNo">130</span><a id="line.130">     * @param identifier the name of the principal to retrieve; this corresponds to</a>
+<span class="sourceLineNo">131</span><a id="line.131">     *            value returned by the user profile's</a>
+<span class="sourceLineNo">132</span><a id="line.132">     *            {@link UserProfile#getLoginName()}method.</a>
+<span class="sourceLineNo">133</span><a id="line.133">     * @return the array of Principals representing the user</a>
+<span class="sourceLineNo">134</span><a id="line.134">     * @see org.apache.wiki.auth.user.UserDatabase#getPrincipals(java.lang.String)</a>
+<span class="sourceLineNo">135</span><a id="line.135">     * @throws NoSuchPrincipalException If the user database does not contain user with the supplied identifier</a>
+<span class="sourceLineNo">136</span><a id="line.136">     */</a>
+<span class="sourceLineNo">137</span><a id="line.137">    @Override</a>
+<span class="sourceLineNo">138</span><a id="line.138">    public Principal[] getPrincipals( final String identifier ) throws NoSuchPrincipalException {</a>
+<span class="sourceLineNo">139</span><a id="line.139">        final UserProfile profile = findByLoginName( identifier );</a>
+<span class="sourceLineNo">140</span><a id="line.140">        final ArrayList&lt; Principal &gt; principals = new ArrayList&lt;&gt;();</a>
+<span class="sourceLineNo">141</span><a id="line.141">        if( profile.getLoginName() != null &amp;&amp; !profile.getLoginName().isEmpty() ) {</a>
+<span class="sourceLineNo">142</span><a id="line.142">            principals.add( new WikiPrincipal( profile.getLoginName(), WikiPrincipal.LOGIN_NAME ) );</a>
+<span class="sourceLineNo">143</span><a id="line.143">        }</a>
+<span class="sourceLineNo">144</span><a id="line.144">        if( profile.getFullname() != null &amp;&amp; !profile.getFullname().isEmpty() ) {</a>
+<span class="sourceLineNo">145</span><a id="line.145">            principals.add( new WikiPrincipal( profile.getFullname(), WikiPrincipal.FULL_NAME ) );</a>
+<span class="sourceLineNo">146</span><a id="line.146">        }</a>
+<span class="sourceLineNo">147</span><a id="line.147">        if( profile.getWikiName() != null &amp;&amp; !profile.getWikiName().isEmpty() ) {</a>
+<span class="sourceLineNo">148</span><a id="line.148">            principals.add( new WikiPrincipal( profile.getWikiName(), WikiPrincipal.WIKI_NAME ) );</a>
+<span class="sourceLineNo">149</span><a id="line.149">        }</a>
+<span class="sourceLineNo">150</span><a id="line.150">        return principals.toArray( new Principal[0] );</a>
+<span class="sourceLineNo">151</span><a id="line.151">    }</a>
+<span class="sourceLineNo">152</span><a id="line.152"></a>
+<span class="sourceLineNo">153</span><a id="line.153">    /**</a>
+<span class="sourceLineNo">154</span><a id="line.154">     * {@inheritDoc}</a>
+<span class="sourceLineNo">155</span><a id="line.155">     *</a>
+<span class="sourceLineNo">156</span><a id="line.156">     * @see org.apache.wiki.auth.user.UserDatabase#initialize(org.apache.wiki.api.core.Engine, java.util.Properties)</a>
+<span class="sourceLineNo">157</span><a id="line.157">     */</a>
+<span class="sourceLineNo">158</span><a id="line.158">    @Override</a>
+<span class="sourceLineNo">159</span><a id="line.159">    public abstract void initialize( Engine engine, Properties props ) throws NoRequiredPropertyException, WikiSecurityException;</a>
+<span class="sourceLineNo">160</span><a id="line.160"></a>
+<span class="sourceLineNo">161</span><a id="line.161">    /**</a>
+<span class="sourceLineNo">162</span><a id="line.162">     * Factory method that instantiates a new DefaultUserProfile with a new, distinct unique identifier.</a>
+<span class="sourceLineNo">163</span><a id="line.163">     * </a>
+<span class="sourceLineNo">164</span><a id="line.164">     * @return A new, empty profile.</a>
+<span class="sourceLineNo">165</span><a id="line.165">     */</a>
+<span class="sourceLineNo">166</span><a id="line.166">    @Override</a>
+<span class="sourceLineNo">167</span><a id="line.167">    public UserProfile newProfile() {</a>
+<span class="sourceLineNo">168</span><a id="line.168">        final UserProfile profile = new DefaultUserProfile();</a>
+<span class="sourceLineNo">169</span><a id="line.169">        profile.setUid( AbstractUserDatabase.generateUid( this ) );</a>
+<span class="sourceLineNo">170</span><a id="line.170">        return profile;</a>
+<span class="sourceLineNo">171</span><a id="line.171">    }</a>
+<span class="sourceLineNo">172</span><a id="line.172"></a>
+<span class="sourceLineNo">173</span><a id="line.173">    /**</a>
+<span class="sourceLineNo">174</span><a id="line.174">     * {@inheritDoc}</a>
+<span class="sourceLineNo">175</span><a id="line.175">     * @see org.apache.wiki.auth.user.UserDatabase#save(org.apache.wiki.auth.user.UserProfile)</a>
+<span class="sourceLineNo">176</span><a id="line.176">     */</a>
+<span class="sourceLineNo">177</span><a id="line.177">    @Override</a>
+<span class="sourceLineNo">178</span><a id="line.178">    public abstract void save( UserProfile profile ) throws WikiSecurityException;</a>
+<span class="sourceLineNo">179</span><a id="line.179"></a>
+<span class="sourceLineNo">180</span><a id="line.180">    /**</a>
+<span class="sourceLineNo">181</span><a id="line.181">     * Validates the password for a given user. If the user does not exist in the user database, this method always returns</a>
+<span class="sourceLineNo">182</span><a id="line.182">     * &lt;code&gt;false&lt;/code&gt;. If the user exists, the supplied password is compared to the stored password. Note that if the stored password's</a>
+<span class="sourceLineNo">183</span><a id="line.183">     * value starts with &lt;code&gt;{SHA}&lt;/code&gt;, the supplied password is hashed prior to the comparison.</a>
+<span class="sourceLineNo">184</span><a id="line.184">     *</a>
+<span class="sourceLineNo">185</span><a id="line.185">     * @param loginName the user's login name</a>
+<span class="sourceLineNo">186</span><a id="line.186">     * @param password the user's password (obtained from user input, e.g., a web form)</a>
+<span class="sourceLineNo">187</span><a id="line.187">     * @return &lt;code&gt;true&lt;/code&gt; if the supplied user password matches the stored password</a>
+<span class="sourceLineNo">188</span><a id="line.188">     * @see org.apache.wiki.auth.user.UserDatabase#validatePassword(java.lang.String, java.lang.String)</a>
+<span class="sourceLineNo">189</span><a id="line.189">     */</a>
+<span class="sourceLineNo">190</span><a id="line.190">    @Override</a>
+<span class="sourceLineNo">191</span><a id="line.191">    public boolean validatePassword( final String loginName, final String password ) {</a>
+<span class="sourceLineNo">192</span><a id="line.192">        final String hashedPassword;</a>
+<span class="sourceLineNo">193</span><a id="line.193">        try {</a>
+<span class="sourceLineNo">194</span><a id="line.194">            final UserProfile profile = findByLoginName( loginName );</a>
+<span class="sourceLineNo">195</span><a id="line.195">            String storedPassword = profile.getPassword();</a>
+<span class="sourceLineNo">196</span><a id="line.196">            boolean verified = false;</a>
+<span class="sourceLineNo">197</span><a id="line.197"></a>
+<span class="sourceLineNo">198</span><a id="line.198">            // If the password is stored as SHA-256 or SSHA, verify the hash</a>
+<span class="sourceLineNo">199</span><a id="line.199">            if( storedPassword.startsWith( SHA256_PREFIX ) || storedPassword.startsWith( SSHA_PREFIX ) ) {</a>
+<span class="sourceLineNo">200</span><a id="line.200">                verified = CryptoUtil.verifySaltedPassword( password.getBytes( StandardCharsets.UTF_8 ), storedPassword );</a>
+<span class="sourceLineNo">201</span><a id="line.201">            }</a>
+<span class="sourceLineNo">202</span><a id="line.202"></a>
+<span class="sourceLineNo">203</span><a id="line.203">            // Use older verification algorithm if password is stored as SHA</a>
+<span class="sourceLineNo">204</span><a id="line.204">            if( storedPassword.startsWith( SHA_PREFIX ) ) {</a>
+<span class="sourceLineNo">205</span><a id="line.205">                storedPassword = storedPassword.substring( SHA_PREFIX.length() );</a>
+<span class="sourceLineNo">206</span><a id="line.206">                hashedPassword = getShaHash( password );</a>
+<span class="sourceLineNo">207</span><a id="line.207">                verified = hashedPassword.equals( storedPassword );</a>
+<span class="sourceLineNo">208</span><a id="line.208">            }</a>
+<span class="sourceLineNo">209</span><a id="line.209"></a>
+<span class="sourceLineNo">210</span><a id="line.210">            // If in the old format and password verified, upgrade the hash to SSHA</a>
+<span class="sourceLineNo">211</span><a id="line.211">            if( verified &amp;&amp; !storedPassword.startsWith( SHA256_PREFIX ) ) {</a>
+<span class="sourceLineNo">212</span><a id="line.212">                profile.setPassword( password );</a>
+<span class="sourceLineNo">213</span><a id="line.213">                save( profile );</a>
+<span class="sourceLineNo">214</span><a id="line.214">            }</a>
+<span class="sourceLineNo">215</span><a id="line.215"></a>
+<span class="sourceLineNo">216</span><a id="line.216">            return verified;</a>
+<span class="sourceLineNo">217</span><a id="line.217">        } catch( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">218</span><a id="line.218">        } catch( final NoSuchAlgorithmException e ) {</a>
+<span class="sourceLineNo">219</span><a id="line.219">            LOG.error( "Unsupported algorithm: " + e.getMessage() );</a>
+<span class="sourceLineNo">220</span><a id="line.220">        } catch( final WikiSecurityException e ) {</a>
+<span class="sourceLineNo">221</span><a id="line.221">            LOG.error( "Could not upgrade SHA password to SSHA because profile could not be saved. Reason: " + e.getMessage(), e );</a>
+<span class="sourceLineNo">222</span><a id="line.222">        }</a>
+<span class="sourceLineNo">223</span><a id="line.223">        return false;</a>
+<span class="sourceLineNo">224</span><a id="line.224">    }</a>
+<span class="sourceLineNo">225</span><a id="line.225"></a>
+<span class="sourceLineNo">226</span><a id="line.226">    /**</a>
+<span class="sourceLineNo">227</span><a id="line.227">     * Generates a new random user identifier (uid) that is guaranteed to be unique.</a>
+<span class="sourceLineNo">228</span><a id="line.228">     * </a>
+<span class="sourceLineNo">229</span><a id="line.229">     * @param db The database for which the UID should be generated.</a>
+<span class="sourceLineNo">230</span><a id="line.230">     * @return A random, unique UID.</a>
+<span class="sourceLineNo">231</span><a id="line.231">     */</a>
+<span class="sourceLineNo">232</span><a id="line.232">    protected static String generateUid( final UserDatabase db ) {</a>
+<span class="sourceLineNo">233</span><a id="line.233">        // Keep generating UUIDs until we find one that doesn't collide</a>
+<span class="sourceLineNo">234</span><a id="line.234">        String uid;</a>
+<span class="sourceLineNo">235</span><a id="line.235">        boolean collision;</a>
+<span class="sourceLineNo">236</span><a id="line.236">        </a>
+<span class="sourceLineNo">237</span><a id="line.237">        do {</a>
+<span class="sourceLineNo">238</span><a id="line.238">            uid = UUID.randomUUID().toString();</a>
+<span class="sourceLineNo">239</span><a id="line.239">            collision = true;</a>
+<span class="sourceLineNo">240</span><a id="line.240">            try {</a>
+<span class="sourceLineNo">241</span><a id="line.241">                db.findByUid( uid );</a>
+<span class="sourceLineNo">242</span><a id="line.242">            } catch ( final NoSuchPrincipalException e ) {</a>
+<span class="sourceLineNo">243</span><a id="line.243">                collision = false;</a>
+<span class="sourceLineNo">244</span><a id="line.244">            }</a>
+<span class="sourceLineNo">245</span><a id="line.245">        } </a>
+<span class="sourceLineNo">246</span><a id="line.246">        while ( collision || uid == null );</a>
+<span class="sourceLineNo">247</span><a id="line.247">        return uid;</a>
+<span class="sourceLineNo">248</span><a id="line.248">    }</a>
+<span class="sourceLineNo">249</span><a id="line.249">    </a>
+<span class="sourceLineNo">250</span><a id="line.250">    /**</a>
+<span class="sourceLineNo">251</span><a id="line.251">     * Private method that calculates the salted SHA-1 or SHA-256 hash of a given &lt;code&gt;String&lt;/code&gt;. Note that as of JSPWiki 2.8, this method</a>
+<span class="sourceLineNo">252</span><a id="line.252">     * calculates a &lt;em&gt;salted&lt;/em&gt; hash rather than a plain hash.</a>
+<span class="sourceLineNo">253</span><a id="line.253">     *</a>
+<span class="sourceLineNo">254</span><a id="line.254">     * @param text the text to hash</a>
+<span class="sourceLineNo">255</span><a id="line.255">     * @return the result hash</a>
+<span class="sourceLineNo">256</span><a id="line.256">     */</a>
+<span class="sourceLineNo">257</span><a id="line.257">    protected String getHash( final String text ) {</a>
+<span class="sourceLineNo">258</span><a id="line.258">        try {</a>
+<span class="sourceLineNo">259</span><a id="line.259">            return CryptoUtil.getSaltedPassword( text.getBytes(StandardCharsets.UTF_8), SHA256_PREFIX );</a>
+<span class="sourceLineNo">260</span><a id="line.260">        } catch( final NoSuchAlgorithmException e ) {</a>
+<span class="sourceLineNo">261</span><a id="line.261">            LOG.error( "Error creating salted password hash: {}", e.getMessage() );</a>
+<span class="sourceLineNo">262</span><a id="line.262">            return text;</a>
+<span class="sourceLineNo">263</span><a id="line.263">        }</a>
+<span class="sourceLineNo">264</span><a id="line.264">    }</a>
+<span class="sourceLineNo">265</span><a id="line.265"></a>
+<span class="sourceLineNo">266</span><a id="line.266">    /**</a>
+<span class="sourceLineNo">267</span><a id="line.267">     * Private method that calculates the SHA-1 hash of a given &lt;code&gt;String&lt;/code&gt;</a>
+<span class="sourceLineNo">268</span><a id="line.268">     *</a>
+<span class="sourceLineNo">269</span><a id="line.269">     * @param text the text to hash</a>
+<span class="sourceLineNo">270</span><a id="line.270">     * @return the result hash</a>
+<span class="sourceLineNo">271</span><a id="line.271">     * @deprecated this method is retained for backwards compatibility purposes; use {@link #getHash(String)} instead</a>
+<span class="sourceLineNo">272</span><a id="line.272">     */</a>
+<span class="sourceLineNo">273</span><a id="line.273">    @Deprecated</a>
+<span class="sourceLineNo">274</span><a id="line.274">    String getShaHash(final String text ) {</a>
+<span class="sourceLineNo">275</span><a id="line.275">        try {</a>
+<span class="sourceLineNo">276</span><a id="line.276">            final MessageDigest md = MessageDigest.getInstance( "SHA" );</a>
+<span class="sourceLineNo">277</span><a id="line.277">            md.update( text.getBytes( StandardCharsets.UTF_8 ) );</a>
+<span class="sourceLineNo">278</span><a id="line.278">            final byte[] digestedBytes = md.digest();</a>
+<span class="sourceLineNo">279</span><a id="line.279">            return ByteUtils.bytes2hex( digestedBytes );</a>
+<span class="sourceLineNo">280</span><a id="line.280">        } catch( final NoSuchAlgorithmException e ) {</a>
+<span class="sourceLineNo">281</span><a id="line.281">            LOG.error( "Error creating SHA password hash:" + e.getMessage() );</a>
+<span class="sourceLineNo">282</span><a id="line.282">            return text;</a>
+<span class="sourceLineNo">283</span><a id="line.283">        }</a>
+<span class="sourceLineNo">284</span><a id="line.284">    }</a>
+<span class="sourceLineNo">285</span><a id="line.285"></a>
+<span class="sourceLineNo">286</span><a id="line.286">    /**</a>
+<span class="sourceLineNo">287</span><a id="line.287">     * Parses a long integer from a supplied string, or returns 0 if not parsable.</a>
+<span class="sourceLineNo">288</span><a id="line.288">     *</a>
+<span class="sourceLineNo">289</span><a id="line.289">     * @param value the string to parse</a>
+<span class="sourceLineNo">290</span><a id="line.290">     * @return the value parsed</a>
+<span class="sourceLineNo">291</span><a id="line.291">     */</a>
+<span class="sourceLineNo">292</span><a id="line.292">    protected long parseLong( final String value ) {</a>
+<span class="sourceLineNo">293</span><a id="line.293">        if( NumberUtils.isParsable( value ) ) {</a>
+<span class="sourceLineNo">294</span><a id="line.294">            return Long.parseLong( value );</a>
+<span class="sourceLineNo">295</span><a id="line.295">        } else {</a>
+<span class="sourceLineNo">296</span><a id="line.296">            return 0L;</a>
+<span class="sourceLineNo">297</span><a id="line.297">        }</a>
+<span class="sourceLineNo">298</span><a id="line.298">    }</a>
+<span class="sourceLineNo">299</span><a id="line.299"></a>
+<span class="sourceLineNo">300</span><a id="line.300">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
