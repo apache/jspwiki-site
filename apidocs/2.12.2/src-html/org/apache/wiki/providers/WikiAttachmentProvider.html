@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.providers;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.WikiPage;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.WikiProvider;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.attachment.Attachment;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.search.QueryItem;</a>
+<span class="sourceLineNo">026</span><a id="line.26"></a>
+<span class="sourceLineNo">027</span><a id="line.27">import java.io.IOException;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.io.InputStream;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import java.util.Collection;</a>
+<span class="sourceLineNo">030</span><a id="line.30">import java.util.Date;</a>
+<span class="sourceLineNo">031</span><a id="line.31">import java.util.List;</a>
+<span class="sourceLineNo">032</span><a id="line.32"></a>
+<span class="sourceLineNo">033</span><a id="line.33"></a>
+<span class="sourceLineNo">034</span><a id="line.34">/**</a>
+<span class="sourceLineNo">035</span><a id="line.35"> *  Defines an attachment provider - a class which is capable of saving binary data as attachments.</a>
+<span class="sourceLineNo">036</span><a id="line.36"> *  &lt;P&gt;</a>
+<span class="sourceLineNo">037</span><a id="line.37"> *  The difference between this class and WikiPageProvider is that there PageProviders handle Unicode text, whereas we handle binary data.</a>
+<span class="sourceLineNo">038</span><a id="line.38"> *  While there are quite a lot of similarities in how we handle things, many providers can really use just one.  In addition,</a>
+<span class="sourceLineNo">039</span><a id="line.39"> *  since binary files can be really large, we rely on Input/OutputStreams.</a>
+<span class="sourceLineNo">040</span><a id="line.40"> * @deprecated use {@link org.apache.wiki.api.providers.AttachmentProvider} instead</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * @see org.apache.wiki.api.providers.AttachmentProvider</a>
+<span class="sourceLineNo">042</span><a id="line.42"> */</a>
+<span class="sourceLineNo">043</span><a id="line.43">@Deprecated</a>
+<span class="sourceLineNo">044</span><a id="line.44">public interface WikiAttachmentProvider extends WikiProvider {</a>
+<span class="sourceLineNo">045</span><a id="line.45"></a>
+<span class="sourceLineNo">046</span><a id="line.46">    /**</a>
+<span class="sourceLineNo">047</span><a id="line.47">     *  Put new attachment data.</a>
+<span class="sourceLineNo">048</span><a id="line.48">     *  </a>
+<span class="sourceLineNo">049</span><a id="line.49">     *  @param att Attachment object to add new data to</a>
+<span class="sourceLineNo">050</span><a id="line.50">     *  @param data The stream from which the provider should read the data</a>
+<span class="sourceLineNo">051</span><a id="line.51">     *  @throws IOException If writing fails</a>
+<span class="sourceLineNo">052</span><a id="line.52">     *  @throws ProviderException If there are other errors.</a>
+<span class="sourceLineNo">053</span><a id="line.53">     */</a>
+<span class="sourceLineNo">054</span><a id="line.54">    void putAttachmentData( Attachment att, InputStream data ) throws ProviderException, IOException;</a>
+<span class="sourceLineNo">055</span><a id="line.55"></a>
+<span class="sourceLineNo">056</span><a id="line.56">    /**</a>
+<span class="sourceLineNo">057</span><a id="line.57">     *  Get attachment data.</a>
+<span class="sourceLineNo">058</span><a id="line.58">     *  </a>
+<span class="sourceLineNo">059</span><a id="line.59">     *  @param att The attachment</a>
+<span class="sourceLineNo">060</span><a id="line.60">     *  @return An InputStream which you contains the raw data of the object. It's your responsibility to close it.</a>
+<span class="sourceLineNo">061</span><a id="line.61">     *  @throws ProviderException If the attachment cannot be found</a>
+<span class="sourceLineNo">062</span><a id="line.62">     *  @throws IOException If the attachment cannot be opened</a>
+<span class="sourceLineNo">063</span><a id="line.63">     */</a>
+<span class="sourceLineNo">064</span><a id="line.64">    InputStream getAttachmentData( Attachment att ) throws ProviderException, IOException;</a>
+<span class="sourceLineNo">065</span><a id="line.65"></a>
+<span class="sourceLineNo">066</span><a id="line.66">    /**</a>
+<span class="sourceLineNo">067</span><a id="line.67">     *  Lists all attachments attached to a page.</a>
+<span class="sourceLineNo">068</span><a id="line.68">     *</a>
+<span class="sourceLineNo">069</span><a id="line.69">     *  @param page The page to list the attachments from.</a>
+<span class="sourceLineNo">070</span><a id="line.70">     *  @return A collection of Attachment objects.  May be empty, but never null.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *  @throws ProviderException If something goes wrong when listing the attachments.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    List&lt; Attachment &gt; listAttachments( WikiPage page ) throws ProviderException;</a>
+<span class="sourceLineNo">074</span><a id="line.74"></a>
+<span class="sourceLineNo">075</span><a id="line.75">    /**</a>
+<span class="sourceLineNo">076</span><a id="line.76">     * Finds attachments based on the query.</a>
+<span class="sourceLineNo">077</span><a id="line.77">     *</a>
+<span class="sourceLineNo">078</span><a id="line.78">     * @param query An array of QueryItem objects to search for</a>
+<span class="sourceLineNo">079</span><a id="line.79">     * @return A Collection of Attachment objects.  May be empty, but never null.</a>
+<span class="sourceLineNo">080</span><a id="line.80">     */</a>
+<span class="sourceLineNo">081</span><a id="line.81">    Collection&lt; Attachment &gt; findAttachments( QueryItem[] query );</a>
+<span class="sourceLineNo">082</span><a id="line.82"></a>
+<span class="sourceLineNo">083</span><a id="line.83">    /**</a>
+<span class="sourceLineNo">084</span><a id="line.84">     *  Lists changed attachments since given date.  Can also be used to fetch a list of all pages.</a>
+<span class="sourceLineNo">085</span><a id="line.85">     *  &lt;P&gt;</a>
+<span class="sourceLineNo">086</span><a id="line.86">     *  This is different from WikiPageProvider, where you basically get a list of all pages, then sort them locally.  However, since some</a>
+<span class="sourceLineNo">087</span><a id="line.87">     *  providers can be more efficient in locating recently changed files (like any database) than our non-optimized Java code, it makes</a>
+<span class="sourceLineNo">088</span><a id="line.88">     *  more sense to fetch the whole list this way.</a>
+<span class="sourceLineNo">089</span><a id="line.89">     *  &lt;P&gt;</a>
+<span class="sourceLineNo">090</span><a id="line.90">     *  To get all files, call this with Date(0L);</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *</a>
+<span class="sourceLineNo">092</span><a id="line.92">     *  @param timestamp List all files from this date onward.</a>
+<span class="sourceLineNo">093</span><a id="line.93">     *  @return A List of Attachment objects, in most-recently-changed first order.</a>
+<span class="sourceLineNo">094</span><a id="line.94">     *  @throws ProviderException If something goes wrong.</a>
+<span class="sourceLineNo">095</span><a id="line.95">     */</a>
+<span class="sourceLineNo">096</span><a id="line.96">    List&lt; Attachment &gt; listAllChanged( Date timestamp ) throws ProviderException;</a>
+<span class="sourceLineNo">097</span><a id="line.97"></a>
+<span class="sourceLineNo">098</span><a id="line.98">    /**</a>
+<span class="sourceLineNo">099</span><a id="line.99">     *  Returns info about an attachment.</a>
+<span class="sourceLineNo">100</span><a id="line.100">     *  </a>
+<span class="sourceLineNo">101</span><a id="line.101">     *  @param page The parent page</a>
+<span class="sourceLineNo">102</span><a id="line.102">     *  @param name The name of the attachment</a>
+<span class="sourceLineNo">103</span><a id="line.103">     *  @param version The version of the attachment (it's okay to use WikiPage.LATEST_VERSION to find the latest one)</a>
+<span class="sourceLineNo">104</span><a id="line.104">     *  @return An attachment object</a>
+<span class="sourceLineNo">105</span><a id="line.105">     *  @throws ProviderException If the attachment cannot be found or some other error occurs.</a>
+<span class="sourceLineNo">106</span><a id="line.106">     */</a>
+<span class="sourceLineNo">107</span><a id="line.107">    Attachment getAttachmentInfo( WikiPage page, String name, int version ) throws ProviderException;</a>
+<span class="sourceLineNo">108</span><a id="line.108"></a>
+<span class="sourceLineNo">109</span><a id="line.109">    /**</a>
+<span class="sourceLineNo">110</span><a id="line.110">     *  Returns version history.  Each element should be an Attachment.</a>
+<span class="sourceLineNo">111</span><a id="line.111">     *  </a>
+<span class="sourceLineNo">112</span><a id="line.112">     *  @param att The attachment for which to find the version history for.</a>
+<span class="sourceLineNo">113</span><a id="line.113">     *  @return A List of Attachment objects.</a>
+<span class="sourceLineNo">114</span><a id="line.114">     */</a>
+<span class="sourceLineNo">115</span><a id="line.115">    List&lt; Attachment &gt; getVersionHistory( Attachment att );</a>
+<span class="sourceLineNo">116</span><a id="line.116"></a>
+<span class="sourceLineNo">117</span><a id="line.117">    /**</a>
+<span class="sourceLineNo">118</span><a id="line.118">     *  Removes a specific version from the repository.  The implementations should really do no more security checks, since that is the</a>
+<span class="sourceLineNo">119</span><a id="line.119">     *  domain of the AttachmentManager.  Just delete it as efficiently as you can.</a>
+<span class="sourceLineNo">120</span><a id="line.120">     *</a>
+<span class="sourceLineNo">121</span><a id="line.121">     *  @since 2.0.19.</a>
+<span class="sourceLineNo">122</span><a id="line.122">     *  @param att Attachment to be removed.  The version field is checked, and thus only that version is removed.</a>
+<span class="sourceLineNo">123</span><a id="line.123">     *  @throws ProviderException If the attachment cannot be removed for some reason.</a>
+<span class="sourceLineNo">124</span><a id="line.124">     */</a>
+<span class="sourceLineNo">125</span><a id="line.125">    void deleteVersion( Attachment att ) throws ProviderException;</a>
+<span class="sourceLineNo">126</span><a id="line.126"></a>
+<span class="sourceLineNo">127</span><a id="line.127">    /**</a>
+<span class="sourceLineNo">128</span><a id="line.128">     *  Removes an entire page from the repository.  The implementations should really do no more security checks, since that is the domain</a>
+<span class="sourceLineNo">129</span><a id="line.129">     *  of the AttachmentManager.  Just delete it as efficiently as you can.  You should also delete any auxiliary files and directories</a>
+<span class="sourceLineNo">130</span><a id="line.130">     *  that belong to this attachment, IF they were created by this provider.</a>
+<span class="sourceLineNo">131</span><a id="line.131">     *</a>
+<span class="sourceLineNo">132</span><a id="line.132">     *  @since 2.0.17.</a>
+<span class="sourceLineNo">133</span><a id="line.133">     *  @param att Attachment to delete.</a>
+<span class="sourceLineNo">134</span><a id="line.134">     *  @throws ProviderException If the page could not be removed for some reason.</a>
+<span class="sourceLineNo">135</span><a id="line.135">     */</a>
+<span class="sourceLineNo">136</span><a id="line.136">    void deleteAttachment( Attachment att ) throws ProviderException;</a>
+<span class="sourceLineNo">137</span><a id="line.137">   </a>
+<span class="sourceLineNo">138</span><a id="line.138">    /**</a>
+<span class="sourceLineNo">139</span><a id="line.139">     * Move all the attachments for a given page so that they are attached to a new page.</a>
+<span class="sourceLineNo">140</span><a id="line.140">     *</a>
+<span class="sourceLineNo">141</span><a id="line.141">     * @param oldParent Name of the page we are to move the attachments from.</a>
+<span class="sourceLineNo">142</span><a id="line.142">     * @param newParent Name of the page we are to move the attachments to.</a>
+<span class="sourceLineNo">143</span><a id="line.143">     * @throws ProviderException If the attachments could not be moved for some reason.</a>
+<span class="sourceLineNo">144</span><a id="line.144">     */</a>
+<span class="sourceLineNo">145</span><a id="line.145">    void moveAttachmentsForPage( String oldParent, String newParent ) throws ProviderException;</a>
+<span class="sourceLineNo">146</span><a id="line.146"></a>
+<span class="sourceLineNo">147</span><a id="line.147">}</a>
+<span class="sourceLineNo">148</span><a id="line.148"></a>
+<span class="sourceLineNo">149</span><a id="line.149"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

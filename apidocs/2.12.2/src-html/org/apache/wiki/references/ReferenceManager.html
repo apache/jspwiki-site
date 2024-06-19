@@ -1,0 +1,245 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/*</a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.</a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.references;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Page;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.exceptions.ProviderException;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.filters.PageFilter;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import org.apache.wiki.modules.InternalModule;</a>
+<span class="sourceLineNo">026</span><a id="line.26"></a>
+<span class="sourceLineNo">027</span><a id="line.27">import java.util.Collection;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.util.Set;</a>
+<span class="sourceLineNo">029</span><a id="line.29"></a>
+<span class="sourceLineNo">030</span><a id="line.30">/**</a>
+<span class="sourceLineNo">031</span><a id="line.31"> *  Keeps track of wikipage references:</a>
+<span class="sourceLineNo">032</span><a id="line.32"> *  &lt;ul&gt;</a>
+<span class="sourceLineNo">033</span><a id="line.33"> *  &lt;li&gt;What pages a given page refers to&lt;/li&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> *  &lt;li&gt;What pages refer to a given page&lt;/li&gt;</a>
+<span class="sourceLineNo">035</span><a id="line.35"> *  &lt;/ul&gt;</a>
+<span class="sourceLineNo">036</span><a id="line.36"> *</a>
+<span class="sourceLineNo">037</span><a id="line.37"> *  When a page is added or edited, its references are parsed, a Collection is received, and we crudely replace anything previous with</a>
+<span class="sourceLineNo">038</span><a id="line.38"> *  this new Collection. We then check each referenced page name and make sure they know they are referred to by the new page.</a>
+<span class="sourceLineNo">039</span><a id="line.39"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">040</span><a id="line.40"> *  Based on this information, we can perform non-optimal searches for e.g. unreferenced pages, top ten lists, etc.</a>
+<span class="sourceLineNo">041</span><a id="line.41"> *  &lt;p&gt;</a>
+<span class="sourceLineNo">042</span><a id="line.42"> *  The owning class must take responsibility of filling in any pre-existing information, probably by loading each and every WikiPage</a>
+<span class="sourceLineNo">043</span><a id="line.43"> *  and calling this class to update the references when created.</a>
+<span class="sourceLineNo">044</span><a id="line.44"> */</a>
+<span class="sourceLineNo">045</span><a id="line.45">public interface ReferenceManager extends PageFilter, InternalModule, WikiEventListener {</a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">    /**</a>
+<span class="sourceLineNo">048</span><a id="line.48">     *  Initializes the entire reference manager with the initial set of pages from the collection.</a>
+<span class="sourceLineNo">049</span><a id="line.49">     *</a>
+<span class="sourceLineNo">050</span><a id="line.50">     *  @param pages A collection of all pages you want to be included in the reference count.</a>
+<span class="sourceLineNo">051</span><a id="line.51">     *  @since 2.2</a>
+<span class="sourceLineNo">052</span><a id="line.52">     *  @throws ProviderException If reading of pages fails.</a>
+<span class="sourceLineNo">053</span><a id="line.53">     */</a>
+<span class="sourceLineNo">054</span><a id="line.54">    void initialize( final Collection&lt; Page &gt; pages ) throws ProviderException;</a>
+<span class="sourceLineNo">055</span><a id="line.55"></a>
+<span class="sourceLineNo">056</span><a id="line.56">    /**</a>
+<span class="sourceLineNo">057</span><a id="line.57">     *  Reads a WikiPageful of data from a String and returns all links internal to this Wiki in a Collection.</a>
+<span class="sourceLineNo">058</span><a id="line.58">     *</a>
+<span class="sourceLineNo">059</span><a id="line.59">     *  @param page The WikiPage to scan</a>
+<span class="sourceLineNo">060</span><a id="line.60">     *  @param pagedata The page contents</a>
+<span class="sourceLineNo">061</span><a id="line.61">     *  @return a Collection of Strings</a>
+<span class="sourceLineNo">062</span><a id="line.62">     */</a>
+<span class="sourceLineNo">063</span><a id="line.63">    Collection&lt; String &gt; scanWikiLinks( final Page page, final String pagedata );</a>
+<span class="sourceLineNo">064</span><a id="line.64"></a>
+<span class="sourceLineNo">065</span><a id="line.65">    /**</a>
+<span class="sourceLineNo">066</span><a id="line.66">     * Updates the m_referedTo and m_referredBy hashmaps when a page has been deleted.</a>
+<span class="sourceLineNo">067</span><a id="line.67">     * &lt;P&gt;</a>
+<span class="sourceLineNo">068</span><a id="line.68">     * Within the m_refersTo map the pagename is a key. The whole key-value-set has to be removed to keep the map clean.</a>
+<span class="sourceLineNo">069</span><a id="line.69">     * Within the m_referredBy map the name is stored as a value. Since a key can have more than one value we have to</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * delete just the key-value-pair referring page:deleted page.</a>
+<span class="sourceLineNo">071</span><a id="line.71">     *</a>
+<span class="sourceLineNo">072</span><a id="line.72">     *  @param page Name of the page to remove from the maps.</a>
+<span class="sourceLineNo">073</span><a id="line.73">     */</a>
+<span class="sourceLineNo">074</span><a id="line.74">    void pageRemoved( final Page page );</a>
+<span class="sourceLineNo">075</span><a id="line.75"></a>
+<span class="sourceLineNo">076</span><a id="line.76">    /**</a>
+<span class="sourceLineNo">077</span><a id="line.77">     *  Updates all references for the given page.</a>
+<span class="sourceLineNo">078</span><a id="line.78">     *</a>
+<span class="sourceLineNo">079</span><a id="line.79">     *  @param page wiki page for which references should be updated</a>
+<span class="sourceLineNo">080</span><a id="line.80">     */</a>
+<span class="sourceLineNo">081</span><a id="line.81">    void updateReferences( final Page page );</a>
+<span class="sourceLineNo">082</span><a id="line.82"></a>
+<span class="sourceLineNo">083</span><a id="line.83">    /**</a>
+<span class="sourceLineNo">084</span><a id="line.84">     *  Updates the referred pages of a new or edited WikiPage. If a refersTo entry for this page already exists, it is removed</a>
+<span class="sourceLineNo">085</span><a id="line.85">     *  and a new one is built from scratch. Also calls updateReferredBy() for each referenced page.</a>
+<span class="sourceLineNo">086</span><a id="line.86">     *  &lt;P&gt;</a>
+<span class="sourceLineNo">087</span><a id="line.87">     *  This is the method to call when a new page has been created and we want to a) set up its references and b) notify the</a>
+<span class="sourceLineNo">088</span><a id="line.88">     *  referred pages of the references. Use this method during run-time.</a>
+<span class="sourceLineNo">089</span><a id="line.89">     *</a>
+<span class="sourceLineNo">090</span><a id="line.90">     *  @param page Name of the page to update.</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *  @param references A Collection of Strings, each one pointing to a page this page references.</a>
+<span class="sourceLineNo">092</span><a id="line.92">     */</a>
+<span class="sourceLineNo">093</span><a id="line.93">    void updateReferences( final String page, final Collection&lt;String&gt; references );</a>
+<span class="sourceLineNo">094</span><a id="line.94"></a>
+<span class="sourceLineNo">095</span><a id="line.95">    /**</a>
+<span class="sourceLineNo">096</span><a id="line.96">     * Clears the references to a certain page so it's no longer in the map.</a>
+<span class="sourceLineNo">097</span><a id="line.97">     *</a>
+<span class="sourceLineNo">098</span><a id="line.98">     * @param pagename  Name of the page to clear references for.</a>
+<span class="sourceLineNo">099</span><a id="line.99">     */</a>
+<span class="sourceLineNo">100</span><a id="line.100">    void clearPageEntries( String pagename );</a>
+<span class="sourceLineNo">101</span><a id="line.101"></a>
+<span class="sourceLineNo">102</span><a id="line.102"></a>
+<span class="sourceLineNo">103</span><a id="line.103">    /**</a>
+<span class="sourceLineNo">104</span><a id="line.104">     *  Finds all unreferenced pages. This requires a linear scan through m_referredBy to locate keys with null or empty values.</a>
+<span class="sourceLineNo">105</span><a id="line.105">     *</a>
+<span class="sourceLineNo">106</span><a id="line.106">     *  @return The Collection of Strings</a>
+<span class="sourceLineNo">107</span><a id="line.107">     */</a>
+<span class="sourceLineNo">108</span><a id="line.108">    Collection&lt; String &gt; findUnreferenced();</a>
+<span class="sourceLineNo">109</span><a id="line.109"></a>
+<span class="sourceLineNo">110</span><a id="line.110">    /**</a>
+<span class="sourceLineNo">111</span><a id="line.111">     * Finds all references to non-existant pages. This requires a linear scan through m_refersTo values; each value</a>
+<span class="sourceLineNo">112</span><a id="line.112">     * must have a corresponding key entry in the reference Maps, otherwise such a page has never been created.</a>
+<span class="sourceLineNo">113</span><a id="line.113">     * &lt;P&gt;</a>
+<span class="sourceLineNo">114</span><a id="line.114">     * Returns a Collection containing Strings of unreferenced page names. Each non-existant page name is shown only</a>
+<span class="sourceLineNo">115</span><a id="line.115">     * once - we don't return information on who referred to it.</a>
+<span class="sourceLineNo">116</span><a id="line.116">     *</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * @return A Collection of Strings</a>
+<span class="sourceLineNo">118</span><a id="line.118">     */</a>
+<span class="sourceLineNo">119</span><a id="line.119">    Collection&lt; String &gt; findUncreated();</a>
+<span class="sourceLineNo">120</span><a id="line.120"></a>
+<span class="sourceLineNo">121</span><a id="line.121">    /**</a>
+<span class="sourceLineNo">122</span><a id="line.122">     * Find all pages that refer to this page. Returns null if the page does not exist or is not referenced at all,</a>
+<span class="sourceLineNo">123</span><a id="line.123">     * otherwise returns a collection containing page names (String) that refer to this one.</a>
+<span class="sourceLineNo">124</span><a id="line.124">     * &lt;p&gt;</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * @param pagename The page to find referrers for.</a>
+<span class="sourceLineNo">126</span><a id="line.126">     * @return A Set of Strings.  May return null, if the page does not exist, or if it has no references.</a>
+<span class="sourceLineNo">127</span><a id="line.127">     */</a>
+<span class="sourceLineNo">128</span><a id="line.128">    Set&lt; String &gt; findReferrers( String pagename );</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">    /**</a>
+<span class="sourceLineNo">131</span><a id="line.131">     *  Returns all pages that refer to this page.  Note that this method returns an unmodifiable Map, which may be abruptly changed.</a>
+<span class="sourceLineNo">132</span><a id="line.132">     *  So any access to any iterator may result in a ConcurrentModificationException.</a>
+<span class="sourceLineNo">133</span><a id="line.133">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">134</span><a id="line.134">     *  The advantages of using this method over findReferrers() is that it is very fast, as it does not create a new object.</a>
+<span class="sourceLineNo">135</span><a id="line.135">     *  The disadvantages are that it does not do any mapping between plural names, and you may end up getting a</a>
+<span class="sourceLineNo">136</span><a id="line.136">     *  ConcurrentModificationException.</a>
+<span class="sourceLineNo">137</span><a id="line.137">     *</a>
+<span class="sourceLineNo">138</span><a id="line.138">     * @param pageName Page name to query.</a>
+<span class="sourceLineNo">139</span><a id="line.139">     * @return A Set of Strings containing the names of all the pages that refer to this page.  May return null, if the page does</a>
+<span class="sourceLineNo">140</span><a id="line.140">     *         not exist or has not been indexed yet.</a>
+<span class="sourceLineNo">141</span><a id="line.141">     * @since 2.2.33</a>
+<span class="sourceLineNo">142</span><a id="line.142">     */</a>
+<span class="sourceLineNo">143</span><a id="line.143">    Set&lt; String &gt; findReferredBy( String pageName );</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">    /**</a>
+<span class="sourceLineNo">146</span><a id="line.146">     *  Returns all pages that this page refers to.  You can use this as a quick way of getting the links from a page, but note</a>
+<span class="sourceLineNo">147</span><a id="line.147">     *  that it does not link any InterWiki, image, or external links.  It does contain attachments, though.</a>
+<span class="sourceLineNo">148</span><a id="line.148">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">149</span><a id="line.149">     *  The Collection returned is unmutable, so you cannot change it.  It does reflect the current status and thus is a live</a>
+<span class="sourceLineNo">150</span><a id="line.150">     *  object.  So, if you are using any kind of an iterator on it, be prepared for ConcurrentModificationExceptions.</a>
+<span class="sourceLineNo">151</span><a id="line.151">     *  &lt;p&gt;</a>
+<span class="sourceLineNo">152</span><a id="line.152">     *  The returned value is a Collection, because a page may refer to another page multiple times.</a>
+<span class="sourceLineNo">153</span><a id="line.153">     *</a>
+<span class="sourceLineNo">154</span><a id="line.154">     * @param pageName Page name to query</a>
+<span class="sourceLineNo">155</span><a id="line.155">     * @return A Collection of Strings containing the names of the pages that this page refers to. May return null, if the page</a>
+<span class="sourceLineNo">156</span><a id="line.156">     *         does not exist or has not been indexed yet.</a>
+<span class="sourceLineNo">157</span><a id="line.157">     * @since 2.2.33</a>
+<span class="sourceLineNo">158</span><a id="line.158">     */</a>
+<span class="sourceLineNo">159</span><a id="line.159">    Collection&lt; String &gt; findRefersTo( String pageName );</a>
+<span class="sourceLineNo">160</span><a id="line.160"></a>
+<span class="sourceLineNo">161</span><a id="line.161">    /**</a>
+<span class="sourceLineNo">162</span><a id="line.162">     *  Returns a list of all pages that the ReferenceManager knows about. This should be roughly equivalent to</a>
+<span class="sourceLineNo">163</span><a id="line.163">     *  PageManager.getAllPages(), but without the potential disk access overhead.  Note that this method is not guaranteed</a>
+<span class="sourceLineNo">164</span><a id="line.164">     *  to return a Set of really all pages (especially during startup), but it is very fast.</a>
+<span class="sourceLineNo">165</span><a id="line.165">     *</a>
+<span class="sourceLineNo">166</span><a id="line.166">     *  @return A Set of all defined page names that ReferenceManager knows about.</a>
+<span class="sourceLineNo">167</span><a id="line.167">     *  @since 2.3.24</a>
+<span class="sourceLineNo">168</span><a id="line.168">     */</a>
+<span class="sourceLineNo">169</span><a id="line.169">    Set&lt; String &gt; findCreated();</a>
+<span class="sourceLineNo">170</span><a id="line.170"></a>
+<span class="sourceLineNo">171</span><a id="line.171">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

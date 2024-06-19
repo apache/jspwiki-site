@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.auth;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Engine;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.core.Session;</a>
+<span class="sourceLineNo">023</span><a id="line.23"></a>
+<span class="sourceLineNo">024</span><a id="line.24">import java.security.Principal;</a>
+<span class="sourceLineNo">025</span><a id="line.25">import java.util.Properties;</a>
+<span class="sourceLineNo">026</span><a id="line.26"></a>
+<span class="sourceLineNo">027</span><a id="line.27"></a>
+<span class="sourceLineNo">028</span><a id="line.28">/**</a>
+<span class="sourceLineNo">029</span><a id="line.29"> * Interface for service providers of authorization information. After a user successfully logs in, the</a>
+<span class="sourceLineNo">030</span><a id="line.30"> * {@link org.apache.wiki.auth.AuthenticationManager} consults the configured Authorizer to determine which additional</a>
+<span class="sourceLineNo">031</span><a id="line.31"> * {@link org.apache.wiki.auth.authorize.Role} principals should be added to the user's Session. To determine which roles should be</a>
+<span class="sourceLineNo">032</span><a id="line.32"> * injected, the Authorizer is queried for the roles it knows about by calling {@link org.apache.wiki.auth.Authorizer#getRoles()}. Then,</a>
+<span class="sourceLineNo">033</span><a id="line.33"> * each role returned by the Authorizer is tested by calling {@link org.apache.wiki.auth.Authorizer#isUserInRole(Session, Principal)}.</a>
+<span class="sourceLineNo">034</span><a id="line.34"> * If this check fails, and the Authorizer is of type WebAuthorizer, AuthenticationManager checks the role again by calling</a>
+<span class="sourceLineNo">035</span><a id="line.35"> * {@link org.apache.wiki.auth.authorize.WebAuthorizer#isUserInRole(javax.servlet.http.HttpServletRequest, Principal)}).</a>
+<span class="sourceLineNo">036</span><a id="line.36"> * Any roles that pass the test are injected into the Subject by firing appropriate authentication events.</a>
+<span class="sourceLineNo">037</span><a id="line.37"> * </a>
+<span class="sourceLineNo">038</span><a id="line.38"> * @since 2.3</a>
+<span class="sourceLineNo">039</span><a id="line.39"> */</a>
+<span class="sourceLineNo">040</span><a id="line.40">public interface Authorizer {</a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42">    /**</a>
+<span class="sourceLineNo">043</span><a id="line.43">     * Returns an array of role Principals this Authorizer knows about. This method will always return an array; an implementing class may</a>
+<span class="sourceLineNo">044</span><a id="line.44">     * choose to return an zero-length array if it has no ability to identify the roles under its control.</a>
+<span class="sourceLineNo">045</span><a id="line.45">     * </a>
+<span class="sourceLineNo">046</span><a id="line.46">     * @return an array of Principals representing the roles</a>
+<span class="sourceLineNo">047</span><a id="line.47">     */</a>
+<span class="sourceLineNo">048</span><a id="line.48">    Principal[] getRoles();</a>
+<span class="sourceLineNo">049</span><a id="line.49"></a>
+<span class="sourceLineNo">050</span><a id="line.50">    /**</a>
+<span class="sourceLineNo">051</span><a id="line.51">     * Looks up and returns a role Principal matching a given String. If a matching role cannot be found, this method returns</a>
+<span class="sourceLineNo">052</span><a id="line.52">     * &lt;code&gt;null&lt;/code&gt;. Note that it may not always be feasible for an Authorizer implementation to return a role Principal.</a>
+<span class="sourceLineNo">053</span><a id="line.53">     * </a>
+<span class="sourceLineNo">054</span><a id="line.54">     * @param role the name of the role to retrieve</a>
+<span class="sourceLineNo">055</span><a id="line.55">     * @return the role Principal</a>
+<span class="sourceLineNo">056</span><a id="line.56">     */</a>
+<span class="sourceLineNo">057</span><a id="line.57">    Principal findRole( String role );</a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">    /**</a>
+<span class="sourceLineNo">060</span><a id="line.60">     * Initializes the authorizer.</a>
+<span class="sourceLineNo">061</span><a id="line.61">     * </a>
+<span class="sourceLineNo">062</span><a id="line.62">     * @param engine the current wiki engine</a>
+<span class="sourceLineNo">063</span><a id="line.63">     * @param props the wiki engine initialization properties</a>
+<span class="sourceLineNo">064</span><a id="line.64">     * @throws WikiSecurityException if the Authorizer could not be initialized</a>
+<span class="sourceLineNo">065</span><a id="line.65">     */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    void initialize( Engine engine, Properties props ) throws WikiSecurityException;</a>
+<span class="sourceLineNo">067</span><a id="line.67"></a>
+<span class="sourceLineNo">068</span><a id="line.68">    /**</a>
+<span class="sourceLineNo">069</span><a id="line.69">     * Determines whether the Subject associated with a WikiSession is in a particular role. This method takes two parameters: the</a>
+<span class="sourceLineNo">070</span><a id="line.70">     * WikiSession containing the subject and the desired role ( which may be a Role or a Group). If either parameter is &lt;code&gt;null&lt;/code&gt;,</a>
+<span class="sourceLineNo">071</span><a id="line.71">     * this method must return &lt;code&gt;false&lt;/code&gt;.</a>
+<span class="sourceLineNo">072</span><a id="line.72">     * </a>
+<span class="sourceLineNo">073</span><a id="line.73">     * @param session the current WikiSession</a>
+<span class="sourceLineNo">074</span><a id="line.74">     * @param role the role to check</a>
+<span class="sourceLineNo">075</span><a id="line.75">     * @return &lt;code&gt;true&lt;/code&gt; if the user is considered to be in the role, &lt;code&gt;false&lt;/code&gt; otherwise</a>
+<span class="sourceLineNo">076</span><a id="line.76">     */</a>
+<span class="sourceLineNo">077</span><a id="line.77">    boolean isUserInRole( Session session, Principal role );</a>
+<span class="sourceLineNo">078</span><a id="line.78"></a>
+<span class="sourceLineNo">079</span><a id="line.79">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

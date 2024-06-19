@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">/* </a>
+<span class="sourceLineNo">002</span><a id="line.2">    Licensed to the Apache Software Foundation (ASF) under one</a>
+<span class="sourceLineNo">003</span><a id="line.3">    or more contributor license agreements.  See the NOTICE file</a>
+<span class="sourceLineNo">004</span><a id="line.4">    distributed with this work for additional information</a>
+<span class="sourceLineNo">005</span><a id="line.5">    regarding copyright ownership.  The ASF licenses this file</a>
+<span class="sourceLineNo">006</span><a id="line.6">    to you under the Apache License, Version 2.0 (the</a>
+<span class="sourceLineNo">007</span><a id="line.7">    "License"); you may not use this file except in compliance</a>
+<span class="sourceLineNo">008</span><a id="line.8">    with the License.  You may obtain a copy of the License at</a>
+<span class="sourceLineNo">009</span><a id="line.9"></a>
+<span class="sourceLineNo">010</span><a id="line.10">       http://www.apache.org/licenses/LICENSE-2.0</a>
+<span class="sourceLineNo">011</span><a id="line.11"></a>
+<span class="sourceLineNo">012</span><a id="line.12">    Unless required by applicable law or agreed to in writing,</a>
+<span class="sourceLineNo">013</span><a id="line.13">    software distributed under the License is distributed on an</a>
+<span class="sourceLineNo">014</span><a id="line.14">    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</a>
+<span class="sourceLineNo">015</span><a id="line.15">    KIND, either express or implied.  See the License for the</a>
+<span class="sourceLineNo">016</span><a id="line.16">    specific language governing permissions and limitations</a>
+<span class="sourceLineNo">017</span><a id="line.17">    under the License.  </a>
+<span class="sourceLineNo">018</span><a id="line.18"> */</a>
+<span class="sourceLineNo">019</span><a id="line.19">package org.apache.wiki.workflow;</a>
+<span class="sourceLineNo">020</span><a id="line.20"></a>
+<span class="sourceLineNo">021</span><a id="line.21">import org.apache.wiki.api.core.Session;</a>
+<span class="sourceLineNo">022</span><a id="line.22">import org.apache.wiki.api.engine.Initializable;</a>
+<span class="sourceLineNo">023</span><a id="line.23">import org.apache.wiki.api.exceptions.WikiException;</a>
+<span class="sourceLineNo">024</span><a id="line.24">import org.apache.wiki.event.WikiEventListener;</a>
+<span class="sourceLineNo">025</span><a id="line.25"></a>
+<span class="sourceLineNo">026</span><a id="line.26">import java.security.Principal;</a>
+<span class="sourceLineNo">027</span><a id="line.27">import java.util.List;</a>
+<span class="sourceLineNo">028</span><a id="line.28">import java.util.Map;</a>
+<span class="sourceLineNo">029</span><a id="line.29">import java.util.Set;</a>
+<span class="sourceLineNo">030</span><a id="line.30"></a>
+<span class="sourceLineNo">031</span><a id="line.31"></a>
+<span class="sourceLineNo">032</span><a id="line.32">/**</a>
+<span class="sourceLineNo">033</span><a id="line.33"> * &lt;p&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> * Monitor class that tracks running Workflows. The WorkflowManager also keeps track of the names of users or groups expected to approve</a>
+<span class="sourceLineNo">035</span><a id="line.35"> * particular Workflows.</a>
+<span class="sourceLineNo">036</span><a id="line.36"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">037</span><a id="line.37"> */</a>
+<span class="sourceLineNo">038</span><a id="line.38">public interface WorkflowManager extends WikiEventListener, Initializable {</a>
+<span class="sourceLineNo">039</span><a id="line.39"></a>
+<span class="sourceLineNo">040</span><a id="line.40">    /** The name of the key from jspwiki.properties which defines who shall approve the workflow of storing a wikipage.  Value is &lt;tt&gt;{@value}&lt;/tt&gt; */</a>
+<span class="sourceLineNo">041</span><a id="line.41">    String WF_WP_SAVE_APPROVER = "workflow.saveWikiPage";</a>
+<span class="sourceLineNo">042</span><a id="line.42">    /** The message key for storing the Decision text for saving a page.  Value is {@value}. */</a>
+<span class="sourceLineNo">043</span><a id="line.43">    String WF_WP_SAVE_DECISION_MESSAGE_KEY = "decision.saveWikiPage";</a>
+<span class="sourceLineNo">044</span><a id="line.44">    /** The message key for rejecting the decision to save the page.  Value is {@value}. */</a>
+<span class="sourceLineNo">045</span><a id="line.45">    String WF_WP_SAVE_REJECT_MESSAGE_KEY = "notification.saveWikiPage.reject";</a>
+<span class="sourceLineNo">046</span><a id="line.46">    /** Fact name for storing the page name.  Value is {@value}. */</a>
+<span class="sourceLineNo">047</span><a id="line.47">    String WF_WP_SAVE_FACT_PAGE_NAME = "fact.pageName";</a>
+<span class="sourceLineNo">048</span><a id="line.48">    /** Fact name for storing a diff text. Value is {@value}. */</a>
+<span class="sourceLineNo">049</span><a id="line.49">    String WF_WP_SAVE_FACT_DIFF_TEXT = "fact.diffText";</a>
+<span class="sourceLineNo">050</span><a id="line.50">    /** Fact name for storing the current text.  Value is {@value}. */</a>
+<span class="sourceLineNo">051</span><a id="line.51">    String WF_WP_SAVE_FACT_CURRENT_TEXT = "fact.currentText";</a>
+<span class="sourceLineNo">052</span><a id="line.52">    /** Fact name for storing the proposed (edited) text.  Value is {@value}. */</a>
+<span class="sourceLineNo">053</span><a id="line.53">    String WF_WP_SAVE_FACT_PROPOSED_TEXT = "fact.proposedText";</a>
+<span class="sourceLineNo">054</span><a id="line.54">    /** Fact name for storing whether the user is authenticated or not.  Value is {@value}. */</a>
+<span class="sourceLineNo">055</span><a id="line.55">    String WF_WP_SAVE_FACT_IS_AUTHENTICATED = "fact.isAuthenticated";</a>
+<span class="sourceLineNo">056</span><a id="line.56"></a>
+<span class="sourceLineNo">057</span><a id="line.57">    /** The workflow attribute which stores the user profile. */</a>
+<span class="sourceLineNo">058</span><a id="line.58">    String WF_UP_CREATE_SAVE_ATTR_SAVED_PROFILE = "userProfile";</a>
+<span class="sourceLineNo">059</span><a id="line.59">    /** The name of the key from jspwiki.properties which defines who shall approve the workflow of creating a user profile.  Value is &lt;tt&gt;{@value}&lt;/tt&gt; */</a>
+<span class="sourceLineNo">060</span><a id="line.60">    String WF_UP_CREATE_SAVE_APPROVER = "workflow.createUserProfile";</a>
+<span class="sourceLineNo">061</span><a id="line.61">    /** The message key for storing the Decision text for saving a user profile.  Value is {@value}. */</a>
+<span class="sourceLineNo">062</span><a id="line.62">    String WF_UP_CREATE_SAVE_DECISION_MESSAGE_KEY = "decision.createUserProfile";</a>
+<span class="sourceLineNo">063</span><a id="line.63">    /** Fact name for storing a the submitter name. Value is {@value}. */</a>
+<span class="sourceLineNo">064</span><a id="line.64">    String WF_UP_CREATE_SAVE_FACT_SUBMITTER = "fact.submitter";</a>
+<span class="sourceLineNo">065</span><a id="line.65">    /** Fact name for storing the preferences' login name. Value is {@value}. */</a>
+<span class="sourceLineNo">066</span><a id="line.66">    String WF_UP_CREATE_SAVE_FACT_PREFS_LOGIN_NAME = "prefs.loginname";</a>
+<span class="sourceLineNo">067</span><a id="line.67">    /** Fact name for storing the preferences' full name. Value is {@value}. */</a>
+<span class="sourceLineNo">068</span><a id="line.68">    String WF_UP_CREATE_SAVE_FACT_PREFS_FULL_NAME = "prefs.fullname";</a>
+<span class="sourceLineNo">069</span><a id="line.69">    /** Fact name for storing the preferences' email. Value is {@value}. */</a>
+<span class="sourceLineNo">070</span><a id="line.70">    String WF_UP_CREATE_SAVE_FACT_PREFS_EMAIL = "prefs.email";</a>
+<span class="sourceLineNo">071</span><a id="line.71"></a>
+<span class="sourceLineNo">072</span><a id="line.72">    /** The prefix to use for looking up &lt;code&gt;jspwiki.properties&lt;/code&gt; approval roles. */</a>
+<span class="sourceLineNo">073</span><a id="line.73">    String PROPERTY_APPROVER_PREFIX = "jspwiki.approver.";</a>
+<span class="sourceLineNo">074</span><a id="line.74"></a>
+<span class="sourceLineNo">075</span><a id="line.75">    /**</a>
+<span class="sourceLineNo">076</span><a id="line.76">     * Returns a collection of the currently active workflows.</a>
+<span class="sourceLineNo">077</span><a id="line.77">     *</a>
+<span class="sourceLineNo">078</span><a id="line.78">     * @return the current workflows</a>
+<span class="sourceLineNo">079</span><a id="line.79">     */</a>
+<span class="sourceLineNo">080</span><a id="line.80">    Set&lt; Workflow &gt; getWorkflows();</a>
+<span class="sourceLineNo">081</span><a id="line.81"></a>
+<span class="sourceLineNo">082</span><a id="line.82">    /**</a>
+<span class="sourceLineNo">083</span><a id="line.83">     * Returns a map of the currently active workflows.</a>
+<span class="sourceLineNo">084</span><a id="line.84">     *</a>
+<span class="sourceLineNo">085</span><a id="line.85">     * @return the current workflows as workflowId -&gt; workflow tuples</a>
+<span class="sourceLineNo">086</span><a id="line.86">     */</a>
+<span class="sourceLineNo">087</span><a id="line.87">    Map&lt; Integer, Workflow &gt; getWorkflowsAsMap();</a>
+<span class="sourceLineNo">088</span><a id="line.88"></a>
+<span class="sourceLineNo">089</span><a id="line.89">    /**</a>
+<span class="sourceLineNo">090</span><a id="line.90">     * Returns a collection of finished workflows; that is, those that have aborted or completed.</a>
+<span class="sourceLineNo">091</span><a id="line.91">     *</a>
+<span class="sourceLineNo">092</span><a id="line.92">     * @return the finished workflows</a>
+<span class="sourceLineNo">093</span><a id="line.93">     */</a>
+<span class="sourceLineNo">094</span><a id="line.94">    List&lt; Workflow &gt; getCompletedWorkflows();</a>
+<span class="sourceLineNo">095</span><a id="line.95"></a>
+<span class="sourceLineNo">096</span><a id="line.96">    /**</a>
+<span class="sourceLineNo">097</span><a id="line.97">     * Returns &lt;code&gt;true&lt;/code&gt; if a workflow matching a particular key contains an approval step.</a>
+<span class="sourceLineNo">098</span><a id="line.98">     *</a>
+<span class="sourceLineNo">099</span><a id="line.99">     * @param messageKey the name of the workflow; corresponds to the value returned by {@link Workflow#getMessageKey()}.</a>
+<span class="sourceLineNo">100</span><a id="line.100">     * @return the result</a>
+<span class="sourceLineNo">101</span><a id="line.101">     */</a>
+<span class="sourceLineNo">102</span><a id="line.102">    boolean requiresApproval( String messageKey );</a>
+<span class="sourceLineNo">103</span><a id="line.103"></a>
+<span class="sourceLineNo">104</span><a id="line.104">    /**</a>
+<span class="sourceLineNo">105</span><a id="line.105">     * Looks up and resolves the actor who approves a Decision for a particular Workflow, based on the Workflow's message key.</a>
+<span class="sourceLineNo">106</span><a id="line.106">     * If not found, or if Principal is Unresolved, throws WikiException. This particular implementation always returns the</a>
+<span class="sourceLineNo">107</span><a id="line.107">     * GroupPrincipal &lt;code&gt;Admin&lt;/code&gt;</a>
+<span class="sourceLineNo">108</span><a id="line.108">     *</a>
+<span class="sourceLineNo">109</span><a id="line.109">     * @param messageKey the Decision's message key</a>
+<span class="sourceLineNo">110</span><a id="line.110">     * @return the actor who approves Decisions</a>
+<span class="sourceLineNo">111</span><a id="line.111">     * @throws WikiException if the message key was not found, or the</a>
+<span class="sourceLineNo">112</span><a id="line.112">     * Principal value corresponding to the key could not be resolved</a>
+<span class="sourceLineNo">113</span><a id="line.113">     */</a>
+<span class="sourceLineNo">114</span><a id="line.114">    Principal getApprover( String messageKey ) throws WikiException;</a>
+<span class="sourceLineNo">115</span><a id="line.115"></a>
+<span class="sourceLineNo">116</span><a id="line.116">    /**</a>
+<span class="sourceLineNo">117</span><a id="line.117">     * Returns the DecisionQueue associated with this WorkflowManager</a>
+<span class="sourceLineNo">118</span><a id="line.118">     *</a>
+<span class="sourceLineNo">119</span><a id="line.119">     * @return the decision queue</a>
+<span class="sourceLineNo">120</span><a id="line.120">     */</a>
+<span class="sourceLineNo">121</span><a id="line.121">    DecisionQueue getDecisionQueue();</a>
+<span class="sourceLineNo">122</span><a id="line.122"></a>
+<span class="sourceLineNo">123</span><a id="line.123">    /**</a>
+<span class="sourceLineNo">124</span><a id="line.124">     * Returns the current workflows a wiki session owns. These are workflows whose {@link Workflow#getOwner()} method returns a Principal</a>
+<span class="sourceLineNo">125</span><a id="line.125">     * also possessed by the wiki session (see {@link org.apache.wiki.api.core.Session#getPrincipals()}). If the wiki session is not</a>
+<span class="sourceLineNo">126</span><a id="line.126">     * authenticated, this method returns an empty Collection.</a>
+<span class="sourceLineNo">127</span><a id="line.127">     *</a>
+<span class="sourceLineNo">128</span><a id="line.128">     * @param session the wiki session</a>
+<span class="sourceLineNo">129</span><a id="line.129">     * @return the collection workflows the wiki session owns, which may be empty</a>
+<span class="sourceLineNo">130</span><a id="line.130">     */</a>
+<span class="sourceLineNo">131</span><a id="line.131">    List&lt; Workflow &gt; getOwnerWorkflows( Session session );</a>
+<span class="sourceLineNo">132</span><a id="line.132"></a>
+<span class="sourceLineNo">133</span><a id="line.133">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
