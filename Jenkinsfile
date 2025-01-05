@@ -58,7 +58,7 @@ try {
                 writeFile file: 'target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
                 writeFile file: 'jspwiki-it-tests/target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
                 withEnv( [ "Path+JDK=$JAVA_JDK_11/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_11" ] ) {
-                    sh 'mvn package javadoc:aggregate-no-fork -DskipTests -pl !jspwiki-portable -Djdk.javadoc.doclet.version=2.0.15 -T 1C'
+                    sh 'mvn package javadoc:aggregate-no-fork -DskipTests -pl !jspwiki-portable -Djdk.javadoc.doclet.version=2.2.1 -T 1C'
                     sh 'java -cp jspwiki-main/target/classes org.apache.wiki.TranslationsCheck site'
                 }
             }
@@ -89,7 +89,7 @@ try {
                 git branch: asfsite, url: repo, credentialsId: creds
                 sh "cp -rf ../$jbake/target/content/* ./"
                 sh "rm -rf ./japicmp/$docsVersion && mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/japicmp/* ./japicmp/$docsVersion"
-                sh "rm -rf ./apidocs/$docsVersion && mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/site/apidocs/* ./apidocs/$docsVersion"
+                sh "rm -rf ./apidocs/$docsVersion && mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/reports/apidocs/* ./apidocs/$docsVersion"
                 timeout( 15 ) { // 15 minutes
                     sh 'git add .'
                     sh 'git commit -m "Automatic Site Publish by Buildbot"'
