@@ -695,191 +695,240 @@
 <span class="sourceLineNo">686</span><a id="line.686">    }</a>
 <span class="sourceLineNo">687</span><a id="line.687"></a>
 <span class="sourceLineNo">688</span><a id="line.688">    /**</a>
-<span class="sourceLineNo">689</span><a id="line.689">     *  Creates a Properties object based on an array which contains alternatively a key and a value.  It is useful</a>
-<span class="sourceLineNo">690</span><a id="line.690">     *  for generating default mappings. For example:</a>
-<span class="sourceLineNo">691</span><a id="line.691">     *  &lt;pre&gt;</a>
-<span class="sourceLineNo">692</span><a id="line.692">     *     String[] properties = { "jspwiki.property1", "value1", "jspwiki.property2", "value2 };</a>
-<span class="sourceLineNo">693</span><a id="line.693">     *     Properties props = TextUtil.createPropertes( values );</a>
-<span class="sourceLineNo">694</span><a id="line.694">     *     System.out.println( props.getProperty("jspwiki.property1") );</a>
-<span class="sourceLineNo">695</span><a id="line.695">     *  &lt;/pre&gt;</a>
-<span class="sourceLineNo">696</span><a id="line.696">     *  would output "value1".</a>
-<span class="sourceLineNo">697</span><a id="line.697">     *</a>
-<span class="sourceLineNo">698</span><a id="line.698">     *  @param values Alternating key and value pairs.</a>
-<span class="sourceLineNo">699</span><a id="line.699">     *  @return Property object</a>
-<span class="sourceLineNo">700</span><a id="line.700">     *  @see java.util.Properties</a>
-<span class="sourceLineNo">701</span><a id="line.701">     *  @throws IllegalArgumentException if the property array is missing a value for a key.</a>
-<span class="sourceLineNo">702</span><a id="line.702">     *  @since 2.2.</a>
-<span class="sourceLineNo">703</span><a id="line.703">     */</a>
-<span class="sourceLineNo">704</span><a id="line.704">    public static Properties createProperties( final String[] values ) throws IllegalArgumentException {</a>
-<span class="sourceLineNo">705</span><a id="line.705">        if( values.length % 2 != 0 ) {</a>
-<span class="sourceLineNo">706</span><a id="line.706">            throw new IllegalArgumentException( "One value is missing.");</a>
-<span class="sourceLineNo">707</span><a id="line.707">        }</a>
-<span class="sourceLineNo">708</span><a id="line.708"></a>
-<span class="sourceLineNo">709</span><a id="line.709">        final Properties props = new Properties();</a>
-<span class="sourceLineNo">710</span><a id="line.710">        for( int i = 0; i &lt; values.length; i += 2 ) {</a>
-<span class="sourceLineNo">711</span><a id="line.711">            props.setProperty( values[i], values[i + 1] );</a>
-<span class="sourceLineNo">712</span><a id="line.712">        }</a>
-<span class="sourceLineNo">713</span><a id="line.713"></a>
-<span class="sourceLineNo">714</span><a id="line.714">        return props;</a>
-<span class="sourceLineNo">715</span><a id="line.715">    }</a>
-<span class="sourceLineNo">716</span><a id="line.716"></a>
-<span class="sourceLineNo">717</span><a id="line.717">    /**</a>
-<span class="sourceLineNo">718</span><a id="line.718">     *  Counts the number of sections (separated with "----") from the page.</a>
-<span class="sourceLineNo">719</span><a id="line.719">     *</a>
-<span class="sourceLineNo">720</span><a id="line.720">     *  @param pagedata The WikiText to parse.</a>
-<span class="sourceLineNo">721</span><a id="line.721">     *  @return int Number of counted sections.</a>
-<span class="sourceLineNo">722</span><a id="line.722">     *  @since 2.1.86.</a>
-<span class="sourceLineNo">723</span><a id="line.723">     */</a>
-<span class="sourceLineNo">724</span><a id="line.724">    public static int countSections( final String pagedata ) {</a>
-<span class="sourceLineNo">725</span><a id="line.725">        int tags  = 0;</a>
-<span class="sourceLineNo">726</span><a id="line.726">        int start = 0;</a>
-<span class="sourceLineNo">727</span><a id="line.727"></a>
-<span class="sourceLineNo">728</span><a id="line.728">        while( ( start = pagedata.indexOf( "----", start ) ) != -1 ) {</a>
-<span class="sourceLineNo">729</span><a id="line.729">            tags++;</a>
-<span class="sourceLineNo">730</span><a id="line.730">            start += 4; // Skip this "----"</a>
-<span class="sourceLineNo">731</span><a id="line.731">        }</a>
-<span class="sourceLineNo">732</span><a id="line.732"></a>
-<span class="sourceLineNo">733</span><a id="line.733">        // The first section does not get the "----"</a>
-<span class="sourceLineNo">734</span><a id="line.734">        return !pagedata.isEmpty() ? tags + 1 : 0;</a>
-<span class="sourceLineNo">735</span><a id="line.735">    }</a>
-<span class="sourceLineNo">736</span><a id="line.736"></a>
-<span class="sourceLineNo">737</span><a id="line.737">    /**</a>
-<span class="sourceLineNo">738</span><a id="line.738">     *  Gets the given section (separated with "----") from the page text. Note that the first section is always #1.  If a page has no</a>
-<span class="sourceLineNo">739</span><a id="line.739">     *  section markers, then there is only a single section, #1.</a>
-<span class="sourceLineNo">740</span><a id="line.740">     *</a>
-<span class="sourceLineNo">741</span><a id="line.741">     *  @param pagedata WikiText to parse.</a>
-<span class="sourceLineNo">742</span><a id="line.742">     *  @param section  Which section to get.</a>
-<span class="sourceLineNo">743</span><a id="line.743">     *  @return String  The section.</a>
-<span class="sourceLineNo">744</span><a id="line.744">     *  @throws IllegalArgumentException If the page does not contain this many sections.</a>
-<span class="sourceLineNo">745</span><a id="line.745">     *  @since 2.1.86.</a>
-<span class="sourceLineNo">746</span><a id="line.746">     */</a>
-<span class="sourceLineNo">747</span><a id="line.747">    public static String getSection( final String pagedata, final int section ) throws IllegalArgumentException {</a>
-<span class="sourceLineNo">748</span><a id="line.748">        int tags  = 0;</a>
-<span class="sourceLineNo">749</span><a id="line.749">        int start = 0;</a>
-<span class="sourceLineNo">750</span><a id="line.750">        int previous = 0;</a>
-<span class="sourceLineNo">751</span><a id="line.751"></a>
-<span class="sourceLineNo">752</span><a id="line.752">        while( ( start = pagedata.indexOf( "----", start ) ) != -1 ) {</a>
-<span class="sourceLineNo">753</span><a id="line.753">            if( ++tags == section ) {</a>
-<span class="sourceLineNo">754</span><a id="line.754">                return pagedata.substring( previous, start );</a>
-<span class="sourceLineNo">755</span><a id="line.755">            }</a>
-<span class="sourceLineNo">756</span><a id="line.756"></a>
-<span class="sourceLineNo">757</span><a id="line.757">            start += 4; // Skip this "----"</a>
-<span class="sourceLineNo">758</span><a id="line.758">            // allow additional dashes, treat it as if it was a correct 4-dash</a>
-<span class="sourceLineNo">759</span><a id="line.759">            while (start &lt; pagedata.length() &amp;&amp; pagedata.charAt( start ) == '-') {</a>
-<span class="sourceLineNo">760</span><a id="line.760">                start++;</a>
-<span class="sourceLineNo">761</span><a id="line.761">            }</a>
-<span class="sourceLineNo">762</span><a id="line.762"></a>
-<span class="sourceLineNo">763</span><a id="line.763">            previous = start;</a>
-<span class="sourceLineNo">764</span><a id="line.764">        }</a>
-<span class="sourceLineNo">765</span><a id="line.765"></a>
-<span class="sourceLineNo">766</span><a id="line.766">        if( ++tags == section ) {</a>
-<span class="sourceLineNo">767</span><a id="line.767">            return pagedata.substring( previous );</a>
-<span class="sourceLineNo">768</span><a id="line.768">        }</a>
-<span class="sourceLineNo">769</span><a id="line.769"></a>
-<span class="sourceLineNo">770</span><a id="line.770">        throw new IllegalArgumentException( "There is no section no. " + section + " on the page." );</a>
-<span class="sourceLineNo">771</span><a id="line.771">    }</a>
-<span class="sourceLineNo">772</span><a id="line.772"></a>
-<span class="sourceLineNo">773</span><a id="line.773">    /**</a>
-<span class="sourceLineNo">774</span><a id="line.774">     *  A simple routine which just repeates the arguments.  This is useful for creating something like a line or something.</a>
-<span class="sourceLineNo">775</span><a id="line.775">     *</a>
-<span class="sourceLineNo">776</span><a id="line.776">     *  @param what String to repeat</a>
-<span class="sourceLineNo">777</span><a id="line.777">     *  @param times How many times to repeat the string.</a>
-<span class="sourceLineNo">778</span><a id="line.778">     *  @return Guess what?</a>
-<span class="sourceLineNo">779</span><a id="line.779">     *  @since 2.1.98.</a>
-<span class="sourceLineNo">780</span><a id="line.780">     */</a>
-<span class="sourceLineNo">781</span><a id="line.781">    public static String repeatString( final String what, final int times ) {</a>
+<span class="sourceLineNo">689</span><a id="line.689">     *  Escapes XML entities in an HTML-compatible way (i.e. does not escape entities that are already escaped).</a>
+<span class="sourceLineNo">690</span><a id="line.690">     *</a>
+<span class="sourceLineNo">691</span><a id="line.691">     *  @param buf String to be escaped.</a>
+<span class="sourceLineNo">692</span><a id="line.692">     *  @return An escaped string.</a>
+<span class="sourceLineNo">693</span><a id="line.693">     */</a>
+<span class="sourceLineNo">694</span><a id="line.694">    public static String escapeHTMLEntities( final String buf ) {</a>
+<span class="sourceLineNo">695</span><a id="line.695">        final StringBuilder tmpBuf = new StringBuilder( buf.length() + 20 );</a>
+<span class="sourceLineNo">696</span><a id="line.696">        for( int i = 0; i &lt; buf.length(); i++ ) {</a>
+<span class="sourceLineNo">697</span><a id="line.697">            final char ch = buf.charAt(i);</a>
+<span class="sourceLineNo">698</span><a id="line.698">            if( ch == '&lt;' ) {</a>
+<span class="sourceLineNo">699</span><a id="line.699">                tmpBuf.append("&amp;lt;");</a>
+<span class="sourceLineNo">700</span><a id="line.700">            } else if( ch == '&gt;' ) {</a>
+<span class="sourceLineNo">701</span><a id="line.701">                tmpBuf.append("&amp;gt;");</a>
+<span class="sourceLineNo">702</span><a id="line.702">            } else if( ch == '\"' ) {</a>
+<span class="sourceLineNo">703</span><a id="line.703">                tmpBuf.append("&amp;quot;");</a>
+<span class="sourceLineNo">704</span><a id="line.704">            } else if( ch == '&amp;' ) {</a>
+<span class="sourceLineNo">705</span><a id="line.705">                // If the following is an XML entity reference (&amp;#.*;) we'll leave it as it is; otherwise we'll replace it with an &amp;amp;</a>
+<span class="sourceLineNo">706</span><a id="line.706">                boolean isEntity = false;</a>
+<span class="sourceLineNo">707</span><a id="line.707">                final StringBuilder entityBuf = new StringBuilder();</a>
+<span class="sourceLineNo">708</span><a id="line.708">                if( i &lt; buf.length() -1 ) {</a>
+<span class="sourceLineNo">709</span><a id="line.709">                    for( int j = i; j &lt; buf.length(); j++ ) {</a>
+<span class="sourceLineNo">710</span><a id="line.710">                        final char ch2 = buf.charAt( j );</a>
+<span class="sourceLineNo">711</span><a id="line.711">                        if( Character.isLetterOrDigit( ch2 ) || (ch2 == '#' &amp;&amp; j == i+1) || ch2 == ';' || ch2 == '&amp;' ) {</a>
+<span class="sourceLineNo">712</span><a id="line.712">                            entityBuf.append(ch2);</a>
+<span class="sourceLineNo">713</span><a id="line.713">                            if( ch2 == ';' ) {</a>
+<span class="sourceLineNo">714</span><a id="line.714">                                isEntity = true;</a>
+<span class="sourceLineNo">715</span><a id="line.715">                                break;</a>
+<span class="sourceLineNo">716</span><a id="line.716">                            }</a>
+<span class="sourceLineNo">717</span><a id="line.717">                        } else {</a>
+<span class="sourceLineNo">718</span><a id="line.718">                            break;</a>
+<span class="sourceLineNo">719</span><a id="line.719">                        }</a>
+<span class="sourceLineNo">720</span><a id="line.720">                    }</a>
+<span class="sourceLineNo">721</span><a id="line.721">                }</a>
+<span class="sourceLineNo">722</span><a id="line.722"></a>
+<span class="sourceLineNo">723</span><a id="line.723">                if( isEntity ) {</a>
+<span class="sourceLineNo">724</span><a id="line.724">                    tmpBuf.append( entityBuf );</a>
+<span class="sourceLineNo">725</span><a id="line.725">                    i = i + entityBuf.length() - 1;</a>
+<span class="sourceLineNo">726</span><a id="line.726">                } else {</a>
+<span class="sourceLineNo">727</span><a id="line.727">                    tmpBuf.append( "&amp;amp;" );</a>
+<span class="sourceLineNo">728</span><a id="line.728">                }</a>
+<span class="sourceLineNo">729</span><a id="line.729"></a>
+<span class="sourceLineNo">730</span><a id="line.730">            } else {</a>
+<span class="sourceLineNo">731</span><a id="line.731">                tmpBuf.append( ch );</a>
+<span class="sourceLineNo">732</span><a id="line.732">            }</a>
+<span class="sourceLineNo">733</span><a id="line.733">        }</a>
+<span class="sourceLineNo">734</span><a id="line.734"></a>
+<span class="sourceLineNo">735</span><a id="line.735">        return tmpBuf.toString();</a>
+<span class="sourceLineNo">736</span><a id="line.736">    }</a>
+<span class="sourceLineNo">737</span><a id="line.737"></a>
+<span class="sourceLineNo">738</span><a id="line.738">    /**</a>
+<span class="sourceLineNo">739</span><a id="line.739">     *  Creates a Properties object based on an array which contains alternatively a key and a value.  It is useful</a>
+<span class="sourceLineNo">740</span><a id="line.740">     *  for generating default mappings. For example:</a>
+<span class="sourceLineNo">741</span><a id="line.741">     *  &lt;pre&gt;</a>
+<span class="sourceLineNo">742</span><a id="line.742">     *     String[] properties = { "jspwiki.property1", "value1", "jspwiki.property2", "value2 };</a>
+<span class="sourceLineNo">743</span><a id="line.743">     *     Properties props = TextUtil.createPropertes( values );</a>
+<span class="sourceLineNo">744</span><a id="line.744">     *     System.out.println( props.getProperty("jspwiki.property1") );</a>
+<span class="sourceLineNo">745</span><a id="line.745">     *  &lt;/pre&gt;</a>
+<span class="sourceLineNo">746</span><a id="line.746">     *  would output "value1".</a>
+<span class="sourceLineNo">747</span><a id="line.747">     *</a>
+<span class="sourceLineNo">748</span><a id="line.748">     *  @param values Alternating key and value pairs.</a>
+<span class="sourceLineNo">749</span><a id="line.749">     *  @return Property object</a>
+<span class="sourceLineNo">750</span><a id="line.750">     *  @see java.util.Properties</a>
+<span class="sourceLineNo">751</span><a id="line.751">     *  @throws IllegalArgumentException if the property array is missing a value for a key.</a>
+<span class="sourceLineNo">752</span><a id="line.752">     *  @since 2.2.</a>
+<span class="sourceLineNo">753</span><a id="line.753">     */</a>
+<span class="sourceLineNo">754</span><a id="line.754">    public static Properties createProperties( final String[] values ) throws IllegalArgumentException {</a>
+<span class="sourceLineNo">755</span><a id="line.755">        if( values.length % 2 != 0 ) {</a>
+<span class="sourceLineNo">756</span><a id="line.756">            throw new IllegalArgumentException( "One value is missing.");</a>
+<span class="sourceLineNo">757</span><a id="line.757">        }</a>
+<span class="sourceLineNo">758</span><a id="line.758"></a>
+<span class="sourceLineNo">759</span><a id="line.759">        final Properties props = new Properties();</a>
+<span class="sourceLineNo">760</span><a id="line.760">        for( int i = 0; i &lt; values.length; i += 2 ) {</a>
+<span class="sourceLineNo">761</span><a id="line.761">            props.setProperty( values[i], values[i + 1] );</a>
+<span class="sourceLineNo">762</span><a id="line.762">        }</a>
+<span class="sourceLineNo">763</span><a id="line.763"></a>
+<span class="sourceLineNo">764</span><a id="line.764">        return props;</a>
+<span class="sourceLineNo">765</span><a id="line.765">    }</a>
+<span class="sourceLineNo">766</span><a id="line.766"></a>
+<span class="sourceLineNo">767</span><a id="line.767">    /**</a>
+<span class="sourceLineNo">768</span><a id="line.768">     *  Counts the number of sections (separated with "----") from the page.</a>
+<span class="sourceLineNo">769</span><a id="line.769">     *</a>
+<span class="sourceLineNo">770</span><a id="line.770">     *  @param pagedata The WikiText to parse.</a>
+<span class="sourceLineNo">771</span><a id="line.771">     *  @return int Number of counted sections.</a>
+<span class="sourceLineNo">772</span><a id="line.772">     *  @since 2.1.86.</a>
+<span class="sourceLineNo">773</span><a id="line.773">     */</a>
+<span class="sourceLineNo">774</span><a id="line.774">    public static int countSections( final String pagedata ) {</a>
+<span class="sourceLineNo">775</span><a id="line.775">        int tags  = 0;</a>
+<span class="sourceLineNo">776</span><a id="line.776">        int start = 0;</a>
+<span class="sourceLineNo">777</span><a id="line.777"></a>
+<span class="sourceLineNo">778</span><a id="line.778">        while( ( start = pagedata.indexOf( "----", start ) ) != -1 ) {</a>
+<span class="sourceLineNo">779</span><a id="line.779">            tags++;</a>
+<span class="sourceLineNo">780</span><a id="line.780">            start += 4; // Skip this "----"</a>
+<span class="sourceLineNo">781</span><a id="line.781">        }</a>
 <span class="sourceLineNo">782</span><a id="line.782"></a>
-<span class="sourceLineNo">783</span><a id="line.783">        return IntStream.range(0, times).mapToObj(i -&gt; what).collect(Collectors.joining());</a>
-<span class="sourceLineNo">784</span><a id="line.784">    }</a>
-<span class="sourceLineNo">785</span><a id="line.785"></a>
-<span class="sourceLineNo">786</span><a id="line.786">    /**</a>
-<span class="sourceLineNo">787</span><a id="line.787">     *  Converts a string from the Unicode representation into something that can be embedded in a java</a>
-<span class="sourceLineNo">788</span><a id="line.788">     *  properties file.  All references outside the ASCII range are replaced with \\uXXXX.</a>
-<span class="sourceLineNo">789</span><a id="line.789">     *</a>
-<span class="sourceLineNo">790</span><a id="line.790">     *  @param s The string to convert</a>
-<span class="sourceLineNo">791</span><a id="line.791">     *  @return the ASCII string</a>
-<span class="sourceLineNo">792</span><a id="line.792">     */</a>
-<span class="sourceLineNo">793</span><a id="line.793">    public static String native2Ascii( final String s ) {</a>
-<span class="sourceLineNo">794</span><a id="line.794">        final StringBuilder sb = new StringBuilder();</a>
-<span class="sourceLineNo">795</span><a id="line.795">        for( int i = 0; i &lt; s.length(); i++ ) {</a>
-<span class="sourceLineNo">796</span><a id="line.796">            final char aChar = s.charAt(i);</a>
-<span class="sourceLineNo">797</span><a id="line.797">            if( ( aChar &lt; 0x0020 ) || ( aChar &gt; 0x007e ) ) {</a>
-<span class="sourceLineNo">798</span><a id="line.798">                sb.append( '\\');</a>
-<span class="sourceLineNo">799</span><a id="line.799">                sb.append( 'u');</a>
-<span class="sourceLineNo">800</span><a id="line.800">                sb.append( toHex( ( aChar &gt;&gt; 12 ) &amp; 0xF ) );</a>
-<span class="sourceLineNo">801</span><a id="line.801">                sb.append( toHex( ( aChar &gt;&gt;  8 ) &amp; 0xF ) );</a>
-<span class="sourceLineNo">802</span><a id="line.802">                sb.append( toHex( ( aChar &gt;&gt;  4 ) &amp; 0xF ) );</a>
-<span class="sourceLineNo">803</span><a id="line.803">                sb.append( toHex( aChar        &amp; 0xF ) );</a>
-<span class="sourceLineNo">804</span><a id="line.804">            } else {</a>
-<span class="sourceLineNo">805</span><a id="line.805">                sb.append( aChar );</a>
-<span class="sourceLineNo">806</span><a id="line.806">            }</a>
-<span class="sourceLineNo">807</span><a id="line.807">        }</a>
-<span class="sourceLineNo">808</span><a id="line.808">        return sb.toString();</a>
-<span class="sourceLineNo">809</span><a id="line.809">    }</a>
-<span class="sourceLineNo">810</span><a id="line.810"></a>
-<span class="sourceLineNo">811</span><a id="line.811">    private static char toHex( final int nibble ) {</a>
-<span class="sourceLineNo">812</span><a id="line.812">        final char[] hexDigit = {</a>
-<span class="sourceLineNo">813</span><a id="line.813">            '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'</a>
-<span class="sourceLineNo">814</span><a id="line.814">        };</a>
-<span class="sourceLineNo">815</span><a id="line.815">        return hexDigit[ nibble &amp; 0xF ];</a>
-<span class="sourceLineNo">816</span><a id="line.816">    }</a>
-<span class="sourceLineNo">817</span><a id="line.817"></a>
-<span class="sourceLineNo">818</span><a id="line.818">    /**</a>
-<span class="sourceLineNo">819</span><a id="line.819">     *  Generates a hexadecimal string from an array of bytes.  For example, if the array contains</a>
-<span class="sourceLineNo">820</span><a id="line.820">     *  { 0x01, 0x02, 0x3E }, the resulting string will be "01023E".</a>
-<span class="sourceLineNo">821</span><a id="line.821">     *</a>
-<span class="sourceLineNo">822</span><a id="line.822">     * @param bytes A Byte array</a>
-<span class="sourceLineNo">823</span><a id="line.823">     * @return A String representation</a>
-<span class="sourceLineNo">824</span><a id="line.824">     * @since 2.3.87</a>
-<span class="sourceLineNo">825</span><a id="line.825">     */</a>
-<span class="sourceLineNo">826</span><a id="line.826">    public static String toHexString( final byte[] bytes ) {</a>
-<span class="sourceLineNo">827</span><a id="line.827">        final StringBuilder sb = new StringBuilder( bytes.length * 2 );</a>
-<span class="sourceLineNo">828</span><a id="line.828">        for( final byte aByte : bytes ) {</a>
-<span class="sourceLineNo">829</span><a id="line.829">            sb.append( toHex( aByte &gt;&gt; 4 ) );</a>
-<span class="sourceLineNo">830</span><a id="line.830">            sb.append( toHex( aByte ) );</a>
-<span class="sourceLineNo">831</span><a id="line.831">        }</a>
-<span class="sourceLineNo">832</span><a id="line.832"></a>
-<span class="sourceLineNo">833</span><a id="line.833">        return sb.toString();</a>
-<span class="sourceLineNo">834</span><a id="line.834">    }</a>
-<span class="sourceLineNo">835</span><a id="line.835"></a>
-<span class="sourceLineNo">836</span><a id="line.836">    /**</a>
-<span class="sourceLineNo">837</span><a id="line.837">     *  Returns true, if the argument contains a number, otherwise false. In a quick test this is roughly the same</a>
-<span class="sourceLineNo">838</span><a id="line.838">     *  speed as Integer.parseInt() if the argument is a number, and roughly ten times the speed, if the argument</a>
-<span class="sourceLineNo">839</span><a id="line.839">     *  is NOT a number.</a>
-<span class="sourceLineNo">840</span><a id="line.840">     *</a>
-<span class="sourceLineNo">841</span><a id="line.841">     *  @since 2.4</a>
-<span class="sourceLineNo">842</span><a id="line.842">     *  @param s String to check</a>
-<span class="sourceLineNo">843</span><a id="line.843">     *  @return True, if s represents a number.  False otherwise.</a>
-<span class="sourceLineNo">844</span><a id="line.844">     */</a>
-<span class="sourceLineNo">845</span><a id="line.845">    public static boolean isNumber( String s ) {</a>
-<span class="sourceLineNo">846</span><a id="line.846">        if( s == null ) {</a>
-<span class="sourceLineNo">847</span><a id="line.847">            return false;</a>
-<span class="sourceLineNo">848</span><a id="line.848">        }</a>
-<span class="sourceLineNo">849</span><a id="line.849"></a>
-<span class="sourceLineNo">850</span><a id="line.850">        if( s.length() &gt; 1 &amp;&amp; s.charAt(0) == '-' ) {</a>
-<span class="sourceLineNo">851</span><a id="line.851">            s = s.substring( 1 );</a>
-<span class="sourceLineNo">852</span><a id="line.852">        }</a>
-<span class="sourceLineNo">853</span><a id="line.853"></a>
-<span class="sourceLineNo">854</span><a id="line.854">        for( int i = 0; i &lt; s.length(); i++ ) {</a>
-<span class="sourceLineNo">855</span><a id="line.855">            if( !Character.isDigit( s.charAt( i ) ) ) {</a>
-<span class="sourceLineNo">856</span><a id="line.856">                return false;</a>
-<span class="sourceLineNo">857</span><a id="line.857">            }</a>
-<span class="sourceLineNo">858</span><a id="line.858">        }</a>
+<span class="sourceLineNo">783</span><a id="line.783">        // The first section does not get the "----"</a>
+<span class="sourceLineNo">784</span><a id="line.784">        return !pagedata.isEmpty() ? tags + 1 : 0;</a>
+<span class="sourceLineNo">785</span><a id="line.785">    }</a>
+<span class="sourceLineNo">786</span><a id="line.786"></a>
+<span class="sourceLineNo">787</span><a id="line.787">    /**</a>
+<span class="sourceLineNo">788</span><a id="line.788">     *  Gets the given section (separated with "----") from the page text. Note that the first section is always #1.  If a page has no</a>
+<span class="sourceLineNo">789</span><a id="line.789">     *  section markers, then there is only a single section, #1.</a>
+<span class="sourceLineNo">790</span><a id="line.790">     *</a>
+<span class="sourceLineNo">791</span><a id="line.791">     *  @param pagedata WikiText to parse.</a>
+<span class="sourceLineNo">792</span><a id="line.792">     *  @param section  Which section to get.</a>
+<span class="sourceLineNo">793</span><a id="line.793">     *  @return String  The section.</a>
+<span class="sourceLineNo">794</span><a id="line.794">     *  @throws IllegalArgumentException If the page does not contain this many sections.</a>
+<span class="sourceLineNo">795</span><a id="line.795">     *  @since 2.1.86.</a>
+<span class="sourceLineNo">796</span><a id="line.796">     */</a>
+<span class="sourceLineNo">797</span><a id="line.797">    public static String getSection( final String pagedata, final int section ) throws IllegalArgumentException {</a>
+<span class="sourceLineNo">798</span><a id="line.798">        int tags  = 0;</a>
+<span class="sourceLineNo">799</span><a id="line.799">        int start = 0;</a>
+<span class="sourceLineNo">800</span><a id="line.800">        int previous = 0;</a>
+<span class="sourceLineNo">801</span><a id="line.801"></a>
+<span class="sourceLineNo">802</span><a id="line.802">        while( ( start = pagedata.indexOf( "----", start ) ) != -1 ) {</a>
+<span class="sourceLineNo">803</span><a id="line.803">            if( ++tags == section ) {</a>
+<span class="sourceLineNo">804</span><a id="line.804">                return pagedata.substring( previous, start );</a>
+<span class="sourceLineNo">805</span><a id="line.805">            }</a>
+<span class="sourceLineNo">806</span><a id="line.806"></a>
+<span class="sourceLineNo">807</span><a id="line.807">            start += 4; // Skip this "----"</a>
+<span class="sourceLineNo">808</span><a id="line.808">            // allow additional dashes, treat it as if it was a correct 4-dash</a>
+<span class="sourceLineNo">809</span><a id="line.809">            while (start &lt; pagedata.length() &amp;&amp; pagedata.charAt( start ) == '-') {</a>
+<span class="sourceLineNo">810</span><a id="line.810">                start++;</a>
+<span class="sourceLineNo">811</span><a id="line.811">            }</a>
+<span class="sourceLineNo">812</span><a id="line.812"></a>
+<span class="sourceLineNo">813</span><a id="line.813">            previous = start;</a>
+<span class="sourceLineNo">814</span><a id="line.814">        }</a>
+<span class="sourceLineNo">815</span><a id="line.815"></a>
+<span class="sourceLineNo">816</span><a id="line.816">        if( ++tags == section ) {</a>
+<span class="sourceLineNo">817</span><a id="line.817">            return pagedata.substring( previous );</a>
+<span class="sourceLineNo">818</span><a id="line.818">        }</a>
+<span class="sourceLineNo">819</span><a id="line.819"></a>
+<span class="sourceLineNo">820</span><a id="line.820">        throw new IllegalArgumentException( "There is no section no. " + section + " on the page." );</a>
+<span class="sourceLineNo">821</span><a id="line.821">    }</a>
+<span class="sourceLineNo">822</span><a id="line.822"></a>
+<span class="sourceLineNo">823</span><a id="line.823">    /**</a>
+<span class="sourceLineNo">824</span><a id="line.824">     *  A simple routine which just repeates the arguments.  This is useful for creating something like a line or something.</a>
+<span class="sourceLineNo">825</span><a id="line.825">     *</a>
+<span class="sourceLineNo">826</span><a id="line.826">     *  @param what String to repeat</a>
+<span class="sourceLineNo">827</span><a id="line.827">     *  @param times How many times to repeat the string.</a>
+<span class="sourceLineNo">828</span><a id="line.828">     *  @return Guess what?</a>
+<span class="sourceLineNo">829</span><a id="line.829">     *  @since 2.1.98.</a>
+<span class="sourceLineNo">830</span><a id="line.830">     */</a>
+<span class="sourceLineNo">831</span><a id="line.831">    public static String repeatString( final String what, final int times ) {</a>
+<span class="sourceLineNo">832</span><a id="line.832">        return IntStream.range(0, times).mapToObj(i -&gt; what).collect(Collectors.joining());</a>
+<span class="sourceLineNo">833</span><a id="line.833">    }</a>
+<span class="sourceLineNo">834</span><a id="line.834"></a>
+<span class="sourceLineNo">835</span><a id="line.835">    /**</a>
+<span class="sourceLineNo">836</span><a id="line.836">     *  Converts a string from the Unicode representation into something that can be embedded in a java</a>
+<span class="sourceLineNo">837</span><a id="line.837">     *  properties file.  All references outside the ASCII range are replaced with \\uXXXX.</a>
+<span class="sourceLineNo">838</span><a id="line.838">     *</a>
+<span class="sourceLineNo">839</span><a id="line.839">     *  @param s The string to convert</a>
+<span class="sourceLineNo">840</span><a id="line.840">     *  @return the ASCII string</a>
+<span class="sourceLineNo">841</span><a id="line.841">     */</a>
+<span class="sourceLineNo">842</span><a id="line.842">    public static String native2Ascii( final String s ) {</a>
+<span class="sourceLineNo">843</span><a id="line.843">        final StringBuilder sb = new StringBuilder();</a>
+<span class="sourceLineNo">844</span><a id="line.844">        for( int i = 0; i &lt; s.length(); i++ ) {</a>
+<span class="sourceLineNo">845</span><a id="line.845">            final char aChar = s.charAt(i);</a>
+<span class="sourceLineNo">846</span><a id="line.846">            if( ( aChar &lt; 0x0020 ) || ( aChar &gt; 0x007e ) ) {</a>
+<span class="sourceLineNo">847</span><a id="line.847">                sb.append( '\\');</a>
+<span class="sourceLineNo">848</span><a id="line.848">                sb.append( 'u');</a>
+<span class="sourceLineNo">849</span><a id="line.849">                sb.append( toHex( ( aChar &gt;&gt; 12 ) &amp; 0xF ) );</a>
+<span class="sourceLineNo">850</span><a id="line.850">                sb.append( toHex( ( aChar &gt;&gt;  8 ) &amp; 0xF ) );</a>
+<span class="sourceLineNo">851</span><a id="line.851">                sb.append( toHex( ( aChar &gt;&gt;  4 ) &amp; 0xF ) );</a>
+<span class="sourceLineNo">852</span><a id="line.852">                sb.append( toHex( aChar        &amp; 0xF ) );</a>
+<span class="sourceLineNo">853</span><a id="line.853">            } else {</a>
+<span class="sourceLineNo">854</span><a id="line.854">                sb.append( aChar );</a>
+<span class="sourceLineNo">855</span><a id="line.855">            }</a>
+<span class="sourceLineNo">856</span><a id="line.856">        }</a>
+<span class="sourceLineNo">857</span><a id="line.857">        return sb.toString();</a>
+<span class="sourceLineNo">858</span><a id="line.858">    }</a>
 <span class="sourceLineNo">859</span><a id="line.859"></a>
-<span class="sourceLineNo">860</span><a id="line.860">        return true;</a>
-<span class="sourceLineNo">861</span><a id="line.861">    }</a>
-<span class="sourceLineNo">862</span><a id="line.862"></a>
-<span class="sourceLineNo">863</span><a id="line.863">    /**</a>
-<span class="sourceLineNo">864</span><a id="line.864">     * Generate a random String suitable for use as a temporary password.</a>
-<span class="sourceLineNo">865</span><a id="line.865">     *</a>
-<span class="sourceLineNo">866</span><a id="line.866">     * @return String suitable for use as a temporary password</a>
-<span class="sourceLineNo">867</span><a id="line.867">     * @since 2.4</a>
-<span class="sourceLineNo">868</span><a id="line.868">     */</a>
-<span class="sourceLineNo">869</span><a id="line.869">    public static String generateRandomPassword() {</a>
-<span class="sourceLineNo">870</span><a id="line.870">        return IntStream.range(0, PASSWORD_LENGTH).map(i -&gt; (int) (RANDOM.nextDouble() * PWD_BASE.length())).mapToObj(index -&gt; String.valueOf(PWD_BASE.charAt(index))).collect(Collectors.joining());</a>
-<span class="sourceLineNo">871</span><a id="line.871">    }</a>
-<span class="sourceLineNo">872</span><a id="line.872"></a>
-<span class="sourceLineNo">873</span><a id="line.873">}</a>
+<span class="sourceLineNo">860</span><a id="line.860">    private static char toHex( final int nibble ) {</a>
+<span class="sourceLineNo">861</span><a id="line.861">        final char[] hexDigit = {</a>
+<span class="sourceLineNo">862</span><a id="line.862">            '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'</a>
+<span class="sourceLineNo">863</span><a id="line.863">        };</a>
+<span class="sourceLineNo">864</span><a id="line.864">        return hexDigit[ nibble &amp; 0xF ];</a>
+<span class="sourceLineNo">865</span><a id="line.865">    }</a>
+<span class="sourceLineNo">866</span><a id="line.866"></a>
+<span class="sourceLineNo">867</span><a id="line.867">    /**</a>
+<span class="sourceLineNo">868</span><a id="line.868">     *  Generates a hexadecimal string from an array of bytes.  For example, if the array contains</a>
+<span class="sourceLineNo">869</span><a id="line.869">     *  { 0x01, 0x02, 0x3E }, the resulting string will be "01023E".</a>
+<span class="sourceLineNo">870</span><a id="line.870">     *</a>
+<span class="sourceLineNo">871</span><a id="line.871">     * @param bytes A Byte array</a>
+<span class="sourceLineNo">872</span><a id="line.872">     * @return A String representation</a>
+<span class="sourceLineNo">873</span><a id="line.873">     * @since 2.3.87</a>
+<span class="sourceLineNo">874</span><a id="line.874">     */</a>
+<span class="sourceLineNo">875</span><a id="line.875">    public static String toHexString( final byte[] bytes ) {</a>
+<span class="sourceLineNo">876</span><a id="line.876">        final StringBuilder sb = new StringBuilder( bytes.length * 2 );</a>
+<span class="sourceLineNo">877</span><a id="line.877">        for( final byte aByte : bytes ) {</a>
+<span class="sourceLineNo">878</span><a id="line.878">            sb.append( toHex( aByte &gt;&gt; 4 ) );</a>
+<span class="sourceLineNo">879</span><a id="line.879">            sb.append( toHex( aByte ) );</a>
+<span class="sourceLineNo">880</span><a id="line.880">        }</a>
+<span class="sourceLineNo">881</span><a id="line.881"></a>
+<span class="sourceLineNo">882</span><a id="line.882">        return sb.toString();</a>
+<span class="sourceLineNo">883</span><a id="line.883">    }</a>
+<span class="sourceLineNo">884</span><a id="line.884"></a>
+<span class="sourceLineNo">885</span><a id="line.885">    /**</a>
+<span class="sourceLineNo">886</span><a id="line.886">     *  Returns true, if the argument contains a number, otherwise false. In a quick test this is roughly the same</a>
+<span class="sourceLineNo">887</span><a id="line.887">     *  speed as Integer.parseInt() if the argument is a number, and roughly ten times the speed, if the argument</a>
+<span class="sourceLineNo">888</span><a id="line.888">     *  is NOT a number.</a>
+<span class="sourceLineNo">889</span><a id="line.889">     *</a>
+<span class="sourceLineNo">890</span><a id="line.890">     *  @since 2.4</a>
+<span class="sourceLineNo">891</span><a id="line.891">     *  @param s String to check</a>
+<span class="sourceLineNo">892</span><a id="line.892">     *  @return True, if s represents a number.  False otherwise.</a>
+<span class="sourceLineNo">893</span><a id="line.893">     */</a>
+<span class="sourceLineNo">894</span><a id="line.894">    public static boolean isNumber( String s ) {</a>
+<span class="sourceLineNo">895</span><a id="line.895">        if( s == null ) {</a>
+<span class="sourceLineNo">896</span><a id="line.896">            return false;</a>
+<span class="sourceLineNo">897</span><a id="line.897">        }</a>
+<span class="sourceLineNo">898</span><a id="line.898"></a>
+<span class="sourceLineNo">899</span><a id="line.899">        if( s.length() &gt; 1 &amp;&amp; s.charAt(0) == '-' ) {</a>
+<span class="sourceLineNo">900</span><a id="line.900">            s = s.substring( 1 );</a>
+<span class="sourceLineNo">901</span><a id="line.901">        }</a>
+<span class="sourceLineNo">902</span><a id="line.902"></a>
+<span class="sourceLineNo">903</span><a id="line.903">        for( int i = 0; i &lt; s.length(); i++ ) {</a>
+<span class="sourceLineNo">904</span><a id="line.904">            if( !Character.isDigit( s.charAt( i ) ) ) {</a>
+<span class="sourceLineNo">905</span><a id="line.905">                return false;</a>
+<span class="sourceLineNo">906</span><a id="line.906">            }</a>
+<span class="sourceLineNo">907</span><a id="line.907">        }</a>
+<span class="sourceLineNo">908</span><a id="line.908"></a>
+<span class="sourceLineNo">909</span><a id="line.909">        return true;</a>
+<span class="sourceLineNo">910</span><a id="line.910">    }</a>
+<span class="sourceLineNo">911</span><a id="line.911"></a>
+<span class="sourceLineNo">912</span><a id="line.912">    /**</a>
+<span class="sourceLineNo">913</span><a id="line.913">     * Generate a random String suitable for use as a temporary password.</a>
+<span class="sourceLineNo">914</span><a id="line.914">     *</a>
+<span class="sourceLineNo">915</span><a id="line.915">     * @return String suitable for use as a temporary password</a>
+<span class="sourceLineNo">916</span><a id="line.916">     * @since 2.4</a>
+<span class="sourceLineNo">917</span><a id="line.917">     */</a>
+<span class="sourceLineNo">918</span><a id="line.918">    public static String generateRandomPassword() {</a>
+<span class="sourceLineNo">919</span><a id="line.919">        return IntStream.range(0, PASSWORD_LENGTH).map(i -&gt; (int) (RANDOM.nextDouble() * PWD_BASE.length())).mapToObj(index -&gt; String.valueOf(PWD_BASE.charAt(index))).collect(Collectors.joining());</a>
+<span class="sourceLineNo">920</span><a id="line.920">    }</a>
+<span class="sourceLineNo">921</span><a id="line.921"></a>
+<span class="sourceLineNo">922</span><a id="line.922">}</a>
 
 
 
