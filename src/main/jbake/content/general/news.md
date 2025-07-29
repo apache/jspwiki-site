@@ -6,6 +6,10 @@ type=page
 
 ## Project News
 
+  * **29-Jul-2025:** Official [Apache JSPWiki 2.12.3 release][] is out!
+
+  * **29-Jul-2025:** Apache JSPWiki [CVE-2025-24853][] and [CVE-2025-24854][] vulnerability disclosures
+
   * **23-Jun-2024**: Apache JSPWiki [CVE-2024-27136][] vulnerability disclosure
 
   * **17-Jun-2024:** Official [Apache JSPWiki 2.12.2 release][] is out!
@@ -121,6 +125,8 @@ type=page
 [Apache JSPWiki 2.11.3 release]: downloads.html
 [Apache JSPWiki 2.12.0 release]: downloads.html
 [Apache JSPWiki 2.12.1 release]: downloads.html
+[Apache JSPWiki 2.12.2 release]: downloads.html
+[Apache JSPWiki 2.12.3 release]: downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
@@ -137,4 +143,6 @@ type=page
 [CVE-2022-24948]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-24948
 [CVE-2022-46907]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-46907
 [CVE-2024-27136]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2024-27136
+[CVE-2025-24854]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2025-24854
+[CVE-2025-24853]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2025-24853
 [Apache Log4J's CVE-2021-44228][]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Log4J-CVE-2021-44228

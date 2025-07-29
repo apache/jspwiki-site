@@ -28,6 +28,10 @@ JSPWiki is open-source software that is released under the Apache Public License
 
 ## Project status
 
+  * **29-Jul-2025:** Official [Apache JSPWiki 2.12.3 release][] is out!
+
+  * **29-Jul-2025:** Apache JSPWiki [CVE-2025-24853][] and [CVE-2025-24854][] vulnerability disclosures
+
   * **23-Jun-2024**: Apache JSPWiki [CVE-2024-27136][] vulnerability disclosure
 
   * **17-Jun-2024:** Official [Apache JSPWiki 2.12.2 release][] is out!
@@ -37,10 +41,6 @@ JSPWiki is open-source software that is released under the Apache Public License
   * **24-May-2023**: Apache JSPWiki [CVE-2022-46907][] vulnerability disclosure
 
   * **23-May-2023:** Official [Apache JSPWiki 2.12.0 release][] is out!
-
-  * **02-Aug-2022:** Apache JSPWiki [CVE-2022-27166][], [CVE-2022-28730][], [CVE-2022-28731][], [CVE-2022-28732][] and [CVE-2022-34158][] vulnerability disclosures 
-
-  * **02-Aug-2022:** Official [Apache JSPWiki 2.11.3 release][] is out!
 
 [Apache JSPWiki]: https://jspwiki.apache.org
 [WikiWiki]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiWiki
@@ -55,14 +55,11 @@ JSPWiki is open-source software that is released under the Apache Public License
 [JSPWiki today]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiSites
 [WikiMatrix]: http://www.wikimatrix.org/show/JSPWiki
 [Getting Involved]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=Getting%20Involved
+[Apache JSPWiki 2.12.3 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.3ReleasedOn29072025
 [Apache JSPWiki 2.12.2 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.2ReleasedOn17062024
 [Apache JSPWiki 2.12.1 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.1ReleasedOn11082023
 [Apache JSPWiki 2.12.0 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.0ReleasedOn23052023
-[Apache JSPWiki 2.11.3 release]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.11#section-NewIn2.11-NewInJSPWiki2.11.3ReleasedOn02082022
-[CVE-2022-27166]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-27166
-[CVE-2022-28730]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-28730
-[CVE-2022-28731]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-28731
-[CVE-2022-28732]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-28732
-[CVE-2022-34158]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-34158
 [CVE-2022-46907]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2022-46907
 [CVE-2024-27136]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2024-27136
+[CVE-2025-24853]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2025-24853
+[CVE-2025-24854]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2025-24854
