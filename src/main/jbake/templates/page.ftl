@@ -223,6 +223,7 @@
               <ul class="list-unstyled list-hover">
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=How%20to%20release">How to release</a></li>
                 <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Board%20Reports">Board Reports</a></li>
+                <li><a class="wikipage" href="${config.wiki_site_host}/Wiki.jsp?page=Onboarding">Onboarding</a></li>
               </ul>
             </div>
 

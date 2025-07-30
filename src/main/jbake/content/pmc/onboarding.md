@@ -67,12 +67,22 @@ Here's an step for step guide for Gmail users:
     * Secured connection using TLS
 5. Click `Add account` and you will receive an email from Gmail that need to confirm.
 
-### Subscribe to Mailing List
+### Subscribe to Dev Mailing List
 
-    Send email to dev-subscribe@opendal.apache.org
-    You will receive an email with the subject "confirm subscribe to dev@opendal.apache.org"
-    Reply to the email with "Confirm" in the body
-
-If you receive an email with the subject "WELCOME to dev@opendal.apache.org", you have successfully subscribed to the mailing list.
+Follow the required steps to subscribe to the [JSPWiki-dev ML].
 
 # PMC Members
+
+## Subscribe to Private Mailing List
+
+Follow the required steps to subscribe to the [JSPWiki-private ML].
+
+It's **required** for PMC members to subscribe the private mailing list. The private list is only for confidential discussions that should not be made public, such as the suitability of a particular individual to become a committer or a member of the PMC, or discussing security vulnerabilities.
+
+## Read PMC Member Guide
+
+Please read [PMC GUIDE] to know about the general responsibilities of Project Management Committee (PMC) members in managing our project and common how-to procedures for day to day maintenance.
+
+[JSPWiki-dev ML]: https://jspwiki.apache.org/community/mailing_lists.html
+[JSPWiki-private ML]: https://jspwiki.apache.org/community/mailing_lists.html
+[PMC GUIDE]: https://www.apache.org/dev/pmc.html
