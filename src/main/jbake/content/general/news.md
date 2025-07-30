@@ -104,29 +104,29 @@ type=page
 
 
 [JIRA]: https://issues.apache.org/jira/browse/JSPWIKI
-[Apache JSPWiki 2.9.1-incubating release]: downloads.html
-[Apache JSPWiki 2.10.0 release]: downloads.html
-[Apache JSPWiki 2.10.1 release]: downloads.html
-[Apache JSPWiki 2.10.2 release]: downloads.html
-[Apache JSPWiki 2.10.3 release]: downloads.html
-[Apache JSPWiki 2.10.4 release]: downloads.html
-[Apache JSPWiki 2.10.5 release]: downloads.html
-[Apache JSPWiki 2.11.0.M1 release]: downloads.html
-[Apache JSPWiki 2.11.0.M2 release]: downloads.html
-[Apache JSPWiki 2.11.0.M3 release]: downloads.html
-[Apache JSPWiki 2.11.0.M4 release]: downloads.html
-[Apache JSPWiki 2.11.0.M5 release]: downloads.html
-[Apache JSPWiki 2.11.0.M6 release]: downloads.html
-[Apache JSPWiki 2.11.0.M7 release]: downloads.html
-[Apache JSPWiki 2.11.0.M8 release]: downloads.html
-[Apache JSPWiki 2.11.0 release]: downloads.html
-[Apache JSPWiki 2.11.1 release]: downloads.html
-[Apache JSPWiki 2.11.2 release]: downloads.html
-[Apache JSPWiki 2.11.3 release]: downloads.html
-[Apache JSPWiki 2.12.0 release]: downloads.html
-[Apache JSPWiki 2.12.1 release]: downloads.html
-[Apache JSPWiki 2.12.2 release]: downloads.html
-[Apache JSPWiki 2.12.3 release]: downloads.html
+[Apache JSPWiki 2.9.1-incubating release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.10.0 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.10.1 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.10.2 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.10.3 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.10.4 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.10.5 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M1 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M2 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M3 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M4 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M5 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M6 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M7 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0.M8 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.0 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.1 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.2 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.11.3 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.12.0 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.12.1 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.12.2 release]: https://jspwiki.apache.org/general/downloads.html
+[Apache JSPWiki 2.12.3 release]: https://jspwiki.apache.org/general/downloads.html
 [CVE-2018-20242]: https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2018-20242
 [CVE-2019-0224]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0224
 [CVE-2019-0225]:  https://jspwiki-wiki.apache.org/Wiki.jsp?page=CVE-2019-0225
