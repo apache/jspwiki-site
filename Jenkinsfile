@@ -45,14 +45,13 @@ try {
             def gitVersion = version != 'master' ? "refs/tags/$version" : '*/master'
 
             dir( build ) {
-                checkout( [
-                    scm: [
-                        $class: 'GitSCM',
-                        branches: [[ name: gitVersion ]],
-                        extensions: [[$class: 'CloneOption', shallow: false, depth: 0, reference: '' ]],
-                        userRemoteConfigs: [[url: buildRepo ]]
-                    ]
-                ] )
+                checkout( 
+                    scmGit(
+                        branches: [ [ name: gitVersion ] ],
+                        extensions: [ cloneOption( shallow: false, depth: 0, reference: '', timeout: 30 ) ],
+                        userRemoteConfigs: [ [ url: buildRepo ] ]
+                    )
+                )
                 pom = readMavenPom file: 'pom.xml'
                 docsVersion = version != 'master' ? version : pom.version
                 writeFile file: 'target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
@@ -69,8 +68,14 @@ try {
             echo "Will use Maven $MAVEN_3_LATEST"
             withEnv( [ "Path+JDK=$JAVA_JDK_11/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_11" ] ) {
                 dir( jbake ) {
-                    git branch: jbake, url: repo, credentialsId: creds, poll: true
-                    sh "cp ../$build/ChangeLog.md ./src/main/config/changelog.md"
+                    checkout(
+                        scmGit(
+                            extensions: [ cloneOption( shallow: false, depth: 0, reference: '', timeout: 30 ) ],
+                            userRemoteConfigs: [ [ credentialsId: creds, url: repo ] ]
+                        )
+                    )
+                    sh "git switch $jbake"
+					sh "cp ../$build/ChangeLog.md ./src/main/config/changelog.md"
                     sh "cp ../$build/i18n-table.txt ./src/main/config/i18n-table.md"
                     sh "cat ./src/main/config/changelog-header.txt ./src/main/config/changelog.md > ./src/main/jbake/content/development/changelog.md"
                     sh "cat ./src/main/config/i18n-header.txt ./src/main/config/i18n-table.md > ./src/main/jbake/content/development/i18n.md"
@@ -86,8 +91,14 @@ try {
             cleanWs()
             unstash 'build'
             dir( asfsite ) {
-                git branch: asfsite, url: repo, credentialsId: creds
-                sh "cp -rf ../$jbake/target/content/* ./"
+                checkout(
+                    scmGit(
+                        extensions: [ cloneOption( shallow: false, depth: 0, reference: '', timeout: 30 ) ],
+                        userRemoteConfigs: [ [ credentialsId: creds, url: repo ] ]
+                    )
+                )
+                sh "git switch $asfsite"
+				sh "cp -rf ../$jbake/target/content/* ./"
                 sh "rm -rf ./japicmp/$docsVersion && mkdir -p ./japicmp/$docsVersion && cp -rf ../$jbake/target/japicmp/* ./japicmp/$docsVersion"
                 sh "rm -rf ./apidocs/$docsVersion && mkdir -p ./apidocs/$docsVersion && cp -rf ../$build/target/reports/apidocs/* ./apidocs/$docsVersion"
                 timeout( 15 ) { // 15 minutes
