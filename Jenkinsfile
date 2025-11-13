@@ -31,7 +31,7 @@ try {
     def docsVersion
 
     node( 'ubuntu' ) {
-        def JAVA_JDK_11=tool name: 'jdk_11_latest', type: 'hudson.model.JDK'
+        def JAVA_JDK_17=tool name: 'jdk_17_latest', type: 'hudson.model.JDK'
         def MAVEN_3_LATEST=tool name: 'maven_3_latest', type: 'hudson.tasks.Maven$MavenInstallation'
         def version = params?.version ?: 'master'
 
@@ -40,7 +40,7 @@ try {
         }
 
         stage( 'generate apidocs & translations' ) {
-            echo "Will use Java $JAVA_JDK_11"
+            echo "Will use Java $JAVA_JDK_17"
             echo "Will use Maven $MAVEN_3_LATEST"
             def gitVersion = version != 'master' ? "refs/tags/$version" : '*/master'
 
@@ -56,7 +56,7 @@ try {
                 docsVersion = version != 'master' ? version : pom.version
                 writeFile file: 'target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
                 writeFile file: 'jspwiki-it-tests/target/classes/apidocs.txt', text: 'file created in order to allow aggregated javadoc generation, target/classes is needed for all modules'
-                withEnv( [ "Path+JDK=$JAVA_JDK_11/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_11" ] ) {
+                withEnv( [ "Path+JDK=$JAVA_JDK_17/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_17" ] ) {
                     sh 'mvn package javadoc:aggregate-no-fork -DskipTests -pl !jspwiki-portable -Djdk.javadoc.doclet.version=2.2.2 -T 1C'
                     sh 'java -cp jspwiki-main/target/classes org.apache.wiki.TranslationsCheck site'
                 }
@@ -64,9 +64,9 @@ try {
         }
 
         stage( 'build website' ) {
-            echo "Will use Java $JAVA_JDK_11"
+            echo "Will use Java $JAVA_JDK_17"
             echo "Will use Maven $MAVEN_3_LATEST"
-            withEnv( [ "Path+JDK=$JAVA_JDK_11/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_11" ] ) {
+            withEnv( [ "Path+JDK=$JAVA_JDK_17/bin", "Path+MAVEN=$MAVEN_3_LATEST/bin", "JAVA_HOME=$JAVA_JDK_17" ] ) {
                 dir( jbake ) {
                     checkout(
                         scmGit(
