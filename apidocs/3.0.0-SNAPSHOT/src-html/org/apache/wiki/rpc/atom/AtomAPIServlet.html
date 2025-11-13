@@ -31,252 +31,270 @@
 <span class="source-line-no">018</span><span id="line-18"> */</span>
 <span class="source-line-no">019</span><span id="line-19">package org.apache.wiki.rpc.atom;</span>
 <span class="source-line-no">020</span><span id="line-20"></span>
-<span class="source-line-no">021</span><span id="line-21">import org.apache.logging.log4j.LogManager;</span>
-<span class="source-line-no">022</span><span id="line-22">import org.apache.logging.log4j.Logger;</span>
-<span class="source-line-no">023</span><span id="line-23">import org.apache.wiki.api.core.Context;</span>
-<span class="source-line-no">024</span><span id="line-24">import org.apache.wiki.api.core.Engine;</span>
-<span class="source-line-no">025</span><span id="line-25">import org.apache.wiki.api.core.Page;</span>
-<span class="source-line-no">026</span><span id="line-26">import org.apache.wiki.api.exceptions.ProviderException;</span>
-<span class="source-line-no">027</span><span id="line-27">import org.apache.wiki.api.exceptions.WikiException;</span>
-<span class="source-line-no">028</span><span id="line-28">import org.apache.wiki.api.spi.Wiki;</span>
-<span class="source-line-no">029</span><span id="line-29">import org.apache.wiki.pages.PageManager;</span>
-<span class="source-line-no">030</span><span id="line-30">import org.apache.wiki.plugin.WeblogEntryPlugin;</span>
-<span class="source-line-no">031</span><span id="line-31">import org.apache.wiki.plugin.WeblogPlugin;</span>
-<span class="source-line-no">032</span><span id="line-32">import org.apache.wiki.util.TextUtil;</span>
-<span class="source-line-no">033</span><span id="line-33">import org.intabulas.sandler.Sandler;</span>
-<span class="source-line-no">034</span><span id="line-34">import org.intabulas.sandler.SyndicationFactory;</span>
-<span class="source-line-no">035</span><span id="line-35">import org.intabulas.sandler.elements.Content;</span>
-<span class="source-line-no">036</span><span id="line-36">import org.intabulas.sandler.elements.Entry;</span>
-<span class="source-line-no">037</span><span id="line-37">import org.intabulas.sandler.elements.Feed;</span>
-<span class="source-line-no">038</span><span id="line-38">import org.intabulas.sandler.elements.Link;</span>
-<span class="source-line-no">039</span><span id="line-39">import org.intabulas.sandler.elements.Person;</span>
-<span class="source-line-no">040</span><span id="line-40">import org.intabulas.sandler.elements.impl.LinkImpl;</span>
-<span class="source-line-no">041</span><span id="line-41">import org.intabulas.sandler.exceptions.FeedMarshallException;</span>
-<span class="source-line-no">042</span><span id="line-42"></span>
-<span class="source-line-no">043</span><span id="line-43">import jakarta.servlet.ServletConfig;</span>
-<span class="source-line-no">044</span><span id="line-44">import jakarta.servlet.ServletException;</span>
-<span class="source-line-no">045</span><span id="line-45">import jakarta.servlet.http.HttpServlet;</span>
-<span class="source-line-no">046</span><span id="line-46">import jakarta.servlet.http.HttpServletRequest;</span>
-<span class="source-line-no">047</span><span id="line-47">import jakarta.servlet.http.HttpServletResponse;</span>
-<span class="source-line-no">048</span><span id="line-48">import java.io.IOException;</span>
-<span class="source-line-no">049</span><span id="line-49">import java.util.Collection;</span>
-<span class="source-line-no">050</span><span id="line-50">import java.util.Date;</span>
-<span class="source-line-no">051</span><span id="line-51"></span>
-<span class="source-line-no">052</span><span id="line-52"></span>
-<span class="source-line-no">053</span><span id="line-53">/**</span>
-<span class="source-line-no">054</span><span id="line-54"> *  Handles incoming requests for the Atom API.  This class uses the "sandler" Atom API implementation.</span>
-<span class="source-line-no">055</span><span id="line-55"> *</span>
-<span class="source-line-no">056</span><span id="line-56"> *  @since 2.1.97</span>
-<span class="source-line-no">057</span><span id="line-57"> */</span>
-<span class="source-line-no">058</span><span id="line-58">// FIXME: Rewrite using some other library</span>
-<span class="source-line-no">059</span><span id="line-59">public class AtomAPIServlet extends HttpServlet {</span>
-<span class="source-line-no">060</span><span id="line-60"></span>
-<span class="source-line-no">061</span><span id="line-61">    private static final Logger LOG = LogManager.getLogger( AtomAPIServlet.class );</span>
-<span class="source-line-no">062</span><span id="line-62"></span>
-<span class="source-line-no">063</span><span id="line-63">    private static final long serialVersionUID = 0L;</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">    private Engine m_engine;</span>
-<span class="source-line-no">066</span><span id="line-66"></span>
-<span class="source-line-no">067</span><span id="line-67">    /**</span>
-<span class="source-line-no">068</span><span id="line-68">     *  {@inheritDoc}</span>
-<span class="source-line-no">069</span><span id="line-69">     */</span>
-<span class="source-line-no">070</span><span id="line-70">    @Override</span>
-<span class="source-line-no">071</span><span id="line-71">    public void init( final ServletConfig config ) throws ServletException {</span>
-<span class="source-line-no">072</span><span id="line-72">        m_engine = Wiki.engine().find( config );</span>
-<span class="source-line-no">073</span><span id="line-73">    }</span>
-<span class="source-line-no">074</span><span id="line-74"></span>
-<span class="source-line-no">075</span><span id="line-75">    /**</span>
-<span class="source-line-no">076</span><span id="line-76">     *  Takes the name of the page from the request URI.</span>
-<span class="source-line-no">077</span><span id="line-77">     *  The initial slash is also removed.  If there is no page,</span>
-<span class="source-line-no">078</span><span id="line-78">     *  returns null.</span>
-<span class="source-line-no">079</span><span id="line-79">     */</span>
-<span class="source-line-no">080</span><span id="line-80">    private String getPageName( final HttpServletRequest request ) {</span>
-<span class="source-line-no">081</span><span id="line-81">        String name = request.getPathInfo();</span>
-<span class="source-line-no">082</span><span id="line-82">        if( name == null || name.length() &lt;= 1 ) {</span>
-<span class="source-line-no">083</span><span id="line-83">            return null;</span>
-<span class="source-line-no">084</span><span id="line-84">        } else if( name.charAt( 0 ) == '/' ) {</span>
-<span class="source-line-no">085</span><span id="line-85">            name = name.substring( 1 );</span>
-<span class="source-line-no">086</span><span id="line-86">        }</span>
-<span class="source-line-no">087</span><span id="line-87"></span>
-<span class="source-line-no">088</span><span id="line-88">        return TextUtil.urlDecodeUTF8( name );</span>
-<span class="source-line-no">089</span><span id="line-89">    }</span>
-<span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">    /**</span>
-<span class="source-line-no">092</span><span id="line-92">     *  Implements the PostURI of the Atom spec.</span>
-<span class="source-line-no">093</span><span id="line-93">     *  &lt;p&gt;</span>
-<span class="source-line-no">094</span><span id="line-94">     *  Implementation notes:</span>
-<span class="source-line-no">095</span><span id="line-95">     *  &lt;ul&gt;</span>
-<span class="source-line-no">096</span><span id="line-96">     *   &lt;li&gt;Only fetches the first content.  All other contents are ignored.</span>
-<span class="source-line-no">097</span><span id="line-97">     *   &lt;li&gt;Assumes that incoming code is plain text or WikiMarkup, not html.</span>
-<span class="source-line-no">098</span><span id="line-98">     *  &lt;/ul&gt;</span>
-<span class="source-line-no">099</span><span id="line-99">     *  </span>
-<span class="source-line-no">100</span><span id="line-100">     *  {@inheritDoc}</span>
-<span class="source-line-no">101</span><span id="line-101">     */</span>
-<span class="source-line-no">102</span><span id="line-102">    @Override</span>
-<span class="source-line-no">103</span><span id="line-103">    public void doPost( final HttpServletRequest request, final HttpServletResponse response ) throws ServletException {</span>
-<span class="source-line-no">104</span><span id="line-104">        LOG.debug( "Received POST to AtomAPIServlet" );</span>
-<span class="source-line-no">105</span><span id="line-105"></span>
-<span class="source-line-no">106</span><span id="line-106">        try {</span>
-<span class="source-line-no">107</span><span id="line-107">            final String blogid = getPageName( request );</span>
-<span class="source-line-no">108</span><span id="line-108">            final Page page = m_engine.getManager( PageManager.class ).getPage( blogid );</span>
-<span class="source-line-no">109</span><span id="line-109">            if( page == null ) {</span>
-<span class="source-line-no">110</span><span id="line-110">                throw new ServletException( "Page " + blogid + " does not exist, cannot add blog post." );</span>
-<span class="source-line-no">111</span><span id="line-111">            }</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">            // FIXME: Do authentication here</span>
-<span class="source-line-no">114</span><span id="line-114">            final Entry entry = Sandler.unmarshallEntry( request.getInputStream() );</span>
-<span class="source-line-no">115</span><span id="line-115"></span>
-<span class="source-line-no">116</span><span id="line-116">            //  Fetch the obligatory parts of the content.</span>
-<span class="source-line-no">117</span><span id="line-117">            final Content title = entry.getTitle();</span>
-<span class="source-line-no">118</span><span id="line-118">            final Content content = entry.getContent( 0 );</span>
-<span class="source-line-no">119</span><span id="line-119">            final Person author = entry.getAuthor();</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">            // FIXME: Sandler 0.5 does not support generator</span>
-<span class="source-line-no">122</span><span id="line-122">            // Generate new blog entry.</span>
-<span class="source-line-no">123</span><span id="line-123">            final WeblogEntryPlugin plugin = new WeblogEntryPlugin();</span>
-<span class="source-line-no">124</span><span id="line-124">            final String pageName = plugin.getNewEntryPage( m_engine, blogid );</span>
-<span class="source-line-no">125</span><span id="line-125">            final String username = author.getName();</span>
-<span class="source-line-no">126</span><span id="line-126">            final Page entryPage = Wiki.contents().page( m_engine, pageName );</span>
-<span class="source-line-no">127</span><span id="line-127">            entryPage.setAuthor( username );</span>
-<span class="source-line-no">128</span><span id="line-128"></span>
-<span class="source-line-no">129</span><span id="line-129">            final Context context = Wiki.context().create( m_engine, request, entryPage );</span>
-<span class="source-line-no">130</span><span id="line-130">            final StringBuilder text = new StringBuilder();</span>
-<span class="source-line-no">131</span><span id="line-131">            text.append( "!" )</span>
-<span class="source-line-no">132</span><span id="line-132">                .append( title.getBody() )</span>
-<span class="source-line-no">133</span><span id="line-133">                .append( "\n\n" )</span>
-<span class="source-line-no">134</span><span id="line-134">                .append( content.getBody() );</span>
-<span class="source-line-no">135</span><span id="line-135">            LOG.debug( "Writing entry: " + text );</span>
-<span class="source-line-no">136</span><span id="line-136">            m_engine.getManager( PageManager.class ).saveText( context, text.toString() );</span>
-<span class="source-line-no">137</span><span id="line-137">        } catch( final FeedMarshallException e ) {</span>
-<span class="source-line-no">138</span><span id="line-138">            LOG.error("Received faulty Atom entry",e);</span>
-<span class="source-line-no">139</span><span id="line-139">            throw new ServletException("Faulty Atom entry",e);</span>
-<span class="source-line-no">140</span><span id="line-140">        } catch( final IOException e ) {</span>
-<span class="source-line-no">141</span><span id="line-141">            LOG.error("I/O exception",e);</span>
-<span class="source-line-no">142</span><span id="line-142">            throw new ServletException("Could not get body of request",e);</span>
-<span class="source-line-no">143</span><span id="line-143">        } catch( final WikiException e ) {</span>
-<span class="source-line-no">144</span><span id="line-144">            LOG.error("Provider exception while posting",e);</span>
-<span class="source-line-no">145</span><span id="line-145">            throw new ServletException("JSPWiki cannot save the entry",e);</span>
-<span class="source-line-no">146</span><span id="line-146">        }</span>
-<span class="source-line-no">147</span><span id="line-147">    }</span>
-<span class="source-line-no">148</span><span id="line-148"></span>
-<span class="source-line-no">149</span><span id="line-149">    /**</span>
-<span class="source-line-no">150</span><span id="line-150">     *  Handles HTTP GET.  However, we do not respond to GET requests,</span>
-<span class="source-line-no">151</span><span id="line-151">     *  other than to show an explanatory text.</span>
-<span class="source-line-no">152</span><span id="line-152">     *  </span>
-<span class="source-line-no">153</span><span id="line-153">     *  {@inheritDoc}</span>
-<span class="source-line-no">154</span><span id="line-154">     */</span>
-<span class="source-line-no">155</span><span id="line-155">    @Override</span>
-<span class="source-line-no">156</span><span id="line-156">    public void doGet( final HttpServletRequest request, final HttpServletResponse response ) throws ServletException {</span>
-<span class="source-line-no">157</span><span id="line-157">        LOG.debug( "Received HTTP GET to AtomAPIServlet" );</span>
-<span class="source-line-no">158</span><span id="line-158">        final String blogid = getPageName( request );</span>
-<span class="source-line-no">159</span><span id="line-159">        LOG.debug( "Requested page " + blogid );</span>
-<span class="source-line-no">160</span><span id="line-160">        try {</span>
-<span class="source-line-no">161</span><span id="line-161">            if( blogid == null ) {</span>
-<span class="source-line-no">162</span><span id="line-162">                final Feed feed = listBlogs();</span>
-<span class="source-line-no">163</span><span id="line-163">                response.setContentType( "application/x.atom+xml; charset=UTF-8" );</span>
-<span class="source-line-no">164</span><span id="line-164">                response.getWriter().println( Sandler.marshallFeed( feed ) );</span>
-<span class="source-line-no">165</span><span id="line-165">            } else {</span>
-<span class="source-line-no">166</span><span id="line-166">                final Entry entry = getBlogEntry( blogid );</span>
-<span class="source-line-no">167</span><span id="line-167">                response.setContentType( "application/x.atom+xml; charset=UTF-8" );</span>
-<span class="source-line-no">168</span><span id="line-168">                response.getWriter().println( Sandler.marshallEntry( entry ) );</span>
-<span class="source-line-no">169</span><span id="line-169">            }</span>
-<span class="source-line-no">170</span><span id="line-170">            response.getWriter().flush();</span>
-<span class="source-line-no">171</span><span id="line-171">        } catch( final Exception e ) {</span>
-<span class="source-line-no">172</span><span id="line-172">            LOG.error( "Unable to generate response", e );</span>
-<span class="source-line-no">173</span><span id="line-173">            throw new ServletException( "Internal problem - whack Janne on the head to get a better error report", e );</span>
-<span class="source-line-no">174</span><span id="line-174">        }</span>
-<span class="source-line-no">175</span><span id="line-175">    }</span>
-<span class="source-line-no">176</span><span id="line-176"></span>
-<span class="source-line-no">177</span><span id="line-177">    private Entry getBlogEntry( final String entryid ) {</span>
-<span class="source-line-no">178</span><span id="line-178">        final Page page = m_engine.getManager( PageManager.class ).getPage( entryid );</span>
-<span class="source-line-no">179</span><span id="line-179">        final Page firstVersion = m_engine.getManager( PageManager.class ).getPage( entryid, 1 );</span>
-<span class="source-line-no">180</span><span id="line-180">        final Entry entry = SyndicationFactory.newSyndicationEntry();</span>
-<span class="source-line-no">181</span><span id="line-181">        final String pageText = m_engine.getManager( PageManager.class ).getText(page.getName());</span>
-<span class="source-line-no">182</span><span id="line-182">        final int firstLine = pageText.indexOf('\n');</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">        String title = "";</span>
-<span class="source-line-no">185</span><span id="line-185">        if( firstLine &gt; 0 ) {</span>
-<span class="source-line-no">186</span><span id="line-186">            title = pageText.substring( 0, firstLine );</span>
-<span class="source-line-no">187</span><span id="line-187">        }</span>
-<span class="source-line-no">188</span><span id="line-188"></span>
-<span class="source-line-no">189</span><span id="line-189">        if( title.trim().isEmpty() ) {</span>
-<span class="source-line-no">190</span><span id="line-190">            title = page.getName();</span>
-<span class="source-line-no">191</span><span id="line-191">        }</span>
-<span class="source-line-no">192</span><span id="line-192"></span>
-<span class="source-line-no">193</span><span id="line-193">        // Remove wiki formatting</span>
-<span class="source-line-no">194</span><span id="line-194">        while( title.startsWith("!") ) {</span>
-<span class="source-line-no">195</span><span id="line-195">            title = title.substring(1);</span>
-<span class="source-line-no">196</span><span id="line-196">        }</span>
+<span class="source-line-no">021</span><span id="line-21">import com.rometools.rome.feed.synd.SyndContent;</span>
+<span class="source-line-no">022</span><span id="line-22">import com.rometools.rome.feed.synd.SyndContentImpl;</span>
+<span class="source-line-no">023</span><span id="line-23">import com.rometools.rome.feed.synd.SyndEntry;</span>
+<span class="source-line-no">024</span><span id="line-24">import com.rometools.rome.feed.synd.SyndEntryImpl;</span>
+<span class="source-line-no">025</span><span id="line-25">import com.rometools.rome.feed.synd.SyndFeed;</span>
+<span class="source-line-no">026</span><span id="line-26">import com.rometools.rome.feed.synd.SyndFeedImpl;</span>
+<span class="source-line-no">027</span><span id="line-27">import com.rometools.rome.feed.synd.SyndLink;</span>
+<span class="source-line-no">028</span><span id="line-28">import com.rometools.rome.feed.synd.SyndLinkImpl;</span>
+<span class="source-line-no">029</span><span id="line-29">import com.rometools.rome.io.SyndFeedInput;</span>
+<span class="source-line-no">030</span><span id="line-30">import com.rometools.rome.io.SyndFeedOutput;</span>
+<span class="source-line-no">031</span><span id="line-31">import org.apache.logging.log4j.LogManager;</span>
+<span class="source-line-no">032</span><span id="line-32">import org.apache.logging.log4j.Logger;</span>
+<span class="source-line-no">033</span><span id="line-33">import org.apache.wiki.api.core.Context;</span>
+<span class="source-line-no">034</span><span id="line-34">import org.apache.wiki.api.core.Engine;</span>
+<span class="source-line-no">035</span><span id="line-35">import org.apache.wiki.api.core.Page;</span>
+<span class="source-line-no">036</span><span id="line-36">import org.apache.wiki.api.exceptions.ProviderException;</span>
+<span class="source-line-no">037</span><span id="line-37">import org.apache.wiki.api.exceptions.WikiException;</span>
+<span class="source-line-no">038</span><span id="line-38">import org.apache.wiki.api.spi.Wiki;</span>
+<span class="source-line-no">039</span><span id="line-39">import org.apache.wiki.pages.PageManager;</span>
+<span class="source-line-no">040</span><span id="line-40">import org.apache.wiki.plugin.WeblogEntryPlugin;</span>
+<span class="source-line-no">041</span><span id="line-41">import org.apache.wiki.plugin.WeblogPlugin;</span>
+<span class="source-line-no">042</span><span id="line-42">import org.apache.wiki.util.TextUtil;</span>
+<span class="source-line-no">043</span><span id="line-43"></span>
+<span class="source-line-no">044</span><span id="line-44">import jakarta.servlet.ServletConfig;</span>
+<span class="source-line-no">045</span><span id="line-45">import jakarta.servlet.ServletException;</span>
+<span class="source-line-no">046</span><span id="line-46">import jakarta.servlet.http.HttpServlet;</span>
+<span class="source-line-no">047</span><span id="line-47">import jakarta.servlet.http.HttpServletRequest;</span>
+<span class="source-line-no">048</span><span id="line-48">import jakarta.servlet.http.HttpServletResponse;</span>
+<span class="source-line-no">049</span><span id="line-49">import java.io.IOException;</span>
+<span class="source-line-no">050</span><span id="line-50">import java.io.InputStreamReader;</span>
+<span class="source-line-no">051</span><span id="line-51">import java.util.ArrayList;</span>
+<span class="source-line-no">052</span><span id="line-52">import java.util.Collection;</span>
+<span class="source-line-no">053</span><span id="line-53">import java.util.Date;</span>
+<span class="source-line-no">054</span><span id="line-54">import java.util.List;</span>
+<span class="source-line-no">055</span><span id="line-55">import org.apache.wiki.util.HttpUtil;</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57"></span>
+<span class="source-line-no">058</span><span id="line-58">/**</span>
+<span class="source-line-no">059</span><span id="line-59"> *  Handles incoming requests for the Atom API.  This class uses the "sandler" Atom API implementation.</span>
+<span class="source-line-no">060</span><span id="line-60"> *</span>
+<span class="source-line-no">061</span><span id="line-61"> *  @since 2.1.97</span>
+<span class="source-line-no">062</span><span id="line-62"> */</span>
+<span class="source-line-no">063</span><span id="line-63">// FIXME: Rewrite using some other library</span>
+<span class="source-line-no">064</span><span id="line-64">public class AtomAPIServlet extends HttpServlet {</span>
+<span class="source-line-no">065</span><span id="line-65"></span>
+<span class="source-line-no">066</span><span id="line-66">    private static final Logger LOG = LogManager.getLogger( AtomAPIServlet.class );</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">    private static final long serialVersionUID = 0L;</span>
+<span class="source-line-no">069</span><span id="line-69"></span>
+<span class="source-line-no">070</span><span id="line-70">    private Engine m_engine;</span>
+<span class="source-line-no">071</span><span id="line-71"></span>
+<span class="source-line-no">072</span><span id="line-72">    /**</span>
+<span class="source-line-no">073</span><span id="line-73">     *  {@inheritDoc}</span>
+<span class="source-line-no">074</span><span id="line-74">     */</span>
+<span class="source-line-no">075</span><span id="line-75">    @Override</span>
+<span class="source-line-no">076</span><span id="line-76">    public void init( final ServletConfig config ) throws ServletException {</span>
+<span class="source-line-no">077</span><span id="line-77">        m_engine = Wiki.engine().find( config );</span>
+<span class="source-line-no">078</span><span id="line-78">    }</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">    /**</span>
+<span class="source-line-no">081</span><span id="line-81">     *  Takes the name of the page from the request URI.</span>
+<span class="source-line-no">082</span><span id="line-82">     *  The initial slash is also removed.  If there is no page,</span>
+<span class="source-line-no">083</span><span id="line-83">     *  returns null.</span>
+<span class="source-line-no">084</span><span id="line-84">     */</span>
+<span class="source-line-no">085</span><span id="line-85">    private String getPageName( final HttpServletRequest request ) {</span>
+<span class="source-line-no">086</span><span id="line-86">        String name = request.getPathInfo();</span>
+<span class="source-line-no">087</span><span id="line-87">        if( name == null || name.length() &lt;= 1 ) {</span>
+<span class="source-line-no">088</span><span id="line-88">            return null;</span>
+<span class="source-line-no">089</span><span id="line-89">        } else if( name.charAt( 0 ) == '/' ) {</span>
+<span class="source-line-no">090</span><span id="line-90">            name = name.substring( 1 );</span>
+<span class="source-line-no">091</span><span id="line-91">        }</span>
+<span class="source-line-no">092</span><span id="line-92"></span>
+<span class="source-line-no">093</span><span id="line-93">        return TextUtil.urlDecodeUTF8( name );</span>
+<span class="source-line-no">094</span><span id="line-94">    }</span>
+<span class="source-line-no">095</span><span id="line-95"></span>
+<span class="source-line-no">096</span><span id="line-96">    /**</span>
+<span class="source-line-no">097</span><span id="line-97">     *  Implements the PostURI of the Atom spec.</span>
+<span class="source-line-no">098</span><span id="line-98">     *  &lt;p&gt;</span>
+<span class="source-line-no">099</span><span id="line-99">     *  Implementation notes:</span>
+<span class="source-line-no">100</span><span id="line-100">     *  &lt;ul&gt;</span>
+<span class="source-line-no">101</span><span id="line-101">     *   &lt;li&gt;Only fetches the first content.  All other contents are ignored.</span>
+<span class="source-line-no">102</span><span id="line-102">     *   &lt;li&gt;Assumes that incoming code is plain text or WikiMarkup, not html.</span>
+<span class="source-line-no">103</span><span id="line-103">     *  &lt;/ul&gt;</span>
+<span class="source-line-no">104</span><span id="line-104">     *  </span>
+<span class="source-line-no">105</span><span id="line-105">     *  {@inheritDoc}</span>
+<span class="source-line-no">106</span><span id="line-106">     */</span>
+<span class="source-line-no">107</span><span id="line-107">    @Override</span>
+<span class="source-line-no">108</span><span id="line-108">    public void doPost( final HttpServletRequest request, final HttpServletResponse response ) throws ServletException {</span>
+<span class="source-line-no">109</span><span id="line-109">        LOG.debug( "Received POST to AtomAPIServlet" );</span>
+<span class="source-line-no">110</span><span id="line-110"></span>
+<span class="source-line-no">111</span><span id="line-111">        try {</span>
+<span class="source-line-no">112</span><span id="line-112">            final String blogid = getPageName( request );</span>
+<span class="source-line-no">113</span><span id="line-113">            final Page page = m_engine.getManager( PageManager.class ).getPage( blogid );</span>
+<span class="source-line-no">114</span><span id="line-114">            if( page == null ) {</span>
+<span class="source-line-no">115</span><span id="line-115">                throw new ServletException( "Page " + blogid + " does not exist, cannot add blog post." );</span>
+<span class="source-line-no">116</span><span id="line-116">            }</span>
+<span class="source-line-no">117</span><span id="line-117"></span>
+<span class="source-line-no">118</span><span id="line-118">            // FIXME: Do authentication here</span>
+<span class="source-line-no">119</span><span id="line-119">            SyndFeed entry = new SyndFeedInput().build(new InputStreamReader(request.getInputStream() ));</span>
+<span class="source-line-no">120</span><span id="line-120">            </span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">            //  Fetch the obligatory parts of the content.</span>
+<span class="source-line-no">123</span><span id="line-123">            final String title = entry.getTitle();</span>
+<span class="source-line-no">124</span><span id="line-124">            final SyndEntry content = entry.getEntries().get( 0 );</span>
+<span class="source-line-no">125</span><span id="line-125">            final String author = entry.getAuthor();</span>
+<span class="source-line-no">126</span><span id="line-126"></span>
+<span class="source-line-no">127</span><span id="line-127">            // FIXME: Sandler 0.5 does not support generator</span>
+<span class="source-line-no">128</span><span id="line-128">            // Generate new blog entry.</span>
+<span class="source-line-no">129</span><span id="line-129">            final WeblogEntryPlugin plugin = new WeblogEntryPlugin();</span>
+<span class="source-line-no">130</span><span id="line-130">            final String pageName = plugin.getNewEntryPage( m_engine, blogid );</span>
+<span class="source-line-no">131</span><span id="line-131">            final String username = author;</span>
+<span class="source-line-no">132</span><span id="line-132">            final Page entryPage = Wiki.contents().page( m_engine, pageName );</span>
+<span class="source-line-no">133</span><span id="line-133">            entryPage.setAuthor( username );</span>
+<span class="source-line-no">134</span><span id="line-134"></span>
+<span class="source-line-no">135</span><span id="line-135">            final Context context = Wiki.context().create( m_engine, request, entryPage );</span>
+<span class="source-line-no">136</span><span id="line-136">            final StringBuilder text = new StringBuilder();</span>
+<span class="source-line-no">137</span><span id="line-137">            text.append( "!" )</span>
+<span class="source-line-no">138</span><span id="line-138">                .append( title )</span>
+<span class="source-line-no">139</span><span id="line-139">                .append( "\n\n" )</span>
+<span class="source-line-no">140</span><span id="line-140">                .append( content );</span>
+<span class="source-line-no">141</span><span id="line-141">            LOG.debug( "Writing entry: " + text );</span>
+<span class="source-line-no">142</span><span id="line-142">            m_engine.getManager( PageManager.class ).saveText( context, text.toString() );</span>
+<span class="source-line-no">143</span><span id="line-143">        } catch( final IOException e ) {</span>
+<span class="source-line-no">144</span><span id="line-144">            LOG.error("I/O exception",e);</span>
+<span class="source-line-no">145</span><span id="line-145">            throw new ServletException("Could not get body of request");</span>
+<span class="source-line-no">146</span><span id="line-146">        } catch( final WikiException e ) {</span>
+<span class="source-line-no">147</span><span id="line-147">            LOG.error("Provider exception while posting",e);</span>
+<span class="source-line-no">148</span><span id="line-148">            throw new ServletException("JSPWiki cannot save the entry");</span>
+<span class="source-line-no">149</span><span id="line-149">        } catch( final Exception e ) {</span>
+<span class="source-line-no">150</span><span id="line-150">            LOG.error("Received faulty Atom entry",e);</span>
+<span class="source-line-no">151</span><span id="line-151">            throw new ServletException("Faulty Atom entry");</span>
+<span class="source-line-no">152</span><span id="line-152">        } </span>
+<span class="source-line-no">153</span><span id="line-153">    }</span>
+<span class="source-line-no">154</span><span id="line-154"></span>
+<span class="source-line-no">155</span><span id="line-155">    /**</span>
+<span class="source-line-no">156</span><span id="line-156">     *  Handles HTTP GET.  However, we do not respond to GET requests,</span>
+<span class="source-line-no">157</span><span id="line-157">     *  other than to show an explanatory text.</span>
+<span class="source-line-no">158</span><span id="line-158">     *  </span>
+<span class="source-line-no">159</span><span id="line-159">     *  {@inheritDoc}</span>
+<span class="source-line-no">160</span><span id="line-160">     */</span>
+<span class="source-line-no">161</span><span id="line-161">    @Override</span>
+<span class="source-line-no">162</span><span id="line-162">    public void doGet( final HttpServletRequest request, final HttpServletResponse response ) throws ServletException {</span>
+<span class="source-line-no">163</span><span id="line-163">        LOG.debug( "Received HTTP GET to AtomAPIServlet" );</span>
+<span class="source-line-no">164</span><span id="line-164">        final String blogid = getPageName( request );</span>
+<span class="source-line-no">165</span><span id="line-165">        LOG.debug( "Requested page " + blogid );</span>
+<span class="source-line-no">166</span><span id="line-166">        try {</span>
+<span class="source-line-no">167</span><span id="line-167">            if( blogid == null ) {</span>
+<span class="source-line-no">168</span><span id="line-168">                final  SyndFeed feed = listBlogs(request);</span>
+<span class="source-line-no">169</span><span id="line-169">                response.setContentType( "application/x.atom+xml; charset=UTF-8" );</span>
+<span class="source-line-no">170</span><span id="line-170">                response.setHeader("Content-Disposition", " attachment; filename=\"atom.xml\"");</span>
+<span class="source-line-no">171</span><span id="line-171">                feed.setFeedType("atom_0.3");</span>
+<span class="source-line-no">172</span><span id="line-172">                SyndFeedOutput output = new SyndFeedOutput();</span>
+<span class="source-line-no">173</span><span id="line-173">                output.output(feed,response.getWriter());</span>
+<span class="source-line-no">174</span><span id="line-174">            } else {</span>
+<span class="source-line-no">175</span><span id="line-175">                final SyndEntry entry = getBlogEntry( blogid );</span>
+<span class="source-line-no">176</span><span id="line-176">                response.setContentType( "application/x.atom+xml; charset=UTF-8" );</span>
+<span class="source-line-no">177</span><span id="line-177">                response.setHeader("Content-Disposition", " attachment; filename=\"atom.xml\"");</span>
+<span class="source-line-no">178</span><span id="line-178">                SyndFeed atom = new SyndFeedImpl();</span>
+<span class="source-line-no">179</span><span id="line-179">                atom.setFeedType("atom_0.3");</span>
+<span class="source-line-no">180</span><span id="line-180">                atom.getEntries().add(entry);</span>
+<span class="source-line-no">181</span><span id="line-181">                SyndFeedOutput output = new SyndFeedOutput();</span>
+<span class="source-line-no">182</span><span id="line-182">                output.output(atom,response.getWriter());</span>
+<span class="source-line-no">183</span><span id="line-183">            }</span>
+<span class="source-line-no">184</span><span id="line-184">            response.getWriter().flush();</span>
+<span class="source-line-no">185</span><span id="line-185">        } catch( final Exception e ) {</span>
+<span class="source-line-no">186</span><span id="line-186">            LOG.error( "Unable to generate response", e );</span>
+<span class="source-line-no">187</span><span id="line-187">            throw new ServletException( "Internal problem - whack Janne on the head to get a better error report");</span>
+<span class="source-line-no">188</span><span id="line-188">        }</span>
+<span class="source-line-no">189</span><span id="line-189">    }</span>
+<span class="source-line-no">190</span><span id="line-190"></span>
+<span class="source-line-no">191</span><span id="line-191">    private SyndEntry getBlogEntry( final String entryid ) {</span>
+<span class="source-line-no">192</span><span id="line-192">        final Page page = m_engine.getManager( PageManager.class ).getPage( entryid );</span>
+<span class="source-line-no">193</span><span id="line-193">        final Page firstVersion = m_engine.getManager( PageManager.class ).getPage( entryid, 1 );</span>
+<span class="source-line-no">194</span><span id="line-194">        final SyndEntry entry = new SyndEntryImpl();</span>
+<span class="source-line-no">195</span><span id="line-195">        final String pageText = m_engine.getManager( PageManager.class ).getText(page.getName());</span>
+<span class="source-line-no">196</span><span id="line-196">        final int firstLine = pageText.indexOf('\n');</span>
 <span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">        entry.setTitle( title );</span>
-<span class="source-line-no">199</span><span id="line-199">        entry.setCreated( firstVersion.getLastModified() );</span>
-<span class="source-line-no">200</span><span id="line-200">        entry.setModified( page.getLastModified() );</span>
-<span class="source-line-no">201</span><span id="line-201">        entry.setAuthor( SyndicationFactory.createPerson( page.getAuthor(), null, null ) );</span>
-<span class="source-line-no">202</span><span id="line-202">        entry.addContent( SyndicationFactory.createEscapedContent(pageText) );</span>
-<span class="source-line-no">203</span><span id="line-203"></span>
-<span class="source-line-no">204</span><span id="line-204">        return entry;</span>
-<span class="source-line-no">205</span><span id="line-205">    }</span>
+<span class="source-line-no">198</span><span id="line-198">        String title = "";</span>
+<span class="source-line-no">199</span><span id="line-199">        if( firstLine &gt; 0 ) {</span>
+<span class="source-line-no">200</span><span id="line-200">            title = pageText.substring( 0, firstLine );</span>
+<span class="source-line-no">201</span><span id="line-201">        }</span>
+<span class="source-line-no">202</span><span id="line-202"></span>
+<span class="source-line-no">203</span><span id="line-203">        if( title.trim().isEmpty() ) {</span>
+<span class="source-line-no">204</span><span id="line-204">            title = page.getName();</span>
+<span class="source-line-no">205</span><span id="line-205">        }</span>
 <span class="source-line-no">206</span><span id="line-206"></span>
-<span class="source-line-no">207</span><span id="line-207">    /**</span>
-<span class="source-line-no">208</span><span id="line-208">     *  Creates and outputs a full list of all available blogs</span>
-<span class="source-line-no">209</span><span id="line-209">     */</span>
-<span class="source-line-no">210</span><span id="line-210">    private Feed listBlogs() throws ProviderException {</span>
-<span class="source-line-no">211</span><span id="line-211">        final Collection&lt; Page &gt; pages = m_engine.getManager( PageManager.class ).getAllPages();</span>
-<span class="source-line-no">212</span><span id="line-212">        final Feed feed = SyndicationFactory.newSyndicationFeed();</span>
-<span class="source-line-no">213</span><span id="line-213">        feed.setTitle("List of blogs at this site");</span>
-<span class="source-line-no">214</span><span id="line-214">        feed.setModified( new Date() );</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">        for( final Page p : pages ) {</span>
-<span class="source-line-no">217</span><span id="line-217">            //  List only weblogs</span>
-<span class="source-line-no">218</span><span id="line-218">            //  FIXME: Unfortunately, a weblog is not known until it has een executed once, because plugins are off during the initial startup phase.</span>
-<span class="source-line-no">219</span><span id="line-219">            LOG.debug( p.getName() + " = " + p.getAttribute( WeblogPlugin.ATTR_ISWEBLOG ) );</span>
-<span class="source-line-no">220</span><span id="line-220"></span>
-<span class="source-line-no">221</span><span id="line-221">            if( !( "true".equals( p.getAttribute( WeblogPlugin.ATTR_ISWEBLOG ) ) ) ) {</span>
-<span class="source-line-no">222</span><span id="line-222">                continue;</span>
-<span class="source-line-no">223</span><span id="line-223">            }</span>
-<span class="source-line-no">224</span><span id="line-224"></span>
-<span class="source-line-no">225</span><span id="line-225">            final String encodedName = TextUtil.urlEncodeUTF8( p.getName() );</span>
-<span class="source-line-no">226</span><span id="line-226">            final Context context = Wiki.context().create( m_engine, p );</span>
-<span class="source-line-no">227</span><span id="line-227">            final String title = TextUtil.replaceEntities( org.apache.wiki.rss.Feed.getSiteName( context ) );</span>
-<span class="source-line-no">228</span><span id="line-228">            final Link postlink = createLink( "service.post", m_engine.getBaseURL() + "atom/" + encodedName, title );</span>
-<span class="source-line-no">229</span><span id="line-229">            final Link editlink = createLink( "service.edit", m_engine.getBaseURL() + "atom/" + encodedName, title );</span>
-<span class="source-line-no">230</span><span id="line-230">            final Link feedlink = createLink( "service.feed", m_engine.getBaseURL() + "atom.jsp?page=" + encodedName, title );</span>
+<span class="source-line-no">207</span><span id="line-207">        // Remove wiki formatting</span>
+<span class="source-line-no">208</span><span id="line-208">        while( title.startsWith("!") ) {</span>
+<span class="source-line-no">209</span><span id="line-209">            title = title.substring(1);</span>
+<span class="source-line-no">210</span><span id="line-210">        }</span>
+<span class="source-line-no">211</span><span id="line-211"></span>
+<span class="source-line-no">212</span><span id="line-212">        entry.setTitle( title );</span>
+<span class="source-line-no">213</span><span id="line-213">        entry.setPublishedDate(firstVersion.getLastModified() );</span>
+<span class="source-line-no">214</span><span id="line-214">        entry.setUpdatedDate(page.getLastModified() );</span>
+<span class="source-line-no">215</span><span id="line-215">        entry.setAuthor( page.getAuthor());</span>
+<span class="source-line-no">216</span><span id="line-216">        List&lt;SyndContent&gt; list  = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">217</span><span id="line-217">        list.add(new SyndContentImpl());</span>
+<span class="source-line-no">218</span><span id="line-218">        list.get(0).setValue(pageText);</span>
+<span class="source-line-no">219</span><span id="line-219"></span>
+<span class="source-line-no">220</span><span id="line-220">        return entry;</span>
+<span class="source-line-no">221</span><span id="line-221">    }</span>
+<span class="source-line-no">222</span><span id="line-222"></span>
+<span class="source-line-no">223</span><span id="line-223">    /**</span>
+<span class="source-line-no">224</span><span id="line-224">     *  Creates and outputs a full list of all available blogs</span>
+<span class="source-line-no">225</span><span id="line-225">     */</span>
+<span class="source-line-no">226</span><span id="line-226">    private SyndFeed listBlogs( final HttpServletRequest request ) throws ProviderException{</span>
+<span class="source-line-no">227</span><span id="line-227">        final Collection&lt; Page &gt; pages = m_engine.getManager( PageManager.class ).getAllPages();</span>
+<span class="source-line-no">228</span><span id="line-228">        final SyndFeed feed = new SyndFeedImpl();</span>
+<span class="source-line-no">229</span><span id="line-229">        feed.setTitle("List of blogs at this site");</span>
+<span class="source-line-no">230</span><span id="line-230">        feed.setPublishedDate( new Date() );</span>
 <span class="source-line-no">231</span><span id="line-231"></span>
-<span class="source-line-no">232</span><span id="line-232">            feed.addLink( postlink );</span>
-<span class="source-line-no">233</span><span id="line-233">            feed.addLink( feedlink );</span>
-<span class="source-line-no">234</span><span id="line-234">            feed.addLink( editlink );</span>
-<span class="source-line-no">235</span><span id="line-235">        }</span>
-<span class="source-line-no">236</span><span id="line-236"></span>
-<span class="source-line-no">237</span><span id="line-237">        return feed;</span>
-<span class="source-line-no">238</span><span id="line-238">    }</span>
-<span class="source-line-no">239</span><span id="line-239"></span>
-<span class="source-line-no">240</span><span id="line-240">    private Link createLink( final String rel, final String href, final String title ) {</span>
-<span class="source-line-no">241</span><span id="line-241">        final LinkImpl link = new LinkImpl();</span>
-<span class="source-line-no">242</span><span id="line-242">        link.setRelationship( rel );</span>
-<span class="source-line-no">243</span><span id="line-243">        link.setTitle( title );</span>
-<span class="source-line-no">244</span><span id="line-244">        link.setType( "application/x.atom+xml" );</span>
-<span class="source-line-no">245</span><span id="line-245">        link.setHref( href );</span>
-<span class="source-line-no">246</span><span id="line-246"></span>
-<span class="source-line-no">247</span><span id="line-247">        return link;</span>
-<span class="source-line-no">248</span><span id="line-248">    }</span>
+<span class="source-line-no">232</span><span id="line-232">        for( final Page p : pages ) {</span>
+<span class="source-line-no">233</span><span id="line-233">            //  List only weblogs</span>
+<span class="source-line-no">234</span><span id="line-234">            //  FIXME: Unfortunately, a weblog is not known until it has een executed once, because plugins are off during the initial startup phase.</span>
+<span class="source-line-no">235</span><span id="line-235">            LOG.debug( p.getName() + " = " + p.getAttribute( WeblogPlugin.ATTR_ISWEBLOG ) );</span>
+<span class="source-line-no">236</span><span id="line-236">            </span>
+<span class="source-line-no">237</span><span id="line-237">            if( !( "true".equals( p.getAttribute( WeblogPlugin.ATTR_ISWEBLOG ) ) ) &amp;&amp;</span>
+<span class="source-line-no">238</span><span id="line-238">                    !( "true".equals( p.getAttribute( "@" + WeblogPlugin.ATTR_ISWEBLOG ) ) )) {</span>
+<span class="source-line-no">239</span><span id="line-239">                continue;</span>
+<span class="source-line-no">240</span><span id="line-240">            }</span>
+<span class="source-line-no">241</span><span id="line-241"></span>
+<span class="source-line-no">242</span><span id="line-242">            final String encodedName = TextUtil.urlEncodeUTF8( p.getName() );</span>
+<span class="source-line-no">243</span><span id="line-243">            final Context context = Wiki.context().create( m_engine, p );</span>
+<span class="source-line-no">244</span><span id="line-244">            final String title = TextUtil.replaceEntities( org.apache.wiki.rss.Feed.getSiteName( context ) );</span>
+<span class="source-line-no">245</span><span id="line-245">            //FIXME this needs to be an absolute URL not a relative one</span>
+<span class="source-line-no">246</span><span id="line-246">            final SyndLink postlink = createLink( "service.post", HttpUtil.getAbsoluteUrl(request, m_engine.getBaseURL()) + "/atom/" + encodedName, title );</span>
+<span class="source-line-no">247</span><span id="line-247">            final SyndLink editlink = createLink( "service.edit", HttpUtil.getAbsoluteUrl(request, m_engine.getBaseURL()) + "/atom/" + encodedName, title );</span>
+<span class="source-line-no">248</span><span id="line-248">            final SyndLink feedlink = createLink( "service.feed", HttpUtil.getAbsoluteUrl(request, m_engine.getBaseURL()) + "/rss.jsp?page=" + encodedName, title );</span>
 <span class="source-line-no">249</span><span id="line-249"></span>
-<span class="source-line-no">250</span><span id="line-250">    /**</span>
-<span class="source-line-no">251</span><span id="line-251">     *  {@inheritDoc}</span>
-<span class="source-line-no">252</span><span id="line-252">     */</span>
-<span class="source-line-no">253</span><span id="line-253">    @Override</span>
-<span class="source-line-no">254</span><span id="line-254">    public void doDelete( final HttpServletRequest request, final HttpServletResponse response ) {</span>
-<span class="source-line-no">255</span><span id="line-255">        LOG.debug( "Received HTTP DELETE" );</span>
+<span class="source-line-no">250</span><span id="line-250">            feed.getLinks().add( postlink );</span>
+<span class="source-line-no">251</span><span id="line-251">            feed.getLinks().add( feedlink );</span>
+<span class="source-line-no">252</span><span id="line-252">            feed.getLinks().add( editlink );</span>
+<span class="source-line-no">253</span><span id="line-253">        }</span>
+<span class="source-line-no">254</span><span id="line-254"></span>
+<span class="source-line-no">255</span><span id="line-255">        return feed;</span>
 <span class="source-line-no">256</span><span id="line-256">    }</span>
 <span class="source-line-no">257</span><span id="line-257"></span>
-<span class="source-line-no">258</span><span id="line-258">    /**</span>
-<span class="source-line-no">259</span><span id="line-259">     *  {@inheritDoc}</span>
-<span class="source-line-no">260</span><span id="line-260">     */</span>
-<span class="source-line-no">261</span><span id="line-261">    @Override</span>
-<span class="source-line-no">262</span><span id="line-262">    public void doPut( final HttpServletRequest request, final HttpServletResponse response ) {</span>
-<span class="source-line-no">263</span><span id="line-263">        LOG.debug( "Received HTTP PUT" );</span>
-<span class="source-line-no">264</span><span id="line-264">    }</span>
-<span class="source-line-no">265</span><span id="line-265"></span>
-<span class="source-line-no">266</span><span id="line-266">}</span>
+<span class="source-line-no">258</span><span id="line-258">    private SyndLink createLink( final String rel, final String href, final String title ) {</span>
+<span class="source-line-no">259</span><span id="line-259">        final SyndLink link = new SyndLinkImpl();</span>
+<span class="source-line-no">260</span><span id="line-260">        link.setRel( rel );</span>
+<span class="source-line-no">261</span><span id="line-261">        link.setTitle( title );</span>
+<span class="source-line-no">262</span><span id="line-262">        link.setType( "application/x.atom+xml" );</span>
+<span class="source-line-no">263</span><span id="line-263">        link.setHref( href );</span>
+<span class="source-line-no">264</span><span id="line-264"></span>
+<span class="source-line-no">265</span><span id="line-265">        return link;</span>
+<span class="source-line-no">266</span><span id="line-266">    }</span>
+<span class="source-line-no">267</span><span id="line-267"></span>
+<span class="source-line-no">268</span><span id="line-268">    /**</span>
+<span class="source-line-no">269</span><span id="line-269">     *  {@inheritDoc}</span>
+<span class="source-line-no">270</span><span id="line-270">     */</span>
+<span class="source-line-no">271</span><span id="line-271">    @Override</span>
+<span class="source-line-no">272</span><span id="line-272">    public void doDelete( final HttpServletRequest request, final HttpServletResponse response ) {</span>
+<span class="source-line-no">273</span><span id="line-273">        LOG.debug( "Received HTTP DELETE" );</span>
+<span class="source-line-no">274</span><span id="line-274">    }</span>
+<span class="source-line-no">275</span><span id="line-275"></span>
+<span class="source-line-no">276</span><span id="line-276">    /**</span>
+<span class="source-line-no">277</span><span id="line-277">     *  {@inheritDoc}</span>
+<span class="source-line-no">278</span><span id="line-278">     */</span>
+<span class="source-line-no">279</span><span id="line-279">    @Override</span>
+<span class="source-line-no">280</span><span id="line-280">    public void doPut( final HttpServletRequest request, final HttpServletResponse response ) {</span>
+<span class="source-line-no">281</span><span id="line-281">        LOG.debug( "Received HTTP PUT" );</span>
+<span class="source-line-no">282</span><span id="line-282">    }</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">}</span>
 
 
 
