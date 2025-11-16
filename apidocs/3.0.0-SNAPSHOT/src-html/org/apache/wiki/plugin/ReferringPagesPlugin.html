@@ -45,108 +45,120 @@
 <span class="source-line-no">032</span><span id="line-32"></span>
 <span class="source-line-no">033</span><span id="line-33">import java.text.MessageFormat;</span>
 <span class="source-line-no">034</span><span id="line-34">import java.util.Collection;</span>
-<span class="source-line-no">035</span><span id="line-35">import java.util.Map;</span>
-<span class="source-line-no">036</span><span id="line-36">import java.util.ResourceBundle;</span>
-<span class="source-line-no">037</span><span id="line-37"></span>
-<span class="source-line-no">038</span><span id="line-38">/**</span>
-<span class="source-line-no">039</span><span id="line-39"> *  Displays the pages referring to the current page.</span>
-<span class="source-line-no">040</span><span id="line-40"> *</span>
-<span class="source-line-no">041</span><span id="line-41"> *  Parameters:</span>
-<span class="source-line-no">042</span><span id="line-42"> *  &lt;ul&gt;</span>
-<span class="source-line-no">043</span><span id="line-43"> *  &lt;li&gt;&lt;b&gt;max&lt;/b&gt; - How many items to show.&lt;/li&gt;</span>
-<span class="source-line-no">044</span><span id="line-44"> *  &lt;li&gt;&lt;b&gt;extras&lt;/b&gt; - How to announce extras.&lt;/li&gt;</span>
-<span class="source-line-no">045</span><span id="line-45"> *  &lt;li&gt;&lt;b&gt;page&lt;/b&gt; - Which page to get the table of contents from.&lt;/li&gt;</span>
-<span class="source-line-no">046</span><span id="line-46"> *  &lt;/ul&gt;</span>
-<span class="source-line-no">047</span><span id="line-47"> *</span>
-<span class="source-line-no">048</span><span id="line-48"> *  From AbstractReferralPlugin:</span>
-<span class="source-line-no">049</span><span id="line-49"> *  &lt;ul&gt;</span>
-<span class="source-line-no">050</span><span id="line-50"> *  &lt;li&gt;&lt;b&gt;separator&lt;/b&gt; - How to separate generated links; default is a wikitext line break, producing a vertical list.&lt;/li&gt;</span>
-<span class="source-line-no">051</span><span id="line-51"> *  &lt;li&gt;&lt;b&gt;maxwidth&lt;/b&gt; - maximum width, in chars, of generated links.&lt;/li&gt;</span>
-<span class="source-line-no">052</span><span id="line-52"> *  &lt;/ul&gt;</span>
-<span class="source-line-no">053</span><span id="line-53"> */</span>
-<span class="source-line-no">054</span><span id="line-54">public class ReferringPagesPlugin extends AbstractReferralPlugin {</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">    private static final Logger LOG = LogManager.getLogger( ReferringPagesPlugin.class );</span>
-<span class="source-line-no">057</span><span id="line-57"></span>
-<span class="source-line-no">058</span><span id="line-58">    /** Parameter name for setting the maximum items to show.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</span>
-<span class="source-line-no">059</span><span id="line-59">    public static final String PARAM_MAX      = "max";</span>
-<span class="source-line-no">060</span><span id="line-60"></span>
-<span class="source-line-no">061</span><span id="line-61">    /** Parameter name for setting the text to show when the maximum items is overruled. Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</span>
-<span class="source-line-no">062</span><span id="line-62">    public static final String PARAM_EXTRAS   = "extras";</span>
-<span class="source-line-no">063</span><span id="line-63"></span>
-<span class="source-line-no">064</span><span id="line-64">    /** Parameter name for choosing the page.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</span>
-<span class="source-line-no">065</span><span id="line-65">    public static final String PARAM_PAGE     = "page";</span>
-<span class="source-line-no">066</span><span id="line-66"></span>
-<span class="source-line-no">067</span><span id="line-67">    /**</span>
-<span class="source-line-no">068</span><span id="line-68">     *  {@inheritDoc}</span>
-<span class="source-line-no">069</span><span id="line-69">     */</span>
-<span class="source-line-no">070</span><span id="line-70">    @Override</span>
-<span class="source-line-no">071</span><span id="line-71">    public String execute( final Context context, final Map&lt; String, String &gt; params ) throws PluginException {</span>
-<span class="source-line-no">072</span><span id="line-72">        final ReferenceManager refmgr = context.getEngine().getManager( ReferenceManager.class );</span>
-<span class="source-line-no">073</span><span id="line-73">        String pageName = params.get( PARAM_PAGE );</span>
-<span class="source-line-no">074</span><span id="line-74">        final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE );</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">        StringBuilder result = new StringBuilder( 256 );</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">        if( pageName == null ) {</span>
-<span class="source-line-no">079</span><span id="line-79">            pageName = context.getPage().getName();</span>
-<span class="source-line-no">080</span><span id="line-80">        }</span>
-<span class="source-line-no">081</span><span id="line-81"></span>
-<span class="source-line-no">082</span><span id="line-82">        final Page page = context.getEngine().getManager( PageManager.class ).getPage( pageName );</span>
-<span class="source-line-no">083</span><span id="line-83">        if( page != null ) {</span>
-<span class="source-line-no">084</span><span id="line-84">            Collection&lt; String &gt; links  = refmgr.findReferrers( page.getName() );</span>
-<span class="source-line-no">085</span><span id="line-85">            String wikitext;</span>
-<span class="source-line-no">086</span><span id="line-86"></span>
-<span class="source-line-no">087</span><span id="line-87">            super.initialize( context, params );</span>
-<span class="source-line-no">088</span><span id="line-88"></span>
-<span class="source-line-no">089</span><span id="line-89">            final int items = TextUtil.parseIntParameter( params.get( PARAM_MAX ), ALL_ITEMS );</span>
-<span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">            String extras = TextUtil.replaceEntities( params.get( PARAM_EXTRAS ) );</span>
-<span class="source-line-no">092</span><span id="line-92">            if( extras == null ) {</span>
-<span class="source-line-no">093</span><span id="line-93">                extras = rb.getString( "referringpagesplugin.more" );</span>
-<span class="source-line-no">094</span><span id="line-94">            }</span>
-<span class="source-line-no">095</span><span id="line-95"></span>
-<span class="source-line-no">096</span><span id="line-96">            LOG.debug( "Fetching referring pages for {} with a max of {}", page.getName(), items );</span>
-<span class="source-line-no">097</span><span id="line-97"></span>
-<span class="source-line-no">098</span><span id="line-98">            if( links != null &amp;&amp; !links.isEmpty()) {</span>
-<span class="source-line-no">099</span><span id="line-99">                links = filterAndSortCollection( links );</span>
-<span class="source-line-no">100</span><span id="line-100">                wikitext = wikitizeCollection( links, m_separator, items );</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">                result.append( applyColumnsStyle( makeHTML( context, wikitext ) ) );</span>
-<span class="source-line-no">103</span><span id="line-103"></span>
-<span class="source-line-no">104</span><span id="line-104">                if( items &lt; links.size() &amp;&amp; items &gt; 0 ) {</span>
-<span class="source-line-no">105</span><span id="line-105">                    final Object[] args = { "" + ( links.size() - items ) };</span>
-<span class="source-line-no">106</span><span id="line-106">                    extras = MessageFormat.format( extras, args );</span>
+<span class="source-line-no">035</span><span id="line-35">import java.util.Locale;</span>
+<span class="source-line-no">036</span><span id="line-36">import java.util.Map;</span>
+<span class="source-line-no">037</span><span id="line-37">import java.util.ResourceBundle;</span>
+<span class="source-line-no">038</span><span id="line-38"></span>
+<span class="source-line-no">039</span><span id="line-39">/**</span>
+<span class="source-line-no">040</span><span id="line-40"> *  Displays the pages referring to the current page.</span>
+<span class="source-line-no">041</span><span id="line-41"> *</span>
+<span class="source-line-no">042</span><span id="line-42"> *  Parameters:</span>
+<span class="source-line-no">043</span><span id="line-43"> *  &lt;ul&gt;</span>
+<span class="source-line-no">044</span><span id="line-44"> *  &lt;li&gt;&lt;b&gt;max&lt;/b&gt; - How many items to show.&lt;/li&gt;</span>
+<span class="source-line-no">045</span><span id="line-45"> *  &lt;li&gt;&lt;b&gt;extras&lt;/b&gt; - How to announce extras.&lt;/li&gt;</span>
+<span class="source-line-no">046</span><span id="line-46"> *  &lt;li&gt;&lt;b&gt;page&lt;/b&gt; - Which page to get the table of contents from.&lt;/li&gt;</span>
+<span class="source-line-no">047</span><span id="line-47"> *  &lt;/ul&gt;</span>
+<span class="source-line-no">048</span><span id="line-48"> *</span>
+<span class="source-line-no">049</span><span id="line-49"> *  From AbstractReferralPlugin:</span>
+<span class="source-line-no">050</span><span id="line-50"> *  &lt;ul&gt;</span>
+<span class="source-line-no">051</span><span id="line-51"> *  &lt;li&gt;&lt;b&gt;separator&lt;/b&gt; - How to separate generated links; default is a wikitext line break, producing a vertical list.&lt;/li&gt;</span>
+<span class="source-line-no">052</span><span id="line-52"> *  &lt;li&gt;&lt;b&gt;maxwidth&lt;/b&gt; - maximum width, in chars, of generated links.&lt;/li&gt;</span>
+<span class="source-line-no">053</span><span id="line-53"> *  &lt;/ul&gt;</span>
+<span class="source-line-no">054</span><span id="line-54"> */</span>
+<span class="source-line-no">055</span><span id="line-55">public class ReferringPagesPlugin extends AbstractReferralPlugin {</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">    private static final Logger LOG = LogManager.getLogger( ReferringPagesPlugin.class );</span>
+<span class="source-line-no">058</span><span id="line-58"></span>
+<span class="source-line-no">059</span><span id="line-59">    /** Parameter name for setting the maximum items to show.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</span>
+<span class="source-line-no">060</span><span id="line-60">    public static final String PARAM_MAX      = "max";</span>
+<span class="source-line-no">061</span><span id="line-61"></span>
+<span class="source-line-no">062</span><span id="line-62">    /** Parameter name for setting the text to show when the maximum items is overruled. Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</span>
+<span class="source-line-no">063</span><span id="line-63">    public static final String PARAM_EXTRAS   = "extras";</span>
+<span class="source-line-no">064</span><span id="line-64"></span>
+<span class="source-line-no">065</span><span id="line-65">    /** Parameter name for choosing the page.  Value is &lt;tt&gt;{@value}&lt;/tt&gt;. */</span>
+<span class="source-line-no">066</span><span id="line-66">    public static final String PARAM_PAGE     = "page";</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">    @Override</span>
+<span class="source-line-no">069</span><span id="line-69">    public String getDisplayName(Locale locale) {</span>
+<span class="source-line-no">070</span><span id="line-70">        final ResourceBundle rb = ResourceBundle.getBundle(PluginManager.PLUGIN_RESOURCE_LOCATION, locale);</span>
+<span class="source-line-no">071</span><span id="line-71">        return rb.getString(this.getClass().getSimpleName());</span>
+<span class="source-line-no">072</span><span id="line-72">    }</span>
+<span class="source-line-no">073</span><span id="line-73">    </span>
+<span class="source-line-no">074</span><span id="line-74">    @Override</span>
+<span class="source-line-no">075</span><span id="line-75">    public String getSnipExample() {</span>
+<span class="source-line-no">076</span><span id="line-76">        return "ReferringPagesPlugin page='{pagename}' separator=',' include='regexp' exclude='regexp'";</span>
+<span class="source-line-no">077</span><span id="line-77">    }</span>
+<span class="source-line-no">078</span><span id="line-78">    </span>
+<span class="source-line-no">079</span><span id="line-79">    /**</span>
+<span class="source-line-no">080</span><span id="line-80">     *  {@inheritDoc}</span>
+<span class="source-line-no">081</span><span id="line-81">     */</span>
+<span class="source-line-no">082</span><span id="line-82">    @Override</span>
+<span class="source-line-no">083</span><span id="line-83">    public String execute( final Context context, final Map&lt; String, String &gt; params ) throws PluginException {</span>
+<span class="source-line-no">084</span><span id="line-84">        final ReferenceManager refmgr = context.getEngine().getManager( ReferenceManager.class );</span>
+<span class="source-line-no">085</span><span id="line-85">        String pageName = params.get( PARAM_PAGE );</span>
+<span class="source-line-no">086</span><span id="line-86">        final ResourceBundle rb = Preferences.getBundle( context, Plugin.CORE_PLUGINS_RESOURCEBUNDLE );</span>
+<span class="source-line-no">087</span><span id="line-87"></span>
+<span class="source-line-no">088</span><span id="line-88">        StringBuilder result = new StringBuilder( 256 );</span>
+<span class="source-line-no">089</span><span id="line-89"></span>
+<span class="source-line-no">090</span><span id="line-90">        if( pageName == null ) {</span>
+<span class="source-line-no">091</span><span id="line-91">            pageName = context.getPage().getName();</span>
+<span class="source-line-no">092</span><span id="line-92">        }</span>
+<span class="source-line-no">093</span><span id="line-93"></span>
+<span class="source-line-no">094</span><span id="line-94">        final Page page = context.getEngine().getManager( PageManager.class ).getPage( pageName );</span>
+<span class="source-line-no">095</span><span id="line-95">        if( page != null ) {</span>
+<span class="source-line-no">096</span><span id="line-96">            Collection&lt; String &gt; links  = refmgr.findReferrers( page.getName() );</span>
+<span class="source-line-no">097</span><span id="line-97">            String wikitext;</span>
+<span class="source-line-no">098</span><span id="line-98"></span>
+<span class="source-line-no">099</span><span id="line-99">            super.initialize( context, params );</span>
+<span class="source-line-no">100</span><span id="line-100"></span>
+<span class="source-line-no">101</span><span id="line-101">            final int items = TextUtil.parseIntParameter( params.get( PARAM_MAX ), ALL_ITEMS );</span>
+<span class="source-line-no">102</span><span id="line-102"></span>
+<span class="source-line-no">103</span><span id="line-103">            String extras = TextUtil.replaceEntities( params.get( PARAM_EXTRAS ) );</span>
+<span class="source-line-no">104</span><span id="line-104">            if( extras == null ) {</span>
+<span class="source-line-no">105</span><span id="line-105">                extras = rb.getString( "referringpagesplugin.more" );</span>
+<span class="source-line-no">106</span><span id="line-106">            }</span>
 <span class="source-line-no">107</span><span id="line-107"></span>
-<span class="source-line-no">108</span><span id="line-108">                    result.append( "&lt;br /&gt;" )</span>
-<span class="source-line-no">109</span><span id="line-109">                          .append( "&lt;a class='morelink' href='" )</span>
-<span class="source-line-no">110</span><span id="line-110">                          .append( context.getURL( ContextEnum.PAGE_INFO.getRequestContext(), page.getName() ) )</span>
-<span class="source-line-no">111</span><span id="line-111">                          .append( "' " )</span>
-<span class="source-line-no">112</span><span id="line-112">                          .append( "&gt;" )</span>
-<span class="source-line-no">113</span><span id="line-113">                          .append( extras )</span>
-<span class="source-line-no">114</span><span id="line-114">                          .append( "&lt;/a&gt;&lt;br /&gt;" );</span>
-<span class="source-line-no">115</span><span id="line-115">                }</span>
-<span class="source-line-no">116</span><span id="line-116">            }</span>
-<span class="source-line-no">117</span><span id="line-117"></span>
-<span class="source-line-no">118</span><span id="line-118">            // If nothing was left after filtering or during search</span>
-<span class="source-line-no">119</span><span id="line-119">            if( links == null || links.isEmpty()) {</span>
-<span class="source-line-no">120</span><span id="line-120">                wikitext = rb.getString( "referringpagesplugin.nobody" );</span>
-<span class="source-line-no">121</span><span id="line-121">                result.append( makeHTML( context, wikitext ) );</span>
-<span class="source-line-no">122</span><span id="line-122">            } else  if( m_show.equals( PARAM_SHOW_VALUE_COUNT ) ) {</span>
-<span class="source-line-no">123</span><span id="line-123">                result = new StringBuilder();</span>
-<span class="source-line-no">124</span><span id="line-124">                result.append( links.size() );</span>
-<span class="source-line-no">125</span><span id="line-125">                if( m_lastModified ) {</span>
-<span class="source-line-no">126</span><span id="line-126">                    result.append( " (" ).append( m_dateFormat.format( m_dateLastModified ) ).append( ")" );</span>
+<span class="source-line-no">108</span><span id="line-108">            LOG.debug( "Fetching referring pages for {} with a max of {}", page.getName(), items );</span>
+<span class="source-line-no">109</span><span id="line-109"></span>
+<span class="source-line-no">110</span><span id="line-110">            if( links != null &amp;&amp; !links.isEmpty()) {</span>
+<span class="source-line-no">111</span><span id="line-111">                links = filterAndSortCollection( links );</span>
+<span class="source-line-no">112</span><span id="line-112">                wikitext = wikitizeCollection( links, m_separator, items );</span>
+<span class="source-line-no">113</span><span id="line-113"></span>
+<span class="source-line-no">114</span><span id="line-114">                result.append( applyColumnsStyle( makeHTML( context, wikitext ) ) );</span>
+<span class="source-line-no">115</span><span id="line-115"></span>
+<span class="source-line-no">116</span><span id="line-116">                if( items &lt; links.size() &amp;&amp; items &gt; 0 ) {</span>
+<span class="source-line-no">117</span><span id="line-117">                    final Object[] args = { "" + ( links.size() - items ) };</span>
+<span class="source-line-no">118</span><span id="line-118">                    extras = MessageFormat.format( extras, args );</span>
+<span class="source-line-no">119</span><span id="line-119"></span>
+<span class="source-line-no">120</span><span id="line-120">                    result.append( "&lt;br /&gt;" )</span>
+<span class="source-line-no">121</span><span id="line-121">                          .append( "&lt;a class='morelink' href='" )</span>
+<span class="source-line-no">122</span><span id="line-122">                          .append( context.getURL( ContextEnum.PAGE_INFO.getRequestContext(), page.getName() ) )</span>
+<span class="source-line-no">123</span><span id="line-123">                          .append( "' " )</span>
+<span class="source-line-no">124</span><span id="line-124">                          .append( "&gt;" )</span>
+<span class="source-line-no">125</span><span id="line-125">                          .append( extras )</span>
+<span class="source-line-no">126</span><span id="line-126">                          .append( "&lt;/a&gt;&lt;br /&gt;" );</span>
 <span class="source-line-no">127</span><span id="line-127">                }</span>
 <span class="source-line-no">128</span><span id="line-128">            }</span>
 <span class="source-line-no">129</span><span id="line-129"></span>
-<span class="source-line-no">130</span><span id="line-130">            return result.toString();</span>
-<span class="source-line-no">131</span><span id="line-131">        }</span>
-<span class="source-line-no">132</span><span id="line-132"></span>
-<span class="source-line-no">133</span><span id="line-133">        return "";</span>
-<span class="source-line-no">134</span><span id="line-134">    }</span>
-<span class="source-line-no">135</span><span id="line-135"></span>
-<span class="source-line-no">136</span><span id="line-136">}</span>
+<span class="source-line-no">130</span><span id="line-130">            // If nothing was left after filtering or during search</span>
+<span class="source-line-no">131</span><span id="line-131">            if( links == null || links.isEmpty()) {</span>
+<span class="source-line-no">132</span><span id="line-132">                wikitext = rb.getString( "referringpagesplugin.nobody" );</span>
+<span class="source-line-no">133</span><span id="line-133">                result.append( makeHTML( context, wikitext ) );</span>
+<span class="source-line-no">134</span><span id="line-134">            } else  if( m_show.equals( PARAM_SHOW_VALUE_COUNT ) ) {</span>
+<span class="source-line-no">135</span><span id="line-135">                result = new StringBuilder();</span>
+<span class="source-line-no">136</span><span id="line-136">                result.append( links.size() );</span>
+<span class="source-line-no">137</span><span id="line-137">                if( m_lastModified ) {</span>
+<span class="source-line-no">138</span><span id="line-138">                    result.append( " (" ).append( m_dateFormat.format( m_dateLastModified ) ).append( ")" );</span>
+<span class="source-line-no">139</span><span id="line-139">                }</span>
+<span class="source-line-no">140</span><span id="line-140">            }</span>
+<span class="source-line-no">141</span><span id="line-141"></span>
+<span class="source-line-no">142</span><span id="line-142">            return result.toString();</span>
+<span class="source-line-no">143</span><span id="line-143">        }</span>
+<span class="source-line-no">144</span><span id="line-144"></span>
+<span class="source-line-no">145</span><span id="line-145">        return "";</span>
+<span class="source-line-no">146</span><span id="line-146">    }</span>
+<span class="source-line-no">147</span><span id="line-147"></span>
+<span class="source-line-no">148</span><span id="line-148">}</span>
 
 
 
