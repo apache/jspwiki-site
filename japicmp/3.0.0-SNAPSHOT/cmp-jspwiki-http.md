@@ -54,7 +54,6 @@
 | Added    | [org.apache.wiki.http.filter.COEPFilter]               | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.CORPFilter]               | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.CSPFilter]                | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.ClearSiteDataFilter]      | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.ClickJackFilter]          | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.ContentTypeOptionsFilter] | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.CrossDomainFilter]        | ![Not serializable] | ![Method added to public class] |
@@ -140,34 +139,6 @@ ___
 | Status | Modifiers    | Generics | Constructor       | Annotations | Throws | Compatibility Changes |
 |--------|--------------|----------|-------------------|-------------|--------|-----------------------|
 | Added  | **`public`** |          | **`CSPFilter`**() |             |        | ![No changes]         |
-
-
-#### Methods
-
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
-
-___
-
-<a id="user-content-org.apache.wiki.http.filter.clearsitedatafilter"></a>
-### `org.apache.wiki.http.filter.ClearSiteDataFilter`
-
-- [X] Binary-compatible
-- [X] Source-compatible
-- [X] Serialization-compatible
-
-| Status | Modifiers    | Type      | Name                      | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|---------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`ClearSiteDataFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
-
-
-#### Constructors
-
-| Status | Modifiers    | Generics | Constructor                 | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|-----------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`ClearSiteDataFilter`**() |             |        | ![No changes]         |
 
 
 #### Methods
@@ -369,7 +340,7 @@ ___
 
 ___
 
-*Generated on: 2025-11-16 15:51:41.904+0000*.
+*Generated on: 2025-11-16 15:52:23.111+0000*.
 
 [1]: # "javax.servlet.ServletRequest"
 [2]: # "javax.servlet.ServletResponse"
@@ -393,7 +364,6 @@ ___
 [org.apache.wiki.http.filter.COEPFilter]: #user-content-org.apache.wiki.http.filter.coepfilter
 [org.apache.wiki.http.filter.CORPFilter]: #user-content-org.apache.wiki.http.filter.corpfilter
 [org.apache.wiki.http.filter.CSPFilter]: #user-content-org.apache.wiki.http.filter.cspfilter
-[org.apache.wiki.http.filter.ClearSiteDataFilter]: #user-content-org.apache.wiki.http.filter.clearsitedatafilter
 [org.apache.wiki.http.filter.ClickJackFilter]: #user-content-org.apache.wiki.http.filter.clickjackfilter
 [org.apache.wiki.http.filter.ContentTypeOptionsFilter]: #user-content-org.apache.wiki.http.filter.contenttypeoptionsfilter
 [org.apache.wiki.http.filter.CrossDomainFilter]: #user-content-org.apache.wiki.http.filter.crossdomainfilter
