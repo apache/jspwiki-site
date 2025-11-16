@@ -81,6 +81,7 @@
 | Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable] | ![No changes]         |
+| Added        | [org.apache.wiki.auth.PasswordComplexityVeriffier]               | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable] | ![No changes]         |
@@ -106,7 +107,7 @@
 | Unchanged    | [org.apache.wiki.auth.login.AbstractLoginModule]                 | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.login.AnonymousLoginModule]                | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.login.AuthorizerCallback]                  | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable] | ![Annotation deprecated added] ![Method removed] ![Method added to public class] |
 | Modified     | [org.apache.wiki.auth.login.CookieAuthenticationLoginModule]     | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Modified     | [org.apache.wiki.auth.login.HttpRequestCallback]                 | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.login.PrincipalWrapper]                    | ![Not serializable] | ![No changes]         |
@@ -1600,6 +1601,26 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.auth.passwordcomplexityveriffier"></a>
+### `org.apache.wiki.auth.PasswordComplexityVeriffier`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`PasswordComplexityVeriffier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                 | Method                                  | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|----------------------|-----------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`List<String>`]** | **`validate`**([`String`], [`Context`]) |             |        | ![Method added to public class] |
+
+___
+
 <a id="user-content-org.apache.wiki.auth.securityverifier"></a>
 ### `org.apache.wiki.auth.SecurityVerifier`
 
@@ -2625,15 +2646,16 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type           | Method                                                      | Annotations | Throws             | Compatibility Changes |
-|-----------|---------------------------|----------|----------------|-------------------------------------------------------------|-------------|--------------------|-----------------------|
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearUserCookie`~~([`HttpServletResponse`])              |             |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`clearUserCookie`**([`HttpServletResponse`][7])           |             |                    | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getUserCookie`~~([`HttpServletRequest`])                 |             |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getUserCookie`**([`HttpServletRequest`][2])              |             |                    | ![Method added to public class] |
-| Unchanged | `public`                  |          | `boolean`      | `login`()                                                   |             | [`LoginException`] | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`setUserCookie`~~([`HttpServletResponse`], [`String`])    |             |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`HttpServletResponse`][7], [`String`]) |             |                    | ![Method added to public class] |
+| Status    | Modifiers                 | Generics | Type           | Method                                                      | Annotations        | Throws             | Compatibility Changes |
+|-----------|---------------------------|----------|----------------|-------------------------------------------------------------|--------------------|--------------------|-----------------------|
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearUserCookie`~~([`HttpServletResponse`])              |                    |                    | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`clearUserCookie`**([`HttpServletResponse`][7])           |                    |                    | ![Method added to public class] |
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getUserCookie`~~([`HttpServletRequest`])                 |                    |                    | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getUserCookie`**([`HttpServletRequest`][2])              |                    |                    | ![Method added to public class] |
+| Unchanged | `public`                  |          | `boolean`      | `login`()                                                   |                    | [`LoginException`] | ![No changes]         |
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`setUserCookie`~~([`HttpServletResponse`], [`String`])    |                    |                    | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`HttpServletResponse`][7], [`String`]) | **[`Deprecated`]** |                    | ![Method added to public class] ![Annotation deprecated added] |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`PageContext`][3], [`HttpServletResponse`][7], [`String`]) |  |                  | ![Method added to public class] |
 
 
 #### Fields
@@ -13249,7 +13271,7 @@ ___
 
 ___
 
-*Generated on: 2025-11-16 02:18:58.099+0000*.
+*Generated on: 2025-11-16 14:33:03.414+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
@@ -13626,6 +13648,7 @@ ___
 [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]: #user-content-org.apache.wiki.auth.defaultusermanager$jsonusermodule
 [org.apache.wiki.auth.GroupPrincipal]: #user-content-org.apache.wiki.auth.groupprincipal
 [org.apache.wiki.auth.NoSuchPrincipalException]: #user-content-org.apache.wiki.auth.nosuchprincipalexception
+[org.apache.wiki.auth.PasswordComplexityVeriffier]: #user-content-org.apache.wiki.auth.passwordcomplexityveriffier
 [org.apache.wiki.auth.SecurityVerifier]: #user-content-org.apache.wiki.auth.securityverifier
 [org.apache.wiki.auth.SessionMonitor]: #user-content-org.apache.wiki.auth.sessionmonitor
 [org.apache.wiki.auth.UserManager]: #user-content-org.apache.wiki.auth.usermanager
