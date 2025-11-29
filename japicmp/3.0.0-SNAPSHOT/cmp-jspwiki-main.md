@@ -72,17 +72,16 @@
 | Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
+| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable] | ![Method removed] ![Method added to interface] |
 | Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
 | Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable] | ![Method added to public class] |
 | Modified     | [org.apache.wiki.auth.DefaultAuthorizationManager]               | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
 | Unchanged    | [org.apache.wiki.auth.DefaultUserManager]                        | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable] | ![No changes]         |
 | Added        | [org.apache.wiki.auth.PasswordComplexityVeriffier]               | ![Not serializable] | ![Method added to public class] |
-| Added        | [org.apache.wiki.auth.SecurityVerificationUtility]               | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable] | ![No changes]         |
@@ -132,8 +131,8 @@
 | Unchanged    | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.user.UserProfile]                          | ![Compatible]       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable] | ![Method removed] ![Method added to interface] |
+| Unchanged    | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.diff.ContextualDiffProvider]                    | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.diff.DefaultDifferenceManager]                  | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.diff.DiffProvider]                              | ![Not serializable] | ![No changes]         |
@@ -163,7 +162,7 @@
 | Unchanged    | [org.apache.wiki.management.SimpleMBean]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.BaseModuleManager]                      | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]       | ![No changes]         |
@@ -259,8 +258,6 @@
 | Unchanged    | [org.apache.wiki.search.SearchProvider]                          | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchResult]                            | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchResultComparator]                  | ![Compatible]       | ![No changes]         |
-| Added        | [org.apache.wiki.security.AuditLogger]                           | ![Not serializable] | ![Method added to public class] |
-| Added        | [org.apache.wiki.security.EventUtil]                             | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.spi.AclsSPIDefaultImpl]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.spi.ContentsSPIDefaultImpl]                     | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.spi.ContextSPIDefaultImpl]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
@@ -302,7 +299,6 @@
 | Modified     | [org.apache.wiki.tags.LinkTag]                                   | ![Not serializable] | ![Method removed] ![Method removed in superclass] ![Method added to public class] |
 | Incompatible | [org.apache.wiki.tags.LinkToParentTag]                           | ![Not serializable] | ![Method removed in superclass] |
 | Incompatible | [org.apache.wiki.tags.LinkToTag]                                 | ![Not serializable] | ![Method removed in superclass] |
-| Added        | [org.apache.wiki.tags.MaxUploadTag]                              | ![Not serializable] | ![Method added to public class] |
 | Incompatible | [org.apache.wiki.tags.MessagesTag]                               | ![Not serializable] | ![Method removed in superclass] |
 | Incompatible | [org.apache.wiki.tags.NextVersionTag]                            | ![Not serializable] | ![Method removed in superclass] |
 | Incompatible | [org.apache.wiki.tags.NoSuchPageTag]                             | ![Not serializable] | ![Method removed in superclass] |
@@ -1278,7 +1274,6 @@ ___
 | Unchanged | `public` `abstract`         |          | `boolean`          | `allowsCookieAuthentication`()                   |             |                               | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Set<Principal>`] | `doJAASLogin`([`Class<? extends LoginModule>`], [`CallbackHandler`], [`Map<String, String>`]) |  | [`WikiSecurityException`] | ![No changes] |
 | Unchanged | `public`                    |          | `void`             | `fireEvent`(`int`, [`Principal`], [`Object`])    |             |                               | ![No changes]         |
-| Added     | **`public`**                |          | **`void`**         | **`fireEvent`**(`int`, [`Principal`], [`Object`], [`HttpServletRequest`][2]) |  |              | ![Method new default] |
 | Unchanged | `public`                    |          | [`Principal`]      | `getLoginPrincipal`([`Set<Principal>`])          |             |                               | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `boolean`          | `isContainerAuthenticated`()                     |             |                               | ![No changes]         |
 | Unchanged | `static` `public`           |          | `boolean`          | `isRolePrincipal`([`Principal`])                 |             |                               | ![No changes]         |
@@ -1380,7 +1375,7 @@ ___
 
 | Status   | Modifiers | Type  | Name                           | Extends    | JDK                          | Serialization       | Compatibility Changes |
 |----------|-----------|-------|--------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `DefaultAuthenticationManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![Method default added in implemented interface] |
+| Modified | `public`  | Class | `DefaultAuthenticationManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1622,36 +1617,9 @@ ___
 
 #### Methods
 
-| Status | Modifiers                 | Generics | Type                 | Method                                              | Annotations | Throws | Compatibility Changes |
-|--------|---------------------------|----------|----------------------|-----------------------------------------------------|-------------|--------|-----------------------|
-| Added  | **`static`** **`public`** |          | **[`List<String>`]** | **`validate`**([`String`], [`String`], [`Context`]) |             |        | ![Method added to public class] |
-
-___
-
-<a id="user-content-org.apache.wiki.auth.securityverificationutility"></a>
-### `org.apache.wiki.auth.SecurityVerificationUtility`
-
-- [X] Binary-compatible
-- [X] Source-compatible
-- [X] Serialization-compatible
-
-| Status | Modifiers    | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`SecurityVerificationUtility`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
-
-
-#### Constructors
-
-| Status | Modifiers    | Generics | Constructor                         | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|-------------------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`SecurityVerificationUtility`**() |             |        | ![No changes]         |
-
-
-#### Methods
-
-| Status | Modifiers    | Generics | Type       | Method                   | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|------------|--------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`verify`**([`Engine`]) |             |        | ![Method added to public class] |
+| Status | Modifiers                 | Generics | Type                 | Method                                  | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|----------------------|-----------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`List<String>`]** | **`validate`**([`String`], [`Context`]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -3701,16 +3669,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `DefaultPageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `DefaultPageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status       | Interface       | Compatibility Changes |
-|--------------|-----------------|-----------------------|
-| Incompatible | [`PageRenamer`] | ![No changes]         |
+| Status    | Interface       | Compatibility Changes |
+|-----------|-----------------|-----------------------|
+| Unchanged | [`PageRenamer`] | ![No changes]         |
 
 
 #### Constructors
@@ -3722,33 +3690,31 @@ ___
 
 #### Methods
 
-| Status    | Modifiers    | Generics | Type       | Method                                                         | Annotations | Throws            | Compatibility Changes |
-|-----------|--------------|----------|------------|----------------------------------------------------------------|-------------|-------------------|-----------------------|
-| Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`firePageRenameEvent`~~([`String`], [`String`])              |             |                   | ![No changes]         |
-| Added     | **`public`** |          | **`void`** | **`firePageRenameEvent`**([`String`], [`String`], [`Context`]) |             |                   | ![Method added to public class] |
-| Unchanged | `public`     |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`)   |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers | Generics | Type       | Method                                                       | Annotations | Throws            | Compatibility Changes |
+|-----------|-----------|----------|------------|--------------------------------------------------------------|-------------|-------------------|-----------------------|
+| Unchanged | `public`  |          | `void`     | `firePageRenameEvent`([`String`], [`String`])                |             |                   | ![No changes]         |
+| Unchanged | `public`  |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`) |             | [`WikiException`] | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.content.pagerenamer"></a>
 ### `org.apache.wiki.content.PageRenamer`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `PageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `PageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                   | Generics | Type       | Method                                                         | Annotations | Throws            | Compatibility Changes |
-|-----------|-----------------------------|----------|------------|----------------------------------------------------------------|-------------|-------------------|-----------------------|
-| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`void`~~ | ~~`firePageRenameEvent`~~([`String`], [`String`])              |             |                   | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **`void`** | **`firePageRenameEvent`**([`String`], [`String`], [`Context`]) |             |                   | ![Method added to interface] |
-| Unchanged | `public` `abstract`         |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`)   |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers           | Generics | Type       | Method                                                       | Annotations | Throws            | Compatibility Changes |
+|-----------|---------------------|----------|------------|--------------------------------------------------------------|-------------|-------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | `void`     | `firePageRenameEvent`([`String`], [`String`])                |             |                   | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`) |             | [`WikiException`] | ![No changes]         |
 
 ___
 
@@ -4779,9 +4745,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `ModuleManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `ModuleManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -4795,10 +4761,9 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                             | Type           | Name                       | Annotations | Compatibility Changes |
-|-----------|---------------------------------------|----------------|----------------------------|-------------|-----------------------|
-| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PLUGIN_I18N_RESOURCE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PLUGIN_RESOURCE_LOCATION` |             | ![No changes]         |
+| Status    | Modifiers                 | Type       | Name                       | Annotations | Compatibility Changes |
+|-----------|---------------------------|------------|----------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final` | [`String`] | `PLUGIN_RESOURCE_LOCATION` |             | ![No changes]         |
 
 ___
 
@@ -8397,53 +8362,6 @@ ___
 
 ___
 
-<a id="user-content-org.apache.wiki.security.auditlogger"></a>
-### `org.apache.wiki.security.AuditLogger`
-
-- [X] Binary-compatible
-- [X] Source-compatible
-- [X] Serialization-compatible
-
-| Status | Modifiers                | Type      | Name              | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------------------|-----------|-------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`final`** **`public`** | **Class** | **`AuditLogger`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
-
-
-#### Methods
-
-| Status | Modifiers                 | Generics | Type                | Method                               | Annotations | Throws | Compatibility Changes |
-|--------|---------------------------|----------|---------------------|--------------------------------------|-------------|--------|-----------------------|
-| Added  | **`public`**              |          | **`void`**          | **`actionPerformed`**([`WikiEvent`]) |             |        | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **[`AuditLogger`]** | **`getInstance`**()                  |             |        | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **`void`**          | **`initialize`**([`WikiEngine`])     |             |        | ![Method added to public class] |
-| Added  | **`public`**              |          | **`void`**          | **`shutdown`**()                     |             |        | ![Method added to public class] |
-
-___
-
-<a id="user-content-org.apache.wiki.security.eventutil"></a>
-### `org.apache.wiki.security.EventUtil`
-
-- [X] Binary-compatible
-- [X] Source-compatible
-- [X] Serialization-compatible
-
-| Status | Modifiers                | Type      | Name            | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------------------|-----------|-----------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`final`** **`public`** | **Class** | **`EventUtil`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
-
-
-#### Methods
-
-| Status | Modifiers                 | Generics | Type              | Method                                                    | Annotations | Throws | Compatibility Changes |
-|--------|---------------------------|----------|-------------------|-----------------------------------------------------------|-------------|--------|-----------------------|
-| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiSecurityEvent`])                    |             |        | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`PageContext`][3])        |             |        | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`Session`])               |             |        | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`Context`])               |             |        | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`HttpServletRequest`][2]) |             |        | ![Method added to public class] |
-
-___
-
 <a id="user-content-org.apache.wiki.spi.aclsspidefaultimpl"></a>
 ### `org.apache.wiki.spi.AclsSPIDefaultImpl`
 
@@ -9742,34 +9660,6 @@ ___
 |-----------|-----------|------------|---------------|-------------|-----------------------|
 | Unchanged | `public`  | [`String`] | `m_accesskey` |             | ![No changes]         |
 | Unchanged | `public`  | [`String`] | `m_title`     |             | ![No changes]         |
-
-___
-
-<a id="user-content-org.apache.wiki.tags.maxuploadtag"></a>
-### `org.apache.wiki.tags.MaxUploadTag`
-
-- [X] Binary-compatible
-- [X] Source-compatible
-- [X] Serialization-compatible
-
-| Status | Modifiers    | Type      | Name               | Extends             | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|--------------------|---------------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`MaxUploadTag`** | **[`WikiTagBase`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
-
-
-#### Constructors
-
-| Status | Modifiers    | Generics | Constructor          | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|----------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`MaxUploadTag`**() |             |        | ![No changes]         |
-
-
-#### Methods
-
-| Status | Modifiers                 | Generics | Type           | Method                                  | Annotations | Throws            | Compatibility Changes |
-|--------|---------------------------|----------|----------------|-----------------------------------------|-------------|-------------------|-----------------------|
-| Added  | **`public`**              |          | **`int`**      | **`doWikiStartTag`**()                  |             | **[`Exception`]** | ![Method added to public class] |
-| Added  | **`static`** **`public`** |          | **[`String`]** | **`humanReadableByteCountBin`**(`long`) |             |                   | ![Method added to public class] |
 
 ___
 
@@ -13489,7 +13379,7 @@ ___
 
 ___
 
-*Generated on: 2025-11-29 20:56:35.621+0000*.
+*Generated on: 2025-11-29 20:54:21.345+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
@@ -13572,7 +13462,6 @@ ___
 [`AttributeList`]: # "javax.management.AttributeList"
 [`AttributeNotFoundException`]: # "javax.management.AttributeNotFoundException"
 [`Attribute`]: # "javax.management.Attribute"
-[`AuditLogger`]: # "org.apache.wiki.security.AuditLogger"
 [`AuthenticationManager`]: # "org.apache.wiki.auth.AuthenticationManager"
 [`AuthorizationManager`]: # "org.apache.wiki.auth.AuthorizationManager"
 [`Authorizer`]: # "org.apache.wiki.auth.Authorizer"
@@ -13830,7 +13719,6 @@ ___
 [`WikiPluginInfo`]: # "org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo"
 [`WikiRPCHandler`]: # "org.apache.wiki.xmlrpc.WikiRPCHandler"
 [`WikiRenderer`]: # "org.apache.wiki.render.WikiRenderer"
-[`WikiSecurityEvent`]: # "org.apache.wiki.event.WikiSecurityEvent"
 [`WikiSecurityException`]: # "org.apache.wiki.auth.WikiSecurityException"
 [`WikiServletFilter`]: # "org.apache.wiki.ui.WikiServletFilter"
 [`WikiSession`]: # "org.apache.wiki.WikiSession"
@@ -13871,7 +13759,6 @@ ___
 [org.apache.wiki.auth.GroupPrincipal]: #user-content-org.apache.wiki.auth.groupprincipal
 [org.apache.wiki.auth.NoSuchPrincipalException]: #user-content-org.apache.wiki.auth.nosuchprincipalexception
 [org.apache.wiki.auth.PasswordComplexityVeriffier]: #user-content-org.apache.wiki.auth.passwordcomplexityveriffier
-[org.apache.wiki.auth.SecurityVerificationUtility]: #user-content-org.apache.wiki.auth.securityverificationutility
 [org.apache.wiki.auth.SecurityVerifier]: #user-content-org.apache.wiki.auth.securityverifier
 [org.apache.wiki.auth.SessionMonitor]: #user-content-org.apache.wiki.auth.sessionmonitor
 [org.apache.wiki.auth.UserManager]: #user-content-org.apache.wiki.auth.usermanager
@@ -14048,8 +13935,6 @@ ___
 [org.apache.wiki.search.SearchProvider]: #user-content-org.apache.wiki.search.searchprovider
 [org.apache.wiki.search.SearchResult]: #user-content-org.apache.wiki.search.searchresult
 [org.apache.wiki.search.SearchResultComparator]: #user-content-org.apache.wiki.search.searchresultcomparator
-[org.apache.wiki.security.AuditLogger]: #user-content-org.apache.wiki.security.auditlogger
-[org.apache.wiki.security.EventUtil]: #user-content-org.apache.wiki.security.eventutil
 [org.apache.wiki.spi.AclsSPIDefaultImpl]: #user-content-org.apache.wiki.spi.aclsspidefaultimpl
 [org.apache.wiki.spi.ContentsSPIDefaultImpl]: #user-content-org.apache.wiki.spi.contentsspidefaultimpl
 [org.apache.wiki.spi.ContextSPIDefaultImpl]: #user-content-org.apache.wiki.spi.contextspidefaultimpl
@@ -14091,7 +13976,6 @@ ___
 [org.apache.wiki.tags.LinkTag]: #user-content-org.apache.wiki.tags.linktag
 [org.apache.wiki.tags.LinkToParentTag]: #user-content-org.apache.wiki.tags.linktoparenttag
 [org.apache.wiki.tags.LinkToTag]: #user-content-org.apache.wiki.tags.linktotag
-[org.apache.wiki.tags.MaxUploadTag]: #user-content-org.apache.wiki.tags.maxuploadtag
 [org.apache.wiki.tags.MessagesTag]: #user-content-org.apache.wiki.tags.messagestag
 [org.apache.wiki.tags.NextVersionTag]: #user-content-org.apache.wiki.tags.nextversiontag
 [org.apache.wiki.tags.NoSuchPageTag]: #user-content-org.apache.wiki.tags.nosuchpagetag
