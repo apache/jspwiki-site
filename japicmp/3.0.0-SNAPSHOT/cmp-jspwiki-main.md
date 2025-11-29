@@ -72,15 +72,17 @@
 | Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable] | ![Method removed] ![Method added to interface] |
+| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
 | Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
 | Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
 | Modified     | [org.apache.wiki.auth.DefaultAuthorizationManager]               | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
 | Unchanged    | [org.apache.wiki.auth.DefaultUserManager]                        | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable] | ![No changes]         |
+| Added        | [org.apache.wiki.auth.PasswordComplexityVeriffier]               | ![Not serializable] | ![Method added to public class] |
+| Added        | [org.apache.wiki.auth.SecurityVerificationUtility]               | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable] | ![No changes]         |
@@ -106,7 +108,7 @@
 | Unchanged    | [org.apache.wiki.auth.login.AbstractLoginModule]                 | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.login.AnonymousLoginModule]                | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.login.AuthorizerCallback]                  | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable] | ![Annotation deprecated added] ![Method removed] ![Method added to public class] |
 | Modified     | [org.apache.wiki.auth.login.CookieAuthenticationLoginModule]     | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Modified     | [org.apache.wiki.auth.login.HttpRequestCallback]                 | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.login.PrincipalWrapper]                    | ![Not serializable] | ![No changes]         |
@@ -130,8 +132,8 @@
 | Unchanged    | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.user.UserProfile]                          | ![Compatible]       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable] | ![Method removed] ![Method added to interface] |
 | Unchanged    | [org.apache.wiki.diff.ContextualDiffProvider]                    | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.diff.DefaultDifferenceManager]                  | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.diff.DiffProvider]                              | ![Not serializable] | ![No changes]         |
@@ -161,7 +163,7 @@
 | Unchanged    | [org.apache.wiki.management.SimpleMBean]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.BaseModuleManager]                      | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]       | ![No changes]         |
@@ -183,33 +185,33 @@
 | Unchanged    | [org.apache.wiki.plugin.AbstractReferralPlugin]                  | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.plugin.BugReportHandler]                        | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.plugin.Counter]                                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.CurrentTimePlugin]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.DefaultPluginManager]                    | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.CurrentTimePlugin]                       | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.DefaultPluginManager]                    | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo]     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.Denounce]                                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.Groups]                                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.IfPlugin]                                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.Image]                                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.Note]                                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.Denounce]                                | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Groups]                                  | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.IfPlugin]                                | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.plugin.PageViewPlugin$PageViewManager]          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.PluginManager]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.RecentChangesPlugin]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.PluginManager]                           | ![Not serializable] | ![Method added to interface] |
+| Modified     | [org.apache.wiki.plugin.RecentChangesPlugin]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable] | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.Search]                                  | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.Search]                                  | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.plugin.SessionsPlugin]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.UndefinedPagesPlugin]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.UnusedPagesPlugin]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.WeblogArchivePlugin]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.WeblogEntryPlugin]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.UndefinedPagesPlugin]                    | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.UnusedPagesPlugin]                       | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogArchivePlugin]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogEntryPlugin]                       | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable] | ![Method added to public class] |
 | Modified     | [org.apache.wiki.preferences.Preferences]                        | ![Compatible]       | ![Method removed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.preferences.Preferences$TimeFormat]             | ![Compatible]       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable] | ![No changes]         |
@@ -247,14 +249,18 @@
 | Unchanged    | [org.apache.wiki.search.BasicSearchProvider]                     | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.DefaultSearchManager]                    | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable] | ![Method added to public class] |
+| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch]       | ![Not serializable] | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData] | ![Not serializable] | ![No changes] |
 | Unchanged    | [org.apache.wiki.search.LuceneSearchProvider]                    | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.QueryItem]                               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchManager]                           | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.search.SearchManager]                           | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchMatcher]                           | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchMatcher$SearchResultImpl]          | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchProvider]                          | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchResult]                            | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.SearchResultComparator]                  | ![Compatible]       | ![No changes]         |
+| Added        | [org.apache.wiki.security.AuditLogger]                           | ![Not serializable] | ![Method added to public class] |
+| Added        | [org.apache.wiki.security.EventUtil]                             | ![Not serializable] | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.spi.AclsSPIDefaultImpl]                         | ![Not serializable] | ![No changes]         |
 | Unchanged    | [org.apache.wiki.spi.ContentsSPIDefaultImpl]                     | ![Not serializable] | ![No changes]         |
 | Modified     | [org.apache.wiki.spi.ContextSPIDefaultImpl]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
@@ -296,6 +302,7 @@
 | Modified     | [org.apache.wiki.tags.LinkTag]                                   | ![Not serializable] | ![Method removed] ![Method removed in superclass] ![Method added to public class] |
 | Incompatible | [org.apache.wiki.tags.LinkToParentTag]                           | ![Not serializable] | ![Method removed in superclass] |
 | Incompatible | [org.apache.wiki.tags.LinkToTag]                                 | ![Not serializable] | ![Method removed in superclass] |
+| Added        | [org.apache.wiki.tags.MaxUploadTag]                              | ![Not serializable] | ![Method added to public class] |
 | Incompatible | [org.apache.wiki.tags.MessagesTag]                               | ![Not serializable] | ![Method removed in superclass] |
 | Incompatible | [org.apache.wiki.tags.NextVersionTag]                            | ![Not serializable] | ![Method removed in superclass] |
 | Incompatible | [org.apache.wiki.tags.NoSuchPageTag]                             | ![Not serializable] | ![Method removed in superclass] |
@@ -1271,6 +1278,7 @@ ___
 | Unchanged | `public` `abstract`         |          | `boolean`          | `allowsCookieAuthentication`()                   |             |                               | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Set<Principal>`] | `doJAASLogin`([`Class<? extends LoginModule>`], [`CallbackHandler`], [`Map<String, String>`]) |  | [`WikiSecurityException`] | ![No changes] |
 | Unchanged | `public`                    |          | `void`             | `fireEvent`(`int`, [`Principal`], [`Object`])    |             |                               | ![No changes]         |
+| Added     | **`public`**                |          | **`void`**         | **`fireEvent`**(`int`, [`Principal`], [`Object`], [`HttpServletRequest`][2]) |  |              | ![Method new default] |
 | Unchanged | `public`                    |          | [`Principal`]      | `getLoginPrincipal`([`Set<Principal>`])          |             |                               | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `boolean`          | `isContainerAuthenticated`()                     |             |                               | ![No changes]         |
 | Unchanged | `static` `public`           |          | `boolean`          | `isRolePrincipal`([`Principal`])                 |             |                               | ![No changes]         |
@@ -1372,7 +1380,7 @@ ___
 
 | Status   | Modifiers | Type  | Name                           | Extends    | JDK                          | Serialization       | Compatibility Changes |
 |----------|-----------|-------|--------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `DefaultAuthenticationManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Modified | `public`  | Class | `DefaultAuthenticationManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![Method default added in implemented interface] |
 
 
 #### Implemented Interfaces
@@ -1597,6 +1605,53 @@ ___
 | Status    | Modifiers | Generics | Constructor                            | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|----------------------------------------|-------------|--------|-----------------------|
 | Unchanged | `public`  |          | `NoSuchPrincipalException`([`String`]) |             |        | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.auth.passwordcomplexityveriffier"></a>
+### `org.apache.wiki.auth.PasswordComplexityVeriffier`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`PasswordComplexityVeriffier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                 | Method                                              | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|----------------------|-----------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`List<String>`]** | **`validate`**([`String`], [`String`], [`Context`]) |             |        | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.auth.securityverificationutility"></a>
+### `org.apache.wiki.auth.SecurityVerificationUtility`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`SecurityVerificationUtility`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                         | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|-------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`SecurityVerificationUtility`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type       | Method                   | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------|--------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`void`** | **`verify`**([`Engine`]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -2625,15 +2680,16 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type           | Method                                                      | Annotations | Throws             | Compatibility Changes |
-|-----------|---------------------------|----------|----------------|-------------------------------------------------------------|-------------|--------------------|-----------------------|
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearUserCookie`~~([`HttpServletResponse`])              |             |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`clearUserCookie`**([`HttpServletResponse`][7])           |             |                    | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getUserCookie`~~([`HttpServletRequest`])                 |             |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getUserCookie`**([`HttpServletRequest`][2])              |             |                    | ![Method added to public class] |
-| Unchanged | `public`                  |          | `boolean`      | `login`()                                                   |             | [`LoginException`] | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`setUserCookie`~~([`HttpServletResponse`], [`String`])    |             |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`HttpServletResponse`][7], [`String`]) |             |                    | ![Method added to public class] |
+| Status    | Modifiers                 | Generics | Type           | Method                                                      | Annotations        | Throws             | Compatibility Changes |
+|-----------|---------------------------|----------|----------------|-------------------------------------------------------------|--------------------|--------------------|-----------------------|
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearUserCookie`~~([`HttpServletResponse`])              |                    |                    | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`clearUserCookie`**([`HttpServletResponse`][7])           |                    |                    | ![Method added to public class] |
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getUserCookie`~~([`HttpServletRequest`])                 |                    |                    | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getUserCookie`**([`HttpServletRequest`][2])              |                    |                    | ![Method added to public class] |
+| Unchanged | `public`                  |          | `boolean`      | `login`()                                                   |                    | [`LoginException`] | ![No changes]         |
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`setUserCookie`~~([`HttpServletResponse`], [`String`])    |                    |                    | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`HttpServletResponse`][7], [`String`]) | **[`Deprecated`]** |                    | ![Method added to public class] ![Annotation deprecated added] |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`PageContext`][3], [`HttpServletResponse`][7], [`String`]) |  |                  | ![Method added to public class] |
 
 
 #### Fields
@@ -3645,16 +3701,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `DefaultPageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `DefaultPageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface       | Compatibility Changes |
-|-----------|-----------------|-----------------------|
-| Unchanged | [`PageRenamer`] | ![No changes]         |
+| Status       | Interface       | Compatibility Changes |
+|--------------|-----------------|-----------------------|
+| Incompatible | [`PageRenamer`] | ![No changes]         |
 
 
 #### Constructors
@@ -3666,31 +3722,33 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                                       | Annotations | Throws            | Compatibility Changes |
-|-----------|-----------|----------|------------|--------------------------------------------------------------|-------------|-------------------|-----------------------|
-| Unchanged | `public`  |          | `void`     | `firePageRenameEvent`([`String`], [`String`])                |             |                   | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`) |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type       | Method                                                         | Annotations | Throws            | Compatibility Changes |
+|-----------|--------------|----------|------------|----------------------------------------------------------------|-------------|-------------------|-----------------------|
+| Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`firePageRenameEvent`~~([`String`], [`String`])              |             |                   | ![No changes]         |
+| Added     | **`public`** |          | **`void`** | **`firePageRenameEvent`**([`String`], [`String`], [`Context`]) |             |                   | ![Method added to public class] |
+| Unchanged | `public`     |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`)   |             | [`WikiException`] | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.content.pagerenamer"></a>
 ### `org.apache.wiki.content.PageRenamer`
 
-- [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Binary-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `PageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `PageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type       | Method                                                       | Annotations | Throws            | Compatibility Changes |
-|-----------|---------------------|----------|------------|--------------------------------------------------------------|-------------|-------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | `void`     | `firePageRenameEvent`([`String`], [`String`])                |             |                   | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`) |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers                   | Generics | Type       | Method                                                         | Annotations | Throws            | Compatibility Changes |
+|-----------|-----------------------------|----------|------------|----------------------------------------------------------------|-------------|-------------------|-----------------------|
+| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`void`~~ | ~~`firePageRenameEvent`~~([`String`], [`String`])              |             |                   | ![Method removed]     |
+| Added     | **`public`** **`abstract`** |          | **`void`** | **`firePageRenameEvent`**([`String`], [`String`], [`Context`]) |             |                   | ![Method added to interface] |
+| Unchanged | `public` `abstract`         |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`)   |             | [`WikiException`] | ![No changes]         |
 
 ___
 
@@ -4721,9 +4779,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `ModuleManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `ModuleManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -4737,9 +4795,10 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                       | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|----------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `PLUGIN_RESOURCE_LOCATION` |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                       | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|----------------------------|-------------|-----------------------|
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PLUGIN_I18N_RESOURCE`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PLUGIN_RESOURCE_LOCATION` |             | ![No changes]         |
 
 ___
 
@@ -5657,9 +5716,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `CurrentTimePlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|---------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `CurrentTimePlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5671,9 +5730,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 ___
 
@@ -5684,17 +5745,17 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                   | Extends               | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------|-----------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `DefaultPluginManager` | [`BaseModuleManager`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                   | Extends               | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|------------------------|-----------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `DefaultPluginManager` | [`BaseModuleManager`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface         | Compatibility Changes |
-|-----------|-------------------|-----------------------|
-| Unchanged | [`ModuleManager`] | ![No changes]         |
-| Unchanged | [`PluginManager`] | ![No changes]         |
+| Status              | Interface         | Compatibility Changes |
+|---------------------|-------------------|-----------------------|
+| Unchanged           | [`ModuleManager`] | ![No changes]         |
+| Source-incompatible | [`PluginManager`] | ![No changes]         |
 
 
 #### Constructors
@@ -5706,17 +5767,18 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type                           | Method                                                      | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|--------------------------------|-------------------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | `void`                         | `enablePlugins`(`boolean`)                                  |             |                     | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                     | `execute`([`Context`], [`String`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                     | `execute`([`Context`], [`String`])                          |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`WikiPluginInfo`]             | `getModuleInfo`([`String`])                                 |             |                     | ![No changes]         |
-| Unchanged | `public`  |          | [`Pattern`][21]                | `getPluginPattern`()                                        |             |                     | ![No changes]         |
-| Unchanged | `public`  |          | [`Collection<WikiModuleInfo>`] | `modules`()                                                 |             |                     | ![No changes]         |
-| Unchanged | `public`  |          | [`Plugin`]                     | `newWikiPlugin`([`String`], [`ResourceBundle`])             |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`Map<String, String>`]        | `parseArgs`([`String`])                                     |             | [`IOException`]     | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`                      | `pluginsEnabled`()                                          |             |                     | ![No changes]         |
+| Status    | Modifiers    | Generics | Type                           | Method                                                      | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|--------------------------------|-------------------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | `void`                         | `enablePlugins`(`boolean`)                                  |             |                     | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                     | `execute`([`Context`], [`String`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                     | `execute`([`Context`], [`String`])                          |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`List<Plugin>`]**           | **`getDiscoveredPlugins`**()                                |             |                     | ![Method added to public class] |
+| Unchanged | `public`     |          | [`WikiPluginInfo`]             | `getModuleInfo`([`String`])                                 |             |                     | ![No changes]         |
+| Unchanged | `public`     |          | [`Pattern`][21]                | `getPluginPattern`()                                        |             |                     | ![No changes]         |
+| Unchanged | `public`     |          | [`Collection<WikiModuleInfo>`] | `modules`()                                                 |             |                     | ![No changes]         |
+| Unchanged | `public`     |          | [`Plugin`]                     | `newWikiPlugin`([`String`], [`ResourceBundle`])             |             | [`PluginException`] | ![No changes]         |
+| Unchanged | `public`     |          | [`Map<String, String>`]        | `parseArgs`([`String`])                                     |             | [`IOException`]     | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`                      | `pluginsEnabled`()                                          |             |                     | ![No changes]         |
 
 ___
 
@@ -5760,9 +5822,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `Denounce` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `Denounce` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5774,9 +5836,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -5795,9 +5858,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `Groups` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|----------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `Groups` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5809,9 +5872,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 ___
 
@@ -5822,9 +5886,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `IfPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `IfPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5836,10 +5900,12 @@ ___
 
 #### Methods
 
-| Status    | Modifiers         | Generics | Type       | Method                                            | Annotations | Throws              | Compatibility Changes |
-|-----------|-------------------|----------|------------|---------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`          |          | [`String`] | `execute`([`Context`], [`Map<String, String>`])   |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `static` `public` |          | `boolean`  | `ifInclude`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers         | Generics | Type           | Method                                            | Annotations | Throws              | Compatibility Changes |
+|-----------|-------------------|----------|----------------|---------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`          |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`])   |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`**      |          | **[`String`]** | **`getDisplayName`**([`Locale`])                  |             |                     | ![Method added to public class] |
+| Added     | **`public`**      |          | **[`String`]** | **`getSnipExample`**()                            |             |                     | ![Method added to public class] |
+| Unchanged | `static` `public` |          | `boolean`      | `ifInclude`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
 
 
 #### Fields
@@ -5864,9 +5930,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name    | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `Image` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name    | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|---------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `Image` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5878,9 +5944,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -5909,9 +5977,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name          | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `IndexPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name          | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|---------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `IndexPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5923,9 +5991,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 ___
 
@@ -5936,9 +6005,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `InsertPage` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `InsertPage` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5950,9 +6019,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -5977,9 +6048,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ListLocksPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|-------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `ListLocksPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5991,9 +6062,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 ___
 
@@ -6004,9 +6077,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `Note` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name   | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|--------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `Note` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6018,9 +6091,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6039,9 +6113,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name             | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `PageViewPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name             | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|------------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `PageViewPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6053,10 +6127,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public`  |          | `void`     | `initialize`([`Engine`])                        |             |                     | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Unchanged | `public`     |          | `void`         | `initialize`([`Engine`])                        |             |                     | ![No changes]         |
 
 ___
 
@@ -6093,12 +6168,12 @@ ___
 ### `org.apache.wiki.plugin.PluginManager`
 
 - [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `PluginManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `PluginManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -6110,15 +6185,16 @@ ___
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type                    | Method                                                      | Annotations | Throws              | Compatibility Changes |
-|-----------|---------------------|----------|-------------------------|-------------------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | `void`                  | `enablePlugins`(`boolean`)                                  |             |                     | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]              | `execute`([`Context`], [`String`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]              | `execute`([`Context`], [`String`])                          |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Pattern`][21]         | `getPluginPattern`()                                        |             |                     | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Plugin`]              | `newWikiPlugin`([`String`], [`ResourceBundle`])             |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Map<String, String>`] | `parseArgs`([`String`])                                     |             | [`IOException`]     | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`               | `pluginsEnabled`()                                          |             |                     | ![No changes]         |
+| Status    | Modifiers                   | Generics | Type                    | Method                                                      | Annotations | Throws              | Compatibility Changes |
+|-----------|-----------------------------|----------|-------------------------|-------------------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract`         |          | `void`                  | `enablePlugins`(`boolean`)                                  |             |                     | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`String`]              | `execute`([`Context`], [`String`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`String`]              | `execute`([`Context`], [`String`])                          |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** **`abstract`** |          | **[`List<Plugin>`]**    | **`getDiscoveredPlugins`**()                                |             |                     | ![Method added to interface] |
+| Unchanged | `public` `abstract`         |          | [`Pattern`][21]         | `getPluginPattern`()                                        |             |                     | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Plugin`]              | `newWikiPlugin`([`String`], [`ResourceBundle`])             |             | [`PluginException`] | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Map<String, String>`] | `parseArgs`([`String`])                                     |             | [`IOException`]     | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `boolean`               | `pluginsEnabled`()                                          |             |                     | ![No changes]         |
 
 
 #### Fields
@@ -6141,9 +6217,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `RecentChangesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                  | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|-----------------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `RecentChangesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6155,9 +6231,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6179,9 +6256,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ReferredPagesPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                  | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|-----------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `ReferredPagesPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6193,9 +6270,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6221,9 +6300,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                   | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ReferringPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                   | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|------------------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `ReferringPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6235,9 +6314,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6257,9 +6338,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                            | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ReferringUndefinedPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                            | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|---------------------------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `ReferringUndefinedPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6271,9 +6352,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6322,9 +6404,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `Search` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|----------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `Search` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6336,9 +6418,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6393,9 +6477,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `TableOfContents` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|-------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `TableOfContents` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6407,10 +6491,12 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
-| Unchanged | `public`  |          | `void`     | `headingAdded`([`Context`], [`Heading`])        |             |                     | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method added to public class] |
+| Unchanged | `public`     |          | `void`         | `headingAdded`([`Context`], [`Heading`])        |             |                     | ![No changes]         |
 
 
 #### Fields
@@ -6431,9 +6517,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                   | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `UndefinedPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                   | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|------------------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `UndefinedPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6445,9 +6531,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 ___
 
@@ -6458,9 +6545,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                | Extends                    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------|----------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `UnusedPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                | Extends                    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|---------------------|----------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `UnusedPagesPlugin` | [`AbstractReferralPlugin`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6472,9 +6559,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6492,9 +6580,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WeblogArchivePlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                  | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|-----------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `WeblogArchivePlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6506,9 +6594,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method added to public class] |
 
 
 #### Fields
@@ -6526,9 +6615,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WeblogEntryPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|---------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `WeblogEntryPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6540,10 +6629,11 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws                | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|-----------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`]   | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `getNewEntryPage`([`Engine`], [`String`])       |             | [`ProviderException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws                | Compatibility Changes |
+|-----------|--------------|----------|----------------|-------------------------------------------------|-------------|-----------------------|-----------------------|
+| Unchanged | `public`     |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`]   | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                       | ![Method added to public class] |
+| Unchanged | `public`     |          | [`String`]     | `getNewEntryPage`([`Engine`], [`String`])       |             | [`ProviderException`] | ![No changes]         |
 
 
 #### Fields
@@ -6562,9 +6652,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WeblogPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|----------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `WeblogPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6581,6 +6671,8 @@ ___
 | Unchanged | `public`          |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`])               |             | [`PluginException`] | ![No changes]         |
 | Unchanged | `public`          |          | `void`         | `executeParser`([`PluginElement`], [`Context`], [`Map<String, String>`]) |  |                     | ![No changes]         |
 | Unchanged | `public`          |          | [`List<Page>`] | `findBlogEntries`([`Engine`], [`String`], [`Date`], [`Date`]) |             |                     | ![No changes]         |
+| Added     | **`public`**      |          | **[`String`]** | **`getDisplayName`**([`Locale`])                              |             |                     | ![Method added to public class] |
+| Added     | **`public`**      |          | **[`String`]** | **`getSnipExample`**()                                        |             |                     | ![Method added to public class] |
 | Unchanged | `static` `public` |          | [`String`]     | `makeEntryPage`([`String`], [`String`], [`String`])           |             |                     | ![No changes]         |
 | Unchanged | `static` `public` |          | [`String`]     | `makeEntryPage`([`String`])                                   |             |                     | ![No changes]         |
 | Unchanged | `static` `public` |          | [`String`]     | `makeEntryPage`([`String`], [`String`])                       |             |                     | ![No changes]         |
@@ -7962,6 +8054,78 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.search.defaultsearchmanager$pluginsearch"></a>
+### `org.apache.wiki.search.DefaultSearchManager$PluginSearch`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name               | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|--------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`PluginSearch`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![Interface added]    |
+
+
+#### Implemented Interfaces
+
+| Status | Interface               | Compatibility Changes |
+|--------|-------------------------|-----------------------|
+| Added  | **[`WikiAjaxServlet`]** | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                                  | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|----------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`PluginSearch`**([`DefaultSearchManager`]) |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type           | Method                    | Annotations | Throws              | Compatibility Changes |
+|--------|--------------|----------|----------------|---------------------------|-------------|---------------------|-----------------------|
+| Added  | **`public`** |          | **[`String`]** | **`getServletMapping`**() |             |                     | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`**     | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name                  | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|-----------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `AJAX_ACTION_PLUGINS` |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **`int`**      | `DEFAULT_MAX_RESULTS` |             | ![No changes]         |
+| Added  | **`public`**                          | **`int`**      | `maxResults`          |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.search.defaultsearchmanager$pluginsearch$simplesnipdata"></a>
+### `org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                 | Type      | Name                 | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|---------------------------|-----------|----------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`static`** **`public`** | **Class** | **`SimpleSnipData`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor            | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`SimpleSnipData`**() |             |        | ![No changes]         |
+
+
+#### Fields
+
+| Status | Modifiers    | Type           | Name          | Annotations | Compatibility Changes |
+|--------|--------------|----------------|---------------|-------------|-----------------------|
+| Added  | **`public`** | **[`String`]** | `displayName` |             | ![No changes]         |
+| Added  | **`public`** | **[`String`]** | `snip`        |             | ![No changes]         |
+
+___
+
 <a id="user-content-org.apache.wiki.search.lucenesearchprovider"></a>
 ### `org.apache.wiki.search.LuceneSearchProvider`
 
@@ -8059,9 +8223,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `SearchManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `SearchManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -8076,11 +8240,12 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                     | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|--------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_SEARCHPROVIDER` |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `JSON_SEARCH`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_SEARCHPROVIDER`    |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                     | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|--------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_SEARCHPROVIDER` |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `JSON_SEARCH`            |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PLUGIN_SEARCH`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_SEARCHPROVIDER`    |             | ![No changes]         |
 
 ___
 
@@ -8229,6 +8394,53 @@ ___
 | Status    | Modifiers | Generics | Type  | Method                                                | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-------|-------------------------------------------------------|-------------|--------|-----------------------|
 | Unchanged | `public`  |          | `int` | `compare`([`SearchResult`][27], [`SearchResult`][27]) |             |        | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.security.auditlogger"></a>
+### `org.apache.wiki.security.AuditLogger`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`AuditLogger`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                | Method                               | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|---------------------|--------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`**              |          | **`void`**          | **`actionPerformed`**([`WikiEvent`]) |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`AuditLogger`]** | **`getInstance`**()                  |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **`void`**          | **`initialize`**([`WikiEngine`])     |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **`void`**          | **`shutdown`**()                     |             |        | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.security.eventutil"></a>
+### `org.apache.wiki.security.EventUtil`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name            | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-----------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`EventUtil`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type              | Method                                                    | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|-------------------|-----------------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiSecurityEvent`])                    |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`PageContext`][3])        |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`Session`])               |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`Context`])               |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`HttpServletRequest`][2]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -9530,6 +9742,34 @@ ___
 |-----------|-----------|------------|---------------|-------------|-----------------------|
 | Unchanged | `public`  | [`String`] | `m_accesskey` |             | ![No changes]         |
 | Unchanged | `public`  | [`String`] | `m_title`     |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.tags.maxuploadtag"></a>
+### `org.apache.wiki.tags.MaxUploadTag`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name               | Extends             | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|--------------------|---------------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`MaxUploadTag`** | **[`WikiTagBase`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor          | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|----------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`MaxUploadTag`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type           | Method                                  | Annotations | Throws            | Compatibility Changes |
+|--------|---------------------------|----------|----------------|-----------------------------------------|-------------|-------------------|-----------------------|
+| Added  | **`public`**              |          | **`int`**      | **`doWikiStartTag`**()                  |             | **[`Exception`]** | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`String`]** | **`humanReadableByteCountBin`**(`long`) |             |                   | ![Method added to public class] |
 
 ___
 
@@ -13249,7 +13489,7 @@ ___
 
 ___
 
-*Generated on: 2025-11-26 17:47:14.417+0000*.
+*Generated on: 2025-11-29 20:51:48.954+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
@@ -13299,6 +13539,7 @@ ___
 [Constructor removed]: https://img.shields.io/badge/Constructor_removed-red "Constructor removed"
 [Field removed]: https://img.shields.io/badge/Field_removed-red "Field removed"
 [Field type changed]: https://img.shields.io/badge/Field_type_changed-red "Field type changed"
+[Interface added]: https://img.shields.io/badge/Interface_added-orange "Interface added"
 [Interface removed]: https://img.shields.io/badge/Interface_removed-red "Interface removed"
 [Method added to interface]: https://img.shields.io/badge/Method_added_to_interface-orange "Method added to interface"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
@@ -13331,6 +13572,7 @@ ___
 [`AttributeList`]: # "javax.management.AttributeList"
 [`AttributeNotFoundException`]: # "javax.management.AttributeNotFoundException"
 [`Attribute`]: # "javax.management.Attribute"
+[`AuditLogger`]: # "org.apache.wiki.security.AuditLogger"
 [`AuthenticationManager`]: # "org.apache.wiki.auth.AuthenticationManager"
 [`AuthorizationManager`]: # "org.apache.wiki.auth.AuthorizationManager"
 [`Authorizer`]: # "org.apache.wiki.auth.Authorizer"
@@ -13447,6 +13689,7 @@ ___
 [`List<PageFilter>`]: # "java.util.List<org.apache.wiki.api.filters.PageFilter>"
 [`List<PageLock>`]: # "java.util.List<org.apache.wiki.pages.PageLock>"
 [`List<Pattern>`]: # "java.util.List<org.apache.oro.text.regex.Pattern>"
+[`List<Plugin>`]: # "java.util.List<org.apache.wiki.api.plugin.Plugin>"
 [`List<Step>`]: # "java.util.List<org.apache.wiki.workflow.Step>"
 [`List<String>`]: # "java.util.List<java.lang.String>"
 [`List<T>`]: # "java.util.List<T>"
@@ -13587,6 +13830,7 @@ ___
 [`WikiPluginInfo`]: # "org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo"
 [`WikiRPCHandler`]: # "org.apache.wiki.xmlrpc.WikiRPCHandler"
 [`WikiRenderer`]: # "org.apache.wiki.render.WikiRenderer"
+[`WikiSecurityEvent`]: # "org.apache.wiki.event.WikiSecurityEvent"
 [`WikiSecurityException`]: # "org.apache.wiki.auth.WikiSecurityException"
 [`WikiServletFilter`]: # "org.apache.wiki.ui.WikiServletFilter"
 [`WikiSession`]: # "org.apache.wiki.WikiSession"
@@ -13626,6 +13870,8 @@ ___
 [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]: #user-content-org.apache.wiki.auth.defaultusermanager$jsonusermodule
 [org.apache.wiki.auth.GroupPrincipal]: #user-content-org.apache.wiki.auth.groupprincipal
 [org.apache.wiki.auth.NoSuchPrincipalException]: #user-content-org.apache.wiki.auth.nosuchprincipalexception
+[org.apache.wiki.auth.PasswordComplexityVeriffier]: #user-content-org.apache.wiki.auth.passwordcomplexityveriffier
+[org.apache.wiki.auth.SecurityVerificationUtility]: #user-content-org.apache.wiki.auth.securityverificationutility
 [org.apache.wiki.auth.SecurityVerifier]: #user-content-org.apache.wiki.auth.securityverifier
 [org.apache.wiki.auth.SessionMonitor]: #user-content-org.apache.wiki.auth.sessionmonitor
 [org.apache.wiki.auth.UserManager]: #user-content-org.apache.wiki.auth.usermanager
@@ -13792,6 +14038,8 @@ ___
 [org.apache.wiki.search.BasicSearchProvider]: #user-content-org.apache.wiki.search.basicsearchprovider
 [org.apache.wiki.search.DefaultSearchManager]: #user-content-org.apache.wiki.search.defaultsearchmanager
 [org.apache.wiki.search.DefaultSearchManager$JSONSearch]: #user-content-org.apache.wiki.search.defaultsearchmanager$jsonsearch
+[org.apache.wiki.search.DefaultSearchManager$PluginSearch]: #user-content-org.apache.wiki.search.defaultsearchmanager$pluginsearch
+[org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData]: #user-content-org.apache.wiki.search.defaultsearchmanager$pluginsearch$simplesnipdata
 [org.apache.wiki.search.LuceneSearchProvider]: #user-content-org.apache.wiki.search.lucenesearchprovider
 [org.apache.wiki.search.QueryItem]: #user-content-org.apache.wiki.search.queryitem
 [org.apache.wiki.search.SearchManager]: #user-content-org.apache.wiki.search.searchmanager
@@ -13800,6 +14048,8 @@ ___
 [org.apache.wiki.search.SearchProvider]: #user-content-org.apache.wiki.search.searchprovider
 [org.apache.wiki.search.SearchResult]: #user-content-org.apache.wiki.search.searchresult
 [org.apache.wiki.search.SearchResultComparator]: #user-content-org.apache.wiki.search.searchresultcomparator
+[org.apache.wiki.security.AuditLogger]: #user-content-org.apache.wiki.security.auditlogger
+[org.apache.wiki.security.EventUtil]: #user-content-org.apache.wiki.security.eventutil
 [org.apache.wiki.spi.AclsSPIDefaultImpl]: #user-content-org.apache.wiki.spi.aclsspidefaultimpl
 [org.apache.wiki.spi.ContentsSPIDefaultImpl]: #user-content-org.apache.wiki.spi.contentsspidefaultimpl
 [org.apache.wiki.spi.ContextSPIDefaultImpl]: #user-content-org.apache.wiki.spi.contextspidefaultimpl
@@ -13841,6 +14091,7 @@ ___
 [org.apache.wiki.tags.LinkTag]: #user-content-org.apache.wiki.tags.linktag
 [org.apache.wiki.tags.LinkToParentTag]: #user-content-org.apache.wiki.tags.linktoparenttag
 [org.apache.wiki.tags.LinkToTag]: #user-content-org.apache.wiki.tags.linktotag
+[org.apache.wiki.tags.MaxUploadTag]: #user-content-org.apache.wiki.tags.maxuploadtag
 [org.apache.wiki.tags.MessagesTag]: #user-content-org.apache.wiki.tags.messagestag
 [org.apache.wiki.tags.NextVersionTag]: #user-content-org.apache.wiki.tags.nextversiontag
 [org.apache.wiki.tags.NoSuchPageTag]: #user-content-org.apache.wiki.tags.nosuchpagetag

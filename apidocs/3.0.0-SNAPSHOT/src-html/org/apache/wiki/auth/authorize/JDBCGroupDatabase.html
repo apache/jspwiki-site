@@ -564,134 +564,139 @@
 <span class="source-line-no">551</span><span id="line-551">        }</span>
 <span class="source-line-no">552</span><span id="line-552">        catch( final NoSuchPrincipalException e )</span>
 <span class="source-line-no">553</span><span id="line-553">        {</span>
-<span class="source-line-no">554</span><span id="line-554">            return false;</span>
-<span class="source-line-no">555</span><span id="line-555">        }</span>
-<span class="source-line-no">556</span><span id="line-556">    }</span>
-<span class="source-line-no">557</span><span id="line-557"></span>
-<span class="source-line-no">558</span><span id="line-558">    /**</span>
-<span class="source-line-no">559</span><span id="line-559">     * Loads and returns a Group from the back-end database matching a supplied</span>
-<span class="source-line-no">560</span><span id="line-560">     * name.</span>
-<span class="source-line-no">561</span><span id="line-561">     * </span>
-<span class="source-line-no">562</span><span id="line-562">     * @param index the name of the Group to find</span>
-<span class="source-line-no">563</span><span id="line-563">     * @return the populated Group</span>
-<span class="source-line-no">564</span><span id="line-564">     * @throws NoSuchPrincipalException if the Group cannot be found</span>
-<span class="source-line-no">565</span><span id="line-565">     * @throws SQLException if the database query returns an error</span>
-<span class="source-line-no">566</span><span id="line-566">     */</span>
-<span class="source-line-no">567</span><span id="line-567">    private Group findGroup( final String index ) throws NoSuchPrincipalException</span>
-<span class="source-line-no">568</span><span id="line-568">    {</span>
-<span class="source-line-no">569</span><span id="line-569">        Group group = null;</span>
-<span class="source-line-no">570</span><span id="line-570">        boolean found = false;</span>
-<span class="source-line-no">571</span><span id="line-571">        boolean unique = true;</span>
-<span class="source-line-no">572</span><span id="line-572">        ResultSet rs = null;</span>
-<span class="source-line-no">573</span><span id="line-573">        PreparedStatement ps = null;</span>
-<span class="source-line-no">574</span><span id="line-574">        Connection conn = null;</span>
-<span class="source-line-no">575</span><span id="line-575">        try</span>
-<span class="source-line-no">576</span><span id="line-576">        {</span>
-<span class="source-line-no">577</span><span id="line-577">            // Open the database connection</span>
-<span class="source-line-no">578</span><span id="line-578">            conn = m_ds.getConnection();</span>
-<span class="source-line-no">579</span><span id="line-579"></span>
-<span class="source-line-no">580</span><span id="line-580">            ps = conn.prepareStatement( m_findGroup );</span>
-<span class="source-line-no">581</span><span id="line-581">            ps.setString( 1, index );</span>
-<span class="source-line-no">582</span><span id="line-582">            rs = ps.executeQuery();</span>
-<span class="source-line-no">583</span><span id="line-583">            while ( rs.next() )</span>
-<span class="source-line-no">584</span><span id="line-584">            {</span>
-<span class="source-line-no">585</span><span id="line-585">                if( group != null )</span>
-<span class="source-line-no">586</span><span id="line-586">                {</span>
-<span class="source-line-no">587</span><span id="line-587">                    unique = false;</span>
-<span class="source-line-no">588</span><span id="line-588">                    break;</span>
-<span class="source-line-no">589</span><span id="line-589">                }</span>
-<span class="source-line-no">590</span><span id="line-590">                group = new Group( index, m_engine.getApplicationName() );</span>
-<span class="source-line-no">591</span><span id="line-591">                group.setCreated( rs.getTimestamp( m_created ) );</span>
-<span class="source-line-no">592</span><span id="line-592">                group.setCreator( rs.getString( m_creator ) );</span>
-<span class="source-line-no">593</span><span id="line-593">                group.setLastModified( rs.getTimestamp( m_modified ) );</span>
-<span class="source-line-no">594</span><span id="line-594">                group.setModifier( rs.getString( m_modifier ) );</span>
-<span class="source-line-no">595</span><span id="line-595">                populateGroup( group );</span>
-<span class="source-line-no">596</span><span id="line-596">                found = true;</span>
-<span class="source-line-no">597</span><span id="line-597">            }</span>
-<span class="source-line-no">598</span><span id="line-598">        }</span>
-<span class="source-line-no">599</span><span id="line-599">        catch( final SQLException e )</span>
-<span class="source-line-no">600</span><span id="line-600">        {</span>
-<span class="source-line-no">601</span><span id="line-601">            closeQuietly( conn, ps, rs );</span>
-<span class="source-line-no">602</span><span id="line-602">            throw new NoSuchPrincipalException( e.getMessage() );</span>
-<span class="source-line-no">603</span><span id="line-603">        }</span>
-<span class="source-line-no">604</span><span id="line-604">        finally</span>
-<span class="source-line-no">605</span><span id="line-605">        {</span>
-<span class="source-line-no">606</span><span id="line-606">            closeQuietly( conn, ps, rs );</span>
-<span class="source-line-no">607</span><span id="line-607">        }</span>
-<span class="source-line-no">608</span><span id="line-608"></span>
-<span class="source-line-no">609</span><span id="line-609">        if( !found )</span>
-<span class="source-line-no">610</span><span id="line-610">        {</span>
-<span class="source-line-no">611</span><span id="line-611">            throw new NoSuchPrincipalException( "Could not find group in database!" );</span>
-<span class="source-line-no">612</span><span id="line-612">        }</span>
-<span class="source-line-no">613</span><span id="line-613">        if( !unique )</span>
-<span class="source-line-no">614</span><span id="line-614">        {</span>
-<span class="source-line-no">615</span><span id="line-615">            throw new NoSuchPrincipalException( "More than one group in database!" );</span>
-<span class="source-line-no">616</span><span id="line-616">        }</span>
-<span class="source-line-no">617</span><span id="line-617">        return group;</span>
-<span class="source-line-no">618</span><span id="line-618">    }</span>
-<span class="source-line-no">619</span><span id="line-619"></span>
-<span class="source-line-no">620</span><span id="line-620">    /**</span>
-<span class="source-line-no">621</span><span id="line-621">     * Fills a Group with members.</span>
-<span class="source-line-no">622</span><span id="line-622">     * </span>
-<span class="source-line-no">623</span><span id="line-623">     * @param group the group to populate</span>
-<span class="source-line-no">624</span><span id="line-624">     * @return the populated Group</span>
-<span class="source-line-no">625</span><span id="line-625">     */</span>
-<span class="source-line-no">626</span><span id="line-626">    private Group populateGroup( final Group group )</span>
-<span class="source-line-no">627</span><span id="line-627">    {</span>
-<span class="source-line-no">628</span><span id="line-628">        ResultSet rs = null;</span>
-<span class="source-line-no">629</span><span id="line-629">        PreparedStatement ps = null;</span>
-<span class="source-line-no">630</span><span id="line-630">        Connection conn = null;</span>
-<span class="source-line-no">631</span><span id="line-631">        try</span>
-<span class="source-line-no">632</span><span id="line-632">        {</span>
-<span class="source-line-no">633</span><span id="line-633">            // Open the database connection</span>
-<span class="source-line-no">634</span><span id="line-634">            conn = m_ds.getConnection();</span>
-<span class="source-line-no">635</span><span id="line-635"></span>
-<span class="source-line-no">636</span><span id="line-636">            ps = conn.prepareStatement( m_findMembers );</span>
-<span class="source-line-no">637</span><span id="line-637">            ps.setString( 1, group.getName() );</span>
-<span class="source-line-no">638</span><span id="line-638">            rs = ps.executeQuery();</span>
-<span class="source-line-no">639</span><span id="line-639">            while ( rs.next() )</span>
-<span class="source-line-no">640</span><span id="line-640">            {</span>
-<span class="source-line-no">641</span><span id="line-641">                final String memberName = rs.getString( m_member );</span>
-<span class="source-line-no">642</span><span id="line-642">                if( memberName != null )</span>
-<span class="source-line-no">643</span><span id="line-643">                {</span>
-<span class="source-line-no">644</span><span id="line-644">                    final WikiPrincipal principal = new WikiPrincipal( memberName, WikiPrincipal.UNSPECIFIED );</span>
-<span class="source-line-no">645</span><span id="line-645">                    group.add( principal );</span>
-<span class="source-line-no">646</span><span id="line-646">                }</span>
-<span class="source-line-no">647</span><span id="line-647">            }</span>
-<span class="source-line-no">648</span><span id="line-648">        }</span>
-<span class="source-line-no">649</span><span id="line-649">        catch( final SQLException e )</span>
-<span class="source-line-no">650</span><span id="line-650">        {</span>
-<span class="source-line-no">651</span><span id="line-651">            // I guess that means there aren't any principals...</span>
-<span class="source-line-no">652</span><span id="line-652">        }</span>
-<span class="source-line-no">653</span><span id="line-653">        finally</span>
-<span class="source-line-no">654</span><span id="line-654">        {</span>
-<span class="source-line-no">655</span><span id="line-655">            closeQuietly( conn, ps, rs );</span>
-<span class="source-line-no">656</span><span id="line-656">        }</span>
-<span class="source-line-no">657</span><span id="line-657">        return group;</span>
-<span class="source-line-no">658</span><span id="line-658">    }</span>
-<span class="source-line-no">659</span><span id="line-659">    </span>
-<span class="source-line-no">660</span><span id="line-660">    void closeQuietly( final Connection conn, final PreparedStatement ps, final ResultSet rs ) {</span>
-<span class="source-line-no">661</span><span id="line-661">        if( conn != null ) {</span>
-<span class="source-line-no">662</span><span id="line-662">            try {</span>
-<span class="source-line-no">663</span><span id="line-663">                conn.close();</span>
-<span class="source-line-no">664</span><span id="line-664">            } catch( final Exception e ) {</span>
-<span class="source-line-no">665</span><span id="line-665">            }</span>
-<span class="source-line-no">666</span><span id="line-666">        }</span>
-<span class="source-line-no">667</span><span id="line-667">        if( ps != null )  {</span>
-<span class="source-line-no">668</span><span id="line-668">            try {</span>
-<span class="source-line-no">669</span><span id="line-669">                ps.close();</span>
-<span class="source-line-no">670</span><span id="line-670">            } catch( final Exception e ) {</span>
-<span class="source-line-no">671</span><span id="line-671">            }</span>
-<span class="source-line-no">672</span><span id="line-672">        }</span>
-<span class="source-line-no">673</span><span id="line-673">        if( rs != null )  {</span>
-<span class="source-line-no">674</span><span id="line-674">            try {</span>
-<span class="source-line-no">675</span><span id="line-675">                rs.close();</span>
-<span class="source-line-no">676</span><span id="line-676">            } catch( final Exception e ) {</span>
-<span class="source-line-no">677</span><span id="line-677">            }</span>
-<span class="source-line-no">678</span><span id="line-678">        }</span>
-<span class="source-line-no">679</span><span id="line-679">    }</span>
-<span class="source-line-no">680</span><span id="line-680"></span>
-<span class="source-line-no">681</span><span id="line-681">}</span>
+<span class="source-line-no">554</span><span id="line-554">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">555</span><span id="line-555">            return false;</span>
+<span class="source-line-no">556</span><span id="line-556">        }</span>
+<span class="source-line-no">557</span><span id="line-557">    }</span>
+<span class="source-line-no">558</span><span id="line-558"></span>
+<span class="source-line-no">559</span><span id="line-559">    /**</span>
+<span class="source-line-no">560</span><span id="line-560">     * Loads and returns a Group from the back-end database matching a supplied</span>
+<span class="source-line-no">561</span><span id="line-561">     * name.</span>
+<span class="source-line-no">562</span><span id="line-562">     * </span>
+<span class="source-line-no">563</span><span id="line-563">     * @param index the name of the Group to find</span>
+<span class="source-line-no">564</span><span id="line-564">     * @return the populated Group</span>
+<span class="source-line-no">565</span><span id="line-565">     * @throws NoSuchPrincipalException if the Group cannot be found</span>
+<span class="source-line-no">566</span><span id="line-566">     * @throws SQLException if the database query returns an error</span>
+<span class="source-line-no">567</span><span id="line-567">     */</span>
+<span class="source-line-no">568</span><span id="line-568">    private Group findGroup( final String index ) throws NoSuchPrincipalException</span>
+<span class="source-line-no">569</span><span id="line-569">    {</span>
+<span class="source-line-no">570</span><span id="line-570">        Group group = null;</span>
+<span class="source-line-no">571</span><span id="line-571">        boolean found = false;</span>
+<span class="source-line-no">572</span><span id="line-572">        boolean unique = true;</span>
+<span class="source-line-no">573</span><span id="line-573">        ResultSet rs = null;</span>
+<span class="source-line-no">574</span><span id="line-574">        PreparedStatement ps = null;</span>
+<span class="source-line-no">575</span><span id="line-575">        Connection conn = null;</span>
+<span class="source-line-no">576</span><span id="line-576">        try</span>
+<span class="source-line-no">577</span><span id="line-577">        {</span>
+<span class="source-line-no">578</span><span id="line-578">            // Open the database connection</span>
+<span class="source-line-no">579</span><span id="line-579">            conn = m_ds.getConnection();</span>
+<span class="source-line-no">580</span><span id="line-580"></span>
+<span class="source-line-no">581</span><span id="line-581">            ps = conn.prepareStatement( m_findGroup );</span>
+<span class="source-line-no">582</span><span id="line-582">            ps.setString( 1, index );</span>
+<span class="source-line-no">583</span><span id="line-583">            rs = ps.executeQuery();</span>
+<span class="source-line-no">584</span><span id="line-584">            while ( rs.next() )</span>
+<span class="source-line-no">585</span><span id="line-585">            {</span>
+<span class="source-line-no">586</span><span id="line-586">                if( group != null )</span>
+<span class="source-line-no">587</span><span id="line-587">                {</span>
+<span class="source-line-no">588</span><span id="line-588">                    unique = false;</span>
+<span class="source-line-no">589</span><span id="line-589">                    break;</span>
+<span class="source-line-no">590</span><span id="line-590">                }</span>
+<span class="source-line-no">591</span><span id="line-591">                group = new Group( index, m_engine.getApplicationName() );</span>
+<span class="source-line-no">592</span><span id="line-592">                group.setCreated( rs.getTimestamp( m_created ) );</span>
+<span class="source-line-no">593</span><span id="line-593">                group.setCreator( rs.getString( m_creator ) );</span>
+<span class="source-line-no">594</span><span id="line-594">                group.setLastModified( rs.getTimestamp( m_modified ) );</span>
+<span class="source-line-no">595</span><span id="line-595">                group.setModifier( rs.getString( m_modifier ) );</span>
+<span class="source-line-no">596</span><span id="line-596">                populateGroup( group );</span>
+<span class="source-line-no">597</span><span id="line-597">                found = true;</span>
+<span class="source-line-no">598</span><span id="line-598">            }</span>
+<span class="source-line-no">599</span><span id="line-599">        }</span>
+<span class="source-line-no">600</span><span id="line-600">        catch( final SQLException e )</span>
+<span class="source-line-no">601</span><span id="line-601">        {</span>
+<span class="source-line-no">602</span><span id="line-602">            closeQuietly( conn, ps, rs );</span>
+<span class="source-line-no">603</span><span id="line-603">            throw new NoSuchPrincipalException( e.getMessage() );</span>
+<span class="source-line-no">604</span><span id="line-604">        }</span>
+<span class="source-line-no">605</span><span id="line-605">        finally</span>
+<span class="source-line-no">606</span><span id="line-606">        {</span>
+<span class="source-line-no">607</span><span id="line-607">            closeQuietly( conn, ps, rs );</span>
+<span class="source-line-no">608</span><span id="line-608">        }</span>
+<span class="source-line-no">609</span><span id="line-609"></span>
+<span class="source-line-no">610</span><span id="line-610">        if( !found )</span>
+<span class="source-line-no">611</span><span id="line-611">        {</span>
+<span class="source-line-no">612</span><span id="line-612">            throw new NoSuchPrincipalException( "Could not find group in database!" );</span>
+<span class="source-line-no">613</span><span id="line-613">        }</span>
+<span class="source-line-no">614</span><span id="line-614">        if( !unique )</span>
+<span class="source-line-no">615</span><span id="line-615">        {</span>
+<span class="source-line-no">616</span><span id="line-616">            throw new NoSuchPrincipalException( "More than one group in database!" );</span>
+<span class="source-line-no">617</span><span id="line-617">        }</span>
+<span class="source-line-no">618</span><span id="line-618">        return group;</span>
+<span class="source-line-no">619</span><span id="line-619">    }</span>
+<span class="source-line-no">620</span><span id="line-620"></span>
+<span class="source-line-no">621</span><span id="line-621">    /**</span>
+<span class="source-line-no">622</span><span id="line-622">     * Fills a Group with members.</span>
+<span class="source-line-no">623</span><span id="line-623">     * </span>
+<span class="source-line-no">624</span><span id="line-624">     * @param group the group to populate</span>
+<span class="source-line-no">625</span><span id="line-625">     * @return the populated Group</span>
+<span class="source-line-no">626</span><span id="line-626">     */</span>
+<span class="source-line-no">627</span><span id="line-627">    private Group populateGroup( final Group group )</span>
+<span class="source-line-no">628</span><span id="line-628">    {</span>
+<span class="source-line-no">629</span><span id="line-629">        ResultSet rs = null;</span>
+<span class="source-line-no">630</span><span id="line-630">        PreparedStatement ps = null;</span>
+<span class="source-line-no">631</span><span id="line-631">        Connection conn = null;</span>
+<span class="source-line-no">632</span><span id="line-632">        try</span>
+<span class="source-line-no">633</span><span id="line-633">        {</span>
+<span class="source-line-no">634</span><span id="line-634">            // Open the database connection</span>
+<span class="source-line-no">635</span><span id="line-635">            conn = m_ds.getConnection();</span>
+<span class="source-line-no">636</span><span id="line-636"></span>
+<span class="source-line-no">637</span><span id="line-637">            ps = conn.prepareStatement( m_findMembers );</span>
+<span class="source-line-no">638</span><span id="line-638">            ps.setString( 1, group.getName() );</span>
+<span class="source-line-no">639</span><span id="line-639">            rs = ps.executeQuery();</span>
+<span class="source-line-no">640</span><span id="line-640">            while ( rs.next() )</span>
+<span class="source-line-no">641</span><span id="line-641">            {</span>
+<span class="source-line-no">642</span><span id="line-642">                final String memberName = rs.getString( m_member );</span>
+<span class="source-line-no">643</span><span id="line-643">                if( memberName != null )</span>
+<span class="source-line-no">644</span><span id="line-644">                {</span>
+<span class="source-line-no">645</span><span id="line-645">                    final WikiPrincipal principal = new WikiPrincipal( memberName, WikiPrincipal.UNSPECIFIED );</span>
+<span class="source-line-no">646</span><span id="line-646">                    group.add( principal );</span>
+<span class="source-line-no">647</span><span id="line-647">                }</span>
+<span class="source-line-no">648</span><span id="line-648">            }</span>
+<span class="source-line-no">649</span><span id="line-649">        }</span>
+<span class="source-line-no">650</span><span id="line-650">        catch( final SQLException e )</span>
+<span class="source-line-no">651</span><span id="line-651">        {</span>
+<span class="source-line-no">652</span><span id="line-652">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">653</span><span id="line-653">            // I guess that means there aren't any principals...</span>
+<span class="source-line-no">654</span><span id="line-654">        }</span>
+<span class="source-line-no">655</span><span id="line-655">        finally</span>
+<span class="source-line-no">656</span><span id="line-656">        {</span>
+<span class="source-line-no">657</span><span id="line-657">            closeQuietly( conn, ps, rs );</span>
+<span class="source-line-no">658</span><span id="line-658">        }</span>
+<span class="source-line-no">659</span><span id="line-659">        return group;</span>
+<span class="source-line-no">660</span><span id="line-660">    }</span>
+<span class="source-line-no">661</span><span id="line-661">    </span>
+<span class="source-line-no">662</span><span id="line-662">    void closeQuietly(final Connection conn, final PreparedStatement ps, final ResultSet rs) {</span>
+<span class="source-line-no">663</span><span id="line-663">        if (conn != null) {</span>
+<span class="source-line-no">664</span><span id="line-664">            try {</span>
+<span class="source-line-no">665</span><span id="line-665">                conn.close();</span>
+<span class="source-line-no">666</span><span id="line-666">            } catch (final Exception e) {</span>
+<span class="source-line-no">667</span><span id="line-667">                LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">668</span><span id="line-668">            }</span>
+<span class="source-line-no">669</span><span id="line-669">        }</span>
+<span class="source-line-no">670</span><span id="line-670">        if (ps != null) {</span>
+<span class="source-line-no">671</span><span id="line-671">            try {</span>
+<span class="source-line-no">672</span><span id="line-672">                ps.close();</span>
+<span class="source-line-no">673</span><span id="line-673">            } catch (final Exception e) {</span>
+<span class="source-line-no">674</span><span id="line-674">                LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">675</span><span id="line-675">            }</span>
+<span class="source-line-no">676</span><span id="line-676">        }</span>
+<span class="source-line-no">677</span><span id="line-677">        if (rs != null) {</span>
+<span class="source-line-no">678</span><span id="line-678">            try {</span>
+<span class="source-line-no">679</span><span id="line-679">                rs.close();</span>
+<span class="source-line-no">680</span><span id="line-680">            } catch (final Exception e) {</span>
+<span class="source-line-no">681</span><span id="line-681">                LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">682</span><span id="line-682">            }</span>
+<span class="source-line-no">683</span><span id="line-683">        }</span>
+<span class="source-line-no">684</span><span id="line-684">    }</span>
+<span class="source-line-no">685</span><span id="line-685"></span>
+<span class="source-line-no">686</span><span id="line-686">}</span>
 
 
 

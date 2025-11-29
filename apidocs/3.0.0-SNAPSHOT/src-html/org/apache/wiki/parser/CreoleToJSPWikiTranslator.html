@@ -31,19 +31,19 @@
 <span class="source-line-no">018</span><span id="line-18"> */</span>
 <span class="source-line-no">019</span><span id="line-19">package org.apache.wiki.parser;</span>
 <span class="source-line-no">020</span><span id="line-20"></span>
-<span class="source-line-no">021</span><span id="line-21">import java.io.UnsupportedEncodingException;</span>
-<span class="source-line-no">022</span><span id="line-22">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">023</span><span id="line-23">import java.security.MessageDigest;</span>
-<span class="source-line-no">024</span><span id="line-24">import java.security.NoSuchAlgorithmException;</span>
-<span class="source-line-no">025</span><span id="line-25">import java.text.SimpleDateFormat;</span>
-<span class="source-line-no">026</span><span id="line-26">import java.util.ArrayList;</span>
-<span class="source-line-no">027</span><span id="line-27">import java.util.Calendar;</span>
-<span class="source-line-no">028</span><span id="line-28">import java.util.HashMap;</span>
-<span class="source-line-no">029</span><span id="line-29">import java.util.Map;</span>
-<span class="source-line-no">030</span><span id="line-30">import java.util.Properties;</span>
-<span class="source-line-no">031</span><span id="line-31">import java.util.Set;</span>
-<span class="source-line-no">032</span><span id="line-32">import java.util.regex.Matcher;</span>
-<span class="source-line-no">033</span><span id="line-33">import java.util.regex.Pattern;</span>
+<span class="source-line-no">021</span><span id="line-21">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">022</span><span id="line-22">import java.security.MessageDigest;</span>
+<span class="source-line-no">023</span><span id="line-23">import java.security.NoSuchAlgorithmException;</span>
+<span class="source-line-no">024</span><span id="line-24">import java.text.SimpleDateFormat;</span>
+<span class="source-line-no">025</span><span id="line-25">import java.util.ArrayList;</span>
+<span class="source-line-no">026</span><span id="line-26">import java.util.Calendar;</span>
+<span class="source-line-no">027</span><span id="line-27">import java.util.HashMap;</span>
+<span class="source-line-no">028</span><span id="line-28">import java.util.Map;</span>
+<span class="source-line-no">029</span><span id="line-29">import java.util.Properties;</span>
+<span class="source-line-no">030</span><span id="line-30">import java.util.Set;</span>
+<span class="source-line-no">031</span><span id="line-31">import java.util.regex.Matcher;</span>
+<span class="source-line-no">032</span><span id="line-32">import java.util.regex.Pattern;</span>
+<span class="source-line-no">033</span><span id="line-33">import org.apache.log4j.Logger;</span>
 <span class="source-line-no">034</span><span id="line-34"></span>
 <span class="source-line-no">035</span><span id="line-35">/**</span>
 <span class="source-line-no">036</span><span id="line-36"> * &lt;p&gt;Translates Creole markp to JSPWiki markup. Simple translator uses regular expressions.</span>
@@ -61,7 +61,7 @@
 <span class="source-line-no">048</span><span id="line-48"> */</span>
 <span class="source-line-no">049</span><span id="line-49">public class CreoleToJSPWikiTranslator</span>
 <span class="source-line-no">050</span><span id="line-50">{</span>
-<span class="source-line-no">051</span><span id="line-51"></span>
+<span class="source-line-no">051</span><span id="line-51">    private static final Logger LOG = Logger.getLogger(CreoleToJSPWikiTranslator.class);</span>
 <span class="source-line-no">052</span><span id="line-52">    // These variables are expanded so that admins</span>
 <span class="source-line-no">053</span><span id="line-53">    // can display information about the current installed</span>
 <span class="source-line-no">054</span><span id="line-54">    // pagefilter</span>
@@ -205,7 +205,7 @@
 <span class="source-line-no">192</span><span id="line-192">        }</span>
 <span class="source-line-no">193</span><span id="line-193">        catch (final Exception e)</span>
 <span class="source-line-no">194</span><span id="line-194">        {</span>
-<span class="source-line-no">195</span><span id="line-195">            e.printStackTrace();</span>
+<span class="source-line-no">195</span><span id="line-195">            LOG.warn(e.getMessage(), e);</span>
 <span class="source-line-no">196</span><span id="line-196">            df = new SimpleDateFormat(DEFAULT_DATEFORMAT);</span>
 <span class="source-line-no">197</span><span id="line-197">        }</span>
 <span class="source-line-no">198</span><span id="line-198"></span>
@@ -524,36 +524,35 @@
 <span class="source-line-no">511</span><span id="line-511">            }</span>
 <span class="source-line-no">512</span><span id="line-512">            catch (final NoSuchAlgorithmException e)</span>
 <span class="source-line-no">513</span><span id="line-513">            {</span>
-<span class="source-line-no">514</span><span id="line-514">                // FIXME: Should log properly</span>
-<span class="source-line-no">515</span><span id="line-515">                e.printStackTrace();</span>
-<span class="source-line-no">516</span><span id="line-516">            }</span>
-<span class="source-line-no">517</span><span id="line-517">        }</span>
-<span class="source-line-no">518</span><span id="line-518">        matcher.appendTail(result);</span>
-<span class="source-line-no">519</span><span id="line-519">        return result.toString();</span>
-<span class="source-line-no">520</span><span id="line-520">    }</span>
-<span class="source-line-no">521</span><span id="line-521"></span>
-<span class="source-line-no">522</span><span id="line-522">    private String bytesToHash(final byte[] b)</span>
-<span class="source-line-no">523</span><span id="line-523">    {</span>
-<span class="source-line-no">524</span><span id="line-524">        final StringBuilder hash = new StringBuilder();</span>
-<span class="source-line-no">525</span><span id="line-525">        for (final byte value : b) {</span>
-<span class="source-line-no">526</span><span id="line-526">            hash.append(Integer.toString((value &amp; 0xff) + 0x100, 16).substring(1));</span>
-<span class="source-line-no">527</span><span id="line-527">        }</span>
-<span class="source-line-no">528</span><span id="line-528">        return hash.toString();</span>
-<span class="source-line-no">529</span><span id="line-529">    }</span>
-<span class="source-line-no">530</span><span id="line-530"></span>
-<span class="source-line-no">531</span><span id="line-531">    private String translateElement(final String content, final String fromMarkup, final String toMarkup)</span>
-<span class="source-line-no">532</span><span id="line-532">    {</span>
-<span class="source-line-no">533</span><span id="line-533">        final Matcher matcher = Pattern.compile(fromMarkup, Pattern.MULTILINE).matcher(content);</span>
-<span class="source-line-no">534</span><span id="line-534">        final StringBuffer result = new StringBuffer();</span>
-<span class="source-line-no">535</span><span id="line-535"></span>
-<span class="source-line-no">536</span><span id="line-536">        while (matcher.find())</span>
-<span class="source-line-no">537</span><span id="line-537">        {</span>
-<span class="source-line-no">538</span><span id="line-538">            matcher.appendReplacement(result, toMarkup);</span>
-<span class="source-line-no">539</span><span id="line-539">        }</span>
-<span class="source-line-no">540</span><span id="line-540">        matcher.appendTail(result);</span>
-<span class="source-line-no">541</span><span id="line-541">        return result.toString();</span>
-<span class="source-line-no">542</span><span id="line-542">    }</span>
-<span class="source-line-no">543</span><span id="line-543">}</span>
+<span class="source-line-no">514</span><span id="line-514">                LOG.error(e.getMessage(), e);</span>
+<span class="source-line-no">515</span><span id="line-515">            }</span>
+<span class="source-line-no">516</span><span id="line-516">        }</span>
+<span class="source-line-no">517</span><span id="line-517">        matcher.appendTail(result);</span>
+<span class="source-line-no">518</span><span id="line-518">        return result.toString();</span>
+<span class="source-line-no">519</span><span id="line-519">    }</span>
+<span class="source-line-no">520</span><span id="line-520"></span>
+<span class="source-line-no">521</span><span id="line-521">    private String bytesToHash(final byte[] b)</span>
+<span class="source-line-no">522</span><span id="line-522">    {</span>
+<span class="source-line-no">523</span><span id="line-523">        final StringBuilder hash = new StringBuilder();</span>
+<span class="source-line-no">524</span><span id="line-524">        for (final byte value : b) {</span>
+<span class="source-line-no">525</span><span id="line-525">            hash.append(Integer.toString((value &amp; 0xff) + 0x100, 16).substring(1));</span>
+<span class="source-line-no">526</span><span id="line-526">        }</span>
+<span class="source-line-no">527</span><span id="line-527">        return hash.toString();</span>
+<span class="source-line-no">528</span><span id="line-528">    }</span>
+<span class="source-line-no">529</span><span id="line-529"></span>
+<span class="source-line-no">530</span><span id="line-530">    private String translateElement(final String content, final String fromMarkup, final String toMarkup)</span>
+<span class="source-line-no">531</span><span id="line-531">    {</span>
+<span class="source-line-no">532</span><span id="line-532">        final Matcher matcher = Pattern.compile(fromMarkup, Pattern.MULTILINE).matcher(content);</span>
+<span class="source-line-no">533</span><span id="line-533">        final StringBuffer result = new StringBuffer();</span>
+<span class="source-line-no">534</span><span id="line-534"></span>
+<span class="source-line-no">535</span><span id="line-535">        while (matcher.find())</span>
+<span class="source-line-no">536</span><span id="line-536">        {</span>
+<span class="source-line-no">537</span><span id="line-537">            matcher.appendReplacement(result, toMarkup);</span>
+<span class="source-line-no">538</span><span id="line-538">        }</span>
+<span class="source-line-no">539</span><span id="line-539">        matcher.appendTail(result);</span>
+<span class="source-line-no">540</span><span id="line-540">        return result.toString();</span>
+<span class="source-line-no">541</span><span id="line-541">    }</span>
+<span class="source-line-no">542</span><span id="line-542">}</span>
 
 
 

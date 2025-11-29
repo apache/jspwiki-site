@@ -77,7 +77,7 @@
 | Unchanged | [org.apache.wiki.api.filters.PageFilter]                     | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.plugin.InitializablePlugin]             | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.plugin.ParserStagePlugin]               | ![Not serializable] | ![No changes]         |
-| Unchanged | [org.apache.wiki.api.plugin.Plugin]                          | ![Not serializable] | ![No changes]         |
+| Modified  | [org.apache.wiki.api.plugin.Plugin]                          | ![Not serializable] | ![Method new default] |
 | Unchanged | [org.apache.wiki.api.plugin.PluginElement]                   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.providers.AttachmentProvider]           | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.providers.PageProvider]                 | ![Not serializable] | ![No changes]         |
@@ -1012,16 +1012,18 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `Plugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|----------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `Plugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|---------------------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Status    | Modifiers           | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|---------------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Added     | **`public`**        |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method new default] |
+| Added     | **`public`**        |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method new default] |
 
 
 #### Fields
@@ -1494,7 +1496,7 @@ ___
 
 ___
 
-*Generated on: 2025-11-26 17:47:13.231+0000*.
+*Generated on: 2025-11-29 20:51:47.616+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
@@ -1508,6 +1510,7 @@ ___
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
 [Method added to interface]: https://img.shields.io/badge/Method_added_to_interface-orange "Method added to interface"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
+[Method new default]: https://img.shields.io/badge/Method_new_default-orange "Method new default"
 [Method new static added to interface]: https://img.shields.io/badge/Method_new_static_added_to_interface-orange "Method new static added to interface"
 [Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
 [Method return type changed]: https://img.shields.io/badge/Method_return_type_changed-red "Method return type changed"

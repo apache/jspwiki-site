@@ -355,273 +355,274 @@
 <span class="source-line-no">342</span><span id="line-342">                throw new DuplicateUserException( "security.error.cannot.rename", newName );</span>
 <span class="source-line-no">343</span><span id="line-343">            }</span>
 <span class="source-line-no">344</span><span id="line-344">        } catch( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">345</span><span id="line-345">            // Good! That means it's safe to save using the new name</span>
-<span class="source-line-no">346</span><span id="line-346">        }</span>
-<span class="source-line-no">347</span><span id="line-347"></span>
-<span class="source-line-no">348</span><span id="line-348">        // Find the user with the old login id attribute, and change it</span>
-<span class="source-line-no">349</span><span id="line-349">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
-<span class="source-line-no">350</span><span id="line-350">        for( int i = 0; i &lt; users.getLength(); i++ ) {</span>
-<span class="source-line-no">351</span><span id="line-351">            final Element user = ( Element )users.item( i );</span>
-<span class="source-line-no">352</span><span id="line-352">            if( user.getAttribute( LOGIN_NAME ).equals( loginName ) ) {</span>
-<span class="source-line-no">353</span><span id="line-353">                final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
-<span class="source-line-no">354</span><span id="line-354">                final Date modDate = new Date( System.currentTimeMillis() );</span>
-<span class="source-line-no">355</span><span id="line-355">                setAttribute( user, LOGIN_NAME, newName );</span>
-<span class="source-line-no">356</span><span id="line-356">                setAttribute( user, LAST_MODIFIED, c_format.format( modDate ) );</span>
-<span class="source-line-no">357</span><span id="line-357">                profile.setLoginName( newName );</span>
-<span class="source-line-no">358</span><span id="line-358">                profile.setLastModified( modDate );</span>
-<span class="source-line-no">359</span><span id="line-359">                break;</span>
-<span class="source-line-no">360</span><span id="line-360">            }</span>
-<span class="source-line-no">361</span><span id="line-361">        }</span>
-<span class="source-line-no">362</span><span id="line-362"></span>
-<span class="source-line-no">363</span><span id="line-363">        // Commit to disk</span>
-<span class="source-line-no">364</span><span id="line-364">        saveDOM();</span>
-<span class="source-line-no">365</span><span id="line-365">    }</span>
-<span class="source-line-no">366</span><span id="line-366"></span>
-<span class="source-line-no">367</span><span id="line-367">    /** {@inheritDoc} */</span>
-<span class="source-line-no">368</span><span id="line-368">    @Override</span>
-<span class="source-line-no">369</span><span id="line-369">    public synchronized void save( final UserProfile profile ) throws WikiSecurityException {</span>
-<span class="source-line-no">370</span><span id="line-370">        if ( c_dom == null ) {</span>
-<span class="source-line-no">371</span><span id="line-371">            LOG.fatal( "Could not save profile " + profile + " database does not exist" );</span>
-<span class="source-line-no">372</span><span id="line-372">            throw new IllegalStateException( "FATAL: database does not exist" );</span>
-<span class="source-line-no">373</span><span id="line-373">        }</span>
-<span class="source-line-no">374</span><span id="line-374"></span>
-<span class="source-line-no">375</span><span id="line-375">        checkForRefresh();</span>
-<span class="source-line-no">376</span><span id="line-376"></span>
-<span class="source-line-no">377</span><span id="line-377">        final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
-<span class="source-line-no">378</span><span id="line-378">        final String index = profile.getLoginName();</span>
-<span class="source-line-no">379</span><span id="line-379">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
-<span class="source-line-no">380</span><span id="line-380">        Element user = IntStream.range(0, users.getLength()).mapToObj(i -&gt; (Element) users.item(i)).filter(currentUser -&gt; currentUser.getAttribute(LOGIN_NAME).equals(index)).findFirst().orElse(null);</span>
-<span class="source-line-no">381</span><span id="line-381"></span>
-<span class="source-line-no">382</span><span id="line-382">        boolean isNew = false;</span>
-<span class="source-line-no">383</span><span id="line-383"></span>
-<span class="source-line-no">384</span><span id="line-384">        final Date modDate = new Date( System.currentTimeMillis() );</span>
-<span class="source-line-no">385</span><span id="line-385">        if( user == null ) {</span>
-<span class="source-line-no">386</span><span id="line-386">            // Create new user node</span>
-<span class="source-line-no">387</span><span id="line-387">            profile.setCreated( modDate );</span>
-<span class="source-line-no">388</span><span id="line-388">            LOG.info( "Creating new user " + index );</span>
-<span class="source-line-no">389</span><span id="line-389">            user = c_dom.createElement( USER_TAG );</span>
-<span class="source-line-no">390</span><span id="line-390">            c_dom.getDocumentElement().appendChild( user );</span>
-<span class="source-line-no">391</span><span id="line-391">            setAttribute( user, CREATED, c_format.format( profile.getCreated() ) );</span>
-<span class="source-line-no">392</span><span id="line-392">            isNew = true;</span>
-<span class="source-line-no">393</span><span id="line-393">        } else {</span>
-<span class="source-line-no">394</span><span id="line-394">            // To update existing user node, delete old attributes first...</span>
-<span class="source-line-no">395</span><span id="line-395">            final NodeList attributes = user.getElementsByTagName( ATTRIBUTES_TAG );</span>
-<span class="source-line-no">396</span><span id="line-396">            for( int i = 0; i &lt; attributes.getLength(); i++ ) {</span>
-<span class="source-line-no">397</span><span id="line-397">                user.removeChild( attributes.item( i ) );</span>
-<span class="source-line-no">398</span><span id="line-398">            }</span>
-<span class="source-line-no">399</span><span id="line-399">        }</span>
-<span class="source-line-no">400</span><span id="line-400"></span>
-<span class="source-line-no">401</span><span id="line-401">        setAttribute( user, UID, profile.getUid() );</span>
-<span class="source-line-no">402</span><span id="line-402">        setAttribute( user, LAST_MODIFIED, c_format.format( modDate ) );</span>
-<span class="source-line-no">403</span><span id="line-403">        setAttribute( user, LOGIN_NAME, profile.getLoginName() );</span>
-<span class="source-line-no">404</span><span id="line-404">        setAttribute( user, FULL_NAME, profile.getFullname() );</span>
-<span class="source-line-no">405</span><span id="line-405">        setAttribute( user, WIKI_NAME, profile.getWikiName() );</span>
-<span class="source-line-no">406</span><span id="line-406">        setAttribute( user, EMAIL, profile.getEmail() );</span>
-<span class="source-line-no">407</span><span id="line-407">        final Date lockExpiry = profile.getLockExpiry();</span>
-<span class="source-line-no">408</span><span id="line-408">        setAttribute( user, LOCK_EXPIRY, lockExpiry == null ? "" : c_format.format( lockExpiry ) );</span>
-<span class="source-line-no">409</span><span id="line-409"></span>
-<span class="source-line-no">410</span><span id="line-410">        // Hash and save the new password if it's different from old one</span>
-<span class="source-line-no">411</span><span id="line-411">        final String newPassword = profile.getPassword();</span>
-<span class="source-line-no">412</span><span id="line-412">        if( newPassword != null &amp;&amp; !newPassword.equals( "" ) ) {</span>
-<span class="source-line-no">413</span><span id="line-413">            final String oldPassword = user.getAttribute( PASSWORD );</span>
-<span class="source-line-no">414</span><span id="line-414">            if( !oldPassword.equals( newPassword ) ) {</span>
-<span class="source-line-no">415</span><span id="line-415">                setAttribute( user, PASSWORD, getHash( newPassword ) );</span>
-<span class="source-line-no">416</span><span id="line-416">            }</span>
-<span class="source-line-no">417</span><span id="line-417">        }</span>
-<span class="source-line-no">418</span><span id="line-418"></span>
-<span class="source-line-no">419</span><span id="line-419">        // Save the attributes as Base64 string</span>
-<span class="source-line-no">420</span><span id="line-420">        if(!profile.getAttributes().isEmpty()) {</span>
-<span class="source-line-no">421</span><span id="line-421">            try {</span>
-<span class="source-line-no">422</span><span id="line-422">                final String encodedAttributes = Serializer.serializeToBase64( profile.getAttributes() );</span>
-<span class="source-line-no">423</span><span id="line-423">                final Element attributes = c_dom.createElement( ATTRIBUTES_TAG );</span>
-<span class="source-line-no">424</span><span id="line-424">                user.appendChild( attributes );</span>
-<span class="source-line-no">425</span><span id="line-425">                final Text value = c_dom.createTextNode( encodedAttributes );</span>
-<span class="source-line-no">426</span><span id="line-426">                attributes.appendChild( value );</span>
-<span class="source-line-no">427</span><span id="line-427">            } catch( final IOException e ) {</span>
-<span class="source-line-no">428</span><span id="line-428">                throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</span>
-<span class="source-line-no">429</span><span id="line-429">            }</span>
-<span class="source-line-no">430</span><span id="line-430">        }</span>
-<span class="source-line-no">431</span><span id="line-431"></span>
-<span class="source-line-no">432</span><span id="line-432">        // Set the profile timestamps</span>
-<span class="source-line-no">433</span><span id="line-433">        if( isNew ) {</span>
-<span class="source-line-no">434</span><span id="line-434">            profile.setCreated( modDate );</span>
-<span class="source-line-no">435</span><span id="line-435">        }</span>
-<span class="source-line-no">436</span><span id="line-436">        profile.setLastModified( modDate );</span>
-<span class="source-line-no">437</span><span id="line-437"></span>
-<span class="source-line-no">438</span><span id="line-438">        // Commit to disk</span>
-<span class="source-line-no">439</span><span id="line-439">        saveDOM();</span>
-<span class="source-line-no">440</span><span id="line-440">    }</span>
-<span class="source-line-no">441</span><span id="line-441"></span>
-<span class="source-line-no">442</span><span id="line-442">    /**</span>
-<span class="source-line-no">443</span><span id="line-443">     * Private method that returns the first {@link UserProfile}matching a &amp;lt;user&amp;gt; element's supplied attribute. This method will also</span>
-<span class="source-line-no">444</span><span id="line-444">     * set the UID if it has not yet been set.</span>
-<span class="source-line-no">445</span><span id="line-445">     *</span>
-<span class="source-line-no">446</span><span id="line-446">     * @param matchAttribute matching attribute</span>
-<span class="source-line-no">447</span><span id="line-447">     * @param index value to match</span>
-<span class="source-line-no">448</span><span id="line-448">     * @return the profile, or &lt;code&gt;null&lt;/code&gt; if not found</span>
-<span class="source-line-no">449</span><span id="line-449">     */</span>
-<span class="source-line-no">450</span><span id="line-450">    private UserProfile findByAttribute( final String matchAttribute, String index ) {</span>
-<span class="source-line-no">451</span><span id="line-451">        if ( c_dom == null ) {</span>
-<span class="source-line-no">452</span><span id="line-452">            throw new IllegalStateException( "FATAL: database does not exist" );</span>
-<span class="source-line-no">453</span><span id="line-453">        }</span>
-<span class="source-line-no">454</span><span id="line-454"></span>
-<span class="source-line-no">455</span><span id="line-455">        checkForRefresh();</span>
-<span class="source-line-no">456</span><span id="line-456">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
-<span class="source-line-no">457</span><span id="line-457">        if( users == null ) {</span>
-<span class="source-line-no">458</span><span id="line-458">            return null;</span>
-<span class="source-line-no">459</span><span id="line-459">        }</span>
-<span class="source-line-no">460</span><span id="line-460"></span>
-<span class="source-line-no">461</span><span id="line-461">        // check if we have to do a case-insensitive compare</span>
-<span class="source-line-no">462</span><span id="line-462">        final boolean caseSensitiveCompare = !matchAttribute.equals( EMAIL );</span>
-<span class="source-line-no">463</span><span id="line-463"></span>
-<span class="source-line-no">464</span><span id="line-464">        for( int i = 0; i &lt; users.getLength(); i++ ) {</span>
-<span class="source-line-no">465</span><span id="line-465">            final Element user = (Element) users.item( i );</span>
-<span class="source-line-no">466</span><span id="line-466">            String userAttribute = user.getAttribute( matchAttribute );</span>
-<span class="source-line-no">467</span><span id="line-467">            if( !caseSensitiveCompare ) {</span>
-<span class="source-line-no">468</span><span id="line-468">                userAttribute = StringUtils.lowerCase(userAttribute);</span>
-<span class="source-line-no">469</span><span id="line-469">                index = StringUtils.lowerCase(index);</span>
-<span class="source-line-no">470</span><span id="line-470">            }</span>
-<span class="source-line-no">471</span><span id="line-471">            if( userAttribute.equals( index ) ) {</span>
-<span class="source-line-no">472</span><span id="line-472">                final UserProfile profile = newProfile();</span>
-<span class="source-line-no">473</span><span id="line-473"></span>
-<span class="source-line-no">474</span><span id="line-474">                // Parse basic attributes</span>
-<span class="source-line-no">475</span><span id="line-475">                profile.setUid( user.getAttribute( UID ) );</span>
-<span class="source-line-no">476</span><span id="line-476">                if( profile.getUid() == null || profile.getUid().isEmpty() ) {</span>
-<span class="source-line-no">477</span><span id="line-477">                    profile.setUid( generateUid( this ) );</span>
-<span class="source-line-no">478</span><span id="line-478">                }</span>
-<span class="source-line-no">479</span><span id="line-479">                profile.setLoginName( user.getAttribute( LOGIN_NAME ) );</span>
-<span class="source-line-no">480</span><span id="line-480">                profile.setFullname( user.getAttribute( FULL_NAME ) );</span>
-<span class="source-line-no">481</span><span id="line-481">                profile.setPassword( user.getAttribute( PASSWORD ) );</span>
-<span class="source-line-no">482</span><span id="line-482">                profile.setEmail( user.getAttribute( EMAIL ) );</span>
-<span class="source-line-no">483</span><span id="line-483"></span>
-<span class="source-line-no">484</span><span id="line-484">                // Get created/modified timestamps</span>
-<span class="source-line-no">485</span><span id="line-485">                final String created = user.getAttribute( CREATED );</span>
-<span class="source-line-no">486</span><span id="line-486">                final String modified = user.getAttribute( LAST_MODIFIED );</span>
-<span class="source-line-no">487</span><span id="line-487">                profile.setCreated( parseDate( profile, created ) );</span>
-<span class="source-line-no">488</span><span id="line-488">                profile.setLastModified( parseDate( profile, modified ) );</span>
-<span class="source-line-no">489</span><span id="line-489"></span>
-<span class="source-line-no">490</span><span id="line-490">                // Is the profile locked?</span>
-<span class="source-line-no">491</span><span id="line-491">                final String lockExpiry = user.getAttribute( LOCK_EXPIRY );</span>
-<span class="source-line-no">492</span><span id="line-492">                if( StringUtils.isEmpty( lockExpiry ) || lockExpiry.isEmpty() ) {</span>
-<span class="source-line-no">493</span><span id="line-493">                    profile.setLockExpiry( null );</span>
-<span class="source-line-no">494</span><span id="line-494">                } else {</span>
-<span class="source-line-no">495</span><span id="line-495">                    profile.setLockExpiry( new Date( Long.parseLong( lockExpiry ) ) );</span>
-<span class="source-line-no">496</span><span id="line-496">                }</span>
-<span class="source-line-no">497</span><span id="line-497"></span>
-<span class="source-line-no">498</span><span id="line-498">                // Extract all the user's attributes (should only be one attributes tag, but you never know!)</span>
-<span class="source-line-no">499</span><span id="line-499">                final NodeList attributes = user.getElementsByTagName( ATTRIBUTES_TAG );</span>
-<span class="source-line-no">500</span><span id="line-500">                for( int j = 0; j &lt; attributes.getLength(); j++ ) {</span>
-<span class="source-line-no">501</span><span id="line-501">                    final Element attribute = ( Element )attributes.item( j );</span>
-<span class="source-line-no">502</span><span id="line-502">                    final String serializedMap = extractText( attribute );</span>
-<span class="source-line-no">503</span><span id="line-503">                    try {</span>
-<span class="source-line-no">504</span><span id="line-504">                        final Map&lt; String, ? extends Serializable &gt; map = Serializer.deserializeFromBase64( serializedMap );</span>
-<span class="source-line-no">505</span><span id="line-505">                        profile.getAttributes().putAll( map );</span>
-<span class="source-line-no">506</span><span id="line-506">                    } catch( final IOException e ) {</span>
-<span class="source-line-no">507</span><span id="line-507">                        LOG.error( "Could not parse user profile attributes!", e );</span>
-<span class="source-line-no">508</span><span id="line-508">                    }</span>
-<span class="source-line-no">509</span><span id="line-509">                }</span>
-<span class="source-line-no">510</span><span id="line-510"></span>
-<span class="source-line-no">511</span><span id="line-511">                return profile;</span>
-<span class="source-line-no">512</span><span id="line-512">            }</span>
-<span class="source-line-no">513</span><span id="line-513">        }</span>
-<span class="source-line-no">514</span><span id="line-514">        return null;</span>
-<span class="source-line-no">515</span><span id="line-515">    }</span>
-<span class="source-line-no">516</span><span id="line-516"></span>
-<span class="source-line-no">517</span><span id="line-517">    /**</span>
-<span class="source-line-no">518</span><span id="line-518">     * Extracts all the text nodes that are immediate children of an Element.</span>
-<span class="source-line-no">519</span><span id="line-519">     *</span>
-<span class="source-line-no">520</span><span id="line-520">     * @param element the base element</span>
-<span class="source-line-no">521</span><span id="line-521">     * @return the text nodes that are immediate children of the base element, concatenated together</span>
-<span class="source-line-no">522</span><span id="line-522">     */</span>
-<span class="source-line-no">523</span><span id="line-523">    private String extractText( final Element element ) {</span>
-<span class="source-line-no">524</span><span id="line-524">        String text = "";</span>
-<span class="source-line-no">525</span><span id="line-525">        if( element.getChildNodes().getLength() &gt; 0 ) {</span>
-<span class="source-line-no">526</span><span id="line-526">            final NodeList children = element.getChildNodes();</span>
-<span class="source-line-no">527</span><span id="line-527">            text = IntStream.range(0, children.getLength()).mapToObj(children::item).filter(child -&gt; child.getNodeType() == Node.TEXT_NODE).map(child -&gt; ((Text) child).getData()).collect(Collectors.joining());</span>
-<span class="source-line-no">528</span><span id="line-528">        }</span>
-<span class="source-line-no">529</span><span id="line-529">        return text;</span>
-<span class="source-line-no">530</span><span id="line-530">    }</span>
-<span class="source-line-no">531</span><span id="line-531"></span>
-<span class="source-line-no">532</span><span id="line-532">    /**</span>
-<span class="source-line-no">533</span><span id="line-533">     *  Tries to parse a date using the default format - then, for backwards compatibility reasons, tries the platform default.</span>
-<span class="source-line-no">534</span><span id="line-534">     *</span>
-<span class="source-line-no">535</span><span id="line-535">     *  @param profile profile associated to the date.</span>
-<span class="source-line-no">536</span><span id="line-536">     *  @param date date to be parsed.</span>
-<span class="source-line-no">537</span><span id="line-537">     *  @return A parsed date, or null, if both parse attempts fail.</span>
-<span class="source-line-no">538</span><span id="line-538">     */</span>
-<span class="source-line-no">539</span><span id="line-539">    private Date parseDate( final UserProfile profile, final String date ) {</span>
-<span class="source-line-no">540</span><span id="line-540">        try {</span>
-<span class="source-line-no">541</span><span id="line-541">            final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
-<span class="source-line-no">542</span><span id="line-542">            return c_format.parse( date );</span>
-<span class="source-line-no">543</span><span id="line-543">        } catch( final ParseException e ) {</span>
-<span class="source-line-no">544</span><span id="line-544">            try {</span>
-<span class="source-line-no">545</span><span id="line-545">                return DateFormat.getDateTimeInstance().parse( date );</span>
-<span class="source-line-no">546</span><span id="line-546">            } catch( final ParseException e2 ) {</span>
-<span class="source-line-no">547</span><span id="line-547">                LOG.warn( "Could not parse 'created' or 'lastModified' attribute for profile '" + profile.getLoginName() + "'." +</span>
-<span class="source-line-no">548</span><span id="line-548">                          " It may have been tampered with.", e2 );</span>
-<span class="source-line-no">549</span><span id="line-549">            }</span>
-<span class="source-line-no">550</span><span id="line-550">        }</span>
-<span class="source-line-no">551</span><span id="line-551">        return null;</span>
-<span class="source-line-no">552</span><span id="line-552">    }</span>
-<span class="source-line-no">553</span><span id="line-553"></span>
-<span class="source-line-no">554</span><span id="line-554">    /**</span>
-<span class="source-line-no">555</span><span id="line-555">     * After loading the DOM, this method sanity-checks the dates in the DOM and makes sure they are formatted properly. This is sort-of</span>
-<span class="source-line-no">556</span><span id="line-556">     * hacky, but it should work.</span>
-<span class="source-line-no">557</span><span id="line-557">     */</span>
-<span class="source-line-no">558</span><span id="line-558">    private void sanitizeDOM() {</span>
-<span class="source-line-no">559</span><span id="line-559">        if( c_dom == null ) {</span>
-<span class="source-line-no">560</span><span id="line-560">            throw new IllegalStateException( "FATAL: database does not exist" );</span>
-<span class="source-line-no">561</span><span id="line-561">        }</span>
-<span class="source-line-no">562</span><span id="line-562"></span>
-<span class="source-line-no">563</span><span id="line-563">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
-<span class="source-line-no">564</span><span id="line-564">        for( int i = 0; i &lt; users.getLength(); i++ ) {</span>
-<span class="source-line-no">565</span><span id="line-565">            final Element user = ( Element )users.item( i );</span>
-<span class="source-line-no">566</span><span id="line-566"></span>
-<span class="source-line-no">567</span><span id="line-567">            // Sanitize UID (and generate a new one if one does not exist)</span>
-<span class="source-line-no">568</span><span id="line-568">            String uid = user.getAttribute( UID ).trim();</span>
-<span class="source-line-no">569</span><span id="line-569">            if( StringUtils.isEmpty( uid ) || "-1".equals( uid ) ) {</span>
-<span class="source-line-no">570</span><span id="line-570">                uid = String.valueOf( generateUid( this ) );</span>
-<span class="source-line-no">571</span><span id="line-571">                user.setAttribute( UID, uid );</span>
-<span class="source-line-no">572</span><span id="line-572">            }</span>
-<span class="source-line-no">573</span><span id="line-573"></span>
-<span class="source-line-no">574</span><span id="line-574">            // Sanitize dates</span>
-<span class="source-line-no">575</span><span id="line-575">            final String loginName = user.getAttribute( LOGIN_NAME );</span>
-<span class="source-line-no">576</span><span id="line-576">            String created = user.getAttribute( CREATED );</span>
-<span class="source-line-no">577</span><span id="line-577">            String modified = user.getAttribute( LAST_MODIFIED );</span>
-<span class="source-line-no">578</span><span id="line-578">            final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
-<span class="source-line-no">579</span><span id="line-579">            try {</span>
-<span class="source-line-no">580</span><span id="line-580">                created = c_format.format( c_format.parse( created ) );</span>
-<span class="source-line-no">581</span><span id="line-581">                modified = c_format.format( c_format.parse( modified ) );</span>
-<span class="source-line-no">582</span><span id="line-582">                user.setAttribute( CREATED, created );</span>
-<span class="source-line-no">583</span><span id="line-583">                user.setAttribute( LAST_MODIFIED, modified );</span>
-<span class="source-line-no">584</span><span id="line-584">            } catch( final ParseException e ) {</span>
-<span class="source-line-no">585</span><span id="line-585">                try {</span>
-<span class="source-line-no">586</span><span id="line-586">                    created = c_format.format( DateFormat.getDateTimeInstance().parse( created ) );</span>
-<span class="source-line-no">587</span><span id="line-587">                    modified = c_format.format( DateFormat.getDateTimeInstance().parse( modified ) );</span>
-<span class="source-line-no">588</span><span id="line-588">                    user.setAttribute( CREATED, created );</span>
-<span class="source-line-no">589</span><span id="line-589">                    user.setAttribute( LAST_MODIFIED, modified );</span>
-<span class="source-line-no">590</span><span id="line-590">                } catch( final ParseException e2 ) {</span>
-<span class="source-line-no">591</span><span id="line-591">                    LOG.warn( "Could not parse 'created' or 'lastModified' attribute for profile '" + loginName + "'."</span>
-<span class="source-line-no">592</span><span id="line-592">                            + " It may have been tampered with." );</span>
-<span class="source-line-no">593</span><span id="line-593">                }</span>
-<span class="source-line-no">594</span><span id="line-594">            }</span>
-<span class="source-line-no">595</span><span id="line-595">        }</span>
-<span class="source-line-no">596</span><span id="line-596">    }</span>
-<span class="source-line-no">597</span><span id="line-597"></span>
-<span class="source-line-no">598</span><span id="line-598">    /**</span>
-<span class="source-line-no">599</span><span id="line-599">     * Private method that sets an attribute value for a supplied DOM element.</span>
-<span class="source-line-no">600</span><span id="line-600">     *</span>
-<span class="source-line-no">601</span><span id="line-601">     * @param element the element whose attribute is to be set</span>
-<span class="source-line-no">602</span><span id="line-602">     * @param attribute the name of the attribute to set</span>
-<span class="source-line-no">603</span><span id="line-603">     * @param value the desired attribute value</span>
-<span class="source-line-no">604</span><span id="line-604">     */</span>
-<span class="source-line-no">605</span><span id="line-605">    private void setAttribute( final Element element, final String attribute, final String value ) {</span>
-<span class="source-line-no">606</span><span id="line-606">        if( value != null ) {</span>
-<span class="source-line-no">607</span><span id="line-607">            element.setAttribute( attribute, value );</span>
-<span class="source-line-no">608</span><span id="line-608">        }</span>
-<span class="source-line-no">609</span><span id="line-609">    }</span>
-<span class="source-line-no">610</span><span id="line-610"></span>
-<span class="source-line-no">611</span><span id="line-611">}</span>
+<span class="source-line-no">345</span><span id="line-345">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">346</span><span id="line-346">            // Good! That means it's safe to save using the new name</span>
+<span class="source-line-no">347</span><span id="line-347">        }</span>
+<span class="source-line-no">348</span><span id="line-348"></span>
+<span class="source-line-no">349</span><span id="line-349">        // Find the user with the old login id attribute, and change it</span>
+<span class="source-line-no">350</span><span id="line-350">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
+<span class="source-line-no">351</span><span id="line-351">        for( int i = 0; i &lt; users.getLength(); i++ ) {</span>
+<span class="source-line-no">352</span><span id="line-352">            final Element user = ( Element )users.item( i );</span>
+<span class="source-line-no">353</span><span id="line-353">            if( user.getAttribute( LOGIN_NAME ).equals( loginName ) ) {</span>
+<span class="source-line-no">354</span><span id="line-354">                final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
+<span class="source-line-no">355</span><span id="line-355">                final Date modDate = new Date( System.currentTimeMillis() );</span>
+<span class="source-line-no">356</span><span id="line-356">                setAttribute( user, LOGIN_NAME, newName );</span>
+<span class="source-line-no">357</span><span id="line-357">                setAttribute( user, LAST_MODIFIED, c_format.format( modDate ) );</span>
+<span class="source-line-no">358</span><span id="line-358">                profile.setLoginName( newName );</span>
+<span class="source-line-no">359</span><span id="line-359">                profile.setLastModified( modDate );</span>
+<span class="source-line-no">360</span><span id="line-360">                break;</span>
+<span class="source-line-no">361</span><span id="line-361">            }</span>
+<span class="source-line-no">362</span><span id="line-362">        }</span>
+<span class="source-line-no">363</span><span id="line-363"></span>
+<span class="source-line-no">364</span><span id="line-364">        // Commit to disk</span>
+<span class="source-line-no">365</span><span id="line-365">        saveDOM();</span>
+<span class="source-line-no">366</span><span id="line-366">    }</span>
+<span class="source-line-no">367</span><span id="line-367"></span>
+<span class="source-line-no">368</span><span id="line-368">    /** {@inheritDoc} */</span>
+<span class="source-line-no">369</span><span id="line-369">    @Override</span>
+<span class="source-line-no">370</span><span id="line-370">    public synchronized void save( final UserProfile profile ) throws WikiSecurityException {</span>
+<span class="source-line-no">371</span><span id="line-371">        if ( c_dom == null ) {</span>
+<span class="source-line-no">372</span><span id="line-372">            LOG.fatal( "Could not save profile " + profile + " database does not exist" );</span>
+<span class="source-line-no">373</span><span id="line-373">            throw new IllegalStateException( "FATAL: database does not exist" );</span>
+<span class="source-line-no">374</span><span id="line-374">        }</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">        checkForRefresh();</span>
+<span class="source-line-no">377</span><span id="line-377"></span>
+<span class="source-line-no">378</span><span id="line-378">        final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
+<span class="source-line-no">379</span><span id="line-379">        final String index = profile.getLoginName();</span>
+<span class="source-line-no">380</span><span id="line-380">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
+<span class="source-line-no">381</span><span id="line-381">        Element user = IntStream.range(0, users.getLength()).mapToObj(i -&gt; (Element) users.item(i)).filter(currentUser -&gt; currentUser.getAttribute(LOGIN_NAME).equals(index)).findFirst().orElse(null);</span>
+<span class="source-line-no">382</span><span id="line-382"></span>
+<span class="source-line-no">383</span><span id="line-383">        boolean isNew = false;</span>
+<span class="source-line-no">384</span><span id="line-384"></span>
+<span class="source-line-no">385</span><span id="line-385">        final Date modDate = new Date( System.currentTimeMillis() );</span>
+<span class="source-line-no">386</span><span id="line-386">        if( user == null ) {</span>
+<span class="source-line-no">387</span><span id="line-387">            // Create new user node</span>
+<span class="source-line-no">388</span><span id="line-388">            profile.setCreated( modDate );</span>
+<span class="source-line-no">389</span><span id="line-389">            LOG.info( "Creating new user " + index );</span>
+<span class="source-line-no">390</span><span id="line-390">            user = c_dom.createElement( USER_TAG );</span>
+<span class="source-line-no">391</span><span id="line-391">            c_dom.getDocumentElement().appendChild( user );</span>
+<span class="source-line-no">392</span><span id="line-392">            setAttribute( user, CREATED, c_format.format( profile.getCreated() ) );</span>
+<span class="source-line-no">393</span><span id="line-393">            isNew = true;</span>
+<span class="source-line-no">394</span><span id="line-394">        } else {</span>
+<span class="source-line-no">395</span><span id="line-395">            // To update existing user node, delete old attributes first...</span>
+<span class="source-line-no">396</span><span id="line-396">            final NodeList attributes = user.getElementsByTagName( ATTRIBUTES_TAG );</span>
+<span class="source-line-no">397</span><span id="line-397">            for( int i = 0; i &lt; attributes.getLength(); i++ ) {</span>
+<span class="source-line-no">398</span><span id="line-398">                user.removeChild( attributes.item( i ) );</span>
+<span class="source-line-no">399</span><span id="line-399">            }</span>
+<span class="source-line-no">400</span><span id="line-400">        }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">        setAttribute( user, UID, profile.getUid() );</span>
+<span class="source-line-no">403</span><span id="line-403">        setAttribute( user, LAST_MODIFIED, c_format.format( modDate ) );</span>
+<span class="source-line-no">404</span><span id="line-404">        setAttribute( user, LOGIN_NAME, profile.getLoginName() );</span>
+<span class="source-line-no">405</span><span id="line-405">        setAttribute( user, FULL_NAME, profile.getFullname() );</span>
+<span class="source-line-no">406</span><span id="line-406">        setAttribute( user, WIKI_NAME, profile.getWikiName() );</span>
+<span class="source-line-no">407</span><span id="line-407">        setAttribute( user, EMAIL, profile.getEmail() );</span>
+<span class="source-line-no">408</span><span id="line-408">        final Date lockExpiry = profile.getLockExpiry();</span>
+<span class="source-line-no">409</span><span id="line-409">        setAttribute( user, LOCK_EXPIRY, lockExpiry == null ? "" : c_format.format( lockExpiry ) );</span>
+<span class="source-line-no">410</span><span id="line-410"></span>
+<span class="source-line-no">411</span><span id="line-411">        // Hash and save the new password if it's different from old one</span>
+<span class="source-line-no">412</span><span id="line-412">        final String newPassword = profile.getPassword();</span>
+<span class="source-line-no">413</span><span id="line-413">        if( newPassword != null &amp;&amp; !newPassword.equals( "" ) ) {</span>
+<span class="source-line-no">414</span><span id="line-414">            final String oldPassword = user.getAttribute( PASSWORD );</span>
+<span class="source-line-no">415</span><span id="line-415">            if( !oldPassword.equals( newPassword ) ) {</span>
+<span class="source-line-no">416</span><span id="line-416">                setAttribute( user, PASSWORD, getHash( newPassword ) );</span>
+<span class="source-line-no">417</span><span id="line-417">            }</span>
+<span class="source-line-no">418</span><span id="line-418">        }</span>
+<span class="source-line-no">419</span><span id="line-419"></span>
+<span class="source-line-no">420</span><span id="line-420">        // Save the attributes as Base64 string</span>
+<span class="source-line-no">421</span><span id="line-421">        if(!profile.getAttributes().isEmpty()) {</span>
+<span class="source-line-no">422</span><span id="line-422">            try {</span>
+<span class="source-line-no">423</span><span id="line-423">                final String encodedAttributes = Serializer.serializeToBase64( profile.getAttributes() );</span>
+<span class="source-line-no">424</span><span id="line-424">                final Element attributes = c_dom.createElement( ATTRIBUTES_TAG );</span>
+<span class="source-line-no">425</span><span id="line-425">                user.appendChild( attributes );</span>
+<span class="source-line-no">426</span><span id="line-426">                final Text value = c_dom.createTextNode( encodedAttributes );</span>
+<span class="source-line-no">427</span><span id="line-427">                attributes.appendChild( value );</span>
+<span class="source-line-no">428</span><span id="line-428">            } catch( final IOException e ) {</span>
+<span class="source-line-no">429</span><span id="line-429">                throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</span>
+<span class="source-line-no">430</span><span id="line-430">            }</span>
+<span class="source-line-no">431</span><span id="line-431">        }</span>
+<span class="source-line-no">432</span><span id="line-432"></span>
+<span class="source-line-no">433</span><span id="line-433">        // Set the profile timestamps</span>
+<span class="source-line-no">434</span><span id="line-434">        if( isNew ) {</span>
+<span class="source-line-no">435</span><span id="line-435">            profile.setCreated( modDate );</span>
+<span class="source-line-no">436</span><span id="line-436">        }</span>
+<span class="source-line-no">437</span><span id="line-437">        profile.setLastModified( modDate );</span>
+<span class="source-line-no">438</span><span id="line-438"></span>
+<span class="source-line-no">439</span><span id="line-439">        // Commit to disk</span>
+<span class="source-line-no">440</span><span id="line-440">        saveDOM();</span>
+<span class="source-line-no">441</span><span id="line-441">    }</span>
+<span class="source-line-no">442</span><span id="line-442"></span>
+<span class="source-line-no">443</span><span id="line-443">    /**</span>
+<span class="source-line-no">444</span><span id="line-444">     * Private method that returns the first {@link UserProfile}matching a &amp;lt;user&amp;gt; element's supplied attribute. This method will also</span>
+<span class="source-line-no">445</span><span id="line-445">     * set the UID if it has not yet been set.</span>
+<span class="source-line-no">446</span><span id="line-446">     *</span>
+<span class="source-line-no">447</span><span id="line-447">     * @param matchAttribute matching attribute</span>
+<span class="source-line-no">448</span><span id="line-448">     * @param index value to match</span>
+<span class="source-line-no">449</span><span id="line-449">     * @return the profile, or &lt;code&gt;null&lt;/code&gt; if not found</span>
+<span class="source-line-no">450</span><span id="line-450">     */</span>
+<span class="source-line-no">451</span><span id="line-451">    private UserProfile findByAttribute( final String matchAttribute, String index ) {</span>
+<span class="source-line-no">452</span><span id="line-452">        if ( c_dom == null ) {</span>
+<span class="source-line-no">453</span><span id="line-453">            throw new IllegalStateException( "FATAL: database does not exist" );</span>
+<span class="source-line-no">454</span><span id="line-454">        }</span>
+<span class="source-line-no">455</span><span id="line-455"></span>
+<span class="source-line-no">456</span><span id="line-456">        checkForRefresh();</span>
+<span class="source-line-no">457</span><span id="line-457">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
+<span class="source-line-no">458</span><span id="line-458">        if( users == null ) {</span>
+<span class="source-line-no">459</span><span id="line-459">            return null;</span>
+<span class="source-line-no">460</span><span id="line-460">        }</span>
+<span class="source-line-no">461</span><span id="line-461"></span>
+<span class="source-line-no">462</span><span id="line-462">        // check if we have to do a case-insensitive compare</span>
+<span class="source-line-no">463</span><span id="line-463">        final boolean caseSensitiveCompare = !matchAttribute.equals( EMAIL );</span>
+<span class="source-line-no">464</span><span id="line-464"></span>
+<span class="source-line-no">465</span><span id="line-465">        for( int i = 0; i &lt; users.getLength(); i++ ) {</span>
+<span class="source-line-no">466</span><span id="line-466">            final Element user = (Element) users.item( i );</span>
+<span class="source-line-no">467</span><span id="line-467">            String userAttribute = user.getAttribute( matchAttribute );</span>
+<span class="source-line-no">468</span><span id="line-468">            if( !caseSensitiveCompare ) {</span>
+<span class="source-line-no">469</span><span id="line-469">                userAttribute = StringUtils.lowerCase(userAttribute);</span>
+<span class="source-line-no">470</span><span id="line-470">                index = StringUtils.lowerCase(index);</span>
+<span class="source-line-no">471</span><span id="line-471">            }</span>
+<span class="source-line-no">472</span><span id="line-472">            if( userAttribute.equals( index ) ) {</span>
+<span class="source-line-no">473</span><span id="line-473">                final UserProfile profile = newProfile();</span>
+<span class="source-line-no">474</span><span id="line-474"></span>
+<span class="source-line-no">475</span><span id="line-475">                // Parse basic attributes</span>
+<span class="source-line-no">476</span><span id="line-476">                profile.setUid( user.getAttribute( UID ) );</span>
+<span class="source-line-no">477</span><span id="line-477">                if( profile.getUid() == null || profile.getUid().isEmpty() ) {</span>
+<span class="source-line-no">478</span><span id="line-478">                    profile.setUid( generateUid( this ) );</span>
+<span class="source-line-no">479</span><span id="line-479">                }</span>
+<span class="source-line-no">480</span><span id="line-480">                profile.setLoginName( user.getAttribute( LOGIN_NAME ) );</span>
+<span class="source-line-no">481</span><span id="line-481">                profile.setFullname( user.getAttribute( FULL_NAME ) );</span>
+<span class="source-line-no">482</span><span id="line-482">                profile.setPassword( user.getAttribute( PASSWORD ) );</span>
+<span class="source-line-no">483</span><span id="line-483">                profile.setEmail( user.getAttribute( EMAIL ) );</span>
+<span class="source-line-no">484</span><span id="line-484"></span>
+<span class="source-line-no">485</span><span id="line-485">                // Get created/modified timestamps</span>
+<span class="source-line-no">486</span><span id="line-486">                final String created = user.getAttribute( CREATED );</span>
+<span class="source-line-no">487</span><span id="line-487">                final String modified = user.getAttribute( LAST_MODIFIED );</span>
+<span class="source-line-no">488</span><span id="line-488">                profile.setCreated( parseDate( profile, created ) );</span>
+<span class="source-line-no">489</span><span id="line-489">                profile.setLastModified( parseDate( profile, modified ) );</span>
+<span class="source-line-no">490</span><span id="line-490"></span>
+<span class="source-line-no">491</span><span id="line-491">                // Is the profile locked?</span>
+<span class="source-line-no">492</span><span id="line-492">                final String lockExpiry = user.getAttribute( LOCK_EXPIRY );</span>
+<span class="source-line-no">493</span><span id="line-493">                if( StringUtils.isEmpty( lockExpiry ) || lockExpiry.isEmpty() ) {</span>
+<span class="source-line-no">494</span><span id="line-494">                    profile.setLockExpiry( null );</span>
+<span class="source-line-no">495</span><span id="line-495">                } else {</span>
+<span class="source-line-no">496</span><span id="line-496">                    profile.setLockExpiry( new Date( Long.parseLong( lockExpiry ) ) );</span>
+<span class="source-line-no">497</span><span id="line-497">                }</span>
+<span class="source-line-no">498</span><span id="line-498"></span>
+<span class="source-line-no">499</span><span id="line-499">                // Extract all the user's attributes (should only be one attributes tag, but you never know!)</span>
+<span class="source-line-no">500</span><span id="line-500">                final NodeList attributes = user.getElementsByTagName( ATTRIBUTES_TAG );</span>
+<span class="source-line-no">501</span><span id="line-501">                for( int j = 0; j &lt; attributes.getLength(); j++ ) {</span>
+<span class="source-line-no">502</span><span id="line-502">                    final Element attribute = ( Element )attributes.item( j );</span>
+<span class="source-line-no">503</span><span id="line-503">                    final String serializedMap = extractText( attribute );</span>
+<span class="source-line-no">504</span><span id="line-504">                    try {</span>
+<span class="source-line-no">505</span><span id="line-505">                        final Map&lt; String, ? extends Serializable &gt; map = Serializer.deserializeFromBase64( serializedMap );</span>
+<span class="source-line-no">506</span><span id="line-506">                        profile.getAttributes().putAll( map );</span>
+<span class="source-line-no">507</span><span id="line-507">                    } catch( final IOException e ) {</span>
+<span class="source-line-no">508</span><span id="line-508">                        LOG.error( "Could not parse user profile attributes!", e );</span>
+<span class="source-line-no">509</span><span id="line-509">                    }</span>
+<span class="source-line-no">510</span><span id="line-510">                }</span>
+<span class="source-line-no">511</span><span id="line-511"></span>
+<span class="source-line-no">512</span><span id="line-512">                return profile;</span>
+<span class="source-line-no">513</span><span id="line-513">            }</span>
+<span class="source-line-no">514</span><span id="line-514">        }</span>
+<span class="source-line-no">515</span><span id="line-515">        return null;</span>
+<span class="source-line-no">516</span><span id="line-516">    }</span>
+<span class="source-line-no">517</span><span id="line-517"></span>
+<span class="source-line-no">518</span><span id="line-518">    /**</span>
+<span class="source-line-no">519</span><span id="line-519">     * Extracts all the text nodes that are immediate children of an Element.</span>
+<span class="source-line-no">520</span><span id="line-520">     *</span>
+<span class="source-line-no">521</span><span id="line-521">     * @param element the base element</span>
+<span class="source-line-no">522</span><span id="line-522">     * @return the text nodes that are immediate children of the base element, concatenated together</span>
+<span class="source-line-no">523</span><span id="line-523">     */</span>
+<span class="source-line-no">524</span><span id="line-524">    private String extractText( final Element element ) {</span>
+<span class="source-line-no">525</span><span id="line-525">        String text = "";</span>
+<span class="source-line-no">526</span><span id="line-526">        if( element.getChildNodes().getLength() &gt; 0 ) {</span>
+<span class="source-line-no">527</span><span id="line-527">            final NodeList children = element.getChildNodes();</span>
+<span class="source-line-no">528</span><span id="line-528">            text = IntStream.range(0, children.getLength()).mapToObj(children::item).filter(child -&gt; child.getNodeType() == Node.TEXT_NODE).map(child -&gt; ((Text) child).getData()).collect(Collectors.joining());</span>
+<span class="source-line-no">529</span><span id="line-529">        }</span>
+<span class="source-line-no">530</span><span id="line-530">        return text;</span>
+<span class="source-line-no">531</span><span id="line-531">    }</span>
+<span class="source-line-no">532</span><span id="line-532"></span>
+<span class="source-line-no">533</span><span id="line-533">    /**</span>
+<span class="source-line-no">534</span><span id="line-534">     *  Tries to parse a date using the default format - then, for backwards compatibility reasons, tries the platform default.</span>
+<span class="source-line-no">535</span><span id="line-535">     *</span>
+<span class="source-line-no">536</span><span id="line-536">     *  @param profile profile associated to the date.</span>
+<span class="source-line-no">537</span><span id="line-537">     *  @param date date to be parsed.</span>
+<span class="source-line-no">538</span><span id="line-538">     *  @return A parsed date, or null, if both parse attempts fail.</span>
+<span class="source-line-no">539</span><span id="line-539">     */</span>
+<span class="source-line-no">540</span><span id="line-540">    private Date parseDate( final UserProfile profile, final String date ) {</span>
+<span class="source-line-no">541</span><span id="line-541">        try {</span>
+<span class="source-line-no">542</span><span id="line-542">            final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
+<span class="source-line-no">543</span><span id="line-543">            return c_format.parse( date );</span>
+<span class="source-line-no">544</span><span id="line-544">        } catch( final ParseException e ) {</span>
+<span class="source-line-no">545</span><span id="line-545">            try {</span>
+<span class="source-line-no">546</span><span id="line-546">                return DateFormat.getDateTimeInstance().parse( date );</span>
+<span class="source-line-no">547</span><span id="line-547">            } catch( final ParseException e2 ) {</span>
+<span class="source-line-no">548</span><span id="line-548">                LOG.warn( "Could not parse 'created' or 'lastModified' attribute for profile '" + profile.getLoginName() + "'." +</span>
+<span class="source-line-no">549</span><span id="line-549">                          " It may have been tampered with.", e2 );</span>
+<span class="source-line-no">550</span><span id="line-550">            }</span>
+<span class="source-line-no">551</span><span id="line-551">        }</span>
+<span class="source-line-no">552</span><span id="line-552">        return null;</span>
+<span class="source-line-no">553</span><span id="line-553">    }</span>
+<span class="source-line-no">554</span><span id="line-554"></span>
+<span class="source-line-no">555</span><span id="line-555">    /**</span>
+<span class="source-line-no">556</span><span id="line-556">     * After loading the DOM, this method sanity-checks the dates in the DOM and makes sure they are formatted properly. This is sort-of</span>
+<span class="source-line-no">557</span><span id="line-557">     * hacky, but it should work.</span>
+<span class="source-line-no">558</span><span id="line-558">     */</span>
+<span class="source-line-no">559</span><span id="line-559">    private void sanitizeDOM() {</span>
+<span class="source-line-no">560</span><span id="line-560">        if( c_dom == null ) {</span>
+<span class="source-line-no">561</span><span id="line-561">            throw new IllegalStateException( "FATAL: database does not exist" );</span>
+<span class="source-line-no">562</span><span id="line-562">        }</span>
+<span class="source-line-no">563</span><span id="line-563"></span>
+<span class="source-line-no">564</span><span id="line-564">        final NodeList users = c_dom.getElementsByTagName( USER_TAG );</span>
+<span class="source-line-no">565</span><span id="line-565">        for( int i = 0; i &lt; users.getLength(); i++ ) {</span>
+<span class="source-line-no">566</span><span id="line-566">            final Element user = ( Element )users.item( i );</span>
+<span class="source-line-no">567</span><span id="line-567"></span>
+<span class="source-line-no">568</span><span id="line-568">            // Sanitize UID (and generate a new one if one does not exist)</span>
+<span class="source-line-no">569</span><span id="line-569">            String uid = user.getAttribute( UID ).trim();</span>
+<span class="source-line-no">570</span><span id="line-570">            if( StringUtils.isEmpty( uid ) || "-1".equals( uid ) ) {</span>
+<span class="source-line-no">571</span><span id="line-571">                uid = String.valueOf( generateUid( this ) );</span>
+<span class="source-line-no">572</span><span id="line-572">                user.setAttribute( UID, uid );</span>
+<span class="source-line-no">573</span><span id="line-573">            }</span>
+<span class="source-line-no">574</span><span id="line-574"></span>
+<span class="source-line-no">575</span><span id="line-575">            // Sanitize dates</span>
+<span class="source-line-no">576</span><span id="line-576">            final String loginName = user.getAttribute( LOGIN_NAME );</span>
+<span class="source-line-no">577</span><span id="line-577">            String created = user.getAttribute( CREATED );</span>
+<span class="source-line-no">578</span><span id="line-578">            String modified = user.getAttribute( LAST_MODIFIED );</span>
+<span class="source-line-no">579</span><span id="line-579">            final DateFormat c_format = new SimpleDateFormat( DATE_FORMAT );</span>
+<span class="source-line-no">580</span><span id="line-580">            try {</span>
+<span class="source-line-no">581</span><span id="line-581">                created = c_format.format( c_format.parse( created ) );</span>
+<span class="source-line-no">582</span><span id="line-582">                modified = c_format.format( c_format.parse( modified ) );</span>
+<span class="source-line-no">583</span><span id="line-583">                user.setAttribute( CREATED, created );</span>
+<span class="source-line-no">584</span><span id="line-584">                user.setAttribute( LAST_MODIFIED, modified );</span>
+<span class="source-line-no">585</span><span id="line-585">            } catch( final ParseException e ) {</span>
+<span class="source-line-no">586</span><span id="line-586">                try {</span>
+<span class="source-line-no">587</span><span id="line-587">                    created = c_format.format( DateFormat.getDateTimeInstance().parse( created ) );</span>
+<span class="source-line-no">588</span><span id="line-588">                    modified = c_format.format( DateFormat.getDateTimeInstance().parse( modified ) );</span>
+<span class="source-line-no">589</span><span id="line-589">                    user.setAttribute( CREATED, created );</span>
+<span class="source-line-no">590</span><span id="line-590">                    user.setAttribute( LAST_MODIFIED, modified );</span>
+<span class="source-line-no">591</span><span id="line-591">                } catch( final ParseException e2 ) {</span>
+<span class="source-line-no">592</span><span id="line-592">                    LOG.warn( "Could not parse 'created' or 'lastModified' attribute for profile '" + loginName + "'."</span>
+<span class="source-line-no">593</span><span id="line-593">                            + " It may have been tampered with." );</span>
+<span class="source-line-no">594</span><span id="line-594">                }</span>
+<span class="source-line-no">595</span><span id="line-595">            }</span>
+<span class="source-line-no">596</span><span id="line-596">        }</span>
+<span class="source-line-no">597</span><span id="line-597">    }</span>
+<span class="source-line-no">598</span><span id="line-598"></span>
+<span class="source-line-no">599</span><span id="line-599">    /**</span>
+<span class="source-line-no">600</span><span id="line-600">     * Private method that sets an attribute value for a supplied DOM element.</span>
+<span class="source-line-no">601</span><span id="line-601">     *</span>
+<span class="source-line-no">602</span><span id="line-602">     * @param element the element whose attribute is to be set</span>
+<span class="source-line-no">603</span><span id="line-603">     * @param attribute the name of the attribute to set</span>
+<span class="source-line-no">604</span><span id="line-604">     * @param value the desired attribute value</span>
+<span class="source-line-no">605</span><span id="line-605">     */</span>
+<span class="source-line-no">606</span><span id="line-606">    private void setAttribute( final Element element, final String attribute, final String value ) {</span>
+<span class="source-line-no">607</span><span id="line-607">        if( value != null ) {</span>
+<span class="source-line-no">608</span><span id="line-608">            element.setAttribute( attribute, value );</span>
+<span class="source-line-no">609</span><span id="line-609">        }</span>
+<span class="source-line-no">610</span><span id="line-610">    }</span>
+<span class="source-line-no">611</span><span id="line-611"></span>
+<span class="source-line-no">612</span><span id="line-612">}</span>
 
 
 

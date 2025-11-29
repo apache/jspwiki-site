@@ -338,80 +338,81 @@
 <span class="source-line-no">325</span><span id="line-325">            group.setCreated( new SimpleDateFormat( DATE_FORMAT ).parse( created ) );</span>
 <span class="source-line-no">326</span><span id="line-326">            group.setLastModified( new SimpleDateFormat( DATE_FORMAT ).parse( modified ) );</span>
 <span class="source-line-no">327</span><span id="line-327">        } catch ( final ParseException e ) {</span>
-<span class="source-line-no">328</span><span id="line-328">            // If parsing failed, use the platform default</span>
-<span class="source-line-no">329</span><span id="line-329">            try {</span>
-<span class="source-line-no">330</span><span id="line-330">                group.setCreated( m_defaultFormat.parse( created ) );</span>
-<span class="source-line-no">331</span><span id="line-331">                group.setLastModified( m_defaultFormat.parse( modified ) );</span>
-<span class="source-line-no">332</span><span id="line-332">            } catch ( final ParseException e2 ) {</span>
-<span class="source-line-no">333</span><span id="line-333">                LOG.warn( "Could not parse 'created' or 'lastModified' " + "attribute for " + " group'"</span>
-<span class="source-line-no">334</span><span id="line-334">                          + group.getName() + "'." + " It may have been tampered with." );</span>
-<span class="source-line-no">335</span><span id="line-335">            }</span>
-<span class="source-line-no">336</span><span id="line-336">        }</span>
-<span class="source-line-no">337</span><span id="line-337">        group.setCreator( creator );</span>
-<span class="source-line-no">338</span><span id="line-338">        group.setModifier( modifier );</span>
-<span class="source-line-no">339</span><span id="line-339">        return group;</span>
-<span class="source-line-no">340</span><span id="line-340">    }</span>
-<span class="source-line-no">341</span><span id="line-341"></span>
-<span class="source-line-no">342</span><span id="line-342">    private void saveDOM() throws WikiSecurityException {</span>
-<span class="source-line-no">343</span><span id="line-343">        if ( m_dom == null ) {</span>
-<span class="source-line-no">344</span><span id="line-344">            LOG.fatal( "Group database doesn't exist in memory." );</span>
-<span class="source-line-no">345</span><span id="line-345">        }</span>
-<span class="source-line-no">346</span><span id="line-346"></span>
-<span class="source-line-no">347</span><span id="line-347">        final File newFile = new File( m_file.getAbsolutePath() + ".new" );</span>
-<span class="source-line-no">348</span><span id="line-348">        try( final BufferedWriter io = new BufferedWriter( new OutputStreamWriter( Files.newOutputStream( newFile.toPath() ), StandardCharsets.UTF_8 ) ) ) {</span>
-<span class="source-line-no">349</span><span id="line-349">            // Write the file header and document root</span>
-<span class="source-line-no">350</span><span id="line-350">            io.write( "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n" );</span>
-<span class="source-line-no">351</span><span id="line-351">            io.write( "&lt;groups&gt;\n" );</span>
-<span class="source-line-no">352</span><span id="line-352"></span>
-<span class="source-line-no">353</span><span id="line-353">            // Write each profile as a &lt;group&gt; node</span>
-<span class="source-line-no">354</span><span id="line-354">            for( final Group group : m_groups.values() ) {</span>
-<span class="source-line-no">355</span><span id="line-355">                io.write( "  &lt;" + GROUP_TAG + " " );</span>
-<span class="source-line-no">356</span><span id="line-356">                io.write( GROUP_NAME );</span>
-<span class="source-line-no">357</span><span id="line-357">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getName() )+ "\" " );</span>
-<span class="source-line-no">358</span><span id="line-358">                io.write( CREATOR );</span>
-<span class="source-line-no">359</span><span id="line-359">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getCreator() ) + "\" " );</span>
-<span class="source-line-no">360</span><span id="line-360">                io.write( CREATED );</span>
-<span class="source-line-no">361</span><span id="line-361">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getCreated() ) + "\" " );</span>
-<span class="source-line-no">362</span><span id="line-362">                io.write( MODIFIER );</span>
-<span class="source-line-no">363</span><span id="line-363">                io.write( "=\"" + group.getModifier() + "\" " );</span>
-<span class="source-line-no">364</span><span id="line-364">                io.write( LAST_MODIFIED );</span>
-<span class="source-line-no">365</span><span id="line-365">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getLastModified() ) + "\"" );</span>
-<span class="source-line-no">366</span><span id="line-366">                io.write( "&gt;\n" );</span>
-<span class="source-line-no">367</span><span id="line-367"></span>
-<span class="source-line-no">368</span><span id="line-368">                // Write each member as a &lt;member&gt; node</span>
-<span class="source-line-no">369</span><span id="line-369">                for( final Principal member : group.members() ) {</span>
-<span class="source-line-no">370</span><span id="line-370">                    io.write( "    &lt;" + MEMBER_TAG + " " );</span>
-<span class="source-line-no">371</span><span id="line-371">                    io.write( PRINCIPAL );</span>
-<span class="source-line-no">372</span><span id="line-372">                    io.write( "=\"" + StringEscapeUtils.escapeXml11(member.getName()) + "\" " );</span>
-<span class="source-line-no">373</span><span id="line-373">                    io.write( "/&gt;\n" );</span>
-<span class="source-line-no">374</span><span id="line-374">                }</span>
-<span class="source-line-no">375</span><span id="line-375"></span>
-<span class="source-line-no">376</span><span id="line-376">                // Close tag</span>
-<span class="source-line-no">377</span><span id="line-377">                io.write( "  &lt;/" + GROUP_TAG + "&gt;\n" );</span>
-<span class="source-line-no">378</span><span id="line-378">            }</span>
-<span class="source-line-no">379</span><span id="line-379">            io.write( "&lt;/groups&gt;" );</span>
-<span class="source-line-no">380</span><span id="line-380">        } catch( final IOException e ) {</span>
-<span class="source-line-no">381</span><span id="line-381">            throw new WikiSecurityException( e.getLocalizedMessage(), e );</span>
-<span class="source-line-no">382</span><span id="line-382">        }</span>
-<span class="source-line-no">383</span><span id="line-383"></span>
-<span class="source-line-no">384</span><span id="line-384">        // Copy new file over old version</span>
-<span class="source-line-no">385</span><span id="line-385">        final File backup = new File( m_file.getAbsolutePath() + ".old" );</span>
-<span class="source-line-no">386</span><span id="line-386">        if ( backup.exists() &amp;&amp; !backup.delete()) {</span>
-<span class="source-line-no">387</span><span id="line-387">            LOG.error( "Could not delete old group database backup: " + backup );</span>
-<span class="source-line-no">388</span><span id="line-388">        }</span>
-<span class="source-line-no">389</span><span id="line-389">        if ( !m_file.renameTo( backup ) ) {</span>
-<span class="source-line-no">390</span><span id="line-390">            LOG.error( "Could not create group database backup: " + backup );</span>
-<span class="source-line-no">391</span><span id="line-391">        }</span>
-<span class="source-line-no">392</span><span id="line-392">        if ( !newFile.renameTo( m_file ) ) {</span>
-<span class="source-line-no">393</span><span id="line-393">            LOG.error( "Could not save database: " + backup + " restoring backup." );</span>
-<span class="source-line-no">394</span><span id="line-394">            if ( !backup.renameTo( m_file ) ) {</span>
-<span class="source-line-no">395</span><span id="line-395">                LOG.error( "Restore failed. Check the file permissions." );</span>
-<span class="source-line-no">396</span><span id="line-396">            }</span>
-<span class="source-line-no">397</span><span id="line-397">            LOG.error( "Could not save database: " + m_file + ". Check the file permissions" );</span>
-<span class="source-line-no">398</span><span id="line-398">        }</span>
-<span class="source-line-no">399</span><span id="line-399">    }</span>
-<span class="source-line-no">400</span><span id="line-400"></span>
-<span class="source-line-no">401</span><span id="line-401">}</span>
+<span class="source-line-no">328</span><span id="line-328">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">329</span><span id="line-329">            // If parsing failed, use the platform default</span>
+<span class="source-line-no">330</span><span id="line-330">            try {</span>
+<span class="source-line-no">331</span><span id="line-331">                group.setCreated( m_defaultFormat.parse( created ) );</span>
+<span class="source-line-no">332</span><span id="line-332">                group.setLastModified( m_defaultFormat.parse( modified ) );</span>
+<span class="source-line-no">333</span><span id="line-333">            } catch ( final ParseException e2 ) {</span>
+<span class="source-line-no">334</span><span id="line-334">                LOG.warn( "Could not parse 'created' or 'lastModified' " + "attribute for " + " group'"</span>
+<span class="source-line-no">335</span><span id="line-335">                          + group.getName() + "'." + " It may have been tampered with." );</span>
+<span class="source-line-no">336</span><span id="line-336">            }</span>
+<span class="source-line-no">337</span><span id="line-337">        }</span>
+<span class="source-line-no">338</span><span id="line-338">        group.setCreator( creator );</span>
+<span class="source-line-no">339</span><span id="line-339">        group.setModifier( modifier );</span>
+<span class="source-line-no">340</span><span id="line-340">        return group;</span>
+<span class="source-line-no">341</span><span id="line-341">    }</span>
+<span class="source-line-no">342</span><span id="line-342"></span>
+<span class="source-line-no">343</span><span id="line-343">    private void saveDOM() throws WikiSecurityException {</span>
+<span class="source-line-no">344</span><span id="line-344">        if ( m_dom == null ) {</span>
+<span class="source-line-no">345</span><span id="line-345">            LOG.fatal( "Group database doesn't exist in memory." );</span>
+<span class="source-line-no">346</span><span id="line-346">        }</span>
+<span class="source-line-no">347</span><span id="line-347"></span>
+<span class="source-line-no">348</span><span id="line-348">        final File newFile = new File( m_file.getAbsolutePath() + ".new" );</span>
+<span class="source-line-no">349</span><span id="line-349">        try( final BufferedWriter io = new BufferedWriter( new OutputStreamWriter( Files.newOutputStream( newFile.toPath() ), StandardCharsets.UTF_8 ) ) ) {</span>
+<span class="source-line-no">350</span><span id="line-350">            // Write the file header and document root</span>
+<span class="source-line-no">351</span><span id="line-351">            io.write( "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n" );</span>
+<span class="source-line-no">352</span><span id="line-352">            io.write( "&lt;groups&gt;\n" );</span>
+<span class="source-line-no">353</span><span id="line-353"></span>
+<span class="source-line-no">354</span><span id="line-354">            // Write each profile as a &lt;group&gt; node</span>
+<span class="source-line-no">355</span><span id="line-355">            for( final Group group : m_groups.values() ) {</span>
+<span class="source-line-no">356</span><span id="line-356">                io.write( "  &lt;" + GROUP_TAG + " " );</span>
+<span class="source-line-no">357</span><span id="line-357">                io.write( GROUP_NAME );</span>
+<span class="source-line-no">358</span><span id="line-358">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getName() )+ "\" " );</span>
+<span class="source-line-no">359</span><span id="line-359">                io.write( CREATOR );</span>
+<span class="source-line-no">360</span><span id="line-360">                io.write( "=\"" + StringEscapeUtils.escapeXml11( group.getCreator() ) + "\" " );</span>
+<span class="source-line-no">361</span><span id="line-361">                io.write( CREATED );</span>
+<span class="source-line-no">362</span><span id="line-362">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getCreated() ) + "\" " );</span>
+<span class="source-line-no">363</span><span id="line-363">                io.write( MODIFIER );</span>
+<span class="source-line-no">364</span><span id="line-364">                io.write( "=\"" + group.getModifier() + "\" " );</span>
+<span class="source-line-no">365</span><span id="line-365">                io.write( LAST_MODIFIED );</span>
+<span class="source-line-no">366</span><span id="line-366">                io.write( "=\"" + new SimpleDateFormat( DATE_FORMAT ).format( group.getLastModified() ) + "\"" );</span>
+<span class="source-line-no">367</span><span id="line-367">                io.write( "&gt;\n" );</span>
+<span class="source-line-no">368</span><span id="line-368"></span>
+<span class="source-line-no">369</span><span id="line-369">                // Write each member as a &lt;member&gt; node</span>
+<span class="source-line-no">370</span><span id="line-370">                for( final Principal member : group.members() ) {</span>
+<span class="source-line-no">371</span><span id="line-371">                    io.write( "    &lt;" + MEMBER_TAG + " " );</span>
+<span class="source-line-no">372</span><span id="line-372">                    io.write( PRINCIPAL );</span>
+<span class="source-line-no">373</span><span id="line-373">                    io.write( "=\"" + StringEscapeUtils.escapeXml11(member.getName()) + "\" " );</span>
+<span class="source-line-no">374</span><span id="line-374">                    io.write( "/&gt;\n" );</span>
+<span class="source-line-no">375</span><span id="line-375">                }</span>
+<span class="source-line-no">376</span><span id="line-376"></span>
+<span class="source-line-no">377</span><span id="line-377">                // Close tag</span>
+<span class="source-line-no">378</span><span id="line-378">                io.write( "  &lt;/" + GROUP_TAG + "&gt;\n" );</span>
+<span class="source-line-no">379</span><span id="line-379">            }</span>
+<span class="source-line-no">380</span><span id="line-380">            io.write( "&lt;/groups&gt;" );</span>
+<span class="source-line-no">381</span><span id="line-381">        } catch( final IOException e ) {</span>
+<span class="source-line-no">382</span><span id="line-382">            throw new WikiSecurityException( e.getLocalizedMessage(), e );</span>
+<span class="source-line-no">383</span><span id="line-383">        }</span>
+<span class="source-line-no">384</span><span id="line-384"></span>
+<span class="source-line-no">385</span><span id="line-385">        // Copy new file over old version</span>
+<span class="source-line-no">386</span><span id="line-386">        final File backup = new File( m_file.getAbsolutePath() + ".old" );</span>
+<span class="source-line-no">387</span><span id="line-387">        if ( backup.exists() &amp;&amp; !backup.delete()) {</span>
+<span class="source-line-no">388</span><span id="line-388">            LOG.error( "Could not delete old group database backup: " + backup );</span>
+<span class="source-line-no">389</span><span id="line-389">        }</span>
+<span class="source-line-no">390</span><span id="line-390">        if ( !m_file.renameTo( backup ) ) {</span>
+<span class="source-line-no">391</span><span id="line-391">            LOG.error( "Could not create group database backup: " + backup );</span>
+<span class="source-line-no">392</span><span id="line-392">        }</span>
+<span class="source-line-no">393</span><span id="line-393">        if ( !newFile.renameTo( m_file ) ) {</span>
+<span class="source-line-no">394</span><span id="line-394">            LOG.error( "Could not save database: " + backup + " restoring backup." );</span>
+<span class="source-line-no">395</span><span id="line-395">            if ( !backup.renameTo( m_file ) ) {</span>
+<span class="source-line-no">396</span><span id="line-396">                LOG.error( "Restore failed. Check the file permissions." );</span>
+<span class="source-line-no">397</span><span id="line-397">            }</span>
+<span class="source-line-no">398</span><span id="line-398">            LOG.error( "Could not save database: " + m_file + ". Check the file permissions" );</span>
+<span class="source-line-no">399</span><span id="line-399">        }</span>
+<span class="source-line-no">400</span><span id="line-400">    }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">}</span>
 
 
 

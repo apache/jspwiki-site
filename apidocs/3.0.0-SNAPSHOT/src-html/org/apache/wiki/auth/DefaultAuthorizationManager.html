@@ -330,73 +330,75 @@
 <span class="source-line-no">317</span><span id="line-317">                return Boolean.TRUE;</span>
 <span class="source-line-no">318</span><span id="line-318">            } catch( final AccessControlException e ) {</span>
 <span class="source-line-no">319</span><span id="line-319">                // Global policy denied the permission</span>
-<span class="source-line-no">320</span><span id="line-320">            }</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">            // Try the local policy - check each Role/Group and User Principal</span>
-<span class="source-line-no">323</span><span id="line-323">            if ( allowedByLocalPolicy( session.getRoles(), permission ) || allowedByLocalPolicy( session.getPrincipals(), permission ) ) {</span>
-<span class="source-line-no">324</span><span id="line-324">                return Boolean.TRUE;</span>
-<span class="source-line-no">325</span><span id="line-325">            }</span>
-<span class="source-line-no">326</span><span id="line-326">            return Boolean.FALSE;</span>
-<span class="source-line-no">327</span><span id="line-327">        } );</span>
-<span class="source-line-no">328</span><span id="line-328">    }</span>
-<span class="source-line-no">329</span><span id="line-329"></span>
-<span class="source-line-no">330</span><span id="line-330">    /** {@inheritDoc} */</span>
-<span class="source-line-no">331</span><span id="line-331">    @Override</span>
-<span class="source-line-no">332</span><span id="line-332">    public Principal resolvePrincipal( final String name ) {</span>
-<span class="source-line-no">333</span><span id="line-333">        // Check built-in Roles first</span>
-<span class="source-line-no">334</span><span id="line-334">        final Role role = new Role(name);</span>
-<span class="source-line-no">335</span><span id="line-335">        if ( Role.isBuiltInRole( role ) ) {</span>
-<span class="source-line-no">336</span><span id="line-336">            return role;</span>
-<span class="source-line-no">337</span><span id="line-337">        }</span>
-<span class="source-line-no">338</span><span id="line-338"></span>
-<span class="source-line-no">339</span><span id="line-339">        // Check Authorizer Roles</span>
-<span class="source-line-no">340</span><span id="line-340">        Principal principal = m_authorizer.findRole( name );</span>
-<span class="source-line-no">341</span><span id="line-341">        if ( principal != null ) {</span>
-<span class="source-line-no">342</span><span id="line-342">            return principal;</span>
-<span class="source-line-no">343</span><span id="line-343">        }</span>
-<span class="source-line-no">344</span><span id="line-344"></span>
-<span class="source-line-no">345</span><span id="line-345">        // Check Groups</span>
-<span class="source-line-no">346</span><span id="line-346">        principal = m_engine.getManager( GroupManager.class ).findRole( name );</span>
-<span class="source-line-no">347</span><span id="line-347">        if ( principal != null ) {</span>
-<span class="source-line-no">348</span><span id="line-348">            return principal;</span>
-<span class="source-line-no">349</span><span id="line-349">        }</span>
-<span class="source-line-no">350</span><span id="line-350"></span>
-<span class="source-line-no">351</span><span id="line-351">        // Ok, no luck---this must be a user principal</span>
-<span class="source-line-no">352</span><span id="line-352">        final Principal[] principals;</span>
-<span class="source-line-no">353</span><span id="line-353">        final UserProfile profile;</span>
-<span class="source-line-no">354</span><span id="line-354">        final UserDatabase db = m_engine.getManager( UserManager.class ).getUserDatabase();</span>
-<span class="source-line-no">355</span><span id="line-355">        try {</span>
-<span class="source-line-no">356</span><span id="line-356">            profile = db.find( name );</span>
-<span class="source-line-no">357</span><span id="line-357">            principals = db.getPrincipals( profile.getLoginName() );</span>
-<span class="source-line-no">358</span><span id="line-358">            for( final Principal value : principals ) {</span>
-<span class="source-line-no">359</span><span id="line-359">                principal = value;</span>
-<span class="source-line-no">360</span><span id="line-360">                if( principal.getName().equals( name ) ) {</span>
-<span class="source-line-no">361</span><span id="line-361">                    return principal;</span>
-<span class="source-line-no">362</span><span id="line-362">                }</span>
-<span class="source-line-no">363</span><span id="line-363">            }</span>
-<span class="source-line-no">364</span><span id="line-364">        } catch( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">365</span><span id="line-365">            // We couldn't find the user...</span>
-<span class="source-line-no">366</span><span id="line-366">        }</span>
-<span class="source-line-no">367</span><span id="line-367">        // Ok, no luck---mark this as unresolved and move on</span>
-<span class="source-line-no">368</span><span id="line-368">        return new UnresolvedPrincipal( name );</span>
-<span class="source-line-no">369</span><span id="line-369">    }</span>
-<span class="source-line-no">370</span><span id="line-370"></span>
-<span class="source-line-no">371</span><span id="line-371"></span>
-<span class="source-line-no">372</span><span id="line-372">    // events processing .......................................................</span>
+<span class="source-line-no">320</span><span id="line-320">                LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">321</span><span id="line-321">            }</span>
+<span class="source-line-no">322</span><span id="line-322"></span>
+<span class="source-line-no">323</span><span id="line-323">            // Try the local policy - check each Role/Group and User Principal</span>
+<span class="source-line-no">324</span><span id="line-324">            if ( allowedByLocalPolicy( session.getRoles(), permission ) || allowedByLocalPolicy( session.getPrincipals(), permission ) ) {</span>
+<span class="source-line-no">325</span><span id="line-325">                return Boolean.TRUE;</span>
+<span class="source-line-no">326</span><span id="line-326">            }</span>
+<span class="source-line-no">327</span><span id="line-327">            return Boolean.FALSE;</span>
+<span class="source-line-no">328</span><span id="line-328">        } );</span>
+<span class="source-line-no">329</span><span id="line-329">    }</span>
+<span class="source-line-no">330</span><span id="line-330"></span>
+<span class="source-line-no">331</span><span id="line-331">    /** {@inheritDoc} */</span>
+<span class="source-line-no">332</span><span id="line-332">    @Override</span>
+<span class="source-line-no">333</span><span id="line-333">    public Principal resolvePrincipal( final String name ) {</span>
+<span class="source-line-no">334</span><span id="line-334">        // Check built-in Roles first</span>
+<span class="source-line-no">335</span><span id="line-335">        final Role role = new Role(name);</span>
+<span class="source-line-no">336</span><span id="line-336">        if ( Role.isBuiltInRole( role ) ) {</span>
+<span class="source-line-no">337</span><span id="line-337">            return role;</span>
+<span class="source-line-no">338</span><span id="line-338">        }</span>
+<span class="source-line-no">339</span><span id="line-339"></span>
+<span class="source-line-no">340</span><span id="line-340">        // Check Authorizer Roles</span>
+<span class="source-line-no">341</span><span id="line-341">        Principal principal = m_authorizer.findRole( name );</span>
+<span class="source-line-no">342</span><span id="line-342">        if ( principal != null ) {</span>
+<span class="source-line-no">343</span><span id="line-343">            return principal;</span>
+<span class="source-line-no">344</span><span id="line-344">        }</span>
+<span class="source-line-no">345</span><span id="line-345"></span>
+<span class="source-line-no">346</span><span id="line-346">        // Check Groups</span>
+<span class="source-line-no">347</span><span id="line-347">        principal = m_engine.getManager( GroupManager.class ).findRole( name );</span>
+<span class="source-line-no">348</span><span id="line-348">        if ( principal != null ) {</span>
+<span class="source-line-no">349</span><span id="line-349">            return principal;</span>
+<span class="source-line-no">350</span><span id="line-350">        }</span>
+<span class="source-line-no">351</span><span id="line-351"></span>
+<span class="source-line-no">352</span><span id="line-352">        // Ok, no luck---this must be a user principal</span>
+<span class="source-line-no">353</span><span id="line-353">        final Principal[] principals;</span>
+<span class="source-line-no">354</span><span id="line-354">        final UserProfile profile;</span>
+<span class="source-line-no">355</span><span id="line-355">        final UserDatabase db = m_engine.getManager( UserManager.class ).getUserDatabase();</span>
+<span class="source-line-no">356</span><span id="line-356">        try {</span>
+<span class="source-line-no">357</span><span id="line-357">            profile = db.find( name );</span>
+<span class="source-line-no">358</span><span id="line-358">            principals = db.getPrincipals( profile.getLoginName() );</span>
+<span class="source-line-no">359</span><span id="line-359">            for( final Principal value : principals ) {</span>
+<span class="source-line-no">360</span><span id="line-360">                principal = value;</span>
+<span class="source-line-no">361</span><span id="line-361">                if( principal.getName().equals( name ) ) {</span>
+<span class="source-line-no">362</span><span id="line-362">                    return principal;</span>
+<span class="source-line-no">363</span><span id="line-363">                }</span>
+<span class="source-line-no">364</span><span id="line-364">            }</span>
+<span class="source-line-no">365</span><span id="line-365">        } catch( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">366</span><span id="line-366">            // We couldn't find the user...</span>
+<span class="source-line-no">367</span><span id="line-367">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">368</span><span id="line-368">        }</span>
+<span class="source-line-no">369</span><span id="line-369">        // Ok, no luck---mark this as unresolved and move on</span>
+<span class="source-line-no">370</span><span id="line-370">        return new UnresolvedPrincipal( name );</span>
+<span class="source-line-no">371</span><span id="line-371">    }</span>
+<span class="source-line-no">372</span><span id="line-372"></span>
 <span class="source-line-no">373</span><span id="line-373"></span>
-<span class="source-line-no">374</span><span id="line-374">    /** {@inheritDoc} */</span>
-<span class="source-line-no">375</span><span id="line-375">    @Override</span>
-<span class="source-line-no">376</span><span id="line-376">    public synchronized void addWikiEventListener( final WikiEventListener listener ) {</span>
-<span class="source-line-no">377</span><span id="line-377">        WikiEventManager.addWikiEventListener( this, listener );</span>
-<span class="source-line-no">378</span><span id="line-378">    }</span>
-<span class="source-line-no">379</span><span id="line-379"></span>
-<span class="source-line-no">380</span><span id="line-380">    /** {@inheritDoc} */</span>
-<span class="source-line-no">381</span><span id="line-381">    @Override</span>
-<span class="source-line-no">382</span><span id="line-382">    public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</span>
-<span class="source-line-no">383</span><span id="line-383">        WikiEventManager.removeWikiEventListener( this, listener );</span>
-<span class="source-line-no">384</span><span id="line-384">    }</span>
-<span class="source-line-no">385</span><span id="line-385"></span>
-<span class="source-line-no">386</span><span id="line-386">}</span>
+<span class="source-line-no">374</span><span id="line-374">    // events processing .......................................................</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">    /** {@inheritDoc} */</span>
+<span class="source-line-no">377</span><span id="line-377">    @Override</span>
+<span class="source-line-no">378</span><span id="line-378">    public synchronized void addWikiEventListener( final WikiEventListener listener ) {</span>
+<span class="source-line-no">379</span><span id="line-379">        WikiEventManager.addWikiEventListener( this, listener );</span>
+<span class="source-line-no">380</span><span id="line-380">    }</span>
+<span class="source-line-no">381</span><span id="line-381"></span>
+<span class="source-line-no">382</span><span id="line-382">    /** {@inheritDoc} */</span>
+<span class="source-line-no">383</span><span id="line-383">    @Override</span>
+<span class="source-line-no">384</span><span id="line-384">    public synchronized void removeWikiEventListener( final WikiEventListener listener ) {</span>
+<span class="source-line-no">385</span><span id="line-385">        WikiEventManager.removeWikiEventListener( this, listener );</span>
+<span class="source-line-no">386</span><span id="line-386">    }</span>
+<span class="source-line-no">387</span><span id="line-387"></span>
+<span class="source-line-no">388</span><span id="line-388">}</span>
 
 
 

@@ -633,206 +633,212 @@
 <span class="source-line-no">620</span><span id="line-620">            copy.m_page        = m_page;</span>
 <span class="source-line-no">621</span><span id="line-621">            copy.m_realPage    = m_realPage;</span>
 <span class="source-line-no">622</span><span id="line-622">            return copy;</span>
-<span class="source-line-no">623</span><span id="line-623">        } catch( final CloneNotSupportedException e ){} // Never happens</span>
-<span class="source-line-no">624</span><span id="line-624"></span>
-<span class="source-line-no">625</span><span id="line-625">        return null;</span>
-<span class="source-line-no">626</span><span id="line-626">    }</span>
+<span class="source-line-no">623</span><span id="line-623">        } catch( final CloneNotSupportedException e ){</span>
+<span class="source-line-no">624</span><span id="line-624">            // Never happens</span>
+<span class="source-line-no">625</span><span id="line-625">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">626</span><span id="line-626">        } </span>
 <span class="source-line-no">627</span><span id="line-627"></span>
-<span class="source-line-no">628</span><span id="line-628">    /**</span>
-<span class="source-line-no">629</span><span id="line-629">     *  Creates a deep clone of the WikiContext.  This is useful when you want to be sure that you don't accidentally mess with page</span>
-<span class="source-line-no">630</span><span id="line-630">     *  attributes, etc.</span>
-<span class="source-line-no">631</span><span id="line-631">     *</span>
-<span class="source-line-no">632</span><span id="line-632">     *  @since  2.8.0</span>
-<span class="source-line-no">633</span><span id="line-633">     *  @return A deep clone of the WikiContext.</span>
-<span class="source-line-no">634</span><span id="line-634">     */</span>
-<span class="source-line-no">635</span><span id="line-635">    @Override</span>
-<span class="source-line-no">636</span><span id="line-636">    @SuppressWarnings("unchecked")</span>
-<span class="source-line-no">637</span><span id="line-637">    public WikiContext deepClone() {</span>
-<span class="source-line-no">638</span><span id="line-638">        try {</span>
-<span class="source-line-no">639</span><span id="line-639">            // super.clone() must always be called to make sure that inherited objects</span>
-<span class="source-line-no">640</span><span id="line-640">            // get the right type</span>
-<span class="source-line-no">641</span><span id="line-641">            final WikiContext copy = (WikiContext)super.clone();</span>
-<span class="source-line-no">642</span><span id="line-642"></span>
-<span class="source-line-no">643</span><span id="line-643">            //  No need to deep clone these</span>
-<span class="source-line-no">644</span><span id="line-644">            copy.m_engine  = m_engine;</span>
-<span class="source-line-no">645</span><span id="line-645">            copy.m_command = m_command; // Static structure</span>
-<span class="source-line-no">646</span><span id="line-646"></span>
-<span class="source-line-no">647</span><span id="line-647">            copy.m_template    = m_template;</span>
-<span class="source-line-no">648</span><span id="line-648">            copy.m_variableMap = (HashMap&lt;String,Object&gt;)m_variableMap.clone();</span>
-<span class="source-line-no">649</span><span id="line-649">            copy.m_request     = m_request;</span>
-<span class="source-line-no">650</span><span id="line-650">            copy.m_session     = m_session;</span>
-<span class="source-line-no">651</span><span id="line-651">            copy.m_page        = m_page.clone();</span>
-<span class="source-line-no">652</span><span id="line-652">            copy.m_realPage    = m_realPage.clone();</span>
-<span class="source-line-no">653</span><span id="line-653">            return copy;</span>
-<span class="source-line-no">654</span><span id="line-654">        }</span>
-<span class="source-line-no">655</span><span id="line-655">        catch( final CloneNotSupportedException e ){} // Never happens</span>
-<span class="source-line-no">656</span><span id="line-656"></span>
-<span class="source-line-no">657</span><span id="line-657">        return null;</span>
-<span class="source-line-no">658</span><span id="line-658">    }</span>
-<span class="source-line-no">659</span><span id="line-659"></span>
-<span class="source-line-no">660</span><span id="line-660">    /**</span>
-<span class="source-line-no">661</span><span id="line-661">     *  Returns the Session associated with the context. This method is guaranteed to always return a valid Session.</span>
-<span class="source-line-no">662</span><span id="line-662">     *  If this context was constructed without an associated HttpServletRequest, it will return</span>
-<span class="source-line-no">663</span><span id="line-663">     *  {@link org.apache.wiki.WikiSession#guestSession(Engine)}.</span>
-<span class="source-line-no">664</span><span id="line-664">     *</span>
-<span class="source-line-no">665</span><span id="line-665">     *  @return The Session associated with this context.</span>
-<span class="source-line-no">666</span><span id="line-666">     */</span>
-<span class="source-line-no">667</span><span id="line-667">    @Override</span>
-<span class="source-line-no">668</span><span id="line-668">    public WikiSession getWikiSession() {</span>
-<span class="source-line-no">669</span><span id="line-669">        return ( WikiSession )m_session;</span>
-<span class="source-line-no">670</span><span id="line-670">    }</span>
-<span class="source-line-no">671</span><span id="line-671"></span>
-<span class="source-line-no">672</span><span id="line-672">    /**</span>
-<span class="source-line-no">673</span><span id="line-673">     * This method can be used to find the WikiContext programmatically from a JSP PageContext. We check the request context.</span>
-<span class="source-line-no">674</span><span id="line-674">     * The wiki context, if it exists, is looked up using the key {@link #ATTR_CONTEXT}.</span>
-<span class="source-line-no">675</span><span id="line-675">     *</span>
-<span class="source-line-no">676</span><span id="line-676">     * @since 2.4</span>
-<span class="source-line-no">677</span><span id="line-677">     * @param pageContext the JSP page context</span>
-<span class="source-line-no">678</span><span id="line-678">     * @return Current WikiContext, or null, of no context exists.</span>
-<span class="source-line-no">679</span><span id="line-679">     * @deprecated use {@link Context#findContext( PageContext )} instead.</span>
-<span class="source-line-no">680</span><span id="line-680">     * @see Context#findContext( PageContext )</span>
-<span class="source-line-no">681</span><span id="line-681">     */</span>
-<span class="source-line-no">682</span><span id="line-682">    @Deprecated</span>
-<span class="source-line-no">683</span><span id="line-683">    public static WikiContext findContext( final PageContext pageContext ) {</span>
-<span class="source-line-no">684</span><span id="line-684">        final HttpServletRequest request = ( HttpServletRequest )pageContext.getRequest();</span>
-<span class="source-line-no">685</span><span id="line-685">        return ( WikiContext )request.getAttribute( ATTR_CONTEXT );</span>
-<span class="source-line-no">686</span><span id="line-686">    }</span>
-<span class="source-line-no">687</span><span id="line-687"></span>
-<span class="source-line-no">688</span><span id="line-688">    /**</span>
-<span class="source-line-no">689</span><span id="line-689">     * Returns the permission required to successfully execute this context. For example, a wiki context of VIEW for a certain page</span>
-<span class="source-line-no">690</span><span id="line-690">     * means that the PagePermission "view" is required for the page. In some cases, no particular permission is required, in which case</span>
-<span class="source-line-no">691</span><span id="line-691">     * a dummy permission will be returned ({@link java.util.PropertyPermission}&lt;code&gt; "os.name", "read"&lt;/code&gt;). This method is guaranteed</span>
-<span class="source-line-no">692</span><span id="line-692">     * to always return a valid, non-null permission.</span>
-<span class="source-line-no">693</span><span id="line-693">     *</span>
-<span class="source-line-no">694</span><span id="line-694">     * @return the permission</span>
-<span class="source-line-no">695</span><span id="line-695">     * @since 2.4</span>
-<span class="source-line-no">696</span><span id="line-696">     */</span>
-<span class="source-line-no">697</span><span id="line-697">    @Override</span>
-<span class="source-line-no">698</span><span id="line-698">    public Permission requiredPermission() {</span>
-<span class="source-line-no">699</span><span id="line-699">        // This is a filthy rotten hack -- absolutely putrid</span>
-<span class="source-line-no">700</span><span id="line-700">        if ( WikiCommand.INSTALL.equals( m_command ) ) {</span>
-<span class="source-line-no">701</span><span id="line-701">            // See if admin users exists</span>
-<span class="source-line-no">702</span><span id="line-702">            try {</span>
-<span class="source-line-no">703</span><span id="line-703">                final UserManager userMgr = m_engine.getManager( UserManager.class );</span>
-<span class="source-line-no">704</span><span id="line-704">                final UserDatabase userDb = userMgr.getUserDatabase();</span>
-<span class="source-line-no">705</span><span id="line-705">                userDb.findByLoginName( Installer.ADMIN_ID );</span>
-<span class="source-line-no">706</span><span id="line-706">            } catch ( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">707</span><span id="line-707">                return DUMMY_PERMISSION;</span>
-<span class="source-line-no">708</span><span id="line-708">            }</span>
-<span class="source-line-no">709</span><span id="line-709">            return new AllPermission( m_engine.getApplicationName() );</span>
-<span class="source-line-no">710</span><span id="line-710">        }</span>
-<span class="source-line-no">711</span><span id="line-711"></span>
-<span class="source-line-no">712</span><span id="line-712">        // TODO: we should really break the contract so that this</span>
-<span class="source-line-no">713</span><span id="line-713">        // method returns null, but until then we will use this hack</span>
-<span class="source-line-no">714</span><span id="line-714">        if( m_command.requiredPermission() == null ) {</span>
-<span class="source-line-no">715</span><span id="line-715">            return DUMMY_PERMISSION;</span>
+<span class="source-line-no">628</span><span id="line-628">        return null;</span>
+<span class="source-line-no">629</span><span id="line-629">    }</span>
+<span class="source-line-no">630</span><span id="line-630"></span>
+<span class="source-line-no">631</span><span id="line-631">    /**</span>
+<span class="source-line-no">632</span><span id="line-632">     *  Creates a deep clone of the WikiContext.  This is useful when you want to be sure that you don't accidentally mess with page</span>
+<span class="source-line-no">633</span><span id="line-633">     *  attributes, etc.</span>
+<span class="source-line-no">634</span><span id="line-634">     *</span>
+<span class="source-line-no">635</span><span id="line-635">     *  @since  2.8.0</span>
+<span class="source-line-no">636</span><span id="line-636">     *  @return A deep clone of the WikiContext.</span>
+<span class="source-line-no">637</span><span id="line-637">     */</span>
+<span class="source-line-no">638</span><span id="line-638">    @Override</span>
+<span class="source-line-no">639</span><span id="line-639">    @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">640</span><span id="line-640">    public WikiContext deepClone() {</span>
+<span class="source-line-no">641</span><span id="line-641">        try {</span>
+<span class="source-line-no">642</span><span id="line-642">            // super.clone() must always be called to make sure that inherited objects</span>
+<span class="source-line-no">643</span><span id="line-643">            // get the right type</span>
+<span class="source-line-no">644</span><span id="line-644">            final WikiContext copy = (WikiContext)super.clone();</span>
+<span class="source-line-no">645</span><span id="line-645"></span>
+<span class="source-line-no">646</span><span id="line-646">            //  No need to deep clone these</span>
+<span class="source-line-no">647</span><span id="line-647">            copy.m_engine  = m_engine;</span>
+<span class="source-line-no">648</span><span id="line-648">            copy.m_command = m_command; // Static structure</span>
+<span class="source-line-no">649</span><span id="line-649"></span>
+<span class="source-line-no">650</span><span id="line-650">            copy.m_template    = m_template;</span>
+<span class="source-line-no">651</span><span id="line-651">            copy.m_variableMap = (HashMap&lt;String,Object&gt;)m_variableMap.clone();</span>
+<span class="source-line-no">652</span><span id="line-652">            copy.m_request     = m_request;</span>
+<span class="source-line-no">653</span><span id="line-653">            copy.m_session     = m_session;</span>
+<span class="source-line-no">654</span><span id="line-654">            copy.m_page        = m_page.clone();</span>
+<span class="source-line-no">655</span><span id="line-655">            copy.m_realPage    = m_realPage.clone();</span>
+<span class="source-line-no">656</span><span id="line-656">            return copy;</span>
+<span class="source-line-no">657</span><span id="line-657">        }</span>
+<span class="source-line-no">658</span><span id="line-658">        catch( final CloneNotSupportedException e ){</span>
+<span class="source-line-no">659</span><span id="line-659">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">660</span><span id="line-660">            // Never happens</span>
+<span class="source-line-no">661</span><span id="line-661">        } </span>
+<span class="source-line-no">662</span><span id="line-662"></span>
+<span class="source-line-no">663</span><span id="line-663">        return null;</span>
+<span class="source-line-no">664</span><span id="line-664">    }</span>
+<span class="source-line-no">665</span><span id="line-665"></span>
+<span class="source-line-no">666</span><span id="line-666">    /**</span>
+<span class="source-line-no">667</span><span id="line-667">     *  Returns the Session associated with the context. This method is guaranteed to always return a valid Session.</span>
+<span class="source-line-no">668</span><span id="line-668">     *  If this context was constructed without an associated HttpServletRequest, it will return</span>
+<span class="source-line-no">669</span><span id="line-669">     *  {@link org.apache.wiki.WikiSession#guestSession(Engine)}.</span>
+<span class="source-line-no">670</span><span id="line-670">     *</span>
+<span class="source-line-no">671</span><span id="line-671">     *  @return The Session associated with this context.</span>
+<span class="source-line-no">672</span><span id="line-672">     */</span>
+<span class="source-line-no">673</span><span id="line-673">    @Override</span>
+<span class="source-line-no">674</span><span id="line-674">    public WikiSession getWikiSession() {</span>
+<span class="source-line-no">675</span><span id="line-675">        return ( WikiSession )m_session;</span>
+<span class="source-line-no">676</span><span id="line-676">    }</span>
+<span class="source-line-no">677</span><span id="line-677"></span>
+<span class="source-line-no">678</span><span id="line-678">    /**</span>
+<span class="source-line-no">679</span><span id="line-679">     * This method can be used to find the WikiContext programmatically from a JSP PageContext. We check the request context.</span>
+<span class="source-line-no">680</span><span id="line-680">     * The wiki context, if it exists, is looked up using the key {@link #ATTR_CONTEXT}.</span>
+<span class="source-line-no">681</span><span id="line-681">     *</span>
+<span class="source-line-no">682</span><span id="line-682">     * @since 2.4</span>
+<span class="source-line-no">683</span><span id="line-683">     * @param pageContext the JSP page context</span>
+<span class="source-line-no">684</span><span id="line-684">     * @return Current WikiContext, or null, of no context exists.</span>
+<span class="source-line-no">685</span><span id="line-685">     * @deprecated use {@link Context#findContext( PageContext )} instead.</span>
+<span class="source-line-no">686</span><span id="line-686">     * @see Context#findContext( PageContext )</span>
+<span class="source-line-no">687</span><span id="line-687">     */</span>
+<span class="source-line-no">688</span><span id="line-688">    @Deprecated</span>
+<span class="source-line-no">689</span><span id="line-689">    public static WikiContext findContext( final PageContext pageContext ) {</span>
+<span class="source-line-no">690</span><span id="line-690">        final HttpServletRequest request = ( HttpServletRequest )pageContext.getRequest();</span>
+<span class="source-line-no">691</span><span id="line-691">        return ( WikiContext )request.getAttribute( ATTR_CONTEXT );</span>
+<span class="source-line-no">692</span><span id="line-692">    }</span>
+<span class="source-line-no">693</span><span id="line-693"></span>
+<span class="source-line-no">694</span><span id="line-694">    /**</span>
+<span class="source-line-no">695</span><span id="line-695">     * Returns the permission required to successfully execute this context. For example, a wiki context of VIEW for a certain page</span>
+<span class="source-line-no">696</span><span id="line-696">     * means that the PagePermission "view" is required for the page. In some cases, no particular permission is required, in which case</span>
+<span class="source-line-no">697</span><span id="line-697">     * a dummy permission will be returned ({@link java.util.PropertyPermission}&lt;code&gt; "os.name", "read"&lt;/code&gt;). This method is guaranteed</span>
+<span class="source-line-no">698</span><span id="line-698">     * to always return a valid, non-null permission.</span>
+<span class="source-line-no">699</span><span id="line-699">     *</span>
+<span class="source-line-no">700</span><span id="line-700">     * @return the permission</span>
+<span class="source-line-no">701</span><span id="line-701">     * @since 2.4</span>
+<span class="source-line-no">702</span><span id="line-702">     */</span>
+<span class="source-line-no">703</span><span id="line-703">    @Override</span>
+<span class="source-line-no">704</span><span id="line-704">    public Permission requiredPermission() {</span>
+<span class="source-line-no">705</span><span id="line-705">        // This is a filthy rotten hack -- absolutely putrid</span>
+<span class="source-line-no">706</span><span id="line-706">        if ( WikiCommand.INSTALL.equals( m_command ) ) {</span>
+<span class="source-line-no">707</span><span id="line-707">            // See if admin users exists</span>
+<span class="source-line-no">708</span><span id="line-708">            try {</span>
+<span class="source-line-no">709</span><span id="line-709">                final UserManager userMgr = m_engine.getManager( UserManager.class );</span>
+<span class="source-line-no">710</span><span id="line-710">                final UserDatabase userDb = userMgr.getUserDatabase();</span>
+<span class="source-line-no">711</span><span id="line-711">                userDb.findByLoginName( Installer.ADMIN_ID );</span>
+<span class="source-line-no">712</span><span id="line-712">            } catch ( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">713</span><span id="line-713">                return DUMMY_PERMISSION;</span>
+<span class="source-line-no">714</span><span id="line-714">            }</span>
+<span class="source-line-no">715</span><span id="line-715">            return new AllPermission( m_engine.getApplicationName() );</span>
 <span class="source-line-no">716</span><span id="line-716">        }</span>
 <span class="source-line-no">717</span><span id="line-717"></span>
-<span class="source-line-no">718</span><span id="line-718">        return m_command.requiredPermission();</span>
-<span class="source-line-no">719</span><span id="line-719">    }</span>
-<span class="source-line-no">720</span><span id="line-720"></span>
-<span class="source-line-no">721</span><span id="line-721">    /**</span>
-<span class="source-line-no">722</span><span id="line-722">     * Associates a target with the current Command and returns the new targeted Command. If the Command associated with this</span>
-<span class="source-line-no">723</span><span id="line-723">     * WikiContext is already "targeted", it is returned instead.</span>
-<span class="source-line-no">724</span><span id="line-724">     *</span>
-<span class="source-line-no">725</span><span id="line-725">     * @see org.apache.wiki.api.core.Command#targetedCommand(java.lang.Object)</span>
-<span class="source-line-no">726</span><span id="line-726">     *</span>
-<span class="source-line-no">727</span><span id="line-727">     * {@inheritDoc}</span>
-<span class="source-line-no">728</span><span id="line-728">     */</span>
-<span class="source-line-no">729</span><span id="line-729">    @Override</span>
-<span class="source-line-no">730</span><span id="line-730">    public Command targetedCommand( final Object target ) {</span>
-<span class="source-line-no">731</span><span id="line-731">        if ( m_command.getTarget() == null ) {</span>
-<span class="source-line-no">732</span><span id="line-732">            return m_command.targetedCommand( target );</span>
-<span class="source-line-no">733</span><span id="line-733">        }</span>
-<span class="source-line-no">734</span><span id="line-734">        return m_command;</span>
-<span class="source-line-no">735</span><span id="line-735">    }</span>
-<span class="source-line-no">736</span><span id="line-736"></span>
-<span class="source-line-no">737</span><span id="line-737">    /**</span>
-<span class="source-line-no">738</span><span id="line-738">     *  Returns true, if the current user has administrative permissions (i.e. the omnipotent AllPermission).</span>
-<span class="source-line-no">739</span><span id="line-739">     *</span>
-<span class="source-line-no">740</span><span id="line-740">     *  @since 2.4.46</span>
-<span class="source-line-no">741</span><span id="line-741">     *  @return true, if the user has all permissions.</span>
-<span class="source-line-no">742</span><span id="line-742">     */</span>
-<span class="source-line-no">743</span><span id="line-743">    @Override</span>
-<span class="source-line-no">744</span><span id="line-744">    public boolean hasAdminPermissions() {</span>
-<span class="source-line-no">745</span><span id="line-745">        return m_engine.getManager( AuthorizationManager.class ).checkPermission( getWikiSession(), new AllPermission( m_engine.getApplicationName() ) );</span>
-<span class="source-line-no">746</span><span id="line-746">    }</span>
-<span class="source-line-no">747</span><span id="line-747"></span>
-<span class="source-line-no">748</span><span id="line-748">    /**</span>
-<span class="source-line-no">749</span><span id="line-749">     * Figures out which template a new WikiContext should be using.</span>
-<span class="source-line-no">750</span><span id="line-750">     * @param request the HTTP request</span>
-<span class="source-line-no">751</span><span id="line-751">     */</span>
-<span class="source-line-no">752</span><span id="line-752">    protected void setDefaultTemplate( final HttpServletRequest request ) {</span>
-<span class="source-line-no">753</span><span id="line-753">        final String defaultTemplate = m_engine.getTemplateDir();</span>
-<span class="source-line-no">754</span><span id="line-754"></span>
-<span class="source-line-no">755</span><span id="line-755">        //  Figure out which template we should be using for this page.</span>
-<span class="source-line-no">756</span><span id="line-756">        String template = null;</span>
-<span class="source-line-no">757</span><span id="line-757">        if ( request != null ) {</span>
-<span class="source-line-no">758</span><span id="line-758">            final String skin = request.getParameter( "skin" );</span>
-<span class="source-line-no">759</span><span id="line-759">            if( skin != null )</span>
-<span class="source-line-no">760</span><span id="line-760">            {</span>
-<span class="source-line-no">761</span><span id="line-761">                template = skin.replaceAll("\\p{Punct}", "");</span>
-<span class="source-line-no">762</span><span id="line-762">            }</span>
-<span class="source-line-no">763</span><span id="line-763"></span>
-<span class="source-line-no">764</span><span id="line-764">        }</span>
-<span class="source-line-no">765</span><span id="line-765"></span>
-<span class="source-line-no">766</span><span id="line-766">        // If request doesn't supply the value, extract from wiki page</span>
-<span class="source-line-no">767</span><span id="line-767">        if( template == null ) {</span>
-<span class="source-line-no">768</span><span id="line-768">            final WikiPage page = getPage();</span>
-<span class="source-line-no">769</span><span id="line-769">            if ( page != null ) {</span>
-<span class="source-line-no">770</span><span id="line-770">                template = page.getAttribute( Engine.PROP_TEMPLATEDIR );</span>
-<span class="source-line-no">771</span><span id="line-771">            }</span>
-<span class="source-line-no">772</span><span id="line-772"></span>
-<span class="source-line-no">773</span><span id="line-773">        }</span>
-<span class="source-line-no">774</span><span id="line-774"></span>
-<span class="source-line-no">775</span><span id="line-775">        // If something over-wrote the default, set the new value.</span>
-<span class="source-line-no">776</span><span id="line-776">        if ( template != null ) {</span>
-<span class="source-line-no">777</span><span id="line-777">            setTemplate( template );</span>
-<span class="source-line-no">778</span><span id="line-778">        } else {</span>
-<span class="source-line-no">779</span><span id="line-779">            setTemplate( defaultTemplate );</span>
-<span class="source-line-no">780</span><span id="line-780">        }</span>
-<span class="source-line-no">781</span><span id="line-781">    }</span>
-<span class="source-line-no">782</span><span id="line-782"></span>
-<span class="source-line-no">783</span><span id="line-783">    /**</span>
-<span class="source-line-no">784</span><span id="line-784">     * Looks up and returns a PageCommand based on a supplied WikiPage and HTTP request. First, the appropriate Command is obtained by</span>
-<span class="source-line-no">785</span><span id="line-785">     * examining the HTTP request; the default is {@link ContextEnum#PAGE_VIEW}. If the Command is a PageCommand (and it should be, in most</span>
-<span class="source-line-no">786</span><span id="line-786">     * cases), a targeted Command is created using the (non-&lt;code&gt;null&lt;/code&gt;) WikiPage as target.</span>
-<span class="source-line-no">787</span><span id="line-787">     *</span>
-<span class="source-line-no">788</span><span id="line-788">     * @param engine the wiki engine</span>
-<span class="source-line-no">789</span><span id="line-789">     * @param request the HTTP request</span>
-<span class="source-line-no">790</span><span id="line-790">     * @param page the wiki page</span>
-<span class="source-line-no">791</span><span id="line-791">     * @return the correct command</span>
-<span class="source-line-no">792</span><span id="line-792">     */</span>
-<span class="source-line-no">793</span><span id="line-793">    protected static Command findCommand( final Engine engine, final HttpServletRequest request, final Page page ) {</span>
-<span class="source-line-no">794</span><span id="line-794">        final String defaultContext = ContextEnum.PAGE_VIEW.getRequestContext();</span>
-<span class="source-line-no">795</span><span id="line-795">        Command command = engine.getManager( CommandResolver.class ).findCommand( request, defaultContext );</span>
-<span class="source-line-no">796</span><span id="line-796">        if ( command instanceof PageCommand &amp;&amp; page != null ) {</span>
-<span class="source-line-no">797</span><span id="line-797">            command = command.targetedCommand( page );</span>
-<span class="source-line-no">798</span><span id="line-798">        }</span>
-<span class="source-line-no">799</span><span id="line-799">        return command;</span>
-<span class="source-line-no">800</span><span id="line-800">    }</span>
-<span class="source-line-no">801</span><span id="line-801"></span>
-<span class="source-line-no">802</span><span id="line-802">    /**</span>
-<span class="source-line-no">803</span><span id="line-803">     * Protected method that updates the internally cached Command. Will always be called when the page name, request context, or variable</span>
-<span class="source-line-no">804</span><span id="line-804">     * changes.</span>
-<span class="source-line-no">805</span><span id="line-805">     *</span>
-<span class="source-line-no">806</span><span id="line-806">     * @param requestContext the desired request context</span>
-<span class="source-line-no">807</span><span id="line-807">     * @since 2.4</span>
-<span class="source-line-no">808</span><span id="line-808">     */</span>
-<span class="source-line-no">809</span><span id="line-809">    protected void updateCommand( final String requestContext ) {</span>
-<span class="source-line-no">810</span><span id="line-810">        if ( requestContext == null ) {</span>
-<span class="source-line-no">811</span><span id="line-811">            m_command = PageCommand.NONE;</span>
-<span class="source-line-no">812</span><span id="line-812">        } else {</span>
-<span class="source-line-no">813</span><span id="line-813">            final CommandResolver resolver = m_engine.getManager( CommandResolver.class );</span>
-<span class="source-line-no">814</span><span id="line-814">            m_command = resolver.findCommand( m_request, requestContext );</span>
-<span class="source-line-no">815</span><span id="line-815">        }</span>
-<span class="source-line-no">816</span><span id="line-816"></span>
-<span class="source-line-no">817</span><span id="line-817">        if ( m_command instanceof PageCommand &amp;&amp; m_page != null ) {</span>
-<span class="source-line-no">818</span><span id="line-818">            m_command = m_command.targetedCommand( m_page );</span>
-<span class="source-line-no">819</span><span id="line-819">        }</span>
-<span class="source-line-no">820</span><span id="line-820">    }</span>
-<span class="source-line-no">821</span><span id="line-821"></span>
-<span class="source-line-no">822</span><span id="line-822">}</span>
+<span class="source-line-no">718</span><span id="line-718">        // TODO: we should really break the contract so that this</span>
+<span class="source-line-no">719</span><span id="line-719">        // method returns null, but until then we will use this hack</span>
+<span class="source-line-no">720</span><span id="line-720">        if( m_command.requiredPermission() == null ) {</span>
+<span class="source-line-no">721</span><span id="line-721">            return DUMMY_PERMISSION;</span>
+<span class="source-line-no">722</span><span id="line-722">        }</span>
+<span class="source-line-no">723</span><span id="line-723"></span>
+<span class="source-line-no">724</span><span id="line-724">        return m_command.requiredPermission();</span>
+<span class="source-line-no">725</span><span id="line-725">    }</span>
+<span class="source-line-no">726</span><span id="line-726"></span>
+<span class="source-line-no">727</span><span id="line-727">    /**</span>
+<span class="source-line-no">728</span><span id="line-728">     * Associates a target with the current Command and returns the new targeted Command. If the Command associated with this</span>
+<span class="source-line-no">729</span><span id="line-729">     * WikiContext is already "targeted", it is returned instead.</span>
+<span class="source-line-no">730</span><span id="line-730">     *</span>
+<span class="source-line-no">731</span><span id="line-731">     * @see org.apache.wiki.api.core.Command#targetedCommand(java.lang.Object)</span>
+<span class="source-line-no">732</span><span id="line-732">     *</span>
+<span class="source-line-no">733</span><span id="line-733">     * {@inheritDoc}</span>
+<span class="source-line-no">734</span><span id="line-734">     */</span>
+<span class="source-line-no">735</span><span id="line-735">    @Override</span>
+<span class="source-line-no">736</span><span id="line-736">    public Command targetedCommand( final Object target ) {</span>
+<span class="source-line-no">737</span><span id="line-737">        if ( m_command.getTarget() == null ) {</span>
+<span class="source-line-no">738</span><span id="line-738">            return m_command.targetedCommand( target );</span>
+<span class="source-line-no">739</span><span id="line-739">        }</span>
+<span class="source-line-no">740</span><span id="line-740">        return m_command;</span>
+<span class="source-line-no">741</span><span id="line-741">    }</span>
+<span class="source-line-no">742</span><span id="line-742"></span>
+<span class="source-line-no">743</span><span id="line-743">    /**</span>
+<span class="source-line-no">744</span><span id="line-744">     *  Returns true, if the current user has administrative permissions (i.e. the omnipotent AllPermission).</span>
+<span class="source-line-no">745</span><span id="line-745">     *</span>
+<span class="source-line-no">746</span><span id="line-746">     *  @since 2.4.46</span>
+<span class="source-line-no">747</span><span id="line-747">     *  @return true, if the user has all permissions.</span>
+<span class="source-line-no">748</span><span id="line-748">     */</span>
+<span class="source-line-no">749</span><span id="line-749">    @Override</span>
+<span class="source-line-no">750</span><span id="line-750">    public boolean hasAdminPermissions() {</span>
+<span class="source-line-no">751</span><span id="line-751">        return m_engine.getManager( AuthorizationManager.class ).checkPermission( getWikiSession(), new AllPermission( m_engine.getApplicationName() ) );</span>
+<span class="source-line-no">752</span><span id="line-752">    }</span>
+<span class="source-line-no">753</span><span id="line-753"></span>
+<span class="source-line-no">754</span><span id="line-754">    /**</span>
+<span class="source-line-no">755</span><span id="line-755">     * Figures out which template a new WikiContext should be using.</span>
+<span class="source-line-no">756</span><span id="line-756">     * @param request the HTTP request</span>
+<span class="source-line-no">757</span><span id="line-757">     */</span>
+<span class="source-line-no">758</span><span id="line-758">    protected void setDefaultTemplate( final HttpServletRequest request ) {</span>
+<span class="source-line-no">759</span><span id="line-759">        final String defaultTemplate = m_engine.getTemplateDir();</span>
+<span class="source-line-no">760</span><span id="line-760"></span>
+<span class="source-line-no">761</span><span id="line-761">        //  Figure out which template we should be using for this page.</span>
+<span class="source-line-no">762</span><span id="line-762">        String template = null;</span>
+<span class="source-line-no">763</span><span id="line-763">        if ( request != null ) {</span>
+<span class="source-line-no">764</span><span id="line-764">            final String skin = request.getParameter( "skin" );</span>
+<span class="source-line-no">765</span><span id="line-765">            if( skin != null )</span>
+<span class="source-line-no">766</span><span id="line-766">            {</span>
+<span class="source-line-no">767</span><span id="line-767">                template = skin.replaceAll("\\p{Punct}", "");</span>
+<span class="source-line-no">768</span><span id="line-768">            }</span>
+<span class="source-line-no">769</span><span id="line-769"></span>
+<span class="source-line-no">770</span><span id="line-770">        }</span>
+<span class="source-line-no">771</span><span id="line-771"></span>
+<span class="source-line-no">772</span><span id="line-772">        // If request doesn't supply the value, extract from wiki page</span>
+<span class="source-line-no">773</span><span id="line-773">        if( template == null ) {</span>
+<span class="source-line-no">774</span><span id="line-774">            final WikiPage page = getPage();</span>
+<span class="source-line-no">775</span><span id="line-775">            if ( page != null ) {</span>
+<span class="source-line-no">776</span><span id="line-776">                template = page.getAttribute( Engine.PROP_TEMPLATEDIR );</span>
+<span class="source-line-no">777</span><span id="line-777">            }</span>
+<span class="source-line-no">778</span><span id="line-778"></span>
+<span class="source-line-no">779</span><span id="line-779">        }</span>
+<span class="source-line-no">780</span><span id="line-780"></span>
+<span class="source-line-no">781</span><span id="line-781">        // If something over-wrote the default, set the new value.</span>
+<span class="source-line-no">782</span><span id="line-782">        if ( template != null ) {</span>
+<span class="source-line-no">783</span><span id="line-783">            setTemplate( template );</span>
+<span class="source-line-no">784</span><span id="line-784">        } else {</span>
+<span class="source-line-no">785</span><span id="line-785">            setTemplate( defaultTemplate );</span>
+<span class="source-line-no">786</span><span id="line-786">        }</span>
+<span class="source-line-no">787</span><span id="line-787">    }</span>
+<span class="source-line-no">788</span><span id="line-788"></span>
+<span class="source-line-no">789</span><span id="line-789">    /**</span>
+<span class="source-line-no">790</span><span id="line-790">     * Looks up and returns a PageCommand based on a supplied WikiPage and HTTP request. First, the appropriate Command is obtained by</span>
+<span class="source-line-no">791</span><span id="line-791">     * examining the HTTP request; the default is {@link ContextEnum#PAGE_VIEW}. If the Command is a PageCommand (and it should be, in most</span>
+<span class="source-line-no">792</span><span id="line-792">     * cases), a targeted Command is created using the (non-&lt;code&gt;null&lt;/code&gt;) WikiPage as target.</span>
+<span class="source-line-no">793</span><span id="line-793">     *</span>
+<span class="source-line-no">794</span><span id="line-794">     * @param engine the wiki engine</span>
+<span class="source-line-no">795</span><span id="line-795">     * @param request the HTTP request</span>
+<span class="source-line-no">796</span><span id="line-796">     * @param page the wiki page</span>
+<span class="source-line-no">797</span><span id="line-797">     * @return the correct command</span>
+<span class="source-line-no">798</span><span id="line-798">     */</span>
+<span class="source-line-no">799</span><span id="line-799">    protected static Command findCommand( final Engine engine, final HttpServletRequest request, final Page page ) {</span>
+<span class="source-line-no">800</span><span id="line-800">        final String defaultContext = ContextEnum.PAGE_VIEW.getRequestContext();</span>
+<span class="source-line-no">801</span><span id="line-801">        Command command = engine.getManager( CommandResolver.class ).findCommand( request, defaultContext );</span>
+<span class="source-line-no">802</span><span id="line-802">        if ( command instanceof PageCommand &amp;&amp; page != null ) {</span>
+<span class="source-line-no">803</span><span id="line-803">            command = command.targetedCommand( page );</span>
+<span class="source-line-no">804</span><span id="line-804">        }</span>
+<span class="source-line-no">805</span><span id="line-805">        return command;</span>
+<span class="source-line-no">806</span><span id="line-806">    }</span>
+<span class="source-line-no">807</span><span id="line-807"></span>
+<span class="source-line-no">808</span><span id="line-808">    /**</span>
+<span class="source-line-no">809</span><span id="line-809">     * Protected method that updates the internally cached Command. Will always be called when the page name, request context, or variable</span>
+<span class="source-line-no">810</span><span id="line-810">     * changes.</span>
+<span class="source-line-no">811</span><span id="line-811">     *</span>
+<span class="source-line-no">812</span><span id="line-812">     * @param requestContext the desired request context</span>
+<span class="source-line-no">813</span><span id="line-813">     * @since 2.4</span>
+<span class="source-line-no">814</span><span id="line-814">     */</span>
+<span class="source-line-no">815</span><span id="line-815">    protected void updateCommand( final String requestContext ) {</span>
+<span class="source-line-no">816</span><span id="line-816">        if ( requestContext == null ) {</span>
+<span class="source-line-no">817</span><span id="line-817">            m_command = PageCommand.NONE;</span>
+<span class="source-line-no">818</span><span id="line-818">        } else {</span>
+<span class="source-line-no">819</span><span id="line-819">            final CommandResolver resolver = m_engine.getManager( CommandResolver.class );</span>
+<span class="source-line-no">820</span><span id="line-820">            m_command = resolver.findCommand( m_request, requestContext );</span>
+<span class="source-line-no">821</span><span id="line-821">        }</span>
+<span class="source-line-no">822</span><span id="line-822"></span>
+<span class="source-line-no">823</span><span id="line-823">        if ( m_command instanceof PageCommand &amp;&amp; m_page != null ) {</span>
+<span class="source-line-no">824</span><span id="line-824">            m_command = m_command.targetedCommand( m_page );</span>
+<span class="source-line-no">825</span><span id="line-825">        }</span>
+<span class="source-line-no">826</span><span id="line-826">    }</span>
+<span class="source-line-no">827</span><span id="line-827"></span>
+<span class="source-line-no">828</span><span id="line-828">}</span>
 
 
 
