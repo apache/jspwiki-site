@@ -60,7 +60,7 @@
 | Unchanged | [org.apache.wiki.api.core.ContextEnum]                       | ![Compatible]       | ![No changes]         |
 | Modified  | [org.apache.wiki.api.core.Engine]                            | ![Not serializable] | ![Method return type changed] |
 | Unchanged | [org.apache.wiki.api.core.Page]                              | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Method new default] |
+| Unchanged | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.EngineLifecycleExtension]        | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.Initializable]                   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.RenderApi]                       | ![Not serializable] | ![No changes]         |
@@ -516,9 +516,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `Session` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Session` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -536,7 +536,6 @@ ___
 | Unchanged | `public` `abstract` |          | [`String[]`][1]    | `getMessages`()                                      |             |                            | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String[]`][1]    | `getMessages`([`String`])                            |             |                            | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`Principal[]`][2] | `getPrincipals`()                                    |             |                            | ![No changes]         |
-| Added     | **`public`**        |          | **[`String`]**     | **`getRemoteAddress`**()                             |             |                            | ![Method new default] |
 | Unchanged | `public` `abstract` |          | [`Principal[]`][2] | `getRoles`()                                         |             |                            | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]         | `getStatus`()                                        |             |                            | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`Subject`]        | `getSubject`()                                       |             |                            | ![No changes]         |
@@ -1497,7 +1496,7 @@ ___
 
 ___
 
-*Generated on: 2025-12-14 17:29:49.061+0000*.
+*Generated on: 2025-12-14 17:33:50.852+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
