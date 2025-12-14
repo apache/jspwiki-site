@@ -54,537 +54,555 @@
 <span class="source-line-no">041</span><span id="line-41">import javax.security.auth.Subject;</span>
 <span class="source-line-no">042</span><span id="line-42">import jakarta.servlet.http.HttpServletRequest;</span>
 <span class="source-line-no">043</span><span id="line-43">import jakarta.servlet.http.HttpSession;</span>
-<span class="source-line-no">044</span><span id="line-44">import java.security.Principal;</span>
-<span class="source-line-no">045</span><span id="line-45">import java.util.Arrays;</span>
-<span class="source-line-no">046</span><span id="line-46">import java.util.HashSet;</span>
-<span class="source-line-no">047</span><span id="line-47">import java.util.LinkedHashSet;</span>
-<span class="source-line-no">048</span><span id="line-48">import java.util.Locale;</span>
-<span class="source-line-no">049</span><span id="line-49">import java.util.Map;</span>
-<span class="source-line-no">050</span><span id="line-50">import java.util.Set;</span>
-<span class="source-line-no">051</span><span id="line-51">import java.util.UUID;</span>
-<span class="source-line-no">052</span><span id="line-52">import java.util.concurrent.ConcurrentHashMap;</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
+<span class="source-line-no">044</span><span id="line-44">import java.net.http.HttpRequest;</span>
+<span class="source-line-no">045</span><span id="line-45">import java.security.Principal;</span>
+<span class="source-line-no">046</span><span id="line-46">import java.util.Arrays;</span>
+<span class="source-line-no">047</span><span id="line-47">import java.util.HashSet;</span>
+<span class="source-line-no">048</span><span id="line-48">import java.util.LinkedHashSet;</span>
+<span class="source-line-no">049</span><span id="line-49">import java.util.Locale;</span>
+<span class="source-line-no">050</span><span id="line-50">import java.util.Map;</span>
+<span class="source-line-no">051</span><span id="line-51">import java.util.Set;</span>
+<span class="source-line-no">052</span><span id="line-52">import java.util.UUID;</span>
+<span class="source-line-no">053</span><span id="line-53">import java.util.concurrent.ConcurrentHashMap;</span>
 <span class="source-line-no">054</span><span id="line-54"></span>
-<span class="source-line-no">055</span><span id="line-55">/**</span>
-<span class="source-line-no">056</span><span id="line-56"> * &lt;p&gt;Default implementation for {@link Session}.&lt;/p&gt;</span>
-<span class="source-line-no">057</span><span id="line-57"> * &lt;p&gt;In addition to methods for examining individual &lt;code&gt;WikiSession&lt;/code&gt; objects, this class also contains a number of static</span>
-<span class="source-line-no">058</span><span id="line-58"> * methods for managing WikiSessions for an entire wiki. These methods allow callers to find, query and remove WikiSession objects, and</span>
-<span class="source-line-no">059</span><span id="line-59"> * to obtain a list of the current wiki session users.&lt;/p&gt;</span>
-<span class="source-line-no">060</span><span id="line-60"> */</span>
-<span class="source-line-no">061</span><span id="line-61">public class WikiSession implements Session {</span>
-<span class="source-line-no">062</span><span id="line-62"></span>
-<span class="source-line-no">063</span><span id="line-63">    private static final Logger LOG = LogManager.getLogger( WikiSession.class );</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">    private static final String ALL = "*";</span>
-<span class="source-line-no">066</span><span id="line-66"></span>
-<span class="source-line-no">067</span><span id="line-67">    private static final ThreadLocal&lt; Session &gt; c_guestSession = new ThreadLocal&lt;&gt;();</span>
-<span class="source-line-no">068</span><span id="line-68"></span>
-<span class="source-line-no">069</span><span id="line-69">    private final Subject m_subject = new Subject();</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">    private final Map&lt; String, Set&lt; String &gt; &gt; m_messages  = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="source-line-no">072</span><span id="line-72"></span>
-<span class="source-line-no">073</span><span id="line-73">    /** The Engine that created this session. */</span>
-<span class="source-line-no">074</span><span id="line-74">    private Engine m_engine;</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">    private String antiCsrfToken;</span>
-<span class="source-line-no">077</span><span id="line-77">    private String m_status            = ANONYMOUS;</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">    private Principal m_userPrincipal  = WikiPrincipal.GUEST;</span>
-<span class="source-line-no">080</span><span id="line-80"></span>
-<span class="source-line-no">081</span><span id="line-81">    private Principal m_loginPrincipal = WikiPrincipal.GUEST;</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">    private Locale m_cachedLocale      = Locale.getDefault();</span>
-<span class="source-line-no">084</span><span id="line-84"></span>
-<span class="source-line-no">085</span><span id="line-85">    /**</span>
-<span class="source-line-no">086</span><span id="line-86">     * Returns &lt;code&gt;true&lt;/code&gt; if one of this WikiSession's user Principals can be shown to belong to a particular wiki group. If</span>
-<span class="source-line-no">087</span><span id="line-87">     * the user is not authenticated, this method will always return &lt;code&gt;false&lt;/code&gt;.</span>
-<span class="source-line-no">088</span><span id="line-88">     *</span>
-<span class="source-line-no">089</span><span id="line-89">     * @param group the group to test</span>
-<span class="source-line-no">090</span><span id="line-90">     * @return the result</span>
-<span class="source-line-no">091</span><span id="line-91">     */</span>
-<span class="source-line-no">092</span><span id="line-92">    protected boolean isInGroup( final Group group ) {</span>
-<span class="source-line-no">093</span><span id="line-93">        return Arrays.stream(getPrincipals()).anyMatch(principal -&gt; isAuthenticated() &amp;&amp; group.isMember(principal));</span>
-<span class="source-line-no">094</span><span id="line-94">    }</span>
-<span class="source-line-no">095</span><span id="line-95"></span>
-<span class="source-line-no">096</span><span id="line-96">    /**</span>
-<span class="source-line-no">097</span><span id="line-97">     * Private constructor to prevent WikiSession from being instantiated directly.</span>
-<span class="source-line-no">098</span><span id="line-98">     */</span>
-<span class="source-line-no">099</span><span id="line-99">    private WikiSession() {</span>
-<span class="source-line-no">100</span><span id="line-100">    }</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">    /** {@inheritDoc} */</span>
-<span class="source-line-no">103</span><span id="line-103">    @Override</span>
-<span class="source-line-no">104</span><span id="line-104">    public boolean isAsserted() {</span>
-<span class="source-line-no">105</span><span id="line-105">        return m_subject.getPrincipals().contains( Role.ASSERTED );</span>
-<span class="source-line-no">106</span><span id="line-106">    }</span>
-<span class="source-line-no">107</span><span id="line-107"></span>
-<span class="source-line-no">108</span><span id="line-108">    /** {@inheritDoc} */</span>
-<span class="source-line-no">109</span><span id="line-109">    @Override</span>
-<span class="source-line-no">110</span><span id="line-110">    public boolean isAuthenticated() {</span>
-<span class="source-line-no">111</span><span id="line-111">        // If Role.AUTHENTICATED is in principals set, always return true.</span>
-<span class="source-line-no">112</span><span id="line-112">        if ( m_subject.getPrincipals().contains( Role.AUTHENTICATED ) ) {</span>
-<span class="source-line-no">113</span><span id="line-113">            return true;</span>
-<span class="source-line-no">114</span><span id="line-114">        }</span>
-<span class="source-line-no">115</span><span id="line-115"></span>
-<span class="source-line-no">116</span><span id="line-116">        // With non-JSPWiki LoginModules, the role may not be there, so we need to add it if the user really is authenticated.</span>
-<span class="source-line-no">117</span><span id="line-117">        if ( !isAnonymous() &amp;&amp; !isAsserted() ) {</span>
-<span class="source-line-no">118</span><span id="line-118">            m_subject.getPrincipals().add( Role.AUTHENTICATED );</span>
-<span class="source-line-no">119</span><span id="line-119">            return true;</span>
-<span class="source-line-no">120</span><span id="line-120">        }</span>
-<span class="source-line-no">121</span><span id="line-121"></span>
-<span class="source-line-no">122</span><span id="line-122">        return false;</span>
-<span class="source-line-no">123</span><span id="line-123">    }</span>
-<span class="source-line-no">124</span><span id="line-124"></span>
-<span class="source-line-no">125</span><span id="line-125">    /** {@inheritDoc} */</span>
-<span class="source-line-no">126</span><span id="line-126">    @Override</span>
-<span class="source-line-no">127</span><span id="line-127">    public boolean isAnonymous() {</span>
-<span class="source-line-no">128</span><span id="line-128">        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
-<span class="source-line-no">129</span><span id="line-129">        return principals.contains( Role.ANONYMOUS ) ||</span>
-<span class="source-line-no">130</span><span id="line-130">               principals.contains( WikiPrincipal.GUEST ) ||</span>
-<span class="source-line-no">131</span><span id="line-131">               HttpUtil.isIPV4Address( getUserPrincipal().getName() );</span>
-<span class="source-line-no">132</span><span id="line-132">    }</span>
-<span class="source-line-no">133</span><span id="line-133"></span>
-<span class="source-line-no">134</span><span id="line-134">    /** {@inheritDoc} */</span>
-<span class="source-line-no">135</span><span id="line-135">    @Override</span>
-<span class="source-line-no">136</span><span id="line-136">    public Principal getLoginPrincipal() {</span>
-<span class="source-line-no">137</span><span id="line-137">        return m_loginPrincipal;</span>
-<span class="source-line-no">138</span><span id="line-138">    }</span>
-<span class="source-line-no">139</span><span id="line-139"></span>
-<span class="source-line-no">140</span><span id="line-140">    /** {@inheritDoc} */</span>
-<span class="source-line-no">141</span><span id="line-141">    @Override</span>
-<span class="source-line-no">142</span><span id="line-142">    public Principal getUserPrincipal() {</span>
-<span class="source-line-no">143</span><span id="line-143">        return m_userPrincipal;</span>
-<span class="source-line-no">144</span><span id="line-144">    }</span>
-<span class="source-line-no">145</span><span id="line-145"></span>
-<span class="source-line-no">146</span><span id="line-146">    /** {@inheritDoc} */</span>
-<span class="source-line-no">147</span><span id="line-147">    @Override</span>
-<span class="source-line-no">148</span><span id="line-148">    public String antiCsrfToken() {</span>
-<span class="source-line-no">149</span><span id="line-149">        return antiCsrfToken;</span>
-<span class="source-line-no">150</span><span id="line-150">    }</span>
-<span class="source-line-no">151</span><span id="line-151"></span>
-<span class="source-line-no">152</span><span id="line-152">    /** {@inheritDoc} */</span>
-<span class="source-line-no">153</span><span id="line-153">    @Override</span>
-<span class="source-line-no">154</span><span id="line-154">    public Locale getLocale() {</span>
-<span class="source-line-no">155</span><span id="line-155">        return m_cachedLocale;</span>
-<span class="source-line-no">156</span><span id="line-156">    }</span>
-<span class="source-line-no">157</span><span id="line-157"></span>
-<span class="source-line-no">158</span><span id="line-158">    /** {@inheritDoc} */</span>
-<span class="source-line-no">159</span><span id="line-159">    @Override</span>
-<span class="source-line-no">160</span><span id="line-160">    public void addMessage( final String message ) {</span>
-<span class="source-line-no">161</span><span id="line-161">        addMessage( ALL, message );</span>
-<span class="source-line-no">162</span><span id="line-162">    }</span>
-<span class="source-line-no">163</span><span id="line-163"></span>
-<span class="source-line-no">164</span><span id="line-164">    /** {@inheritDoc} */</span>
-<span class="source-line-no">165</span><span id="line-165">    @Override</span>
-<span class="source-line-no">166</span><span id="line-166">    public void addMessage( final String topic, final String message ) {</span>
-<span class="source-line-no">167</span><span id="line-167">        if ( topic == null ) {</span>
-<span class="source-line-no">168</span><span id="line-168">            throw new IllegalArgumentException( "addMessage: topic cannot be null." );</span>
-<span class="source-line-no">169</span><span id="line-169">        }</span>
-<span class="source-line-no">170</span><span id="line-170">        final Set&lt; String &gt; messages = m_messages.computeIfAbsent( topic, k -&gt; new LinkedHashSet&lt;&gt;() );</span>
-<span class="source-line-no">171</span><span id="line-171">        messages.add( StringUtils.defaultString( message ) );</span>
-<span class="source-line-no">172</span><span id="line-172">    }</span>
-<span class="source-line-no">173</span><span id="line-173"></span>
-<span class="source-line-no">174</span><span id="line-174">    /** {@inheritDoc} */</span>
-<span class="source-line-no">175</span><span id="line-175">    @Override</span>
-<span class="source-line-no">176</span><span id="line-176">    public void clearMessages() {</span>
-<span class="source-line-no">177</span><span id="line-177">        m_messages.clear();</span>
-<span class="source-line-no">178</span><span id="line-178">    }</span>
-<span class="source-line-no">179</span><span id="line-179"></span>
-<span class="source-line-no">180</span><span id="line-180">    /** {@inheritDoc} */</span>
-<span class="source-line-no">181</span><span id="line-181">    @Override</span>
-<span class="source-line-no">182</span><span id="line-182">    public void clearMessages( final String topic ) {</span>
-<span class="source-line-no">183</span><span id="line-183">        final Set&lt; String &gt; messages = m_messages.get( topic );</span>
-<span class="source-line-no">184</span><span id="line-184">        if ( messages != null ) {</span>
-<span class="source-line-no">185</span><span id="line-185">            m_messages.clear();</span>
-<span class="source-line-no">186</span><span id="line-186">        }</span>
-<span class="source-line-no">187</span><span id="line-187">    }</span>
-<span class="source-line-no">188</span><span id="line-188"></span>
-<span class="source-line-no">189</span><span id="line-189">    /** {@inheritDoc} */</span>
-<span class="source-line-no">190</span><span id="line-190">    @Override</span>
-<span class="source-line-no">191</span><span id="line-191">    public String[] getMessages() {</span>
-<span class="source-line-no">192</span><span id="line-192">        return getMessages( ALL );</span>
-<span class="source-line-no">193</span><span id="line-193">    }</span>
-<span class="source-line-no">194</span><span id="line-194"></span>
-<span class="source-line-no">195</span><span id="line-195">    /** {@inheritDoc} */</span>
-<span class="source-line-no">196</span><span id="line-196">    @Override</span>
-<span class="source-line-no">197</span><span id="line-197">    public String[] getMessages( final String topic ) {</span>
-<span class="source-line-no">198</span><span id="line-198">        final Set&lt; String &gt; messages = m_messages.get( topic );</span>
-<span class="source-line-no">199</span><span id="line-199">        if( messages == null || messages.isEmpty()) {</span>
-<span class="source-line-no">200</span><span id="line-200">            return new String[ 0 ];</span>
-<span class="source-line-no">201</span><span id="line-201">        }</span>
-<span class="source-line-no">202</span><span id="line-202">        return messages.toArray( new String[0] );</span>
-<span class="source-line-no">203</span><span id="line-203">    }</span>
-<span class="source-line-no">204</span><span id="line-204"></span>
-<span class="source-line-no">205</span><span id="line-205">    /** {@inheritDoc} */</span>
-<span class="source-line-no">206</span><span id="line-206">    @Override</span>
-<span class="source-line-no">207</span><span id="line-207">    public Principal[] getPrincipals() {</span>
-<span class="source-line-no">208</span><span id="line-208"></span>
-<span class="source-line-no">209</span><span id="line-209">        // Take the first non Role as the main Principal</span>
-<span class="source-line-no">210</span><span id="line-210"></span>
-<span class="source-line-no">211</span><span id="line-211">        return m_subject.getPrincipals().stream().filter(AuthenticationManager::isUserPrincipal).toArray(Principal[]::new);</span>
-<span class="source-line-no">212</span><span id="line-212">    }</span>
-<span class="source-line-no">213</span><span id="line-213"></span>
-<span class="source-line-no">214</span><span id="line-214">    /** {@inheritDoc} */</span>
-<span class="source-line-no">215</span><span id="line-215">    @Override</span>
-<span class="source-line-no">216</span><span id="line-216">    public Principal[] getRoles() {</span>
-<span class="source-line-no">217</span><span id="line-217">        final Set&lt; Principal &gt; roles = new HashSet&lt;&gt;();</span>
-<span class="source-line-no">218</span><span id="line-218"></span>
-<span class="source-line-no">219</span><span id="line-219">        // Add all the Roles possessed by the Subject directly</span>
-<span class="source-line-no">220</span><span id="line-220">        roles.addAll( m_subject.getPrincipals( Role.class ) );</span>
-<span class="source-line-no">221</span><span id="line-221"></span>
-<span class="source-line-no">222</span><span id="line-222">        // Add all the GroupPrincipals possessed by the Subject directly</span>
-<span class="source-line-no">223</span><span id="line-223">        roles.addAll( m_subject.getPrincipals( GroupPrincipal.class ) );</span>
-<span class="source-line-no">224</span><span id="line-224"></span>
-<span class="source-line-no">225</span><span id="line-225">        // Return a defensive copy</span>
-<span class="source-line-no">226</span><span id="line-226">        final Principal[] roleArray = roles.toArray( new Principal[0] );</span>
-<span class="source-line-no">227</span><span id="line-227">        Arrays.sort( roleArray, WikiPrincipal.COMPARATOR );</span>
-<span class="source-line-no">228</span><span id="line-228">        return roleArray;</span>
-<span class="source-line-no">229</span><span id="line-229">    }</span>
-<span class="source-line-no">230</span><span id="line-230"></span>
-<span class="source-line-no">231</span><span id="line-231">    /** {@inheritDoc} */</span>
-<span class="source-line-no">232</span><span id="line-232">    @Override</span>
-<span class="source-line-no">233</span><span id="line-233">    public boolean hasPrincipal( final Principal principal ) {</span>
-<span class="source-line-no">234</span><span id="line-234">        return m_subject.getPrincipals().contains( principal );</span>
-<span class="source-line-no">235</span><span id="line-235">    }</span>
-<span class="source-line-no">236</span><span id="line-236"></span>
-<span class="source-line-no">237</span><span id="line-237">    /**</span>
-<span class="source-line-no">238</span><span id="line-238">     * Listens for WikiEvents generated by source objects such as the GroupManager, UserManager or AuthenticationManager. This method adds</span>
-<span class="source-line-no">239</span><span id="line-239">     * Principals to the private Subject managed by the WikiSession.</span>
-<span class="source-line-no">240</span><span id="line-240">     *</span>
-<span class="source-line-no">241</span><span id="line-241">     * @see org.apache.wiki.event.WikiEventListener#actionPerformed(WikiEvent)</span>
-<span class="source-line-no">242</span><span id="line-242">     */</span>
-<span class="source-line-no">243</span><span id="line-243">    @Override</span>
-<span class="source-line-no">244</span><span id="line-244">    public void actionPerformed( final WikiEvent event ) {</span>
-<span class="source-line-no">245</span><span id="line-245">        if ( event instanceof WikiSecurityEvent ) {</span>
-<span class="source-line-no">246</span><span id="line-246">            final WikiSecurityEvent e = (WikiSecurityEvent)event;</span>
-<span class="source-line-no">247</span><span id="line-247">            if ( e.getTarget() != null ) {</span>
-<span class="source-line-no">248</span><span id="line-248">                switch( e.getType() ) {</span>
-<span class="source-line-no">249</span><span id="line-249">                case WikiSecurityEvent.GROUP_ADD:</span>
-<span class="source-line-no">250</span><span id="line-250">                    final Group groupAdd = ( Group )e.getTarget();</span>
-<span class="source-line-no">251</span><span id="line-251">                    if( isInGroup( groupAdd ) ) {</span>
-<span class="source-line-no">252</span><span id="line-252">                        m_subject.getPrincipals().add( groupAdd.getPrincipal() );</span>
-<span class="source-line-no">253</span><span id="line-253">                    }</span>
-<span class="source-line-no">254</span><span id="line-254">                    break;</span>
-<span class="source-line-no">255</span><span id="line-255">                case WikiSecurityEvent.GROUP_REMOVE:</span>
-<span class="source-line-no">256</span><span id="line-256">                    final Group group = ( Group )e.getTarget();</span>
-<span class="source-line-no">257</span><span id="line-257">                    m_subject.getPrincipals().remove( group.getPrincipal() );</span>
-<span class="source-line-no">258</span><span id="line-258">                    break;</span>
-<span class="source-line-no">259</span><span id="line-259">                case WikiSecurityEvent.GROUP_CLEAR_GROUPS:</span>
-<span class="source-line-no">260</span><span id="line-260">                    m_subject.getPrincipals().removeAll( m_subject.getPrincipals( GroupPrincipal.class ) );</span>
-<span class="source-line-no">261</span><span id="line-261">                    break;</span>
-<span class="source-line-no">262</span><span id="line-262">                case WikiSecurityEvent.LOGIN_INITIATED:</span>
-<span class="source-line-no">263</span><span id="line-263">                    // Do nothing</span>
-<span class="source-line-no">264</span><span id="line-264">                    break;</span>
-<span class="source-line-no">265</span><span id="line-265">                case WikiSecurityEvent.PRINCIPAL_ADD:</span>
-<span class="source-line-no">266</span><span id="line-266">                    final WikiSession targetPA = ( WikiSession )e.getTarget();</span>
-<span class="source-line-no">267</span><span id="line-267">                    if( this.equals( targetPA ) &amp;&amp; m_status.equals( AUTHENTICATED ) ) {</span>
-<span class="source-line-no">268</span><span id="line-268">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
-<span class="source-line-no">269</span><span id="line-269">                        principals.add( ( Principal )e.getPrincipal() );</span>
-<span class="source-line-no">270</span><span id="line-270">                    }</span>
-<span class="source-line-no">271</span><span id="line-271">                    break;</span>
-<span class="source-line-no">272</span><span id="line-272">                case WikiSecurityEvent.LOGIN_ANONYMOUS:</span>
-<span class="source-line-no">273</span><span id="line-273">                    final WikiSession targetLAN = ( WikiSession )e.getTarget();</span>
-<span class="source-line-no">274</span><span id="line-274">                    if( this.equals( targetLAN ) ) {</span>
-<span class="source-line-no">275</span><span id="line-275">                        m_status = ANONYMOUS;</span>
-<span class="source-line-no">276</span><span id="line-276"></span>
-<span class="source-line-no">277</span><span id="line-277">                        // Set the login/user principals and login status</span>
-<span class="source-line-no">278</span><span id="line-278">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
-<span class="source-line-no">279</span><span id="line-279">                        m_loginPrincipal = ( Principal )e.getPrincipal();</span>
-<span class="source-line-no">280</span><span id="line-280">                        m_userPrincipal = m_loginPrincipal;</span>
-<span class="source-line-no">281</span><span id="line-281"></span>
-<span class="source-line-no">282</span><span id="line-282">                        // Add the login principal to the Subject, and set the built-in roles</span>
-<span class="source-line-no">283</span><span id="line-283">                        principals.clear();</span>
-<span class="source-line-no">284</span><span id="line-284">                        principals.add( m_loginPrincipal );</span>
-<span class="source-line-no">285</span><span id="line-285">                        principals.add( Role.ALL );</span>
-<span class="source-line-no">286</span><span id="line-286">                        principals.add( Role.ANONYMOUS );</span>
-<span class="source-line-no">287</span><span id="line-287">                    }</span>
-<span class="source-line-no">288</span><span id="line-288">                    break;</span>
-<span class="source-line-no">289</span><span id="line-289">                case WikiSecurityEvent.LOGIN_ASSERTED:</span>
-<span class="source-line-no">290</span><span id="line-290">                    final WikiSession targetLAS = ( WikiSession )e.getTarget();</span>
-<span class="source-line-no">291</span><span id="line-291">                    if( this.equals( targetLAS ) ) {</span>
-<span class="source-line-no">292</span><span id="line-292">                        m_status = ASSERTED;</span>
-<span class="source-line-no">293</span><span id="line-293"></span>
-<span class="source-line-no">294</span><span id="line-294">                        // Set the login/user principals and login status</span>
-<span class="source-line-no">295</span><span id="line-295">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
-<span class="source-line-no">296</span><span id="line-296">                        m_loginPrincipal = ( Principal )e.getPrincipal();</span>
-<span class="source-line-no">297</span><span id="line-297">                        m_userPrincipal = m_loginPrincipal;</span>
-<span class="source-line-no">298</span><span id="line-298"></span>
-<span class="source-line-no">299</span><span id="line-299">                        // Add the login principal to the Subject, and set the built-in roles</span>
-<span class="source-line-no">300</span><span id="line-300">                        principals.clear();</span>
-<span class="source-line-no">301</span><span id="line-301">                        principals.add( m_loginPrincipal );</span>
-<span class="source-line-no">302</span><span id="line-302">                        principals.add( Role.ALL );</span>
-<span class="source-line-no">303</span><span id="line-303">                        principals.add( Role.ASSERTED );</span>
-<span class="source-line-no">304</span><span id="line-304">                    }</span>
-<span class="source-line-no">305</span><span id="line-305">                    break;</span>
-<span class="source-line-no">306</span><span id="line-306">                case WikiSecurityEvent.LOGIN_AUTHENTICATED:</span>
-<span class="source-line-no">307</span><span id="line-307">                    final WikiSession targetLAU = ( WikiSession )e.getTarget();</span>
-<span class="source-line-no">308</span><span id="line-308">                    if( this.equals( targetLAU ) ) {</span>
-<span class="source-line-no">309</span><span id="line-309">                        m_status = AUTHENTICATED;</span>
-<span class="source-line-no">310</span><span id="line-310"></span>
-<span class="source-line-no">311</span><span id="line-311">                        // Set the login/user principals and login status</span>
-<span class="source-line-no">312</span><span id="line-312">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
-<span class="source-line-no">313</span><span id="line-313">                        m_loginPrincipal = ( Principal )e.getPrincipal();</span>
-<span class="source-line-no">314</span><span id="line-314">                        m_userPrincipal = m_loginPrincipal;</span>
-<span class="source-line-no">315</span><span id="line-315"></span>
-<span class="source-line-no">316</span><span id="line-316">                        // Add the login principal to the Subject, and set the built-in roles</span>
-<span class="source-line-no">317</span><span id="line-317">                        principals.clear();</span>
-<span class="source-line-no">318</span><span id="line-318">                        principals.add( m_loginPrincipal );</span>
-<span class="source-line-no">319</span><span id="line-319">                        principals.add( Role.ALL );</span>
-<span class="source-line-no">320</span><span id="line-320">                        principals.add( Role.AUTHENTICATED );</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">                        // Add the user and group principals</span>
-<span class="source-line-no">323</span><span id="line-323">                        injectUserProfilePrincipals();  // Add principals for the user profile</span>
-<span class="source-line-no">324</span><span id="line-324">                        injectGroupPrincipals();  // Inject group principals</span>
-<span class="source-line-no">325</span><span id="line-325">                    }</span>
-<span class="source-line-no">326</span><span id="line-326">                    break;</span>
-<span class="source-line-no">327</span><span id="line-327">                case WikiSecurityEvent.PROFILE_SAVE:</span>
-<span class="source-line-no">328</span><span id="line-328">                    final WikiSession sourcePS = e.getSrc();</span>
-<span class="source-line-no">329</span><span id="line-329">                    if( this.equals( sourcePS ) ) {</span>
-<span class="source-line-no">330</span><span id="line-330">                        injectUserProfilePrincipals();  // Add principals for the user profile</span>
-<span class="source-line-no">331</span><span id="line-331">                        injectGroupPrincipals();  // Inject group principals</span>
-<span class="source-line-no">332</span><span id="line-332">                    }</span>
-<span class="source-line-no">333</span><span id="line-333">                    break;</span>
-<span class="source-line-no">334</span><span id="line-334">                case WikiSecurityEvent.PROFILE_NAME_CHANGED:</span>
-<span class="source-line-no">335</span><span id="line-335">                    // Refresh user principals based on new user profile</span>
-<span class="source-line-no">336</span><span id="line-336">                    final WikiSession sourcePNC = e.getSrc();</span>
-<span class="source-line-no">337</span><span id="line-337">                    if( this.equals( sourcePNC ) &amp;&amp; m_status.equals( AUTHENTICATED ) ) {</span>
-<span class="source-line-no">338</span><span id="line-338">                        // To prepare for refresh, set the new full name as the primary principal</span>
-<span class="source-line-no">339</span><span id="line-339">                        final UserProfile[] profiles = ( UserProfile[] )e.getTarget();</span>
-<span class="source-line-no">340</span><span id="line-340">                        final UserProfile newProfile = profiles[ 1 ];</span>
-<span class="source-line-no">341</span><span id="line-341">                        if( newProfile.getFullname() == null ) {</span>
-<span class="source-line-no">342</span><span id="line-342">                            throw new IllegalStateException( "User profile FullName cannot be null." );</span>
-<span class="source-line-no">343</span><span id="line-343">                        }</span>
-<span class="source-line-no">344</span><span id="line-344"></span>
-<span class="source-line-no">345</span><span id="line-345">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
-<span class="source-line-no">346</span><span id="line-346">                        m_loginPrincipal = new WikiPrincipal( newProfile.getLoginName() );</span>
-<span class="source-line-no">347</span><span id="line-347"></span>
-<span class="source-line-no">348</span><span id="line-348">                        // Add the login principal to the Subject, and set the built-in roles</span>
-<span class="source-line-no">349</span><span id="line-349">                        principals.clear();</span>
-<span class="source-line-no">350</span><span id="line-350">                        principals.add( m_loginPrincipal );</span>
-<span class="source-line-no">351</span><span id="line-351">                        principals.add( Role.ALL );</span>
-<span class="source-line-no">352</span><span id="line-352">                        principals.add( Role.AUTHENTICATED );</span>
-<span class="source-line-no">353</span><span id="line-353"></span>
-<span class="source-line-no">354</span><span id="line-354">                        // Add the user and group principals</span>
-<span class="source-line-no">355</span><span id="line-355">                        injectUserProfilePrincipals();  // Add principals for the user profile</span>
-<span class="source-line-no">356</span><span id="line-356">                        injectGroupPrincipals();  // Inject group principals</span>
-<span class="source-line-no">357</span><span id="line-357">                    }</span>
-<span class="source-line-no">358</span><span id="line-358">                    break;</span>
-<span class="source-line-no">359</span><span id="line-359"></span>
-<span class="source-line-no">360</span><span id="line-360">                //  No action, if the event is not recognized.</span>
-<span class="source-line-no">361</span><span id="line-361">                default:</span>
-<span class="source-line-no">362</span><span id="line-362">                    break;</span>
-<span class="source-line-no">363</span><span id="line-363">                }</span>
-<span class="source-line-no">364</span><span id="line-364">            }</span>
-<span class="source-line-no">365</span><span id="line-365">        }</span>
-<span class="source-line-no">366</span><span id="line-366">    }</span>
-<span class="source-line-no">367</span><span id="line-367"></span>
-<span class="source-line-no">368</span><span id="line-368">    /** {@inheritDoc} */</span>
-<span class="source-line-no">369</span><span id="line-369">    @Override</span>
-<span class="source-line-no">370</span><span id="line-370">    public void invalidate() {</span>
-<span class="source-line-no">371</span><span id="line-371">        m_subject.getPrincipals().clear();</span>
-<span class="source-line-no">372</span><span id="line-372">        m_subject.getPrincipals().add( WikiPrincipal.GUEST );</span>
-<span class="source-line-no">373</span><span id="line-373">        m_subject.getPrincipals().add( Role.ANONYMOUS );</span>
-<span class="source-line-no">374</span><span id="line-374">        m_subject.getPrincipals().add( Role.ALL );</span>
-<span class="source-line-no">375</span><span id="line-375">        m_userPrincipal = WikiPrincipal.GUEST;</span>
-<span class="source-line-no">376</span><span id="line-376">        m_loginPrincipal = WikiPrincipal.GUEST;</span>
-<span class="source-line-no">377</span><span id="line-377">    }</span>
-<span class="source-line-no">378</span><span id="line-378"></span>
-<span class="source-line-no">379</span><span id="line-379">    /**</span>
-<span class="source-line-no">380</span><span id="line-380">     * Injects GroupPrincipal objects into the user's Principal set based on the groups the user belongs to. For Groups, the algorithm</span>
-<span class="source-line-no">381</span><span id="line-381">     * first calls the {@link GroupManager#getRoles()} to obtain the array of GroupPrincipals the authorizer knows about. Then, the</span>
-<span class="source-line-no">382</span><span id="line-382">     * method {@link GroupManager#isUserInRole(Session, Principal)} is called for each Principal. If the user is a member of the</span>
-<span class="source-line-no">383</span><span id="line-383">     * group, an equivalent GroupPrincipal is injected into the user's principal set. Existing GroupPrincipals are flushed and replaced.</span>
-<span class="source-line-no">384</span><span id="line-384">     * This method should generally be called after a user's {@link org.apache.wiki.auth.user.UserProfile} is saved. If the wiki session</span>
-<span class="source-line-no">385</span><span id="line-385">     * is null, or there is no matching user profile, the method returns silently.</span>
-<span class="source-line-no">386</span><span id="line-386">     */</span>
-<span class="source-line-no">387</span><span id="line-387">    protected void injectGroupPrincipals() {</span>
-<span class="source-line-no">388</span><span id="line-388">        // Flush the existing GroupPrincipals</span>
-<span class="source-line-no">389</span><span id="line-389">        m_subject.getPrincipals().removeAll( m_subject.getPrincipals(GroupPrincipal.class) );</span>
-<span class="source-line-no">390</span><span id="line-390"></span>
-<span class="source-line-no">391</span><span id="line-391">        // Get the GroupManager and test for each Group</span>
-<span class="source-line-no">392</span><span id="line-392">        final GroupManager manager = m_engine.getManager( GroupManager.class );</span>
-<span class="source-line-no">393</span><span id="line-393">        for( final Principal group : manager.getRoles() ) {</span>
-<span class="source-line-no">394</span><span id="line-394">            if ( manager.isUserInRole( this, group ) ) {</span>
-<span class="source-line-no">395</span><span id="line-395">                m_subject.getPrincipals().add( group );</span>
-<span class="source-line-no">396</span><span id="line-396">            }</span>
-<span class="source-line-no">397</span><span id="line-397">        }</span>
-<span class="source-line-no">398</span><span id="line-398">    }</span>
-<span class="source-line-no">399</span><span id="line-399"></span>
-<span class="source-line-no">400</span><span id="line-400">    /**</span>
-<span class="source-line-no">401</span><span id="line-401">     * Adds Principal objects to the Subject that correspond to the logged-in user's profile attributes for the wiki name, full name</span>
-<span class="source-line-no">402</span><span id="line-402">     * and login name. These Principals will be WikiPrincipals, and they will replace all other WikiPrincipals in the Subject. &lt;em&gt;Note:</span>
-<span class="source-line-no">403</span><span id="line-403">     * this method is never called during anonymous or asserted sessions.&lt;/em&gt;</span>
-<span class="source-line-no">404</span><span id="line-404">     */</span>
-<span class="source-line-no">405</span><span id="line-405">    protected void injectUserProfilePrincipals() {</span>
-<span class="source-line-no">406</span><span id="line-406">        // Search for the user profile</span>
-<span class="source-line-no">407</span><span id="line-407">        final String searchId = m_loginPrincipal.getName();</span>
-<span class="source-line-no">408</span><span id="line-408">        if ( searchId == null ) {</span>
-<span class="source-line-no">409</span><span id="line-409">            // Oh dear, this wasn't an authenticated user after all</span>
-<span class="source-line-no">410</span><span id="line-410">            LOG.info("Refresh principals failed because WikiSession had no user Principal; maybe not logged in?");</span>
-<span class="source-line-no">411</span><span id="line-411">            return;</span>
-<span class="source-line-no">412</span><span id="line-412">        }</span>
-<span class="source-line-no">413</span><span id="line-413"></span>
-<span class="source-line-no">414</span><span id="line-414">        // Look up the user and go get the new Principals</span>
-<span class="source-line-no">415</span><span id="line-415">        final UserDatabase database = m_engine.getManager( UserManager.class ).getUserDatabase();</span>
-<span class="source-line-no">416</span><span id="line-416">        if( database == null ) {</span>
-<span class="source-line-no">417</span><span id="line-417">            throw new IllegalStateException( "User database cannot be null." );</span>
-<span class="source-line-no">418</span><span id="line-418">        }</span>
-<span class="source-line-no">419</span><span id="line-419">        try {</span>
-<span class="source-line-no">420</span><span id="line-420">            final UserProfile profile = database.find( searchId );</span>
-<span class="source-line-no">421</span><span id="line-421">            final Principal[] principals = database.getPrincipals( profile.getLoginName() );</span>
-<span class="source-line-no">422</span><span id="line-422">            for( final Principal principal : principals ) {</span>
-<span class="source-line-no">423</span><span id="line-423">                // Add the Principal to the Subject</span>
-<span class="source-line-no">424</span><span id="line-424">                m_subject.getPrincipals().add( principal );</span>
-<span class="source-line-no">425</span><span id="line-425"></span>
-<span class="source-line-no">426</span><span id="line-426">                // Set the user principal if needed; we prefer FullName, but the WikiName will also work</span>
-<span class="source-line-no">427</span><span id="line-427">                final boolean isFullNamePrincipal = ( principal instanceof WikiPrincipal &amp;&amp;</span>
-<span class="source-line-no">428</span><span id="line-428">                                                      ( ( WikiPrincipal )principal ).getType().equals( WikiPrincipal.FULL_NAME ) );</span>
-<span class="source-line-no">429</span><span id="line-429">                if ( isFullNamePrincipal ) {</span>
-<span class="source-line-no">430</span><span id="line-430">                   m_userPrincipal = principal;</span>
-<span class="source-line-no">431</span><span id="line-431">                } else if ( !( m_userPrincipal instanceof WikiPrincipal ) ) {</span>
-<span class="source-line-no">432</span><span id="line-432">                    m_userPrincipal = principal;</span>
-<span class="source-line-no">433</span><span id="line-433">                }</span>
-<span class="source-line-no">434</span><span id="line-434">            }</span>
-<span class="source-line-no">435</span><span id="line-435">        } catch ( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">436</span><span id="line-436">            // We will get here if the user has a principal but not a profile</span>
-<span class="source-line-no">437</span><span id="line-437">            // For example, it's a container-managed user who hasn't set up a profile yet</span>
-<span class="source-line-no">438</span><span id="line-438">            LOG.warn("User profile '" + searchId + "' not found. This is normal for container-auth users who haven't set up a profile yet.");</span>
-<span class="source-line-no">439</span><span id="line-439">        }</span>
-<span class="source-line-no">440</span><span id="line-440">    }</span>
-<span class="source-line-no">441</span><span id="line-441"></span>
-<span class="source-line-no">442</span><span id="line-442">    /** {@inheritDoc} */</span>
-<span class="source-line-no">443</span><span id="line-443">    @Override</span>
-<span class="source-line-no">444</span><span id="line-444">    public String getStatus() {</span>
-<span class="source-line-no">445</span><span id="line-445">        return m_status;</span>
-<span class="source-line-no">446</span><span id="line-446">    }</span>
-<span class="source-line-no">447</span><span id="line-447"></span>
-<span class="source-line-no">448</span><span id="line-448">    /** {@inheritDoc} */</span>
-<span class="source-line-no">449</span><span id="line-449">    @Override</span>
-<span class="source-line-no">450</span><span id="line-450">    public Subject getSubject() {</span>
-<span class="source-line-no">451</span><span id="line-451">        return m_subject;</span>
-<span class="source-line-no">452</span><span id="line-452">    }</span>
-<span class="source-line-no">453</span><span id="line-453"></span>
-<span class="source-line-no">454</span><span id="line-454">    /**</span>
-<span class="source-line-no">455</span><span id="line-455">     * Removes the wiki session associated with the user's HTTP request from the cache of wiki sessions, typically as part of a</span>
-<span class="source-line-no">456</span><span id="line-456">     * logout process.</span>
-<span class="source-line-no">457</span><span id="line-457">     *</span>
-<span class="source-line-no">458</span><span id="line-458">     * @param engine the wiki engine</span>
-<span class="source-line-no">459</span><span id="line-459">     * @param request the user's HTTP request</span>
-<span class="source-line-no">460</span><span id="line-460">     */</span>
-<span class="source-line-no">461</span><span id="line-461">    public static void removeWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
-<span class="source-line-no">462</span><span id="line-462">        if ( engine == null || request == null ) {</span>
-<span class="source-line-no">463</span><span id="line-463">            throw new IllegalArgumentException( "Request or engine cannot be null." );</span>
-<span class="source-line-no">464</span><span id="line-464">        }</span>
-<span class="source-line-no">465</span><span id="line-465">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">466</span><span id="line-466">        monitor.remove( request.getSession() );</span>
-<span class="source-line-no">467</span><span id="line-467">        c_guestSession.remove();</span>
-<span class="source-line-no">468</span><span id="line-468">    }</span>
-<span class="source-line-no">469</span><span id="line-469"></span>
-<span class="source-line-no">470</span><span id="line-470">    /**</span>
-<span class="source-line-no">471</span><span id="line-471">     * &lt;p&gt;Static factory method that returns the Session object associated with the current HTTP request. This method looks up</span>
-<span class="source-line-no">472</span><span id="line-472">     * the associated HttpSession in an internal WeakHashMap and attempts to retrieve the WikiSession. If not found, one is created.</span>
-<span class="source-line-no">473</span><span id="line-473">     * This method is guaranteed to always return a Session, although the authentication status is unpredictable until the user</span>
-<span class="source-line-no">474</span><span id="line-474">     * attempts to log in. If the servlet request parameter is &lt;code&gt;null&lt;/code&gt;, a synthetic {@link #guestSession(Engine)} is</span>
-<span class="source-line-no">475</span><span id="line-475">     * returned.&lt;/p&gt;</span>
-<span class="source-line-no">476</span><span id="line-476">     * &lt;p&gt;When a session is created, this method attaches a WikiEventListener to the GroupManager, UserManager and AuthenticationManager,</span>
-<span class="source-line-no">477</span><span id="line-477">     * so that changes to users, groups, logins, etc. are detected automatically.&lt;/p&gt;</span>
-<span class="source-line-no">478</span><span id="line-478">     *</span>
-<span class="source-line-no">479</span><span id="line-479">     * @param engine the engine</span>
-<span class="source-line-no">480</span><span id="line-480">     * @param request the servlet request object</span>
-<span class="source-line-no">481</span><span id="line-481">     * @return the existing (or newly created) session</span>
-<span class="source-line-no">482</span><span id="line-482">     */</span>
-<span class="source-line-no">483</span><span id="line-483">    public static Session getWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
-<span class="source-line-no">484</span><span id="line-484">        if ( request == null ) {</span>
-<span class="source-line-no">485</span><span id="line-485">            LOG.debug( "Looking up WikiSession for NULL HttpRequest: returning guestSession()" );</span>
-<span class="source-line-no">486</span><span id="line-486">            return staticGuestSession( engine );</span>
-<span class="source-line-no">487</span><span id="line-487">        }</span>
-<span class="source-line-no">488</span><span id="line-488"></span>
-<span class="source-line-no">489</span><span id="line-489">        // Look for a WikiSession associated with the user's Http Session and create one if it isn't there yet.</span>
-<span class="source-line-no">490</span><span id="line-490">        final HttpSession session = request.getSession();</span>
-<span class="source-line-no">491</span><span id="line-491">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">492</span><span id="line-492">        final WikiSession wikiSession = ( WikiSession )monitor.find( session );</span>
-<span class="source-line-no">493</span><span id="line-493"></span>
-<span class="source-line-no">494</span><span id="line-494">        // Attach reference to wiki engine</span>
-<span class="source-line-no">495</span><span id="line-495">        wikiSession.m_engine = engine;</span>
-<span class="source-line-no">496</span><span id="line-496">        wikiSession.m_cachedLocale = request.getLocale();</span>
-<span class="source-line-no">497</span><span id="line-497">        return wikiSession;</span>
-<span class="source-line-no">498</span><span id="line-498">    }</span>
-<span class="source-line-no">499</span><span id="line-499"></span>
-<span class="source-line-no">500</span><span id="line-500">    /**</span>
-<span class="source-line-no">501</span><span id="line-501">     * Static factory method that creates a new "guest" session containing a single user Principal</span>
-<span class="source-line-no">502</span><span id="line-502">     * {@link org.apache.wiki.auth.WikiPrincipal#GUEST}, plus the role principals {@link Role#ALL} and {@link Role#ANONYMOUS}. This</span>
-<span class="source-line-no">503</span><span id="line-503">     * method also adds the session as a listener for GroupManager, AuthenticationManager and UserManager events.</span>
-<span class="source-line-no">504</span><span id="line-504">     *</span>
-<span class="source-line-no">505</span><span id="line-505">     * @param engine the wiki engine</span>
-<span class="source-line-no">506</span><span id="line-506">     * @return the guest wiki session</span>
-<span class="source-line-no">507</span><span id="line-507">     */</span>
-<span class="source-line-no">508</span><span id="line-508">    public static Session guestSession( final Engine engine ) {</span>
-<span class="source-line-no">509</span><span id="line-509">        final WikiSession session = new WikiSession();</span>
-<span class="source-line-no">510</span><span id="line-510">        session.m_engine = engine;</span>
-<span class="source-line-no">511</span><span id="line-511">        session.invalidate();</span>
-<span class="source-line-no">512</span><span id="line-512">        session.antiCsrfToken = UUID.randomUUID().toString();</span>
-<span class="source-line-no">513</span><span id="line-513"></span>
-<span class="source-line-no">514</span><span id="line-514">        // Add the session as listener for GroupManager, AuthManager, UserManager events</span>
-<span class="source-line-no">515</span><span id="line-515">        final GroupManager groupMgr = engine.getManager( GroupManager.class );</span>
-<span class="source-line-no">516</span><span id="line-516">        final AuthenticationManager authMgr = engine.getManager( AuthenticationManager.class );</span>
-<span class="source-line-no">517</span><span id="line-517">        final UserManager userMgr = engine.getManager( UserManager.class );</span>
-<span class="source-line-no">518</span><span id="line-518">        groupMgr.addWikiEventListener( session );</span>
-<span class="source-line-no">519</span><span id="line-519">        authMgr.addWikiEventListener( session );</span>
-<span class="source-line-no">520</span><span id="line-520">        userMgr.addWikiEventListener( session );</span>
-<span class="source-line-no">521</span><span id="line-521"></span>
-<span class="source-line-no">522</span><span id="line-522">        return session;</span>
-<span class="source-line-no">523</span><span id="line-523">    }</span>
-<span class="source-line-no">524</span><span id="line-524"></span>
-<span class="source-line-no">525</span><span id="line-525">    /**</span>
-<span class="source-line-no">526</span><span id="line-526">     *  Returns a static guest session, which is available for this thread only.  This guest session is used internally whenever</span>
-<span class="source-line-no">527</span><span id="line-527">     *  there is no HttpServletRequest involved, but the request is done e.g. when embedding JSPWiki code.</span>
-<span class="source-line-no">528</span><span id="line-528">     *</span>
-<span class="source-line-no">529</span><span id="line-529">     *  @param engine Engine for this session</span>
-<span class="source-line-no">530</span><span id="line-530">     *  @return A static WikiSession which is shared by all in this same Thread.</span>
-<span class="source-line-no">531</span><span id="line-531">     */</span>
-<span class="source-line-no">532</span><span id="line-532">    // FIXME: Should really use WeakReferences to clean away unused sessions.</span>
-<span class="source-line-no">533</span><span id="line-533">    private static Session staticGuestSession( final Engine engine ) {</span>
-<span class="source-line-no">534</span><span id="line-534">        Session session = c_guestSession.get();</span>
-<span class="source-line-no">535</span><span id="line-535">        if( session == null ) {</span>
-<span class="source-line-no">536</span><span id="line-536">            session = guestSession( engine );</span>
-<span class="source-line-no">537</span><span id="line-537">            c_guestSession.set( session );</span>
-<span class="source-line-no">538</span><span id="line-538">        }</span>
-<span class="source-line-no">539</span><span id="line-539"></span>
-<span class="source-line-no">540</span><span id="line-540">        return session;</span>
-<span class="source-line-no">541</span><span id="line-541">    }</span>
-<span class="source-line-no">542</span><span id="line-542"></span>
-<span class="source-line-no">543</span><span id="line-543">    /**</span>
-<span class="source-line-no">544</span><span id="line-544">     * Returns the total number of active wiki sessions for a particular wiki. This method delegates to the wiki's</span>
-<span class="source-line-no">545</span><span id="line-545">     * {@link SessionMonitor#sessions()} method.</span>
-<span class="source-line-no">546</span><span id="line-546">     *</span>
-<span class="source-line-no">547</span><span id="line-547">     * @param engine the wiki session</span>
-<span class="source-line-no">548</span><span id="line-548">     * @return the number of sessions</span>
-<span class="source-line-no">549</span><span id="line-549">     * @deprecated use {@link SessionMonitor#sessions()} instead</span>
-<span class="source-line-no">550</span><span id="line-550">     * @see SessionMonitor#sessions()</span>
-<span class="source-line-no">551</span><span id="line-551">     */</span>
-<span class="source-line-no">552</span><span id="line-552">    @Deprecated</span>
-<span class="source-line-no">553</span><span id="line-553">    public static int sessions( final Engine engine ) {</span>
-<span class="source-line-no">554</span><span id="line-554">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">555</span><span id="line-555">        return monitor.sessions();</span>
-<span class="source-line-no">556</span><span id="line-556">    }</span>
-<span class="source-line-no">557</span><span id="line-557"></span>
-<span class="source-line-no">558</span><span id="line-558">    /**</span>
-<span class="source-line-no">559</span><span id="line-559">     * Returns Principals representing the current users known to a particular wiki. Each Principal will correspond to the</span>
-<span class="source-line-no">560</span><span id="line-560">     * value returned by each WikiSession's {@link #getUserPrincipal()} method. This method delegates to</span>
-<span class="source-line-no">561</span><span id="line-561">     * {@link SessionMonitor#userPrincipals()}.</span>
-<span class="source-line-no">562</span><span id="line-562">     *</span>
-<span class="source-line-no">563</span><span id="line-563">     * @param engine the wiki engine</span>
-<span class="source-line-no">564</span><span id="line-564">     * @return an array of Principal objects, sorted by name</span>
-<span class="source-line-no">565</span><span id="line-565">     * @deprecated use {@link SessionMonitor#userPrincipals()} instead</span>
-<span class="source-line-no">566</span><span id="line-566">     * @see SessionMonitor#userPrincipals()</span>
-<span class="source-line-no">567</span><span id="line-567">     */</span>
-<span class="source-line-no">568</span><span id="line-568">    @Deprecated</span>
-<span class="source-line-no">569</span><span id="line-569">    public static Principal[] userPrincipals( final Engine engine ) {</span>
-<span class="source-line-no">570</span><span id="line-570">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">571</span><span id="line-571">        return monitor.userPrincipals();</span>
-<span class="source-line-no">572</span><span id="line-572">    }</span>
-<span class="source-line-no">573</span><span id="line-573"></span>
-<span class="source-line-no">574</span><span id="line-574">}</span>
+<span class="source-line-no">055</span><span id="line-55"></span>
+<span class="source-line-no">056</span><span id="line-56">/**</span>
+<span class="source-line-no">057</span><span id="line-57"> * &lt;p&gt;Default implementation for {@link Session}.&lt;/p&gt;</span>
+<span class="source-line-no">058</span><span id="line-58"> * &lt;p&gt;In addition to methods for examining individual &lt;code&gt;WikiSession&lt;/code&gt; objects, this class also contains a number of static</span>
+<span class="source-line-no">059</span><span id="line-59"> * methods for managing WikiSessions for an entire wiki. These methods allow callers to find, query and remove WikiSession objects, and</span>
+<span class="source-line-no">060</span><span id="line-60"> * to obtain a list of the current wiki session users.&lt;/p&gt;</span>
+<span class="source-line-no">061</span><span id="line-61"> */</span>
+<span class="source-line-no">062</span><span id="line-62">public class WikiSession implements Session {</span>
+<span class="source-line-no">063</span><span id="line-63"></span>
+<span class="source-line-no">064</span><span id="line-64">    private static final Logger LOG = LogManager.getLogger( WikiSession.class );</span>
+<span class="source-line-no">065</span><span id="line-65"></span>
+<span class="source-line-no">066</span><span id="line-66">    private static final String ALL = "*";</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">    private static final ThreadLocal&lt; Session &gt; c_guestSession = new ThreadLocal&lt;&gt;();</span>
+<span class="source-line-no">069</span><span id="line-69"></span>
+<span class="source-line-no">070</span><span id="line-70">    private final Subject m_subject = new Subject();</span>
+<span class="source-line-no">071</span><span id="line-71"></span>
+<span class="source-line-no">072</span><span id="line-72">    private final Map&lt; String, Set&lt; String &gt; &gt; m_messages  = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">    /** The Engine that created this session. */</span>
+<span class="source-line-no">075</span><span id="line-75">    private Engine m_engine;</span>
+<span class="source-line-no">076</span><span id="line-76">    private String remoteAddress;</span>
+<span class="source-line-no">077</span><span id="line-77">    private String antiCsrfToken;</span>
+<span class="source-line-no">078</span><span id="line-78">    private String m_status            = ANONYMOUS;</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">    private Principal m_userPrincipal  = WikiPrincipal.GUEST;</span>
+<span class="source-line-no">081</span><span id="line-81"></span>
+<span class="source-line-no">082</span><span id="line-82">    private Principal m_loginPrincipal = WikiPrincipal.GUEST;</span>
+<span class="source-line-no">083</span><span id="line-83"></span>
+<span class="source-line-no">084</span><span id="line-84">    private Locale m_cachedLocale      = Locale.getDefault();</span>
+<span class="source-line-no">085</span><span id="line-85"></span>
+<span class="source-line-no">086</span><span id="line-86">    /**</span>
+<span class="source-line-no">087</span><span id="line-87">     * Returns &lt;code&gt;true&lt;/code&gt; if one of this WikiSession's user Principals can be shown to belong to a particular wiki group. If</span>
+<span class="source-line-no">088</span><span id="line-88">     * the user is not authenticated, this method will always return &lt;code&gt;false&lt;/code&gt;.</span>
+<span class="source-line-no">089</span><span id="line-89">     *</span>
+<span class="source-line-no">090</span><span id="line-90">     * @param group the group to test</span>
+<span class="source-line-no">091</span><span id="line-91">     * @return the result</span>
+<span class="source-line-no">092</span><span id="line-92">     */</span>
+<span class="source-line-no">093</span><span id="line-93">    protected boolean isInGroup( final Group group ) {</span>
+<span class="source-line-no">094</span><span id="line-94">        return Arrays.stream(getPrincipals()).anyMatch(principal -&gt; isAuthenticated() &amp;&amp; group.isMember(principal));</span>
+<span class="source-line-no">095</span><span id="line-95">    }</span>
+<span class="source-line-no">096</span><span id="line-96"></span>
+<span class="source-line-no">097</span><span id="line-97">    /**</span>
+<span class="source-line-no">098</span><span id="line-98">     * Private constructor to prevent WikiSession from being instantiated directly.</span>
+<span class="source-line-no">099</span><span id="line-99">     */</span>
+<span class="source-line-no">100</span><span id="line-100">    private WikiSession() {</span>
+<span class="source-line-no">101</span><span id="line-101">    }</span>
+<span class="source-line-no">102</span><span id="line-102"></span>
+<span class="source-line-no">103</span><span id="line-103">    /** {@inheritDoc} */</span>
+<span class="source-line-no">104</span><span id="line-104">    @Override</span>
+<span class="source-line-no">105</span><span id="line-105">    public boolean isAsserted() {</span>
+<span class="source-line-no">106</span><span id="line-106">        return m_subject.getPrincipals().contains( Role.ASSERTED );</span>
+<span class="source-line-no">107</span><span id="line-107">    }</span>
+<span class="source-line-no">108</span><span id="line-108"></span>
+<span class="source-line-no">109</span><span id="line-109">    /** {@inheritDoc} */</span>
+<span class="source-line-no">110</span><span id="line-110">    @Override</span>
+<span class="source-line-no">111</span><span id="line-111">    public boolean isAuthenticated() {</span>
+<span class="source-line-no">112</span><span id="line-112">        // If Role.AUTHENTICATED is in principals set, always return true.</span>
+<span class="source-line-no">113</span><span id="line-113">        if ( m_subject.getPrincipals().contains( Role.AUTHENTICATED ) ) {</span>
+<span class="source-line-no">114</span><span id="line-114">            return true;</span>
+<span class="source-line-no">115</span><span id="line-115">        }</span>
+<span class="source-line-no">116</span><span id="line-116"></span>
+<span class="source-line-no">117</span><span id="line-117">        // With non-JSPWiki LoginModules, the role may not be there, so we need to add it if the user really is authenticated.</span>
+<span class="source-line-no">118</span><span id="line-118">        if ( !isAnonymous() &amp;&amp; !isAsserted() ) {</span>
+<span class="source-line-no">119</span><span id="line-119">            m_subject.getPrincipals().add( Role.AUTHENTICATED );</span>
+<span class="source-line-no">120</span><span id="line-120">            return true;</span>
+<span class="source-line-no">121</span><span id="line-121">        }</span>
+<span class="source-line-no">122</span><span id="line-122"></span>
+<span class="source-line-no">123</span><span id="line-123">        return false;</span>
+<span class="source-line-no">124</span><span id="line-124">    }</span>
+<span class="source-line-no">125</span><span id="line-125"></span>
+<span class="source-line-no">126</span><span id="line-126">    /** {@inheritDoc} */</span>
+<span class="source-line-no">127</span><span id="line-127">    @Override</span>
+<span class="source-line-no">128</span><span id="line-128">    public boolean isAnonymous() {</span>
+<span class="source-line-no">129</span><span id="line-129">        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
+<span class="source-line-no">130</span><span id="line-130">        return principals.contains( Role.ANONYMOUS ) ||</span>
+<span class="source-line-no">131</span><span id="line-131">               principals.contains( WikiPrincipal.GUEST ) ||</span>
+<span class="source-line-no">132</span><span id="line-132">               HttpUtil.isIPV4Address( getUserPrincipal().getName() );</span>
+<span class="source-line-no">133</span><span id="line-133">    }</span>
+<span class="source-line-no">134</span><span id="line-134"></span>
+<span class="source-line-no">135</span><span id="line-135">    /** {@inheritDoc} */</span>
+<span class="source-line-no">136</span><span id="line-136">    @Override</span>
+<span class="source-line-no">137</span><span id="line-137">    public Principal getLoginPrincipal() {</span>
+<span class="source-line-no">138</span><span id="line-138">        return m_loginPrincipal;</span>
+<span class="source-line-no">139</span><span id="line-139">    }</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">    /** {@inheritDoc} */</span>
+<span class="source-line-no">142</span><span id="line-142">    @Override</span>
+<span class="source-line-no">143</span><span id="line-143">    public Principal getUserPrincipal() {</span>
+<span class="source-line-no">144</span><span id="line-144">        return m_userPrincipal;</span>
+<span class="source-line-no">145</span><span id="line-145">    }</span>
+<span class="source-line-no">146</span><span id="line-146"></span>
+<span class="source-line-no">147</span><span id="line-147">    /** {@inheritDoc} */</span>
+<span class="source-line-no">148</span><span id="line-148">    @Override</span>
+<span class="source-line-no">149</span><span id="line-149">    public String antiCsrfToken() {</span>
+<span class="source-line-no">150</span><span id="line-150">        return antiCsrfToken;</span>
+<span class="source-line-no">151</span><span id="line-151">    }</span>
+<span class="source-line-no">152</span><span id="line-152"></span>
+<span class="source-line-no">153</span><span id="line-153">    /** {@inheritDoc} */</span>
+<span class="source-line-no">154</span><span id="line-154">    @Override</span>
+<span class="source-line-no">155</span><span id="line-155">    public Locale getLocale() {</span>
+<span class="source-line-no">156</span><span id="line-156">        return m_cachedLocale;</span>
+<span class="source-line-no">157</span><span id="line-157">    }</span>
+<span class="source-line-no">158</span><span id="line-158"></span>
+<span class="source-line-no">159</span><span id="line-159">    /** {@inheritDoc} */</span>
+<span class="source-line-no">160</span><span id="line-160">    @Override</span>
+<span class="source-line-no">161</span><span id="line-161">    public void addMessage( final String message ) {</span>
+<span class="source-line-no">162</span><span id="line-162">        addMessage( ALL, message );</span>
+<span class="source-line-no">163</span><span id="line-163">    }</span>
+<span class="source-line-no">164</span><span id="line-164"></span>
+<span class="source-line-no">165</span><span id="line-165">    /** {@inheritDoc} */</span>
+<span class="source-line-no">166</span><span id="line-166">    @Override</span>
+<span class="source-line-no">167</span><span id="line-167">    public void addMessage( final String topic, final String message ) {</span>
+<span class="source-line-no">168</span><span id="line-168">        if ( topic == null ) {</span>
+<span class="source-line-no">169</span><span id="line-169">            throw new IllegalArgumentException( "addMessage: topic cannot be null." );</span>
+<span class="source-line-no">170</span><span id="line-170">        }</span>
+<span class="source-line-no">171</span><span id="line-171">        final Set&lt; String &gt; messages = m_messages.computeIfAbsent( topic, k -&gt; new LinkedHashSet&lt;&gt;() );</span>
+<span class="source-line-no">172</span><span id="line-172">        messages.add( StringUtils.defaultString( message ) );</span>
+<span class="source-line-no">173</span><span id="line-173">    }</span>
+<span class="source-line-no">174</span><span id="line-174"></span>
+<span class="source-line-no">175</span><span id="line-175">    /** {@inheritDoc} */</span>
+<span class="source-line-no">176</span><span id="line-176">    @Override</span>
+<span class="source-line-no">177</span><span id="line-177">    public void clearMessages() {</span>
+<span class="source-line-no">178</span><span id="line-178">        m_messages.clear();</span>
+<span class="source-line-no">179</span><span id="line-179">    }</span>
+<span class="source-line-no">180</span><span id="line-180"></span>
+<span class="source-line-no">181</span><span id="line-181">    /** {@inheritDoc} */</span>
+<span class="source-line-no">182</span><span id="line-182">    @Override</span>
+<span class="source-line-no">183</span><span id="line-183">    public void clearMessages( final String topic ) {</span>
+<span class="source-line-no">184</span><span id="line-184">        final Set&lt; String &gt; messages = m_messages.get( topic );</span>
+<span class="source-line-no">185</span><span id="line-185">        if ( messages != null ) {</span>
+<span class="source-line-no">186</span><span id="line-186">            m_messages.clear();</span>
+<span class="source-line-no">187</span><span id="line-187">        }</span>
+<span class="source-line-no">188</span><span id="line-188">    }</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">    /** {@inheritDoc} */</span>
+<span class="source-line-no">191</span><span id="line-191">    @Override</span>
+<span class="source-line-no">192</span><span id="line-192">    public String[] getMessages() {</span>
+<span class="source-line-no">193</span><span id="line-193">        return getMessages( ALL );</span>
+<span class="source-line-no">194</span><span id="line-194">    }</span>
+<span class="source-line-no">195</span><span id="line-195"></span>
+<span class="source-line-no">196</span><span id="line-196">    /** {@inheritDoc} */</span>
+<span class="source-line-no">197</span><span id="line-197">    @Override</span>
+<span class="source-line-no">198</span><span id="line-198">    public String[] getMessages( final String topic ) {</span>
+<span class="source-line-no">199</span><span id="line-199">        final Set&lt; String &gt; messages = m_messages.get( topic );</span>
+<span class="source-line-no">200</span><span id="line-200">        if( messages == null || messages.isEmpty()) {</span>
+<span class="source-line-no">201</span><span id="line-201">            return new String[ 0 ];</span>
+<span class="source-line-no">202</span><span id="line-202">        }</span>
+<span class="source-line-no">203</span><span id="line-203">        return messages.toArray( new String[0] );</span>
+<span class="source-line-no">204</span><span id="line-204">    }</span>
+<span class="source-line-no">205</span><span id="line-205"></span>
+<span class="source-line-no">206</span><span id="line-206">    /** {@inheritDoc} */</span>
+<span class="source-line-no">207</span><span id="line-207">    @Override</span>
+<span class="source-line-no">208</span><span id="line-208">    public Principal[] getPrincipals() {</span>
+<span class="source-line-no">209</span><span id="line-209"></span>
+<span class="source-line-no">210</span><span id="line-210">        // Take the first non Role as the main Principal</span>
+<span class="source-line-no">211</span><span id="line-211"></span>
+<span class="source-line-no">212</span><span id="line-212">        return m_subject.getPrincipals().stream().filter(AuthenticationManager::isUserPrincipal).toArray(Principal[]::new);</span>
+<span class="source-line-no">213</span><span id="line-213">    }</span>
+<span class="source-line-no">214</span><span id="line-214"></span>
+<span class="source-line-no">215</span><span id="line-215">    /** {@inheritDoc} */</span>
+<span class="source-line-no">216</span><span id="line-216">    @Override</span>
+<span class="source-line-no">217</span><span id="line-217">    public Principal[] getRoles() {</span>
+<span class="source-line-no">218</span><span id="line-218">        final Set&lt; Principal &gt; roles = new HashSet&lt;&gt;();</span>
+<span class="source-line-no">219</span><span id="line-219"></span>
+<span class="source-line-no">220</span><span id="line-220">        // Add all the Roles possessed by the Subject directly</span>
+<span class="source-line-no">221</span><span id="line-221">        roles.addAll( m_subject.getPrincipals( Role.class ) );</span>
+<span class="source-line-no">222</span><span id="line-222"></span>
+<span class="source-line-no">223</span><span id="line-223">        // Add all the GroupPrincipals possessed by the Subject directly</span>
+<span class="source-line-no">224</span><span id="line-224">        roles.addAll(m_subject.getPrincipals(GroupPrincipal.class));</span>
+<span class="source-line-no">225</span><span id="line-225">        </span>
+<span class="source-line-no">226</span><span id="line-226">        </span>
+<span class="source-line-no">227</span><span id="line-227">        // Return a defensive copy</span>
+<span class="source-line-no">228</span><span id="line-228">        final Principal[] roleArray = roles.toArray( new Principal[0] );</span>
+<span class="source-line-no">229</span><span id="line-229">        Arrays.sort( roleArray, WikiPrincipal.COMPARATOR );</span>
+<span class="source-line-no">230</span><span id="line-230">        return roleArray;</span>
+<span class="source-line-no">231</span><span id="line-231">    }</span>
+<span class="source-line-no">232</span><span id="line-232"></span>
+<span class="source-line-no">233</span><span id="line-233">    /** {@inheritDoc} */</span>
+<span class="source-line-no">234</span><span id="line-234">    @Override</span>
+<span class="source-line-no">235</span><span id="line-235">    public boolean hasPrincipal( final Principal principal ) {</span>
+<span class="source-line-no">236</span><span id="line-236">        return m_subject.getPrincipals().contains( principal );</span>
+<span class="source-line-no">237</span><span id="line-237">    }</span>
+<span class="source-line-no">238</span><span id="line-238"></span>
+<span class="source-line-no">239</span><span id="line-239">    /**</span>
+<span class="source-line-no">240</span><span id="line-240">     * Listens for WikiEvents generated by source objects such as the GroupManager, UserManager or AuthenticationManager. This method adds</span>
+<span class="source-line-no">241</span><span id="line-241">     * Principals to the private Subject managed by the WikiSession.</span>
+<span class="source-line-no">242</span><span id="line-242">     *</span>
+<span class="source-line-no">243</span><span id="line-243">     * @see org.apache.wiki.event.WikiEventListener#actionPerformed(WikiEvent)</span>
+<span class="source-line-no">244</span><span id="line-244">     */</span>
+<span class="source-line-no">245</span><span id="line-245">    @Override</span>
+<span class="source-line-no">246</span><span id="line-246">    public void actionPerformed( final WikiEvent event ) {</span>
+<span class="source-line-no">247</span><span id="line-247">        if ( event instanceof WikiSecurityEvent ) {</span>
+<span class="source-line-no">248</span><span id="line-248">            final WikiSecurityEvent e = (WikiSecurityEvent)event;</span>
+<span class="source-line-no">249</span><span id="line-249">            if ( e.getTarget() != null ) {</span>
+<span class="source-line-no">250</span><span id="line-250">                switch( e.getType() ) {</span>
+<span class="source-line-no">251</span><span id="line-251">                case WikiSecurityEvent.GROUP_ADD:</span>
+<span class="source-line-no">252</span><span id="line-252">                    final Group groupAdd = ( Group )e.getTarget();</span>
+<span class="source-line-no">253</span><span id="line-253">                    if( isInGroup( groupAdd ) ) {</span>
+<span class="source-line-no">254</span><span id="line-254">                        m_subject.getPrincipals().add( groupAdd.getPrincipal() );</span>
+<span class="source-line-no">255</span><span id="line-255">                    }</span>
+<span class="source-line-no">256</span><span id="line-256">                    break;</span>
+<span class="source-line-no">257</span><span id="line-257">                case WikiSecurityEvent.GROUP_REMOVE:</span>
+<span class="source-line-no">258</span><span id="line-258">                    final Group group = ( Group )e.getTarget();</span>
+<span class="source-line-no">259</span><span id="line-259">                    m_subject.getPrincipals().remove( group.getPrincipal() );</span>
+<span class="source-line-no">260</span><span id="line-260">                    break;</span>
+<span class="source-line-no">261</span><span id="line-261">                case WikiSecurityEvent.GROUP_CLEAR_GROUPS:</span>
+<span class="source-line-no">262</span><span id="line-262">                    m_subject.getPrincipals().removeAll( m_subject.getPrincipals( GroupPrincipal.class ) );</span>
+<span class="source-line-no">263</span><span id="line-263">                    break;</span>
+<span class="source-line-no">264</span><span id="line-264">                case WikiSecurityEvent.LOGIN_INITIATED:</span>
+<span class="source-line-no">265</span><span id="line-265">                    // Do nothing</span>
+<span class="source-line-no">266</span><span id="line-266">                    break;</span>
+<span class="source-line-no">267</span><span id="line-267">                case WikiSecurityEvent.PRINCIPAL_ADD:</span>
+<span class="source-line-no">268</span><span id="line-268">                    final WikiSession targetPA = ( WikiSession )e.getTarget();</span>
+<span class="source-line-no">269</span><span id="line-269">                    if( this.equals( targetPA ) &amp;&amp; m_status.equals( AUTHENTICATED ) ) {</span>
+<span class="source-line-no">270</span><span id="line-270">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
+<span class="source-line-no">271</span><span id="line-271">                        principals.add( ( Principal )e.getPrincipal() );</span>
+<span class="source-line-no">272</span><span id="line-272">                    }</span>
+<span class="source-line-no">273</span><span id="line-273">                    break;</span>
+<span class="source-line-no">274</span><span id="line-274">                case WikiSecurityEvent.LOGIN_ANONYMOUS:</span>
+<span class="source-line-no">275</span><span id="line-275">                    final WikiSession targetLAN = ( WikiSession )e.getTarget();</span>
+<span class="source-line-no">276</span><span id="line-276">                    if( this.equals( targetLAN ) ) {</span>
+<span class="source-line-no">277</span><span id="line-277">                        m_status = ANONYMOUS;</span>
+<span class="source-line-no">278</span><span id="line-278"></span>
+<span class="source-line-no">279</span><span id="line-279">                        // Set the login/user principals and login status</span>
+<span class="source-line-no">280</span><span id="line-280">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
+<span class="source-line-no">281</span><span id="line-281">                        m_loginPrincipal = ( Principal )e.getPrincipal();</span>
+<span class="source-line-no">282</span><span id="line-282">                        m_userPrincipal = m_loginPrincipal;</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">                        // Add the login principal to the Subject, and set the built-in roles</span>
+<span class="source-line-no">285</span><span id="line-285">                        principals.clear();</span>
+<span class="source-line-no">286</span><span id="line-286">                        principals.add( m_loginPrincipal );</span>
+<span class="source-line-no">287</span><span id="line-287">                        principals.add( Role.ALL );</span>
+<span class="source-line-no">288</span><span id="line-288">                        principals.add( Role.ANONYMOUS );</span>
+<span class="source-line-no">289</span><span id="line-289">                    }</span>
+<span class="source-line-no">290</span><span id="line-290">                    break;</span>
+<span class="source-line-no">291</span><span id="line-291">                case WikiSecurityEvent.LOGIN_ASSERTED:</span>
+<span class="source-line-no">292</span><span id="line-292">                    final WikiSession targetLAS = ( WikiSession )e.getTarget();</span>
+<span class="source-line-no">293</span><span id="line-293">                    if( this.equals( targetLAS ) ) {</span>
+<span class="source-line-no">294</span><span id="line-294">                        m_status = ASSERTED;</span>
+<span class="source-line-no">295</span><span id="line-295"></span>
+<span class="source-line-no">296</span><span id="line-296">                        // Set the login/user principals and login status</span>
+<span class="source-line-no">297</span><span id="line-297">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
+<span class="source-line-no">298</span><span id="line-298">                        m_loginPrincipal = ( Principal )e.getPrincipal();</span>
+<span class="source-line-no">299</span><span id="line-299">                        m_userPrincipal = m_loginPrincipal;</span>
+<span class="source-line-no">300</span><span id="line-300"></span>
+<span class="source-line-no">301</span><span id="line-301">                        // Add the login principal to the Subject, and set the built-in roles</span>
+<span class="source-line-no">302</span><span id="line-302">                        principals.clear();</span>
+<span class="source-line-no">303</span><span id="line-303">                        principals.add( m_loginPrincipal );</span>
+<span class="source-line-no">304</span><span id="line-304">                        principals.add( Role.ALL );</span>
+<span class="source-line-no">305</span><span id="line-305">                        principals.add( Role.ASSERTED );</span>
+<span class="source-line-no">306</span><span id="line-306">                    }</span>
+<span class="source-line-no">307</span><span id="line-307">                    break;</span>
+<span class="source-line-no">308</span><span id="line-308">                case WikiSecurityEvent.LOGIN_AUTHENTICATED:</span>
+<span class="source-line-no">309</span><span id="line-309">                    final WikiSession targetLAU = ( WikiSession )e.getTarget();</span>
+<span class="source-line-no">310</span><span id="line-310">                    if( this.equals( targetLAU ) ) {</span>
+<span class="source-line-no">311</span><span id="line-311">                        m_status = AUTHENTICATED;</span>
+<span class="source-line-no">312</span><span id="line-312"></span>
+<span class="source-line-no">313</span><span id="line-313">                        // Set the login/user principals and login status</span>
+<span class="source-line-no">314</span><span id="line-314">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
+<span class="source-line-no">315</span><span id="line-315">                        m_loginPrincipal = ( Principal )e.getPrincipal();</span>
+<span class="source-line-no">316</span><span id="line-316">                        m_userPrincipal = m_loginPrincipal;</span>
+<span class="source-line-no">317</span><span id="line-317"></span>
+<span class="source-line-no">318</span><span id="line-318">                        // Add the login principal to the Subject, and set the built-in roles</span>
+<span class="source-line-no">319</span><span id="line-319">                        principals.clear();</span>
+<span class="source-line-no">320</span><span id="line-320">                        principals.add( m_loginPrincipal );</span>
+<span class="source-line-no">321</span><span id="line-321">                        principals.add( Role.ALL );</span>
+<span class="source-line-no">322</span><span id="line-322">                        principals.add( Role.AUTHENTICATED );</span>
+<span class="source-line-no">323</span><span id="line-323"></span>
+<span class="source-line-no">324</span><span id="line-324">                        // Add the user and group principals</span>
+<span class="source-line-no">325</span><span id="line-325">                        injectUserProfilePrincipals();  // Add principals for the user profile</span>
+<span class="source-line-no">326</span><span id="line-326">                        injectGroupPrincipals();  // Inject group principals</span>
+<span class="source-line-no">327</span><span id="line-327">                    }</span>
+<span class="source-line-no">328</span><span id="line-328">                    break;</span>
+<span class="source-line-no">329</span><span id="line-329">                case WikiSecurityEvent.PROFILE_SAVE:</span>
+<span class="source-line-no">330</span><span id="line-330">                    final WikiSession sourcePS = e.getSrc();</span>
+<span class="source-line-no">331</span><span id="line-331">                    if( this.equals( sourcePS ) ) {</span>
+<span class="source-line-no">332</span><span id="line-332">                        injectUserProfilePrincipals();  // Add principals for the user profile</span>
+<span class="source-line-no">333</span><span id="line-333">                        injectGroupPrincipals();  // Inject group principals</span>
+<span class="source-line-no">334</span><span id="line-334">                    }</span>
+<span class="source-line-no">335</span><span id="line-335">                    break;</span>
+<span class="source-line-no">336</span><span id="line-336">                case WikiSecurityEvent.PROFILE_NAME_CHANGED:</span>
+<span class="source-line-no">337</span><span id="line-337">                    // Refresh user principals based on new user profile</span>
+<span class="source-line-no">338</span><span id="line-338">                    final WikiSession sourcePNC = e.getSrc();</span>
+<span class="source-line-no">339</span><span id="line-339">                    if( this.equals( sourcePNC ) &amp;&amp; m_status.equals( AUTHENTICATED ) ) {</span>
+<span class="source-line-no">340</span><span id="line-340">                        // To prepare for refresh, set the new full name as the primary principal</span>
+<span class="source-line-no">341</span><span id="line-341">                        final UserProfile[] profiles = ( UserProfile[] )e.getTarget();</span>
+<span class="source-line-no">342</span><span id="line-342">                        final UserProfile newProfile = profiles[ 1 ];</span>
+<span class="source-line-no">343</span><span id="line-343">                        if( newProfile.getFullname() == null ) {</span>
+<span class="source-line-no">344</span><span id="line-344">                            throw new IllegalStateException( "User profile FullName cannot be null." );</span>
+<span class="source-line-no">345</span><span id="line-345">                        }</span>
+<span class="source-line-no">346</span><span id="line-346"></span>
+<span class="source-line-no">347</span><span id="line-347">                        final Set&lt; Principal &gt; principals = m_subject.getPrincipals();</span>
+<span class="source-line-no">348</span><span id="line-348">                        m_loginPrincipal = new WikiPrincipal( newProfile.getLoginName() );</span>
+<span class="source-line-no">349</span><span id="line-349"></span>
+<span class="source-line-no">350</span><span id="line-350">                        // Add the login principal to the Subject, and set the built-in roles</span>
+<span class="source-line-no">351</span><span id="line-351">                        principals.clear();</span>
+<span class="source-line-no">352</span><span id="line-352">                        principals.add( m_loginPrincipal );</span>
+<span class="source-line-no">353</span><span id="line-353">                        principals.add( Role.ALL );</span>
+<span class="source-line-no">354</span><span id="line-354">                        principals.add( Role.AUTHENTICATED );</span>
+<span class="source-line-no">355</span><span id="line-355"></span>
+<span class="source-line-no">356</span><span id="line-356">                        // Add the user and group principals</span>
+<span class="source-line-no">357</span><span id="line-357">                        injectUserProfilePrincipals();  // Add principals for the user profile</span>
+<span class="source-line-no">358</span><span id="line-358">                        injectGroupPrincipals();  // Inject group principals</span>
+<span class="source-line-no">359</span><span id="line-359">                    }</span>
+<span class="source-line-no">360</span><span id="line-360">                    break;</span>
+<span class="source-line-no">361</span><span id="line-361"></span>
+<span class="source-line-no">362</span><span id="line-362">                //  No action, if the event is not recognized.</span>
+<span class="source-line-no">363</span><span id="line-363">                default:</span>
+<span class="source-line-no">364</span><span id="line-364">                    break;</span>
+<span class="source-line-no">365</span><span id="line-365">                }</span>
+<span class="source-line-no">366</span><span id="line-366">            }</span>
+<span class="source-line-no">367</span><span id="line-367">        }</span>
+<span class="source-line-no">368</span><span id="line-368">    }</span>
+<span class="source-line-no">369</span><span id="line-369"></span>
+<span class="source-line-no">370</span><span id="line-370">    /** {@inheritDoc} */</span>
+<span class="source-line-no">371</span><span id="line-371">    @Override</span>
+<span class="source-line-no">372</span><span id="line-372">    public void invalidate() {</span>
+<span class="source-line-no">373</span><span id="line-373">        m_subject.getPrincipals().clear();</span>
+<span class="source-line-no">374</span><span id="line-374">        m_subject.getPrincipals().add( WikiPrincipal.GUEST );</span>
+<span class="source-line-no">375</span><span id="line-375">        m_subject.getPrincipals().add( Role.ANONYMOUS );</span>
+<span class="source-line-no">376</span><span id="line-376">        m_subject.getPrincipals().add( Role.ALL );</span>
+<span class="source-line-no">377</span><span id="line-377">        m_userPrincipal = WikiPrincipal.GUEST;</span>
+<span class="source-line-no">378</span><span id="line-378">        m_loginPrincipal = WikiPrincipal.GUEST;</span>
+<span class="source-line-no">379</span><span id="line-379">    }</span>
+<span class="source-line-no">380</span><span id="line-380"></span>
+<span class="source-line-no">381</span><span id="line-381">    /**</span>
+<span class="source-line-no">382</span><span id="line-382">     * Injects GroupPrincipal objects into the user's Principal set based on the groups the user belongs to. For Groups, the algorithm</span>
+<span class="source-line-no">383</span><span id="line-383">     * first calls the {@link GroupManager#getRoles()} to obtain the array of GroupPrincipals the authorizer knows about. Then, the</span>
+<span class="source-line-no">384</span><span id="line-384">     * method {@link GroupManager#isUserInRole(Session, Principal)} is called for each Principal. If the user is a member of the</span>
+<span class="source-line-no">385</span><span id="line-385">     * group, an equivalent GroupPrincipal is injected into the user's principal set. Existing GroupPrincipals are flushed and replaced.</span>
+<span class="source-line-no">386</span><span id="line-386">     * This method should generally be called after a user's {@link org.apache.wiki.auth.user.UserProfile} is saved. If the wiki session</span>
+<span class="source-line-no">387</span><span id="line-387">     * is null, or there is no matching user profile, the method returns silently.</span>
+<span class="source-line-no">388</span><span id="line-388">     */</span>
+<span class="source-line-no">389</span><span id="line-389">    protected void injectGroupPrincipals() {</span>
+<span class="source-line-no">390</span><span id="line-390">        // Flush the existing GroupPrincipals</span>
+<span class="source-line-no">391</span><span id="line-391">        m_subject.getPrincipals().removeAll( m_subject.getPrincipals(GroupPrincipal.class) );</span>
+<span class="source-line-no">392</span><span id="line-392"></span>
+<span class="source-line-no">393</span><span id="line-393">        // Get the GroupManager and test for each Group</span>
+<span class="source-line-no">394</span><span id="line-394">        final GroupManager manager = m_engine.getManager( GroupManager.class );</span>
+<span class="source-line-no">395</span><span id="line-395">        for( final Principal group : manager.getRoles() ) {</span>
+<span class="source-line-no">396</span><span id="line-396">            if ( manager.isUserInRole( this, group ) ) {</span>
+<span class="source-line-no">397</span><span id="line-397">                m_subject.getPrincipals().add( group );</span>
+<span class="source-line-no">398</span><span id="line-398">            }</span>
+<span class="source-line-no">399</span><span id="line-399">        }</span>
+<span class="source-line-no">400</span><span id="line-400">    }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">    /**</span>
+<span class="source-line-no">403</span><span id="line-403">     * Adds Principal objects to the Subject that correspond to the logged-in user's profile attributes for the wiki name, full name</span>
+<span class="source-line-no">404</span><span id="line-404">     * and login name. These Principals will be WikiPrincipals, and they will replace all other WikiPrincipals in the Subject. &lt;em&gt;Note:</span>
+<span class="source-line-no">405</span><span id="line-405">     * this method is never called during anonymous or asserted sessions.&lt;/em&gt;</span>
+<span class="source-line-no">406</span><span id="line-406">     */</span>
+<span class="source-line-no">407</span><span id="line-407">    protected void injectUserProfilePrincipals() {</span>
+<span class="source-line-no">408</span><span id="line-408">        // Search for the user profile</span>
+<span class="source-line-no">409</span><span id="line-409">        final String searchId = m_loginPrincipal.getName();</span>
+<span class="source-line-no">410</span><span id="line-410">        if ( searchId == null ) {</span>
+<span class="source-line-no">411</span><span id="line-411">            // Oh dear, this wasn't an authenticated user after all</span>
+<span class="source-line-no">412</span><span id="line-412">            LOG.info("Refresh principals failed because WikiSession had no user Principal; maybe not logged in?");</span>
+<span class="source-line-no">413</span><span id="line-413">            return;</span>
+<span class="source-line-no">414</span><span id="line-414">        }</span>
+<span class="source-line-no">415</span><span id="line-415"></span>
+<span class="source-line-no">416</span><span id="line-416">        // Look up the user and go get the new Principals</span>
+<span class="source-line-no">417</span><span id="line-417">        final UserDatabase database = m_engine.getManager( UserManager.class ).getUserDatabase();</span>
+<span class="source-line-no">418</span><span id="line-418">        if( database == null ) {</span>
+<span class="source-line-no">419</span><span id="line-419">            throw new IllegalStateException( "User database cannot be null." );</span>
+<span class="source-line-no">420</span><span id="line-420">        }</span>
+<span class="source-line-no">421</span><span id="line-421">        try {</span>
+<span class="source-line-no">422</span><span id="line-422">            final UserProfile profile = database.find( searchId );</span>
+<span class="source-line-no">423</span><span id="line-423">            final Principal[] principals = database.getPrincipals( profile.getLoginName() );</span>
+<span class="source-line-no">424</span><span id="line-424">            for( final Principal principal : principals ) {</span>
+<span class="source-line-no">425</span><span id="line-425">                // Add the Principal to the Subject</span>
+<span class="source-line-no">426</span><span id="line-426">                m_subject.getPrincipals().add( principal );</span>
+<span class="source-line-no">427</span><span id="line-427"></span>
+<span class="source-line-no">428</span><span id="line-428">                // Set the user principal if needed; we prefer FullName, but the WikiName will also work</span>
+<span class="source-line-no">429</span><span id="line-429">                final boolean isFullNamePrincipal = ( principal instanceof WikiPrincipal &amp;&amp;</span>
+<span class="source-line-no">430</span><span id="line-430">                                                      ( ( WikiPrincipal )principal ).getType().equals( WikiPrincipal.FULL_NAME ) );</span>
+<span class="source-line-no">431</span><span id="line-431">                if ( isFullNamePrincipal ) {</span>
+<span class="source-line-no">432</span><span id="line-432">                   m_userPrincipal = principal;</span>
+<span class="source-line-no">433</span><span id="line-433">                } else if ( !( m_userPrincipal instanceof WikiPrincipal ) ) {</span>
+<span class="source-line-no">434</span><span id="line-434">                    m_userPrincipal = principal;</span>
+<span class="source-line-no">435</span><span id="line-435">                }</span>
+<span class="source-line-no">436</span><span id="line-436">            }</span>
+<span class="source-line-no">437</span><span id="line-437">        } catch ( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">438</span><span id="line-438">            // We will get here if the user has a principal but not a profile</span>
+<span class="source-line-no">439</span><span id="line-439">            // For example, it's a container-managed user who hasn't set up a profile yet</span>
+<span class="source-line-no">440</span><span id="line-440">            LOG.warn("User profile '" + searchId + "' not found. This is normal for container-auth users who haven't set up a profile yet.");</span>
+<span class="source-line-no">441</span><span id="line-441">        }</span>
+<span class="source-line-no">442</span><span id="line-442">    }</span>
+<span class="source-line-no">443</span><span id="line-443"></span>
+<span class="source-line-no">444</span><span id="line-444">    /** {@inheritDoc} */</span>
+<span class="source-line-no">445</span><span id="line-445">    @Override</span>
+<span class="source-line-no">446</span><span id="line-446">    public String getStatus() {</span>
+<span class="source-line-no">447</span><span id="line-447">        return m_status;</span>
+<span class="source-line-no">448</span><span id="line-448">    }</span>
+<span class="source-line-no">449</span><span id="line-449"></span>
+<span class="source-line-no">450</span><span id="line-450">    /** {@inheritDoc} */</span>
+<span class="source-line-no">451</span><span id="line-451">    @Override</span>
+<span class="source-line-no">452</span><span id="line-452">    public Subject getSubject() {</span>
+<span class="source-line-no">453</span><span id="line-453">        return m_subject;</span>
+<span class="source-line-no">454</span><span id="line-454">    }</span>
+<span class="source-line-no">455</span><span id="line-455"></span>
+<span class="source-line-no">456</span><span id="line-456">    /**</span>
+<span class="source-line-no">457</span><span id="line-457">     * Removes the wiki session associated with the user's HTTP request from the cache of wiki sessions, typically as part of a</span>
+<span class="source-line-no">458</span><span id="line-458">     * logout process.</span>
+<span class="source-line-no">459</span><span id="line-459">     *</span>
+<span class="source-line-no">460</span><span id="line-460">     * @param engine the wiki engine</span>
+<span class="source-line-no">461</span><span id="line-461">     * @param request the user's HTTP request</span>
+<span class="source-line-no">462</span><span id="line-462">     */</span>
+<span class="source-line-no">463</span><span id="line-463">    public static void removeWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
+<span class="source-line-no">464</span><span id="line-464">        if ( engine == null || request == null ) {</span>
+<span class="source-line-no">465</span><span id="line-465">            throw new IllegalArgumentException( "Request or engine cannot be null." );</span>
+<span class="source-line-no">466</span><span id="line-466">        }</span>
+<span class="source-line-no">467</span><span id="line-467">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">468</span><span id="line-468">        monitor.remove( request.getSession() );</span>
+<span class="source-line-no">469</span><span id="line-469">        c_guestSession.remove();</span>
+<span class="source-line-no">470</span><span id="line-470">    }</span>
+<span class="source-line-no">471</span><span id="line-471"></span>
+<span class="source-line-no">472</span><span id="line-472">    /**</span>
+<span class="source-line-no">473</span><span id="line-473">     * &lt;p&gt;Static factory method that returns the Session object associated with the current HTTP request. This method looks up</span>
+<span class="source-line-no">474</span><span id="line-474">     * the associated HttpSession in an internal WeakHashMap and attempts to retrieve the WikiSession. If not found, one is created.</span>
+<span class="source-line-no">475</span><span id="line-475">     * This method is guaranteed to always return a Session, although the authentication status is unpredictable until the user</span>
+<span class="source-line-no">476</span><span id="line-476">     * attempts to log in. If the servlet request parameter is &lt;code&gt;null&lt;/code&gt;, a synthetic {@link #guestSession(Engine)} is</span>
+<span class="source-line-no">477</span><span id="line-477">     * returned.&lt;/p&gt;</span>
+<span class="source-line-no">478</span><span id="line-478">     * &lt;p&gt;When a session is created, this method attaches a WikiEventListener to the GroupManager, UserManager and AuthenticationManager,</span>
+<span class="source-line-no">479</span><span id="line-479">     * so that changes to users, groups, logins, etc. are detected automatically.&lt;/p&gt;</span>
+<span class="source-line-no">480</span><span id="line-480">     *</span>
+<span class="source-line-no">481</span><span id="line-481">     * @param engine the engine</span>
+<span class="source-line-no">482</span><span id="line-482">     * @param request the servlet request object</span>
+<span class="source-line-no">483</span><span id="line-483">     * @return the existing (or newly created) session</span>
+<span class="source-line-no">484</span><span id="line-484">     */</span>
+<span class="source-line-no">485</span><span id="line-485">    public static Session getWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
+<span class="source-line-no">486</span><span id="line-486">        if ( request == null ) {</span>
+<span class="source-line-no">487</span><span id="line-487">            LOG.debug( "Looking up WikiSession for NULL HttpRequest: returning guestSession()" );</span>
+<span class="source-line-no">488</span><span id="line-488">            return staticGuestSession( engine );</span>
+<span class="source-line-no">489</span><span id="line-489">        }</span>
+<span class="source-line-no">490</span><span id="line-490"></span>
+<span class="source-line-no">491</span><span id="line-491">        // Look for a WikiSession associated with the user's Http Session and create one if it isn't there yet.</span>
+<span class="source-line-no">492</span><span id="line-492">        final HttpSession session = request.getSession();</span>
+<span class="source-line-no">493</span><span id="line-493">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">494</span><span id="line-494">        final WikiSession wikiSession = ( WikiSession )monitor.find( session );</span>
+<span class="source-line-no">495</span><span id="line-495">        wikiSession.remoteAddress = request.getRemoteAddr();</span>
+<span class="source-line-no">496</span><span id="line-496">        // Attach reference to wiki engine</span>
+<span class="source-line-no">497</span><span id="line-497">        wikiSession.m_engine = engine;</span>
+<span class="source-line-no">498</span><span id="line-498">        wikiSession.m_cachedLocale = request.getLocale();</span>
+<span class="source-line-no">499</span><span id="line-499">        </span>
+<span class="source-line-no">500</span><span id="line-500">        String v = engine.getWikiProperties().getProperty("jspwiki.role.extraRoles", null);</span>
+<span class="source-line-no">501</span><span id="line-501">        if (v != null) {</span>
+<span class="source-line-no">502</span><span id="line-502">            String[] extraRoles = v.split("\\,");</span>
+<span class="source-line-no">503</span><span id="line-503">            for (String s : extraRoles) {</span>
+<span class="source-line-no">504</span><span id="line-504">                if (request.isUserInRole(s)) {</span>
+<span class="source-line-no">505</span><span id="line-505">                    wikiSession.m_subject.getPrincipals().add(new GroupPrincipal(s));</span>
+<span class="source-line-no">506</span><span id="line-506">                }</span>
+<span class="source-line-no">507</span><span id="line-507">            }</span>
+<span class="source-line-no">508</span><span id="line-508">        }</span>
+<span class="source-line-no">509</span><span id="line-509">        </span>
+<span class="source-line-no">510</span><span id="line-510">        return wikiSession;</span>
+<span class="source-line-no">511</span><span id="line-511">    }</span>
+<span class="source-line-no">512</span><span id="line-512"></span>
+<span class="source-line-no">513</span><span id="line-513">    /**</span>
+<span class="source-line-no">514</span><span id="line-514">     * Static factory method that creates a new "guest" session containing a single user Principal</span>
+<span class="source-line-no">515</span><span id="line-515">     * {@link org.apache.wiki.auth.WikiPrincipal#GUEST}, plus the role principals {@link Role#ALL} and {@link Role#ANONYMOUS}. This</span>
+<span class="source-line-no">516</span><span id="line-516">     * method also adds the session as a listener for GroupManager, AuthenticationManager and UserManager events.</span>
+<span class="source-line-no">517</span><span id="line-517">     *</span>
+<span class="source-line-no">518</span><span id="line-518">     * @param engine the wiki engine</span>
+<span class="source-line-no">519</span><span id="line-519">     * @return the guest wiki session</span>
+<span class="source-line-no">520</span><span id="line-520">     */</span>
+<span class="source-line-no">521</span><span id="line-521">    public static Session guestSession( final Engine engine ) {</span>
+<span class="source-line-no">522</span><span id="line-522">        final WikiSession session = new WikiSession();</span>
+<span class="source-line-no">523</span><span id="line-523">        session.m_engine = engine;</span>
+<span class="source-line-no">524</span><span id="line-524">        session.invalidate();</span>
+<span class="source-line-no">525</span><span id="line-525">        session.antiCsrfToken = UUID.randomUUID().toString();</span>
+<span class="source-line-no">526</span><span id="line-526"></span>
+<span class="source-line-no">527</span><span id="line-527">        // Add the session as listener for GroupManager, AuthManager, UserManager events</span>
+<span class="source-line-no">528</span><span id="line-528">        final GroupManager groupMgr = engine.getManager( GroupManager.class );</span>
+<span class="source-line-no">529</span><span id="line-529">        final AuthenticationManager authMgr = engine.getManager( AuthenticationManager.class );</span>
+<span class="source-line-no">530</span><span id="line-530">        final UserManager userMgr = engine.getManager( UserManager.class );</span>
+<span class="source-line-no">531</span><span id="line-531">        groupMgr.addWikiEventListener( session );</span>
+<span class="source-line-no">532</span><span id="line-532">        authMgr.addWikiEventListener( session );</span>
+<span class="source-line-no">533</span><span id="line-533">        userMgr.addWikiEventListener( session );</span>
+<span class="source-line-no">534</span><span id="line-534"></span>
+<span class="source-line-no">535</span><span id="line-535">        return session;</span>
+<span class="source-line-no">536</span><span id="line-536">    }</span>
+<span class="source-line-no">537</span><span id="line-537"></span>
+<span class="source-line-no">538</span><span id="line-538">    /**</span>
+<span class="source-line-no">539</span><span id="line-539">     *  Returns a static guest session, which is available for this thread only.  This guest session is used internally whenever</span>
+<span class="source-line-no">540</span><span id="line-540">     *  there is no HttpServletRequest involved, but the request is done e.g. when embedding JSPWiki code.</span>
+<span class="source-line-no">541</span><span id="line-541">     *</span>
+<span class="source-line-no">542</span><span id="line-542">     *  @param engine Engine for this session</span>
+<span class="source-line-no">543</span><span id="line-543">     *  @return A static WikiSession which is shared by all in this same Thread.</span>
+<span class="source-line-no">544</span><span id="line-544">     */</span>
+<span class="source-line-no">545</span><span id="line-545">    // FIXME: Should really use WeakReferences to clean away unused sessions.</span>
+<span class="source-line-no">546</span><span id="line-546">    private static Session staticGuestSession( final Engine engine ) {</span>
+<span class="source-line-no">547</span><span id="line-547">        Session session = c_guestSession.get();</span>
+<span class="source-line-no">548</span><span id="line-548">        if( session == null ) {</span>
+<span class="source-line-no">549</span><span id="line-549">            session = guestSession( engine );</span>
+<span class="source-line-no">550</span><span id="line-550">            c_guestSession.set( session );</span>
+<span class="source-line-no">551</span><span id="line-551">        }</span>
+<span class="source-line-no">552</span><span id="line-552"></span>
+<span class="source-line-no">553</span><span id="line-553">        return session;</span>
+<span class="source-line-no">554</span><span id="line-554">    }</span>
+<span class="source-line-no">555</span><span id="line-555"></span>
+<span class="source-line-no">556</span><span id="line-556">    /**</span>
+<span class="source-line-no">557</span><span id="line-557">     * Returns the total number of active wiki sessions for a particular wiki. This method delegates to the wiki's</span>
+<span class="source-line-no">558</span><span id="line-558">     * {@link SessionMonitor#sessions()} method.</span>
+<span class="source-line-no">559</span><span id="line-559">     *</span>
+<span class="source-line-no">560</span><span id="line-560">     * @param engine the wiki session</span>
+<span class="source-line-no">561</span><span id="line-561">     * @return the number of sessions</span>
+<span class="source-line-no">562</span><span id="line-562">     * @deprecated use {@link SessionMonitor#sessions()} instead</span>
+<span class="source-line-no">563</span><span id="line-563">     * @see SessionMonitor#sessions()</span>
+<span class="source-line-no">564</span><span id="line-564">     */</span>
+<span class="source-line-no">565</span><span id="line-565">    @Deprecated</span>
+<span class="source-line-no">566</span><span id="line-566">    public static int sessions( final Engine engine ) {</span>
+<span class="source-line-no">567</span><span id="line-567">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">568</span><span id="line-568">        return monitor.sessions();</span>
+<span class="source-line-no">569</span><span id="line-569">    }</span>
+<span class="source-line-no">570</span><span id="line-570"></span>
+<span class="source-line-no">571</span><span id="line-571">    /**</span>
+<span class="source-line-no">572</span><span id="line-572">     * Returns Principals representing the current users known to a particular wiki. Each Principal will correspond to the</span>
+<span class="source-line-no">573</span><span id="line-573">     * value returned by each WikiSession's {@link #getUserPrincipal()} method. This method delegates to</span>
+<span class="source-line-no">574</span><span id="line-574">     * {@link SessionMonitor#userPrincipals()}.</span>
+<span class="source-line-no">575</span><span id="line-575">     *</span>
+<span class="source-line-no">576</span><span id="line-576">     * @param engine the wiki engine</span>
+<span class="source-line-no">577</span><span id="line-577">     * @return an array of Principal objects, sorted by name</span>
+<span class="source-line-no">578</span><span id="line-578">     * @deprecated use {@link SessionMonitor#userPrincipals()} instead</span>
+<span class="source-line-no">579</span><span id="line-579">     * @see SessionMonitor#userPrincipals()</span>
+<span class="source-line-no">580</span><span id="line-580">     */</span>
+<span class="source-line-no">581</span><span id="line-581">    @Deprecated</span>
+<span class="source-line-no">582</span><span id="line-582">    public static Principal[] userPrincipals( final Engine engine ) {</span>
+<span class="source-line-no">583</span><span id="line-583">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">584</span><span id="line-584">        return monitor.userPrincipals();</span>
+<span class="source-line-no">585</span><span id="line-585">    }</span>
+<span class="source-line-no">586</span><span id="line-586"></span>
+<span class="source-line-no">587</span><span id="line-587">    @Override</span>
+<span class="source-line-no">588</span><span id="line-588">    public String getRemoteAddress() {</span>
+<span class="source-line-no">589</span><span id="line-589">        return remoteAddress;</span>
+<span class="source-line-no">590</span><span id="line-590">    }</span>
+<span class="source-line-no">591</span><span id="line-591"></span>
+<span class="source-line-no">592</span><span id="line-592">}</span>
 
 
 

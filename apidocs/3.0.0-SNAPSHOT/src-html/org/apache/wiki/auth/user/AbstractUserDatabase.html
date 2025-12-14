@@ -239,83 +239,118 @@
 <span class="source-line-no">226</span><span id="line-226">        }</span>
 <span class="source-line-no">227</span><span id="line-227">        return false;</span>
 <span class="source-line-no">228</span><span id="line-228">    }</span>
-<span class="source-line-no">229</span><span id="line-229"></span>
-<span class="source-line-no">230</span><span id="line-230">    /**</span>
-<span class="source-line-no">231</span><span id="line-231">     * Generates a new random user identifier (uid) that is guaranteed to be unique.</span>
-<span class="source-line-no">232</span><span id="line-232">     * </span>
-<span class="source-line-no">233</span><span id="line-233">     * @param db The database for which the UID should be generated.</span>
-<span class="source-line-no">234</span><span id="line-234">     * @return A random, unique UID.</span>
-<span class="source-line-no">235</span><span id="line-235">     */</span>
-<span class="source-line-no">236</span><span id="line-236">    protected static String generateUid( final UserDatabase db ) {</span>
-<span class="source-line-no">237</span><span id="line-237">        // Keep generating UUIDs until we find one that doesn't collide</span>
-<span class="source-line-no">238</span><span id="line-238">        String uid;</span>
-<span class="source-line-no">239</span><span id="line-239">        boolean collision;</span>
-<span class="source-line-no">240</span><span id="line-240">        </span>
-<span class="source-line-no">241</span><span id="line-241">        do {</span>
-<span class="source-line-no">242</span><span id="line-242">            uid = UUID.randomUUID().toString();</span>
-<span class="source-line-no">243</span><span id="line-243">            collision = true;</span>
-<span class="source-line-no">244</span><span id="line-244">            try {</span>
-<span class="source-line-no">245</span><span id="line-245">                db.findByUid( uid );</span>
-<span class="source-line-no">246</span><span id="line-246">            } catch ( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">247</span><span id="line-247">                LOG.debug(e.getMessage(), e);</span>
-<span class="source-line-no">248</span><span id="line-248">                collision = false;</span>
-<span class="source-line-no">249</span><span id="line-249">            }</span>
-<span class="source-line-no">250</span><span id="line-250">        } </span>
-<span class="source-line-no">251</span><span id="line-251">        while ( collision || uid == null );</span>
-<span class="source-line-no">252</span><span id="line-252">        return uid;</span>
-<span class="source-line-no">253</span><span id="line-253">    }</span>
-<span class="source-line-no">254</span><span id="line-254">    </span>
-<span class="source-line-no">255</span><span id="line-255">    /**</span>
-<span class="source-line-no">256</span><span id="line-256">     * Private method that calculates the salted SHA-1 or SHA-256 hash of a given &lt;code&gt;String&lt;/code&gt;. Note that as of JSPWiki 2.8, this method</span>
-<span class="source-line-no">257</span><span id="line-257">     * calculates a &lt;em&gt;salted&lt;/em&gt; hash rather than a plain hash.</span>
-<span class="source-line-no">258</span><span id="line-258">     *</span>
-<span class="source-line-no">259</span><span id="line-259">     * @param text the text to hash</span>
-<span class="source-line-no">260</span><span id="line-260">     * @return the result hash</span>
-<span class="source-line-no">261</span><span id="line-261">     */</span>
-<span class="source-line-no">262</span><span id="line-262">    protected String getHash( final String text ) {</span>
-<span class="source-line-no">263</span><span id="line-263">        try {</span>
-<span class="source-line-no">264</span><span id="line-264">            return CryptoUtil.getSaltedPassword( text.getBytes(StandardCharsets.UTF_8), SHA256_PREFIX );</span>
-<span class="source-line-no">265</span><span id="line-265">        } catch( final NoSuchAlgorithmException e ) {</span>
-<span class="source-line-no">266</span><span id="line-266">            LOG.error( "Error creating salted password hash: {}", e.getMessage() );</span>
-<span class="source-line-no">267</span><span id="line-267">            return text;</span>
-<span class="source-line-no">268</span><span id="line-268">        }</span>
-<span class="source-line-no">269</span><span id="line-269">    }</span>
-<span class="source-line-no">270</span><span id="line-270"></span>
-<span class="source-line-no">271</span><span id="line-271">    /**</span>
-<span class="source-line-no">272</span><span id="line-272">     * Private method that calculates the SHA-1 hash of a given &lt;code&gt;String&lt;/code&gt;</span>
-<span class="source-line-no">273</span><span id="line-273">     *</span>
-<span class="source-line-no">274</span><span id="line-274">     * @param text the text to hash</span>
-<span class="source-line-no">275</span><span id="line-275">     * @return the result hash</span>
-<span class="source-line-no">276</span><span id="line-276">     * @deprecated this method is retained for backwards compatibility purposes; use {@link #getHash(String)} instead</span>
-<span class="source-line-no">277</span><span id="line-277">     */</span>
-<span class="source-line-no">278</span><span id="line-278">    @Deprecated</span>
-<span class="source-line-no">279</span><span id="line-279">    String getShaHash(final String text ) {</span>
-<span class="source-line-no">280</span><span id="line-280">        try {</span>
-<span class="source-line-no">281</span><span id="line-281">            final MessageDigest md = MessageDigest.getInstance( "SHA" );</span>
-<span class="source-line-no">282</span><span id="line-282">            md.update( text.getBytes( StandardCharsets.UTF_8 ) );</span>
-<span class="source-line-no">283</span><span id="line-283">            final byte[] digestedBytes = md.digest();</span>
-<span class="source-line-no">284</span><span id="line-284">            return ByteUtils.bytes2hex( digestedBytes );</span>
-<span class="source-line-no">285</span><span id="line-285">        } catch( final NoSuchAlgorithmException e ) {</span>
-<span class="source-line-no">286</span><span id="line-286">            LOG.error( "Error creating SHA password hash:" + e.getMessage() );</span>
-<span class="source-line-no">287</span><span id="line-287">            return text;</span>
-<span class="source-line-no">288</span><span id="line-288">        }</span>
-<span class="source-line-no">289</span><span id="line-289">    }</span>
-<span class="source-line-no">290</span><span id="line-290"></span>
-<span class="source-line-no">291</span><span id="line-291">    /**</span>
-<span class="source-line-no">292</span><span id="line-292">     * Parses a long integer from a supplied string, or returns 0 if not parsable.</span>
+<span class="source-line-no">229</span><span id="line-229">    </span>
+<span class="source-line-no">230</span><span id="line-230">    @Override</span>
+<span class="source-line-no">231</span><span id="line-231">    public boolean validatePasswordReuse( final String loginName, final String password ) {</span>
+<span class="source-line-no">232</span><span id="line-232">        try {</span>
+<span class="source-line-no">233</span><span id="line-233">            final UserProfile profile = findByLoginName( loginName );</span>
+<span class="source-line-no">234</span><span id="line-234"></span>
+<span class="source-line-no">235</span><span id="line-235">            // If the password is stored as SHA-256 or SSHA, verify the hash</span>
+<span class="source-line-no">236</span><span id="line-236">            </span>
+<span class="source-line-no">237</span><span id="line-237">             for (String storedPassword : profile.getPreviousHashedCredentials()) {</span>
+<span class="source-line-no">238</span><span id="line-238">                if (storedPassword.startsWith(SHA256_PREFIX) || storedPassword.startsWith(SSHA_PREFIX)) {</span>
+<span class="source-line-no">239</span><span id="line-239">                    boolean match = CryptoUtil.verifySaltedPassword(password.getBytes(StandardCharsets.UTF_8), storedPassword);</span>
+<span class="source-line-no">240</span><span id="line-240">                    if (match) {</span>
+<span class="source-line-no">241</span><span id="line-241">                        return false;</span>
+<span class="source-line-no">242</span><span id="line-242">                    }</span>
+<span class="source-line-no">243</span><span id="line-243">                }</span>
+<span class="source-line-no">244</span><span id="line-244">                if (storedPassword.startsWith(SHA_PREFIX)) {</span>
+<span class="source-line-no">245</span><span id="line-245">                    String fragment  = storedPassword.substring(SHA_PREFIX.length());</span>
+<span class="source-line-no">246</span><span id="line-246">                    String hashedPassword = getShaHash(password);</span>
+<span class="source-line-no">247</span><span id="line-247">                    boolean match  = hashedPassword.equals(fragment);</span>
+<span class="source-line-no">248</span><span id="line-248">                     if (match) {</span>
+<span class="source-line-no">249</span><span id="line-249">                        return false;</span>
+<span class="source-line-no">250</span><span id="line-250">                    }</span>
+<span class="source-line-no">251</span><span id="line-251">                }</span>
+<span class="source-line-no">252</span><span id="line-252">            }</span>
+<span class="source-line-no">253</span><span id="line-253"></span>
+<span class="source-line-no">254</span><span id="line-254">            return true;</span>
+<span class="source-line-no">255</span><span id="line-255">        } catch( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">256</span><span id="line-256">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">257</span><span id="line-257">        } catch( final NoSuchAlgorithmException e ) {</span>
+<span class="source-line-no">258</span><span id="line-258">            LOG.error( "Unsupported algorithm: " + e.getMessage() );</span>
+<span class="source-line-no">259</span><span id="line-259">        } catch( final WikiSecurityException e ) {</span>
+<span class="source-line-no">260</span><span id="line-260">            LOG.error( "Could not upgrade SHA password to SSHA because profile could not be saved. Reason: " + e.getMessage(), e );</span>
+<span class="source-line-no">261</span><span id="line-261">        }</span>
+<span class="source-line-no">262</span><span id="line-262">        return true;</span>
+<span class="source-line-no">263</span><span id="line-263">    }</span>
+<span class="source-line-no">264</span><span id="line-264"></span>
+<span class="source-line-no">265</span><span id="line-265">    /**</span>
+<span class="source-line-no">266</span><span id="line-266">     * Generates a new random user identifier (uid) that is guaranteed to be unique.</span>
+<span class="source-line-no">267</span><span id="line-267">     * </span>
+<span class="source-line-no">268</span><span id="line-268">     * @param db The database for which the UID should be generated.</span>
+<span class="source-line-no">269</span><span id="line-269">     * @return A random, unique UID.</span>
+<span class="source-line-no">270</span><span id="line-270">     */</span>
+<span class="source-line-no">271</span><span id="line-271">    protected static String generateUid( final UserDatabase db ) {</span>
+<span class="source-line-no">272</span><span id="line-272">        // Keep generating UUIDs until we find one that doesn't collide</span>
+<span class="source-line-no">273</span><span id="line-273">        String uid;</span>
+<span class="source-line-no">274</span><span id="line-274">        boolean collision;</span>
+<span class="source-line-no">275</span><span id="line-275">        </span>
+<span class="source-line-no">276</span><span id="line-276">        do {</span>
+<span class="source-line-no">277</span><span id="line-277">            uid = UUID.randomUUID().toString();</span>
+<span class="source-line-no">278</span><span id="line-278">            collision = true;</span>
+<span class="source-line-no">279</span><span id="line-279">            try {</span>
+<span class="source-line-no">280</span><span id="line-280">                db.findByUid( uid );</span>
+<span class="source-line-no">281</span><span id="line-281">            } catch ( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">282</span><span id="line-282">                LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">283</span><span id="line-283">                collision = false;</span>
+<span class="source-line-no">284</span><span id="line-284">            }</span>
+<span class="source-line-no">285</span><span id="line-285">        } </span>
+<span class="source-line-no">286</span><span id="line-286">        while ( collision || uid == null );</span>
+<span class="source-line-no">287</span><span id="line-287">        return uid;</span>
+<span class="source-line-no">288</span><span id="line-288">    }</span>
+<span class="source-line-no">289</span><span id="line-289">    </span>
+<span class="source-line-no">290</span><span id="line-290">    /**</span>
+<span class="source-line-no">291</span><span id="line-291">     * Private method that calculates the salted SHA-1 or SHA-256 hash of a given &lt;code&gt;String&lt;/code&gt;. Note that as of JSPWiki 2.8, this method</span>
+<span class="source-line-no">292</span><span id="line-292">     * calculates a &lt;em&gt;salted&lt;/em&gt; hash rather than a plain hash.</span>
 <span class="source-line-no">293</span><span id="line-293">     *</span>
-<span class="source-line-no">294</span><span id="line-294">     * @param value the string to parse</span>
-<span class="source-line-no">295</span><span id="line-295">     * @return the value parsed</span>
+<span class="source-line-no">294</span><span id="line-294">     * @param text the text to hash</span>
+<span class="source-line-no">295</span><span id="line-295">     * @return the result hash</span>
 <span class="source-line-no">296</span><span id="line-296">     */</span>
-<span class="source-line-no">297</span><span id="line-297">    protected long parseLong( final String value ) {</span>
-<span class="source-line-no">298</span><span id="line-298">        if( NumberUtils.isParsable( value ) ) {</span>
-<span class="source-line-no">299</span><span id="line-299">            return Long.parseLong( value );</span>
-<span class="source-line-no">300</span><span id="line-300">        } else {</span>
-<span class="source-line-no">301</span><span id="line-301">            return 0L;</span>
-<span class="source-line-no">302</span><span id="line-302">        }</span>
-<span class="source-line-no">303</span><span id="line-303">    }</span>
-<span class="source-line-no">304</span><span id="line-304"></span>
-<span class="source-line-no">305</span><span id="line-305">}</span>
+<span class="source-line-no">297</span><span id="line-297">    protected String getHash( final String text ) {</span>
+<span class="source-line-no">298</span><span id="line-298">        try {</span>
+<span class="source-line-no">299</span><span id="line-299">            return CryptoUtil.getSaltedPassword( text.getBytes(StandardCharsets.UTF_8), SHA256_PREFIX );</span>
+<span class="source-line-no">300</span><span id="line-300">        } catch( final NoSuchAlgorithmException e ) {</span>
+<span class="source-line-no">301</span><span id="line-301">            LOG.error( "Error creating salted password hash: {}", e.getMessage() );</span>
+<span class="source-line-no">302</span><span id="line-302">            return text;</span>
+<span class="source-line-no">303</span><span id="line-303">        }</span>
+<span class="source-line-no">304</span><span id="line-304">    }</span>
+<span class="source-line-no">305</span><span id="line-305"></span>
+<span class="source-line-no">306</span><span id="line-306">    /**</span>
+<span class="source-line-no">307</span><span id="line-307">     * Private method that calculates the SHA-1 hash of a given &lt;code&gt;String&lt;/code&gt;</span>
+<span class="source-line-no">308</span><span id="line-308">     *</span>
+<span class="source-line-no">309</span><span id="line-309">     * @param text the text to hash</span>
+<span class="source-line-no">310</span><span id="line-310">     * @return the result hash</span>
+<span class="source-line-no">311</span><span id="line-311">     * @deprecated this method is retained for backwards compatibility purposes; use {@link #getHash(String)} instead</span>
+<span class="source-line-no">312</span><span id="line-312">     */</span>
+<span class="source-line-no">313</span><span id="line-313">    @Deprecated</span>
+<span class="source-line-no">314</span><span id="line-314">    String getShaHash(final String text ) {</span>
+<span class="source-line-no">315</span><span id="line-315">        try {</span>
+<span class="source-line-no">316</span><span id="line-316">            final MessageDigest md = MessageDigest.getInstance( "SHA" );</span>
+<span class="source-line-no">317</span><span id="line-317">            md.update( text.getBytes( StandardCharsets.UTF_8 ) );</span>
+<span class="source-line-no">318</span><span id="line-318">            final byte[] digestedBytes = md.digest();</span>
+<span class="source-line-no">319</span><span id="line-319">            return ByteUtils.bytes2hex( digestedBytes );</span>
+<span class="source-line-no">320</span><span id="line-320">        } catch( final NoSuchAlgorithmException e ) {</span>
+<span class="source-line-no">321</span><span id="line-321">            LOG.error( "Error creating SHA password hash:" + e.getMessage() );</span>
+<span class="source-line-no">322</span><span id="line-322">            return text;</span>
+<span class="source-line-no">323</span><span id="line-323">        }</span>
+<span class="source-line-no">324</span><span id="line-324">    }</span>
+<span class="source-line-no">325</span><span id="line-325"></span>
+<span class="source-line-no">326</span><span id="line-326">    /**</span>
+<span class="source-line-no">327</span><span id="line-327">     * Parses a long integer from a supplied string, or returns 0 if not parsable.</span>
+<span class="source-line-no">328</span><span id="line-328">     *</span>
+<span class="source-line-no">329</span><span id="line-329">     * @param value the string to parse</span>
+<span class="source-line-no">330</span><span id="line-330">     * @return the value parsed</span>
+<span class="source-line-no">331</span><span id="line-331">     */</span>
+<span class="source-line-no">332</span><span id="line-332">    protected long parseLong( final String value ) {</span>
+<span class="source-line-no">333</span><span id="line-333">        if( NumberUtils.isParsable( value ) ) {</span>
+<span class="source-line-no">334</span><span id="line-334">            return Long.parseLong( value );</span>
+<span class="source-line-no">335</span><span id="line-335">        } else {</span>
+<span class="source-line-no">336</span><span id="line-336">            return 0L;</span>
+<span class="source-line-no">337</span><span id="line-337">        }</span>
+<span class="source-line-no">338</span><span id="line-338">    }</span>
+<span class="source-line-no">339</span><span id="line-339"></span>
+<span class="source-line-no">340</span><span id="line-340">}</span>
 
 
 
