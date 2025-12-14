@@ -49,360 +49,368 @@
 
 ## Results
 
-| Status       | Type                                                             | Serialization       | Compatibility Changes |
-|--------------|------------------------------------------------------------------|---------------------|-----------------------|
-| Unchanged    | [org.apache.wiki.InternalWikiException]                          | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.LinkCollector]                                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.StringTransmutator]                             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.TranslationsCheck]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.WatchDog]                                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.Watchable]                                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.WikiBackgroundThread]                           | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.WikiContext]                                    | ![Not serializable] | ![Annotation deprecated added] ![Annotation removed] ![Method removed] ![Method return type changed] ![Method added to public class] ![Field type changed] ![Constructor removed] |
-| Modified     | [org.apache.wiki.WikiEngine]                                     | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method added to public class] ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.WikiPage]                                       | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.WikiServlet]                                    | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.WikiSession]                                    | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.ajax.AjaxUtil]                                  | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ajax.WikiAjaxDispatcherServlet]                 | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.ajax.WikiAjaxServlet]                           | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Unchanged    | [org.apache.wiki.attachment.Attachment]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.attachment.AttachmentManager]                   | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.attachment.AttachmentServlet]                   | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
-| Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.auth.DefaultAuthorizationManager]               | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
-| Unchanged    | [org.apache.wiki.auth.DefaultUserManager]                        | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable] | ![No changes]         |
-| Added        | [org.apache.wiki.auth.PasswordComplexityVeriffier]               | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.WikiPrincipal]                             | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.WikiSecurityException]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.Acl]                                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclEntry]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclEntryImpl]                          | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclImpl]                               | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclManager]                            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.DefaultAclManager]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.UnresolvedPrincipal]                   | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.DefaultGroupManager]             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.Group]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.GroupDatabase]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.GroupManager]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.JDBCGroupDatabase]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.Role]                            | ![Compatible]       | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.authorize.WebAuthorizer]                   | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Modified     | [org.apache.wiki.auth.authorize.WebContainerAuthorizer]          | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.authorize.WebContainerAuthorizer$LocalEntityResolver] | ![Not serializable] | ![No changes] |
-| Unchanged    | [org.apache.wiki.auth.authorize.XMLGroupDatabase]                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.AbstractLoginModule]                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.AnonymousLoginModule]                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.AuthorizerCallback]                  | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable] | ![Annotation deprecated added] ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.auth.login.CookieAuthenticationLoginModule]     | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.auth.login.HttpRequestCallback]                 | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.login.PrincipalWrapper]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseCallback]                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseLoginModule]             | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.WebContainerCallbackHandler]         | ![Not serializable] | ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.auth.login.WebContainerLoginModule]             | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.WikiCallbackHandler]                 | ![Not serializable] | ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.auth.login.WikiEngineCallback]                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.AllPermission]                 | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.AllPermissionCollection]       | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.GroupPermission]               | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.PagePermission]                | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.PermissionFactory]             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.WikiPermission]                | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.AbstractUserDatabase]                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.DefaultUserProfile]                   | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.DummyUserDatabase]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.DuplicateUserException]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.JDBCUserDatabase]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.UserProfile]                          | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.ContextualDiffProvider]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DefaultDifferenceManager]                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DiffProvider]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DiffProvider$NullDiffProvider]             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DifferenceManager]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.ExternalDiffProvider]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.TraditionalDiffProvider]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.CreoleFilter]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.DefaultFilterManager]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.FilterManager]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.PageEventFilter]                        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.PingWeblogsComFilter]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.ProfanityFilter]                        | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.filters.SpamFilter]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.forms.FormClose]                                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormElement]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormHandler]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormInfo]                                 | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormInput]                                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormOpen]                                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormOutput]                               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormSelect]                               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormSet]                                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormTextarea]                             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.i18n.DefaultInternationalizationManager]        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.i18n.InternationalizationManager]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.management.SimpleMBean]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.BaseModuleManager]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageManager]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageSorter]                               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageTimeComparator]                       | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.CreoleToJSPWikiTranslator]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.Heading]                                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.HeadingListener]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.JSPWikiMarkupParser]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParser]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParser$Link]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParsingOperations]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.MarkupParser]                            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.ParseException]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.PluginContent]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.VariableContent]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.WikiDocument]                            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.AbstractReferralPlugin]                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.BugReportHandler]                        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.Counter]                                 | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.CurrentTimePlugin]                       | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.DefaultPluginManager]                    | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo]     | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.Denounce]                                | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Groups]                                  | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.IfPlugin]                                | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.PageViewPlugin$PageViewManager]          | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.PluginManager]                           | ![Not serializable] | ![Method added to interface] |
-| Modified     | [org.apache.wiki.plugin.RecentChangesPlugin]                     | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Search]                                  | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.SessionsPlugin]                          | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.UndefinedPagesPlugin]                    | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.UnusedPagesPlugin]                       | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.WeblogArchivePlugin]                     | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.WeblogEntryPlugin]                       | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable] | ![Method added to public class] |
-| Modified     | [org.apache.wiki.preferences.Preferences]                        | ![Compatible]       | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.preferences.Preferences$TimeFormat]             | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider$WikiFileFilter]  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider]              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentFilter] | ![Not serializable] | ![No changes]     |
-| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentVersionFilter] | ![Not serializable] | ![No changes] |
-| Unchanged    | [org.apache.wiki.providers.CachingAttachmentProvider]            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.CachingProvider]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.FastSearch]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.FileSystemProvider]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.NoSuchVersionException]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.RepositoryModifiedException]          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.VersioningFileProvider]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.VersioningProvider]                   | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.references.DefaultReferenceManager]             | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.references.ReferenceManager]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.CleanTextRenderer]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.CreoleRenderer]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.CustomXMLOutputProcessor]                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.DefaultRenderingManager]                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.RenderingManager]                        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.WikiRenderer]                            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.WysiwygEditingRenderer]                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.XHTMLRenderer]                           | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.rpc.atom.AtomAPIServlet]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Incompatible | [org.apache.wiki.rss.AtomFeed]                                   | ![Not serializable] | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.rss.DefaultRSSGenerator]                        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.rss.Entry]                                      | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.rss.Feed]                                       | ![Not serializable] | ![Method removed]     |
-| Incompatible | [org.apache.wiki.rss.RSS10Feed]                                  | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.rss.RSS20Feed]                                  | ![Not serializable] | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.rss.RSSGenerator]                               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.rss.RSSThread]                                  | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.BasicSearchProvider]                     | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.DefaultSearchManager]                    | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable] | ![Method added to public class] |
-| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch]       | ![Not serializable] | ![Interface added] ![Method added to public class] |
-| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData] | ![Not serializable] | ![No changes] |
-| Unchanged    | [org.apache.wiki.search.LuceneSearchProvider]                    | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.QueryItem]                               | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.search.SearchManager]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchMatcher]                           | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchMatcher$SearchResultImpl]          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchProvider]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchResult]                            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchResultComparator]                  | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.spi.AclsSPIDefaultImpl]                         | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.spi.ContentsSPIDefaultImpl]                     | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.spi.ContextSPIDefaultImpl]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.spi.EngineSPIDefaultImpl]                       | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.spi.SessionSPIDefaultImpl]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.tags.AdminBeanIteratorInfo]                     | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.AdminBeanIteratorTag]                      | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.tags.AttachmentsIteratorInfo]                   | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.AttachmentsIteratorTag]                    | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.AuthorTag]                                 | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.BaseURLTag]                                | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.BreadcrumbsTag]                            | ![Not serializable] | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.BreadcrumbsTag$FixedQueue]                 | ![Compatible]       | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.CalendarTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.CheckLockInfo]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Incompatible | [org.apache.wiki.tags.CheckLockTag]                              | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.CheckRequestContextTag]                    | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.CheckVersionTag]                           | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.CommentLinkTag]                            | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.ContentEncodingTag]                        | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.ContentTag]                                | ![Not serializable] | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.CookieTag]                                 | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.CsrfProtectionTag]                         | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.DiffLinkTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.EditLinkTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.EditorIteratorInfo]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.EditorIteratorTag]                         | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.tags.EditorTag]                                 | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.FeedDiscoveryTag]                          | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.HasAttachmentsTag]                         | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.HistoryIteratorInfo]                       | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.HistoryIteratorTag]                        | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.IfNoSearchResultsTag]                      | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.IncludeResourcesTag]                       | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.IncludeTag]                                | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.InsertDiffTag]                             | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.InsertPageTag]                             | ![Not serializable] | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.IteratorTag]                               | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.tags.LinkTag]                                   | ![Not serializable] | ![Method removed] ![Method removed in superclass] ![Method added to public class] |
-| Incompatible | [org.apache.wiki.tags.LinkToParentTag]                           | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.LinkToTag]                                 | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.MessagesTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.NextVersionTag]                            | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.NoSuchPageTag]                             | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageDateTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageExistsTag]                             | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageInfoLinkTag]                           | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageNameTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageSizeTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageTypeTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageVersionTag]                            | ![Not serializable] | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.ParamHandler]                              | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tags.ParamTag]                                  | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.ParentPageNameTag]                         | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PermissionTag]                             | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.PluginTag]                                 | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.PreviousVersionTag]                        | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.RSSImageLinkTag]                           | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.RequestResourceTag]                        | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.SearchResultIteratorInfo]                  | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.SearchResultIteratorTag]                   | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.SearchResultsSizeTag]                      | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.SearchResultsTag]                          | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.SetPaginationTag]                          | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.SpamFilterInputsTag]                       | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.TabTag]                                    | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.TabbedSectionTag]                          | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.TemplateDirTag]                            | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.TranslateTag]                              | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.UploadLinkTag]                             | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.UserCheckTag]                              | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.UserNameTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.UserProfileTag]                            | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.VariableTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.WikiBodyTag]                               | ![Not serializable] | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.WikiLinkTag]                               | ![Not serializable] | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.WikiTagBase]                               | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tasks.DefaultTasksManager]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.TasksManager]                             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.auth.SaveUserProfileTask]                 | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.pages.PreSaveWikiPageTask]                | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.pages.SaveWikiPageTask]                   | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.AbstractCommand]                             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.AllCommands]                                 | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.CommandResolver]                             | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Modified     | [org.apache.wiki.ui.DefaultCommandResolver]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.DefaultEditorManager]                        | ![Not serializable] | ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.ui.DefaultTemplateManager]                      | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
-| Unchanged    | [org.apache.wiki.ui.Editor]                                      | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.EditorManager]                               | ![Not serializable] | ![Method removed] ![Method new static added to interface] |
-| Unchanged    | [org.apache.wiki.ui.GenericHTTPHandler]                          | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.GroupCommand]                                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.InputValidator]                              | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.Installer]                                   | ![Not serializable] | ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.ui.PageCommand]                                 | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.RedirectCommand]                             | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.TemplateManager]                             | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
-| Unchanged    | [org.apache.wiki.ui.WikiCommand]                                 | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.WikiJSPFilter]                               | ![Not serializable] | ![Method removed in superclass] ![Method added to public class] |
-| Modified     | [org.apache.wiki.ui.WikiRequestWrapper]                          | ![Not serializable] | ![Constructor removed] |
-| Modified     | [org.apache.wiki.ui.WikiServletFilter]                           | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.admin.AdminBean]                             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.AdminBeanManager]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.DefaultAdminBeanManager]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.SimpleAdminBean]                       | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.admin.WikiFormAdminBean]                     | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.CoreBean]                        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.FilterBean]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.ModuleBean]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.PlainEditorAdminBean]            | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.PluginBean]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.SearchManagerBean]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.UserBean]                        | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.progress.DefaultProgressManager]             | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.progress.DefaultProgressManager$JSONTracker] | ![Not serializable] | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.progress.ProgressItem]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.progress.ProgressManager]                    | ![Not serializable] | ![No changes]         |
-| Modified     | [org.apache.wiki.url.DefaultURLConstructor]                      | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.url.ShortURLConstructor]                        | ![Not serializable] | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.url.ShortViewURLConstructor]                    | ![Not serializable] | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.url.URLConstructor]                             | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new static added to interface] |
-| Unchanged    | [org.apache.wiki.variables.DefaultVariableManager]               | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.variables.VariableManager]                      | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.AbstractStep]                          | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Decision]                              | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.DecisionQueue]                         | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.DecisionRequiredException]             | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.DefaultWorkflowManager]                | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Fact]                                  | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.NoSuchOutcomeException]                | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Outcome]                               | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.SimpleDecision]                        | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.SimpleNotification]                    | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Step]                                  | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.SystemPrincipal]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Task]                                  | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Workflow]                              | ![Compatible]       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.WorkflowBuilder]                       | ![Not serializable] | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.WorkflowManager]                       | ![Not serializable] | ![No changes]         |
-| Removed      | [org.apache.wiki.xmlrpc.AbstractRPCHandler]                      | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.MetaWeblogHandler]                       | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.RPCHandler]                              | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.RPCHandlerUTF8]                          | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.RPCServlet]                              | ![Not serializable] | ![Class removed] ![Method removed] ![Field removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.WikiRPCHandler]                          | ![Not serializable] | ![Class removed] ![Superclass removed] ![Method removed] |
+| Status       | Type                                                             | Serialization                       | Compatibility Changes |
+|--------------|------------------------------------------------------------------|-------------------------------------|-----------------------|
+| Unchanged    | [org.apache.wiki.InternalWikiException]                          | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.LinkCollector]                                  | ![Not serializable]                 | ![No changes]         |
+| Added        | [org.apache.wiki.ProductUpdateChecker]                           | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.ProductUpdateChecker$Status]                    | ![Compatible]                       | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.ProductUpdateChecker$UpdateStatus]              | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.StringTransmutator]                             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.TranslationsCheck]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.WatchDog]                                       | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.Watchable]                                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.WikiBackgroundThread]                           | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.WikiContext]                                    | ![Not serializable]                 | ![Annotation deprecated added] ![Annotation removed] ![Method removed] ![Method return type changed] ![Method added to public class] ![Field type changed] ![Constructor removed] |
+| Modified     | [org.apache.wiki.WikiEngine]                                     | ![Not serializable]                 | ![Method removed] ![Method return type changed] ![Method added to public class] ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.WikiPage]                                       | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.WikiServlet]                                    | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.WikiSession]                                    | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.ajax.AjaxUtil]                                  | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ajax.WikiAjaxDispatcherServlet]                 | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.ajax.WikiAjaxServlet]                           | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
+| Unchanged    | [org.apache.wiki.attachment.Attachment]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.attachment.AttachmentManager]                   | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.attachment.AttachmentServlet]                   | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
+| Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
+| Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.auth.DefaultAuthorizationManager]               | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.auth.DefaultUserManager]                        | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable]                 | ![No changes]         |
+| Added        | [org.apache.wiki.auth.PasswordComplexityVerifier]                | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.auth.SecurityVerificationUtility]               | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.WikiPrincipal]                             | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.WikiSecurityException]                     | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.Acl]                                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclEntry]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclEntryImpl]                          | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclImpl]                               | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclManager]                            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.DefaultAclManager]                     | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.UnresolvedPrincipal]                   | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.DefaultGroupManager]             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.Group]                           | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.GroupDatabase]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.GroupManager]                    | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.JDBCGroupDatabase]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.Role]                            | ![Compatible]                       | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.authorize.WebAuthorizer]                   | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
+| Modified     | [org.apache.wiki.auth.authorize.WebContainerAuthorizer]          | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.authorize.WebContainerAuthorizer$LocalEntityResolver] | ![Not serializable]      | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.XMLGroupDatabase]                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.AbstractLoginModule]                 | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.AnonymousLoginModule]                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.AuthorizerCallback]                  | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable]                 | ![Annotation deprecated added] ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.login.CookieAuthenticationLoginModule]     | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.login.HttpRequestCallback]                 | ![Not serializable]                 | ![Method removed] ![Method return type changed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.login.PrincipalWrapper]                    | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseCallback]                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseLoginModule]             | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.login.WebContainerCallbackHandler]         | ![Not serializable]                 | ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.auth.login.WebContainerLoginModule]             | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.login.WikiCallbackHandler]                 | ![Not serializable]                 | ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.auth.login.WikiEngineCallback]                  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.AllPermission]                 | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.AllPermissionCollection]       | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.GroupPermission]               | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.PagePermission]                | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.PermissionFactory]             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.WikiPermission]                | ![Compatible]                       | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.user.AbstractUserDatabase]                 | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.user.DefaultUserProfile]                   | ![Compatible]                       | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.user.DummyUserDatabase]                    | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.DuplicateUserException]               | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.user.JDBCUserDatabase]                     | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable]                 | ![Method added to interface] |
+| Modified     | [org.apache.wiki.auth.user.UserProfile]                          | ![Default serialversionuid changed] | ![Method new default] |
+| Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
+| Removed      | [org.apache.wiki.diff.ContextualDiffProvider]                    | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.diff.DefaultDifferenceManager]                  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DiffProvider]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DiffProvider$NullDiffProvider]             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DifferenceManager]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.ExternalDiffProvider]                      | ![Not serializable]                 | ![No changes]         |
+| Added        | [org.apache.wiki.diff.SvnStyleDiffProvider]                      | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
+| Removed      | [org.apache.wiki.diff.TraditionalDiffProvider]                   | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.filters.CreoleFilter]                           | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.DefaultFilterManager]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.FilterManager]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.PageEventFilter]                        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.PingWeblogsComFilter]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.ProfanityFilter]                        | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.filters.SpamFilter]                             | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.forms.FormClose]                                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormElement]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormHandler]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormInfo]                                 | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormInput]                                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormOpen]                                 | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormOutput]                               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormSelect]                               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormSet]                                  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormTextarea]                             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.i18n.DefaultInternationalizationManager]        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.i18n.InternationalizationManager]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.management.SimpleMBean]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.BaseModuleManager]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageManager]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageSorter]                               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageTimeComparator]                       | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.CreoleToJSPWikiTranslator]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.Heading]                                 | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.HeadingListener]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.JSPWikiMarkupParser]                     | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.LinkParser]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.LinkParser$Link]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.LinkParsingOperations]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.MarkupParser]                            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.ParseException]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.PluginContent]                           | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.VariableContent]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.WikiDocument]                            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.plugin.AbstractReferralPlugin]                  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.plugin.BugReportHandler]                        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.plugin.Counter]                                 | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.CurrentTimePlugin]                       | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.DefaultPluginManager]                    | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo]     | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.Denounce]                                | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Groups]                                  | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.IfPlugin]                                | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.plugin.PageViewPlugin$PageViewManager]          | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.PluginManager]                           | ![Not serializable]                 | ![Method added to interface] |
+| Modified     | [org.apache.wiki.plugin.RecentChangesPlugin]                     | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Search]                                  | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.plugin.SessionsPlugin]                          | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.UndefinedPagesPlugin]                    | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.UnusedPagesPlugin]                       | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogArchivePlugin]                     | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogEntryPlugin]                       | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.preferences.Preferences]                        | ![Compatible]                       | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.preferences.Preferences$TimeFormat]             | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider$WikiFileFilter]  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider]              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentFilter] | ![Not serializable]             | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentVersionFilter] | ![Not serializable]      | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.CachingAttachmentProvider]            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.CachingProvider]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.FastSearch]                           | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.FileSystemProvider]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.NoSuchVersionException]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.RepositoryModifiedException]          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.VersioningFileProvider]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.VersioningProvider]                   | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.references.DefaultReferenceManager]             | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.references.ReferenceManager]                    | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.CleanTextRenderer]                       | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.CreoleRenderer]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.CustomXMLOutputProcessor]                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.DefaultRenderingManager]                 | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.RenderingManager]                        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.WikiRenderer]                            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.WysiwygEditingRenderer]                  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.XHTMLRenderer]                           | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.rpc.atom.AtomAPIServlet]                        | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Incompatible | [org.apache.wiki.rss.AtomFeed]                                   | ![Not serializable]                 | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.rss.DefaultRSSGenerator]                        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.rss.Entry]                                      | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.rss.Feed]                                       | ![Not serializable]                 | ![Method removed]     |
+| Incompatible | [org.apache.wiki.rss.RSS10Feed]                                  | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.rss.RSS20Feed]                                  | ![Not serializable]                 | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.rss.RSSGenerator]                               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.rss.RSSThread]                                  | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.BasicSearchProvider]                     | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.DefaultSearchManager]                    | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch]       | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData] | ![Not serializable]        | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.LuceneSearchProvider]                    | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.QueryItem]                               | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.search.SearchManager]                           | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchMatcher]                           | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchMatcher$SearchResultImpl]          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchProvider]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchResult]                            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchResultComparator]                  | ![Compatible]                       | ![No changes]         |
+| Added        | [org.apache.wiki.security.AuditLogger]                           | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.security.EventUtil]                             | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.spi.AclsSPIDefaultImpl]                         | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.spi.ContentsSPIDefaultImpl]                     | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.spi.ContextSPIDefaultImpl]                      | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.spi.EngineSPIDefaultImpl]                       | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.spi.SessionSPIDefaultImpl]                      | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.tags.AdminBeanIteratorInfo]                     | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.AdminBeanIteratorTag]                      | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.tags.AttachmentsIteratorInfo]                   | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.AttachmentsIteratorTag]                    | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.AuthorTag]                                 | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.BaseURLTag]                                | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.BreadcrumbsTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.BreadcrumbsTag$FixedQueue]                 | ![Compatible]                       | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.CalendarTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.CheckLockInfo]                             | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Incompatible | [org.apache.wiki.tags.CheckLockTag]                              | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.CheckRequestContextTag]                    | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.CheckVersionTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.CommentLinkTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.ContentEncodingTag]                        | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.ContentTag]                                | ![Not serializable]                 | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.CookieTag]                                 | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.CsrfProtectionTag]                         | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.DiffLinkTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.EditLinkTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.EditorIteratorInfo]                        | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.EditorIteratorTag]                         | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.tags.EditorTag]                                 | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.FeedDiscoveryTag]                          | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.HasAttachmentsTag]                         | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.HistoryIteratorInfo]                       | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.HistoryIteratorTag]                        | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.IfNoSearchResultsTag]                      | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.IncludeResourcesTag]                       | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.IncludeTag]                                | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.InsertDiffTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.InsertPageTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.IteratorTag]                               | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.tags.LinkTag]                                   | ![Not serializable]                 | ![Method removed] ![Method removed in superclass] ![Method added to public class] |
+| Incompatible | [org.apache.wiki.tags.LinkToParentTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.LinkToTag]                                 | ![Not serializable]                 | ![Method removed in superclass] |
+| Added        | [org.apache.wiki.tags.MaxUploadTag]                              | ![Not serializable]                 | ![Method added to public class] |
+| Incompatible | [org.apache.wiki.tags.MessagesTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.NextVersionTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.NoSuchPageTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageDateTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageExistsTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageInfoLinkTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageNameTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageSizeTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageTypeTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageVersionTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.ParamHandler]                              | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tags.ParamTag]                                  | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.ParentPageNameTag]                         | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PermissionTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.PluginTag]                                 | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.PreviousVersionTag]                        | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.RSSImageLinkTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.RequestResourceTag]                        | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.SearchResultIteratorInfo]                  | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.SearchResultIteratorTag]                   | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.SearchResultsSizeTag]                      | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.SearchResultsTag]                          | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.SetPaginationTag]                          | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.SpamFilterInputsTag]                       | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.TabTag]                                    | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.TabbedSectionTag]                          | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.TemplateDirTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.TranslateTag]                              | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.UploadLinkTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.UserCheckTag]                              | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.UserNameTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.UserProfileTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.VariableTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.WikiBodyTag]                               | ![Not serializable]                 | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.WikiLinkTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.WikiTagBase]                               | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tasks.DefaultTasksManager]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.TasksManager]                             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.auth.SaveUserProfileTask]                 | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.pages.PreSaveWikiPageTask]                | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.pages.SaveWikiPageTask]                   | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.AbstractCommand]                             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.AllCommands]                                 | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.CommandResolver]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
+| Modified     | [org.apache.wiki.ui.DefaultCommandResolver]                      | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.DefaultEditorManager]                        | ![Not serializable]                 | ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.ui.DefaultTemplateManager]                      | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
+| Unchanged    | [org.apache.wiki.ui.Editor]                                      | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.EditorManager]                               | ![Not serializable]                 | ![Method removed] ![Method new static added to interface] |
+| Unchanged    | [org.apache.wiki.ui.GenericHTTPHandler]                          | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.GroupCommand]                                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.InputValidator]                              | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.Installer]                                   | ![Not serializable]                 | ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.ui.PageCommand]                                 | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.RedirectCommand]                             | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.TemplateManager]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
+| Unchanged    | [org.apache.wiki.ui.WikiCommand]                                 | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.WikiJSPFilter]                               | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] |
+| Modified     | [org.apache.wiki.ui.WikiRequestWrapper]                          | ![Not serializable]                 | ![Constructor removed] |
+| Modified     | [org.apache.wiki.ui.WikiServletFilter]                           | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.admin.AdminBean]                             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.AdminBeanManager]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.DefaultAdminBeanManager]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.SimpleAdminBean]                       | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.admin.WikiFormAdminBean]                     | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.CoreBean]                        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.FilterBean]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.ModuleBean]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.PlainEditorAdminBean]            | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.PluginBean]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.SearchManagerBean]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.UserBean]                        | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.progress.DefaultProgressManager]             | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.progress.DefaultProgressManager$JSONTracker] | ![Not serializable]                 | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.progress.ProgressItem]                       | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.progress.ProgressManager]                    | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.url.DefaultURLConstructor]                      | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.url.ShortURLConstructor]                        | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.url.ShortViewURLConstructor]                    | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.url.URLConstructor]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new static added to interface] |
+| Unchanged    | [org.apache.wiki.variables.DefaultVariableManager]               | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.variables.VariableManager]                      | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.AbstractStep]                          | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Decision]                              | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.DecisionQueue]                         | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.DecisionRequiredException]             | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.DefaultWorkflowManager]                | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Fact]                                  | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.NoSuchOutcomeException]                | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Outcome]                               | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.SimpleDecision]                        | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.SimpleNotification]                    | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Step]                                  | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.SystemPrincipal]                       | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Task]                                  | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Workflow]                              | ![Compatible]                       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.WorkflowBuilder]                       | ![Not serializable]                 | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.WorkflowManager]                       | ![Not serializable]                 | ![No changes]         |
+| Removed      | [org.apache.wiki.xmlrpc.AbstractRPCHandler]                      | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.MetaWeblogHandler]                       | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.RPCHandler]                              | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.RPCHandlerUTF8]                          | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.RPCServlet]                              | ![Not serializable]                 | ![Class removed] ![Method removed] ![Field removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.WikiRPCHandler]                          | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Method removed] |
 
 <details markdown="1">
 <summary>Expand for details.</summary>
@@ -473,6 +481,106 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.productupdatechecker"></a>
+### `org.apache.wiki.ProductUpdateChecker`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                       | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|----------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`ProductUpdateChecker`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![Interface added]    |
+
+
+#### Implemented Interfaces
+
+| Status | Interface        | Compatibility Changes |
+|--------|------------------|-----------------------|
+| Added  | **[`Runnable`]** | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                         | Method                           | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|------------------------------|----------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`ProductUpdateChecker`]** | **`getInstance`**()              |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **[`UpdateStatus`]**         | **`getUpdateStatus`**()          |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **`void`**                   | **`initialize`**([`Properties`]) |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **`void`**                   | **`run`**()                      |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **`void`**                   | **`shutdown`**()                 |             |        | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.productupdatechecker$status"></a>
+### `org.apache.wiki.ProductUpdateChecker$Status`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                             | Type     | Name         | Extends         | JDK        | Serialization | Compatibility Changes |
+|--------|---------------------------------------|----------|--------------|-----------------|------------|---------------|-----------------------|
+| Added  | **`final`** **`static`** **`public`** | **Enum** | **`Status`** | **[`Enum<E>`]** | **JDK 17** | ![Compatible] | ![Interface added]    |
+
+
+#### Implemented Interfaces
+
+| Status | Interface             | Compatibility Changes |
+|--------|-----------------------|-----------------------|
+| Added  | **[`Serializable`]**  | ![No changes]         |
+| Added  | **[`Comparable<T>`]** | ![No changes]         |
+| Added  | **[`Constable`]**     | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                | Method                    | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|---------------------|---------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`Status`]**      | **`valueOf`**([`String`]) |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`Status[]`][1]** | **`values`**()            |             |        | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name               | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|--------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`Status`]** | `UNKNOWN`          |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`Status`]** | `UPDATE_AVAILABLE` |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`Status`]** | `UP_TO_DATE`       |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.productupdatechecker$updatestatus"></a>
+### `org.apache.wiki.ProductUpdateChecker$UpdateStatus`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                 | Type      | Name               | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|---------------------------|-----------|--------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`static`** **`public`** | **Class** | **`UpdateStatus`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor          | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|----------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`UpdateStatus`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type           | Method                               | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|----------------|--------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **[`Status`]** | **`getIsUpToDate`**()                |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`long`**     | **`getLastestVersionReleaseDate`**() |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]** | **`getLatestVersion`**()             |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`long`**     | **`getTimeStampOfLastCheck`**()      |             |        | ![Method added to public class] |
+
+___
+
 <a id="user-content-org.apache.wiki.stringtransmutator"></a>
 ### `org.apache.wiki.StringTransmutator`
 
@@ -518,7 +626,7 @@ ___
 |-----------|-------------------|----------|--------------------------|--------------------------------|-------------|-----------------|-----------------------|
 | Unchanged | `public`          |          | `int`                    | `detectDuplicates`([`String`]) |             | [`IOException`] | ![No changes]         |
 | Unchanged | `public`          |          | [`Map<String, Integer>`] | `diff`([`String`], [`String`]) |             | [`IOException`] | ![No changes]         |
-| Unchanged | `static` `public` |          | `void`                   | `main`([`String[]`][1])        |             | [`IOException`] | ![No changes]         |
+| Unchanged | `static` `public` |          | `void`                   | `main`([`String[]`][2])        |             | [`IOException`] | ![No changes]         |
 
 ___
 
@@ -634,9 +742,9 @@ ___
 | Unchanged | `public`     |          | `WikiContext`([`Engine`], [`Page`])                             |             |                                  | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`WikiContext`~~([`Engine`], [`HttpServletRequest`], [`Page`]) |             |                                  | ![Constructor removed] |
 | Removed   | ~~`public`~~ |          | ~~`WikiContext`~~([`Engine`], [`HttpServletRequest`], [`String`]) |           |                                  | ![Constructor removed] |
-| Added     | **`public`** |          | **`WikiContext`**([`Engine`], [`HttpServletRequest`][2], [`String`]) |        |                                  | ![No changes]         |
-| Added     | **`public`** |          | **`WikiContext`**([`Engine`], [`HttpServletRequest`][2], [`Command`]) |       | **[`IllegalArgumentException`]** | ![No changes]         |
-| Added     | **`public`** |          | **`WikiContext`**([`Engine`], [`HttpServletRequest`][2], [`Page`]) |          |                                  | ![No changes]         |
+| Added     | **`public`** |          | **`WikiContext`**([`Engine`], [`HttpServletRequest`][3], [`String`]) |        |                                  | ![No changes]         |
+| Added     | **`public`** |          | **`WikiContext`**([`Engine`], [`HttpServletRequest`][3], [`Command`]) |       | **[`IllegalArgumentException`]** | ![No changes]         |
+| Added     | **`public`** |          | **`WikiContext`**([`Engine`], [`HttpServletRequest`][3], [`Page`]) |          |                                  | ![No changes]         |
 
 
 #### Methods
@@ -646,16 +754,16 @@ ___
 | Unchanged | `public`                     |                          | [`WikiContext`]                                                 | `clone`()                                                       |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`WikiContext`]                                                 | `deepClone`()                                                   |                    |        | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`protected`~~ |                          | ~~[`Command`]~~                                                 | ~~`findCommand`~~([`Engine`], [`HttpServletRequest`], [`Page`]) |                    |        | ![Method removed]     |
-| Added     | **`static`** **`protected`** |                          | **[`Command`]**                                                 | **`findCommand`**([`Engine`], [`HttpServletRequest`][2], [`Page`]) |                 |        | ![No changes]         |
+| Added     | **`static`** **`protected`** |                          | **[`Command`]**                                                 | **`findCommand`**([`Engine`], [`HttpServletRequest`][3], [`Page`]) |                 |        | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~    |                          | ~~[`WikiContext`]~~                                             | ~~`findContext`~~([`PageContext`])                              | ~~[`Deprecated`]~~ |        | ![Method removed] ![Annotation removed] |
-| Added     | **`static`** **`public`**    |                          | **[`WikiContext`]**                                             | **`findContext`**([`PageContext`][3])                           | **[`Deprecated`]** |        | ![Method added to public class] ![Annotation deprecated added] |
+| Added     | **`static`** **`public`**    |                          | **[`WikiContext`]**                                             | **`findContext`**([`PageContext`][4])                           | **[`Deprecated`]** |        | ![Method added to public class] ![Annotation deprecated added] |
 | Unchanged | `public`                     |                          | `boolean`                                                       | `getBooleanWikiProperty`([`String`], `boolean`)                 |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`Command`]                                                     | `getCommand`()                                                  |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`String`]                                                      | `getContentTemplate`()                                          |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`Principal`]                                                   | `getCurrentUser`()                                              |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`WikiEngine`]                                                  | `getEngine`()                                                   |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`String`]                                                      | `getHttpParameter`([`String`])                                  |                    |        | ![No changes]         |
-| Modified  | `public`                     |                          | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][2]** | `getHttpRequest`()                                              |                    |        | ![Method return type changed] |
+| Modified  | `public`                     |                          | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][3]** | `getHttpRequest`()                                              |                    |        | ![Method return type changed] |
 | Unchanged | `public`                     |                          | [`String`]                                                      | `getJSP`()                                                      |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`String`]                                                      | `getName`()                                                     |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`WikiPage`]                                                    | `getPage`()                                                     |                    |        | ![No changes]         |
@@ -673,7 +781,7 @@ ___
 | Unchanged | `public`                     |                          | `boolean`                                                       | `hasAdminPermissions`()                                         |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`Permission`]                                                  | `requiredPermission`()                                          |                    |        | ![No changes]         |
 | Removed   | ~~`protected`~~              |                          | ~~`void`~~                                                      | ~~`setDefaultTemplate`~~([`HttpServletRequest`])                |                    |        | ![Method removed]     |
-| Added     | **`protected`**              |                          | **`void`**                                                      | **`setDefaultTemplate`**([`HttpServletRequest`][2])             |                    |        | ![No changes]         |
+| Added     | **`protected`**              |                          | **`void`**                                                      | **`setDefaultTemplate`**([`HttpServletRequest`][3])             |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | `void`                                                          | `setPage`([`Page`])                                             |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | [`WikiPage`]                                                    | `setRealPage`([`Page`])                                         |                    |        | ![No changes]         |
 | Unchanged | `public`                     |                          | `void`                                                          | `setRequestContext`([`String`])                                 |                    |        | ![No changes]         |
@@ -714,7 +822,7 @@ ___
 | Unchanged | `public` `static` `final` | [`String`]                                                      | `VIEW`         |             | ![No changes]         |
 | Unchanged | `public` `static` `final` | [`String`]                                                      | `VIEW_GROUP`   |             | ![No changes]         |
 | Unchanged | `public` `static` `final` | [`String`]                                                      | `WORKFLOW`     |             | ![No changes]         |
-| Modified  | `protected`               | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][2]** | `m_request`    |             | ![Field type changed] |
+| Modified  | `protected`               | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][3]** | `m_request`    |             | ![Field type changed] |
 
 ___
 
@@ -736,7 +844,7 @@ ___
 |-----------|-----------------|----------|-----------------------------------------------------|-------------|-----------------------|-----------------------|
 | Removed   | ~~`protected`~~ |          | ~~`WikiEngine`~~([`ServletContext`], [`String`])    |             | ~~[`WikiException`]~~ | ![Constructor removed] |
 | Unchanged | `public`        |          | `WikiEngine`([`Properties`])                        |             | [`WikiException`]     | ![No changes]         |
-| Added     | **`protected`** |          | **`WikiEngine`**([`ServletContext`][4], [`String`]) |             | **[`WikiException`]** | ![No changes]         |
+| Added     | **`protected`** |          | **`WikiEngine`**([`ServletContext`][5], [`String`]) |             | **[`WikiException`]** | ![No changes]         |
 
 
 #### Methods
@@ -770,9 +878,9 @@ ___
 | Removed   | ~~`static`~~ ~~`public`~~ |                          | ~~[`WikiEngine`]~~                                      | ~~`getInstance`~~([`ServletConfig`])                     |                | ~~[`InternalWikiException`]~~ | ![Method removed]     |
 | Removed   | ~~`static`~~ ~~`public`~~ |                          | ~~[`WikiEngine`]~~                                      | ~~`getInstance`~~([`ServletConfig`], [`Properties`])     |                |                               | ![Method removed]     |
 | Removed   | ~~`static`~~ ~~`public`~~ |                          | ~~[`WikiEngine`]~~                                      | ~~`getInstance`~~([`ServletContext`], [`Properties`])    |                | ~~[`InternalWikiException`]~~ | ![Method removed]     |
-| Added     | **`static`** **`public`** |                          | **[`WikiEngine`]**                                      | **`getInstance`**([`ServletConfig`][5])                  |                | **[`InternalWikiException`]** | ![Method added to public class] |
-| Added     | **`static`** **`public`** |                          | **[`WikiEngine`]**                                      | **`getInstance`**([`ServletConfig`][5], [`Properties`])  |                |                               | ![Method added to public class] |
-| Added     | **`static`** **`public`** |                          | **[`WikiEngine`]**                                      | **`getInstance`**([`ServletContext`][4], [`Properties`]) |                | **[`InternalWikiException`]** | ![Method added to public class] |
+| Added     | **`static`** **`public`** |                          | **[`WikiEngine`]**                                      | **`getInstance`**([`ServletConfig`][6])                  |                | **[`InternalWikiException`]** | ![Method added to public class] |
+| Added     | **`static`** **`public`** |                          | **[`WikiEngine`]**                                      | **`getInstance`**([`ServletConfig`][6], [`Properties`])  |                |                               | ![Method added to public class] |
+| Added     | **`static`** **`public`** |                          | **[`WikiEngine`]**                                      | **`getInstance`**([`ServletContext`][5], [`Properties`]) |                | **[`InternalWikiException`]** | ![Method added to public class] |
 | Unchanged | `public`                  |                          | [`String`]                                              | `getInterWikiURL`([`String`])                            |                |                               | ![No changes]         |
 | Unchanged | `public`                  |                          | [`InternationalizationManager`]                         | `getInternationalizationManager`()                       | [`Deprecated`] |                               | ![No changes]         |
 | Unchanged | `public`                  | \<[`T extends Object`]\> | [`Object`]                                              | `getManager`([`Class<T>`])                               |                |                               | ![No changes]         |
@@ -786,7 +894,7 @@ ___
 | Unchanged | `public`                  |                          | [`RenderingManager`]                                    | `getRenderingManager`()                                  | [`Deprecated`] |                               | ![No changes]         |
 | Unchanged | `public`                  |                          | [`String`]                                              | `getRootPath`()                                          |                |                               | ![No changes]         |
 | Unchanged | `public`                  |                          | [`SearchManager`]                                       | `getSearchManager`()                                     | [`Deprecated`] |                               | ![No changes]         |
-| Modified  | `public`                  |                          | ~~[`ServletContext`]~~ &rarr; **[`ServletContext`][4]** | `getServletContext`()                                    |                |                               | ![Method return type changed] |
+| Modified  | `public`                  |                          | ~~[`ServletContext`]~~ &rarr; **[`ServletContext`][5]** | `getServletContext`()                                    |                |                               | ![Method return type changed] |
 | Unchanged | `public`                  |                          | [`String`]                                              | `getSpecialPageReference`([`String`])                    |                |                               | ![No changes]         |
 | Unchanged | `public`                  |                          | [`Date`]                                                | `getStartTime`()                                         |                |                               | ![No changes]         |
 | Unchanged | `public`                  |                          | [`TasksManager`]                                        | `getTasksManager`()                                      | [`Deprecated`] |                               | ![No changes]         |
@@ -857,7 +965,7 @@ ___
 | Unchanged | `public`  |                          | `void`                  | `invalidateMetadata`()                 |                |        | ![No changes]         |
 | Unchanged | `public`  | \<[`T extends Object`]\> | [`Object`]              | `removeAttribute`([`String`])          |                |        | ![No changes]         |
 | Unchanged | `public`  |                          | `void`                  | `setAcl`([`Acl`])                      | [`Deprecated`] |        | ![No changes]         |
-| Unchanged | `public`  |                          | `void`                  | `setAcl`([`Acl`][6])                   |                |        | ![No changes]         |
+| Unchanged | `public`  |                          | `void`                  | `setAcl`([`Acl`][7])                   |                |        | ![No changes]         |
 | Unchanged | `public`  |                          | `void`                  | `setAttribute`([`String`], [`Object`]) |                |        | ![No changes]         |
 | Unchanged | `public`  |                          | `void`                  | `setAuthor`([`String`])                |                |        | ![No changes]         |
 | Unchanged | `public`  |                          | `void`                  | `setHasMetadata`()                     |                |        | ![No changes]         |
@@ -893,11 +1001,11 @@ ___
 |-----------|--------------|----------|------------|---------------------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
 | Unchanged | `public`     |          | `void`     | `destroy`()                                                   |             |                                                  | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`doGet`~~([`HttpServletRequest`], [`HttpServletResponse`])  |             | ~~[`IOException`]~~, ~~[`ServletException`]~~    | ![Method removed]     |
-| Added     | **`public`** |          | **`void`** | **`doGet`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |        | **[`IOException`]**, **[`ServletException`][8]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`** | **`doGet`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |        | **[`IOException`]**, **[`ServletException`][9]** | ![Method added to public class] |
 | Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`doPost`~~([`HttpServletRequest`], [`HttpServletResponse`]) |             | ~~[`IOException`]~~, ~~[`ServletException`]~~    | ![Method removed]     |
-| Added     | **`public`** |          | **`void`** | **`doPost`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |       | **[`IOException`]**, **[`ServletException`][8]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`** | **`doPost`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |       | **[`IOException`]**, **[`ServletException`][9]** | ![Method added to public class] |
 | Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`init`~~([`ServletConfig`])                                 |             | ~~[`ServletException`]~~                         | ![Method removed]     |
-| Added     | **`public`** |          | **`void`** | **`init`**([`ServletConfig`][5])                              |             | **[`ServletException`][8]**                      | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`** | **`init`**([`ServletConfig`][6])                              |             | **[`ServletException`][9]**                      | ![Method added to public class] |
 
 ___
 
@@ -915,38 +1023,38 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type               | Method                                                         | Annotations    | Throws | Compatibility Changes |
-|-----------|---------------------------|----------|--------------------|----------------------------------------------------------------|----------------|--------|-----------------------|
-| Unchanged | `public`                  |          | `void`             | `actionPerformed`([`WikiEvent`])                               |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `void`             | `addMessage`([`String`])                                       |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `void`             | `addMessage`([`String`], [`String`])                           |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`String`]         | `antiCsrfToken`()                                              |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `void`             | `clearMessages`()                                              |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `void`             | `clearMessages`([`String`])                                    |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`Locale`]         | `getLocale`()                                                  |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`Principal`]      | `getLoginPrincipal`()                                          |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`String[]`][1]    | `getMessages`()                                                |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`String[]`][1]    | `getMessages`([`String`])                                      |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`Principal[]`][9] | `getPrincipals`()                                              |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`Principal[]`][9] | `getRoles`()                                                   |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`String`]         | `getStatus`()                                                  |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`Subject`]        | `getSubject`()                                                 |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | [`Principal`]      | `getUserPrincipal`()                                           |                |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Session`]~~    | ~~`getWikiSession`~~([`Engine`], [`HttpServletRequest`])       |                |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`Session`]**    | **`getWikiSession`**([`Engine`], [`HttpServletRequest`][2])    |                |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | [`Session`]        | `guestSession`([`Engine`])                                     |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `boolean`          | `hasPrincipal`([`Principal`])                                  |                |        | ![No changes]         |
-| Unchanged | `protected`               |          | `void`             | `injectGroupPrincipals`()                                      |                |        | ![No changes]         |
-| Unchanged | `protected`               |          | `void`             | `injectUserProfilePrincipals`()                                |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `void`             | `invalidate`()                                                 |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `boolean`          | `isAnonymous`()                                                |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `boolean`          | `isAsserted`()                                                 |                |        | ![No changes]         |
-| Unchanged | `public`                  |          | `boolean`          | `isAuthenticated`()                                            |                |        | ![No changes]         |
-| Unchanged | `protected`               |          | `boolean`          | `isInGroup`([`Group`])                                         |                |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~         | ~~`removeWikiSession`~~([`Engine`], [`HttpServletRequest`])    |                |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**         | **`removeWikiSession`**([`Engine`], [`HttpServletRequest`][2]) |                |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | `int`              | `sessions`([`Engine`])                                         | [`Deprecated`] |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`Principal[]`][9] | `userPrincipals`([`Engine`])                                   | [`Deprecated`] |        | ![No changes]         |
+| Status    | Modifiers                 | Generics | Type                | Method                                                         | Annotations    | Throws | Compatibility Changes |
+|-----------|---------------------------|----------|---------------------|----------------------------------------------------------------|----------------|--------|-----------------------|
+| Unchanged | `public`                  |          | `void`              | `actionPerformed`([`WikiEvent`])                               |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `void`              | `addMessage`([`String`])                                       |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `void`              | `addMessage`([`String`], [`String`])                           |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`String`]          | `antiCsrfToken`()                                              |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `void`              | `clearMessages`()                                              |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `void`              | `clearMessages`([`String`])                                    |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`Locale`]          | `getLocale`()                                                  |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`Principal`]       | `getLoginPrincipal`()                                          |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`String[]`][2]     | `getMessages`()                                                |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`String[]`][2]     | `getMessages`([`String`])                                      |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`Principal[]`][10] | `getPrincipals`()                                              |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`Principal[]`][10] | `getRoles`()                                                   |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`String`]          | `getStatus`()                                                  |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`Subject`]         | `getSubject`()                                                 |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`Principal`]       | `getUserPrincipal`()                                           |                |        | ![No changes]         |
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Session`]~~     | ~~`getWikiSession`~~([`Engine`], [`HttpServletRequest`])       |                |        | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **[`Session`]**     | **`getWikiSession`**([`Engine`], [`HttpServletRequest`][3])    |                |        | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | [`Session`]         | `guestSession`([`Engine`])                                     |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`           | `hasPrincipal`([`Principal`])                                  |                |        | ![No changes]         |
+| Unchanged | `protected`               |          | `void`              | `injectGroupPrincipals`()                                      |                |        | ![No changes]         |
+| Unchanged | `protected`               |          | `void`              | `injectUserProfilePrincipals`()                                |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `void`              | `invalidate`()                                                 |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`           | `isAnonymous`()                                                |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`           | `isAsserted`()                                                 |                |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`           | `isAuthenticated`()                                            |                |        | ![No changes]         |
+| Unchanged | `protected`               |          | `boolean`           | `isInGroup`([`Group`])                                         |                |        | ![No changes]         |
+| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`removeWikiSession`~~([`Engine`], [`HttpServletRequest`])    |                |        | ![Method removed]     |
+| Added     | **`static`** **`public`** |          | **`void`**          | **`removeWikiSession`**([`Engine`], [`HttpServletRequest`][3]) |                |        | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | `int`               | `sessions`([`Engine`])                                         | [`Deprecated`] |        | ![No changes]         |
+| Unchanged | `static` `public`         |          | [`Principal[]`][10] | `userPrincipals`([`Engine`])                                   | [`Deprecated`] |        | ![No changes]         |
 
 ___
 
@@ -973,7 +1081,7 @@ ___
 
 | Status    | Modifiers         | Generics | Type       | Method                                    | Annotations | Throws                                                | Compatibility Changes |
 |-----------|-------------------|----------|------------|-------------------------------------------|-------------|-------------------------------------------------------|-----------------------|
-| Modified  | `static` `public` |          | [`String`] | `getNextPathPart`([`String`], [`String`]) |             | ~~[`ServletException`]~~, **[`ServletException`][8]** | ![No changes]         |
+| Modified  | `static` `public` |          | [`String`] | `getNextPathPart`([`String`], [`String`]) |             | ~~[`ServletException`]~~, **[`ServletException`][9]** | ![No changes]         |
 | Unchanged | `static` `public` |          | [`String`] | `toJson`([`Object`])                      |             |                                                       | ![No changes]         |
 
 ___
@@ -1002,13 +1110,13 @@ ___
 | Status    | Modifiers         | Generics | Type                | Method                                                        | Annotations | Throws                                                | Compatibility Changes |
 |-----------|-------------------|----------|---------------------|---------------------------------------------------------------|-------------|-------------------------------------------------------|-----------------------|
 | Removed   | ~~`public`~~      |          | ~~`void`~~          | ~~`doGet`~~([`HttpServletRequest`], [`HttpServletResponse`])  |             | ~~[`IOException`]~~, ~~[`ServletException`]~~         | ![Method removed]     |
-| Added     | **`public`**      |          | **`void`**          | **`doGet`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |        | **[`IOException`]**, **[`ServletException`][8]**      | ![Method added to public class] |
+| Added     | **`public`**      |          | **`void`**          | **`doGet`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |        | **[`IOException`]**, **[`ServletException`][9]**      | ![Method added to public class] |
 | Removed   | ~~`public`~~      |          | ~~`void`~~          | ~~`doPost`~~([`HttpServletRequest`], [`HttpServletResponse`]) |             | ~~[`IOException`]~~, ~~[`ServletException`]~~         | ![Method removed]     |
-| Added     | **`public`**      |          | **`void`**          | **`doPost`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |       | **[`IOException`]**, **[`ServletException`][8]**      | ![Method added to public class] |
+| Added     | **`public`**      |          | **`void`**          | **`doPost`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |       | **[`IOException`]**, **[`ServletException`][9]**      | ![Method added to public class] |
 | Unchanged | `public`          |          | [`WikiAjaxServlet`] | `findServletByName`([`String`])                               |             |                                                       | ![No changes]         |
-| Modified  | `public`          |          | [`String`]          | `getServletName`([`String`])                                  |             | ~~[`ServletException`]~~, **[`ServletException`][8]** | ![No changes]         |
+| Modified  | `public`          |          | [`String`]          | `getServletName`([`String`])                                  |             | ~~[`ServletException`]~~, **[`ServletException`][9]** | ![No changes]         |
 | Removed   | ~~`public`~~      |          | ~~`void`~~          | ~~`init`~~([`ServletConfig`])                                 |             | ~~[`ServletException`]~~                              | ![Method removed]     |
-| Added     | **`public`**      |          | **`void`**          | **`init`**([`ServletConfig`][5])                              |             | **[`ServletException`][8]**                           | ![Method added to public class] |
+| Added     | **`public`**      |          | **`void`**          | **`init`**([`ServletConfig`][6])                              |             | **[`ServletException`][9]**                           | ![Method added to public class] |
 | Unchanged | `static` `public` |          | `void`              | `registerServlet`([`WikiAjaxServlet`])                        |             |                                                       | ![No changes]         |
 | Unchanged | `static` `public` |          | `void`              | `registerServlet`([`String`], [`WikiAjaxServlet`])            |             |                                                       | ![No changes]         |
 | Unchanged | `static` `public` |          | `void`              | `registerServlet`([`String`], [`WikiAjaxServlet`], [`Permission`]) |        |                                                       | ![No changes]         |
@@ -1033,7 +1141,7 @@ ___
 |-----------|-----------------------------|----------|------------|-----------------------|-------------|--------------------------------------------------|-----------------------|
 | Unchanged | `public` `abstract`         |          | [`String`] | `getServletMapping`() |             |                                                  | ![No changes]         |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`void`~~ | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`ServletException`]~~, ~~[`IOException`]~~ | ![Method removed] |
-| Added     | **`public`** **`abstract`** |          | **`void`** | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`ServletException`][8]**, **[`IOException`]** | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **`void`** | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`ServletException`][9]**, **[`IOException`]** | ![Method added to interface] |
 
 ___
 
@@ -1146,16 +1254,16 @@ ___
 | Status    | Modifiers       | Generics | Type           | Method                                                           | Annotations | Throws                                                        | Compatibility Changes |
 |-----------|-----------------|----------|----------------|------------------------------------------------------------------|-------------|---------------------------------------------------------------|-----------------------|
 | Removed   | ~~`public`~~    |          | ~~`void`~~     | ~~`doGet`~~([`HttpServletRequest`], [`HttpServletResponse`])     |             | ~~[`IOException`]~~                                           | ![Method removed]     |
-| Added     | **`public`**    |          | **`void`**     | **`doGet`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |           | **[`IOException`]**                                           | ![Method added to public class] |
+| Added     | **`public`**    |          | **`void`**     | **`doGet`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |           | **[`IOException`]**                                           | ![Method added to public class] |
 | Removed   | ~~`protected`~~ |          | ~~`void`~~     | ~~`doOptions`~~([`HttpServletRequest`], [`HttpServletResponse`]) |             |                                                               | ![Method removed]     |
-| Added     | **`protected`** |          | **`void`**     | **`doOptions`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |       |                                                               | ![No changes]         |
+| Added     | **`protected`** |          | **`void`**     | **`doOptions`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |       |                                                               | ![No changes]         |
 | Removed   | ~~`public`~~    |          | ~~`void`~~     | ~~`doPost`~~([`HttpServletRequest`], [`HttpServletResponse`])    |             | ~~[`IOException`]~~                                           | ![Method removed]     |
-| Added     | **`public`**    |          | **`void`**     | **`doPost`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |          | **[`IOException`]**                                           | ![Method added to public class] |
+| Added     | **`public`**    |          | **`void`**     | **`doPost`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |          | **[`IOException`]**                                           | ![Method added to public class] |
 | Unchanged | `protected`     |          | `boolean`      | `executeUpload`([`Context`], [`InputStream`], [`String`], [`String`], [`String`], [`String`], `long`) |  | [`RedirectException`], [`IOException`], [`ProviderException`] | ![No changes] |
 | Removed   | ~~`public`~~    |          | ~~`void`~~     | ~~`init`~~([`ServletConfig`])                                    |             | ~~[`ServletException`]~~                                      | ![Method removed]     |
-| Added     | **`public`**    |          | **`void`**     | **`init`**([`ServletConfig`][5])                                 |             | **[`ServletException`][8]**                                   | ![Method added to public class] |
+| Added     | **`public`**    |          | **`void`**     | **`init`**([`ServletConfig`][6])                                 |             | **[`ServletException`][9]**                                   | ![Method added to public class] |
 | Removed   | ~~`protected`~~ |          | ~~[`String`]~~ | ~~`upload`~~([`HttpServletRequest`])                             |             | ~~[`RedirectException`]~~, ~~[`IOException`]~~                | ![Method removed]     |
-| Added     | **`protected`** |          | **[`String`]** | **`upload`**([`HttpServletRequest`][2])                          |             | **[`RedirectException`]**, **[`IOException`]**                | ![No changes]         |
+| Added     | **`protected`** |          | **[`String`]** | **`upload`**([`HttpServletRequest`][3])                          |             | **[`RedirectException`]**, **[`IOException`]**                | ![No changes]         |
 
 ___
 
@@ -1215,7 +1323,7 @@ ___
 
 | Status    | Modifiers | Type  | Name                | Extends            | JDK                          | Serialization       | Compatibility Changes |
 |-----------|-----------|-------|---------------------|--------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `DynamicAttachment` | [`Attachment`][10] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Unchanged | `public`  | Class | `DynamicAttachment` | [`Attachment`][11] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1274,16 +1382,17 @@ ___
 | Unchanged | `public` `abstract`         |          | `boolean`          | `allowsCookieAuthentication`()                   |             |                               | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Set<Principal>`] | `doJAASLogin`([`Class<? extends LoginModule>`], [`CallbackHandler`], [`Map<String, String>`]) |  | [`WikiSecurityException`] | ![No changes] |
 | Unchanged | `public`                    |          | `void`             | `fireEvent`(`int`, [`Principal`], [`Object`])    |             |                               | ![No changes]         |
+| Added     | **`public`**                |          | **`void`**         | **`fireEvent`**(`int`, [`Principal`], [`Object`], [`HttpServletRequest`][3]) |  |              | ![Method new default] |
 | Unchanged | `public`                    |          | [`Principal`]      | `getLoginPrincipal`([`Set<Principal>`])          |             |                               | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `boolean`          | `isContainerAuthenticated`()                     |             |                               | ![No changes]         |
 | Unchanged | `static` `public`           |          | `boolean`          | `isRolePrincipal`([`Principal`])                 |             |                               | ![No changes]         |
 | Unchanged | `static` `public`           |          | `boolean`          | `isUserPrincipal`([`Principal`])                 |             |                               | ![No changes]         |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`boolean`~~      | ~~`login`~~([`HttpServletRequest`])              |             | ~~[`WikiSecurityException`]~~ | ![Method removed]     |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`boolean`~~      | ~~`login`~~([`Session`], [`HttpServletRequest`], [`String`], [`String`]) |  | ~~[`WikiSecurityException`]~~ | ![Method removed] |
-| Added     | **`public`** **`abstract`** |          | **`boolean`**      | **`login`**([`HttpServletRequest`][2])           |             | **[`WikiSecurityException`]** | ![Method added to interface] |
-| Added     | **`public`** **`abstract`** |          | **`boolean`**      | **`login`**([`Session`], [`HttpServletRequest`][2], [`String`], [`String`]) |  | **[`WikiSecurityException`]** | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **`boolean`**      | **`login`**([`HttpServletRequest`][3])           |             | **[`WikiSecurityException`]** | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **`boolean`**      | **`login`**([`Session`], [`HttpServletRequest`][3], [`String`], [`String`]) |  | **[`WikiSecurityException`]** | ![Method added to interface] |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`void`~~         | ~~`logout`~~([`HttpServletRequest`])             |             |                               | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **`void`**         | **`logout`**([`HttpServletRequest`][2])          |             |                               | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **`void`**         | **`logout`**([`HttpServletRequest`][3])          |             |                               | ![Method added to interface] |
 | Unchanged | `public` `abstract`         |          | `void`             | `removeWikiEventListener`([`WikiEventListener`]) |             |                               | ![No changes]         |
 
 
@@ -1317,15 +1426,15 @@ ___
 | Status    | Modifiers                   | Generics | Type           | Method                                                           | Annotations | Throws                    | Compatibility Changes |
 |-----------|-----------------------------|----------|----------------|------------------------------------------------------------------|-------------|---------------------------|-----------------------|
 | Unchanged | `public` `abstract`         |          | `void`         | `addWikiEventListener`([`WikiEventListener`])                    |             |                           | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `boolean`      | `allowedByLocalPolicy`([`Principal[]`][9], [`Permission`])       |             |                           | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `boolean`      | `allowedByLocalPolicy`([`Principal[]`][10], [`Permission`])      |             |                           | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `boolean`      | `checkPermission`([`Session`], [`Permission`])                   |             |                           | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `boolean`      | `checkStaticPermission`([`Session`], [`Permission`])             |             |                           | ![No changes]         |
 | Unchanged | `public`                    |          | `void`         | `fireEvent`(`int`, [`Principal`], [`Object`])                    |             |                           | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Authorizer`] | `getAuthorizer`()                                                |             | [`WikiSecurityException`] | ![No changes]         |
 | Removed   | ~~`public`~~                |          | ~~`boolean`~~  | ~~`hasAccess`~~([`Context`], [`HttpServletResponse`])            |             | ~~[`IOException`]~~       | ![Method removed]     |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`boolean`~~  | ~~`hasAccess`~~([`Context`], [`HttpServletResponse`], `boolean`) |             | ~~[`IOException`]~~       | ![Method removed]     |
-| Added     | **`public`**                |          | **`boolean`**  | **`hasAccess`**([`Context`], [`HttpServletResponse`][7])         |             | **[`IOException`]**       | ![Method new default] |
-| Added     | **`public`** **`abstract`** |          | **`boolean`**  | **`hasAccess`**([`Context`], [`HttpServletResponse`][7], `boolean`) |          | **[`IOException`]**       | ![Method added to interface] |
+| Added     | **`public`**                |          | **`boolean`**  | **`hasAccess`**([`Context`], [`HttpServletResponse`][8])         |             | **[`IOException`]**       | ![Method new default] |
+| Added     | **`public`** **`abstract`** |          | **`boolean`**  | **`hasAccess`**([`Context`], [`HttpServletResponse`][8], `boolean`) |          | **[`IOException`]**       | ![Method added to interface] |
 | Unchanged | `public` `abstract`         |          | `boolean`      | `hasRoleOrPrincipal`([`Session`], [`Principal`])                 |             |                           | ![No changes]         |
 | Unchanged | `public`                    |          | `boolean`      | `isUserInRole`([`Session`], [`Principal`])                       |             |                           | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `void`         | `removeWikiEventListener`([`WikiEventListener`])                 |             |                           | ![No changes]         |
@@ -1357,12 +1466,12 @@ ___
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type               | Method                                     | Annotations | Throws                    | Compatibility Changes |
-|-----------|---------------------|----------|--------------------|--------------------------------------------|-------------|---------------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | [`Principal`]      | `findRole`([`String`])                     |             |                           | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Principal[]`][9] | `getRoles`()                               |             |                           | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `initialize`([`Engine`], [`Properties`])   |             | [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`          | `isUserInRole`([`Session`], [`Principal`]) |             |                           | ![No changes]         |
+| Status    | Modifiers           | Generics | Type                | Method                                     | Annotations | Throws                    | Compatibility Changes |
+|-----------|---------------------|----------|---------------------|--------------------------------------------|-------------|---------------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`Principal`]       | `findRole`([`String`])                     |             |                           | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][10] | `getRoles`()                               |             |                           | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `initialize`([`Engine`], [`Properties`])   |             | [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`           | `isUserInRole`([`Session`], [`Principal`]) |             |                           | ![No changes]         |
 
 ___
 
@@ -1375,7 +1484,7 @@ ___
 
 | Status   | Modifiers | Type  | Name                           | Extends    | JDK                          | Serialization       | Compatibility Changes |
 |----------|-----------|-------|--------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `DefaultAuthenticationManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Modified | `public`  | Class | `DefaultAuthenticationManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![Method default added in implemented interface] |
 
 
 #### Implemented Interfaces
@@ -1404,10 +1513,10 @@ ___
 | Unchanged | `public`     |          | `boolean`          | `isContainerAuthenticated`()                     |             |                               | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`boolean`~~      | ~~`login`~~([`HttpServletRequest`])              |             | ~~[`WikiSecurityException`]~~ | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`boolean`~~      | ~~`login`~~([`Session`], [`HttpServletRequest`], [`String`], [`String`]) |  | ~~[`WikiSecurityException`]~~ | ![No changes] |
-| Added     | **`public`** |          | **`boolean`**      | **`login`**([`HttpServletRequest`][2])           |             | **[`WikiSecurityException`]** | ![Method added to public class] |
-| Added     | **`public`** |          | **`boolean`**      | **`login`**([`Session`], [`HttpServletRequest`][2], [`String`], [`String`]) |  | **[`WikiSecurityException`]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`boolean`**      | **`login`**([`HttpServletRequest`][3])           |             | **[`WikiSecurityException`]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`boolean`**      | **`login`**([`Session`], [`HttpServletRequest`][3], [`String`], [`String`]) |  | **[`WikiSecurityException`]** | ![Method added to public class] |
 | Removed   | ~~`public`~~ |          | ~~`void`~~         | ~~`logout`~~([`HttpServletRequest`])             |             |                               | ![No changes]         |
-| Added     | **`public`** |          | **`void`**         | **`logout`**([`HttpServletRequest`][2])          |             |                               | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`**         | **`logout`**([`HttpServletRequest`][3])          |             |                               | ![Method added to public class] |
 | Unchanged | `public`     |          | `void`             | `removeWikiEventListener`([`WikiEventListener`]) |             |                               | ![No changes]         |
 
 
@@ -1452,12 +1561,12 @@ ___
 | Status    | Modifiers    | Generics | Type           | Method                                                           | Annotations | Throws                    | Compatibility Changes |
 |-----------|--------------|----------|----------------|------------------------------------------------------------------|-------------|---------------------------|-----------------------|
 | Unchanged | `public`     |          | `void`         | `addWikiEventListener`([`WikiEventListener`])                    |             |                           | ![No changes]         |
-| Unchanged | `public`     |          | `boolean`      | `allowedByLocalPolicy`([`Principal[]`][9], [`Permission`])       |             |                           | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`      | `allowedByLocalPolicy`([`Principal[]`][10], [`Permission`])      |             |                           | ![No changes]         |
 | Unchanged | `public`     |          | `boolean`      | `checkPermission`([`Session`], [`Permission`])                   |             |                           | ![No changes]         |
 | Unchanged | `public`     |          | `boolean`      | `checkStaticPermission`([`Session`], [`Permission`])             |             |                           | ![No changes]         |
 | Unchanged | `public`     |          | [`Authorizer`] | `getAuthorizer`()                                                |             | [`WikiSecurityException`] | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`boolean`~~  | ~~`hasAccess`~~([`Context`], [`HttpServletResponse`], `boolean`) |             | ~~[`IOException`]~~       | ![No changes]         |
-| Added     | **`public`** |          | **`boolean`**  | **`hasAccess`**([`Context`], [`HttpServletResponse`][7], `boolean`) |          | **[`IOException`]**       | ![Method added to public class] |
+| Added     | **`public`** |          | **`boolean`**  | **`hasAccess`**([`Context`], [`HttpServletResponse`][8], `boolean`) |          | **[`IOException`]**       | ![Method added to public class] |
 | Unchanged | `public`     |          | `boolean`      | `hasRoleOrPrincipal`([`Session`], [`Principal`])                 |             |                           | ![No changes]         |
 | Unchanged | `public`     |          | `void`         | `initialize`([`Engine`], [`Properties`])                         |             | [`WikiException`]         | ![No changes]         |
 | Unchanged | `public`     |          | `void`         | `removeWikiEventListener`([`WikiEventListener`])                 |             |                           | ![No changes]         |
@@ -1472,9 +1581,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `DefaultUserManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `DefaultUserManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1493,18 +1602,25 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type               | Method                                                           | Annotations | Throws                                        | Compatibility Changes |
-|-----------|-----------|----------|--------------------|------------------------------------------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | `void`             | `addWikiEventListener`([`WikiEventListener`])                    |             |                                               | ![No changes]         |
-| Unchanged | `public`  |          | [`UserDatabase`]   | `getUserDatabase`()                                              |             |                                               | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `getUserProfile`([`Session`])                                    |             |                                               | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `initialize`([`Engine`], [`Properties`])                         |             |                                               | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9] | `listWikiNames`()                                                |             | [`WikiSecurityException`]                     | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `parseProfile`([`Context`])                                      |             |                                               | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `removeWikiEventListener`([`WikiEventListener`])                 |             |                                               | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `setUserProfile`([`Context`], [`UserProfile`])                   |             | [`DuplicateUserException`], [`WikiException`] | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `startUserProfileCreationWorkflow`([`Context`], [`UserProfile`]) |             | [`WikiException`]                             | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `validateProfile`([`Context`], [`UserProfile`])                  |             |                                               | ![No changes]         |
+| Status    | Modifiers | Generics | Type                | Method                                                           | Annotations | Throws                                        | Compatibility Changes |
+|-----------|-----------|----------|---------------------|------------------------------------------------------------------|-------------|-----------------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void`              | `addWikiEventListener`([`WikiEventListener`])                    |             |                                               | ![No changes]         |
+| Unchanged | `public`  |          | [`UserDatabase`]    | `getUserDatabase`()                                              |             |                                               | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `getUserProfile`([`Session`])                                    |             |                                               | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `initialize`([`Engine`], [`Properties`])                         |             |                                               | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10] | `listWikiNames`()                                                |             | [`WikiSecurityException`]                     | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `parseProfile`([`Context`])                                      |             |                                               | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `removeWikiEventListener`([`WikiEventListener`])                 |             |                                               | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `setUserProfile`([`Context`], [`UserProfile`])                   |             | [`DuplicateUserException`], [`WikiException`] | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `startUserProfileCreationWorkflow`([`Context`], [`UserProfile`]) |             | [`WikiException`]                             | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `validateProfile`([`Context`], [`UserProfile`])                  |             |                                               | ![No changes]         |
+
+
+#### Fields
+
+| Status   | Modifiers                                          | Type       | Name               | Annotations | Compatibility Changes |
+|----------|----------------------------------------------------|------------|--------------------|-------------|-----------------------|
+| Modified | ~~`private`~~ &rarr; **`public`** `static` `final` | [`String`] | `SESSION_MESSAGES` |             | ![No changes]         |
 
 ___
 
@@ -1541,7 +1657,7 @@ ___
 | Unchanged | `public`     |          | [`String`]      | `getServletMapping`()     |             |                                                  | ![No changes]         |
 | Unchanged | `public`     |          | [`UserProfile`] | `getUserInfo`([`String`]) |             | [`NoSuchPrincipalException`]                     | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~      | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`ServletException`]~~, ~~[`IOException`]~~ | ![No changes] |
-| Added     | **`public`** |          | **`void`**      | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`ServletException`][8]**, **[`IOException`]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`**      | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`ServletException`][9]**, **[`IOException`]** | ![Method added to public class] |
 
 ___
 
@@ -1603,23 +1719,50 @@ ___
 
 ___
 
-<a id="user-content-org.apache.wiki.auth.passwordcomplexityveriffier"></a>
-### `org.apache.wiki.auth.PasswordComplexityVeriffier`
+<a id="user-content-org.apache.wiki.auth.passwordcomplexityverifier"></a>
+### `org.apache.wiki.auth.PasswordComplexityVerifier`
 
 - [X] Binary-compatible
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers                | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`final`** **`public`** | **Class** | **`PasswordComplexityVeriffier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status | Modifiers                | Type      | Name                             | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`PasswordComplexityVerifier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers                 | Generics | Type                 | Method                                  | Annotations | Throws | Compatibility Changes |
-|--------|---------------------------|----------|----------------------|-----------------------------------------|-------------|--------|-----------------------|
-| Added  | **`static`** **`public`** |          | **[`List<String>`]** | **`validate`**([`String`], [`Context`]) |             |        | ![Method added to public class] |
+| Status | Modifiers                 | Generics | Type                 | Method                                              | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|----------------------|-----------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`List<String>`]** | **`validate`**([`String`], [`String`], [`Context`]) |             |        | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.auth.securityverificationutility"></a>
+### `org.apache.wiki.auth.SecurityVerificationUtility`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`SecurityVerificationUtility`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                         | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|-------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`SecurityVerificationUtility`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type       | Method                   | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------|--------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`void`** | **`verify`**([`Engine`]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -1644,13 +1787,13 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type               | Method                         | Annotations | Throws            | Compatibility Changes |
-|-----------|-----------|----------|--------------------|--------------------------------|-------------|-------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`]         | `containerRoleTable`()         |             | [`WikiException`] | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`          | `isSecurityPolicyConfigured`() |             |                   | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9] | `policyPrincipals`()           |             |                   | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]         | `policyRoleTable`()            |             |                   | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9] | `webContainerRoles`()          |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers | Generics | Type                | Method                         | Annotations | Throws            | Compatibility Changes |
+|-----------|-----------|----------|---------------------|--------------------------------|-------------|-------------------|-----------------------|
+| Unchanged | `public`  |          | [`String`]          | `containerRoleTable`()         |             | [`WikiException`] | ![No changes]         |
+| Unchanged | `public`  |          | `boolean`           | `isSecurityPolicyConfigured`() |             |                   | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10] | `policyPrincipals`()           |             |                   | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]          | `policyRoleTable`()            |             |                   | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10] | `webContainerRoles`()          |             | [`WikiException`] | ![No changes]         |
 
 
 #### Fields
@@ -1698,25 +1841,25 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                | Generics | Type               | Method                                           | Annotations | Throws | Compatibility Changes |
-|-----------|--------------------------|----------|--------------------|--------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `final` `public`         |          | `void`             | `addWikiEventListener`([`WikiEventListener`])    |             |        | ![No changes]         |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~[`Session`]~~    | ~~`find`~~([`HttpSession`])                      |             |        | ![Method removed]     |
-| Unchanged | `final` `public`         |          | [`Session`]        | `find`([`String`])                               |             |        | ![No changes]         |
-| Added     | **`final`** **`public`** |          | **[`Session`]**    | **`find`**([`HttpSession`][11])                  |             |        | ![Method added to public class] |
-| Unchanged | `final` `protected`      |          | `void`             | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
-| Unchanged | `static` `public`        |          | [`SessionMonitor`] | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~         | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~         | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
-| Added     | **`final`** **`public`** |          | **`void`**         | **`remove`**([`HttpServletRequest`][2])          |             |        | ![Method added to public class] |
-| Added     | **`final`** **`public`** |          | **`void`**         | **`remove`**([`HttpSession`][11])                |             |        | ![Method added to public class] |
-| Unchanged | `final` `public`         |          | `void`             | `removeWikiEventListener`([`WikiEventListener`]) |             |        | ![No changes]         |
-| Removed   | ~~`public`~~             |          | ~~`void`~~         | ~~`sessionCreated`~~([`HttpSessionEvent`])       |             |        | ![Method removed]     |
-| Added     | **`public`**             |          | **`void`**         | **`sessionCreated`**([`HttpSessionEvent`][12])   |             |        | ![Method added to public class] |
-| Removed   | ~~`public`~~             |          | ~~`void`~~         | ~~`sessionDestroyed`~~([`HttpSessionEvent`])     |             |        | ![Method removed]     |
-| Added     | **`public`**             |          | **`void`**         | **`sessionDestroyed`**([`HttpSessionEvent`][12]) |             |        | ![Method added to public class] |
-| Unchanged | `final` `public`         |          | `int`              | `sessions`()                                     |             |        | ![No changes]         |
-| Unchanged | `final` `public`         |          | [`Principal[]`][9] | `userPrincipals`()                               |             |        | ![No changes]         |
+| Status    | Modifiers                | Generics | Type                | Method                                           | Annotations | Throws | Compatibility Changes |
+|-----------|--------------------------|----------|---------------------|--------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `final` `public`         |          | `void`              | `addWikiEventListener`([`WikiEventListener`])    |             |        | ![No changes]         |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~[`Session`]~~     | ~~`find`~~([`HttpSession`])                      |             |        | ![Method removed]     |
+| Unchanged | `final` `public`         |          | [`Session`]         | `find`([`String`])                               |             |        | ![No changes]         |
+| Added     | **`final`** **`public`** |          | **[`Session`]**     | **`find`**([`HttpSession`][12])                  |             |        | ![Method added to public class] |
+| Unchanged | `final` `protected`      |          | `void`              | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
+| Unchanged | `static` `public`        |          | [`SessionMonitor`]  | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
+| Added     | **`final`** **`public`** |          | **`void`**          | **`remove`**([`HttpServletRequest`][3])          |             |        | ![Method added to public class] |
+| Added     | **`final`** **`public`** |          | **`void`**          | **`remove`**([`HttpSession`][12])                |             |        | ![Method added to public class] |
+| Unchanged | `final` `public`         |          | `void`              | `removeWikiEventListener`([`WikiEventListener`]) |             |        | ![No changes]         |
+| Removed   | ~~`public`~~             |          | ~~`void`~~          | ~~`sessionCreated`~~([`HttpSessionEvent`])       |             |        | ![Method removed]     |
+| Added     | **`public`**             |          | **`void`**          | **`sessionCreated`**([`HttpSessionEvent`][13])   |             |        | ![Method added to public class] |
+| Removed   | ~~`public`~~             |          | ~~`void`~~          | ~~`sessionDestroyed`~~([`HttpSessionEvent`])     |             |        | ![Method removed]     |
+| Added     | **`public`**             |          | **`void`**          | **`sessionDestroyed`**([`HttpSessionEvent`][13]) |             |        | ![Method added to public class] |
+| Unchanged | `final` `public`         |          | `int`               | `sessions`()                                     |             |        | ![No changes]         |
+| Unchanged | `final` `public`         |          | [`Principal[]`][10] | `userPrincipals`()                               |             |        | ![No changes]         |
 
 ___
 
@@ -1734,18 +1877,18 @@ ___
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type               | Method                                                           | Annotations | Throws                                        | Compatibility Changes |
-|-----------|---------------------|----------|--------------------|------------------------------------------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | `void`             | `addWikiEventListener`([`WikiEventListener`])                    |             |                                               | ![No changes]         |
-| Unchanged | `public`            |          | `void`             | `fireEvent`(`int`, [`Session`], [`Object`])                      |             |                                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserDatabase`]   | `getUserDatabase`()                                              |             |                                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `getUserProfile`([`Session`])                                    |             |                                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Principal[]`][9] | `listWikiNames`()                                                |             | [`WikiSecurityException`]                     | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `parseProfile`([`Context`])                                      |             |                                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `removeWikiEventListener`([`WikiEventListener`])                 |             |                                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `setUserProfile`([`Context`], [`UserProfile`])                   |             | [`DuplicateUserException`], [`WikiException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `startUserProfileCreationWorkflow`([`Context`], [`UserProfile`]) |             | [`WikiException`]                             | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `validateProfile`([`Context`], [`UserProfile`])                  |             |                                               | ![No changes]         |
+| Status    | Modifiers           | Generics | Type                | Method                                                           | Annotations | Throws                                        | Compatibility Changes |
+|-----------|---------------------|----------|---------------------|------------------------------------------------------------------|-------------|-----------------------------------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | `void`              | `addWikiEventListener`([`WikiEventListener`])                    |             |                                               | ![No changes]         |
+| Unchanged | `public`            |          | `void`              | `fireEvent`(`int`, [`Session`], [`Object`])                      |             |                                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserDatabase`]    | `getUserDatabase`()                                              |             |                                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `getUserProfile`([`Session`])                                    |             |                                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][10] | `listWikiNames`()                                                |             | [`WikiSecurityException`]                     | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `parseProfile`([`Context`])                                      |             |                                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `removeWikiEventListener`([`WikiEventListener`])                 |             |                                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `setUserProfile`([`Context`], [`UserProfile`])                   |             | [`DuplicateUserException`], [`WikiException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `startUserProfileCreationWorkflow`([`Context`], [`UserProfile`]) |             | [`WikiException`]                             | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `validateProfile`([`Context`], [`UserProfile`])                  |             |                                               | ![No changes]         |
 
 
 #### Fields
@@ -1952,12 +2095,12 @@ ___
 
 | Status    | Modifiers | Generics | Type                          | Method                           | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-------------------------------|----------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | [`Enumeration<AclEntry>`][13] | `aclEntries`()                   |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`                     | `addEntry`([`AclEntry`][14])     |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9]            | `findPrincipals`([`Permission`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`AclEntry`][14]              | `getAclEntry`([`Principal`])     |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Enumeration<AclEntry>`][14] | `aclEntries`()                   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `boolean`                     | `addEntry`([`AclEntry`][15])     |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10]           | `findPrincipals`([`Permission`]) |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`AclEntry`][15]              | `getAclEntry`([`Principal`])     |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `boolean`                     | `isEmpty`()                      |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`                     | `removeEntry`([`AclEntry`][14])  |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `boolean`                     | `removeEntry`([`AclEntry`][15])  |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]                    | `toString`()                     |             |        | ![No changes]         |
 
 ___
@@ -1978,9 +2121,9 @@ ___
 
 | Status    | Modifiers           | Generics | Type       | Method                                 | Annotations | Throws                    | Compatibility Changes |
 |-----------|---------------------|----------|------------|----------------------------------------|-------------|---------------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | [`Acl`][6] | `getPermissions`([`Page`])             |             |                           | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Acl`][6] | `parseAcl`([`Page`], [`String`])       |             | [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`     | `setPermissions`([`Page`], [`Acl`][6]) |             | [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Acl`][7] | `getPermissions`([`Page`])             |             |                           | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Acl`][7] | `parseAcl`([`Page`], [`String`])       |             | [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`     | `setPermissions`([`Page`], [`Acl`][7]) |             | [`WikiSecurityException`] | ![No changes]         |
 
 ___
 
@@ -2014,11 +2157,11 @@ ___
 
 | Status    | Modifiers            | Generics | Type       | Method                                   | Annotations | Throws                    | Compatibility Changes |
 |-----------|----------------------|----------|------------|------------------------------------------|-------------|---------------------------|-----------------------|
-| Unchanged | `public`             |          | [`Acl`][6] | `getPermissions`([`Page`])               |             |                           | ![No changes]         |
+| Unchanged | `public`             |          | [`Acl`][7] | `getPermissions`([`Page`])               |             |                           | ![No changes]         |
 | Unchanged | `public`             |          | `void`     | `initialize`([`Engine`], [`Properties`]) |             |                           | ![No changes]         |
-| Unchanged | `public`             |          | [`Acl`][6] | `parseAcl`([`Page`], [`String`])         |             | [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `static` `protected` |          | [`String`] | `printAcl`([`Acl`][6])                   |             |                           | ![No changes]         |
-| Unchanged | `public`             |          | `void`     | `setPermissions`([`Page`], [`Acl`][6])   |             | [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public`             |          | [`Acl`][7] | `parseAcl`([`Page`], [`String`])         |             | [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `static` `protected` |          | [`String`] | `printAcl`([`Acl`][7])                   |             |                           | ![No changes]         |
+| Unchanged | `public`             |          | `void`     | `setPermissions`([`Page`], [`Acl`][7])   |             | [`WikiSecurityException`] | ![No changes]         |
 
 
 #### Fields
@@ -2088,23 +2231,23 @@ ___
 
 #### Methods
 
-| Status    | Modifiers   | Generics | Type               | Method                                           | Annotations | Throws                       | Compatibility Changes |
-|-----------|-------------|----------|--------------------|--------------------------------------------------|-------------|------------------------------|-----------------------|
-| Unchanged | `public`    |          | `void`             | `actionPerformed`([`WikiEvent`])                 |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `addWikiEventListener`([`WikiEventListener`])    |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `checkGroupName`([`Context`], [`String`])        |             | [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `protected` |          | [`String[]`][1]    | `extractMembers`([`String`])                     |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | [`Principal`]      | `findRole`([`String`])                           |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | [`Group`]          | `getGroup`([`String`])                           |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`    |          | [`GroupDatabase`]  | `getGroupDatabase`()                             |             | [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public`    |          | [`Principal[]`][9] | `getRoles`()                                     |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `initialize`([`Engine`], [`Properties`])         |             | [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public`    |          | `boolean`          | `isUserInRole`([`Session`], [`Principal`])       |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | [`Group`]          | `parseGroup`([`String`], [`String`], `boolean`)  |             | [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `removeGroup`([`String`])                        |             | [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `removeWikiEventListener`([`WikiEventListener`]) |             |                              | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `setGroup`([`Session`], [`Group`])               |             | [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public`    |          | `void`             | `validateGroup`([`Context`], [`Group`])          |             |                              | ![No changes]         |
+| Status    | Modifiers   | Generics | Type                | Method                                           | Annotations | Throws                       | Compatibility Changes |
+|-----------|-------------|----------|---------------------|--------------------------------------------------|-------------|------------------------------|-----------------------|
+| Unchanged | `public`    |          | `void`              | `actionPerformed`([`WikiEvent`])                 |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `addWikiEventListener`([`WikiEventListener`])    |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `checkGroupName`([`Context`], [`String`])        |             | [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `protected` |          | [`String[]`][2]     | `extractMembers`([`String`])                     |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | [`Principal`]       | `findRole`([`String`])                           |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | [`Group`]           | `getGroup`([`String`])                           |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`    |          | [`GroupDatabase`]   | `getGroupDatabase`()                             |             | [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public`    |          | [`Principal[]`][10] | `getRoles`()                                     |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `initialize`([`Engine`], [`Properties`])         |             | [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public`    |          | `boolean`           | `isUserInRole`([`Session`], [`Principal`])       |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | [`Group`]           | `parseGroup`([`String`], [`String`], `boolean`)  |             | [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `removeGroup`([`String`])                        |             | [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `removeWikiEventListener`([`WikiEventListener`]) |             |                              | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `setGroup`([`Session`], [`Group`])               |             | [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public`    |          | `void`              | `validateGroup`([`Context`], [`Group`])          |             |                              | ![No changes]         |
 
 
 #### Fields
@@ -2137,27 +2280,27 @@ ___
 
 #### Methods
 
-| Status    | Modifiers        | Generics | Type               | Method                      | Annotations | Throws | Compatibility Changes |
-|-----------|------------------|----------|--------------------|-----------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`         |          | `boolean`          | `add`([`Principal`])        |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `void`             | `clear`()                   |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `boolean`          | `equals`([`Object`])        |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`Date`]           | `getCreated`()              |             |        | ![No changes]         |
-| Unchanged | `final` `public` |          | [`String`]         | `getCreator`()              |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`Date`]           | `getLastModified`()         |             |        | ![No changes]         |
-| Unchanged | `final` `public` |          | [`String`]         | `getModifier`()             |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`String`]         | `getName`()                 |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`Principal`]      | `getPrincipal`()            |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`String`]         | `getWiki`()                 |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `int`              | `hashCode`()                |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `boolean`          | `isMember`([`Principal`])   |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`Principal[]`][9] | `members`()                 |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `boolean`          | `remove`([`Principal`])     |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `void`             | `setCreated`([`Date`])      |             |        | ![No changes]         |
-| Unchanged | `final` `public` |          | `void`             | `setCreator`([`String`])    |             |        | ![No changes]         |
-| Unchanged | `public`         |          | `void`             | `setLastModified`([`Date`]) |             |        | ![No changes]         |
-| Unchanged | `final` `public` |          | `void`             | `setModifier`([`String`])   |             |        | ![No changes]         |
-| Unchanged | `public`         |          | [`String`]         | `toString`()                |             |        | ![No changes]         |
+| Status    | Modifiers        | Generics | Type                | Method                      | Annotations | Throws | Compatibility Changes |
+|-----------|------------------|----------|---------------------|-----------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`         |          | `boolean`           | `add`([`Principal`])        |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `void`              | `clear`()                   |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `boolean`           | `equals`([`Object`])        |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`Date`]            | `getCreated`()              |             |        | ![No changes]         |
+| Unchanged | `final` `public` |          | [`String`]          | `getCreator`()              |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`Date`]            | `getLastModified`()         |             |        | ![No changes]         |
+| Unchanged | `final` `public` |          | [`String`]          | `getModifier`()             |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`String`]          | `getName`()                 |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`Principal`]       | `getPrincipal`()            |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`String`]          | `getWiki`()                 |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `int`               | `hashCode`()                |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `boolean`           | `isMember`([`Principal`])   |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`Principal[]`][10] | `members`()                 |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `boolean`           | `remove`([`Principal`])     |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `void`              | `setCreated`([`Date`])      |             |        | ![No changes]         |
+| Unchanged | `final` `public` |          | `void`              | `setCreator`([`String`])    |             |        | ![No changes]         |
+| Unchanged | `public`         |          | `void`              | `setLastModified`([`Date`]) |             |        | ![No changes]         |
+| Unchanged | `final` `public` |          | `void`              | `setModifier`([`String`])   |             |        | ![No changes]         |
+| Unchanged | `public`         |          | [`String`]          | `toString`()                |             |        | ![No changes]         |
 
 ___
 
@@ -2178,7 +2321,7 @@ ___
 | Status    | Modifiers           | Generics | Type            | Method                                   | Annotations | Throws                                                     | Compatibility Changes |
 |-----------|---------------------|----------|-----------------|------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
 | Unchanged | `public` `abstract` |          | `void`          | `delete`([`Group`])                      |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Group[]`][15] | `groups`()                               |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Group[]`][16] | `groups`()                               |             | [`WikiSecurityException`]                                  | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `void`          | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `void`          | `save`([`Group`], [`Principal`])         |             | [`WikiSecurityException`]                                  | ![No changes]         |
 
@@ -2253,7 +2396,7 @@ ___
 | Status    | Modifiers | Generics | Type            | Method                                   | Annotations | Throws                                                     | Compatibility Changes |
 |-----------|-----------|----------|-----------------|------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
 | Unchanged | `public`  |          | `void`          | `delete`([`Group`])                      |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`  |          | [`Group[]`][15] | `groups`()                               |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`  |          | [`Group[]`][16] | `groups`()                               |             | [`WikiSecurityException`]                                  | ![No changes]         |
 | Unchanged | `public`  |          | `void`          | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
 | Unchanged | `public`  |          | `void`          | `save`([`Group`], [`Principal`])         |             | [`WikiSecurityException`]                                  | ![No changes]         |
 
@@ -2358,7 +2501,7 @@ ___
 | Status  | Modifiers                   | Generics | Type          | Method                                                       | Annotations | Throws | Compatibility Changes |
 |---------|-----------------------------|----------|---------------|--------------------------------------------------------------|-------------|--------|-----------------------|
 | Removed | ~~`public`~~ ~~`abstract`~~ |          | ~~`boolean`~~ | ~~`isUserInRole`~~([`HttpServletRequest`], [`Principal`])    |             |        | ![Method removed]     |
-| Added   | **`public`** **`abstract`** |          | **`boolean`** | **`isUserInRole`**([`HttpServletRequest`][2], [`Principal`]) |             |        | ![Method added to interface] |
+| Added   | **`public`** **`abstract`** |          | **`boolean`** | **`isUserInRole`**([`HttpServletRequest`][3], [`Principal`]) |             |        | ![Method added to interface] |
 
 ___
 
@@ -2391,18 +2534,18 @@ ___
 
 #### Methods
 
-| Status    | Modifiers    | Generics | Type               | Method                                                       | Annotations | Throws                             | Compatibility Changes |
-|-----------|--------------|----------|--------------------|--------------------------------------------------------------|-------------|------------------------------------|-----------------------|
-| Unchanged | `public`     |          | [`Principal`]      | `findRole`([`String`])                                       |             |                                    | ![No changes]         |
-| Unchanged | `public`     |          | [`Principal[]`][9] | `getRoles`()                                                 |             |                                    | ![No changes]         |
-| Unchanged | `protected`  |          | [`Role[]`][16]     | `getRoles`([`Document`])                                     |             |                                    | ![No changes]         |
-| Unchanged | `protected`  |          | [`Document`]       | `getWebXml`()                                                |             | [`JDOMException`], [`IOException`] | ![No changes]         |
-| Unchanged | `public`     |          | `void`             | `initialize`([`Engine`], [`Properties`])                     |             |                                    | ![No changes]         |
-| Unchanged | `public`     |          | `boolean`          | `isConstrained`([`String`], [`Role`])                        |             |                                    | ![No changes]         |
-| Unchanged | `public`     |          | `boolean`          | `isContainerAuthorized`()                                    |             |                                    | ![No changes]         |
-| Removed   | ~~`public`~~ |          | ~~`boolean`~~      | ~~`isUserInRole`~~([`HttpServletRequest`], [`Principal`])    |             |                                    | ![No changes]         |
-| Unchanged | `public`     |          | `boolean`          | `isUserInRole`([`Session`], [`Principal`])                   |             |                                    | ![No changes]         |
-| Added     | **`public`** |          | **`boolean`**      | **`isUserInRole`**([`HttpServletRequest`][2], [`Principal`]) |             |                                    | ![Method added to public class] |
+| Status    | Modifiers    | Generics | Type                | Method                                                       | Annotations | Throws                             | Compatibility Changes |
+|-----------|--------------|----------|---------------------|--------------------------------------------------------------|-------------|------------------------------------|-----------------------|
+| Unchanged | `public`     |          | [`Principal`]       | `findRole`([`String`])                                       |             |                                    | ![No changes]         |
+| Unchanged | `public`     |          | [`Principal[]`][10] | `getRoles`()                                                 |             |                                    | ![No changes]         |
+| Unchanged | `protected`  |          | [`Role[]`][17]      | `getRoles`([`Document`])                                     |             |                                    | ![No changes]         |
+| Unchanged | `protected`  |          | [`Document`]        | `getWebXml`()                                                |             | [`JDOMException`], [`IOException`] | ![No changes]         |
+| Unchanged | `public`     |          | `void`              | `initialize`([`Engine`], [`Properties`])                     |             |                                    | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`           | `isConstrained`([`String`], [`Role`])                        |             |                                    | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`           | `isContainerAuthorized`()                                    |             |                                    | ![No changes]         |
+| Removed   | ~~`public`~~ |          | ~~`boolean`~~       | ~~`isUserInRole`~~([`HttpServletRequest`], [`Principal`])    |             |                                    | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`           | `isUserInRole`([`Session`], [`Principal`])                   |             |                                    | ![No changes]         |
+| Added     | **`public`** |          | **`boolean`**       | **`isUserInRole`**([`HttpServletRequest`][3], [`Principal`]) |             |                                    | ![Method added to public class] |
 
 
 #### Fields
@@ -2410,7 +2553,7 @@ ___
 | Status    | Modifiers   | Type           | Name                    | Annotations | Compatibility Changes |
 |-----------|-------------|----------------|-------------------------|-------------|-----------------------|
 | Unchanged | `protected` | `boolean`      | `m_containerAuthorized` |             | ![No changes]         |
-| Unchanged | `protected` | [`Role[]`][16] | `m_containerRoles`      |             | ![No changes]         |
+| Unchanged | `protected` | [`Role[]`][17] | `m_containerRoles`      |             | ![No changes]         |
 | Unchanged | `protected` | [`Engine`]     | `m_engine`              |             | ![No changes]         |
 
 ___
@@ -2480,7 +2623,7 @@ ___
 | Status    | Modifiers | Generics | Type            | Method                                   | Annotations | Throws                                                     | Compatibility Changes |
 |-----------|-----------|----------|-----------------|------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
 | Unchanged | `public`  |          | `void`          | `delete`([`Group`])                      |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`  |          | [`Group[]`][15] | `groups`()                               |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`  |          | [`Group[]`][16] | `groups`()                               |             | [`WikiSecurityException`]                                  | ![No changes]         |
 | Unchanged | `public`  |          | `void`          | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
 | Unchanged | `public`  |          | `void`          | `save`([`Group`], [`Principal`])         |             | [`WikiSecurityException`]                                  | ![No changes]         |
 
@@ -2651,13 +2794,13 @@ ___
 | Status    | Modifiers                 | Generics | Type           | Method                                                      | Annotations        | Throws             | Compatibility Changes |
 |-----------|---------------------------|----------|----------------|-------------------------------------------------------------|--------------------|--------------------|-----------------------|
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearUserCookie`~~([`HttpServletResponse`])              |                    |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`clearUserCookie`**([`HttpServletResponse`][7])           |                    |                    | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`clearUserCookie`**([`HttpServletResponse`][8])           |                    |                    | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getUserCookie`~~([`HttpServletRequest`])                 |                    |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getUserCookie`**([`HttpServletRequest`][2])              |                    |                    | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getUserCookie`**([`HttpServletRequest`][3])              |                    |                    | ![Method added to public class] |
 | Unchanged | `public`                  |          | `boolean`      | `login`()                                                   |                    | [`LoginException`] | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`setUserCookie`~~([`HttpServletResponse`], [`String`])    |                    |                    | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`HttpServletResponse`][7], [`String`]) | **[`Deprecated`]** |                    | ![Method added to public class] ![Annotation deprecated added] |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`PageContext`][3], [`HttpServletResponse`][7], [`String`]) |  |                  | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`HttpServletResponse`][8], [`String`]) | **[`Deprecated`]** |                    | ![Method added to public class] ![Annotation deprecated added] |
+| Added     | **`static`** **`public`** |          | **`void`**     | **`setUserCookie`**([`PageContext`][4], [`HttpServletResponse`][8], [`String`]) |  |                  | ![Method added to public class] |
 
 
 #### Fields
@@ -2699,10 +2842,10 @@ ___
 | Status    | Modifiers                 | Generics | Type       | Method    | Annotations | Throws             | Compatibility Changes |
 |-----------|---------------------------|----------|------------|-----------|-------------|--------------------|-----------------------|
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~ | ~~`clearLoginCookie`~~([`Engine`], [`HttpServletRequest`], [`HttpServletResponse`]) |  |  | ![Method removed] |
-| Added     | **`static`** **`public`** |          | **`void`** | **`clearLoginCookie`**([`Engine`], [`HttpServletRequest`][2], [`HttpServletResponse`][7]) |  |  | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`void`** | **`clearLoginCookie`**([`Engine`], [`HttpServletRequest`][3], [`HttpServletResponse`][8]) |  |  | ![Method added to public class] |
 | Unchanged | `public`                  |          | `boolean`  | `login`() |             | [`LoginException`] | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~ | ~~`setLoginCookie`~~([`Engine`], [`HttpServletResponse`], [`String`]) |  |  | ![Method removed] |
-| Added     | **`static`** **`public`** |          | **`void`** | **`setLoginCookie`**([`Engine`], [`HttpServletResponse`][7], [`String`]) |  |  | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`void`** | **`setLoginCookie`**([`Engine`], [`HttpServletResponse`][8], [`String`]) |  |  | ![Method added to public class] |
 
 
 #### Fields
@@ -2744,9 +2887,9 @@ ___
 
 | Status   | Modifiers    | Generics | Type                                                            | Method                                      | Annotations | Throws | Compatibility Changes |
 |----------|--------------|----------|-----------------------------------------------------------------|---------------------------------------------|-------------|--------|-----------------------|
-| Modified | `public`     |          | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][2]** | `getRequest`()                              |             |        | ![Method return type changed] |
+| Modified | `public`     |          | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][3]** | `getRequest`()                              |             |        | ![Method return type changed] |
 | Removed  | ~~`public`~~ |          | ~~`void`~~                                                      | ~~`setRequest`~~([`HttpServletRequest`])    |             |        | ![Method removed]     |
-| Added    | **`public`** |          | **`void`**                                                      | **`setRequest`**([`HttpServletRequest`][2]) |             |        | ![Method added to public class] |
+| Added    | **`public`** |          | **`void`**                                                      | **`setRequest`**([`HttpServletRequest`][3]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -2880,14 +3023,14 @@ ___
 | Status  | Modifiers    | Generics | Constructor | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|-------------|-------------|--------|-----------------------|
 | Removed | ~~`public`~~ |          | ~~`WebContainerCallbackHandler`~~([`Engine`], [`HttpServletRequest`]) |  |  | ![Constructor removed] |
-| Added   | **`public`** |          | **`WebContainerCallbackHandler`**([`Engine`], [`HttpServletRequest`][2]) |  |  | ![No changes] |
+| Added   | **`public`** |          | **`WebContainerCallbackHandler`**([`Engine`], [`HttpServletRequest`][3]) |  |  | ![No changes] |
 
 
 #### Methods
 
 | Status    | Modifiers | Generics | Type   | Method                       | Annotations | Throws                                            | Compatibility Changes |
 |-----------|-----------|----------|--------|------------------------------|-------------|---------------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | `void` | `handle`([`Callback[]`][17]) |             | [`IOException`], [`UnsupportedCallbackException`] | ![No changes]         |
+| Unchanged | `public`  |          | `void` | `handle`([`Callback[]`][18]) |             | [`IOException`], [`UnsupportedCallbackException`] | ![No changes]         |
 
 ___
 
@@ -2956,14 +3099,14 @@ ___
 | Status  | Modifiers    | Generics | Constructor | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|-------------|-------------|--------|-----------------------|
 | Removed | ~~`public`~~ |          | ~~`WikiCallbackHandler`~~([`Engine`], [`HttpServletRequest`], [`String`], [`String`]) |  |  | ![Constructor removed] |
-| Added   | **`public`** |          | **`WikiCallbackHandler`**([`Engine`], [`HttpServletRequest`][2], [`String`], [`String`]) |  |  | ![No changes] |
+| Added   | **`public`** |          | **`WikiCallbackHandler`**([`Engine`], [`HttpServletRequest`][3], [`String`], [`String`]) |  |  | ![No changes] |
 
 
 #### Methods
 
 | Status    | Modifiers | Generics | Type   | Method                       | Annotations | Throws                                            | Compatibility Changes |
 |-----------|-----------|----------|--------|------------------------------|-------------|---------------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | `void` | `handle`([`Callback[]`][17]) |             | [`IOException`], [`UnsupportedCallbackException`] | ![No changes]         |
+| Unchanged | `public`  |          | `void` | `handle`([`Callback[]`][18]) |             | [`IOException`], [`UnsupportedCallbackException`] | ![No changes]         |
 
 ___
 
@@ -3291,16 +3434,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Class | `AbstractUserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Class | `AbstractUserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface        | Compatibility Changes |
-|-----------|------------------|-----------------------|
-| Unchanged | [`UserDatabase`] | ![No changes]         |
+| Status              | Interface        | Compatibility Changes |
+|---------------------|------------------|-----------------------|
+| Source-incompatible | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3312,21 +3455,22 @@ ___
 
 #### Methods
 
-| Status    | Modifiers            | Generics | Type               | Method                                     | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|----------------------|----------|--------------------|--------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public`             |          | [`UserProfile`]    | `find`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]    | `findByEmail`([`String`])                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]    | `findByFullName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]    | `findByLoginName`([`String`])              |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]    | `findByWikiName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `static` `protected` |          | [`String`]         | `generateUid`([`UserDatabase`])            |             |                                                            | ![No changes]         |
-| Unchanged | `protected`          |          | [`String`]         | `getHash`([`String`])                      |             |                                                            | ![No changes]         |
-| Unchanged | `public`             |          | [`Principal[]`][9] | `getPrincipals`([`String`])                |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | `void`             | `initialize`([`Engine`], [`Properties`])   |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public`             |          | [`UserProfile`]    | `newProfile`()                             |             |                                                            | ![No changes]         |
-| Unchanged | `protected`          |          | `long`             | `parseLong`([`String`])                    |             |                                                            | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | `void`             | `save`([`UserProfile`])                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`             |          | `boolean`          | `validatePassword`([`String`], [`String`]) |             |                                                            | ![No changes]         |
+| Status    | Modifiers            | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
+|-----------|----------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public`             |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `static` `protected` |          | [`String`]          | `generateUid`([`UserDatabase`])                     |             |                                                            | ![No changes]         |
+| Unchanged | `protected`          |          | [`String`]          | `getHash`([`String`])                               |             |                                                            | ![No changes]         |
+| Unchanged | `public`             |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public`             |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
+| Unchanged | `protected`          |          | `long`              | `parseLong`([`String`])                             |             |                                                            | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`             |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
+| Added     | **`public`**         |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to public class] |
 
 
 #### Fields
@@ -3347,9 +3491,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name                 | Extends    | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|-------|----------------------|------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Class | `DefaultUserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status   | Modifiers        | Type  | Name                 | Extends    | JDK                          | Serialization | Compatibility Changes |
+|----------|------------------|-------|----------------------|------------|------------------------------|---------------|-----------------------|
+| Modified | `final` `public` | Class | `DefaultUserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -3362,31 +3506,32 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type                          | Method                      | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|-------------------------------|-----------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `boolean`                     | `equals`([`Object`])        |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`Map<String, Serializable>`] | `getAttributes`()           |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`Date`]                      | `getCreated`()              |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `getEmail`()                |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `getFullname`()             |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`Date`]                      | `getLastModified`()         |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`Date`]                      | `getLockExpiry`()           |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `getLoginName`()            |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `getPassword`()             |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `getUid`()                  |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `getWikiName`()             |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `int`                         | `hashCode`()                |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`                     | `isLocked`()                |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`                     | `isNew`()                   |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setCreated`([`Date`])      |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setEmail`([`String`])      |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setFullname`([`String`])   |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setLastModified`([`Date`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setLockExpiry`([`Date`])   |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setLoginName`([`String`])  |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setPassword`([`String`])   |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`                        | `setUid`([`String`])        |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`]                    | `toString`()                |             |        | ![No changes]         |
+| Status    | Modifiers    | Generics | Type                          | Method                               | Annotations | Throws | Compatibility Changes |
+|-----------|--------------|----------|-------------------------------|--------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`     |          | `boolean`                     | `equals`([`Object`])                 |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`Map<String, Serializable>`] | `getAttributes`()                    |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`Date`]                      | `getCreated`()                       |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `getEmail`()                         |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `getFullname`()                      |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`Date`]                      | `getLastModified`()                  |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`Date`]                      | `getLockExpiry`()                    |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `getLoginName`()                     |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `getPassword`()                      |             |        | ![No changes]         |
+| Added     | **`public`** |          | **[`List<String>`]**          | **`getPreviousHashedCredentials`**() |             |        | ![Method added to public class] |
+| Unchanged | `public`     |          | [`String`]                    | `getUid`()                           |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `getWikiName`()                      |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `int`                         | `hashCode`()                         |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`                     | `isLocked`()                         |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`                     | `isNew`()                            |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setCreated`([`Date`])               |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setEmail`([`String`])               |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setFullname`([`String`])            |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setLastModified`([`Date`])          |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setLockExpiry`([`Date`])            |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setLoginName`([`String`])           |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setPassword`([`String`])            |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `void`                        | `setUid`([`String`])                 |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `toString`()                         |             |        | ![No changes]         |
 
 ___
 
@@ -3404,9 +3549,9 @@ ___
 
 #### Implemented Interfaces
 
-| Status    | Interface        | Compatibility Changes |
-|-----------|------------------|-----------------------|
-| Unchanged | [`UserDatabase`] | ![No changes]         |
+| Status              | Interface        | Compatibility Changes |
+|---------------------|------------------|-----------------------|
+| Source-incompatible | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3418,18 +3563,18 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type               | Method                                   | Annotations | Throws                       | Compatibility Changes |
-|-----------|-----------|----------|--------------------|------------------------------------------|-------------|------------------------------|-----------------------|
-| Unchanged | `public`  |          | `void`             | `deleteByLoginName`([`String`])          |             |                              | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByEmail`([`String`])                |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByFullName`([`String`])             |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByLoginName`([`String`])            |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByUid`([`String`])                  |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByWikiName`([`String`])             |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9] | `getWikiNames`()                         |             |                              | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `initialize`([`Engine`], [`Properties`]) |             |                              | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `rename`([`String`], [`String`])         |             | [`NoSuchPrincipalException`] | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `save`([`UserProfile`])                  |             |                              | ![No changes]         |
+| Status    | Modifiers | Generics | Type                | Method                                   | Annotations | Throws                       | Compatibility Changes |
+|-----------|-----------|----------|---------------------|------------------------------------------|-------------|------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void`              | `deleteByLoginName`([`String`])          |             |                              | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByEmail`([`String`])                |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByFullName`([`String`])             |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByLoginName`([`String`])            |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByUid`([`String`])                  |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByWikiName`([`String`])             |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10] | `getWikiNames`()                         |             |                              | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `initialize`([`Engine`], [`Properties`]) |             |                              | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `rename`([`String`], [`String`])         |             | [`NoSuchPrincipalException`] | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `save`([`UserProfile`])                  |             |                              | ![No changes]         |
 
 ___
 
@@ -3461,16 +3606,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name               | Extends                  | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------|--------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JDBCUserDatabase` | [`AbstractUserDatabase`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name               | Extends                  | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|--------------------|--------------------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `JDBCUserDatabase` | [`AbstractUserDatabase`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface        | Compatibility Changes |
-|-----------|------------------|-----------------------|
-| Unchanged | [`UserDatabase`] | ![No changes]         |
+| Status              | Interface        | Compatibility Changes |
+|---------------------|------------------|-----------------------|
+| Source-incompatible | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3482,52 +3627,54 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type               | Method                                   | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|-----------|----------|--------------------|------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | `void`             | `deleteByLoginName`([`String`])          |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByEmail`([`String`])                |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByFullName`([`String`])             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByLoginName`([`String`])            |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByUid`([`String`])                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByWikiName`([`String`])             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9] | `getWikiNames`()                         |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `rename`([`String`], [`String`])         |             | [`DuplicateUserException`], [`WikiSecurityException`]      | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `save`([`UserProfile`])                  |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Status    | Modifiers | Generics | Type                | Method                                   | Annotations | Throws                                                     | Compatibility Changes |
+|-----------|-----------|----------|---------------------|------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void`              | `deleteByLoginName`([`String`])          |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByEmail`([`String`])                |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByFullName`([`String`])             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByLoginName`([`String`])            |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByUid`([`String`])                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByWikiName`([`String`])             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10] | `getWikiNames`()                         |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `rename`([`String`], [`String`])         |             | [`DuplicateUserException`], [`WikiSecurityException`]      | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `save`([`UserProfile`])                  |             | [`WikiSecurityException`]                                  | ![No changes]         |
 
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                     | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|--------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_ATTRIBUTES`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_CREATED`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_EMAIL`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_FULL_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_JNDI_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_LOCK_EXPIRY` |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_LOGIN_NAME`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_MODIFIED`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_PASSWORD`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_ROLE`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_ROLE_TABLE`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_TABLE`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_UID`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_WIKI_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_ATTRIBUTES`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_CREATED`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_DATASOURCE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_EMAIL`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_FULL_NAME`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_LOCK_EXPIRY`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_LOGIN_NAME`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_MODIFIED`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_PASSWORD`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_ROLE`           |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_ROLE_TABLE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_TABLE`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_UID`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_WIKI_NAME`      |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                     | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|--------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ATTRIBUTES`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_CREATED`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_EMAIL`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_FULL_NAME`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_JNDI_NAME`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOCK_EXPIRY` |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOGIN_NAME`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_MODIFIED`    |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `DEFAULT_DB_OLD_HASHES`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_PASSWORD`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE`        |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE_TABLE`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_TABLE`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_UID`         |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_WIKI_NAME`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ATTRIBUTES`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_CREATED`        |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_DATASOURCE`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_EMAIL`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_FULL_NAME`      |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOCK_EXPIRY`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOGIN_NAME`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_MODIFIED`       |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_DB_OLD_HASHES`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_PASSWORD`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE_TABLE`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_TABLE`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_UID`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_WIKI_NAME`      |             | ![No changes]         |
 
 ___
 
@@ -3535,32 +3682,33 @@ ___
 ### `org.apache.wiki.auth.user.UserDatabase`
 
 - [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `UserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `UserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type               | Method                                     | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|---------------------|----------|--------------------|--------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | `void`             | `deleteByLoginName`([`String`])            |             | [`NoSuchPrincipalException`], [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `find`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `findByEmail`([`String`])                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `findByFullName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `findByLoginName`([`String`])              |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `findByUid`([`String`])                    |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `findByWikiName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Principal[]`][9] | `getPrincipals`([`String`])                |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Principal[]`][9] | `getWikiNames`()                           |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `initialize`([`Engine`], [`Properties`])   |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`UserProfile`]    | `newProfile`()                             |             |                                                            | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`             | `rename`([`String`], [`String`])           |             | [`NoSuchPrincipalException`], [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes] |
-| Unchanged | `public` `abstract` |          | `void`             | `save`([`UserProfile`])                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`          | `validatePassword`([`String`], [`String`]) |             |                                                            | ![No changes]         |
+| Status    | Modifiers                   | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
+|-----------|-----------------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public` `abstract`         |          | `void`              | `deleteByLoginName`([`String`])                     |             | [`NoSuchPrincipalException`], [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByUid`([`String`])                             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getWikiNames`()                                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `void`              | `rename`([`String`], [`String`])                    |             | [`NoSuchPrincipalException`], [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes] |
+| Unchanged | `public` `abstract`         |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
+| Added     | **`public`** **`abstract`** |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to interface] |
 
 ___
 
@@ -3569,11 +3717,11 @@ ___
 
 - [X] Binary-compatible
 - [X] Source-compatible
-- [X] Serialization-compatible
+- [ ] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization | Compatibility Changes |
-|-----------|---------------------|-----------|---------------|------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `UserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization                       | Compatibility Changes |
+|----------|---------------------|-----------|---------------|------------|------------------------------|-------------------------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `UserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Default serialversionuid changed] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -3585,29 +3733,40 @@ ___
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type                          | Method                      | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------|----------|-------------------------------|-----------------------------|-------------|--------|-----------------------|
-| Unchanged | `public` `abstract` |          | [`Map<String, Serializable>`] | `getAttributes`()           |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Date`]                      | `getCreated`()              |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getEmail`()                |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getFullname`()             |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLastModified`()         |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLockExpiry`()           |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getLoginName`()            |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getPassword`()             |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getUid`()                  |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getWikiName`()             |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`                     | `isLocked`()                |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`                     | `isNew`()                   |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setCreated`([`Date`])      |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setEmail`([`String`])      |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setFullname`([`String`])   |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setLastModified`([`Date`]) |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setLockExpiry`([`Date`])   |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setLoginName`([`String`])  |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setPassword`([`String`])   |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setUid`([`String`])        |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `toString`()                |             |        | ![No changes]         |
+| Status    | Modifiers           | Generics | Type                          | Method                               | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------|----------|-------------------------------|--------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`Map<String, Serializable>`] | `getAttributes`()                    |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Date`]                      | `getCreated`()                       |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getEmail`()                         |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getFullname`()                      |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLastModified`()                  |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLockExpiry`()                    |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getLoginName`()                     |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getPassword`()                      |             |        | ![No changes]         |
+| Added     | **`public`**        |          | **[`List<String>`]**          | **`getPreviousHashedCredentials`**() |             |        | ![Method new default] |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getUid`()                           |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getWikiName`()                      |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`                     | `isLocked`()                         |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`                     | `isNew`()                            |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setCreated`([`Date`])               |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setEmail`([`String`])               |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setFullname`([`String`])            |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setLastModified`([`Date`])          |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setLockExpiry`([`Date`])            |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setLoginName`([`String`])           |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setPassword`([`String`])            |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setUid`([`String`])                 |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `toString`()                         |             |        | ![No changes]         |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name                            | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|---------------------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_CURRENT_LOGIN_IP`         |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_CURRENT_LOGIN_TIMESTAMP`  |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_PREVIOUS_LOGIN_IP`        |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_PREVIOUS_LOGIN_TIMESTAMP` |             | ![No changes]         |
 
 ___
 
@@ -3625,9 +3784,9 @@ ___
 
 #### Implemented Interfaces
 
-| Status    | Interface        | Compatibility Changes |
-|-----------|------------------|-----------------------|
-| Unchanged | [`UserDatabase`] | ![No changes]         |
+| Status              | Interface        | Compatibility Changes |
+|---------------------|------------------|-----------------------|
+| Source-incompatible | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3639,19 +3798,19 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type               | Method                                   | Annotations | Throws                                                | Compatibility Changes |
-|-----------|-----------|----------|--------------------|------------------------------------------|-------------|-------------------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | `void`             | `deleteByLoginName`([`String`])          |             | [`WikiSecurityException`]                             | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findBy`([`String`], [`String`])         |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByEmail`([`String`])                |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByFullName`([`String`])             |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByLoginName`([`String`])            |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByUid`([`String`])                  |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
-| Unchanged | `public`  |          | [`UserProfile`]    | `findByWikiName`([`String`])             |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
-| Unchanged | `public`  |          | [`Principal[]`][9] | `getWikiNames`()                         |             | [`WikiSecurityException`]                             | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`]                       | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `rename`([`String`], [`String`])         |             | [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public`  |          | `void`             | `save`([`UserProfile`])                  |             | [`WikiSecurityException`]                             | ![No changes]         |
+| Status    | Modifiers | Generics | Type                | Method                                   | Annotations | Throws                                                | Compatibility Changes |
+|-----------|-----------|----------|---------------------|------------------------------------------|-------------|-------------------------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void`              | `deleteByLoginName`([`String`])          |             | [`WikiSecurityException`]                             | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findBy`([`String`], [`String`])         |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByEmail`([`String`])                |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByFullName`([`String`])             |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByLoginName`([`String`])            |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByUid`([`String`])                  |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
+| Unchanged | `public`  |          | [`UserProfile`]     | `findByWikiName`([`String`])             |             | [`NoSuchPrincipalException`]                          | ![No changes]         |
+| Unchanged | `public`  |          | [`Principal[]`][10] | `getWikiNames`()                         |             | [`WikiSecurityException`]                             | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`]                       | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `rename`([`String`], [`String`])         |             | [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public`  |          | `void`              | `save`([`UserProfile`])                  |             | [`WikiSecurityException`]                             | ![No changes]         |
 
 
 #### Fields
@@ -3669,16 +3828,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `DefaultPageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `DefaultPageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface       | Compatibility Changes |
-|-----------|-----------------|-----------------------|
-| Unchanged | [`PageRenamer`] | ![No changes]         |
+| Status       | Interface       | Compatibility Changes |
+|--------------|-----------------|-----------------------|
+| Incompatible | [`PageRenamer`] | ![No changes]         |
 
 
 #### Constructors
@@ -3690,87 +3849,89 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                                       | Annotations | Throws            | Compatibility Changes |
-|-----------|-----------|----------|------------|--------------------------------------------------------------|-------------|-------------------|-----------------------|
-| Unchanged | `public`  |          | `void`     | `firePageRenameEvent`([`String`], [`String`])                |             |                   | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`) |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers    | Generics | Type       | Method                                                         | Annotations | Throws            | Compatibility Changes |
+|-----------|--------------|----------|------------|----------------------------------------------------------------|-------------|-------------------|-----------------------|
+| Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`firePageRenameEvent`~~([`String`], [`String`])              |             |                   | ![No changes]         |
+| Added     | **`public`** |          | **`void`** | **`firePageRenameEvent`**([`String`], [`String`], [`Context`]) |             |                   | ![Method added to public class] |
+| Unchanged | `public`     |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`)   |             | [`WikiException`] | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.content.pagerenamer"></a>
 ### `org.apache.wiki.content.PageRenamer`
 
-- [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Binary-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `PageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `PageRenamer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type       | Method                                                       | Annotations | Throws            | Compatibility Changes |
-|-----------|---------------------|----------|------------|--------------------------------------------------------------|-------------|-------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | `void`     | `firePageRenameEvent`([`String`], [`String`])                |             |                   | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`) |             | [`WikiException`] | ![No changes]         |
+| Status    | Modifiers                   | Generics | Type       | Method                                                         | Annotations | Throws            | Compatibility Changes |
+|-----------|-----------------------------|----------|------------|----------------------------------------------------------------|-------------|-------------------|-----------------------|
+| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`void`~~ | ~~`firePageRenameEvent`~~([`String`], [`String`])              |             |                   | ![Method removed]     |
+| Added     | **`public`** **`abstract`** |          | **`void`** | **`firePageRenameEvent`**([`String`], [`String`], [`Context`]) |             |                   | ![Method added to interface] |
+| Unchanged | `public` `abstract`         |          | [`String`] | `renamePage`([`Context`], [`String`], [`String`], `boolean`)   |             | [`WikiException`] | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.diff.contextualdiffprovider"></a>
 ### `org.apache.wiki.diff.ContextualDiffProvider`
 
-- [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Binary-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ContextualDiffProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status  | Modifiers    | Type      | Name                         | Extends        | JDK        | Serialization       | Compatibility Changes |
+|---------|--------------|-----------|------------------------------|----------------|------------|---------------------|-----------------------|
+| Removed | ~~`public`~~ | ~~Class~~ | ~~`ContextualDiffProvider`~~ | ~~[`Object`]~~ | ~~JDK 11~~ | ![Not serializable] | ![Class removed] ![Superclass removed] |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface        | Compatibility Changes |
-|-----------|------------------|-----------------------|
-| Unchanged | [`DiffProvider`] | ![No changes]         |
+| Status  | Interface            | Compatibility Changes |
+|---------|----------------------|-----------------------|
+| Removed | ~~[`DiffProvider`]~~ | ![Interface removed]  |
 
 
 #### Constructors
 
-| Status    | Modifiers | Generics | Constructor                | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|----------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `ContextualDiffProvider`() |             |        | ![No changes]         |
+| Status  | Modifiers    | Generics | Constructor                    | Annotations | Throws | Compatibility Changes |
+|---------|--------------|----------|--------------------------------|-------------|--------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~`ContextualDiffProvider`~~() |             |        | ![Constructor removed] |
 
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                              | Annotations | Throws                                           | Compatibility Changes |
-|-----------|-----------|----------|------------|-----------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `getProviderInfo`()                                 |             |                                                  | ![No changes]         |
-| Unchanged | `public`  |          | `void`     | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`IOException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `makeDiffHtml`([`Context`], [`String`], [`String`]) |             |                                                  | ![No changes]         |
+| Status  | Modifiers    | Generics | Type           | Method                                                  | Annotations | Throws                                                   | Compatibility Changes |
+|---------|--------------|----------|----------------|---------------------------------------------------------|-------------|----------------------------------------------------------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getProviderInfo`~~()                                 |             |                                                          | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~`void`~~     | ~~`initialize`~~([`Engine`], [`Properties`])            |             | ~~[`NoRequiredPropertyException`]~~, ~~[`IOException`]~~ | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`makeDiffHtml`~~([`Context`], [`String`], [`String`]) |             |                                                          | ![No changes]         |
 
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                                 | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|--------------------------------------|-------------|-----------------------|
-| Unchanged | `public` `static`         | [`String`] | `ALTERNATING_SPACE_HTML`             |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `CHANGE_END_HTML`                    |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `CHANGE_START_HTML`                  |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `DELETION_END_HTML`                  |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `DELETION_START_HTML`                |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `DIFF_END`                           |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `DIFF_START`                         |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `ELIDED_HEAD_INDICATOR_HTML`         |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `ELIDED_TAIL_INDICATOR_HTML`         |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `INSERTION_END_HTML`                 |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `INSERTION_START_HTML`               |             | ![No changes]         |
-| Unchanged | `public` `static`         | [`String`] | `LINE_BREAK_HTML`                    |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_UNCHANGED_CONTEXT_LIMIT`       |             | ![No changes]         |
-| Unchanged | `public`                  | `boolean`  | `m_emitChangeNextPreviousHyperlinks` |             | ![No changes]         |
+| Status  | Modifiers                             | Type           | Name                                 | Annotations | Compatibility Changes |
+|---------|---------------------------------------|----------------|--------------------------------------|-------------|-----------------------|
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `ALTERNATING_SPACE_HTML`             |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `CHANGE_END_HTML`                    |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `CHANGE_START_HTML`                  |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DELETION_END_HTML`                  |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DELETION_START_HTML`                |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DIFF_END`                           |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DIFF_START`                         |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `ELIDED_HEAD_INDICATOR_HTML`         |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `ELIDED_TAIL_INDICATOR_HTML`         |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `INSERTION_END_HTML`                 |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `INSERTION_START_HTML`               |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `LINE_BREAK_HTML`                    |             | ![Field removed]      |
+| Removed | ~~`public`~~ ~~`static`~~ ~~`final`~~ | ~~[`String`]~~ | `PROP_UNCHANGED_CONTEXT_LIMIT`       |             | ![Field removed]      |
+| Removed | ~~`public`~~                          | ~~`boolean`~~  | `m_emitChangeNextPreviousHyperlinks` |             | ![Field removed]      |
 
 ___
 
@@ -3936,39 +4097,86 @@ ___
 
 ___
 
-<a id="user-content-org.apache.wiki.diff.traditionaldiffprovider"></a>
-### `org.apache.wiki.diff.TraditionalDiffProvider`
+<a id="user-content-org.apache.wiki.diff.svnstylediffprovider"></a>
+### `org.apache.wiki.diff.SvnStyleDiffProvider`
 
 - [X] Binary-compatible
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `TraditionalDiffProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status | Modifiers    | Type      | Name                       | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|----------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`SvnStyleDiffProvider`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![Interface added]    |
 
 
 #### Implemented Interfaces
 
-| Status    | Interface        | Compatibility Changes |
-|-----------|------------------|-----------------------|
-| Unchanged | [`DiffProvider`] | ![No changes]         |
+| Status | Interface            | Compatibility Changes |
+|--------|----------------------|-----------------------|
+| Added  | **[`DiffProvider`]** | ![No changes]         |
 
 
 #### Constructors
 
-| Status    | Modifiers | Generics | Constructor                 | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|-----------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `TraditionalDiffProvider`() |             |        | ![No changes]         |
+| Status | Modifiers    | Generics | Constructor                  | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`SvnStyleDiffProvider`**() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                              | Annotations | Throws                                           | Compatibility Changes |
-|-----------|-----------|----------|------------|-----------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `getProviderInfo`()                                 |             |                                                  | ![No changes]         |
-| Unchanged | `public`  |          | `void`     | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`IOException`] | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `makeDiffHtml`([`Context`], [`String`], [`String`]) |             |                                                  | ![No changes]         |
+| Status | Modifiers    | Generics | Type           | Method                                                  | Annotations | Throws                                                   | Compatibility Changes |
+|--------|--------------|----------|----------------|---------------------------------------------------------|-------------|----------------------------------------------------------|-----------------------|
+| Added  | **`public`** |          | **[`String`]** | **`getProviderInfo`**()                                 |             |                                                          | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`**     | **`initialize`**([`Engine`], [`Properties`])            |             | **[`NoRequiredPropertyException`]**, **[`IOException`]** | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]** | **`makeDiffHtml`**([`Context`], [`String`], [`String`]) |             |                                                          | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name                 | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|----------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CELL_CHANGE`        |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_ADDED`     |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_CLOSE`     |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_REMOVED`   |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_UNCHANGED` |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.diff.traditionaldiffprovider"></a>
+### `org.apache.wiki.diff.TraditionalDiffProvider`
+
+- [ ] Binary-compatible
+- [ ] Source-compatible
+- [X] Serialization-compatible
+
+| Status  | Modifiers    | Type      | Name                          | Extends        | JDK        | Serialization       | Compatibility Changes |
+|---------|--------------|-----------|-------------------------------|----------------|------------|---------------------|-----------------------|
+| Removed | ~~`public`~~ | ~~Class~~ | ~~`TraditionalDiffProvider`~~ | ~~[`Object`]~~ | ~~JDK 11~~ | ![Not serializable] | ![Class removed] ![Superclass removed] |
+
+
+#### Implemented Interfaces
+
+| Status  | Interface            | Compatibility Changes |
+|---------|----------------------|-----------------------|
+| Removed | ~~[`DiffProvider`]~~ | ![Interface removed]  |
+
+
+#### Constructors
+
+| Status  | Modifiers    | Generics | Constructor                     | Annotations | Throws | Compatibility Changes |
+|---------|--------------|----------|---------------------------------|-------------|--------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~`TraditionalDiffProvider`~~() |             |        | ![Constructor removed] |
+
+
+#### Methods
+
+| Status  | Modifiers    | Generics | Type           | Method                                                  | Annotations | Throws                                                   | Compatibility Changes |
+|---------|--------------|----------|----------------|---------------------------------------------------------|-------------|----------------------------------------------------------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getProviderInfo`~~()                                 |             |                                                          | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~`void`~~     | ~~`initialize`~~([`Engine`], [`Properties`])            |             | ~~[`NoRequiredPropertyException`]~~, ~~[`IOException`]~~ | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`makeDiffHtml`~~([`Context`], [`String`], [`String`]) |             |                                                          | ![No changes]         |
 
 ___
 
@@ -4209,15 +4417,15 @@ ___
 | Status    | Modifiers                 | Generics | Type           | Method                                                 | Annotations | Throws                | Compatibility Changes |
 |-----------|---------------------------|----------|----------------|--------------------------------------------------------|-------------|-----------------------|-----------------------|
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`boolean`~~  | ~~`checkHash`~~([`Context`], [`PageContext`])          |             | ~~[`IOException`]~~   | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`boolean`**  | **`checkHash`**([`Context`], [`PageContext`][3])       |             | **[`IOException`]**   | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`boolean`**  | **`checkHash`**([`Context`], [`PageContext`][4])       |             | **[`IOException`]**   | ![Method added to public class] |
 | Unchanged | `static` `public`         |          | [`String`]     | `getBotFieldName`()                                    |             |                       | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getHashFieldName`~~([`HttpServletRequest`])         |             |                       | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getHashFieldName`**([`HttpServletRequest`][2])      |             |                       | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getHashFieldName`**([`HttpServletRequest`][3])      |             |                       | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getSpamHash`~~([`Page`], [`HttpServletRequest`])    |             |                       | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getSpamHash`**([`Page`], [`HttpServletRequest`][2]) |             |                       | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getSpamHash`**([`Page`], [`HttpServletRequest`][3]) |             |                       | ![Method added to public class] |
 | Unchanged | `public`                  |          | `void`         | `initialize`([`Engine`], [`Properties`])               |             |                       | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`insertInputFields`~~([`PageContext`])               |             |                       | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`insertInputFields`**([`PageContext`][3])            |             |                       | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`insertInputFields`**([`PageContext`][4])            |             |                       | ![Method added to public class] |
 | Unchanged | `public`                  |          | `boolean`      | `isValidUserProfile`([`Context`], [`UserProfile`])     |             |                       | ![No changes]         |
 | Unchanged | `public`                  |          | [`String`]     | `preSave`([`Context`], [`String`])                     |             | [`RedirectException`] | ![No changes]         |
 
@@ -4665,12 +4873,12 @@ ___
 | Status    | Modifiers           | Generics | Type              | Method                                                  | Annotations | Throws                                      | Compatibility Changes |
 |-----------|---------------------|----------|-------------------|---------------------------------------------------------|-------------|---------------------------------------------|-----------------------|
 | Unchanged | `public`            |          | [`Object`]        | `getAttribute`([`String`])                              |             | [`AttributeNotFoundException`], [`MBeanException`], [`ReflectionException`] | ![No changes] |
-| Unchanged | `public` `abstract` |          | [`String[]`][1]   | `getAttributeNames`()                                   |             |                                             | ![No changes]         |
-| Unchanged | `public`            |          | [`AttributeList`] | `getAttributes`([`String[]`][1])                        |             |                                             | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String[]`][2]   | `getAttributeNames`()                                   |             |                                             | ![No changes]         |
+| Unchanged | `public`            |          | [`AttributeList`] | `getAttributes`([`String[]`][2])                        |             |                                             | ![No changes]         |
 | Unchanged | `protected`         |          | [`String`]        | `getDescription`()                                      |             |                                             | ![No changes]         |
 | Unchanged | `public`            |          | [`MBeanInfo`]     | `getMBeanInfo`()                                        |             |                                             | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String[]`][1]   | `getMethodNames`()                                      |             |                                             | ![No changes]         |
-| Unchanged | `public`            |          | [`Object`]        | `invoke`([`String`], [`Object[]`][18], [`String[]`][1]) |             | [`MBeanException`], [`ReflectionException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String[]`][2]   | `getMethodNames`()                                      |             |                                             | ![No changes]         |
+| Unchanged | `public`            |          | [`Object`]        | `invoke`([`String`], [`Object[]`][19], [`String[]`][2]) |             | [`MBeanException`], [`ReflectionException`] | ![No changes]         |
 | Unchanged | `public`            |          | `void`            | `setAttribute`([`Attribute`])                           |             | [`AttributeNotFoundException`], [`InvalidAttributeValueException`], [`MBeanException`], [`ReflectionException`] | ![No changes] |
 | Unchanged | `public`            |          | [`AttributeList`] | `setAttributes`([`AttributeList`])                      |             |                                             | ![No changes]         |
 
@@ -4745,9 +4953,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `ModuleManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `ModuleManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -4761,9 +4969,10 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                       | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|----------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `PLUGIN_RESOURCE_LOCATION` |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                       | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|----------------------------|-------------|-----------------------|
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PLUGIN_I18N_RESOURCE`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PLUGIN_RESOURCE_LOCATION` |             | ![No changes]         |
 
 ___
 
@@ -4866,39 +5075,39 @@ ___
 
 #### Methods
 
-| Status    | Modifiers           | Generics               | Type                 | Method                                                   | Annotations | Throws                | Compatibility Changes |
-|-----------|---------------------|------------------------|----------------------|----------------------------------------------------------|-------------|-----------------------|-----------------------|
-| Unchanged | `public`            |                        | `void`               | `actionPerformed`([`WikiEvent`])                         |             |                       | ![No changes]         |
-| Unchanged | `protected`         |                        | `boolean`            | `changeAcl`([`Page`], [`Principal[]`][9], [`Principal`]) |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | `void`               | `deletePage`([`String`])                                 |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | `void`               | `deletePage`([`Page`])                                   |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | `void`               | `deleteVersion`([`Page`])                                |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `final` `protected` |                        | `void`               | `fireEvent`(`int`, [`String`])                           |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`List<PageLock>`]   | `getActiveLocks`()                                       |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`Collection<Page>`] | `getAllPages`()                                          |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | [`PageLock`]         | `getCurrentLock`([`Page`])                               |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`String`]           | `getCurrentProvider`()                                   |             |                       | ![No changes]         |
-| Unchanged | `protected`         |                        | [`Engine`]           | `getEngine`()                                            |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`Page`]             | `getPage`([`String`])                                    |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`Page`]             | `getPage`([`String`], `int`)                             |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`Page`]             | `getPageInfo`([`String`], `int`)                         |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | [`PageSorter`]       | `getPageSorter`()                                        |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`String`]           | `getPageText`([`String`], `int`)                         |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | [`PageProvider`]     | `getProvider`()                                          |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`String`]           | `getProviderDescription`()                               |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`String`]           | `getPureText`([`String`], `int`)                         |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`Set<Page>`]        | `getRecentChanges`()                                     |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`String`]           | `getText`([`String`], `int`)                             |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | `int`                | `getTotalPageCount`()                                    |             |                       | ![No changes]         |
-| Unchanged | `public`            | \<[`T extends Page`]\> | [`List<T>`]          | `getVersionHistory`([`String`])                          |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | [`PageLock`]         | `lockPage`([`Page`], [`String`])                         |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | `boolean`            | `pageExists`([`String`])                                 |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | `boolean`            | `pageExists`([`String`], `int`)                          |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | `void`               | `putPageText`([`Page`], [`String`])                      |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`            |                        | `void`               | `saveText`([`Context`], [`String`])                      |             | [`WikiException`]     | ![No changes]         |
-| Unchanged | `public`            |                        | `void`               | `unlockPage`([`PageLock`])                               |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | `boolean`            | `wikiPageExists`([`String`])                             |             |                       | ![No changes]         |
-| Unchanged | `public`            |                        | `boolean`            | `wikiPageExists`([`String`], `int`)                      |             | [`ProviderException`] | ![No changes]         |
+| Status    | Modifiers           | Generics               | Type                 | Method                                                    | Annotations | Throws                | Compatibility Changes |
+|-----------|---------------------|------------------------|----------------------|-----------------------------------------------------------|-------------|-----------------------|-----------------------|
+| Unchanged | `public`            |                        | `void`               | `actionPerformed`([`WikiEvent`])                          |             |                       | ![No changes]         |
+| Unchanged | `protected`         |                        | `boolean`            | `changeAcl`([`Page`], [`Principal[]`][10], [`Principal`]) |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | `void`               | `deletePage`([`String`])                                  |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | `void`               | `deletePage`([`Page`])                                    |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | `void`               | `deleteVersion`([`Page`])                                 |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `final` `protected` |                        | `void`               | `fireEvent`(`int`, [`String`])                            |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`List<PageLock>`]   | `getActiveLocks`()                                        |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`Collection<Page>`] | `getAllPages`()                                           |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | [`PageLock`]         | `getCurrentLock`([`Page`])                                |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`String`]           | `getCurrentProvider`()                                    |             |                       | ![No changes]         |
+| Unchanged | `protected`         |                        | [`Engine`]           | `getEngine`()                                             |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`Page`]             | `getPage`([`String`])                                     |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`Page`]             | `getPage`([`String`], `int`)                              |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`Page`]             | `getPageInfo`([`String`], `int`)                          |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | [`PageSorter`]       | `getPageSorter`()                                         |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`String`]           | `getPageText`([`String`], `int`)                          |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | [`PageProvider`]     | `getProvider`()                                           |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`String`]           | `getProviderDescription`()                                |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`String`]           | `getPureText`([`String`], `int`)                          |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`Set<Page>`]        | `getRecentChanges`()                                      |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`String`]           | `getText`([`String`], `int`)                              |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | `int`                | `getTotalPageCount`()                                     |             |                       | ![No changes]         |
+| Unchanged | `public`            | \<[`T extends Page`]\> | [`List<T>`]          | `getVersionHistory`([`String`])                           |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | [`PageLock`]         | `lockPage`([`Page`], [`String`])                          |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | `boolean`            | `pageExists`([`String`])                                  |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | `boolean`            | `pageExists`([`String`], `int`)                           |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | `void`               | `putPageText`([`Page`], [`String`])                       |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`            |                        | `void`               | `saveText`([`Context`], [`String`])                       |             | [`WikiException`]     | ![No changes]         |
+| Unchanged | `public`            |                        | `void`               | `unlockPage`([`PageLock`])                                |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | `boolean`            | `wikiPageExists`([`String`])                              |             |                       | ![No changes]         |
+| Unchanged | `public`            |                        | `boolean`            | `wikiPageExists`([`String`], `int`)                       |             | [`ProviderException`] | ![No changes]         |
 
 
 #### Fields
@@ -5042,7 +5251,7 @@ ___
 | Unchanged | `public`  |          | `boolean` | `equals`([`Object`])              |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `void`    | `initialize`([`Properties`])      |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `void`    | `sort`([`List<String>`])          |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void`    | `sort`([`String[]`][1])           |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`    | `sort`([`String[]`][2])           |             |        | ![No changes]         |
 
 
 #### Fields
@@ -5283,7 +5492,7 @@ ___
 
 | Status    | Modifiers   | Generics | Type                    | Method                            | Annotations | Throws             | Compatibility Changes |
 |-----------|-------------|----------|-------------------------|-----------------------------------|-------------|--------------------|-----------------------|
-| Unchanged | `public`    |          | `void`                  | `addAttribute`([`Attribute`][19]) |             |                    | ![No changes]         |
+| Unchanged | `public`    |          | `void`                  | `addAttribute`([`Attribute`][20]) |             |                    | ![No changes]         |
 | Unchanged | `public`    |          | `int`                   | `attributeCount`()                |             |                    | ![No changes]         |
 | Unchanged | `public`    |          | [`Iterator<Attribute>`] | `getAttributes`()                 |             |                    | ![No changes]         |
 | Unchanged | `public`    |          | [`String`]              | `getExternalWiki`()               |             |                    | ![No changes]         |
@@ -5388,7 +5597,7 @@ ___
 | Unchanged | `public` `static` `final`    | [`String`]                        | `CLASS_FOOTNOTE`               |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | [`String`]                        | `CLASS_FOOTNOTE_REF`           |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | [`String`]                        | `CLASS_INTERWIKI`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`    | [`String[]`][1]                   | `CLASS_TYPES`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`    | [`String[]`][2]                   | `CLASS_TYPES`                  |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | [`String`]                        | `CLASS_WIKIPAGE`               |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | [`String`]                        | `HASHLINK`                     |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | [`String`]                        | `OUTLINK`                      |             | ![No changes]         |
@@ -5588,8 +5797,8 @@ ___
 | Unchanged | `protected`                  | [`SimpleDateFormat`] | `m_dateFormat`           |             | ![No changes]         |
 | Unchanged | `protected`                  | [`Date`]             | `m_dateLastModified`     |             | ![No changes]         |
 | Unchanged | `protected`                  | [`Engine`]           | `m_engine`               |             | ![No changes]         |
-| Unchanged | `protected`                  | [`Pattern[]`][20]    | `m_exclude`              |             | ![No changes]         |
-| Unchanged | `protected`                  | [`Pattern[]`][20]    | `m_include`              |             | ![No changes]         |
+| Unchanged | `protected`                  | [`Pattern[]`][21]    | `m_exclude`              |             | ![No changes]         |
+| Unchanged | `protected`                  | [`Pattern[]`][21]    | `m_include`              |             | ![No changes]         |
 | Unchanged | `protected`                  | `boolean`            | `m_lastModified`         |             | ![No changes]         |
 | Unchanged | `protected`                  | `int`                | `m_maxwidth`             |             | ![No changes]         |
 | Unchanged | `protected`                  | [`String`]           | `m_separator`            |             | ![No changes]         |
@@ -5739,7 +5948,7 @@ ___
 | Unchanged | `public`     |          | [`String`]                     | `execute`([`Context`], [`String`])                          |             | [`PluginException`] | ![No changes]         |
 | Added     | **`public`** |          | **[`List<Plugin>`]**           | **`getDiscoveredPlugins`**()                                |             |                     | ![Method added to public class] |
 | Unchanged | `public`     |          | [`WikiPluginInfo`]             | `getModuleInfo`([`String`])                                 |             |                     | ![No changes]         |
-| Unchanged | `public`     |          | [`Pattern`][21]                | `getPluginPattern`()                                        |             |                     | ![No changes]         |
+| Unchanged | `public`     |          | [`Pattern`][22]                | `getPluginPattern`()                                        |             |                     | ![No changes]         |
 | Unchanged | `public`     |          | [`Collection<WikiModuleInfo>`] | `modules`()                                                 |             |                     | ![No changes]         |
 | Unchanged | `public`     |          | [`Plugin`]                     | `newWikiPlugin`([`String`], [`ResourceBundle`])             |             | [`PluginException`] | ![No changes]         |
 | Unchanged | `public`     |          | [`Map<String, String>`]        | `parseArgs`([`String`])                                     |             | [`IOException`]     | ![No changes]         |
@@ -6156,7 +6365,7 @@ ___
 | Unchanged | `public` `abstract`         |          | [`String`]              | `execute`([`Context`], [`String`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`String`]              | `execute`([`Context`], [`String`])                          |             | [`PluginException`] | ![No changes]         |
 | Added     | **`public`** **`abstract`** |          | **[`List<Plugin>`]**    | **`getDiscoveredPlugins`**()                                |             |                     | ![Method added to interface] |
-| Unchanged | `public` `abstract`         |          | [`Pattern`][21]         | `getPluginPattern`()                                        |             |                     | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Pattern`][22]         | `getPluginPattern`()                                        |             |                     | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Plugin`]              | `newWikiPlugin`([`String`], [`ResourceBundle`])             |             | [`PluginException`] | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Map<String, String>`] | `parseArgs`([`String`])                                     |             | [`IOException`]     | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | `boolean`               | `pluginsEnabled`()                                          |             |                     | ![No changes]         |
@@ -6358,7 +6567,7 @@ ___
 | Unchanged | `public`     |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`]                              | ![No changes]         |
 | Unchanged | `public`     |          | [`String`] | `getServletMapping`()                           |             |                                                  | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`ServletException`]~~, ~~[`IOException`]~~ | ![Method removed] |
-| Added     | **`public`** |          | **`void`** | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`ServletException`][8]**, **[`IOException`]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`** | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`ServletException`][9]**, **[`IOException`]** | ![Method added to public class] |
 
 ___
 
@@ -6696,12 +6905,12 @@ ___
 | Unchanged | `static` `public`         |          | [`Locale`]           | `getLocale`([`Context`])                            |             |                              | ![No changes]         |
 | Unchanged | `static` `public`         |          | [`String`]           | `getPreference`([`Context`], [`String`])            |             |                              | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~       | ~~`getPreference`~~([`PageContext`], [`String`])    |             |                              | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]**       | **`getPreference`**([`PageContext`][3], [`String`]) |             |                              | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]**       | **`getPreference`**([`PageContext`][4], [`String`]) |             |                              | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~           | ~~`reloadPreferences`~~([`PageContext`])            |             |                              | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**           | **`reloadPreferences`**([`PageContext`][3])         |             |                              | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`void`**           | **`reloadPreferences`**([`PageContext`][4])         |             |                              | ![Method added to public class] |
 | Unchanged | `static` `public`         |          | [`String`]           | `renderDate`([`Context`], [`Date`], [`TimeFormat`]) |             |                              | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~           | ~~`setupPreferences`~~([`PageContext`])             |             |                              | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**           | **`setupPreferences`**([`PageContext`][3])          |             |                              | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`void`**           | **`setupPreferences`**([`PageContext`][4])          |             |                              | ![Method added to public class] |
 
 
 #### Fields
@@ -6739,7 +6948,7 @@ ___
 | Status    | Modifiers         | Generics | Type                 | Method                | Annotations | Throws | Compatibility Changes |
 |-----------|-------------------|----------|----------------------|-----------------------|-------------|--------|-----------------------|
 | Unchanged | `static` `public` |          | [`TimeFormat`]       | `valueOf`([`String`]) |             |        | ![No changes]         |
-| Unchanged | `static` `public` |          | [`TimeFormat[]`][22] | `values`()            |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`TimeFormat[]`][23] | `values`()            |             |        | ![No changes]         |
 
 
 #### Fields
@@ -6779,7 +6988,7 @@ ___
 | Unchanged | `public`    |          | `void`                       | `deletePage`([`String`])                        |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `public`    |          | `void`                       | `deleteVersion`([`String`], `int`)              |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `protected` |          | [`File`]                     | `findPage`([`String`])                          |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][23])                |             |                       | ![No changes]         |
+| Unchanged | `public`    |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][24])                |             |                       | ![No changes]         |
 | Unchanged | `public`    |          | [`Collection<Page>`]         | `getAllChangedSince`([`Date`])                  |             |                       | ![No changes]         |
 | Unchanged | `public`    |          | [`Collection<Page>`]         | `getAllPages`()                                 |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `protected` |          | `void`                       | `getCustomProperties`([`Page`], [`Properties`]) |             | [`IOException`]       | ![No changes]         |
@@ -6878,7 +7087,7 @@ ___
 |-----------|----------------------|----------|----------------------------|------------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
 | Unchanged | `public`             |          | `void`                     | `deleteAttachment`([`Attachment`])                   |             | [`ProviderException`]                            | ![No changes]         |
 | Unchanged | `public`             |          | `void`                     | `deleteVersion`([`Attachment`])                      |             | [`ProviderException`]                            | ![No changes]         |
-| Unchanged | `public`             |          | [`Collection<Attachment>`] | `findAttachments`([`QueryItem[]`][23])               |             |                                                  | ![No changes]         |
+| Unchanged | `public`             |          | [`Collection<Attachment>`] | `findAttachments`([`QueryItem[]`][24])               |             |                                                  | ![No changes]         |
 | Unchanged | `public`             |          | [`InputStream`]            | `getAttachmentData`([`Attachment`])                  |             | [`IOException`], [`ProviderException`]           | ![No changes]         |
 | Unchanged | `public`             |          | [`Attachment`]             | `getAttachmentInfo`([`Page`], [`String`], `int`)     |             | [`ProviderException`]                            | ![No changes]         |
 | Unchanged | `static` `protected` |          | [`String`]                 | `getFileExtension`([`String`])                       |             |                                                  | ![No changes]         |
@@ -6995,7 +7204,7 @@ ___
 |-----------|-----------|----------|----------------------------|------------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
 | Unchanged | `public`  |          | `void`                     | `deleteAttachment`([`Attachment`])                   |             | [`ProviderException`]                            | ![No changes]         |
 | Unchanged | `public`  |          | `void`                     | `deleteVersion`([`Attachment`])                      |             | [`ProviderException`]                            | ![No changes]         |
-| Unchanged | `public`  |          | [`Collection<Attachment>`] | `findAttachments`([`QueryItem[]`][23])               |             |                                                  | ![No changes]         |
+| Unchanged | `public`  |          | [`Collection<Attachment>`] | `findAttachments`([`QueryItem[]`][24])               |             |                                                  | ![No changes]         |
 | Unchanged | `public`  |          | [`InputStream`]            | `getAttachmentData`([`Attachment`])                  |             | [`ProviderException`], [`IOException`]           | ![No changes]         |
 | Unchanged | `public`  |          | [`Attachment`]             | `getAttachmentInfo`([`Page`], [`String`], `int`)     |             | [`ProviderException`]                            | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]                 | `getProviderInfo`()                                  |             |                                                  | ![No changes]         |
@@ -7034,7 +7243,7 @@ ___
 |-----------|-----------|----------|------------------------------|------------------------------------------|-------------|--------------------------------------------------|-----------------------|
 | Unchanged | `public`  |          | `void`                       | `deletePage`([`String`])                 |             | [`ProviderException`]                            | ![No changes]         |
 | Unchanged | `public`  |          | `void`                       | `deleteVersion`([`String`], `int`)       |             | [`ProviderException`]                            | ![No changes]         |
-| Unchanged | `public`  |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][23])         |             |                                                  | ![No changes]         |
+| Unchanged | `public`  |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][24])         |             |                                                  | ![No changes]         |
 | Unchanged | `public`  |          | [`Collection<Page>`]         | `getAllChangedSince`([`Date`])           |             |                                                  | ![No changes]         |
 | Unchanged | `public`  |          | [`Collection<Page>`]         | `getAllPages`()                          |             | [`ProviderException`]                            | ![No changes]         |
 | Unchanged | `public`  |          | `int`                        | `getPageCount`()                         |             | [`ProviderException`]                            | ![No changes]         |
@@ -7586,15 +7795,15 @@ ___
 | Status  | Modifiers    | Generics | Type       | Method                                                          | Annotations | Throws                      | Compatibility Changes |
 |---------|--------------|----------|------------|-----------------------------------------------------------------|-------------|-----------------------------|-----------------------|
 | Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`doDelete`~~([`HttpServletRequest`], [`HttpServletResponse`]) |             |                             | ![Method removed]     |
-| Added   | **`public`** |          | **`void`** | **`doDelete`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |       |                             | ![Method added to public class] |
+| Added   | **`public`** |          | **`void`** | **`doDelete`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |       |                             | ![Method added to public class] |
 | Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`doGet`~~([`HttpServletRequest`], [`HttpServletResponse`])    |             | ~~[`ServletException`]~~    | ![Method removed]     |
-| Added   | **`public`** |          | **`void`** | **`doGet`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |          | **[`ServletException`][8]** | ![Method added to public class] |
+| Added   | **`public`** |          | **`void`** | **`doGet`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |          | **[`ServletException`][9]** | ![Method added to public class] |
 | Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`doPost`~~([`HttpServletRequest`], [`HttpServletResponse`])   |             | ~~[`ServletException`]~~    | ![Method removed]     |
-| Added   | **`public`** |          | **`void`** | **`doPost`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |         | **[`ServletException`][8]** | ![Method added to public class] |
+| Added   | **`public`** |          | **`void`** | **`doPost`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |         | **[`ServletException`][9]** | ![Method added to public class] |
 | Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`doPut`~~([`HttpServletRequest`], [`HttpServletResponse`])    |             |                             | ![Method removed]     |
-| Added   | **`public`** |          | **`void`** | **`doPut`**([`HttpServletRequest`][2], [`HttpServletResponse`][7]) |          |                             | ![Method added to public class] |
+| Added   | **`public`** |          | **`void`** | **`doPut`**([`HttpServletRequest`][3], [`HttpServletResponse`][8]) |          |                             | ![Method added to public class] |
 | Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`init`~~([`ServletConfig`])                                   |             | ~~[`ServletException`]~~    | ![Method removed]     |
-| Added   | **`public`** |          | **`void`** | **`init`**([`ServletConfig`][5])                                |             | **[`ServletException`][8]** | ![Method added to public class] |
+| Added   | **`public`** |          | **`void`** | **`init`**([`ServletConfig`][6])                                |             | **[`ServletException`][9]** | ![Method added to public class] |
 
 ___
 
@@ -7740,7 +7949,7 @@ ___
 | Unchanged | `public`            |          | [`String`]     | `getChannelTitle`()                                  |             |        | ![No changes]         |
 | Unchanged | `public`            |          | [`String`]     | `getFeedURL`()                                       |             |        | ![No changes]         |
 | Removed   | ~~`protected`~~     |          | ~~[`String`]~~ | ~~`getMimeType`~~([`ServletContext`], [`String`])    |             |        | ![Method removed]     |
-| Added     | **`protected`**     |          | **[`String`]** | **`getMimeType`**([`ServletContext`][4], [`String`]) |             |        | ![No changes]         |
+| Added     | **`protected`**     |          | **[`String`]** | **`getMimeType`**([`ServletContext`][5], [`String`]) |             |        | ![No changes]         |
 | Unchanged | `static` `public`   |          | [`String`]     | `getSiteName`([`Context`])                           |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]     | `getString`()                                        |             |        | ![No changes]         |
 | Unchanged | `public`            |          | `void`         | `setChannelDescription`([`String`])                  |             |        | ![No changes]         |
@@ -7930,7 +8139,7 @@ ___
 | Unchanged | `public`  |          | [`String`]                   | `getProviderInfo`()                      |             |                                                  | ![No changes]         |
 | Unchanged | `public`  |          | `void`                       | `initialize`([`Engine`], [`Properties`]) |             | [`NoRequiredPropertyException`], [`IOException`] | ![No changes]         |
 | Unchanged | `public`  |          | `void`                       | `pageRemoved`([`Page`])                  |             |                                                  | ![No changes]         |
-| Unchanged | `public`  |          | [`QueryItem[]`][23]          | `parseQuery`([`String`])                 |             |                                                  | ![No changes]         |
+| Unchanged | `public`  |          | [`QueryItem[]`][24]          | `parseQuery`([`String`])                 |             |                                                  | ![No changes]         |
 | Unchanged | `public`  |          | `void`                       | `reindexPage`([`Page`])                  |             |                                                  | ![No changes]         |
 
 ___
@@ -8005,7 +8214,7 @@ ___
 | Unchanged | `public`     |          | [`String`]                    | `getServletMapping`()                       |             |                     | ![No changes]         |
 | Unchanged | `public`     |          | [`List<String>`]              | `getSuggestions`([`String`], `int`)         |             |                     | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~                    | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`IOException`]~~ | ![No changes] |
-| Added     | **`public`** |          | **`void`**                    | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`**                    | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
 
 
 #### Fields
@@ -8050,7 +8259,7 @@ ___
 | Status | Modifiers    | Generics | Type           | Method                    | Annotations | Throws              | Compatibility Changes |
 |--------|--------------|----------|----------------|---------------------------|-------------|---------------------|-----------------------|
 | Added  | **`public`** |          | **[`String`]** | **`getServletMapping`**() |             |                     | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`**     | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`**     | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
 
 
 #### Fields
@@ -8129,7 +8338,7 @@ ___
 | Unchanged | `protected` |          | [`Engine`]                   | `getEngine`()                                            |             |                                                  | ![No changes]         |
 | Unchanged | `public`    |          | [`String`]                   | `getProviderInfo`()                                      |             |                                                  | ![No changes]         |
 | Unchanged | `public`    |          | `void`                       | `initialize`([`Engine`], [`Properties`])                 |             | [`NoRequiredPropertyException`], [`IOException`] | ![No changes]         |
-| Unchanged | `protected` |          | [`Document`][24]             | `luceneIndexPage`([`Page`], [`String`], [`IndexWriter`]) |             | [`IOException`]                                  | ![No changes]         |
+| Unchanged | `protected` |          | [`Document`][25]             | `luceneIndexPage`([`Page`], [`String`], [`IndexWriter`]) |             | [`IOException`]                                  | ![No changes]         |
 | Unchanged | `public`    |          | `void`                       | `pageRemoved`([`Page`])                                  |             |                                                  | ![No changes]         |
 | Unchanged | `public`    |          | `void`                       | `reindexPage`([`Page`])                                  |             |                                                  | ![No changes]         |
 | Unchanged | `protected` |          | `void`                       | `updateLuceneIndex`([`Page`], [`String`])                |             |                                                  | ![No changes]         |
@@ -8149,8 +8358,8 @@ ___
 | Unchanged | `protected` `static` `final` | [`String`]             | `LUCENE_PAGE_NAME`         |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | `int`                  | `MAX_SEARCH_HITS`          |             | ![No changes]         |
 | Unchanged | `public` `static` `final`    | [`String`]             | `PROP_LUCENE_ANALYZER`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`    | [`String[]`][1]        | `SEARCHABLE_FILE_SUFFIXES` |             | ![No changes]         |
-| Unchanged | `protected` `final`          | [`List<Object[]>`][25] | `m_updates`                |             | ![No changes]         |
+| Unchanged | `public` `static` `final`    | [`String[]`][2]        | `SEARCHABLE_FILE_SUFFIXES` |             | ![No changes]         |
+| Unchanged | `protected` `final`          | [`List<Object[]>`][26] | `m_updates`                |             | ![No changes]         |
 
 ___
 
@@ -8230,8 +8439,8 @@ ___
 
 | Status    | Modifiers | Generics | Constructor                                          | Annotations    | Throws | Compatibility Changes |
 |-----------|-----------|----------|------------------------------------------------------|----------------|--------|-----------------------|
-| Unchanged | `public`  |          | `SearchMatcher`([`Engine`], [`QueryItem[]`][23])     |                |        | ![No changes]         |
-| Unchanged | `public`  |          | `SearchMatcher`([`WikiEngine`], [`QueryItem[]`][26]) | [`Deprecated`] |        | ![No changes]         |
+| Unchanged | `public`  |          | `SearchMatcher`([`Engine`], [`QueryItem[]`][24])     |                |        | ![No changes]         |
+| Unchanged | `public`  |          | `SearchMatcher`([`WikiEngine`], [`QueryItem[]`][27]) | [`Deprecated`] |        | ![No changes]         |
 
 
 #### Methods
@@ -8272,7 +8481,7 @@ ___
 
 | Status    | Modifiers | Generics | Type            | Method          | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-----------------|-----------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | [`String[]`][1] | `getContexts`() |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getContexts`() |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`WikiPage`]    | `getPage`()     |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `int`           | `getScore`()    |             |        | ![No changes]         |
 
@@ -8358,7 +8567,54 @@ ___
 
 | Status    | Modifiers | Generics | Type  | Method                                                | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-------|-------------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `int` | `compare`([`SearchResult`][27], [`SearchResult`][27]) |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `int` | `compare`([`SearchResult`][28], [`SearchResult`][28]) |             |        | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.security.auditlogger"></a>
+### `org.apache.wiki.security.AuditLogger`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`AuditLogger`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                | Method                               | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|---------------------|--------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`**              |          | **`void`**          | **`actionPerformed`**([`WikiEvent`]) |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`AuditLogger`]** | **`getInstance`**()                  |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **`void`**          | **`initialize`**([`WikiEngine`])     |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **`void`**          | **`shutdown`**()                     |             |        | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.security.eventutil"></a>
+### `org.apache.wiki.security.EventUtil`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name            | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-----------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`EventUtil`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type              | Method                                                    | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|-------------------|-----------------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiSecurityEvent`])                    |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`PageContext`][4])        |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`Session`])               |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`Context`])               |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`WikiEvent`]** | **`applyFrom`**([`WikiEvent`], [`HttpServletRequest`][3]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -8385,8 +8641,8 @@ ___
 
 | Status    | Modifiers | Generics | Type             | Method    | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|------------------|-----------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | [`Acl`][6]       | `acl`()   |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`AclEntry`][14] | `entry`() |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Acl`][7]       | `acl`()   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`AclEntry`][15] | `entry`() |             |        | ![No changes]         |
 
 ___
 
@@ -8445,9 +8701,9 @@ ___
 | Removed   | ~~`public`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`Command`])    |             |        | ![Method removed]     |
 | Removed   | ~~`public`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`Page`])       |             |        | ![Method removed]     |
 | Removed   | ~~`public`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`String`])     |             |        | ![Method removed]     |
-| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][2], [`Command`]) |             |        | ![Method added to public class] |
-| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][2], [`Page`])    |             |        | ![Method added to public class] |
-| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][2], [`String`])  |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][3], [`Command`]) |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][3], [`Page`])    |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][3], [`String`])  |             |        | ![Method added to public class] |
 
 ___
 
@@ -8475,7 +8731,7 @@ ___
 | Status  | Modifiers    | Generics | Type           | Method                                            | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------|---------------------------------------------------|-------------|--------|-----------------------|
 | Removed | ~~`public`~~ |          | ~~[`Engine`]~~ | ~~`find`~~([`ServletContext`], [`Properties`])    |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`Engine`]** | **`find`**([`ServletContext`][4], [`Properties`]) |             |        | ![Method added to public class] |
+| Added   | **`public`** |          | **[`Engine`]** | **`find`**([`ServletContext`][5], [`Properties`]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -8503,10 +8759,10 @@ ___
 | Status    | Modifiers    | Generics | Type            | Method                                              | Annotations | Throws | Compatibility Changes |
 |-----------|--------------|----------|-----------------|-----------------------------------------------------|-------------|--------|-----------------------|
 | Removed   | ~~`public`~~ |          | ~~[`Session`]~~ | ~~`find`~~([`Engine`], [`HttpServletRequest`])      |             |        | ![Method removed]     |
-| Added     | **`public`** |          | **[`Session`]** | **`find`**([`Engine`], [`HttpServletRequest`][2])   |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`Session`]** | **`find`**([`Engine`], [`HttpServletRequest`][3])   |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | [`Session`]     | `guest`([`Engine`])                                 |             |        | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~      | ~~`remove`~~([`Engine`], [`HttpServletRequest`])    |             |        | ![Method removed]     |
-| Added     | **`public`** |          | **`void`**      | **`remove`**([`Engine`], [`HttpServletRequest`][2]) |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`**      | **`remove`**([`Engine`], [`HttpServletRequest`][3]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -8533,8 +8789,8 @@ ___
 
 | Status  | Modifiers    | Generics | Type                       | Method                                 | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------------------|----------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][28]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`VariableInfo[]`][29]** | **`getVariableInfo`**([`TagData`][30]) |             |        | ![Method added to public class] |
+| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][29]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
+| Added   | **`public`** |          | **[`VariableInfo[]`][30]** | **`getVariableInfo`**([`TagData`][31]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -8589,8 +8845,8 @@ ___
 
 | Status  | Modifiers    | Generics | Type                       | Method                                 | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------------------|----------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][28]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`VariableInfo[]`][29]** | **`getVariableInfo`**([`TagData`][30]) |             |        | ![Method added to public class] |
+| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][29]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
+| Added   | **`public`** |          | **[`VariableInfo[]`][30]** | **`getVariableInfo`**([`TagData`][31]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -8811,8 +9067,8 @@ ___
 
 | Status  | Modifiers    | Generics | Type                       | Method                                 | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------------------|----------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][28]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`VariableInfo[]`][29]** | **`getVariableInfo`**([`TagData`][30]) |             |        | ![Method added to public class] |
+| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][29]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
+| Added   | **`public`** |          | **[`VariableInfo[]`][30]** | **`getVariableInfo`**([`TagData`][31]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -8981,7 +9237,7 @@ ___
 
 | Status    | Modifiers        | Generics | Type   | Method                    | Annotations | Throws                                         | Compatibility Changes |
 |-----------|------------------|----------|--------|---------------------------|-------------|------------------------------------------------|-----------------------|
-| Modified  | `final` `public` |          | `int`  | `doEndTag`()              |             | ~~[`JspException`]~~, **[`JspException`][31]** | ![No changes]         |
+| Modified  | `final` `public` |          | `int`  | `doEndTag`()              |             | ~~[`JspException`]~~, **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `final` `public` |          | `int`  | `doWikiStartTag`()        |             | [`IOException`], [`ProviderException`]         | ![No changes]         |
 | Unchanged | `public`         |          | `void` | `setComment`([`String`])  |             |                                                | ![No changes]         |
 | Unchanged | `public`         |          | `void` | `setConflict`([`String`]) |             |                                                | ![No changes]         |
@@ -9162,8 +9418,8 @@ ___
 
 | Status  | Modifiers    | Generics | Type                       | Method                                 | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------------------|----------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][28]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`VariableInfo[]`][29]** | **`getVariableInfo`**([`TagData`][30]) |             |        | ![Method added to public class] |
+| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][29]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
+| Added   | **`public`** |          | **[`VariableInfo[]`][30]** | **`getVariableInfo`**([`TagData`][31]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -9217,7 +9473,7 @@ ___
 
 | Status    | Modifiers        | Generics | Type  | Method             | Annotations | Throws                                         | Compatibility Changes |
 |-----------|------------------|----------|-------|--------------------|-------------|------------------------------------------------|-----------------------|
-| Modified  | `public`         |          | `int` | `doEndTag`()       |             | ~~[`JspException`]~~, **[`JspException`][31]** | ![No changes]         |
+| Modified  | `public`         |          | `int` | `doEndTag`()       |             | ~~[`JspException`]~~, **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `final` `public` |          | `int` | `doWikiStartTag`() |             | [`IOException`]                                | ![No changes]         |
 
 ___
@@ -9299,8 +9555,8 @@ ___
 
 | Status  | Modifiers    | Generics | Type                       | Method                                 | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------------------|----------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][28]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`VariableInfo[]`][29]** | **`getVariableInfo`**([`TagData`][30]) |             |        | ![Method added to public class] |
+| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][29]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
+| Added   | **`public`** |          | **[`VariableInfo[]`][30]** | **`getVariableInfo`**([`TagData`][31]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -9411,7 +9667,7 @@ ___
 
 | Status    | Modifiers        | Generics | Type       | Method                | Annotations | Throws                                         | Compatibility Changes |
 |-----------|------------------|----------|------------|-----------------------|-------------|------------------------------------------------|-----------------------|
-| Modified  | `final` `public` |          | `int`      | `doEndTag`()          |             | ~~[`JspException`]~~, **[`JspException`][31]** | ![No changes]         |
+| Modified  | `final` `public` |          | `int`      | `doEndTag`()          |             | ~~[`JspException`]~~, **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `final` `public` |          | `int`      | `doWikiStartTag`()    |             | [`IOException`], [`ProviderException`]         | ![No changes]         |
 | Unchanged | `public`         |          | [`String`] | `getPage`()           |             |                                                | ![No changes]         |
 | Unchanged | `public`         |          | `void`     | `initTag`()           |             |                                                | ![No changes]         |
@@ -9536,7 +9792,7 @@ ___
 | Unchanged | `public`  |          | `int`  | `doStartTag`()               |             |               | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `resetIterator`()            |             |               | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `setList`([`Collection<?>`]) |             |               | ![No changes]         |
-| Unchanged | `public`  |          | `void` | `setList`([`Object[]`][18])  |             |               | ![No changes]         |
+| Unchanged | `public`  |          | `void` | `setList`([`Object[]`][19])  |             |               | ![No changes]         |
 
 
 #### Fields
@@ -9579,7 +9835,7 @@ ___
 | Unchanged | `public`     |          | `void`     | `initTag`()                                     |             |               | ![No changes]         |
 | Unchanged | `public`     |          | `void`     | `setAccessKey`([`String`])                      |             |               | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`setBodyContent`~~([`BodyContent`])           |             |               | ![Method removed]     |
-| Added     | **`public`** |          | **`void`** | **`setBodyContent`**([`BodyContent`][32])       |             |               | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`** | **`setBodyContent`**([`BodyContent`][33])       |             |               | ![Method added to public class] |
 | Unchanged | `public`     |          | `void`     | `setCompareToVersion`([`String`])               |             |               | ![No changes]         |
 | Unchanged | `public`     |          | `void`     | `setContainedParameter`([`String`], [`String`]) |             |               | ![No changes]         |
 | Unchanged | `public`     |          | `void`     | `setContext`([`String`])                        |             |               | ![No changes]         |
@@ -9660,6 +9916,34 @@ ___
 |-----------|-----------|------------|---------------|-------------|-----------------------|
 | Unchanged | `public`  | [`String`] | `m_accesskey` |             | ![No changes]         |
 | Unchanged | `public`  | [`String`] | `m_title`     |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.tags.maxuploadtag"></a>
+### `org.apache.wiki.tags.MaxUploadTag`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name               | Extends             | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|--------------------|---------------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`MaxUploadTag`** | **[`WikiTagBase`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor          | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|----------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`MaxUploadTag`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type           | Method                                  | Annotations | Throws            | Compatibility Changes |
+|--------|---------------------------|----------|----------------|-----------------------------------------|-------------|-------------------|-----------------------|
+| Added  | **`public`**              |          | **`int`**      | **`doWikiStartTag`**()                  |             | **[`Exception`]** | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **[`String`]** | **`humanReadableByteCountBin`**(`long`) |             |                   | ![Method added to public class] |
 
 ___
 
@@ -10092,9 +10376,9 @@ ___
 
 | Status    | Modifiers | Generics | Type   | Method                  | Annotations | Throws                                                          | Compatibility Changes |
 |-----------|-----------|----------|--------|-------------------------|-------------|-----------------------------------------------------------------|-----------------------|
-| Modified  | `public`  |          | `int`  | `doAfterBody`()         |             | ~~[`JspException`]~~, **[`JspException`][31]**                  | ![No changes]         |
-| Modified  | `public`  |          | `int`  | `doEndTag`()            |             | ~~[`JspException`]~~, **[`JspException`][31]**                  | ![No changes]         |
-| Modified  | `public`  |          | `int`  | `doWikiStartTag`()      |             | ~~[`JspException`]~~, [`IOException`], **[`JspException`][31]** | ![No changes]         |
+| Modified  | `public`  |          | `int`  | `doAfterBody`()         |             | ~~[`JspException`]~~, **[`JspException`][32]**                  | ![No changes]         |
+| Modified  | `public`  |          | `int`  | `doEndTag`()            |             | ~~[`JspException`]~~, **[`JspException`][32]**                  | ![No changes]         |
+| Modified  | `public`  |          | `int`  | `doWikiStartTag`()      |             | ~~[`JspException`]~~, [`IOException`], **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `release`()             |             |                                                                 | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `setArgs`([`String`])   |             |                                                                 | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `setPlugin`([`String`]) |             |                                                                 | ![No changes]         |
@@ -10221,8 +10505,8 @@ ___
 
 | Status  | Modifiers    | Generics | Type                       | Method                                 | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|----------------------------|----------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][28]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`VariableInfo[]`][29]** | **`getVariableInfo`**([`TagData`][30]) |             |        | ![Method added to public class] |
+| Removed | ~~`public`~~ |          | ~~[`VariableInfo[]`][29]~~ | ~~`getVariableInfo`~~([`TagData`])     |             |        | ![Method removed]     |
+| Added   | **`public`** |          | **[`VariableInfo[]`][30]** | **`getVariableInfo`**([`TagData`][31]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -10397,9 +10681,9 @@ ___
 
 | Status    | Modifiers | Generics | Type   | Method                     | Annotations | Throws                                               | Compatibility Changes |
 |-----------|-----------|----------|--------|----------------------------|-------------|------------------------------------------------------|-----------------------|
-| Modified  | `public`  |          | `int`  | `doEndTag`()               |             | ~~[`JspTagException`]~~, **[`JspTagException`][33]** | ![No changes]         |
+| Modified  | `public`  |          | `int`  | `doEndTag`()               |             | ~~[`JspTagException`]~~, **[`JspTagException`][34]** | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `doFinally`()              |             |                                                      | ![No changes]         |
-| Modified  | `public`  |          | `int`  | `doWikiStartTag`()         |             | ~~[`JspTagException`]~~, **[`JspTagException`][33]** | ![No changes]         |
+| Modified  | `public`  |          | `int`  | `doWikiStartTag`()         |             | ~~[`JspTagException`]~~, **[`JspTagException`][34]** | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `setAccesskey`([`String`]) |             |                                                      | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `setTitle`([`String`])     |             |                                                      | ![No changes]         |
 | Unchanged | `public`  |          | `void` | `setUrl`([`String`])       |             |                                                      | ![No changes]         |
@@ -10429,9 +10713,9 @@ ___
 
 | Status    | Modifiers | Generics | Type      | Method                           | Annotations | Throws                                               | Compatibility Changes |
 |-----------|-----------|----------|-----------|----------------------------------|-------------|------------------------------------------------------|-----------------------|
-| Modified  | `public`  |          | `int`     | `doAfterBody`()                  |             | ~~[`JspTagException`]~~, **[`JspTagException`][33]** | ![No changes]         |
-| Modified  | `public`  |          | `int`     | `doEndTag`()                     |             | ~~[`JspTagException`]~~, **[`JspTagException`][33]** | ![No changes]         |
-| Modified  | `public`  |          | `int`     | `doStartTag`()                   |             | ~~[`JspTagException`]~~, **[`JspTagException`][33]** | ![No changes]         |
+| Modified  | `public`  |          | `int`     | `doAfterBody`()                  |             | ~~[`JspTagException`]~~, **[`JspTagException`][34]** | ![No changes]         |
+| Modified  | `public`  |          | `int`     | `doEndTag`()                     |             | ~~[`JspTagException`]~~, **[`JspTagException`][34]** | ![No changes]         |
+| Modified  | `public`  |          | `int`     | `doStartTag`()                   |             | ~~[`JspTagException`]~~, **[`JspTagException`][34]** | ![No changes]         |
 | Unchanged | `public`  |          | `boolean` | `isStateFindDefaultTab`()        |             |                                                      | ![No changes]         |
 | Unchanged | `public`  |          | `boolean` | `isStateGenerateTabBody`()       |             |                                                      | ![No changes]         |
 | Unchanged | `public`  |          | `boolean` | `isStateGenerateTabMenu`()       |             |                                                      | ![No changes]         |
@@ -10491,7 +10775,7 @@ ___
 
 | Status   | Modifiers        | Generics | Type  | Method          | Annotations | Throws                                         | Compatibility Changes |
 |----------|------------------|----------|-------|-----------------|-------------|------------------------------------------------|-----------------------|
-| Modified | `final` `public` |          | `int` | `doAfterBody`() |             | ~~[`JspException`]~~, **[`JspException`][31]** | ![No changes]         |
+| Modified | `final` `public` |          | `int` | `doAfterBody`() |             | ~~[`JspException`]~~, **[`JspException`][32]** | ![No changes]         |
 
 ___
 
@@ -10640,7 +10924,7 @@ ___
 
 | Status    | Modifiers        | Generics | Type       | Method                   | Annotations | Throws                                                          | Compatibility Changes |
 |-----------|------------------|----------|------------|--------------------------|-------------|-----------------------------------------------------------------|-----------------------|
-| Modified  | `final` `public` |          | `int`      | `doWikiStartTag`()       |             | ~~[`JspException`]~~, [`IOException`], **[`JspException`][31]** | ![No changes]         |
+| Modified  | `final` `public` |          | `int`      | `doWikiStartTag`()       |             | ~~[`JspException`]~~, [`IOException`], **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `public`         |          | [`String`] | `getVar`()               |             |                                                                 | ![No changes]         |
 | Unchanged | `public`         |          | `void`     | `initTag`()              |             |                                                                 | ![No changes]         |
 | Unchanged | `public`         |          | `void`     | `setDefault`([`String`]) |             |                                                                 | ![No changes]         |
@@ -10673,8 +10957,8 @@ ___
 |-----------|---------------------|----------|--------|--------------------------|-------------|-----------------------------------------------------------------|-----------------------|
 | Unchanged | `public`            |          | `void` | `doCatch`([`Throwable`]) |             | [`Throwable`]                                                   | ![No changes]         |
 | Unchanged | `public`            |          | `void` | `doFinally`()            |             |                                                                 | ![No changes]         |
-| Modified  | `public`            |          | `int`  | `doStartTag`()           |             | ~~[`JspException`]~~, **[`JspException`][31]**                  | ![No changes]         |
-| Modified  | `public` `abstract` |          | `int`  | `doWikiStartTag`()       |             | ~~[`JspException`]~~, [`IOException`], **[`JspException`][31]** | ![No changes]         |
+| Modified  | `public`            |          | `int`  | `doStartTag`()           |             | ~~[`JspException`]~~, **[`JspException`][32]**                  | ![No changes]         |
+| Modified  | `public` `abstract` |          | `int`  | `doWikiStartTag`()       |             | ~~[`JspException`]~~, [`IOException`], **[`JspException`][32]** | ![No changes]         |
 
 
 #### Fields
@@ -10753,14 +11037,14 @@ ___
 | Status    | Modifiers           | Generics | Type       | Method                                   | Annotations | Throws                                         | Compatibility Changes |
 |-----------|---------------------|----------|------------|------------------------------------------|-------------|------------------------------------------------|-----------------------|
 | Unchanged | `public`            |          | `void`     | `doCatch`([`Throwable`])                 |             | [`Throwable`]                                  | ![No changes]         |
-| Modified  | `public`            |          | `int`      | `doEndTag`()                             |             | ~~[`JspException`]~~, **[`JspException`][31]** | ![No changes]         |
+| Modified  | `public`            |          | `int`      | `doEndTag`()                             |             | ~~[`JspException`]~~, **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `public`            |          | `void`     | `doFinally`()                            |             |                                                | ![No changes]         |
-| Modified  | `public`            |          | `int`      | `doStartTag`()                           |             | ~~[`JspException`]~~, **[`JspException`][31]** | ![No changes]         |
+| Modified  | `public`            |          | `int`      | `doStartTag`()                           |             | ~~[`JspException`]~~, **[`JspException`][32]** | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `int`      | `doWikiStartTag`()                       |             | [`Exception`]                                  | ![No changes]         |
 | Unchanged | `public`            |          | `void`     | `initTag`()                              |             |                                                | ![No changes]         |
 | Unchanged | `public`            |          | `void`     | `setId`([`String`])                      |             |                                                | ![No changes]         |
 | Removed   | ~~`public`~~        |          | ~~`void`~~ | ~~`setPageContext`~~([`PageContext`])    |             |                                                | ![Method removed]     |
-| Added     | **`public`**        |          | **`void`** | **`setPageContext`**([`PageContext`][3]) |             |                                                | ![Method added to public class] |
+| Added     | **`public`**        |          | **`void`** | **`setPageContext`**([`PageContext`][4]) |             |                                                | ![Method added to public class] |
 
 
 #### Fields
@@ -10994,7 +11278,7 @@ ___
 
 | Status    | Modifiers         | Generics | Type              | Method  | Annotations | Throws | Compatibility Changes |
 |-----------|-------------------|----------|-------------------|---------|-------------|--------|-----------------------|
-| Unchanged | `static` `public` |          | [`Command[]`][34] | `get`() |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Command[]`][35] | `get`() |             |        | ![No changes]         |
 
 ___
 
@@ -11015,14 +11299,14 @@ ___
 | Status    | Modifiers                   | Generics | Type            | Method                                                   | Annotations | Throws                | Compatibility Changes |
 |-----------|-----------------------------|----------|-----------------|----------------------------------------------------------|-------------|-----------------------|-----------------------|
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`String`]~~  | ~~`extractPageFromParameter`~~([`String`], [`HttpServletRequest`]) |   |                       | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`String`]**  | **`extractPageFromParameter`**([`String`], [`HttpServletRequest`][2]) |  |                     | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`String`]**  | **`extractPageFromParameter`**([`String`], [`HttpServletRequest`][3]) |  |                     | ![Method added to interface] |
 | Unchanged | `static` `public`           |          | [`Command`]     | `findCommand`([`String`])                                |             |                       | ![No changes]         |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Command`]~~ | ~~`findCommand`~~([`HttpServletRequest`], [`String`])    |             |                       | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`Command`]** | **`findCommand`**([`HttpServletRequest`][2], [`String`]) |             |                       | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`Command`]** | **`findCommand`**([`HttpServletRequest`][3], [`String`]) |             |                       | ![Method added to interface] |
 | Unchanged | `public` `abstract`         |          | [`String`]      | `getFinalPageName`([`String`])                           |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`String`]      | `getSpecialPageReference`([`String`])                    |             |                       | ![No changes]         |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Page`]~~    | ~~`resolvePage`~~([`HttpServletRequest`], [`String`])    |             |                       | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`Page`]**    | **`resolvePage`**([`HttpServletRequest`][2], [`String`]) |             |                       | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`Page`]**    | **`resolvePage`**([`HttpServletRequest`][3], [`String`]) |             |                       | ![Method added to interface] |
 
 
 #### Fields
@@ -11064,15 +11348,15 @@ ___
 | Status    | Modifiers       | Generics | Type            | Method                                                   | Annotations | Throws                | Compatibility Changes |
 |-----------|-----------------|----------|-----------------|----------------------------------------------------------|-------------|-----------------------|-----------------------|
 | Removed   | ~~`protected`~~ |          | ~~[`Command`]~~ | ~~`extractCommandFromPath`~~([`HttpServletRequest`])     |             |                       | ![Method removed]     |
-| Added     | **`protected`** |          | **[`Command`]** | **`extractCommandFromPath`**([`HttpServletRequest`][2])  |             |                       | ![No changes]         |
+| Added     | **`protected`** |          | **[`Command`]** | **`extractCommandFromPath`**([`HttpServletRequest`][3])  |             |                       | ![No changes]         |
 | Removed   | ~~`public`~~    |          | ~~[`String`]~~  | ~~`extractPageFromParameter`~~([`String`], [`HttpServletRequest`]) |   |                       | ![No changes]         |
-| Added     | **`public`**    |          | **[`String`]**  | **`extractPageFromParameter`**([`String`], [`HttpServletRequest`][2]) |  |                     | ![Method added to public class] |
+| Added     | **`public`**    |          | **[`String`]**  | **`extractPageFromParameter`**([`String`], [`HttpServletRequest`][3]) |  |                     | ![Method added to public class] |
 | Removed   | ~~`public`~~    |          | ~~[`Command`]~~ | ~~`findCommand`~~([`HttpServletRequest`], [`String`])    |             |                       | ![No changes]         |
-| Added     | **`public`**    |          | **[`Command`]** | **`findCommand`**([`HttpServletRequest`][2], [`String`]) |             |                       | ![Method added to public class] |
+| Added     | **`public`**    |          | **[`Command`]** | **`findCommand`**([`HttpServletRequest`][3], [`String`]) |             |                       | ![Method added to public class] |
 | Unchanged | `public`        |          | [`String`]      | `getFinalPageName`([`String`])                           |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `public`        |          | [`String`]      | `getSpecialPageReference`([`String`])                    |             |                       | ![No changes]         |
 | Removed   | ~~`public`~~    |          | ~~[`Page`]~~    | ~~`resolvePage`~~([`HttpServletRequest`], [`String`])    |             |                       | ![No changes]         |
-| Added     | **`public`**    |          | **[`Page`]**    | **`resolvePage`**([`HttpServletRequest`][2], [`String`]) |             |                       | ![Method added to public class] |
+| Added     | **`public`**    |          | **[`Page`]**    | **`resolvePage`**([`HttpServletRequest`][3], [`String`]) |             |                       | ![Method added to public class] |
 | Unchanged | `protected`     |          | `boolean`       | `simplePageExists`([`String`])                           |             | [`ProviderException`] | ![No changes]         |
 
 ___
@@ -11107,7 +11391,7 @@ ___
 
 | Status    | Modifiers | Generics | Type                           | Method                                   | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|--------------------------------|------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | [`String[]`][1]                | `getEditorList`()                        |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2]                | `getEditorList`()                        |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]                     | `getEditorName`([`Context`])             |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]                     | `getEditorPath`([`Context`])             |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`WikiEditorInfo`]             | `getModuleInfo`([`String`])              |             |        | ![No changes]         |
@@ -11149,14 +11433,14 @@ ___
 |-----------|--------------|----------|--------------------------------|-----------------------------------------------------------|-------------|--------|-----------------------|
 | Removed   | ~~`public`~~ |          | ~~[`String`]~~                 | ~~`findJSP`~~([`PageContext`], [`String`])                |             |        | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~[`String`]~~                 | ~~`findJSP`~~([`PageContext`], [`String`], [`String`])    |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`String`]**                 | **`findJSP`**([`PageContext`][3], [`String`])             |             |        | ![Method added to public class] |
-| Added     | **`public`** |          | **[`String`]**                 | **`findJSP`**([`PageContext`][3], [`String`], [`String`]) |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]**                 | **`findJSP`**([`PageContext`][4], [`String`])             |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]**                 | **`findJSP`**([`PageContext`][4], [`String`], [`String`]) |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | [`String`]                     | `findResource`([`Context`], [`String`], [`String`])       |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`WikiModuleInfo`]             | `getModuleInfo`([`String`])                               |             |        | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~[`Set<String>`]~~            | ~~`listSkins`~~([`PageContext`], [`String`])              |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`Set<String>`]**            | **`listSkins`**([`PageContext`][3], [`String`])           |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`Set<String>`]**            | **`listSkins`**([`PageContext`][4], [`String`])           |             |        | ![Method added to public class] |
 | Removed   | ~~`public`~~ |          | ~~[`Map<String, String>`]~~    | ~~`listTimeFormats`~~([`PageContext`])                    |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`Map<String, String>`]**    | **`listTimeFormats`**([`PageContext`][3])                 |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`Map<String, String>`]**    | **`listTimeFormats`**([`PageContext`][4])                 |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | [`Collection<WikiModuleInfo>`] | `modules`()                                               |             |        | ![No changes]         |
 | Unchanged | `public`     |          | `boolean`                      | `templateExists`([`String`])                              |             |        | ![No changes]         |
 
@@ -11210,8 +11494,8 @@ ___
 | Status    | Modifiers                 | Generics | Type            | Method                                  | Annotations | Throws | Compatibility Changes |
 |-----------|---------------------------|----------|-----------------|-----------------------------------------|-------------|--------|-----------------------|
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~  | ~~`getEditedText`~~([`PageContext`])    |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]**  | **`getEditedText`**([`PageContext`][3]) |             |        | ![Method new static added to interface] |
-| Unchanged | `public` `abstract`       |          | [`String[]`][1] | `getEditorList`()                       |             |        | ![No changes]         |
+| Added     | **`static`** **`public`** |          | **[`String`]**  | **`getEditedText`**([`PageContext`][4]) |             |        | ![Method new static added to interface] |
+| Unchanged | `public` `abstract`       |          | [`String[]`][2] | `getEditorList`()                       |             |        | ![No changes]         |
 | Unchanged | `public` `abstract`       |          | [`String`]      | `getEditorName`([`Context`])            |             |        | ![No changes]         |
 | Unchanged | `public` `abstract`       |          | [`String`]      | `getEditorPath`([`Context`])            |             |        | ![No changes]         |
 
@@ -11338,7 +11622,7 @@ ___
 | Status  | Modifiers    | Generics | Constructor                                                      | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|------------------------------------------------------------------|-------------|--------|-----------------------|
 | Removed | ~~`public`~~ |          | ~~`Installer`~~([`HttpServletRequest`], [`ServletConfig`])       |             |        | ![Constructor removed] |
-| Added   | **`public`** |          | **`Installer`**([`HttpServletRequest`][2], [`ServletConfig`][5]) |             |        | ![No changes]         |
+| Added   | **`public`** |          | **`Installer`**([`HttpServletRequest`][3], [`ServletConfig`][6]) |             |        | ![No changes]         |
 
 
 #### Methods
@@ -11472,21 +11756,21 @@ ___
 | Unchanged | `static` `public`           |          | `void`                      | `addResourceRequest`([`Context`], [`String`], [`String`]) |             |        | ![No changes]         |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`String`]~~              | ~~`findJSP`~~([`PageContext`], [`String`])                |             |        | ![Method removed]     |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`String`]~~              | ~~`findJSP`~~([`PageContext`], [`String`], [`String`])    |             |        | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`String`]**              | **`findJSP`**([`PageContext`][3], [`String`])             |             |        | ![Method added to interface] |
-| Added     | **`public`** **`abstract`** |          | **[`String`]**              | **`findJSP`**([`PageContext`][3], [`String`], [`String`]) |             |        | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`String`]**              | **`findJSP`**([`PageContext`][4], [`String`])             |             |        | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`String`]**              | **`findJSP`**([`PageContext`][4], [`String`], [`String`]) |             |        | ![Method added to interface] |
 | Unchanged | `public` `abstract`         |          | [`String`]                  | `findResource`([`Context`], [`String`], [`String`])       |             |        | ![No changes]         |
 | Unchanged | `static` `public`           |          | [`String`]                  | `getJSLocalizedStrings`([`Context`])                      |             |        | ![No changes]         |
 | Unchanged | `static` `public`           |          | [`String`]                  | `getMarker`([`Context`], [`String`])                      |             |        | ![No changes]         |
-| Unchanged | `static` `public`           |          | [`String[]`][1]             | `getResourceRequests`([`Context`], [`String`])            |             |        | ![No changes]         |
-| Unchanged | `static` `public`           |          | [`String[]`][1]             | `getResourceTypes`([`Context`])                           |             |        | ![No changes]         |
+| Unchanged | `static` `public`           |          | [`String[]`][2]             | `getResourceRequests`([`Context`], [`String`])            |             |        | ![No changes]         |
+| Unchanged | `static` `public`           |          | [`String[]`][2]             | `getResourceTypes`([`Context`])                           |             |        | ![No changes]         |
 | Removed   | ~~`public`~~                |          | ~~[`Map<String, String>`]~~ | ~~`listLanguages`~~([`PageContext`])                      |             |        | ![Method removed]     |
-| Added     | **`public`**                |          | **[`Map<String, String>`]** | **`listLanguages`**([`PageContext`][3])                   |             |        | ![Method new default] |
+| Added     | **`public`**                |          | **[`Map<String, String>`]** | **`listLanguages`**([`PageContext`][4])                   |             |        | ![Method new default] |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Set<String>`]~~         | ~~`listSkins`~~([`PageContext`], [`String`])              |             |        | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`Set<String>`]**         | **`listSkins`**([`PageContext`][3], [`String`])           |             |        | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`Set<String>`]**         | **`listSkins`**([`PageContext`][4], [`String`])           |             |        | ![Method added to interface] |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Map<String, String>`]~~ | ~~`listTimeFormats`~~([`PageContext`])                    |             |        | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`Map<String, String>`]** | **`listTimeFormats`**([`PageContext`][3])                 |             |        | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`Map<String, String>`]** | **`listTimeFormats`**([`PageContext`][4])                 |             |        | ![Method added to interface] |
 | Removed   | ~~`public`~~                |          | ~~[`Map<String, String>`]~~ | ~~`listTimeZones`~~([`PageContext`])                      |             |        | ![Method removed]     |
-| Added     | **`public`**                |          | **[`Map<String, String>`]** | **`listTimeZones`**([`PageContext`][3])                   |             |        | ![Method new default] |
+| Added     | **`public`**                |          | **[`Map<String, String>`]** | **`listTimeZones`**([`PageContext`][4])                   |             |        | ![Method new default] |
 | Unchanged | `public` `abstract`         |          | `boolean`                   | `templateExists`([`String`])                              |             |        | ![No changes]         |
 
 
@@ -11577,10 +11861,10 @@ ___
 | Status    | Modifiers           | Generics | Type       | Method                           | Annotations | Throws                                           | Compatibility Changes |
 |-----------|---------------------|----------|------------|----------------------------------|-------------|--------------------------------------------------|-----------------------|
 | Removed   | ~~`public`~~        |          | ~~`void`~~ | ~~`doFilter`~~([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | ~~[`ServletException`]~~, ~~[`IOException`]~~ | ![No changes] |
-| Added     | **`public`**        |          | **`void`** | **`doFilter`**([`ServletRequest`][35], [`ServletResponse`][36], [`FilterChain`][37]) |  | **[`ServletException`][8]**, **[`IOException`]** | ![Method added to public class] |
+| Added     | **`public`**        |          | **`void`** | **`doFilter`**([`ServletRequest`][36], [`ServletResponse`][37], [`FilterChain`][38]) |  | **[`ServletException`][9]**, **[`IOException`]** | ![Method added to public class] |
 | Unchanged | `final` `protected` |          | `void`     | `fireEvent`(`int`, [`String`])   |             |                                                  | ![No changes]         |
 | Removed   | ~~`public`~~        |          | ~~`void`~~ | ~~`init`~~([`FilterConfig`])     |             | ~~[`ServletException`]~~                         | ![No changes]         |
-| Added     | **`public`**        |          | **`void`** | **`init`**([`FilterConfig`][38]) |             | **[`ServletException`][8]**                      | ![Method added to public class] |
+| Added     | **`public`**        |          | **`void`** | **`init`**([`FilterConfig`][39]) |             | **[`ServletException`][9]**                      | ![Method added to public class] |
 
 ___
 
@@ -11601,7 +11885,7 @@ ___
 | Status  | Modifiers    | Generics | Constructor                                                     | Annotations | Throws | Compatibility Changes |
 |---------|--------------|----------|-----------------------------------------------------------------|-------------|--------|-----------------------|
 | Removed | ~~`public`~~ |          | ~~`WikiRequestWrapper`~~([`Engine`], [`HttpServletRequest`])    |             |        | ![Constructor removed] |
-| Added   | **`public`** |          | **`WikiRequestWrapper`**([`Engine`], [`HttpServletRequest`][2]) |             |        | ![No changes]         |
+| Added   | **`public`** |          | **`WikiRequestWrapper`**([`Engine`], [`HttpServletRequest`][3]) |             |        | ![No changes]         |
 
 
 #### Methods
@@ -11639,11 +11923,11 @@ ___
 |-----------|-----------------|----------|-----------------|----------------------------------------------|-------------|--------------------------------------------------|-----------------------|
 | Unchanged | `public`        |          | `void`          | `destroy`()                                  |             |                                                  | ![No changes]         |
 | Removed   | ~~`public`~~    |          | ~~`void`~~      | ~~`doFilter`~~([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | ~~[`IOException`]~~, ~~[`ServletException`]~~ | ![Method removed] |
-| Added     | **`public`**    |          | **`void`**      | **`doFilter`**([`ServletRequest`][35], [`ServletResponse`][36], [`FilterChain`][37]) |  | **[`IOException`]**, **[`ServletException`][8]** | ![Method added to public class] |
+| Added     | **`public`**    |          | **`void`**      | **`doFilter`**([`ServletRequest`][36], [`ServletResponse`][37], [`FilterChain`][38]) |  | **[`IOException`]**, **[`ServletException`][9]** | ![Method added to public class] |
 | Removed   | ~~`protected`~~ |          | ~~[`Context`]~~ | ~~`getWikiContext`~~([`ServletRequest`])     |             |                                                  | ![Method removed]     |
-| Added     | **`protected`** |          | **[`Context`]** | **`getWikiContext`**([`ServletRequest`][35]) |             |                                                  | ![No changes]         |
+| Added     | **`protected`** |          | **[`Context`]** | **`getWikiContext`**([`ServletRequest`][36]) |             |                                                  | ![No changes]         |
 | Removed   | ~~`public`~~    |          | ~~`void`~~      | ~~`init`~~([`FilterConfig`])                 |             | ~~[`ServletException`]~~                         | ![Method removed]     |
-| Added     | **`public`**    |          | **`void`**      | **`init`**([`FilterConfig`][38])             |             | **[`ServletException`][8]**                      | ![Method added to public class] |
+| Added     | **`public`**    |          | **`void`**      | **`init`**([`FilterConfig`][39])             |             | **[`ServletException`][9]**                      | ![Method added to public class] |
 
 
 #### Fields
@@ -11827,7 +12111,7 @@ ___
 | Unchanged | `public`            |          | [`String`]     | `doGet`([`Context`])                         |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]     | `getForm`([`Context`])                       |             |        | ![No changes]         |
 | Removed   | ~~`public`~~        |          | ~~[`String`]~~ | ~~`handlePost`~~([`Context`], [`HttpServletRequest`], [`HttpServletResponse`]) |  |  | ![Method removed] |
-| Added     | **`public`**        |          | **[`String`]** | **`handlePost`**([`Context`], [`HttpServletRequest`][2], [`HttpServletResponse`][7]) |  |  | ![Method added to public class] |
+| Added     | **`public`**        |          | **[`String`]** | **`handlePost`**([`Context`], [`HttpServletRequest`][3], [`HttpServletResponse`][8]) |  |  | ![Method added to public class] |
 | Unchanged | `public` `abstract` |          | `void`         | `handleResponse`([`Context`], [`Map<?, ?>`]) |             |        | ![No changes]         |
 
 ___
@@ -11864,9 +12148,9 @@ ___
 
 | Status    | Modifiers | Generics | Type            | Method                    | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-----------------|---------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | [`String[]`][1] | `getAttributeNames`()     |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getAttributeNames`()     |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getId`()                 |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getMethodNames`()        |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getMethodNames`()        |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `int`           | `getPages`()              |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getPagesDescription`()   |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getTitle`()              |             |        | ![No changes]         |
@@ -11950,8 +12234,8 @@ ___
 |-----------|------------------------|----------|--------------------------------|------------------------------------------|-------------|--------|-----------------------|
 | Unchanged | `protected`            |          | [`Element`]                    | `containerForModuleDetail`([`Element`])  |             |        | ![No changes]         |
 | Unchanged | `public`               |          | [`String`]                     | `doGet`([`Context`])                     |             |        | ![No changes]         |
-| Unchanged | `public`               |          | [`String[]`][1]                | `getAttributeNames`()                    |             |        | ![No changes]         |
-| Unchanged | `public`               |          | [`String[]`][1]                | `getMethodNames`()                       |             |        | ![No changes]         |
+| Unchanged | `public`               |          | [`String[]`][2]                | `getAttributeNames`()                    |             |        | ![No changes]         |
+| Unchanged | `public`               |          | [`String[]`][2]                | `getMethodNames`()                       |             |        | ![No changes]         |
 | Unchanged | `protected` `abstract` |          | [`Element`]                    | `heading`()                              |             |        | ![No changes]         |
 | Unchanged | `protected` `abstract` |          | [`Collection<WikiModuleInfo>`] | `modules`()                              |             |        | ![No changes]         |
 | Unchanged | `protected` `abstract` |          | [`Element`]                    | `rowBody`([`WikiModuleInfo`])            |             |        | ![No changes]         |
@@ -11994,10 +12278,10 @@ ___
 |-----------|-----------|----------|-----------------|--------------------------|-------------|--------|-----------------------|
 | Unchanged | `public`  |          | [`String`]      | `doGet`([`Context`])     |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `doPost`([`Context`])    |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getAttributeNames`()    |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getAttributeNames`()    |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `boolean`       | `getChecked`()           |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getId`()                |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getMethodNames`()       |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getMethodNames`()       |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getTitle`()             |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `int`           | `getType`()              |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `void`          | `initialize`([`Engine`]) |             |        | ![No changes]         |
@@ -12079,8 +12363,8 @@ ___
 |-----------|-----------|----------|-----------------|-----------------------|-------------|--------|-----------------------|
 | Unchanged | `public`  |          | [`String`]      | `doGet`([`Context`])  |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `doPost`([`Context`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getAttributeNames`() |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getMethodNames`()    |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getAttributeNames`() |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getMethodNames`()    |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getTitle`()          |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `int`           | `getType`()           |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `void`          | `reload`()            |             |        | ![No changes]         |
@@ -12120,8 +12404,8 @@ ___
 | Status    | Modifiers | Generics | Type            | Method                | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-----------------|-----------------------|-------------|--------|-----------------------|
 | Unchanged | `public`  |          | [`String`]      | `doPost`([`Context`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getAttributeNames`() |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String[]`][1] | `getMethodNames`()    |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getAttributeNames`() |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String[]`][2] | `getMethodNames`()    |             |        | ![No changes]         |
 | Unchanged | `public`  |          | [`String`]      | `getTitle`()          |             |        | ![No changes]         |
 | Unchanged | `public`  |          | `int`           | `getType`()           |             |        | ![No changes]         |
 
@@ -12197,7 +12481,7 @@ ___
 | Unchanged | `public`     |          | `int`      | `getProgress`([`String`]) |             |                     | ![No changes]         |
 | Unchanged | `public`     |          | [`String`] | `getServletMapping`()     |             |                     | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~`void`~~ | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`IOException`]~~ | ![No changes] |
-| Added     | **`public`** |          | **`void`** | **`service`**([`HttpServletRequest`][2], [`HttpServletResponse`][7], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
+| Added     | **`public`** |          | **`void`** | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
 
 ___
 
@@ -12303,12 +12587,12 @@ ___
 |-----------|---------------------|----------|----------------|------------------------------------------------------------------|-------------|------------------------------|-----------------------|
 | Unchanged | `final` `protected` |          | [`String`]     | `doReplacement`([`String`], [`String`])                          |             |                              | ![No changes]         |
 | Removed   | ~~`public`~~        |          | ~~[`String`]~~ | ~~`getForwardPage`~~([`HttpServletRequest`])                     |             |                              | ![No changes]         |
-| Added     | **`public`**        |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][2])                  |             |                              | ![Method added to public class] |
+| Added     | **`public`**        |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][3])                  |             |                              | ![Method added to public class] |
 | Unchanged | `static` `public`   |          | [`String`]     | `getURLPattern`([`String`], [`String`])                          |             | [`IllegalArgumentException`] | ![No changes]         |
 | Unchanged | `public`            |          | `void`         | `initialize`([`Engine`], [`Properties`])                         |             |                              | ![No changes]         |
 | Unchanged | `public`            |          | [`String`]     | `makeURL`([`String`], [`String`], [`String`])                    |             |                              | ![No changes]         |
 | Removed   | ~~`public`~~        |          | ~~[`String`]~~ | ~~`parsePage`~~([`String`], [`HttpServletRequest`], [`Charset`]) |             |                              | ![No changes]         |
-| Added     | **`public`**        |          | **[`String`]** | **`parsePage`**([`String`], [`HttpServletRequest`][2], [`Charset`]) |          |                              | ![Method added to public class] |
+| Added     | **`public`**        |          | **[`String`]** | **`parsePage`**([`String`], [`HttpServletRequest`][3], [`Charset`]) |          |                              | ![Method added to public class] |
 
 
 #### Fields
@@ -12351,11 +12635,11 @@ ___
 | Status    | Modifiers    | Generics | Type           | Method                                                           | Annotations | Throws | Compatibility Changes |
 |-----------|--------------|----------|----------------|------------------------------------------------------------------|-------------|--------|-----------------------|
 | Removed   | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getForwardPage`~~([`HttpServletRequest`])                     |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][2])                  |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][3])                  |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | `void`         | `initialize`([`Engine`], [`Properties`])                         |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`String`]     | `makeURL`([`String`], [`String`], [`String`])                    |             |        | ![No changes]         |
 | Removed   | ~~`public`~~ |          | ~~[`String`]~~ | ~~`parsePage`~~([`String`], [`HttpServletRequest`], [`Charset`]) |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`String`]** | **`parsePage`**([`String`], [`HttpServletRequest`][2], [`Charset`]) |          |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`parsePage`**([`String`], [`HttpServletRequest`][3], [`Charset`]) |          |        | ![Method added to public class] |
 
 
 #### Fields
@@ -12398,7 +12682,7 @@ ___
 | Status    | Modifiers    | Generics | Type           | Method                                          | Annotations | Throws | Compatibility Changes |
 |-----------|--------------|----------|----------------|-------------------------------------------------|-------------|--------|-----------------------|
 | Removed   | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getForwardPage`~~([`HttpServletRequest`])    |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][2]) |             |        | ![Method added to public class] |
+| Added     | **`public`** |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][3]) |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | `void`         | `initialize`([`Engine`], [`Properties`])        |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`String`]     | `makeURL`([`String`], [`String`], [`String`])   |             |        | ![No changes]         |
 
@@ -12421,12 +12705,12 @@ ___
 | Status    | Modifiers                   | Generics | Type           | Method                                                           | Annotations | Throws              | Compatibility Changes |
 |-----------|-----------------------------|----------|----------------|------------------------------------------------------------------|-------------|---------------------|-----------------------|
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`String`]~~ | ~~`getForwardPage`~~([`HttpServletRequest`])                     |             |                     | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][2])                  |             |                     | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`String`]** | **`getForwardPage`**([`HttpServletRequest`][3])                  |             |                     | ![Method added to interface] |
 | Unchanged | `public` `abstract`         |          | [`String`]     | `makeURL`([`String`], [`String`], [`String`])                    |             |                     | ![No changes]         |
 | Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`String`]~~ | ~~`parsePage`~~([`String`], [`HttpServletRequest`], [`Charset`]) |             | ~~[`IOException`]~~ | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`String`]** | **`parsePage`**([`String`], [`HttpServletRequest`][2], [`Charset`]) |          | **[`IOException`]** | ![Method added to interface] |
+| Added     | **`public`** **`abstract`** |          | **[`String`]** | **`parsePage`**([`String`], [`HttpServletRequest`][3], [`Charset`]) |          | **[`IOException`]** | ![Method added to interface] |
 | Removed   | ~~`static`~~ ~~`public`~~   |          | ~~[`String`]~~ | ~~`parsePageFromURL`~~([`HttpServletRequest`], [`Charset`])      |             |                     | ![Method removed]     |
-| Added     | **`static`** **`public`**   |          | **[`String`]** | **`parsePageFromURL`**([`HttpServletRequest`][2], [`Charset`])   |             |                     | ![Method new static added to interface] |
+| Added     | **`static`** **`public`**   |          | **[`String`]** | **`parsePageFromURL`**([`HttpServletRequest`][3], [`Charset`])   |             |                     | ![Method new static added to interface] |
 
 ___
 
@@ -12630,7 +12914,7 @@ ___
 |-----------|-------------|----------|--------------------------|--------------------------------------------------|-------------|-------------------|-----------------------|
 | Unchanged | `protected` |          | `void`                   | `add`([`Decision`])                              |             |                   | ![No changes]         |
 | Unchanged | `public`    |          | `void`                   | `decide`([`Decision`], [`Outcome`], [`Context`]) |             | [`WikiException`] | ![No changes]         |
-| Unchanged | `protected` |          | [`Decision[]`][39]       | `decisions`()                                    |             |                   | ![No changes]         |
+| Unchanged | `protected` |          | [`Decision[]`][40]       | `decisions`()                                    |             |                   | ![No changes]         |
 | Unchanged | `public`    |          | [`Collection<Decision>`] | `getActorDecisions`([`Session`])                 |             |                   | ![No changes]         |
 | Unchanged | `public`    |          | `void`                   | `reassign`([`Decision`], [`Principal`])          |             | [`WikiException`] | ![No changes]         |
 | Unchanged | `protected` |          | `void`                   | `remove`([`Decision`])                           |             |                   | ![No changes]         |
@@ -13034,7 +13318,7 @@ ___
 | Unchanged | `final` `public`    |          | [`Date`]                      | `getEndTime`()                               |             |                   | ![No changes]         |
 | Unchanged | `final` `public`    |          | [`List<Step>`]                | `getHistory`()                               |             |                   | ![No changes]         |
 | Unchanged | `final` `public`    |          | `int`                         | `getId`()                                    |             |                   | ![No changes]         |
-| Unchanged | `final` `public`    |          | [`Serializable[]`][40]        | `getMessageArguments`()                      |             |                   | ![No changes]         |
+| Unchanged | `final` `public`    |          | [`Serializable[]`][41]        | `getMessageArguments`()                      |             |                   | ![No changes]         |
 | Unchanged | `final` `public`    |          | [`String`]                    | `getMessageKey`()                            |             |                   | ![No changes]         |
 | Unchanged | `final` `public`    |          | [`Principal`]                 | `getOwner`()                                 |             |                   | ![No changes]         |
 | Unchanged | `final` `public`    |          | [`Step`]                      | `getPreviousStep`()                          |             |                   | ![No changes]         |
@@ -13081,7 +13365,7 @@ ___
 
 | Status    | Modifiers         | Generics | Type                | Method                   | Annotations | Throws            | Compatibility Changes |
 |-----------|-------------------|----------|---------------------|--------------------------|-------------|-------------------|-----------------------|
-| Unchanged | `public`          |          | [`Workflow`]        | `buildApprovalWorkflow`([`Principal`], [`String`], [`Step`], [`String`], [`Fact[]`][41], [`Step`], [`String`]) |  | [`WikiException`] | ![No changes] |
+| Unchanged | `public`          |          | [`Workflow`]        | `buildApprovalWorkflow`([`Principal`], [`String`], [`Step`], [`String`], [`Fact[]`][42], [`Step`], [`String`]) |  | [`WikiException`] | ![No changes] |
 | Unchanged | `static` `public` |          | [`WorkflowBuilder`] | `getBuilder`([`Engine`]) |             |                   | ![No changes]         |
 
 ___
@@ -13379,54 +13663,56 @@ ___
 
 ___
 
-*Generated on: 2025-12-14 17:33:51.563+0000*.
+*Generated on: 2025-12-14 17:41:24.510+0000*.
 
-[1]: # "java.lang.String[]"
-[2]: # "jakarta.servlet.http.HttpServletRequest"
-[3]: # "jakarta.servlet.jsp.PageContext"
-[4]: # "jakarta.servlet.ServletContext"
-[5]: # "jakarta.servlet.ServletConfig"
-[6]: # "org.apache.wiki.api.core.Acl"
-[7]: # "jakarta.servlet.http.HttpServletResponse"
-[8]: # "jakarta.servlet.ServletException"
-[9]: # "java.security.Principal[]"
-[10]: # "org.apache.wiki.attachment.Attachment"
-[11]: # "jakarta.servlet.http.HttpSession"
-[12]: # "jakarta.servlet.http.HttpSessionEvent"
-[13]: # "java.util.Enumeration<org.apache.wiki.api.core.AclEntry>"
-[14]: # "org.apache.wiki.api.core.AclEntry"
-[15]: # "org.apache.wiki.auth.authorize.Group[]"
-[16]: # "org.apache.wiki.auth.authorize.Role[]"
-[17]: # "javax.security.auth.callback.Callback[]"
-[18]: # "java.lang.Object[]"
-[19]: # "org.jdom2.Attribute"
-[20]: # "org.apache.oro.text.regex.Pattern[]"
-[21]: # "org.apache.oro.text.regex.Pattern"
-[22]: # "org.apache.wiki.preferences.Preferences$TimeFormat[]"
-[23]: # "org.apache.wiki.api.search.QueryItem[]"
-[24]: # "org.apache.lucene.document.Document"
-[25]: # "java.util.List<java.lang.Object[]>"
-[26]: # "org.apache.wiki.search.QueryItem[]"
-[27]: # "org.apache.wiki.api.search.SearchResult"
-[28]: # "javax.servlet.jsp.tagext.VariableInfo[]"
-[29]: # "jakarta.servlet.jsp.tagext.VariableInfo[]"
-[30]: # "jakarta.servlet.jsp.tagext.TagData"
-[31]: # "jakarta.servlet.jsp.JspException"
-[32]: # "jakarta.servlet.jsp.tagext.BodyContent"
-[33]: # "jakarta.servlet.jsp.JspTagException"
-[34]: # "org.apache.wiki.api.core.Command[]"
-[35]: # "jakarta.servlet.ServletRequest"
-[36]: # "jakarta.servlet.ServletResponse"
-[37]: # "jakarta.servlet.FilterChain"
-[38]: # "jakarta.servlet.FilterConfig"
-[39]: # "org.apache.wiki.workflow.Decision[]"
-[40]: # "java.io.Serializable[]"
-[41]: # "org.apache.wiki.workflow.Fact[]"
+[1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
+[2]: # "java.lang.String[]"
+[3]: # "jakarta.servlet.http.HttpServletRequest"
+[4]: # "jakarta.servlet.jsp.PageContext"
+[5]: # "jakarta.servlet.ServletContext"
+[6]: # "jakarta.servlet.ServletConfig"
+[7]: # "org.apache.wiki.api.core.Acl"
+[8]: # "jakarta.servlet.http.HttpServletResponse"
+[9]: # "jakarta.servlet.ServletException"
+[10]: # "java.security.Principal[]"
+[11]: # "org.apache.wiki.attachment.Attachment"
+[12]: # "jakarta.servlet.http.HttpSession"
+[13]: # "jakarta.servlet.http.HttpSessionEvent"
+[14]: # "java.util.Enumeration<org.apache.wiki.api.core.AclEntry>"
+[15]: # "org.apache.wiki.api.core.AclEntry"
+[16]: # "org.apache.wiki.auth.authorize.Group[]"
+[17]: # "org.apache.wiki.auth.authorize.Role[]"
+[18]: # "javax.security.auth.callback.Callback[]"
+[19]: # "java.lang.Object[]"
+[20]: # "org.jdom2.Attribute"
+[21]: # "org.apache.oro.text.regex.Pattern[]"
+[22]: # "org.apache.oro.text.regex.Pattern"
+[23]: # "org.apache.wiki.preferences.Preferences$TimeFormat[]"
+[24]: # "org.apache.wiki.api.search.QueryItem[]"
+[25]: # "org.apache.lucene.document.Document"
+[26]: # "java.util.List<java.lang.Object[]>"
+[27]: # "org.apache.wiki.search.QueryItem[]"
+[28]: # "org.apache.wiki.api.search.SearchResult"
+[29]: # "javax.servlet.jsp.tagext.VariableInfo[]"
+[30]: # "jakarta.servlet.jsp.tagext.VariableInfo[]"
+[31]: # "jakarta.servlet.jsp.tagext.TagData"
+[32]: # "jakarta.servlet.jsp.JspException"
+[33]: # "jakarta.servlet.jsp.tagext.BodyContent"
+[34]: # "jakarta.servlet.jsp.JspTagException"
+[35]: # "org.apache.wiki.api.core.Command[]"
+[36]: # "jakarta.servlet.ServletRequest"
+[37]: # "jakarta.servlet.ServletResponse"
+[38]: # "jakarta.servlet.FilterChain"
+[39]: # "jakarta.servlet.FilterConfig"
+[40]: # "org.apache.wiki.workflow.Decision[]"
+[41]: # "java.io.Serializable[]"
+[42]: # "org.apache.wiki.workflow.Fact[]"
 [Annotation deprecated added]: https://img.shields.io/badge/Annotation_deprecated_added-orange "Annotation deprecated added"
 [Annotation removed]: https://img.shields.io/badge/Annotation_removed-yellow "Annotation removed"
 [Class removed]: https://img.shields.io/badge/Class_removed-red "Class removed"
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
 [Constructor removed]: https://img.shields.io/badge/Constructor_removed-red "Constructor removed"
+[Default serialversionuid changed]: https://img.shields.io/badge/Incompatible-red "Default serialversionuid changed"
 [Field removed]: https://img.shields.io/badge/Field_removed-red "Field removed"
 [Field type changed]: https://img.shields.io/badge/Field_type_changed-red "Field type changed"
 [Interface added]: https://img.shields.io/badge/Interface_added-orange "Interface added"
@@ -13462,6 +13748,7 @@ ___
 [`AttributeList`]: # "javax.management.AttributeList"
 [`AttributeNotFoundException`]: # "javax.management.AttributeNotFoundException"
 [`Attribute`]: # "javax.management.Attribute"
+[`AuditLogger`]: # "org.apache.wiki.security.AuditLogger"
 [`AuthenticationManager`]: # "org.apache.wiki.auth.AuthenticationManager"
 [`AuthorizationManager`]: # "org.apache.wiki.auth.AuthorizationManager"
 [`Authorizer`]: # "org.apache.wiki.auth.Authorizer"
@@ -13636,6 +13923,7 @@ ___
 [`PluginManager`]: # "org.apache.wiki.plugin.PluginManager"
 [`Plugin`]: # "org.apache.wiki.api.plugin.Plugin"
 [`Principal`]: # "java.security.Principal"
+[`ProductUpdateChecker`]: # "org.apache.wiki.ProductUpdateChecker"
 [`ProgressItem`]: # "org.apache.wiki.ui.progress.ProgressItem"
 [`ProgressManager`]: # "org.apache.wiki.ui.progress.ProgressManager"
 [`Properties`]: # "java.util.Properties"
@@ -13651,6 +13939,7 @@ ___
 [`RenderingManager`]: # "org.apache.wiki.render.RenderingManager"
 [`ResourceBundle`]: # "java.util.ResourceBundle"
 [`Role`]: # "org.apache.wiki.auth.authorize.Role"
+[`Runnable`]: # "java.lang.Runnable"
 [`RuntimeException`]: # "java.lang.RuntimeException"
 [`SAXException`]: # "org.xml.sax.SAXException"
 [`SearchManager`]: # "org.apache.wiki.search.SearchManager"
@@ -13673,6 +13962,7 @@ ___
 [`SimpleAdminBean`]: # "org.apache.wiki.ui.admin.SimpleAdminBean"
 [`SimpleDateFormat`]: # "java.text.SimpleDateFormat"
 [`SimpleMBean`]: # "org.apache.wiki.management.SimpleMBean"
+[`Status`]: # "org.apache.wiki.ProductUpdateChecker$Status"
 [`Step`]: # "org.apache.wiki.workflow.Step"
 [`StringTransmutator`]: # "org.apache.wiki.StringTransmutator"
 [`String`]: # "java.lang.String"
@@ -13690,6 +13980,7 @@ ___
 [`URLConstructor`]: # "org.apache.wiki.url.URLConstructor"
 [`URL`]: # "java.net.URL"
 [`UnsupportedCallbackException`]: # "javax.security.auth.callback.UnsupportedCallbackException"
+[`UpdateStatus`]: # "org.apache.wiki.ProductUpdateChecker$UpdateStatus"
 [`UserDatabase`]: # "org.apache.wiki.auth.user.UserDatabase"
 [`UserManager`]: # "org.apache.wiki.auth.UserManager"
 [`UserProfile`]: # "org.apache.wiki.auth.user.UserProfile"
@@ -13719,6 +14010,7 @@ ___
 [`WikiPluginInfo`]: # "org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo"
 [`WikiRPCHandler`]: # "org.apache.wiki.xmlrpc.WikiRPCHandler"
 [`WikiRenderer`]: # "org.apache.wiki.render.WikiRenderer"
+[`WikiSecurityEvent`]: # "org.apache.wiki.event.WikiSecurityEvent"
 [`WikiSecurityException`]: # "org.apache.wiki.auth.WikiSecurityException"
 [`WikiServletFilter`]: # "org.apache.wiki.ui.WikiServletFilter"
 [`WikiSession`]: # "org.apache.wiki.WikiSession"
@@ -13730,6 +14022,9 @@ ___
 [`XmlRpcException`]: # "org.apache.xmlrpc.XmlRpcException"
 [org.apache.wiki.InternalWikiException]: #user-content-org.apache.wiki.internalwikiexception
 [org.apache.wiki.LinkCollector]: #user-content-org.apache.wiki.linkcollector
+[org.apache.wiki.ProductUpdateChecker]: #user-content-org.apache.wiki.productupdatechecker
+[org.apache.wiki.ProductUpdateChecker$Status]: #user-content-org.apache.wiki.productupdatechecker$status
+[org.apache.wiki.ProductUpdateChecker$UpdateStatus]: #user-content-org.apache.wiki.productupdatechecker$updatestatus
 [org.apache.wiki.StringTransmutator]: #user-content-org.apache.wiki.stringtransmutator
 [org.apache.wiki.TranslationsCheck]: #user-content-org.apache.wiki.translationscheck
 [org.apache.wiki.WatchDog]: #user-content-org.apache.wiki.watchdog
@@ -13758,7 +14053,8 @@ ___
 [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]: #user-content-org.apache.wiki.auth.defaultusermanager$jsonusermodule
 [org.apache.wiki.auth.GroupPrincipal]: #user-content-org.apache.wiki.auth.groupprincipal
 [org.apache.wiki.auth.NoSuchPrincipalException]: #user-content-org.apache.wiki.auth.nosuchprincipalexception
-[org.apache.wiki.auth.PasswordComplexityVeriffier]: #user-content-org.apache.wiki.auth.passwordcomplexityveriffier
+[org.apache.wiki.auth.PasswordComplexityVerifier]: #user-content-org.apache.wiki.auth.passwordcomplexityverifier
+[org.apache.wiki.auth.SecurityVerificationUtility]: #user-content-org.apache.wiki.auth.securityverificationutility
 [org.apache.wiki.auth.SecurityVerifier]: #user-content-org.apache.wiki.auth.securityverifier
 [org.apache.wiki.auth.SessionMonitor]: #user-content-org.apache.wiki.auth.sessionmonitor
 [org.apache.wiki.auth.UserManager]: #user-content-org.apache.wiki.auth.usermanager
@@ -13816,6 +14112,7 @@ ___
 [org.apache.wiki.diff.DiffProvider$NullDiffProvider]: #user-content-org.apache.wiki.diff.diffprovider$nulldiffprovider
 [org.apache.wiki.diff.DifferenceManager]: #user-content-org.apache.wiki.diff.differencemanager
 [org.apache.wiki.diff.ExternalDiffProvider]: #user-content-org.apache.wiki.diff.externaldiffprovider
+[org.apache.wiki.diff.SvnStyleDiffProvider]: #user-content-org.apache.wiki.diff.svnstylediffprovider
 [org.apache.wiki.diff.TraditionalDiffProvider]: #user-content-org.apache.wiki.diff.traditionaldiffprovider
 [org.apache.wiki.filters.CreoleFilter]: #user-content-org.apache.wiki.filters.creolefilter
 [org.apache.wiki.filters.DefaultFilterManager]: #user-content-org.apache.wiki.filters.defaultfiltermanager
@@ -13935,6 +14232,8 @@ ___
 [org.apache.wiki.search.SearchProvider]: #user-content-org.apache.wiki.search.searchprovider
 [org.apache.wiki.search.SearchResult]: #user-content-org.apache.wiki.search.searchresult
 [org.apache.wiki.search.SearchResultComparator]: #user-content-org.apache.wiki.search.searchresultcomparator
+[org.apache.wiki.security.AuditLogger]: #user-content-org.apache.wiki.security.auditlogger
+[org.apache.wiki.security.EventUtil]: #user-content-org.apache.wiki.security.eventutil
 [org.apache.wiki.spi.AclsSPIDefaultImpl]: #user-content-org.apache.wiki.spi.aclsspidefaultimpl
 [org.apache.wiki.spi.ContentsSPIDefaultImpl]: #user-content-org.apache.wiki.spi.contentsspidefaultimpl
 [org.apache.wiki.spi.ContextSPIDefaultImpl]: #user-content-org.apache.wiki.spi.contextspidefaultimpl
@@ -13976,6 +14275,7 @@ ___
 [org.apache.wiki.tags.LinkTag]: #user-content-org.apache.wiki.tags.linktag
 [org.apache.wiki.tags.LinkToParentTag]: #user-content-org.apache.wiki.tags.linktoparenttag
 [org.apache.wiki.tags.LinkToTag]: #user-content-org.apache.wiki.tags.linktotag
+[org.apache.wiki.tags.MaxUploadTag]: #user-content-org.apache.wiki.tags.maxuploadtag
 [org.apache.wiki.tags.MessagesTag]: #user-content-org.apache.wiki.tags.messagestag
 [org.apache.wiki.tags.NextVersionTag]: #user-content-org.apache.wiki.tags.nextversiontag
 [org.apache.wiki.tags.NoSuchPageTag]: #user-content-org.apache.wiki.tags.nosuchpagetag
