@@ -49,368 +49,367 @@
 
 ## Results
 
-| Status       | Type                                                             | Serialization                       | Compatibility Changes |
-|--------------|------------------------------------------------------------------|-------------------------------------|-----------------------|
-| Unchanged    | [org.apache.wiki.InternalWikiException]                          | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.LinkCollector]                                  | ![Not serializable]                 | ![No changes]         |
-| Added        | [org.apache.wiki.ProductUpdateChecker]                           | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
-| Added        | [org.apache.wiki.ProductUpdateChecker$Status]                    | ![Compatible]                       | ![Interface added] ![Method added to public class] |
-| Added        | [org.apache.wiki.ProductUpdateChecker$UpdateStatus]              | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.StringTransmutator]                             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.TranslationsCheck]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.WatchDog]                                       | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.Watchable]                                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.WikiBackgroundThread]                           | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.WikiContext]                                    | ![Not serializable]                 | ![Annotation deprecated added] ![Annotation removed] ![Method removed] ![Method return type changed] ![Method added to public class] ![Field type changed] ![Constructor removed] |
-| Modified     | [org.apache.wiki.WikiEngine]                                     | ![Not serializable]                 | ![Method removed] ![Method return type changed] ![Method added to public class] ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.WikiPage]                                       | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.WikiServlet]                                    | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.WikiSession]                                    | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.ajax.AjaxUtil]                                  | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ajax.WikiAjaxDispatcherServlet]                 | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.ajax.WikiAjaxServlet]                           | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
-| Unchanged    | [org.apache.wiki.attachment.Attachment]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.attachment.AttachmentManager]                   | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.attachment.AttachmentServlet]                   | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
-| Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
-| Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.auth.DefaultAuthorizationManager]               | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.auth.DefaultUserManager]                        | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable]                 | ![No changes]         |
-| Added        | [org.apache.wiki.auth.PasswordComplexityVerifier]                | ![Not serializable]                 | ![Method added to public class] |
-| Added        | [org.apache.wiki.auth.SecurityVerificationUtility]               | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.WikiPrincipal]                             | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.WikiSecurityException]                     | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.Acl]                                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclEntry]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclEntryImpl]                          | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclImpl]                               | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.AclManager]                            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.DefaultAclManager]                     | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.acl.UnresolvedPrincipal]                   | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.DefaultGroupManager]             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.Group]                           | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.GroupDatabase]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.GroupManager]                    | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.JDBCGroupDatabase]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.Role]                            | ![Compatible]                       | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.authorize.WebAuthorizer]                   | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
-| Modified     | [org.apache.wiki.auth.authorize.WebContainerAuthorizer]          | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.authorize.WebContainerAuthorizer$LocalEntityResolver] | ![Not serializable]      | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.authorize.XMLGroupDatabase]                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.AbstractLoginModule]                 | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.AnonymousLoginModule]                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.AuthorizerCallback]                  | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable]                 | ![Annotation deprecated added] ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.auth.login.CookieAuthenticationLoginModule]     | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.auth.login.HttpRequestCallback]                 | ![Not serializable]                 | ![Method removed] ![Method return type changed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.login.PrincipalWrapper]                    | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseCallback]                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseLoginModule]             | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.WebContainerCallbackHandler]         | ![Not serializable]                 | ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.auth.login.WebContainerLoginModule]             | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.login.WikiCallbackHandler]                 | ![Not serializable]                 | ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.auth.login.WikiEngineCallback]                  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.AllPermission]                 | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.AllPermissionCollection]       | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.GroupPermission]               | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.PagePermission]                | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.PermissionFactory]             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.WikiPermission]                | ![Compatible]                       | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.user.AbstractUserDatabase]                 | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.auth.user.DefaultUserProfile]                   | ![Compatible]                       | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.auth.user.DummyUserDatabase]                    | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.user.DuplicateUserException]               | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.user.JDBCUserDatabase]                     | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable]                 | ![Method added to interface] |
-| Modified     | [org.apache.wiki.auth.user.UserProfile]                          | ![Default serialversionuid changed] | ![Method new default] |
-| Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
-| Removed      | [org.apache.wiki.diff.ContextualDiffProvider]                    | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.diff.DefaultDifferenceManager]                  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DiffProvider]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DiffProvider$NullDiffProvider]             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.DifferenceManager]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.diff.ExternalDiffProvider]                      | ![Not serializable]                 | ![No changes]         |
-| Added        | [org.apache.wiki.diff.SvnStyleDiffProvider]                      | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
-| Removed      | [org.apache.wiki.diff.TraditionalDiffProvider]                   | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.filters.CreoleFilter]                           | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.DefaultFilterManager]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.FilterManager]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.PageEventFilter]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.PingWeblogsComFilter]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.ProfanityFilter]                        | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.filters.SpamFilter]                             | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.forms.FormClose]                                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormElement]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormHandler]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormInfo]                                 | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormInput]                                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormOpen]                                 | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormOutput]                               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormSelect]                               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormSet]                                  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.forms.FormTextarea]                             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.i18n.DefaultInternationalizationManager]        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.i18n.InternationalizationManager]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.management.SimpleMBean]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.BaseModuleManager]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageManager]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageSorter]                               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.pages.PageTimeComparator]                       | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.CreoleToJSPWikiTranslator]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.Heading]                                 | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.HeadingListener]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.JSPWikiMarkupParser]                     | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParser]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParser$Link]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParsingOperations]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.MarkupParser]                            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.ParseException]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.PluginContent]                           | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.VariableContent]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.WikiDocument]                            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.AbstractReferralPlugin]                  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.BugReportHandler]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.plugin.Counter]                                 | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.CurrentTimePlugin]                       | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.DefaultPluginManager]                    | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo]     | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.Denounce]                                | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Groups]                                  | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.IfPlugin]                                | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.PageViewPlugin$PageViewManager]          | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.PluginManager]                           | ![Not serializable]                 | ![Method added to interface] |
-| Modified     | [org.apache.wiki.plugin.RecentChangesPlugin]                     | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.Search]                                  | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.plugin.SessionsPlugin]                          | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.UndefinedPagesPlugin]                    | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.UnusedPagesPlugin]                       | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.WeblogArchivePlugin]                     | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.WeblogEntryPlugin]                       | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable]                 | ![Method added to public class] |
-| Modified     | [org.apache.wiki.preferences.Preferences]                        | ![Compatible]                       | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.preferences.Preferences$TimeFormat]             | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider$WikiFileFilter]  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider]              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentFilter] | ![Not serializable]             | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentVersionFilter] | ![Not serializable]      | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.CachingAttachmentProvider]            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.CachingProvider]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.FastSearch]                           | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.FileSystemProvider]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.NoSuchVersionException]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.RepositoryModifiedException]          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.VersioningFileProvider]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.VersioningProvider]                   | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.references.DefaultReferenceManager]             | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.references.ReferenceManager]                    | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.CleanTextRenderer]                       | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.CreoleRenderer]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.CustomXMLOutputProcessor]                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.DefaultRenderingManager]                 | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.RenderingManager]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.WikiRenderer]                            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.WysiwygEditingRenderer]                  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.render.XHTMLRenderer]                           | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.rpc.atom.AtomAPIServlet]                        | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Incompatible | [org.apache.wiki.rss.AtomFeed]                                   | ![Not serializable]                 | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.rss.DefaultRSSGenerator]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.rss.Entry]                                      | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.rss.Feed]                                       | ![Not serializable]                 | ![Method removed]     |
-| Incompatible | [org.apache.wiki.rss.RSS10Feed]                                  | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.rss.RSS20Feed]                                  | ![Not serializable]                 | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.rss.RSSGenerator]                               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.rss.RSSThread]                                  | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.BasicSearchProvider]                     | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.DefaultSearchManager]                    | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable]                 | ![Method added to public class] |
-| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch]       | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
-| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData] | ![Not serializable]        | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.LuceneSearchProvider]                    | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.QueryItem]                               | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.search.SearchManager]                           | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchMatcher]                           | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchMatcher$SearchResultImpl]          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchProvider]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchResult]                            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.search.SearchResultComparator]                  | ![Compatible]                       | ![No changes]         |
-| Added        | [org.apache.wiki.security.AuditLogger]                           | ![Not serializable]                 | ![Method added to public class] |
-| Added        | [org.apache.wiki.security.EventUtil]                             | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.spi.AclsSPIDefaultImpl]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.spi.ContentsSPIDefaultImpl]                     | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.spi.ContextSPIDefaultImpl]                      | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.spi.EngineSPIDefaultImpl]                       | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.spi.SessionSPIDefaultImpl]                      | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Modified     | [org.apache.wiki.tags.AdminBeanIteratorInfo]                     | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.AdminBeanIteratorTag]                      | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.tags.AttachmentsIteratorInfo]                   | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.AttachmentsIteratorTag]                    | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.AuthorTag]                                 | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.BaseURLTag]                                | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.BreadcrumbsTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.BreadcrumbsTag$FixedQueue]                 | ![Compatible]                       | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.CalendarTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.CheckLockInfo]                             | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Incompatible | [org.apache.wiki.tags.CheckLockTag]                              | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.CheckRequestContextTag]                    | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.CheckVersionTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.CommentLinkTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.ContentEncodingTag]                        | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.ContentTag]                                | ![Not serializable]                 | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.CookieTag]                                 | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.CsrfProtectionTag]                         | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.DiffLinkTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.EditLinkTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.EditorIteratorInfo]                        | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.EditorIteratorTag]                         | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.tags.EditorTag]                                 | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.FeedDiscoveryTag]                          | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.HasAttachmentsTag]                         | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.HistoryIteratorInfo]                       | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.HistoryIteratorTag]                        | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.IfNoSearchResultsTag]                      | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.IncludeResourcesTag]                       | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.IncludeTag]                                | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.InsertDiffTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.InsertPageTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.IteratorTag]                               | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.tags.LinkTag]                                   | ![Not serializable]                 | ![Method removed] ![Method removed in superclass] ![Method added to public class] |
-| Incompatible | [org.apache.wiki.tags.LinkToParentTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.LinkToTag]                                 | ![Not serializable]                 | ![Method removed in superclass] |
-| Added        | [org.apache.wiki.tags.MaxUploadTag]                              | ![Not serializable]                 | ![Method added to public class] |
-| Incompatible | [org.apache.wiki.tags.MessagesTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.NextVersionTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.NoSuchPageTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageDateTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageExistsTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageInfoLinkTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageNameTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageSizeTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageTypeTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PageVersionTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
-| Unchanged    | [org.apache.wiki.tags.ParamHandler]                              | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tags.ParamTag]                                  | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.ParentPageNameTag]                         | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.PermissionTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.PluginTag]                                 | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.PreviousVersionTag]                        | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.RSSImageLinkTag]                           | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.RequestResourceTag]                        | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.SearchResultIteratorInfo]                  | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tags.SearchResultIteratorTag]                   | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.SearchResultsSizeTag]                      | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.SearchResultsTag]                          | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.SetPaginationTag]                          | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.SpamFilterInputsTag]                       | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.TabTag]                                    | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.TabbedSectionTag]                          | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.TemplateDirTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.TranslateTag]                              | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.UploadLinkTag]                             | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.UserCheckTag]                              | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.UserNameTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Incompatible | [org.apache.wiki.tags.UserProfileTag]                            | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.VariableTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.WikiBodyTag]                               | ![Not serializable]                 | ![No changes]         |
-| Incompatible | [org.apache.wiki.tags.WikiLinkTag]                               | ![Not serializable]                 | ![Method removed in superclass] |
-| Modified     | [org.apache.wiki.tags.WikiTagBase]                               | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.tasks.DefaultTasksManager]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.TasksManager]                             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.auth.SaveUserProfileTask]                 | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.pages.PreSaveWikiPageTask]                | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.tasks.pages.SaveWikiPageTask]                   | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.AbstractCommand]                             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.AllCommands]                                 | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.CommandResolver]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] |
-| Modified     | [org.apache.wiki.ui.DefaultCommandResolver]                      | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.DefaultEditorManager]                        | ![Not serializable]                 | ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.ui.DefaultTemplateManager]                      | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
-| Unchanged    | [org.apache.wiki.ui.Editor]                                      | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.EditorManager]                               | ![Not serializable]                 | ![Method removed] ![Method new static added to interface] |
-| Unchanged    | [org.apache.wiki.ui.GenericHTTPHandler]                          | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.GroupCommand]                                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.InputValidator]                              | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.Installer]                                   | ![Not serializable]                 | ![Constructor removed] |
-| Unchanged    | [org.apache.wiki.ui.PageCommand]                                 | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.RedirectCommand]                             | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.TemplateManager]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
-| Unchanged    | [org.apache.wiki.ui.WikiCommand]                                 | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.WikiJSPFilter]                               | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] |
-| Modified     | [org.apache.wiki.ui.WikiRequestWrapper]                          | ![Not serializable]                 | ![Constructor removed] |
-| Modified     | [org.apache.wiki.ui.WikiServletFilter]                           | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.admin.AdminBean]                             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.AdminBeanManager]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.DefaultAdminBeanManager]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.SimpleAdminBean]                       | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.admin.WikiFormAdminBean]                     | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.CoreBean]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.FilterBean]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.ModuleBean]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.PlainEditorAdminBean]            | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.PluginBean]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.SearchManagerBean]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.admin.beans.UserBean]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.progress.DefaultProgressManager]             | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.ui.progress.DefaultProgressManager$JSONTracker] | ![Not serializable]                 | ![Method added to public class] |
-| Unchanged    | [org.apache.wiki.ui.progress.ProgressItem]                       | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.ui.progress.ProgressManager]                    | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.url.DefaultURLConstructor]                      | ![Not serializable]                 | ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.url.ShortURLConstructor]                        | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.url.ShortViewURLConstructor]                    | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
-| Modified     | [org.apache.wiki.url.URLConstructor]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new static added to interface] |
-| Unchanged    | [org.apache.wiki.variables.DefaultVariableManager]               | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.variables.VariableManager]                      | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.AbstractStep]                          | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Decision]                              | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.DecisionQueue]                         | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.DecisionRequiredException]             | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.DefaultWorkflowManager]                | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Fact]                                  | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.NoSuchOutcomeException]                | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Outcome]                               | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.SimpleDecision]                        | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.SimpleNotification]                    | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Step]                                  | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.SystemPrincipal]                       | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Task]                                  | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Workflow]                              | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.WorkflowBuilder]                       | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.WorkflowManager]                       | ![Not serializable]                 | ![No changes]         |
-| Removed      | [org.apache.wiki.xmlrpc.AbstractRPCHandler]                      | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.MetaWeblogHandler]                       | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.RPCHandler]                              | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.RPCHandlerUTF8]                          | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.RPCServlet]                              | ![Not serializable]                 | ![Class removed] ![Method removed] ![Field removed] ![Constructor removed] |
-| Removed      | [org.apache.wiki.xmlrpc.WikiRPCHandler]                          | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Method removed] |
+| Status       | Type                                                             | Serialization       | Compatibility Changes |
+|--------------|------------------------------------------------------------------|---------------------|-----------------------|
+| Unchanged    | [org.apache.wiki.InternalWikiException]                          | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.LinkCollector]                                  | ![Not serializable] | ![No changes]         |
+| Added        | [org.apache.wiki.ProductUpdateChecker]                           | ![Not serializable] | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.ProductUpdateChecker$Status]                    | ![Compatible]       | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.ProductUpdateChecker$UpdateStatus]              | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.StringTransmutator]                             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.TranslationsCheck]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.WatchDog]                                       | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.Watchable]                                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.WikiBackgroundThread]                           | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.WikiContext]                                    | ![Not serializable] | ![Annotation deprecated added] ![Annotation removed] ![Method removed] ![Method return type changed] ![Method added to public class] ![Field type changed] ![Constructor removed] |
+| Modified     | [org.apache.wiki.WikiEngine]                                     | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method added to public class] ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.WikiPage]                                       | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.WikiServlet]                                    | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.WikiSession]                                    | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.ajax.AjaxUtil]                                  | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ajax.WikiAjaxDispatcherServlet]                 | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.ajax.WikiAjaxServlet]                           | ![Not serializable] | ![Method removed] ![Method added to interface] |
+| Unchanged    | [org.apache.wiki.attachment.Attachment]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.attachment.AttachmentManager]                   | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.attachment.AttachmentServlet]                   | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
+| Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
+| Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.DefaultAuthenticationManager]              | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.auth.DefaultAuthorizationManager]               | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
+| Unchanged    | [org.apache.wiki.auth.DefaultUserManager]                        | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]         | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable] | ![No changes]         |
+| Added        | [org.apache.wiki.auth.PasswordComplexityVeriffier]               | ![Not serializable] | ![Method added to public class] |
+| Added        | [org.apache.wiki.auth.SecurityVerificationUtility]               | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.UserManager]                               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.WikiPrincipal]                             | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.WikiSecurityException]                     | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.Acl]                                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclEntry]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclEntryImpl]                          | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclImpl]                               | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.AclManager]                            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.DefaultAclManager]                     | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.acl.UnresolvedPrincipal]                   | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.DefaultGroupManager]             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.Group]                           | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.GroupDatabase]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.GroupManager]                    | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.JDBCGroupDatabase]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.authorize.Role]                            | ![Compatible]       | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.authorize.WebAuthorizer]                   | ![Not serializable] | ![Method removed] ![Method added to interface] |
+| Modified     | [org.apache.wiki.auth.authorize.WebContainerAuthorizer]          | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.authorize.WebContainerAuthorizer$LocalEntityResolver] | ![Not serializable] | ![No changes] |
+| Unchanged    | [org.apache.wiki.auth.authorize.XMLGroupDatabase]                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.AbstractLoginModule]                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.AnonymousLoginModule]                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.AuthorizerCallback]                  | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.login.CookieAssertionLoginModule]          | ![Not serializable] | ![Annotation deprecated added] ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.login.CookieAuthenticationLoginModule]     | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.auth.login.HttpRequestCallback]                 | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.auth.login.PrincipalWrapper]                    | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseCallback]                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.login.UserDatabaseLoginModule]             | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.login.WebContainerCallbackHandler]         | ![Not serializable] | ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.auth.login.WebContainerLoginModule]             | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.login.WikiCallbackHandler]                 | ![Not serializable] | ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.auth.login.WikiEngineCallback]                  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.AllPermission]                 | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.AllPermissionCollection]       | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.GroupPermission]               | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.PagePermission]                | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.PermissionFactory]             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.permissions.WikiPermission]                | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.AbstractUserDatabase]                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.DefaultUserProfile]                   | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.DummyUserDatabase]                    | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.DuplicateUserException]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.JDBCUserDatabase]                     | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.UserProfile]                          | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.content.PageRenamer]                            | ![Not serializable] | ![Method removed] ![Method added to interface] |
+| Unchanged    | [org.apache.wiki.diff.ContextualDiffProvider]                    | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DefaultDifferenceManager]                  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DiffProvider]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DiffProvider$NullDiffProvider]             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.DifferenceManager]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.ExternalDiffProvider]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.diff.TraditionalDiffProvider]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.CreoleFilter]                           | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.DefaultFilterManager]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.FilterManager]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.PageEventFilter]                        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.PingWeblogsComFilter]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.filters.ProfanityFilter]                        | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.filters.SpamFilter]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.forms.FormClose]                                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormElement]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormHandler]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormInfo]                                 | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormInput]                                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormOpen]                                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormOutput]                               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormSelect]                               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormSet]                                  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.forms.FormTextarea]                             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.i18n.DefaultInternationalizationManager]        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.i18n.InternationalizationManager]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.management.SimpleMBean]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.BaseModuleManager]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageManager]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageSorter]                               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.pages.PageTimeComparator]                       | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.CreoleToJSPWikiTranslator]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.Heading]                                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.HeadingListener]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.JSPWikiMarkupParser]                     | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.LinkParser]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.LinkParser$Link]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.LinkParsingOperations]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.MarkupParser]                            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.ParseException]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.PluginContent]                           | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.VariableContent]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.parser.WikiDocument]                            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.plugin.AbstractReferralPlugin]                  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.plugin.BugReportHandler]                        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.plugin.Counter]                                 | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.CurrentTimePlugin]                       | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.DefaultPluginManager]                    | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.plugin.DefaultPluginManager$WikiPluginInfo]     | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.Denounce]                                | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Groups]                                  | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.IfPlugin]                                | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.plugin.PageViewPlugin$PageViewManager]          | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.PluginManager]                           | ![Not serializable] | ![Method added to interface] |
+| Modified     | [org.apache.wiki.plugin.RecentChangesPlugin]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.Search]                                  | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.plugin.SessionsPlugin]                          | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.UndefinedPagesPlugin]                    | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.UnusedPagesPlugin]                       | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogArchivePlugin]                     | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogEntryPlugin]                       | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable] | ![Method added to public class] |
+| Modified     | [org.apache.wiki.preferences.Preferences]                        | ![Compatible]       | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.preferences.Preferences$TimeFormat]             | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider$WikiFileFilter]  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider]              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentFilter] | ![Not serializable] | ![No changes]     |
+| Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentVersionFilter] | ![Not serializable] | ![No changes] |
+| Unchanged    | [org.apache.wiki.providers.CachingAttachmentProvider]            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.CachingProvider]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.FastSearch]                           | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.FileSystemProvider]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.NoSuchVersionException]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.RepositoryModifiedException]          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.VersioningFileProvider]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.providers.VersioningProvider]                   | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.references.DefaultReferenceManager]             | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.references.ReferenceManager]                    | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.CleanTextRenderer]                       | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.CreoleRenderer]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.CustomXMLOutputProcessor]                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.DefaultRenderingManager]                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.RenderingManager]                        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.WikiRenderer]                            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.WysiwygEditingRenderer]                  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.render.XHTMLRenderer]                           | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.rpc.atom.AtomAPIServlet]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Incompatible | [org.apache.wiki.rss.AtomFeed]                                   | ![Not serializable] | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.rss.DefaultRSSGenerator]                        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.rss.Entry]                                      | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.rss.Feed]                                       | ![Not serializable] | ![Method removed]     |
+| Incompatible | [org.apache.wiki.rss.RSS10Feed]                                  | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.rss.RSS20Feed]                                  | ![Not serializable] | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.rss.RSSGenerator]                               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.rss.RSSThread]                                  | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.BasicSearchProvider]                     | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.DefaultSearchManager]                    | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable] | ![Method added to public class] |
+| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch]       | ![Not serializable] | ![Interface added] ![Method added to public class] |
+| Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData] | ![Not serializable] | ![No changes] |
+| Unchanged    | [org.apache.wiki.search.LuceneSearchProvider]                    | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.QueryItem]                               | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.search.SearchManager]                           | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchMatcher]                           | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchMatcher$SearchResultImpl]          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchProvider]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchResult]                            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.search.SearchResultComparator]                  | ![Compatible]       | ![No changes]         |
+| Added        | [org.apache.wiki.security.AuditLogger]                           | ![Not serializable] | ![Method added to public class] |
+| Added        | [org.apache.wiki.security.EventUtil]                             | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.spi.AclsSPIDefaultImpl]                         | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.spi.ContentsSPIDefaultImpl]                     | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.spi.ContextSPIDefaultImpl]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.spi.EngineSPIDefaultImpl]                       | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.spi.SessionSPIDefaultImpl]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Modified     | [org.apache.wiki.tags.AdminBeanIteratorInfo]                     | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.AdminBeanIteratorTag]                      | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.tags.AttachmentsIteratorInfo]                   | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.AttachmentsIteratorTag]                    | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.AuthorTag]                                 | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.BaseURLTag]                                | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.BreadcrumbsTag]                            | ![Not serializable] | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.BreadcrumbsTag$FixedQueue]                 | ![Compatible]       | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.CalendarTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.CheckLockInfo]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Incompatible | [org.apache.wiki.tags.CheckLockTag]                              | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.CheckRequestContextTag]                    | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.CheckVersionTag]                           | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.CommentLinkTag]                            | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.ContentEncodingTag]                        | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.ContentTag]                                | ![Not serializable] | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.CookieTag]                                 | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.CsrfProtectionTag]                         | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.DiffLinkTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.EditLinkTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.EditorIteratorInfo]                        | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.EditorIteratorTag]                         | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.tags.EditorTag]                                 | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.FeedDiscoveryTag]                          | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.HasAttachmentsTag]                         | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.HistoryIteratorInfo]                       | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.HistoryIteratorTag]                        | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.IfNoSearchResultsTag]                      | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.IncludeResourcesTag]                       | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.IncludeTag]                                | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.InsertDiffTag]                             | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.InsertPageTag]                             | ![Not serializable] | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.IteratorTag]                               | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.tags.LinkTag]                                   | ![Not serializable] | ![Method removed] ![Method removed in superclass] ![Method added to public class] |
+| Incompatible | [org.apache.wiki.tags.LinkToParentTag]                           | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.LinkToTag]                                 | ![Not serializable] | ![Method removed in superclass] |
+| Added        | [org.apache.wiki.tags.MaxUploadTag]                              | ![Not serializable] | ![Method added to public class] |
+| Incompatible | [org.apache.wiki.tags.MessagesTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.NextVersionTag]                            | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.NoSuchPageTag]                             | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageDateTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageExistsTag]                             | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageInfoLinkTag]                           | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageNameTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageSizeTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageTypeTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PageVersionTag]                            | ![Not serializable] | ![Method removed in superclass] |
+| Unchanged    | [org.apache.wiki.tags.ParamHandler]                              | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tags.ParamTag]                                  | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.ParentPageNameTag]                         | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.PermissionTag]                             | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.PluginTag]                                 | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.PreviousVersionTag]                        | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.RSSImageLinkTag]                           | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.RequestResourceTag]                        | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.SearchResultIteratorInfo]                  | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tags.SearchResultIteratorTag]                   | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.SearchResultsSizeTag]                      | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.SearchResultsTag]                          | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.SetPaginationTag]                          | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.SpamFilterInputsTag]                       | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.TabTag]                                    | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.TabbedSectionTag]                          | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.TemplateDirTag]                            | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.TranslateTag]                              | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.UploadLinkTag]                             | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.UserCheckTag]                              | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.UserNameTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Incompatible | [org.apache.wiki.tags.UserProfileTag]                            | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.VariableTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.WikiBodyTag]                               | ![Not serializable] | ![No changes]         |
+| Incompatible | [org.apache.wiki.tags.WikiLinkTag]                               | ![Not serializable] | ![Method removed in superclass] |
+| Modified     | [org.apache.wiki.tags.WikiTagBase]                               | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.tasks.DefaultTasksManager]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.TasksManager]                             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.auth.SaveUserProfileTask]                 | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.pages.PreSaveWikiPageTask]                | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.tasks.pages.SaveWikiPageTask]                   | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.AbstractCommand]                             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.AllCommands]                                 | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.CommandResolver]                             | ![Not serializable] | ![Method removed] ![Method added to interface] |
+| Modified     | [org.apache.wiki.ui.DefaultCommandResolver]                      | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.DefaultEditorManager]                        | ![Not serializable] | ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.ui.DefaultTemplateManager]                      | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
+| Unchanged    | [org.apache.wiki.ui.Editor]                                      | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.EditorManager]                               | ![Not serializable] | ![Method removed] ![Method new static added to interface] |
+| Unchanged    | [org.apache.wiki.ui.GenericHTTPHandler]                          | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.GroupCommand]                                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.InputValidator]                              | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.Installer]                                   | ![Not serializable] | ![Constructor removed] |
+| Unchanged    | [org.apache.wiki.ui.PageCommand]                                 | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.RedirectCommand]                             | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.TemplateManager]                             | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new default] |
+| Unchanged    | [org.apache.wiki.ui.WikiCommand]                                 | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.WikiJSPFilter]                               | ![Not serializable] | ![Method removed in superclass] ![Method added to public class] |
+| Modified     | [org.apache.wiki.ui.WikiRequestWrapper]                          | ![Not serializable] | ![Constructor removed] |
+| Modified     | [org.apache.wiki.ui.WikiServletFilter]                           | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.admin.AdminBean]                             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.AdminBeanManager]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.DefaultAdminBeanManager]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.SimpleAdminBean]                       | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.admin.WikiFormAdminBean]                     | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.CoreBean]                        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.FilterBean]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.ModuleBean]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.PlainEditorAdminBean]            | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.PluginBean]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.SearchManagerBean]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.admin.beans.UserBean]                        | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.progress.DefaultProgressManager]             | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.ui.progress.DefaultProgressManager$JSONTracker] | ![Not serializable] | ![Method added to public class] |
+| Unchanged    | [org.apache.wiki.ui.progress.ProgressItem]                       | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.ui.progress.ProgressManager]                    | ![Not serializable] | ![No changes]         |
+| Modified     | [org.apache.wiki.url.DefaultURLConstructor]                      | ![Not serializable] | ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.url.ShortURLConstructor]                        | ![Not serializable] | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.url.ShortViewURLConstructor]                    | ![Not serializable] | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
+| Modified     | [org.apache.wiki.url.URLConstructor]                             | ![Not serializable] | ![Method removed] ![Method added to interface] ![Method new static added to interface] |
+| Unchanged    | [org.apache.wiki.variables.DefaultVariableManager]               | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.variables.VariableManager]                      | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.AbstractStep]                          | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Decision]                              | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.DecisionQueue]                         | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.DecisionRequiredException]             | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.DefaultWorkflowManager]                | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Fact]                                  | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.NoSuchOutcomeException]                | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Outcome]                               | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.SimpleDecision]                        | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.SimpleNotification]                    | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Step]                                  | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.SystemPrincipal]                       | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Task]                                  | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.Workflow]                              | ![Compatible]       | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.WorkflowBuilder]                       | ![Not serializable] | ![No changes]         |
+| Unchanged    | [org.apache.wiki.workflow.WorkflowManager]                       | ![Not serializable] | ![No changes]         |
+| Removed      | [org.apache.wiki.xmlrpc.AbstractRPCHandler]                      | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.MetaWeblogHandler]                       | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.RPCHandler]                              | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.RPCHandlerUTF8]                          | ![Not serializable] | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.RPCServlet]                              | ![Not serializable] | ![Class removed] ![Method removed] ![Field removed] ![Constructor removed] |
+| Removed      | [org.apache.wiki.xmlrpc.WikiRPCHandler]                          | ![Not serializable] | ![Class removed] ![Superclass removed] ![Method removed] |
 
 <details markdown="1">
 <summary>Expand for details.</summary>
@@ -1036,7 +1035,6 @@ ___
 | Unchanged | `public`                  |          | [`String[]`][2]     | `getMessages`()                                                |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`String[]`][2]     | `getMessages`([`String`])                                      |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`Principal[]`][10] | `getPrincipals`()                                              |                |        | ![No changes]         |
-| Added     | **`public`**              |          | **[`String`]**      | **`getRemoteAddress`**()                                       |                |        | ![Method added to public class] |
 | Unchanged | `public`                  |          | [`Principal[]`][10] | `getRoles`()                                                   |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`String`]          | `getStatus`()                                                  |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`Subject`]         | `getSubject`()                                                 |                |        | ![No changes]         |
@@ -1582,9 +1580,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `DefaultUserManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `DefaultUserManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1615,13 +1613,6 @@ ___
 | Unchanged | `public`  |          | `void`              | `setUserProfile`([`Context`], [`UserProfile`])                   |             | [`DuplicateUserException`], [`WikiException`] | ![No changes]         |
 | Unchanged | `public`  |          | `void`              | `startUserProfileCreationWorkflow`([`Context`], [`UserProfile`]) |             | [`WikiException`]                             | ![No changes]         |
 | Unchanged | `public`  |          | `void`              | `validateProfile`([`Context`], [`UserProfile`])                  |             |                                               | ![No changes]         |
-
-
-#### Fields
-
-| Status   | Modifiers                                          | Type       | Name               | Annotations | Compatibility Changes |
-|----------|----------------------------------------------------|------------|--------------------|-------------|-----------------------|
-| Modified | ~~`private`~~ &rarr; **`public`** `static` `final` | [`String`] | `SESSION_MESSAGES` |             | ![No changes]         |
 
 ___
 
@@ -1720,16 +1711,16 @@ ___
 
 ___
 
-<a id="user-content-org.apache.wiki.auth.passwordcomplexityverifier"></a>
-### `org.apache.wiki.auth.PasswordComplexityVerifier`
+<a id="user-content-org.apache.wiki.auth.passwordcomplexityveriffier"></a>
+### `org.apache.wiki.auth.PasswordComplexityVeriffier`
 
 - [X] Binary-compatible
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers                | Type      | Name                             | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------------------|-----------|----------------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`final`** **`public`** | **Class** | **`PasswordComplexityVerifier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status | Modifiers                | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`PasswordComplexityVeriffier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1842,26 +1833,25 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                | Generics | Type                  | Method                                           | Annotations | Throws | Compatibility Changes |
-|-----------|--------------------------|----------|-----------------------|--------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `final` `public`         |          | `void`                | `addWikiEventListener`([`WikiEventListener`])    |             |        | ![No changes]         |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~[`Session`]~~       | ~~`find`~~([`HttpSession`])                      |             |        | ![Method removed]     |
-| Unchanged | `final` `public`         |          | [`Session`]           | `find`([`String`])                               |             |        | ![No changes]         |
-| Added     | **`final`** **`public`** |          | **[`Session`]**       | **`find`**([`HttpSession`][12])                  |             |        | ![Method added to public class] |
-| Added     | **`public`**             |          | **[`List<Session>`]** | **`findOtherSessionsByUsername`**([`String`])    |             |        | ![Method added to public class] |
-| Unchanged | `final` `protected`      |          | `void`                | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
-| Unchanged | `static` `public`        |          | [`SessionMonitor`]    | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~            | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~            | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
-| Added     | **`final`** **`public`** |          | **`void`**            | **`remove`**([`HttpServletRequest`][3])          |             |        | ![Method added to public class] |
-| Added     | **`final`** **`public`** |          | **`void`**            | **`remove`**([`HttpSession`][12])                |             |        | ![Method added to public class] |
-| Unchanged | `final` `public`         |          | `void`                | `removeWikiEventListener`([`WikiEventListener`]) |             |        | ![No changes]         |
-| Removed   | ~~`public`~~             |          | ~~`void`~~            | ~~`sessionCreated`~~([`HttpSessionEvent`])       |             |        | ![Method removed]     |
-| Added     | **`public`**             |          | **`void`**            | **`sessionCreated`**([`HttpSessionEvent`][13])   |             |        | ![Method added to public class] |
-| Removed   | ~~`public`~~             |          | ~~`void`~~            | ~~`sessionDestroyed`~~([`HttpSessionEvent`])     |             |        | ![Method removed]     |
-| Added     | **`public`**             |          | **`void`**            | **`sessionDestroyed`**([`HttpSessionEvent`][13]) |             |        | ![Method added to public class] |
-| Unchanged | `final` `public`         |          | `int`                 | `sessions`()                                     |             |        | ![No changes]         |
-| Unchanged | `final` `public`         |          | [`Principal[]`][10]   | `userPrincipals`()                               |             |        | ![No changes]         |
+| Status    | Modifiers                | Generics | Type                | Method                                           | Annotations | Throws | Compatibility Changes |
+|-----------|--------------------------|----------|---------------------|--------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `final` `public`         |          | `void`              | `addWikiEventListener`([`WikiEventListener`])    |             |        | ![No changes]         |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~[`Session`]~~     | ~~`find`~~([`HttpSession`])                      |             |        | ![Method removed]     |
+| Unchanged | `final` `public`         |          | [`Session`]         | `find`([`String`])                               |             |        | ![No changes]         |
+| Added     | **`final`** **`public`** |          | **[`Session`]**     | **`find`**([`HttpSession`][12])                  |             |        | ![Method added to public class] |
+| Unchanged | `final` `protected`      |          | `void`              | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
+| Unchanged | `static` `public`        |          | [`SessionMonitor`]  | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
+| Added     | **`final`** **`public`** |          | **`void`**          | **`remove`**([`HttpServletRequest`][3])          |             |        | ![Method added to public class] |
+| Added     | **`final`** **`public`** |          | **`void`**          | **`remove`**([`HttpSession`][12])                |             |        | ![Method added to public class] |
+| Unchanged | `final` `public`         |          | `void`              | `removeWikiEventListener`([`WikiEventListener`]) |             |        | ![No changes]         |
+| Removed   | ~~`public`~~             |          | ~~`void`~~          | ~~`sessionCreated`~~([`HttpSessionEvent`])       |             |        | ![Method removed]     |
+| Added     | **`public`**             |          | **`void`**          | **`sessionCreated`**([`HttpSessionEvent`][13])   |             |        | ![Method added to public class] |
+| Removed   | ~~`public`~~             |          | ~~`void`~~          | ~~`sessionDestroyed`~~([`HttpSessionEvent`])     |             |        | ![Method removed]     |
+| Added     | **`public`**             |          | **`void`**          | **`sessionDestroyed`**([`HttpSessionEvent`][13]) |             |        | ![Method added to public class] |
+| Unchanged | `final` `public`         |          | `int`               | `sessions`()                                     |             |        | ![No changes]         |
+| Unchanged | `final` `public`         |          | [`Principal[]`][10] | `userPrincipals`()                               |             |        | ![No changes]         |
 
 ___
 
@@ -3436,16 +3426,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Class | `AbstractUserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|---------------------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Class | `AbstractUserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status              | Interface        | Compatibility Changes |
-|---------------------|------------------|-----------------------|
-| Source-incompatible | [`UserDatabase`] | ![No changes]         |
+| Status    | Interface        | Compatibility Changes |
+|-----------|------------------|-----------------------|
+| Unchanged | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3457,22 +3447,21 @@ ___
 
 #### Methods
 
-| Status    | Modifiers            | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|----------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public`             |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `static` `protected` |          | [`String`]          | `generateUid`([`UserDatabase`])                     |             |                                                            | ![No changes]         |
-| Unchanged | `protected`          |          | [`String`]          | `getHash`([`String`])                               |             |                                                            | ![No changes]         |
-| Unchanged | `public`             |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public`             |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
-| Unchanged | `protected`          |          | `long`              | `parseLong`([`String`])                             |             |                                                            | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`             |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
-| Added     | **`public`**         |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to public class] |
+| Status    | Modifiers            | Generics | Type                | Method                                     | Annotations | Throws                                                     | Compatibility Changes |
+|-----------|----------------------|----------|---------------------|--------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public`             |          | [`UserProfile`]     | `find`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByEmail`([`String`])                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByFullName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByLoginName`([`String`])              |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByWikiName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `static` `protected` |          | [`String`]          | `generateUid`([`UserDatabase`])            |             |                                                            | ![No changes]         |
+| Unchanged | `protected`          |          | [`String`]          | `getHash`([`String`])                      |             |                                                            | ![No changes]         |
+| Unchanged | `public`             |          | [`Principal[]`][10] | `getPrincipals`([`String`])                |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | `void`              | `initialize`([`Engine`], [`Properties`])   |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public`             |          | [`UserProfile`]     | `newProfile`()                             |             |                                                            | ![No changes]         |
+| Unchanged | `protected`          |          | `long`              | `parseLong`([`String`])                    |             |                                                            | ![No changes]         |
+| Unchanged | `public` `abstract`  |          | `void`              | `save`([`UserProfile`])                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`             |          | `boolean`           | `validatePassword`([`String`], [`String`]) |             |                                                            | ![No changes]         |
 
 
 #### Fields
@@ -3493,9 +3482,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name                 | Extends    | JDK                          | Serialization | Compatibility Changes |
-|----------|------------------|-------|----------------------|------------|------------------------------|---------------|-----------------------|
-| Modified | `final` `public` | Class | `DefaultUserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name                 | Extends    | JDK                          | Serialization | Compatibility Changes |
+|-----------|------------------|-------|----------------------|------------|------------------------------|---------------|-----------------------|
+| Unchanged | `final` `public` | Class | `DefaultUserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -3508,32 +3497,31 @@ ___
 
 #### Methods
 
-| Status    | Modifiers    | Generics | Type                          | Method                               | Annotations | Throws | Compatibility Changes |
-|-----------|--------------|----------|-------------------------------|--------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`     |          | `boolean`                     | `equals`([`Object`])                 |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`Map<String, Serializable>`] | `getAttributes`()                    |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`Date`]                      | `getCreated`()                       |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `getEmail`()                         |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `getFullname`()                      |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`Date`]                      | `getLastModified`()                  |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`Date`]                      | `getLockExpiry`()                    |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `getLoginName`()                     |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `getPassword`()                      |             |        | ![No changes]         |
-| Added     | **`public`** |          | **[`List<String>`]**          | **`getPreviousHashedCredentials`**() |             |        | ![Method added to public class] |
-| Unchanged | `public`     |          | [`String`]                    | `getUid`()                           |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `getWikiName`()                      |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `int`                         | `hashCode`()                         |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `boolean`                     | `isLocked`()                         |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `boolean`                     | `isNew`()                            |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setCreated`([`Date`])               |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setEmail`([`String`])               |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setFullname`([`String`])            |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setLastModified`([`Date`])          |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setLockExpiry`([`Date`])            |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setLoginName`([`String`])           |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setPassword`([`String`])            |             |        | ![No changes]         |
-| Unchanged | `public`     |          | `void`                        | `setUid`([`String`])                 |             |        | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `toString`()                         |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Type                          | Method                      | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|-------------------------------|-----------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `boolean`                     | `equals`([`Object`])        |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Map<String, Serializable>`] | `getAttributes`()           |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Date`]                      | `getCreated`()              |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `getEmail`()                |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `getFullname`()             |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Date`]                      | `getLastModified`()         |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Date`]                      | `getLockExpiry`()           |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `getLoginName`()            |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `getPassword`()             |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `getUid`()                  |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `getWikiName`()             |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `int`                         | `hashCode`()                |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `boolean`                     | `isLocked`()                |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `boolean`                     | `isNew`()                   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setCreated`([`Date`])      |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setEmail`([`String`])      |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setFullname`([`String`])   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setLastModified`([`Date`]) |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setLockExpiry`([`Date`])   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setLoginName`([`String`])  |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setPassword`([`String`])   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`                        | `setUid`([`String`])        |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`String`]                    | `toString`()                |             |        | ![No changes]         |
 
 ___
 
@@ -3551,9 +3539,9 @@ ___
 
 #### Implemented Interfaces
 
-| Status              | Interface        | Compatibility Changes |
-|---------------------|------------------|-----------------------|
-| Source-incompatible | [`UserDatabase`] | ![No changes]         |
+| Status    | Interface        | Compatibility Changes |
+|-----------|------------------|-----------------------|
+| Unchanged | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3608,16 +3596,16 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name               | Extends                  | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|--------------------|--------------------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `JDBCUserDatabase` | [`AbstractUserDatabase`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name               | Extends                  | JDK                          | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------|--------------------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JDBCUserDatabase` | [`AbstractUserDatabase`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status              | Interface        | Compatibility Changes |
-|---------------------|------------------|-----------------------|
-| Source-incompatible | [`UserDatabase`] | ![No changes]         |
+| Status    | Interface        | Compatibility Changes |
+|-----------|------------------|-----------------------|
+| Unchanged | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3645,38 +3633,36 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                             | Type           | Name                     | Annotations | Compatibility Changes |
-|-----------|---------------------------------------|----------------|--------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ATTRIBUTES`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_CREATED`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_EMAIL`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_FULL_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_JNDI_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOCK_EXPIRY` |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOGIN_NAME`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_MODIFIED`    |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `DEFAULT_DB_OLD_HASHES`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_PASSWORD`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE_TABLE`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_TABLE`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_UID`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_WIKI_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ATTRIBUTES`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_CREATED`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_DATASOURCE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_EMAIL`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_FULL_NAME`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOCK_EXPIRY`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOGIN_NAME`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_MODIFIED`       |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_DB_OLD_HASHES`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_PASSWORD`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE`           |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE_TABLE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_TABLE`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_UID`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_WIKI_NAME`      |             | ![No changes]         |
+| Status    | Modifiers                 | Type       | Name                     | Annotations | Compatibility Changes |
+|-----------|---------------------------|------------|--------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_ATTRIBUTES`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_CREATED`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_EMAIL`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_FULL_NAME`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_JNDI_NAME`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_LOCK_EXPIRY` |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_LOGIN_NAME`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_MODIFIED`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_PASSWORD`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_ROLE`        |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_ROLE_TABLE`  |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_TABLE`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_UID`         |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_DB_WIKI_NAME`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_ATTRIBUTES`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_CREATED`        |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_DATASOURCE`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_EMAIL`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_FULL_NAME`      |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_LOCK_EXPIRY`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_LOGIN_NAME`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_MODIFIED`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_PASSWORD`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_ROLE`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_ROLE_TABLE`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_TABLE`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_UID`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_DB_WIKI_NAME`      |             | ![No changes]         |
 
 ___
 
@@ -3684,33 +3670,32 @@ ___
 ### `org.apache.wiki.auth.user.UserDatabase`
 
 - [X] Binary-compatible
-- [ ] Source-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `UserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `UserDatabase` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                   | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|-----------------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public` `abstract`         |          | `void`              | `deleteByLoginName`([`String`])                     |             | [`NoSuchPrincipalException`], [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByUid`([`String`])                             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getWikiNames`()                                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `void`              | `rename`([`String`], [`String`])                    |             | [`NoSuchPrincipalException`], [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes] |
-| Unchanged | `public` `abstract`         |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
-| Added     | **`public`** **`abstract`** |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to interface] |
+| Status    | Modifiers           | Generics | Type                | Method                                     | Annotations | Throws                                                     | Compatibility Changes |
+|-----------|---------------------|----------|---------------------|--------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | `void`              | `deleteByLoginName`([`String`])            |             | [`NoSuchPrincipalException`], [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `find`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `findByEmail`([`String`])                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `findByFullName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `findByLoginName`([`String`])              |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `findByUid`([`String`])                    |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `findByWikiName`([`String`])               |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][10] | `getPrincipals`([`String`])                |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][10] | `getWikiNames`()                           |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `initialize`([`Engine`], [`Properties`])   |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`UserProfile`]     | `newProfile`()                             |             |                                                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`              | `rename`([`String`], [`String`])           |             | [`NoSuchPrincipalException`], [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes] |
+| Unchanged | `public` `abstract` |          | `void`              | `save`([`UserProfile`])                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`           | `validatePassword`([`String`], [`String`]) |             |                                                            | ![No changes]         |
 
 ___
 
@@ -3719,11 +3704,11 @@ ___
 
 - [X] Binary-compatible
 - [X] Source-compatible
-- [ ] Serialization-compatible
+- [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization                       | Compatibility Changes |
-|----------|---------------------|-----------|---------------|------------|------------------------------|-------------------------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `UserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Default serialversionuid changed] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization | Compatibility Changes |
+|-----------|---------------------|-----------|---------------|------------|------------------------------|---------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `UserProfile` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -3735,40 +3720,29 @@ ___
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type                          | Method                               | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------|----------|-------------------------------|--------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public` `abstract` |          | [`Map<String, Serializable>`] | `getAttributes`()                    |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Date`]                      | `getCreated`()                       |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getEmail`()                         |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getFullname`()                      |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLastModified`()                  |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLockExpiry`()                    |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getLoginName`()                     |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getPassword`()                      |             |        | ![No changes]         |
-| Added     | **`public`**        |          | **[`List<String>`]**          | **`getPreviousHashedCredentials`**() |             |        | ![Method new default] |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getUid`()                           |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `getWikiName`()                      |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`                     | `isLocked`()                         |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `boolean`                     | `isNew`()                            |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setCreated`([`Date`])               |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setEmail`([`String`])               |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setFullname`([`String`])            |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setLastModified`([`Date`])          |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setLockExpiry`([`Date`])            |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setLoginName`([`String`])           |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setPassword`([`String`])            |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | `void`                        | `setUid`([`String`])                 |             |        | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`String`]                    | `toString`()                         |             |        | ![No changes]         |
-
-
-#### Fields
-
-| Status | Modifiers                             | Type           | Name                            | Annotations | Compatibility Changes |
-|--------|---------------------------------------|----------------|---------------------------------|-------------|-----------------------|
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_CURRENT_LOGIN_IP`         |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_CURRENT_LOGIN_TIMESTAMP`  |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_PREVIOUS_LOGIN_IP`        |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `ATTR_PREVIOUS_LOGIN_TIMESTAMP` |             | ![No changes]         |
+| Status    | Modifiers           | Generics | Type                          | Method                      | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------|----------|-------------------------------|-----------------------------|-------------|--------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`Map<String, Serializable>`] | `getAttributes`()           |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Date`]                      | `getCreated`()              |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getEmail`()                |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getFullname`()             |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLastModified`()         |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Date`]                      | `getLockExpiry`()           |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getLoginName`()            |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getPassword`()             |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getUid`()                  |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `getWikiName`()             |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`                     | `isLocked`()                |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`                     | `isNew`()                   |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setCreated`([`Date`])      |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setEmail`([`String`])      |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setFullname`([`String`])   |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setLastModified`([`Date`]) |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setLockExpiry`([`Date`])   |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setLoginName`([`String`])  |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setPassword`([`String`])   |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`                        | `setUid`([`String`])        |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]                    | `toString`()                |             |        | ![No changes]         |
 
 ___
 
@@ -3786,9 +3760,9 @@ ___
 
 #### Implemented Interfaces
 
-| Status              | Interface        | Compatibility Changes |
-|---------------------|------------------|-----------------------|
-| Source-incompatible | [`UserDatabase`] | ![No changes]         |
+| Status    | Interface        | Compatibility Changes |
+|-----------|------------------|-----------------------|
+| Unchanged | [`UserDatabase`] | ![No changes]         |
 
 
 #### Constructors
@@ -3884,56 +3858,56 @@ ___
 <a id="user-content-org.apache.wiki.diff.contextualdiffprovider"></a>
 ### `org.apache.wiki.diff.ContextualDiffProvider`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status  | Modifiers    | Type      | Name                         | Extends        | JDK        | Serialization       | Compatibility Changes |
-|---------|--------------|-----------|------------------------------|----------------|------------|---------------------|-----------------------|
-| Removed | ~~`public`~~ | ~~Class~~ | ~~`ContextualDiffProvider`~~ | ~~[`Object`]~~ | ~~JDK 11~~ | ![Not serializable] | ![Class removed] ![Superclass removed] |
+| Status    | Modifiers | Type  | Name                     | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ContextualDiffProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status  | Interface            | Compatibility Changes |
-|---------|----------------------|-----------------------|
-| Removed | ~~[`DiffProvider`]~~ | ![Interface removed]  |
+| Status    | Interface        | Compatibility Changes |
+|-----------|------------------|-----------------------|
+| Unchanged | [`DiffProvider`] | ![No changes]         |
 
 
 #### Constructors
 
-| Status  | Modifiers    | Generics | Constructor                    | Annotations | Throws | Compatibility Changes |
-|---------|--------------|----------|--------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~`ContextualDiffProvider`~~() |             |        | ![Constructor removed] |
+| Status    | Modifiers | Generics | Constructor                | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|----------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `ContextualDiffProvider`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status  | Modifiers    | Generics | Type           | Method                                                  | Annotations | Throws                                                   | Compatibility Changes |
-|---------|--------------|----------|----------------|---------------------------------------------------------|-------------|----------------------------------------------------------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getProviderInfo`~~()                                 |             |                                                          | ![Method removed]     |
-| Removed | ~~`public`~~ |          | ~~`void`~~     | ~~`initialize`~~([`Engine`], [`Properties`])            |             | ~~[`NoRequiredPropertyException`]~~, ~~[`IOException`]~~ | ![Method removed]     |
-| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`makeDiffHtml`~~([`Context`], [`String`], [`String`]) |             |                                                          | ![No changes]         |
+| Status    | Modifiers | Generics | Type       | Method                                              | Annotations | Throws                                           | Compatibility Changes |
+|-----------|-----------|----------|------------|-----------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
+| Unchanged | `public`  |          | [`String`] | `getProviderInfo`()                                 |             |                                                  | ![No changes]         |
+| Unchanged | `public`  |          | `void`     | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`IOException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`String`] | `makeDiffHtml`([`Context`], [`String`], [`String`]) |             |                                                  | ![No changes]         |
 
 
 #### Fields
 
-| Status  | Modifiers                             | Type           | Name                                 | Annotations | Compatibility Changes |
-|---------|---------------------------------------|----------------|--------------------------------------|-------------|-----------------------|
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `ALTERNATING_SPACE_HTML`             |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `CHANGE_END_HTML`                    |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `CHANGE_START_HTML`                  |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DELETION_END_HTML`                  |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DELETION_START_HTML`                |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DIFF_END`                           |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `DIFF_START`                         |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `ELIDED_HEAD_INDICATOR_HTML`         |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `ELIDED_TAIL_INDICATOR_HTML`         |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `INSERTION_END_HTML`                 |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `INSERTION_START_HTML`               |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~             | ~~[`String`]~~ | `LINE_BREAK_HTML`                    |             | ![Field removed]      |
-| Removed | ~~`public`~~ ~~`static`~~ ~~`final`~~ | ~~[`String`]~~ | `PROP_UNCHANGED_CONTEXT_LIMIT`       |             | ![Field removed]      |
-| Removed | ~~`public`~~                          | ~~`boolean`~~  | `m_emitChangeNextPreviousHyperlinks` |             | ![Field removed]      |
+| Status    | Modifiers                 | Type       | Name                                 | Annotations | Compatibility Changes |
+|-----------|---------------------------|------------|--------------------------------------|-------------|-----------------------|
+| Unchanged | `public` `static`         | [`String`] | `ALTERNATING_SPACE_HTML`             |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `CHANGE_END_HTML`                    |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `CHANGE_START_HTML`                  |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `DELETION_END_HTML`                  |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `DELETION_START_HTML`                |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `DIFF_END`                           |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `DIFF_START`                         |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `ELIDED_HEAD_INDICATOR_HTML`         |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `ELIDED_TAIL_INDICATOR_HTML`         |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `INSERTION_END_HTML`                 |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `INSERTION_START_HTML`               |             | ![No changes]         |
+| Unchanged | `public` `static`         | [`String`] | `LINE_BREAK_HTML`                    |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_UNCHANGED_CONTEXT_LIMIT`       |             | ![No changes]         |
+| Unchanged | `public`                  | `boolean`  | `m_emitChangeNextPreviousHyperlinks` |             | ![No changes]         |
 
 ___
 
@@ -4099,86 +4073,39 @@ ___
 
 ___
 
-<a id="user-content-org.apache.wiki.diff.svnstylediffprovider"></a>
-### `org.apache.wiki.diff.SvnStyleDiffProvider`
+<a id="user-content-org.apache.wiki.diff.traditionaldiffprovider"></a>
+### `org.apache.wiki.diff.TraditionalDiffProvider`
 
 - [X] Binary-compatible
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name                       | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|----------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`SvnStyleDiffProvider`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![Interface added]    |
+| Status    | Modifiers | Type  | Name                      | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `TraditionalDiffProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
 
-| Status | Interface            | Compatibility Changes |
-|--------|----------------------|-----------------------|
-| Added  | **[`DiffProvider`]** | ![No changes]         |
+| Status    | Interface        | Compatibility Changes |
+|-----------|------------------|-----------------------|
+| Unchanged | [`DiffProvider`] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor                  | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|------------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`SvnStyleDiffProvider`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor                 | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|-----------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `TraditionalDiffProvider`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type           | Method                                                  | Annotations | Throws                                                   | Compatibility Changes |
-|--------|--------------|----------|----------------|---------------------------------------------------------|-------------|----------------------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **[`String`]** | **`getProviderInfo`**()                                 |             |                                                          | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`**     | **`initialize`**([`Engine`], [`Properties`])            |             | **[`NoRequiredPropertyException`]**, **[`IOException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **[`String`]** | **`makeDiffHtml`**([`Context`], [`String`], [`String`]) |             |                                                          | ![Method added to public class] |
-
-
-#### Fields
-
-| Status | Modifiers                             | Type           | Name                 | Annotations | Compatibility Changes |
-|--------|---------------------------------------|----------------|----------------------|-------------|-----------------------|
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CELL_CHANGE`        |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_ADDED`     |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_CLOSE`     |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_REMOVED`   |             | ![No changes]         |
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `CSS_DIFF_UNCHANGED` |             | ![No changes]         |
-
-___
-
-<a id="user-content-org.apache.wiki.diff.traditionaldiffprovider"></a>
-### `org.apache.wiki.diff.TraditionalDiffProvider`
-
-- [ ] Binary-compatible
-- [ ] Source-compatible
-- [X] Serialization-compatible
-
-| Status  | Modifiers    | Type      | Name                          | Extends        | JDK        | Serialization       | Compatibility Changes |
-|---------|--------------|-----------|-------------------------------|----------------|------------|---------------------|-----------------------|
-| Removed | ~~`public`~~ | ~~Class~~ | ~~`TraditionalDiffProvider`~~ | ~~[`Object`]~~ | ~~JDK 11~~ | ![Not serializable] | ![Class removed] ![Superclass removed] |
-
-
-#### Implemented Interfaces
-
-| Status  | Interface            | Compatibility Changes |
-|---------|----------------------|-----------------------|
-| Removed | ~~[`DiffProvider`]~~ | ![Interface removed]  |
-
-
-#### Constructors
-
-| Status  | Modifiers    | Generics | Constructor                     | Annotations | Throws | Compatibility Changes |
-|---------|--------------|----------|---------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~`TraditionalDiffProvider`~~() |             |        | ![Constructor removed] |
-
-
-#### Methods
-
-| Status  | Modifiers    | Generics | Type           | Method                                                  | Annotations | Throws                                                   | Compatibility Changes |
-|---------|--------------|----------|----------------|---------------------------------------------------------|-------------|----------------------------------------------------------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getProviderInfo`~~()                                 |             |                                                          | ![Method removed]     |
-| Removed | ~~`public`~~ |          | ~~`void`~~     | ~~`initialize`~~([`Engine`], [`Properties`])            |             | ~~[`NoRequiredPropertyException`]~~, ~~[`IOException`]~~ | ![Method removed]     |
-| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`makeDiffHtml`~~([`Context`], [`String`], [`String`]) |             |                                                          | ![No changes]         |
+| Status    | Modifiers | Generics | Type       | Method                                              | Annotations | Throws                                           | Compatibility Changes |
+|-----------|-----------|----------|------------|-----------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
+| Unchanged | `public`  |          | [`String`] | `getProviderInfo`()                                 |             |                                                  | ![No changes]         |
+| Unchanged | `public`  |          | `void`     | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`IOException`] | ![No changes]         |
+| Unchanged | `public`  |          | [`String`] | `makeDiffHtml`([`Context`], [`String`], [`String`]) |             |                                                  | ![No changes]         |
 
 ___
 
@@ -13665,7 +13592,7 @@ ___
 
 ___
 
-*Generated on: 2025-12-15 17:15:01.078+0000*.
+*Generated on: 2025-12-15 17:22:38.856+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -13714,7 +13641,6 @@ ___
 [Class removed]: https://img.shields.io/badge/Class_removed-red "Class removed"
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
 [Constructor removed]: https://img.shields.io/badge/Constructor_removed-red "Constructor removed"
-[Default serialversionuid changed]: https://img.shields.io/badge/Incompatible-red "Default serialversionuid changed"
 [Field removed]: https://img.shields.io/badge/Field_removed-red "Field removed"
 [Field type changed]: https://img.shields.io/badge/Field_type_changed-red "Field type changed"
 [Interface added]: https://img.shields.io/badge/Interface_added-orange "Interface added"
@@ -13868,7 +13794,6 @@ ___
 [`List<PageLock>`]: # "java.util.List<org.apache.wiki.pages.PageLock>"
 [`List<Pattern>`]: # "java.util.List<org.apache.oro.text.regex.Pattern>"
 [`List<Plugin>`]: # "java.util.List<org.apache.wiki.api.plugin.Plugin>"
-[`List<Session>`]: # "java.util.List<org.apache.wiki.api.core.Session>"
 [`List<Step>`]: # "java.util.List<org.apache.wiki.workflow.Step>"
 [`List<String>`]: # "java.util.List<java.lang.String>"
 [`List<T>`]: # "java.util.List<T>"
@@ -14056,7 +13981,7 @@ ___
 [org.apache.wiki.auth.DefaultUserManager$JSONUserModule]: #user-content-org.apache.wiki.auth.defaultusermanager$jsonusermodule
 [org.apache.wiki.auth.GroupPrincipal]: #user-content-org.apache.wiki.auth.groupprincipal
 [org.apache.wiki.auth.NoSuchPrincipalException]: #user-content-org.apache.wiki.auth.nosuchprincipalexception
-[org.apache.wiki.auth.PasswordComplexityVerifier]: #user-content-org.apache.wiki.auth.passwordcomplexityverifier
+[org.apache.wiki.auth.PasswordComplexityVeriffier]: #user-content-org.apache.wiki.auth.passwordcomplexityveriffier
 [org.apache.wiki.auth.SecurityVerificationUtility]: #user-content-org.apache.wiki.auth.securityverificationutility
 [org.apache.wiki.auth.SecurityVerifier]: #user-content-org.apache.wiki.auth.securityverifier
 [org.apache.wiki.auth.SessionMonitor]: #user-content-org.apache.wiki.auth.sessionmonitor
@@ -14115,7 +14040,6 @@ ___
 [org.apache.wiki.diff.DiffProvider$NullDiffProvider]: #user-content-org.apache.wiki.diff.diffprovider$nulldiffprovider
 [org.apache.wiki.diff.DifferenceManager]: #user-content-org.apache.wiki.diff.differencemanager
 [org.apache.wiki.diff.ExternalDiffProvider]: #user-content-org.apache.wiki.diff.externaldiffprovider
-[org.apache.wiki.diff.SvnStyleDiffProvider]: #user-content-org.apache.wiki.diff.svnstylediffprovider
 [org.apache.wiki.diff.TraditionalDiffProvider]: #user-content-org.apache.wiki.diff.traditionaldiffprovider
 [org.apache.wiki.filters.CreoleFilter]: #user-content-org.apache.wiki.filters.creolefilter
 [org.apache.wiki.filters.DefaultFilterManager]: #user-content-org.apache.wiki.filters.defaultfiltermanager
