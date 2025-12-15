@@ -432,7 +432,7 @@
 <span class="source-line-no">419</span><span id="line-419">            throw new IllegalStateException( "User database cannot be null." );</span>
 <span class="source-line-no">420</span><span id="line-420">        }</span>
 <span class="source-line-no">421</span><span id="line-421">        try {</span>
-<span class="source-line-no">422</span><span id="line-422">            final UserProfile profile = database.find( searchId );</span>
+<span class="source-line-no">422</span><span id="line-422">            final UserProfile profile = database.findByLoginName( searchId );</span>
 <span class="source-line-no">423</span><span id="line-423">            final Principal[] principals = database.getPrincipals( profile.getLoginName() );</span>
 <span class="source-line-no">424</span><span id="line-424">            for( final Principal principal : principals ) {</span>
 <span class="source-line-no">425</span><span id="line-425">                // Add the Principal to the Subject</span>
@@ -441,168 +441,174 @@
 <span class="source-line-no">428</span><span id="line-428">                // Set the user principal if needed; we prefer FullName, but the WikiName will also work</span>
 <span class="source-line-no">429</span><span id="line-429">                final boolean isFullNamePrincipal = ( principal instanceof WikiPrincipal &amp;&amp;</span>
 <span class="source-line-no">430</span><span id="line-430">                                                      ( ( WikiPrincipal )principal ).getType().equals( WikiPrincipal.FULL_NAME ) );</span>
-<span class="source-line-no">431</span><span id="line-431">                if ( isFullNamePrincipal ) {</span>
-<span class="source-line-no">432</span><span id="line-432">                   m_userPrincipal = principal;</span>
-<span class="source-line-no">433</span><span id="line-433">                } else if ( !( m_userPrincipal instanceof WikiPrincipal ) ) {</span>
-<span class="source-line-no">434</span><span id="line-434">                    m_userPrincipal = principal;</span>
-<span class="source-line-no">435</span><span id="line-435">                }</span>
-<span class="source-line-no">436</span><span id="line-436">            }</span>
-<span class="source-line-no">437</span><span id="line-437">        } catch ( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">438</span><span id="line-438">            // We will get here if the user has a principal but not a profile</span>
-<span class="source-line-no">439</span><span id="line-439">            // For example, it's a container-managed user who hasn't set up a profile yet</span>
-<span class="source-line-no">440</span><span id="line-440">            LOG.warn("User profile '" + searchId + "' not found. This is normal for container-auth users who haven't set up a profile yet.");</span>
-<span class="source-line-no">441</span><span id="line-441">        }</span>
-<span class="source-line-no">442</span><span id="line-442">    }</span>
-<span class="source-line-no">443</span><span id="line-443"></span>
-<span class="source-line-no">444</span><span id="line-444">    /** {@inheritDoc} */</span>
-<span class="source-line-no">445</span><span id="line-445">    @Override</span>
-<span class="source-line-no">446</span><span id="line-446">    public String getStatus() {</span>
-<span class="source-line-no">447</span><span id="line-447">        return m_status;</span>
+<span class="source-line-no">431</span><span id="line-431">                if (( principal instanceof WikiPrincipal &amp;&amp;</span>
+<span class="source-line-no">432</span><span id="line-432">                                                      ( ( WikiPrincipal )principal ).getType().equals( WikiPrincipal.LOGIN_NAME )) ){</span>
+<span class="source-line-no">433</span><span id="line-433">                    m_loginPrincipal = principal;</span>
+<span class="source-line-no">434</span><span id="line-434">                }</span>
+<span class="source-line-no">435</span><span id="line-435">                </span>
+<span class="source-line-no">436</span><span id="line-436">                </span>
+<span class="source-line-no">437</span><span id="line-437">                if ( isFullNamePrincipal ) {</span>
+<span class="source-line-no">438</span><span id="line-438">                   m_userPrincipal = principal;</span>
+<span class="source-line-no">439</span><span id="line-439">                } else if ( !( m_userPrincipal instanceof WikiPrincipal ) ) {</span>
+<span class="source-line-no">440</span><span id="line-440">                    m_userPrincipal = principal;</span>
+<span class="source-line-no">441</span><span id="line-441">                }</span>
+<span class="source-line-no">442</span><span id="line-442">            }</span>
+<span class="source-line-no">443</span><span id="line-443">        } catch ( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">444</span><span id="line-444">            // We will get here if the user has a principal but not a profile</span>
+<span class="source-line-no">445</span><span id="line-445">            // For example, it's a container-managed user who hasn't set up a profile yet</span>
+<span class="source-line-no">446</span><span id="line-446">            LOG.warn("User profile '" + searchId + "' not found. This is normal for container-auth users who haven't set up a profile yet.");</span>
+<span class="source-line-no">447</span><span id="line-447">        }</span>
 <span class="source-line-no">448</span><span id="line-448">    }</span>
 <span class="source-line-no">449</span><span id="line-449"></span>
 <span class="source-line-no">450</span><span id="line-450">    /** {@inheritDoc} */</span>
 <span class="source-line-no">451</span><span id="line-451">    @Override</span>
-<span class="source-line-no">452</span><span id="line-452">    public Subject getSubject() {</span>
-<span class="source-line-no">453</span><span id="line-453">        return m_subject;</span>
+<span class="source-line-no">452</span><span id="line-452">    public String getStatus() {</span>
+<span class="source-line-no">453</span><span id="line-453">        return m_status;</span>
 <span class="source-line-no">454</span><span id="line-454">    }</span>
 <span class="source-line-no">455</span><span id="line-455"></span>
-<span class="source-line-no">456</span><span id="line-456">    /**</span>
-<span class="source-line-no">457</span><span id="line-457">     * Removes the wiki session associated with the user's HTTP request from the cache of wiki sessions, typically as part of a</span>
-<span class="source-line-no">458</span><span id="line-458">     * logout process.</span>
-<span class="source-line-no">459</span><span id="line-459">     *</span>
-<span class="source-line-no">460</span><span id="line-460">     * @param engine the wiki engine</span>
-<span class="source-line-no">461</span><span id="line-461">     * @param request the user's HTTP request</span>
-<span class="source-line-no">462</span><span id="line-462">     */</span>
-<span class="source-line-no">463</span><span id="line-463">    public static void removeWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
-<span class="source-line-no">464</span><span id="line-464">        if ( engine == null || request == null ) {</span>
-<span class="source-line-no">465</span><span id="line-465">            throw new IllegalArgumentException( "Request or engine cannot be null." );</span>
-<span class="source-line-no">466</span><span id="line-466">        }</span>
-<span class="source-line-no">467</span><span id="line-467">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">468</span><span id="line-468">        monitor.remove( request.getSession() );</span>
-<span class="source-line-no">469</span><span id="line-469">        c_guestSession.remove();</span>
-<span class="source-line-no">470</span><span id="line-470">    }</span>
-<span class="source-line-no">471</span><span id="line-471"></span>
-<span class="source-line-no">472</span><span id="line-472">    /**</span>
-<span class="source-line-no">473</span><span id="line-473">     * &lt;p&gt;Static factory method that returns the Session object associated with the current HTTP request. This method looks up</span>
-<span class="source-line-no">474</span><span id="line-474">     * the associated HttpSession in an internal WeakHashMap and attempts to retrieve the WikiSession. If not found, one is created.</span>
-<span class="source-line-no">475</span><span id="line-475">     * This method is guaranteed to always return a Session, although the authentication status is unpredictable until the user</span>
-<span class="source-line-no">476</span><span id="line-476">     * attempts to log in. If the servlet request parameter is &lt;code&gt;null&lt;/code&gt;, a synthetic {@link #guestSession(Engine)} is</span>
-<span class="source-line-no">477</span><span id="line-477">     * returned.&lt;/p&gt;</span>
-<span class="source-line-no">478</span><span id="line-478">     * &lt;p&gt;When a session is created, this method attaches a WikiEventListener to the GroupManager, UserManager and AuthenticationManager,</span>
-<span class="source-line-no">479</span><span id="line-479">     * so that changes to users, groups, logins, etc. are detected automatically.&lt;/p&gt;</span>
-<span class="source-line-no">480</span><span id="line-480">     *</span>
-<span class="source-line-no">481</span><span id="line-481">     * @param engine the engine</span>
-<span class="source-line-no">482</span><span id="line-482">     * @param request the servlet request object</span>
-<span class="source-line-no">483</span><span id="line-483">     * @return the existing (or newly created) session</span>
-<span class="source-line-no">484</span><span id="line-484">     */</span>
-<span class="source-line-no">485</span><span id="line-485">    public static Session getWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
-<span class="source-line-no">486</span><span id="line-486">        if ( request == null ) {</span>
-<span class="source-line-no">487</span><span id="line-487">            LOG.debug( "Looking up WikiSession for NULL HttpRequest: returning guestSession()" );</span>
-<span class="source-line-no">488</span><span id="line-488">            return staticGuestSession( engine );</span>
-<span class="source-line-no">489</span><span id="line-489">        }</span>
-<span class="source-line-no">490</span><span id="line-490"></span>
-<span class="source-line-no">491</span><span id="line-491">        // Look for a WikiSession associated with the user's Http Session and create one if it isn't there yet.</span>
-<span class="source-line-no">492</span><span id="line-492">        final HttpSession session = request.getSession();</span>
-<span class="source-line-no">493</span><span id="line-493">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">494</span><span id="line-494">        final WikiSession wikiSession = ( WikiSession )monitor.find( session );</span>
-<span class="source-line-no">495</span><span id="line-495">        wikiSession.remoteAddress = request.getRemoteAddr();</span>
-<span class="source-line-no">496</span><span id="line-496">        // Attach reference to wiki engine</span>
-<span class="source-line-no">497</span><span id="line-497">        wikiSession.m_engine = engine;</span>
-<span class="source-line-no">498</span><span id="line-498">        wikiSession.m_cachedLocale = request.getLocale();</span>
-<span class="source-line-no">499</span><span id="line-499">        </span>
-<span class="source-line-no">500</span><span id="line-500">        String v = engine.getWikiProperties().getProperty("jspwiki.role.extraRoles", null);</span>
-<span class="source-line-no">501</span><span id="line-501">        if (v != null) {</span>
-<span class="source-line-no">502</span><span id="line-502">            String[] extraRoles = v.split("\\,");</span>
-<span class="source-line-no">503</span><span id="line-503">            for (String s : extraRoles) {</span>
-<span class="source-line-no">504</span><span id="line-504">                if (request.isUserInRole(s)) {</span>
-<span class="source-line-no">505</span><span id="line-505">                    wikiSession.m_subject.getPrincipals().add(new GroupPrincipal(s));</span>
-<span class="source-line-no">506</span><span id="line-506">                }</span>
-<span class="source-line-no">507</span><span id="line-507">            }</span>
-<span class="source-line-no">508</span><span id="line-508">        }</span>
-<span class="source-line-no">509</span><span id="line-509">        </span>
-<span class="source-line-no">510</span><span id="line-510">        return wikiSession;</span>
-<span class="source-line-no">511</span><span id="line-511">    }</span>
-<span class="source-line-no">512</span><span id="line-512"></span>
-<span class="source-line-no">513</span><span id="line-513">    /**</span>
-<span class="source-line-no">514</span><span id="line-514">     * Static factory method that creates a new "guest" session containing a single user Principal</span>
-<span class="source-line-no">515</span><span id="line-515">     * {@link org.apache.wiki.auth.WikiPrincipal#GUEST}, plus the role principals {@link Role#ALL} and {@link Role#ANONYMOUS}. This</span>
-<span class="source-line-no">516</span><span id="line-516">     * method also adds the session as a listener for GroupManager, AuthenticationManager and UserManager events.</span>
-<span class="source-line-no">517</span><span id="line-517">     *</span>
-<span class="source-line-no">518</span><span id="line-518">     * @param engine the wiki engine</span>
-<span class="source-line-no">519</span><span id="line-519">     * @return the guest wiki session</span>
-<span class="source-line-no">520</span><span id="line-520">     */</span>
-<span class="source-line-no">521</span><span id="line-521">    public static Session guestSession( final Engine engine ) {</span>
-<span class="source-line-no">522</span><span id="line-522">        final WikiSession session = new WikiSession();</span>
-<span class="source-line-no">523</span><span id="line-523">        session.m_engine = engine;</span>
-<span class="source-line-no">524</span><span id="line-524">        session.invalidate();</span>
-<span class="source-line-no">525</span><span id="line-525">        session.antiCsrfToken = UUID.randomUUID().toString();</span>
-<span class="source-line-no">526</span><span id="line-526"></span>
-<span class="source-line-no">527</span><span id="line-527">        // Add the session as listener for GroupManager, AuthManager, UserManager events</span>
-<span class="source-line-no">528</span><span id="line-528">        final GroupManager groupMgr = engine.getManager( GroupManager.class );</span>
-<span class="source-line-no">529</span><span id="line-529">        final AuthenticationManager authMgr = engine.getManager( AuthenticationManager.class );</span>
-<span class="source-line-no">530</span><span id="line-530">        final UserManager userMgr = engine.getManager( UserManager.class );</span>
-<span class="source-line-no">531</span><span id="line-531">        groupMgr.addWikiEventListener( session );</span>
-<span class="source-line-no">532</span><span id="line-532">        authMgr.addWikiEventListener( session );</span>
-<span class="source-line-no">533</span><span id="line-533">        userMgr.addWikiEventListener( session );</span>
-<span class="source-line-no">534</span><span id="line-534"></span>
-<span class="source-line-no">535</span><span id="line-535">        return session;</span>
-<span class="source-line-no">536</span><span id="line-536">    }</span>
-<span class="source-line-no">537</span><span id="line-537"></span>
-<span class="source-line-no">538</span><span id="line-538">    /**</span>
-<span class="source-line-no">539</span><span id="line-539">     *  Returns a static guest session, which is available for this thread only.  This guest session is used internally whenever</span>
-<span class="source-line-no">540</span><span id="line-540">     *  there is no HttpServletRequest involved, but the request is done e.g. when embedding JSPWiki code.</span>
-<span class="source-line-no">541</span><span id="line-541">     *</span>
-<span class="source-line-no">542</span><span id="line-542">     *  @param engine Engine for this session</span>
-<span class="source-line-no">543</span><span id="line-543">     *  @return A static WikiSession which is shared by all in this same Thread.</span>
-<span class="source-line-no">544</span><span id="line-544">     */</span>
-<span class="source-line-no">545</span><span id="line-545">    // FIXME: Should really use WeakReferences to clean away unused sessions.</span>
-<span class="source-line-no">546</span><span id="line-546">    private static Session staticGuestSession( final Engine engine ) {</span>
-<span class="source-line-no">547</span><span id="line-547">        Session session = c_guestSession.get();</span>
-<span class="source-line-no">548</span><span id="line-548">        if( session == null ) {</span>
-<span class="source-line-no">549</span><span id="line-549">            session = guestSession( engine );</span>
-<span class="source-line-no">550</span><span id="line-550">            c_guestSession.set( session );</span>
-<span class="source-line-no">551</span><span id="line-551">        }</span>
-<span class="source-line-no">552</span><span id="line-552"></span>
-<span class="source-line-no">553</span><span id="line-553">        return session;</span>
-<span class="source-line-no">554</span><span id="line-554">    }</span>
-<span class="source-line-no">555</span><span id="line-555"></span>
-<span class="source-line-no">556</span><span id="line-556">    /**</span>
-<span class="source-line-no">557</span><span id="line-557">     * Returns the total number of active wiki sessions for a particular wiki. This method delegates to the wiki's</span>
-<span class="source-line-no">558</span><span id="line-558">     * {@link SessionMonitor#sessions()} method.</span>
-<span class="source-line-no">559</span><span id="line-559">     *</span>
-<span class="source-line-no">560</span><span id="line-560">     * @param engine the wiki session</span>
-<span class="source-line-no">561</span><span id="line-561">     * @return the number of sessions</span>
-<span class="source-line-no">562</span><span id="line-562">     * @deprecated use {@link SessionMonitor#sessions()} instead</span>
-<span class="source-line-no">563</span><span id="line-563">     * @see SessionMonitor#sessions()</span>
-<span class="source-line-no">564</span><span id="line-564">     */</span>
-<span class="source-line-no">565</span><span id="line-565">    @Deprecated</span>
-<span class="source-line-no">566</span><span id="line-566">    public static int sessions( final Engine engine ) {</span>
-<span class="source-line-no">567</span><span id="line-567">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">568</span><span id="line-568">        return monitor.sessions();</span>
-<span class="source-line-no">569</span><span id="line-569">    }</span>
-<span class="source-line-no">570</span><span id="line-570"></span>
-<span class="source-line-no">571</span><span id="line-571">    /**</span>
-<span class="source-line-no">572</span><span id="line-572">     * Returns Principals representing the current users known to a particular wiki. Each Principal will correspond to the</span>
-<span class="source-line-no">573</span><span id="line-573">     * value returned by each WikiSession's {@link #getUserPrincipal()} method. This method delegates to</span>
-<span class="source-line-no">574</span><span id="line-574">     * {@link SessionMonitor#userPrincipals()}.</span>
-<span class="source-line-no">575</span><span id="line-575">     *</span>
-<span class="source-line-no">576</span><span id="line-576">     * @param engine the wiki engine</span>
-<span class="source-line-no">577</span><span id="line-577">     * @return an array of Principal objects, sorted by name</span>
-<span class="source-line-no">578</span><span id="line-578">     * @deprecated use {@link SessionMonitor#userPrincipals()} instead</span>
-<span class="source-line-no">579</span><span id="line-579">     * @see SessionMonitor#userPrincipals()</span>
-<span class="source-line-no">580</span><span id="line-580">     */</span>
-<span class="source-line-no">581</span><span id="line-581">    @Deprecated</span>
-<span class="source-line-no">582</span><span id="line-582">    public static Principal[] userPrincipals( final Engine engine ) {</span>
-<span class="source-line-no">583</span><span id="line-583">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
-<span class="source-line-no">584</span><span id="line-584">        return monitor.userPrincipals();</span>
-<span class="source-line-no">585</span><span id="line-585">    }</span>
-<span class="source-line-no">586</span><span id="line-586"></span>
-<span class="source-line-no">587</span><span id="line-587">    @Override</span>
-<span class="source-line-no">588</span><span id="line-588">    public String getRemoteAddress() {</span>
-<span class="source-line-no">589</span><span id="line-589">        return remoteAddress;</span>
-<span class="source-line-no">590</span><span id="line-590">    }</span>
-<span class="source-line-no">591</span><span id="line-591"></span>
-<span class="source-line-no">592</span><span id="line-592">}</span>
+<span class="source-line-no">456</span><span id="line-456">    /** {@inheritDoc} */</span>
+<span class="source-line-no">457</span><span id="line-457">    @Override</span>
+<span class="source-line-no">458</span><span id="line-458">    public Subject getSubject() {</span>
+<span class="source-line-no">459</span><span id="line-459">        return m_subject;</span>
+<span class="source-line-no">460</span><span id="line-460">    }</span>
+<span class="source-line-no">461</span><span id="line-461"></span>
+<span class="source-line-no">462</span><span id="line-462">    /**</span>
+<span class="source-line-no">463</span><span id="line-463">     * Removes the wiki session associated with the user's HTTP request from the cache of wiki sessions, typically as part of a</span>
+<span class="source-line-no">464</span><span id="line-464">     * logout process.</span>
+<span class="source-line-no">465</span><span id="line-465">     *</span>
+<span class="source-line-no">466</span><span id="line-466">     * @param engine the wiki engine</span>
+<span class="source-line-no">467</span><span id="line-467">     * @param request the user's HTTP request</span>
+<span class="source-line-no">468</span><span id="line-468">     */</span>
+<span class="source-line-no">469</span><span id="line-469">    public static void removeWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
+<span class="source-line-no">470</span><span id="line-470">        if ( engine == null || request == null ) {</span>
+<span class="source-line-no">471</span><span id="line-471">            throw new IllegalArgumentException( "Request or engine cannot be null." );</span>
+<span class="source-line-no">472</span><span id="line-472">        }</span>
+<span class="source-line-no">473</span><span id="line-473">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">474</span><span id="line-474">        monitor.remove( request.getSession() );</span>
+<span class="source-line-no">475</span><span id="line-475">        c_guestSession.remove();</span>
+<span class="source-line-no">476</span><span id="line-476">    }</span>
+<span class="source-line-no">477</span><span id="line-477"></span>
+<span class="source-line-no">478</span><span id="line-478">    /**</span>
+<span class="source-line-no">479</span><span id="line-479">     * &lt;p&gt;Static factory method that returns the Session object associated with the current HTTP request. This method looks up</span>
+<span class="source-line-no">480</span><span id="line-480">     * the associated HttpSession in an internal WeakHashMap and attempts to retrieve the WikiSession. If not found, one is created.</span>
+<span class="source-line-no">481</span><span id="line-481">     * This method is guaranteed to always return a Session, although the authentication status is unpredictable until the user</span>
+<span class="source-line-no">482</span><span id="line-482">     * attempts to log in. If the servlet request parameter is &lt;code&gt;null&lt;/code&gt;, a synthetic {@link #guestSession(Engine)} is</span>
+<span class="source-line-no">483</span><span id="line-483">     * returned.&lt;/p&gt;</span>
+<span class="source-line-no">484</span><span id="line-484">     * &lt;p&gt;When a session is created, this method attaches a WikiEventListener to the GroupManager, UserManager and AuthenticationManager,</span>
+<span class="source-line-no">485</span><span id="line-485">     * so that changes to users, groups, logins, etc. are detected automatically.&lt;/p&gt;</span>
+<span class="source-line-no">486</span><span id="line-486">     *</span>
+<span class="source-line-no">487</span><span id="line-487">     * @param engine the engine</span>
+<span class="source-line-no">488</span><span id="line-488">     * @param request the servlet request object</span>
+<span class="source-line-no">489</span><span id="line-489">     * @return the existing (or newly created) session</span>
+<span class="source-line-no">490</span><span id="line-490">     */</span>
+<span class="source-line-no">491</span><span id="line-491">    public static Session getWikiSession( final Engine engine, final HttpServletRequest request ) {</span>
+<span class="source-line-no">492</span><span id="line-492">        if ( request == null ) {</span>
+<span class="source-line-no">493</span><span id="line-493">            LOG.debug( "Looking up WikiSession for NULL HttpRequest: returning guestSession()" );</span>
+<span class="source-line-no">494</span><span id="line-494">            return staticGuestSession( engine );</span>
+<span class="source-line-no">495</span><span id="line-495">        }</span>
+<span class="source-line-no">496</span><span id="line-496"></span>
+<span class="source-line-no">497</span><span id="line-497">        // Look for a WikiSession associated with the user's Http Session and create one if it isn't there yet.</span>
+<span class="source-line-no">498</span><span id="line-498">        final HttpSession session = request.getSession();</span>
+<span class="source-line-no">499</span><span id="line-499">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">500</span><span id="line-500">        final WikiSession wikiSession = ( WikiSession )monitor.find( session );</span>
+<span class="source-line-no">501</span><span id="line-501">        wikiSession.remoteAddress = request.getRemoteAddr();</span>
+<span class="source-line-no">502</span><span id="line-502">        // Attach reference to wiki engine</span>
+<span class="source-line-no">503</span><span id="line-503">        wikiSession.m_engine = engine;</span>
+<span class="source-line-no">504</span><span id="line-504">        wikiSession.m_cachedLocale = request.getLocale();</span>
+<span class="source-line-no">505</span><span id="line-505">        </span>
+<span class="source-line-no">506</span><span id="line-506">        String v = engine.getWikiProperties().getProperty("jspwiki.role.extraRoles", null);</span>
+<span class="source-line-no">507</span><span id="line-507">        if (v != null) {</span>
+<span class="source-line-no">508</span><span id="line-508">            String[] extraRoles = v.split("\\,");</span>
+<span class="source-line-no">509</span><span id="line-509">            for (String s : extraRoles) {</span>
+<span class="source-line-no">510</span><span id="line-510">                if (request.isUserInRole(s)) {</span>
+<span class="source-line-no">511</span><span id="line-511">                    wikiSession.m_subject.getPrincipals().add(new GroupPrincipal(s));</span>
+<span class="source-line-no">512</span><span id="line-512">                }</span>
+<span class="source-line-no">513</span><span id="line-513">            }</span>
+<span class="source-line-no">514</span><span id="line-514">        }</span>
+<span class="source-line-no">515</span><span id="line-515">        </span>
+<span class="source-line-no">516</span><span id="line-516">        return wikiSession;</span>
+<span class="source-line-no">517</span><span id="line-517">    }</span>
+<span class="source-line-no">518</span><span id="line-518"></span>
+<span class="source-line-no">519</span><span id="line-519">    /**</span>
+<span class="source-line-no">520</span><span id="line-520">     * Static factory method that creates a new "guest" session containing a single user Principal</span>
+<span class="source-line-no">521</span><span id="line-521">     * {@link org.apache.wiki.auth.WikiPrincipal#GUEST}, plus the role principals {@link Role#ALL} and {@link Role#ANONYMOUS}. This</span>
+<span class="source-line-no">522</span><span id="line-522">     * method also adds the session as a listener for GroupManager, AuthenticationManager and UserManager events.</span>
+<span class="source-line-no">523</span><span id="line-523">     *</span>
+<span class="source-line-no">524</span><span id="line-524">     * @param engine the wiki engine</span>
+<span class="source-line-no">525</span><span id="line-525">     * @return the guest wiki session</span>
+<span class="source-line-no">526</span><span id="line-526">     */</span>
+<span class="source-line-no">527</span><span id="line-527">    public static Session guestSession( final Engine engine ) {</span>
+<span class="source-line-no">528</span><span id="line-528">        final WikiSession session = new WikiSession();</span>
+<span class="source-line-no">529</span><span id="line-529">        session.m_engine = engine;</span>
+<span class="source-line-no">530</span><span id="line-530">        session.invalidate();</span>
+<span class="source-line-no">531</span><span id="line-531">        session.antiCsrfToken = UUID.randomUUID().toString();</span>
+<span class="source-line-no">532</span><span id="line-532"></span>
+<span class="source-line-no">533</span><span id="line-533">        // Add the session as listener for GroupManager, AuthManager, UserManager events</span>
+<span class="source-line-no">534</span><span id="line-534">        final GroupManager groupMgr = engine.getManager( GroupManager.class );</span>
+<span class="source-line-no">535</span><span id="line-535">        final AuthenticationManager authMgr = engine.getManager( AuthenticationManager.class );</span>
+<span class="source-line-no">536</span><span id="line-536">        final UserManager userMgr = engine.getManager( UserManager.class );</span>
+<span class="source-line-no">537</span><span id="line-537">        groupMgr.addWikiEventListener( session );</span>
+<span class="source-line-no">538</span><span id="line-538">        authMgr.addWikiEventListener( session );</span>
+<span class="source-line-no">539</span><span id="line-539">        userMgr.addWikiEventListener( session );</span>
+<span class="source-line-no">540</span><span id="line-540"></span>
+<span class="source-line-no">541</span><span id="line-541">        return session;</span>
+<span class="source-line-no">542</span><span id="line-542">    }</span>
+<span class="source-line-no">543</span><span id="line-543"></span>
+<span class="source-line-no">544</span><span id="line-544">    /**</span>
+<span class="source-line-no">545</span><span id="line-545">     *  Returns a static guest session, which is available for this thread only.  This guest session is used internally whenever</span>
+<span class="source-line-no">546</span><span id="line-546">     *  there is no HttpServletRequest involved, but the request is done e.g. when embedding JSPWiki code.</span>
+<span class="source-line-no">547</span><span id="line-547">     *</span>
+<span class="source-line-no">548</span><span id="line-548">     *  @param engine Engine for this session</span>
+<span class="source-line-no">549</span><span id="line-549">     *  @return A static WikiSession which is shared by all in this same Thread.</span>
+<span class="source-line-no">550</span><span id="line-550">     */</span>
+<span class="source-line-no">551</span><span id="line-551">    // FIXME: Should really use WeakReferences to clean away unused sessions.</span>
+<span class="source-line-no">552</span><span id="line-552">    private static Session staticGuestSession( final Engine engine ) {</span>
+<span class="source-line-no">553</span><span id="line-553">        Session session = c_guestSession.get();</span>
+<span class="source-line-no">554</span><span id="line-554">        if( session == null ) {</span>
+<span class="source-line-no">555</span><span id="line-555">            session = guestSession( engine );</span>
+<span class="source-line-no">556</span><span id="line-556">            c_guestSession.set( session );</span>
+<span class="source-line-no">557</span><span id="line-557">        }</span>
+<span class="source-line-no">558</span><span id="line-558"></span>
+<span class="source-line-no">559</span><span id="line-559">        return session;</span>
+<span class="source-line-no">560</span><span id="line-560">    }</span>
+<span class="source-line-no">561</span><span id="line-561"></span>
+<span class="source-line-no">562</span><span id="line-562">    /**</span>
+<span class="source-line-no">563</span><span id="line-563">     * Returns the total number of active wiki sessions for a particular wiki. This method delegates to the wiki's</span>
+<span class="source-line-no">564</span><span id="line-564">     * {@link SessionMonitor#sessions()} method.</span>
+<span class="source-line-no">565</span><span id="line-565">     *</span>
+<span class="source-line-no">566</span><span id="line-566">     * @param engine the wiki session</span>
+<span class="source-line-no">567</span><span id="line-567">     * @return the number of sessions</span>
+<span class="source-line-no">568</span><span id="line-568">     * @deprecated use {@link SessionMonitor#sessions()} instead</span>
+<span class="source-line-no">569</span><span id="line-569">     * @see SessionMonitor#sessions()</span>
+<span class="source-line-no">570</span><span id="line-570">     */</span>
+<span class="source-line-no">571</span><span id="line-571">    @Deprecated</span>
+<span class="source-line-no">572</span><span id="line-572">    public static int sessions( final Engine engine ) {</span>
+<span class="source-line-no">573</span><span id="line-573">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">574</span><span id="line-574">        return monitor.sessions();</span>
+<span class="source-line-no">575</span><span id="line-575">    }</span>
+<span class="source-line-no">576</span><span id="line-576"></span>
+<span class="source-line-no">577</span><span id="line-577">    /**</span>
+<span class="source-line-no">578</span><span id="line-578">     * Returns Principals representing the current users known to a particular wiki. Each Principal will correspond to the</span>
+<span class="source-line-no">579</span><span id="line-579">     * value returned by each WikiSession's {@link #getUserPrincipal()} method. This method delegates to</span>
+<span class="source-line-no">580</span><span id="line-580">     * {@link SessionMonitor#userPrincipals()}.</span>
+<span class="source-line-no">581</span><span id="line-581">     *</span>
+<span class="source-line-no">582</span><span id="line-582">     * @param engine the wiki engine</span>
+<span class="source-line-no">583</span><span id="line-583">     * @return an array of Principal objects, sorted by name</span>
+<span class="source-line-no">584</span><span id="line-584">     * @deprecated use {@link SessionMonitor#userPrincipals()} instead</span>
+<span class="source-line-no">585</span><span id="line-585">     * @see SessionMonitor#userPrincipals()</span>
+<span class="source-line-no">586</span><span id="line-586">     */</span>
+<span class="source-line-no">587</span><span id="line-587">    @Deprecated</span>
+<span class="source-line-no">588</span><span id="line-588">    public static Principal[] userPrincipals( final Engine engine ) {</span>
+<span class="source-line-no">589</span><span id="line-589">        final SessionMonitor monitor = SessionMonitor.getInstance( engine );</span>
+<span class="source-line-no">590</span><span id="line-590">        return monitor.userPrincipals();</span>
+<span class="source-line-no">591</span><span id="line-591">    }</span>
+<span class="source-line-no">592</span><span id="line-592"></span>
+<span class="source-line-no">593</span><span id="line-593">    @Override</span>
+<span class="source-line-no">594</span><span id="line-594">    public String getRemoteAddress() {</span>
+<span class="source-line-no">595</span><span id="line-595">        return remoteAddress;</span>
+<span class="source-line-no">596</span><span id="line-596">    }</span>
+<span class="source-line-no">597</span><span id="line-597"></span>
+<span class="source-line-no">598</span><span id="line-598">}</span>
 
 
 

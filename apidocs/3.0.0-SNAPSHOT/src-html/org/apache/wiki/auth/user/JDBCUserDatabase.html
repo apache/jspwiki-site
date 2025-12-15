@@ -437,365 +437,366 @@
 <span class="source-line-no">424</span><span id="line-424">     */</span>
 <span class="source-line-no">425</span><span id="line-425">    @Override</span>
 <span class="source-line-no">426</span><span id="line-426">    public void initialize( final Engine engine, final Properties props ) throws NoRequiredPropertyException, WikiSecurityException {</span>
-<span class="source-line-no">427</span><span id="line-427">        final String jndiName = props.getProperty( PROP_DB_DATASOURCE, DEFAULT_DB_JNDI_NAME );</span>
-<span class="source-line-no">428</span><span id="line-428">        try {</span>
-<span class="source-line-no">429</span><span id="line-429">            final Context initCtx = new InitialContext();</span>
-<span class="source-line-no">430</span><span id="line-430">            final Context ctx = (Context) initCtx.lookup( "java:comp/env" );</span>
-<span class="source-line-no">431</span><span id="line-431">            m_ds = (DataSource) ctx.lookup( jndiName );</span>
-<span class="source-line-no">432</span><span id="line-432"></span>
-<span class="source-line-no">433</span><span id="line-433">            // Prepare the SQL selectors</span>
-<span class="source-line-no">434</span><span id="line-434">            final String userTable = props.getProperty( PROP_DB_TABLE, DEFAULT_DB_TABLE );</span>
-<span class="source-line-no">435</span><span id="line-435">            m_email = props.getProperty( PROP_DB_EMAIL, DEFAULT_DB_EMAIL );</span>
-<span class="source-line-no">436</span><span id="line-436">            m_fullName = props.getProperty( PROP_DB_FULL_NAME, DEFAULT_DB_FULL_NAME );</span>
-<span class="source-line-no">437</span><span id="line-437">            m_lockExpiry = props.getProperty( PROP_DB_LOCK_EXPIRY, DEFAULT_DB_LOCK_EXPIRY );</span>
-<span class="source-line-no">438</span><span id="line-438">            m_loginName = props.getProperty( PROP_DB_LOGIN_NAME, DEFAULT_DB_LOGIN_NAME );</span>
-<span class="source-line-no">439</span><span id="line-439">            m_password = props.getProperty( PROP_DB_PASSWORD, DEFAULT_DB_PASSWORD );</span>
-<span class="source-line-no">440</span><span id="line-440">            m_uid = props.getProperty( PROP_DB_UID, DEFAULT_DB_UID );</span>
-<span class="source-line-no">441</span><span id="line-441">            m_wikiName = props.getProperty( PROP_DB_WIKI_NAME, DEFAULT_DB_WIKI_NAME );</span>
-<span class="source-line-no">442</span><span id="line-442">            m_created = props.getProperty( PROP_DB_CREATED, DEFAULT_DB_CREATED );</span>
-<span class="source-line-no">443</span><span id="line-443">            m_modified = props.getProperty( PROP_DB_MODIFIED, DEFAULT_DB_MODIFIED );</span>
-<span class="source-line-no">444</span><span id="line-444">            m_attributes = props.getProperty( PROP_DB_ATTRIBUTES, DEFAULT_DB_ATTRIBUTES );</span>
-<span class="source-line-no">445</span><span id="line-445">            m_oldPasswords = props.getProperty( PROP_DB_OLD_HASHES, DEFAULT_DB_OLD_HASHES );</span>
-<span class="source-line-no">446</span><span id="line-446">            m_passwordReusedCount = Integer.parseInt(props.getProperty("jspwiki.credentials.reuseCount", "-1"));</span>
-<span class="source-line-no">447</span><span id="line-447"></span>
-<span class="source-line-no">448</span><span id="line-448">            m_findAll = "SELECT * FROM " + userTable;</span>
-<span class="source-line-no">449</span><span id="line-449">            m_findByEmail = "SELECT * FROM " + userTable + " WHERE " + m_email + "=?";</span>
-<span class="source-line-no">450</span><span id="line-450">            m_findByFullName = "SELECT * FROM " + userTable + " WHERE " + m_fullName + "=?";</span>
-<span class="source-line-no">451</span><span id="line-451">            m_findByLoginName = "SELECT * FROM " + userTable + " WHERE " + m_loginName + "=?";</span>
-<span class="source-line-no">452</span><span id="line-452">            m_findByUid = "SELECT * FROM " + userTable + " WHERE " + m_uid + "=?";</span>
-<span class="source-line-no">453</span><span id="line-453">            m_findByWikiName = "SELECT * FROM " + userTable + " WHERE " + m_wikiName + "=?";</span>
-<span class="source-line-no">454</span><span id="line-454"></span>
-<span class="source-line-no">455</span><span id="line-455">            // The user insert SQL prepared statement</span>
-<span class="source-line-no">456</span><span id="line-456">            m_insertProfile = "INSERT INTO " + userTable + " ("</span>
-<span class="source-line-no">457</span><span id="line-457">                              + m_uid + ","</span>
-<span class="source-line-no">458</span><span id="line-458">                              + m_email + ","</span>
-<span class="source-line-no">459</span><span id="line-459">                              + m_fullName + ","</span>
-<span class="source-line-no">460</span><span id="line-460">                              + m_password + ","</span>
-<span class="source-line-no">461</span><span id="line-461">                              + m_wikiName + ","</span>
-<span class="source-line-no">462</span><span id="line-462">                              + m_modified + ","</span>
-<span class="source-line-no">463</span><span id="line-463">                              + m_loginName + ","</span>
-<span class="source-line-no">464</span><span id="line-464">                              + m_attributes + ","</span>
-<span class="source-line-no">465</span><span id="line-465">                              + m_created + "," </span>
-<span class="source-line-no">466</span><span id="line-466">                              + m_oldPasswords</span>
-<span class="source-line-no">467</span><span id="line-467">                              + ") VALUES (?,?,?,?,?,?,?,?,?,?)";</span>
-<span class="source-line-no">468</span><span id="line-468">            </span>
-<span class="source-line-no">469</span><span id="line-469">            // The user update SQL prepared statement</span>
-<span class="source-line-no">470</span><span id="line-470">            m_updateProfile = "UPDATE " + userTable + " SET "</span>
-<span class="source-line-no">471</span><span id="line-471">                              + m_uid + "=?,"</span>
-<span class="source-line-no">472</span><span id="line-472">                              + m_email + "=?,"</span>
-<span class="source-line-no">473</span><span id="line-473">                              + m_fullName + "=?,"</span>
-<span class="source-line-no">474</span><span id="line-474">                              + m_password + "=?,"</span>
-<span class="source-line-no">475</span><span id="line-475">                              + m_wikiName + "=?,"</span>
-<span class="source-line-no">476</span><span id="line-476">                              + m_modified + "=?,"</span>
-<span class="source-line-no">477</span><span id="line-477">                              + m_loginName + "=?,"</span>
-<span class="source-line-no">478</span><span id="line-478">                              + m_attributes + "=?,"</span>
-<span class="source-line-no">479</span><span id="line-479">                              + m_lockExpiry + "=?,"</span>
-<span class="source-line-no">480</span><span id="line-480">                              + m_oldPasswords + "=? "</span>
-<span class="source-line-no">481</span><span id="line-481">                              + "WHERE " + m_loginName + "=?";</span>
-<span class="source-line-no">482</span><span id="line-482"></span>
-<span class="source-line-no">483</span><span id="line-483">            // Prepare the role insert SQL</span>
-<span class="source-line-no">484</span><span id="line-484">            final String roleTable = props.getProperty( PROP_DB_ROLE_TABLE, DEFAULT_DB_ROLE_TABLE );</span>
-<span class="source-line-no">485</span><span id="line-485">            final String role = props.getProperty( PROP_DB_ROLE, DEFAULT_DB_ROLE );</span>
-<span class="source-line-no">486</span><span id="line-486">            m_insertRole = "INSERT INTO " + roleTable + " (" + m_loginName + "," + role + ") VALUES (?,?)";</span>
-<span class="source-line-no">487</span><span id="line-487">            m_findRoles = "SELECT * FROM " + roleTable + " WHERE " + m_loginName + "=?";</span>
-<span class="source-line-no">488</span><span id="line-488"></span>
-<span class="source-line-no">489</span><span id="line-489">            // Prepare the user delete SQL</span>
-<span class="source-line-no">490</span><span id="line-490">            m_deleteUserByLoginName = "DELETE FROM " + userTable + " WHERE " + m_loginName + "=?";</span>
-<span class="source-line-no">491</span><span id="line-491"></span>
-<span class="source-line-no">492</span><span id="line-492">            // Prepare the role delete SQL</span>
-<span class="source-line-no">493</span><span id="line-493">            m_deleteRoleByLoginName = "DELETE FROM " + roleTable + " WHERE " + m_loginName + "=?";</span>
-<span class="source-line-no">494</span><span id="line-494"></span>
-<span class="source-line-no">495</span><span id="line-495">            // Prepare the rename user/roles SQL</span>
-<span class="source-line-no">496</span><span id="line-496">            m_renameProfile = "UPDATE " + userTable + " SET " + m_loginName + "=?," + m_modified + "=? WHERE " + m_loginName</span>
-<span class="source-line-no">497</span><span id="line-497">                              + "=?";</span>
-<span class="source-line-no">498</span><span id="line-498">            m_renameRoles = "UPDATE " + roleTable + " SET " + m_loginName + "=? WHERE " + m_loginName + "=?";</span>
-<span class="source-line-no">499</span><span id="line-499">        } catch( final NamingException e ) {</span>
-<span class="source-line-no">500</span><span id="line-500">            LOG.error( "JDBCUserDatabase initialization error: " + e.getMessage() );</span>
-<span class="source-line-no">501</span><span id="line-501">            throw new NoRequiredPropertyException( PROP_DB_DATASOURCE, "JDBCUserDatabase initialization error: " + e.getMessage() );</span>
-<span class="source-line-no">502</span><span id="line-502">        }</span>
-<span class="source-line-no">503</span><span id="line-503"></span>
-<span class="source-line-no">504</span><span id="line-504">        // Test connection by doing a quickie select</span>
-<span class="source-line-no">505</span><span id="line-505">        try( final Connection conn = m_ds.getConnection(); final PreparedStatement ps = conn.prepareStatement( m_findAll ) ) {</span>
-<span class="source-line-no">506</span><span id="line-506">        } catch( final SQLException e ) {</span>
-<span class="source-line-no">507</span><span id="line-507">            LOG.error( "DB connectivity error: " + e.getMessage() );</span>
-<span class="source-line-no">508</span><span id="line-508">            throw new WikiSecurityException("DB connectivity error: " + e.getMessage(), e );</span>
-<span class="source-line-no">509</span><span id="line-509">        }</span>
-<span class="source-line-no">510</span><span id="line-510">        LOG.info( "JDBCUserDatabase initialized from JNDI DataSource: {}", jndiName );</span>
-<span class="source-line-no">511</span><span id="line-511"></span>
-<span class="source-line-no">512</span><span id="line-512">        // Determine if the datasource supports commits</span>
-<span class="source-line-no">513</span><span id="line-513">        try( final Connection conn = m_ds.getConnection() ) {</span>
-<span class="source-line-no">514</span><span id="line-514">            final DatabaseMetaData dmd = conn.getMetaData();</span>
-<span class="source-line-no">515</span><span id="line-515">            if( dmd.supportsTransactions() ) {</span>
-<span class="source-line-no">516</span><span id="line-516">                m_supportsCommits = true;</span>
-<span class="source-line-no">517</span><span id="line-517">                conn.setAutoCommit( false );</span>
-<span class="source-line-no">518</span><span id="line-518">                LOG.info( "JDBCUserDatabase supports transactions. Good; we will use them." );</span>
-<span class="source-line-no">519</span><span id="line-519">            }</span>
-<span class="source-line-no">520</span><span id="line-520">        } catch( final SQLException e ) {</span>
-<span class="source-line-no">521</span><span id="line-521">            LOG.warn( "JDBCUserDatabase warning: user database doesn't seem to support transactions. Reason: {}", e.getMessage() );</span>
-<span class="source-line-no">522</span><span id="line-522">        }</span>
-<span class="source-line-no">523</span><span id="line-523">    }</span>
-<span class="source-line-no">524</span><span id="line-524"></span>
-<span class="source-line-no">525</span><span id="line-525">    /**</span>
-<span class="source-line-no">526</span><span id="line-526">     * @see org.apache.wiki.auth.user.UserDatabase#rename(String, String)</span>
-<span class="source-line-no">527</span><span id="line-527">     */</span>
-<span class="source-line-no">528</span><span id="line-528">    @Override</span>
-<span class="source-line-no">529</span><span id="line-529">    public void rename( final String loginName, final String newName ) throws DuplicateUserException, WikiSecurityException {</span>
-<span class="source-line-no">530</span><span id="line-530">        // Get the existing user; if not found, throws NoSuchPrincipalException</span>
-<span class="source-line-no">531</span><span id="line-531">        final UserProfile profile = findByLoginName( loginName );</span>
-<span class="source-line-no">532</span><span id="line-532"></span>
-<span class="source-line-no">533</span><span id="line-533">        // Get user with the proposed name; if found, it's a collision</span>
-<span class="source-line-no">534</span><span id="line-534">        try {</span>
-<span class="source-line-no">535</span><span id="line-535">            final UserProfile otherProfile = findByLoginName( newName );</span>
-<span class="source-line-no">536</span><span id="line-536">            if( otherProfile != null ) {</span>
-<span class="source-line-no">537</span><span id="line-537">                throw new DuplicateUserException( "security.error.cannot.rename", newName );</span>
-<span class="source-line-no">538</span><span id="line-538">            }</span>
-<span class="source-line-no">539</span><span id="line-539">        } catch( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">540</span><span id="line-540">            LOG.debug(e.getMessage(), e);</span>
-<span class="source-line-no">541</span><span id="line-541">            // Good! That means it's safe to save using the new name</span>
-<span class="source-line-no">542</span><span id="line-542">        }</span>
-<span class="source-line-no">543</span><span id="line-543"></span>
-<span class="source-line-no">544</span><span id="line-544">        try( final Connection conn = m_ds.getConnection();</span>
-<span class="source-line-no">545</span><span id="line-545">             final PreparedStatement ps1 = conn.prepareStatement( m_renameProfile );</span>
-<span class="source-line-no">546</span><span id="line-546">             final PreparedStatement ps2 = conn.prepareStatement( m_renameRoles ) ) {</span>
-<span class="source-line-no">547</span><span id="line-547">            if( m_supportsCommits ) {</span>
-<span class="source-line-no">548</span><span id="line-548">                conn.setAutoCommit( false );</span>
-<span class="source-line-no">549</span><span id="line-549">            }</span>
-<span class="source-line-no">550</span><span id="line-550"></span>
-<span class="source-line-no">551</span><span id="line-551">            final Timestamp ts = new Timestamp( System.currentTimeMillis() );</span>
-<span class="source-line-no">552</span><span id="line-552">            final Date modDate = new Date( ts.getTime() );</span>
-<span class="source-line-no">553</span><span id="line-553"></span>
-<span class="source-line-no">554</span><span id="line-554">            // Change the login ID for the user record</span>
-<span class="source-line-no">555</span><span id="line-555">            ps1.setString( 1, newName );</span>
-<span class="source-line-no">556</span><span id="line-556">            ps1.setTimestamp( 2, ts );</span>
-<span class="source-line-no">557</span><span id="line-557">            ps1.setString( 3, loginName );</span>
-<span class="source-line-no">558</span><span id="line-558">            ps1.execute();</span>
-<span class="source-line-no">559</span><span id="line-559"></span>
-<span class="source-line-no">560</span><span id="line-560">            // Change the login ID for the role records</span>
-<span class="source-line-no">561</span><span id="line-561">            ps2.setString( 1, newName );</span>
-<span class="source-line-no">562</span><span id="line-562">            ps2.setString( 2, loginName );</span>
-<span class="source-line-no">563</span><span id="line-563">            ps2.execute();</span>
-<span class="source-line-no">564</span><span id="line-564"></span>
-<span class="source-line-no">565</span><span id="line-565">            // Set the profile name and mod time</span>
-<span class="source-line-no">566</span><span id="line-566">            profile.setLoginName( newName );</span>
-<span class="source-line-no">567</span><span id="line-567">            profile.setLastModified( modDate );</span>
-<span class="source-line-no">568</span><span id="line-568"></span>
-<span class="source-line-no">569</span><span id="line-569">            // Commit and close connection</span>
-<span class="source-line-no">570</span><span id="line-570">            if( m_supportsCommits ) {</span>
-<span class="source-line-no">571</span><span id="line-571">                conn.commit();</span>
-<span class="source-line-no">572</span><span id="line-572">            }</span>
-<span class="source-line-no">573</span><span id="line-573">        } catch( final SQLException e ) {</span>
-<span class="source-line-no">574</span><span id="line-574">            throw new WikiSecurityException( e.getMessage(), e );</span>
-<span class="source-line-no">575</span><span id="line-575">        }</span>
-<span class="source-line-no">576</span><span id="line-576">    }</span>
-<span class="source-line-no">577</span><span id="line-577"></span>
-<span class="source-line-no">578</span><span id="line-578">    /**</span>
-<span class="source-line-no">579</span><span id="line-579">     * @param profile</span>
-<span class="source-line-no">580</span><span id="line-580">     * @throws org.apache.wiki.auth.WikiSecurityException</span>
-<span class="source-line-no">581</span><span id="line-581">     * @see org.apache.wiki.auth.user.UserDatabase#save(org.apache.wiki.auth.user.UserProfile)</span>
-<span class="source-line-no">582</span><span id="line-582">     */</span>
-<span class="source-line-no">583</span><span id="line-583">    @Override</span>
-<span class="source-line-no">584</span><span id="line-584">    public void save( final UserProfile profile ) throws WikiSecurityException {</span>
-<span class="source-line-no">585</span><span id="line-585">        final String initialRole = "Authenticated";</span>
-<span class="source-line-no">586</span><span id="line-586"></span>
-<span class="source-line-no">587</span><span id="line-587">        // Figure out which prepared statement to use &amp; execute it</span>
-<span class="source-line-no">588</span><span id="line-588">        final String loginName = profile.getLoginName();</span>
-<span class="source-line-no">589</span><span id="line-589">        UserProfile existingProfile = null;</span>
-<span class="source-line-no">590</span><span id="line-590"></span>
-<span class="source-line-no">591</span><span id="line-591">        try {</span>
-<span class="source-line-no">592</span><span id="line-592">            existingProfile = findByLoginName( loginName );</span>
-<span class="source-line-no">593</span><span id="line-593">        } catch( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">594</span><span id="line-594">            LOG.debug(e.getMessage(), e);</span>
-<span class="source-line-no">595</span><span id="line-595">            // Existing profile will be null</span>
-<span class="source-line-no">596</span><span id="line-596">        }</span>
-<span class="source-line-no">597</span><span id="line-597"></span>
-<span class="source-line-no">598</span><span id="line-598">        // Get a clean password from the passed profile.</span>
-<span class="source-line-no">599</span><span id="line-599">        // Blank password is the same as null, which means we re-use the existing one.</span>
-<span class="source-line-no">600</span><span id="line-600">        String password = profile.getPassword();</span>
-<span class="source-line-no">601</span><span id="line-601">        final String existingPassword = (existingProfile == null) ? null : existingProfile.getPassword();</span>
-<span class="source-line-no">602</span><span id="line-602">        if( NOTHING.equals( password ) ) {</span>
-<span class="source-line-no">603</span><span id="line-603">            password = null;</span>
-<span class="source-line-no">604</span><span id="line-604">        }</span>
-<span class="source-line-no">605</span><span id="line-605">        if( password == null ) {</span>
-<span class="source-line-no">606</span><span id="line-606">            password = existingPassword;</span>
-<span class="source-line-no">607</span><span id="line-607">        }</span>
-<span class="source-line-no">608</span><span id="line-608"></span>
-<span class="source-line-no">609</span><span id="line-609">        // If password changed, hash it before we save</span>
-<span class="source-line-no">610</span><span id="line-610">        if( !Strings.CS.equals( password, existingPassword ) ) {</span>
-<span class="source-line-no">611</span><span id="line-611">            password = getHash( password );</span>
-<span class="source-line-no">612</span><span id="line-612">            //add the hashed password</span>
-<span class="source-line-no">613</span><span id="line-613">            profile.getPreviousHashedCredentials().add(password);</span>
-<span class="source-line-no">614</span><span id="line-614">            while (!profile.getPreviousHashedCredentials().isEmpty() &amp;&amp; </span>
-<span class="source-line-no">615</span><span id="line-615">                    profile.getPreviousHashedCredentials().size() &gt; m_passwordReusedCount) {</span>
-<span class="source-line-no">616</span><span id="line-616">                profile.getPreviousHashedCredentials().remove(0);</span>
-<span class="source-line-no">617</span><span id="line-617">            }</span>
-<span class="source-line-no">618</span><span id="line-618"></span>
-<span class="source-line-no">619</span><span id="line-619">        }</span>
-<span class="source-line-no">620</span><span id="line-620"></span>
-<span class="source-line-no">621</span><span id="line-621">        try( final Connection conn = m_ds.getConnection();</span>
-<span class="source-line-no">622</span><span id="line-622">             final PreparedStatement ps1 = conn.prepareStatement( m_insertProfile );</span>
-<span class="source-line-no">623</span><span id="line-623">             final PreparedStatement ps2 = conn.prepareStatement( m_findRoles );</span>
-<span class="source-line-no">624</span><span id="line-624">             final PreparedStatement ps3 = conn.prepareStatement( m_insertRole );</span>
-<span class="source-line-no">625</span><span id="line-625">             final PreparedStatement ps4 = conn.prepareStatement( m_updateProfile ) ) {</span>
-<span class="source-line-no">626</span><span id="line-626">            if( m_supportsCommits ) {</span>
-<span class="source-line-no">627</span><span id="line-627">                conn.setAutoCommit( false );</span>
-<span class="source-line-no">628</span><span id="line-628">            }</span>
-<span class="source-line-no">629</span><span id="line-629"></span>
-<span class="source-line-no">630</span><span id="line-630">            final Timestamp ts = new Timestamp( System.currentTimeMillis() );</span>
-<span class="source-line-no">631</span><span id="line-631">            final Date modDate = new Date( ts.getTime() );</span>
-<span class="source-line-no">632</span><span id="line-632">            final java.sql.Date lockExpiry = profile.getLockExpiry() == null ? null : new java.sql.Date( profile.getLockExpiry().getTime() );</span>
-<span class="source-line-no">633</span><span id="line-633">            if( existingProfile == null ) {</span>
-<span class="source-line-no">634</span><span id="line-634">                // User is new: insert new user record</span>
-<span class="source-line-no">635</span><span id="line-635">                ps1.setString( 1, profile.getUid() );</span>
-<span class="source-line-no">636</span><span id="line-636">                ps1.setString( 2, profile.getEmail() );</span>
-<span class="source-line-no">637</span><span id="line-637">                ps1.setString( 3, profile.getFullname() );</span>
-<span class="source-line-no">638</span><span id="line-638">                ps1.setString( 4, password );</span>
-<span class="source-line-no">639</span><span id="line-639">                ps1.setString( 5, profile.getWikiName() );</span>
-<span class="source-line-no">640</span><span id="line-640">                ps1.setTimestamp( 6, ts );</span>
-<span class="source-line-no">641</span><span id="line-641">                ps1.setString( 7, profile.getLoginName() );</span>
-<span class="source-line-no">642</span><span id="line-642">                try {</span>
-<span class="source-line-no">643</span><span id="line-643">                    ps1.setString( 8, Serializer.serializeToBase64( profile.getAttributes() ) );</span>
-<span class="source-line-no">644</span><span id="line-644">                } catch ( final IOException e ) {</span>
-<span class="source-line-no">645</span><span id="line-645">                    throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</span>
-<span class="source-line-no">646</span><span id="line-646">                }</span>
-<span class="source-line-no">647</span><span id="line-647">                </span>
-<span class="source-line-no">648</span><span id="line-648">                ps1.setTimestamp( 9, ts );</span>
-<span class="source-line-no">649</span><span id="line-649">                ps1.setString(10, StringUtils.join(profile.getPreviousHashedCredentials(), "|"));</span>
-<span class="source-line-no">650</span><span id="line-650">                ps1.execute();</span>
-<span class="source-line-no">651</span><span id="line-651"></span>
-<span class="source-line-no">652</span><span id="line-652">                // Insert new role record</span>
-<span class="source-line-no">653</span><span id="line-653">                ps2.setString( 1, profile.getLoginName() );</span>
-<span class="source-line-no">654</span><span id="line-654">                int roles = 0;</span>
-<span class="source-line-no">655</span><span id="line-655">                try ( final ResultSet rs = ps2.executeQuery() ) {</span>
-<span class="source-line-no">656</span><span id="line-656">                    while ( rs.next() ) {</span>
-<span class="source-line-no">657</span><span id="line-657">                        roles++;</span>
-<span class="source-line-no">658</span><span id="line-658">                    }</span>
-<span class="source-line-no">659</span><span id="line-659">                }</span>
-<span class="source-line-no">660</span><span id="line-660">                </span>
-<span class="source-line-no">661</span><span id="line-661">                if( roles == 0 ) {</span>
-<span class="source-line-no">662</span><span id="line-662">                    ps3.setString( 1, profile.getLoginName() );</span>
-<span class="source-line-no">663</span><span id="line-663">                    ps3.setString( 2, initialRole );</span>
-<span class="source-line-no">664</span><span id="line-664">                    ps3.execute();</span>
-<span class="source-line-no">665</span><span id="line-665">                }</span>
-<span class="source-line-no">666</span><span id="line-666"></span>
-<span class="source-line-no">667</span><span id="line-667">                // Set the profile creation time</span>
-<span class="source-line-no">668</span><span id="line-668">                profile.setCreated( modDate );</span>
-<span class="source-line-no">669</span><span id="line-669">            } else {</span>
-<span class="source-line-no">670</span><span id="line-670">                // User exists: modify existing record</span>
-<span class="source-line-no">671</span><span id="line-671">                ps4.setString( 1, profile.getUid() );</span>
-<span class="source-line-no">672</span><span id="line-672">                ps4.setString( 2, profile.getEmail() );</span>
-<span class="source-line-no">673</span><span id="line-673">                ps4.setString( 3, profile.getFullname() );</span>
-<span class="source-line-no">674</span><span id="line-674">                ps4.setString( 4, password );</span>
-<span class="source-line-no">675</span><span id="line-675">                ps4.setString( 5, profile.getWikiName() );</span>
-<span class="source-line-no">676</span><span id="line-676">                ps4.setTimestamp( 6, ts );</span>
-<span class="source-line-no">677</span><span id="line-677">                ps4.setString( 7, profile.getLoginName() );</span>
-<span class="source-line-no">678</span><span id="line-678">                try {</span>
-<span class="source-line-no">679</span><span id="line-679">                    ps4.setString( 8, Serializer.serializeToBase64( profile.getAttributes() ) );</span>
-<span class="source-line-no">680</span><span id="line-680">                } catch ( final IOException e ) {</span>
-<span class="source-line-no">681</span><span id="line-681">                    throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</span>
-<span class="source-line-no">682</span><span id="line-682">                }</span>
-<span class="source-line-no">683</span><span id="line-683">                ps4.setDate( 9, lockExpiry );</span>
-<span class="source-line-no">684</span><span id="line-684">                ps4.setString(10, StringUtils.join(profile.getPreviousHashedCredentials(), "|"));</span>
-<span class="source-line-no">685</span><span id="line-685">                ps4.setString( 11, profile.getLoginName() );</span>
-<span class="source-line-no">686</span><span id="line-686">                </span>
-<span class="source-line-no">687</span><span id="line-687">                ps4.execute();</span>
-<span class="source-line-no">688</span><span id="line-688">            }</span>
-<span class="source-line-no">689</span><span id="line-689">            // Set the profile mod time</span>
-<span class="source-line-no">690</span><span id="line-690">            profile.setLastModified( modDate );</span>
-<span class="source-line-no">691</span><span id="line-691"></span>
-<span class="source-line-no">692</span><span id="line-692">            // Commit and close connection</span>
-<span class="source-line-no">693</span><span id="line-693">            if( m_supportsCommits ) {</span>
-<span class="source-line-no">694</span><span id="line-694">                conn.commit();</span>
-<span class="source-line-no">695</span><span id="line-695">            }</span>
-<span class="source-line-no">696</span><span id="line-696">        } catch( final SQLException e ) {</span>
-<span class="source-line-no">697</span><span id="line-697">            throw new WikiSecurityException( e.getMessage(), e );</span>
-<span class="source-line-no">698</span><span id="line-698">        }</span>
-<span class="source-line-no">699</span><span id="line-699">    }</span>
-<span class="source-line-no">700</span><span id="line-700"></span>
-<span class="source-line-no">701</span><span id="line-701">    /**</span>
-<span class="source-line-no">702</span><span id="line-702">     * Private method that returns the first {@link UserProfile} matching a</span>
-<span class="source-line-no">703</span><span id="line-703">     * named column's value. This method will also set the UID if it has not yet been set.     </span>
-<span class="source-line-no">704</span><span id="line-704">     * @param sql the SQL statement that should be prepared; it must have one parameter</span>
-<span class="source-line-no">705</span><span id="line-705">     * to set (either a String or a Long)</span>
-<span class="source-line-no">706</span><span id="line-706">     * @param index the value to match</span>
-<span class="source-line-no">707</span><span id="line-707">     * @return the resolved UserProfile</span>
-<span class="source-line-no">708</span><span id="line-708">     * @throws NoSuchPrincipalException problems accessing the database</span>
-<span class="source-line-no">709</span><span id="line-709">     */</span>
-<span class="source-line-no">710</span><span id="line-710">    private UserProfile findByPreparedStatement( final String sql, final Object index ) throws NoSuchPrincipalException</span>
-<span class="source-line-no">711</span><span id="line-711">    {</span>
-<span class="source-line-no">712</span><span id="line-712">        UserProfile profile = null;</span>
-<span class="source-line-no">713</span><span id="line-713">        boolean found = false;</span>
-<span class="source-line-no">714</span><span id="line-714">        boolean unique = true;</span>
-<span class="source-line-no">715</span><span id="line-715">        try( final Connection conn = m_ds.getConnection(); final PreparedStatement ps = conn.prepareStatement( sql ) ) {</span>
-<span class="source-line-no">716</span><span id="line-716">            if( m_supportsCommits ) {</span>
-<span class="source-line-no">717</span><span id="line-717">                conn.setAutoCommit( false );</span>
-<span class="source-line-no">718</span><span id="line-718">            }</span>
-<span class="source-line-no">719</span><span id="line-719">            </span>
-<span class="source-line-no">720</span><span id="line-720">            // Set the parameter to search by</span>
-<span class="source-line-no">721</span><span id="line-721">            if( index instanceof String ) {</span>
-<span class="source-line-no">722</span><span id="line-722">                ps.setString( 1, ( String )index );</span>
-<span class="source-line-no">723</span><span id="line-723">            } else if ( index instanceof Long ) {</span>
-<span class="source-line-no">724</span><span id="line-724">                ps.setLong( 1, ( Long )index );</span>
-<span class="source-line-no">725</span><span id="line-725">            } else {</span>
-<span class="source-line-no">726</span><span id="line-726">                throw new IllegalArgumentException( "Index type not recognized!" );</span>
-<span class="source-line-no">727</span><span id="line-727">            }</span>
-<span class="source-line-no">728</span><span id="line-728">            </span>
-<span class="source-line-no">729</span><span id="line-729">            // Go and get the record!</span>
-<span class="source-line-no">730</span><span id="line-730">            try( final ResultSet rs = ps.executeQuery() ) {</span>
-<span class="source-line-no">731</span><span id="line-731">                while ( rs.next() ) {</span>
-<span class="source-line-no">732</span><span id="line-732">                    if( profile != null ) {</span>
-<span class="source-line-no">733</span><span id="line-733">                        unique = false;</span>
-<span class="source-line-no">734</span><span id="line-734">                        break;</span>
-<span class="source-line-no">735</span><span id="line-735">                    }</span>
-<span class="source-line-no">736</span><span id="line-736">                    profile = newProfile();</span>
-<span class="source-line-no">737</span><span id="line-737">                    </span>
-<span class="source-line-no">738</span><span id="line-738">                    // Fetch the basic user attributes</span>
-<span class="source-line-no">739</span><span id="line-739">                    profile.setUid( rs.getString( m_uid ) );</span>
-<span class="source-line-no">740</span><span id="line-740">                    if ( profile.getUid() == null ) {</span>
-<span class="source-line-no">741</span><span id="line-741">                        profile.setUid( generateUid( this ) );</span>
-<span class="source-line-no">742</span><span id="line-742">                    }</span>
-<span class="source-line-no">743</span><span id="line-743">                    profile.setCreated( rs.getTimestamp( m_created ) );</span>
-<span class="source-line-no">744</span><span id="line-744">                    profile.setEmail( rs.getString( m_email ) );</span>
-<span class="source-line-no">745</span><span id="line-745">                    profile.setFullname( rs.getString( m_fullName ) );</span>
-<span class="source-line-no">746</span><span id="line-746">                    profile.setLastModified( rs.getTimestamp( m_modified ) );</span>
-<span class="source-line-no">747</span><span id="line-747">                    final Date lockExpiry = rs.getDate( m_lockExpiry );</span>
-<span class="source-line-no">748</span><span id="line-748">                    profile.setLockExpiry( rs.wasNull() ? null : lockExpiry );</span>
-<span class="source-line-no">749</span><span id="line-749">                    profile.setLoginName( rs.getString( m_loginName ) );</span>
-<span class="source-line-no">750</span><span id="line-750">                    profile.setPassword( rs.getString( m_password ) );</span>
-<span class="source-line-no">751</span><span id="line-751">                    </span>
-<span class="source-line-no">752</span><span id="line-752">                    // Fetch the user attributes</span>
-<span class="source-line-no">753</span><span id="line-753">                    final String rawAttributes = rs.getString( m_attributes );</span>
-<span class="source-line-no">754</span><span id="line-754">                    if ( rawAttributes != null ) {</span>
-<span class="source-line-no">755</span><span id="line-755">                        try {</span>
-<span class="source-line-no">756</span><span id="line-756">                            final Map&lt;String,? extends Serializable&gt; attributes = Serializer.deserializeFromBase64( rawAttributes );</span>
-<span class="source-line-no">757</span><span id="line-757">                            profile.getAttributes().putAll( attributes );</span>
-<span class="source-line-no">758</span><span id="line-758">                        } catch ( final IOException e ) {</span>
-<span class="source-line-no">759</span><span id="line-759">                            LOG.error( "Could not parse user profile attributes!", e );</span>
-<span class="source-line-no">760</span><span id="line-760">                        }</span>
-<span class="source-line-no">761</span><span id="line-761">                    }</span>
-<span class="source-line-no">762</span><span id="line-762">                    String oldhashes = rs.getString(m_oldPasswords);</span>
-<span class="source-line-no">763</span><span id="line-763">                    if (oldhashes != null &amp;&amp; oldhashes.length() &gt; 0) {</span>
-<span class="source-line-no">764</span><span id="line-764">                        String[] parts = oldhashes.split("\\|");</span>
-<span class="source-line-no">765</span><span id="line-765">                        for (String s : parts) {</span>
-<span class="source-line-no">766</span><span id="line-766">                            profile.getPreviousHashedCredentials().add(s);</span>
-<span class="source-line-no">767</span><span id="line-767">                        }</span>
-<span class="source-line-no">768</span><span id="line-768">                    }</span>
-<span class="source-line-no">769</span><span id="line-769">                    found = true;</span>
-<span class="source-line-no">770</span><span id="line-770">                }</span>
-<span class="source-line-no">771</span><span id="line-771">            }</span>
-<span class="source-line-no">772</span><span id="line-772">        } catch( final SQLException e ) {</span>
-<span class="source-line-no">773</span><span id="line-773">            throw new NoSuchPrincipalException( e.getMessage() );</span>
-<span class="source-line-no">774</span><span id="line-774">        }</span>
-<span class="source-line-no">775</span><span id="line-775"></span>
-<span class="source-line-no">776</span><span id="line-776">        if( !found ) {</span>
-<span class="source-line-no">777</span><span id="line-777">            throw new NoSuchPrincipalException( "Could not find profile in database!" );</span>
-<span class="source-line-no">778</span><span id="line-778">        }</span>
-<span class="source-line-no">779</span><span id="line-779">        if( !unique ) {</span>
-<span class="source-line-no">780</span><span id="line-780">            throw new NoSuchPrincipalException( "More than one profile in database!" );</span>
-<span class="source-line-no">781</span><span id="line-781">        }</span>
-<span class="source-line-no">782</span><span id="line-782">        return profile;</span>
-<span class="source-line-no">783</span><span id="line-783">    }</span>
-<span class="source-line-no">784</span><span id="line-784"></span>
-<span class="source-line-no">785</span><span id="line-785">}</span>
+<span class="source-line-no">427</span><span id="line-427">        m_engine = engine;</span>
+<span class="source-line-no">428</span><span id="line-428">        final String jndiName = props.getProperty( PROP_DB_DATASOURCE, DEFAULT_DB_JNDI_NAME );</span>
+<span class="source-line-no">429</span><span id="line-429">        try {</span>
+<span class="source-line-no">430</span><span id="line-430">            final Context initCtx = new InitialContext();</span>
+<span class="source-line-no">431</span><span id="line-431">            final Context ctx = (Context) initCtx.lookup( "java:comp/env" );</span>
+<span class="source-line-no">432</span><span id="line-432">            m_ds = (DataSource) ctx.lookup( jndiName );</span>
+<span class="source-line-no">433</span><span id="line-433"></span>
+<span class="source-line-no">434</span><span id="line-434">            // Prepare the SQL selectors</span>
+<span class="source-line-no">435</span><span id="line-435">            final String userTable = props.getProperty( PROP_DB_TABLE, DEFAULT_DB_TABLE );</span>
+<span class="source-line-no">436</span><span id="line-436">            m_email = props.getProperty( PROP_DB_EMAIL, DEFAULT_DB_EMAIL );</span>
+<span class="source-line-no">437</span><span id="line-437">            m_fullName = props.getProperty( PROP_DB_FULL_NAME, DEFAULT_DB_FULL_NAME );</span>
+<span class="source-line-no">438</span><span id="line-438">            m_lockExpiry = props.getProperty( PROP_DB_LOCK_EXPIRY, DEFAULT_DB_LOCK_EXPIRY );</span>
+<span class="source-line-no">439</span><span id="line-439">            m_loginName = props.getProperty( PROP_DB_LOGIN_NAME, DEFAULT_DB_LOGIN_NAME );</span>
+<span class="source-line-no">440</span><span id="line-440">            m_password = props.getProperty( PROP_DB_PASSWORD, DEFAULT_DB_PASSWORD );</span>
+<span class="source-line-no">441</span><span id="line-441">            m_uid = props.getProperty( PROP_DB_UID, DEFAULT_DB_UID );</span>
+<span class="source-line-no">442</span><span id="line-442">            m_wikiName = props.getProperty( PROP_DB_WIKI_NAME, DEFAULT_DB_WIKI_NAME );</span>
+<span class="source-line-no">443</span><span id="line-443">            m_created = props.getProperty( PROP_DB_CREATED, DEFAULT_DB_CREATED );</span>
+<span class="source-line-no">444</span><span id="line-444">            m_modified = props.getProperty( PROP_DB_MODIFIED, DEFAULT_DB_MODIFIED );</span>
+<span class="source-line-no">445</span><span id="line-445">            m_attributes = props.getProperty( PROP_DB_ATTRIBUTES, DEFAULT_DB_ATTRIBUTES );</span>
+<span class="source-line-no">446</span><span id="line-446">            m_oldPasswords = props.getProperty( PROP_DB_OLD_HASHES, DEFAULT_DB_OLD_HASHES );</span>
+<span class="source-line-no">447</span><span id="line-447">            m_passwordReusedCount = Integer.parseInt(props.getProperty("jspwiki.credentials.reuseCount", "-1"));</span>
+<span class="source-line-no">448</span><span id="line-448"></span>
+<span class="source-line-no">449</span><span id="line-449">            m_findAll = "SELECT * FROM " + userTable;</span>
+<span class="source-line-no">450</span><span id="line-450">            m_findByEmail = "SELECT * FROM " + userTable + " WHERE " + m_email + "=?";</span>
+<span class="source-line-no">451</span><span id="line-451">            m_findByFullName = "SELECT * FROM " + userTable + " WHERE " + m_fullName + "=?";</span>
+<span class="source-line-no">452</span><span id="line-452">            m_findByLoginName = "SELECT * FROM " + userTable + " WHERE " + m_loginName + "=?";</span>
+<span class="source-line-no">453</span><span id="line-453">            m_findByUid = "SELECT * FROM " + userTable + " WHERE " + m_uid + "=?";</span>
+<span class="source-line-no">454</span><span id="line-454">            m_findByWikiName = "SELECT * FROM " + userTable + " WHERE " + m_wikiName + "=?";</span>
+<span class="source-line-no">455</span><span id="line-455"></span>
+<span class="source-line-no">456</span><span id="line-456">            // The user insert SQL prepared statement</span>
+<span class="source-line-no">457</span><span id="line-457">            m_insertProfile = "INSERT INTO " + userTable + " ("</span>
+<span class="source-line-no">458</span><span id="line-458">                              + m_uid + ","</span>
+<span class="source-line-no">459</span><span id="line-459">                              + m_email + ","</span>
+<span class="source-line-no">460</span><span id="line-460">                              + m_fullName + ","</span>
+<span class="source-line-no">461</span><span id="line-461">                              + m_password + ","</span>
+<span class="source-line-no">462</span><span id="line-462">                              + m_wikiName + ","</span>
+<span class="source-line-no">463</span><span id="line-463">                              + m_modified + ","</span>
+<span class="source-line-no">464</span><span id="line-464">                              + m_loginName + ","</span>
+<span class="source-line-no">465</span><span id="line-465">                              + m_attributes + ","</span>
+<span class="source-line-no">466</span><span id="line-466">                              + m_created + "," </span>
+<span class="source-line-no">467</span><span id="line-467">                              + m_oldPasswords</span>
+<span class="source-line-no">468</span><span id="line-468">                              + ") VALUES (?,?,?,?,?,?,?,?,?,?)";</span>
+<span class="source-line-no">469</span><span id="line-469">            </span>
+<span class="source-line-no">470</span><span id="line-470">            // The user update SQL prepared statement</span>
+<span class="source-line-no">471</span><span id="line-471">            m_updateProfile = "UPDATE " + userTable + " SET "</span>
+<span class="source-line-no">472</span><span id="line-472">                              + m_uid + "=?,"</span>
+<span class="source-line-no">473</span><span id="line-473">                              + m_email + "=?,"</span>
+<span class="source-line-no">474</span><span id="line-474">                              + m_fullName + "=?,"</span>
+<span class="source-line-no">475</span><span id="line-475">                              + m_password + "=?,"</span>
+<span class="source-line-no">476</span><span id="line-476">                              + m_wikiName + "=?,"</span>
+<span class="source-line-no">477</span><span id="line-477">                              + m_modified + "=?,"</span>
+<span class="source-line-no">478</span><span id="line-478">                              + m_loginName + "=?,"</span>
+<span class="source-line-no">479</span><span id="line-479">                              + m_attributes + "=?,"</span>
+<span class="source-line-no">480</span><span id="line-480">                              + m_lockExpiry + "=?,"</span>
+<span class="source-line-no">481</span><span id="line-481">                              + m_oldPasswords + "=? "</span>
+<span class="source-line-no">482</span><span id="line-482">                              + "WHERE " + m_loginName + "=?";</span>
+<span class="source-line-no">483</span><span id="line-483"></span>
+<span class="source-line-no">484</span><span id="line-484">            // Prepare the role insert SQL</span>
+<span class="source-line-no">485</span><span id="line-485">            final String roleTable = props.getProperty( PROP_DB_ROLE_TABLE, DEFAULT_DB_ROLE_TABLE );</span>
+<span class="source-line-no">486</span><span id="line-486">            final String role = props.getProperty( PROP_DB_ROLE, DEFAULT_DB_ROLE );</span>
+<span class="source-line-no">487</span><span id="line-487">            m_insertRole = "INSERT INTO " + roleTable + " (" + m_loginName + "," + role + ") VALUES (?,?)";</span>
+<span class="source-line-no">488</span><span id="line-488">            m_findRoles = "SELECT * FROM " + roleTable + " WHERE " + m_loginName + "=?";</span>
+<span class="source-line-no">489</span><span id="line-489"></span>
+<span class="source-line-no">490</span><span id="line-490">            // Prepare the user delete SQL</span>
+<span class="source-line-no">491</span><span id="line-491">            m_deleteUserByLoginName = "DELETE FROM " + userTable + " WHERE " + m_loginName + "=?";</span>
+<span class="source-line-no">492</span><span id="line-492"></span>
+<span class="source-line-no">493</span><span id="line-493">            // Prepare the role delete SQL</span>
+<span class="source-line-no">494</span><span id="line-494">            m_deleteRoleByLoginName = "DELETE FROM " + roleTable + " WHERE " + m_loginName + "=?";</span>
+<span class="source-line-no">495</span><span id="line-495"></span>
+<span class="source-line-no">496</span><span id="line-496">            // Prepare the rename user/roles SQL</span>
+<span class="source-line-no">497</span><span id="line-497">            m_renameProfile = "UPDATE " + userTable + " SET " + m_loginName + "=?," + m_modified + "=? WHERE " + m_loginName</span>
+<span class="source-line-no">498</span><span id="line-498">                              + "=?";</span>
+<span class="source-line-no">499</span><span id="line-499">            m_renameRoles = "UPDATE " + roleTable + " SET " + m_loginName + "=? WHERE " + m_loginName + "=?";</span>
+<span class="source-line-no">500</span><span id="line-500">        } catch( final NamingException e ) {</span>
+<span class="source-line-no">501</span><span id="line-501">            LOG.error( "JDBCUserDatabase initialization error: " + e.getMessage() );</span>
+<span class="source-line-no">502</span><span id="line-502">            throw new NoRequiredPropertyException( PROP_DB_DATASOURCE, "JDBCUserDatabase initialization error: " + e.getMessage() );</span>
+<span class="source-line-no">503</span><span id="line-503">        }</span>
+<span class="source-line-no">504</span><span id="line-504"></span>
+<span class="source-line-no">505</span><span id="line-505">        // Test connection by doing a quickie select</span>
+<span class="source-line-no">506</span><span id="line-506">        try( final Connection conn = m_ds.getConnection(); final PreparedStatement ps = conn.prepareStatement( m_findAll ) ) {</span>
+<span class="source-line-no">507</span><span id="line-507">        } catch( final SQLException e ) {</span>
+<span class="source-line-no">508</span><span id="line-508">            LOG.error( "DB connectivity error: " + e.getMessage() );</span>
+<span class="source-line-no">509</span><span id="line-509">            throw new WikiSecurityException("DB connectivity error: " + e.getMessage(), e );</span>
+<span class="source-line-no">510</span><span id="line-510">        }</span>
+<span class="source-line-no">511</span><span id="line-511">        LOG.info( "JDBCUserDatabase initialized from JNDI DataSource: {}", jndiName );</span>
+<span class="source-line-no">512</span><span id="line-512"></span>
+<span class="source-line-no">513</span><span id="line-513">        // Determine if the datasource supports commits</span>
+<span class="source-line-no">514</span><span id="line-514">        try( final Connection conn = m_ds.getConnection() ) {</span>
+<span class="source-line-no">515</span><span id="line-515">            final DatabaseMetaData dmd = conn.getMetaData();</span>
+<span class="source-line-no">516</span><span id="line-516">            if( dmd.supportsTransactions() ) {</span>
+<span class="source-line-no">517</span><span id="line-517">                m_supportsCommits = true;</span>
+<span class="source-line-no">518</span><span id="line-518">                conn.setAutoCommit( false );</span>
+<span class="source-line-no">519</span><span id="line-519">                LOG.info( "JDBCUserDatabase supports transactions. Good; we will use them." );</span>
+<span class="source-line-no">520</span><span id="line-520">            }</span>
+<span class="source-line-no">521</span><span id="line-521">        } catch( final SQLException e ) {</span>
+<span class="source-line-no">522</span><span id="line-522">            LOG.warn( "JDBCUserDatabase warning: user database doesn't seem to support transactions. Reason: {}", e.getMessage() );</span>
+<span class="source-line-no">523</span><span id="line-523">        }</span>
+<span class="source-line-no">524</span><span id="line-524">    }</span>
+<span class="source-line-no">525</span><span id="line-525"></span>
+<span class="source-line-no">526</span><span id="line-526">    /**</span>
+<span class="source-line-no">527</span><span id="line-527">     * @see org.apache.wiki.auth.user.UserDatabase#rename(String, String)</span>
+<span class="source-line-no">528</span><span id="line-528">     */</span>
+<span class="source-line-no">529</span><span id="line-529">    @Override</span>
+<span class="source-line-no">530</span><span id="line-530">    public void rename( final String loginName, final String newName ) throws DuplicateUserException, WikiSecurityException {</span>
+<span class="source-line-no">531</span><span id="line-531">        // Get the existing user; if not found, throws NoSuchPrincipalException</span>
+<span class="source-line-no">532</span><span id="line-532">        final UserProfile profile = findByLoginName( loginName );</span>
+<span class="source-line-no">533</span><span id="line-533"></span>
+<span class="source-line-no">534</span><span id="line-534">        // Get user with the proposed name; if found, it's a collision</span>
+<span class="source-line-no">535</span><span id="line-535">        try {</span>
+<span class="source-line-no">536</span><span id="line-536">            final UserProfile otherProfile = findByLoginName( newName );</span>
+<span class="source-line-no">537</span><span id="line-537">            if( otherProfile != null ) {</span>
+<span class="source-line-no">538</span><span id="line-538">                throw new DuplicateUserException( "security.error.cannot.rename", newName );</span>
+<span class="source-line-no">539</span><span id="line-539">            }</span>
+<span class="source-line-no">540</span><span id="line-540">        } catch( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">541</span><span id="line-541">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">542</span><span id="line-542">            // Good! That means it's safe to save using the new name</span>
+<span class="source-line-no">543</span><span id="line-543">        }</span>
+<span class="source-line-no">544</span><span id="line-544"></span>
+<span class="source-line-no">545</span><span id="line-545">        try( final Connection conn = m_ds.getConnection();</span>
+<span class="source-line-no">546</span><span id="line-546">             final PreparedStatement ps1 = conn.prepareStatement( m_renameProfile );</span>
+<span class="source-line-no">547</span><span id="line-547">             final PreparedStatement ps2 = conn.prepareStatement( m_renameRoles ) ) {</span>
+<span class="source-line-no">548</span><span id="line-548">            if( m_supportsCommits ) {</span>
+<span class="source-line-no">549</span><span id="line-549">                conn.setAutoCommit( false );</span>
+<span class="source-line-no">550</span><span id="line-550">            }</span>
+<span class="source-line-no">551</span><span id="line-551"></span>
+<span class="source-line-no">552</span><span id="line-552">            final Timestamp ts = new Timestamp( System.currentTimeMillis() );</span>
+<span class="source-line-no">553</span><span id="line-553">            final Date modDate = new Date( ts.getTime() );</span>
+<span class="source-line-no">554</span><span id="line-554"></span>
+<span class="source-line-no">555</span><span id="line-555">            // Change the login ID for the user record</span>
+<span class="source-line-no">556</span><span id="line-556">            ps1.setString( 1, newName );</span>
+<span class="source-line-no">557</span><span id="line-557">            ps1.setTimestamp( 2, ts );</span>
+<span class="source-line-no">558</span><span id="line-558">            ps1.setString( 3, loginName );</span>
+<span class="source-line-no">559</span><span id="line-559">            ps1.execute();</span>
+<span class="source-line-no">560</span><span id="line-560"></span>
+<span class="source-line-no">561</span><span id="line-561">            // Change the login ID for the role records</span>
+<span class="source-line-no">562</span><span id="line-562">            ps2.setString( 1, newName );</span>
+<span class="source-line-no">563</span><span id="line-563">            ps2.setString( 2, loginName );</span>
+<span class="source-line-no">564</span><span id="line-564">            ps2.execute();</span>
+<span class="source-line-no">565</span><span id="line-565"></span>
+<span class="source-line-no">566</span><span id="line-566">            // Set the profile name and mod time</span>
+<span class="source-line-no">567</span><span id="line-567">            profile.setLoginName( newName );</span>
+<span class="source-line-no">568</span><span id="line-568">            profile.setLastModified( modDate );</span>
+<span class="source-line-no">569</span><span id="line-569"></span>
+<span class="source-line-no">570</span><span id="line-570">            // Commit and close connection</span>
+<span class="source-line-no">571</span><span id="line-571">            if( m_supportsCommits ) {</span>
+<span class="source-line-no">572</span><span id="line-572">                conn.commit();</span>
+<span class="source-line-no">573</span><span id="line-573">            }</span>
+<span class="source-line-no">574</span><span id="line-574">        } catch( final SQLException e ) {</span>
+<span class="source-line-no">575</span><span id="line-575">            throw new WikiSecurityException( e.getMessage(), e );</span>
+<span class="source-line-no">576</span><span id="line-576">        }</span>
+<span class="source-line-no">577</span><span id="line-577">    }</span>
+<span class="source-line-no">578</span><span id="line-578"></span>
+<span class="source-line-no">579</span><span id="line-579">    /**</span>
+<span class="source-line-no">580</span><span id="line-580">     * @param profile</span>
+<span class="source-line-no">581</span><span id="line-581">     * @throws org.apache.wiki.auth.WikiSecurityException</span>
+<span class="source-line-no">582</span><span id="line-582">     * @see org.apache.wiki.auth.user.UserDatabase#save(org.apache.wiki.auth.user.UserProfile)</span>
+<span class="source-line-no">583</span><span id="line-583">     */</span>
+<span class="source-line-no">584</span><span id="line-584">    @Override</span>
+<span class="source-line-no">585</span><span id="line-585">    public void save( final UserProfile profile ) throws WikiSecurityException {</span>
+<span class="source-line-no">586</span><span id="line-586">        final String initialRole = "Authenticated";</span>
+<span class="source-line-no">587</span><span id="line-587"></span>
+<span class="source-line-no">588</span><span id="line-588">        // Figure out which prepared statement to use &amp; execute it</span>
+<span class="source-line-no">589</span><span id="line-589">        final String loginName = profile.getLoginName();</span>
+<span class="source-line-no">590</span><span id="line-590">        UserProfile existingProfile = null;</span>
+<span class="source-line-no">591</span><span id="line-591"></span>
+<span class="source-line-no">592</span><span id="line-592">        try {</span>
+<span class="source-line-no">593</span><span id="line-593">            existingProfile = findByLoginName( loginName );</span>
+<span class="source-line-no">594</span><span id="line-594">        } catch( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">595</span><span id="line-595">            LOG.debug(e.getMessage(), e);</span>
+<span class="source-line-no">596</span><span id="line-596">            // Existing profile will be null</span>
+<span class="source-line-no">597</span><span id="line-597">        }</span>
+<span class="source-line-no">598</span><span id="line-598"></span>
+<span class="source-line-no">599</span><span id="line-599">        // Get a clean password from the passed profile.</span>
+<span class="source-line-no">600</span><span id="line-600">        // Blank password is the same as null, which means we re-use the existing one.</span>
+<span class="source-line-no">601</span><span id="line-601">        String password = profile.getPassword();</span>
+<span class="source-line-no">602</span><span id="line-602">        final String existingPassword = (existingProfile == null) ? null : existingProfile.getPassword();</span>
+<span class="source-line-no">603</span><span id="line-603">        if( NOTHING.equals( password ) ) {</span>
+<span class="source-line-no">604</span><span id="line-604">            password = null;</span>
+<span class="source-line-no">605</span><span id="line-605">        }</span>
+<span class="source-line-no">606</span><span id="line-606">        if( password == null ) {</span>
+<span class="source-line-no">607</span><span id="line-607">            password = existingPassword;</span>
+<span class="source-line-no">608</span><span id="line-608">        }</span>
+<span class="source-line-no">609</span><span id="line-609"></span>
+<span class="source-line-no">610</span><span id="line-610">        // If password changed, hash it before we save</span>
+<span class="source-line-no">611</span><span id="line-611">        if( !Strings.CS.equals( password, existingPassword ) ) {</span>
+<span class="source-line-no">612</span><span id="line-612">            password = getHash( password );</span>
+<span class="source-line-no">613</span><span id="line-613">            //add the hashed password</span>
+<span class="source-line-no">614</span><span id="line-614">            profile.getPreviousHashedCredentials().add(password);</span>
+<span class="source-line-no">615</span><span id="line-615">            while (!profile.getPreviousHashedCredentials().isEmpty() &amp;&amp; </span>
+<span class="source-line-no">616</span><span id="line-616">                    profile.getPreviousHashedCredentials().size() &gt; m_passwordReusedCount) {</span>
+<span class="source-line-no">617</span><span id="line-617">                profile.getPreviousHashedCredentials().remove(0);</span>
+<span class="source-line-no">618</span><span id="line-618">            }</span>
+<span class="source-line-no">619</span><span id="line-619"></span>
+<span class="source-line-no">620</span><span id="line-620">        }</span>
+<span class="source-line-no">621</span><span id="line-621"></span>
+<span class="source-line-no">622</span><span id="line-622">        try( final Connection conn = m_ds.getConnection();</span>
+<span class="source-line-no">623</span><span id="line-623">             final PreparedStatement ps1 = conn.prepareStatement( m_insertProfile );</span>
+<span class="source-line-no">624</span><span id="line-624">             final PreparedStatement ps2 = conn.prepareStatement( m_findRoles );</span>
+<span class="source-line-no">625</span><span id="line-625">             final PreparedStatement ps3 = conn.prepareStatement( m_insertRole );</span>
+<span class="source-line-no">626</span><span id="line-626">             final PreparedStatement ps4 = conn.prepareStatement( m_updateProfile ) ) {</span>
+<span class="source-line-no">627</span><span id="line-627">            if( m_supportsCommits ) {</span>
+<span class="source-line-no">628</span><span id="line-628">                conn.setAutoCommit( false );</span>
+<span class="source-line-no">629</span><span id="line-629">            }</span>
+<span class="source-line-no">630</span><span id="line-630"></span>
+<span class="source-line-no">631</span><span id="line-631">            final Timestamp ts = new Timestamp( System.currentTimeMillis() );</span>
+<span class="source-line-no">632</span><span id="line-632">            final Date modDate = new Date( ts.getTime() );</span>
+<span class="source-line-no">633</span><span id="line-633">            final java.sql.Date lockExpiry = profile.getLockExpiry() == null ? null : new java.sql.Date( profile.getLockExpiry().getTime() );</span>
+<span class="source-line-no">634</span><span id="line-634">            if( existingProfile == null ) {</span>
+<span class="source-line-no">635</span><span id="line-635">                // User is new: insert new user record</span>
+<span class="source-line-no">636</span><span id="line-636">                ps1.setString( 1, profile.getUid() );</span>
+<span class="source-line-no">637</span><span id="line-637">                ps1.setString( 2, profile.getEmail() );</span>
+<span class="source-line-no">638</span><span id="line-638">                ps1.setString( 3, profile.getFullname() );</span>
+<span class="source-line-no">639</span><span id="line-639">                ps1.setString( 4, password );</span>
+<span class="source-line-no">640</span><span id="line-640">                ps1.setString( 5, profile.getWikiName() );</span>
+<span class="source-line-no">641</span><span id="line-641">                ps1.setTimestamp( 6, ts );</span>
+<span class="source-line-no">642</span><span id="line-642">                ps1.setString( 7, profile.getLoginName() );</span>
+<span class="source-line-no">643</span><span id="line-643">                try {</span>
+<span class="source-line-no">644</span><span id="line-644">                    ps1.setString( 8, Serializer.serializeToBase64( profile.getAttributes() ) );</span>
+<span class="source-line-no">645</span><span id="line-645">                } catch ( final IOException e ) {</span>
+<span class="source-line-no">646</span><span id="line-646">                    throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</span>
+<span class="source-line-no">647</span><span id="line-647">                }</span>
+<span class="source-line-no">648</span><span id="line-648">                </span>
+<span class="source-line-no">649</span><span id="line-649">                ps1.setTimestamp( 9, ts );</span>
+<span class="source-line-no">650</span><span id="line-650">                ps1.setString(10, StringUtils.join(profile.getPreviousHashedCredentials(), "|"));</span>
+<span class="source-line-no">651</span><span id="line-651">                ps1.execute();</span>
+<span class="source-line-no">652</span><span id="line-652"></span>
+<span class="source-line-no">653</span><span id="line-653">                // Insert new role record</span>
+<span class="source-line-no">654</span><span id="line-654">                ps2.setString( 1, profile.getLoginName() );</span>
+<span class="source-line-no">655</span><span id="line-655">                int roles = 0;</span>
+<span class="source-line-no">656</span><span id="line-656">                try ( final ResultSet rs = ps2.executeQuery() ) {</span>
+<span class="source-line-no">657</span><span id="line-657">                    while ( rs.next() ) {</span>
+<span class="source-line-no">658</span><span id="line-658">                        roles++;</span>
+<span class="source-line-no">659</span><span id="line-659">                    }</span>
+<span class="source-line-no">660</span><span id="line-660">                }</span>
+<span class="source-line-no">661</span><span id="line-661">                </span>
+<span class="source-line-no">662</span><span id="line-662">                if( roles == 0 ) {</span>
+<span class="source-line-no">663</span><span id="line-663">                    ps3.setString( 1, profile.getLoginName() );</span>
+<span class="source-line-no">664</span><span id="line-664">                    ps3.setString( 2, initialRole );</span>
+<span class="source-line-no">665</span><span id="line-665">                    ps3.execute();</span>
+<span class="source-line-no">666</span><span id="line-666">                }</span>
+<span class="source-line-no">667</span><span id="line-667"></span>
+<span class="source-line-no">668</span><span id="line-668">                // Set the profile creation time</span>
+<span class="source-line-no">669</span><span id="line-669">                profile.setCreated( modDate );</span>
+<span class="source-line-no">670</span><span id="line-670">            } else {</span>
+<span class="source-line-no">671</span><span id="line-671">                // User exists: modify existing record</span>
+<span class="source-line-no">672</span><span id="line-672">                ps4.setString( 1, profile.getUid() );</span>
+<span class="source-line-no">673</span><span id="line-673">                ps4.setString( 2, profile.getEmail() );</span>
+<span class="source-line-no">674</span><span id="line-674">                ps4.setString( 3, profile.getFullname() );</span>
+<span class="source-line-no">675</span><span id="line-675">                ps4.setString( 4, password );</span>
+<span class="source-line-no">676</span><span id="line-676">                ps4.setString( 5, profile.getWikiName() );</span>
+<span class="source-line-no">677</span><span id="line-677">                ps4.setTimestamp( 6, ts );</span>
+<span class="source-line-no">678</span><span id="line-678">                ps4.setString( 7, profile.getLoginName() );</span>
+<span class="source-line-no">679</span><span id="line-679">                try {</span>
+<span class="source-line-no">680</span><span id="line-680">                    ps4.setString( 8, Serializer.serializeToBase64( profile.getAttributes() ) );</span>
+<span class="source-line-no">681</span><span id="line-681">                } catch ( final IOException e ) {</span>
+<span class="source-line-no">682</span><span id="line-682">                    throw new WikiSecurityException( "Could not save user profile attribute. Reason: " + e.getMessage(), e );</span>
+<span class="source-line-no">683</span><span id="line-683">                }</span>
+<span class="source-line-no">684</span><span id="line-684">                ps4.setDate( 9, lockExpiry );</span>
+<span class="source-line-no">685</span><span id="line-685">                ps4.setString(10, StringUtils.join(profile.getPreviousHashedCredentials(), "|"));</span>
+<span class="source-line-no">686</span><span id="line-686">                ps4.setString( 11, profile.getLoginName() );</span>
+<span class="source-line-no">687</span><span id="line-687">                </span>
+<span class="source-line-no">688</span><span id="line-688">                ps4.execute();</span>
+<span class="source-line-no">689</span><span id="line-689">            }</span>
+<span class="source-line-no">690</span><span id="line-690">            // Set the profile mod time</span>
+<span class="source-line-no">691</span><span id="line-691">            profile.setLastModified( modDate );</span>
+<span class="source-line-no">692</span><span id="line-692"></span>
+<span class="source-line-no">693</span><span id="line-693">            // Commit and close connection</span>
+<span class="source-line-no">694</span><span id="line-694">            if( m_supportsCommits ) {</span>
+<span class="source-line-no">695</span><span id="line-695">                conn.commit();</span>
+<span class="source-line-no">696</span><span id="line-696">            }</span>
+<span class="source-line-no">697</span><span id="line-697">        } catch( final SQLException e ) {</span>
+<span class="source-line-no">698</span><span id="line-698">            throw new WikiSecurityException( e.getMessage(), e );</span>
+<span class="source-line-no">699</span><span id="line-699">        }</span>
+<span class="source-line-no">700</span><span id="line-700">    }</span>
+<span class="source-line-no">701</span><span id="line-701"></span>
+<span class="source-line-no">702</span><span id="line-702">    /**</span>
+<span class="source-line-no">703</span><span id="line-703">     * Private method that returns the first {@link UserProfile} matching a</span>
+<span class="source-line-no">704</span><span id="line-704">     * named column's value. This method will also set the UID if it has not yet been set.     </span>
+<span class="source-line-no">705</span><span id="line-705">     * @param sql the SQL statement that should be prepared; it must have one parameter</span>
+<span class="source-line-no">706</span><span id="line-706">     * to set (either a String or a Long)</span>
+<span class="source-line-no">707</span><span id="line-707">     * @param index the value to match</span>
+<span class="source-line-no">708</span><span id="line-708">     * @return the resolved UserProfile</span>
+<span class="source-line-no">709</span><span id="line-709">     * @throws NoSuchPrincipalException problems accessing the database</span>
+<span class="source-line-no">710</span><span id="line-710">     */</span>
+<span class="source-line-no">711</span><span id="line-711">    private UserProfile findByPreparedStatement( final String sql, final Object index ) throws NoSuchPrincipalException</span>
+<span class="source-line-no">712</span><span id="line-712">    {</span>
+<span class="source-line-no">713</span><span id="line-713">        UserProfile profile = null;</span>
+<span class="source-line-no">714</span><span id="line-714">        boolean found = false;</span>
+<span class="source-line-no">715</span><span id="line-715">        boolean unique = true;</span>
+<span class="source-line-no">716</span><span id="line-716">        try( final Connection conn = m_ds.getConnection(); final PreparedStatement ps = conn.prepareStatement( sql ) ) {</span>
+<span class="source-line-no">717</span><span id="line-717">            if( m_supportsCommits ) {</span>
+<span class="source-line-no">718</span><span id="line-718">                conn.setAutoCommit( false );</span>
+<span class="source-line-no">719</span><span id="line-719">            }</span>
+<span class="source-line-no">720</span><span id="line-720">            </span>
+<span class="source-line-no">721</span><span id="line-721">            // Set the parameter to search by</span>
+<span class="source-line-no">722</span><span id="line-722">            if( index instanceof String ) {</span>
+<span class="source-line-no">723</span><span id="line-723">                ps.setString( 1, ( String )index );</span>
+<span class="source-line-no">724</span><span id="line-724">            } else if ( index instanceof Long ) {</span>
+<span class="source-line-no">725</span><span id="line-725">                ps.setLong( 1, ( Long )index );</span>
+<span class="source-line-no">726</span><span id="line-726">            } else {</span>
+<span class="source-line-no">727</span><span id="line-727">                throw new IllegalArgumentException( "Index type not recognized!" );</span>
+<span class="source-line-no">728</span><span id="line-728">            }</span>
+<span class="source-line-no">729</span><span id="line-729">            </span>
+<span class="source-line-no">730</span><span id="line-730">            // Go and get the record!</span>
+<span class="source-line-no">731</span><span id="line-731">            try( final ResultSet rs = ps.executeQuery() ) {</span>
+<span class="source-line-no">732</span><span id="line-732">                while ( rs.next() ) {</span>
+<span class="source-line-no">733</span><span id="line-733">                    if( profile != null ) {</span>
+<span class="source-line-no">734</span><span id="line-734">                        unique = false;</span>
+<span class="source-line-no">735</span><span id="line-735">                        break;</span>
+<span class="source-line-no">736</span><span id="line-736">                    }</span>
+<span class="source-line-no">737</span><span id="line-737">                    profile = newProfile();</span>
+<span class="source-line-no">738</span><span id="line-738">                    </span>
+<span class="source-line-no">739</span><span id="line-739">                    // Fetch the basic user attributes</span>
+<span class="source-line-no">740</span><span id="line-740">                    profile.setUid( rs.getString( m_uid ) );</span>
+<span class="source-line-no">741</span><span id="line-741">                    if ( profile.getUid() == null ) {</span>
+<span class="source-line-no">742</span><span id="line-742">                        profile.setUid( generateUid( this ) );</span>
+<span class="source-line-no">743</span><span id="line-743">                    }</span>
+<span class="source-line-no">744</span><span id="line-744">                    profile.setCreated( rs.getTimestamp( m_created ) );</span>
+<span class="source-line-no">745</span><span id="line-745">                    profile.setEmail( rs.getString( m_email ) );</span>
+<span class="source-line-no">746</span><span id="line-746">                    profile.setFullname( rs.getString( m_fullName ) );</span>
+<span class="source-line-no">747</span><span id="line-747">                    profile.setLastModified( rs.getTimestamp( m_modified ) );</span>
+<span class="source-line-no">748</span><span id="line-748">                    final Date lockExpiry = rs.getDate( m_lockExpiry );</span>
+<span class="source-line-no">749</span><span id="line-749">                    profile.setLockExpiry( rs.wasNull() ? null : lockExpiry );</span>
+<span class="source-line-no">750</span><span id="line-750">                    profile.setLoginName( rs.getString( m_loginName ) );</span>
+<span class="source-line-no">751</span><span id="line-751">                    profile.setPassword( rs.getString( m_password ) );</span>
+<span class="source-line-no">752</span><span id="line-752">                    </span>
+<span class="source-line-no">753</span><span id="line-753">                    // Fetch the user attributes</span>
+<span class="source-line-no">754</span><span id="line-754">                    final String rawAttributes = rs.getString( m_attributes );</span>
+<span class="source-line-no">755</span><span id="line-755">                    if ( rawAttributes != null ) {</span>
+<span class="source-line-no">756</span><span id="line-756">                        try {</span>
+<span class="source-line-no">757</span><span id="line-757">                            final Map&lt;String,? extends Serializable&gt; attributes = Serializer.deserializeFromBase64( rawAttributes );</span>
+<span class="source-line-no">758</span><span id="line-758">                            profile.getAttributes().putAll( attributes );</span>
+<span class="source-line-no">759</span><span id="line-759">                        } catch ( final IOException e ) {</span>
+<span class="source-line-no">760</span><span id="line-760">                            LOG.error( "Could not parse user profile attributes!", e );</span>
+<span class="source-line-no">761</span><span id="line-761">                        }</span>
+<span class="source-line-no">762</span><span id="line-762">                    }</span>
+<span class="source-line-no">763</span><span id="line-763">                    String oldhashes = rs.getString(m_oldPasswords);</span>
+<span class="source-line-no">764</span><span id="line-764">                    if (oldhashes != null &amp;&amp; oldhashes.length() &gt; 0) {</span>
+<span class="source-line-no">765</span><span id="line-765">                        String[] parts = oldhashes.split("\\|");</span>
+<span class="source-line-no">766</span><span id="line-766">                        for (String s : parts) {</span>
+<span class="source-line-no">767</span><span id="line-767">                            profile.getPreviousHashedCredentials().add(s);</span>
+<span class="source-line-no">768</span><span id="line-768">                        }</span>
+<span class="source-line-no">769</span><span id="line-769">                    }</span>
+<span class="source-line-no">770</span><span id="line-770">                    found = true;</span>
+<span class="source-line-no">771</span><span id="line-771">                }</span>
+<span class="source-line-no">772</span><span id="line-772">            }</span>
+<span class="source-line-no">773</span><span id="line-773">        } catch( final SQLException e ) {</span>
+<span class="source-line-no">774</span><span id="line-774">            throw new NoSuchPrincipalException( e.getMessage() );</span>
+<span class="source-line-no">775</span><span id="line-775">        }</span>
+<span class="source-line-no">776</span><span id="line-776"></span>
+<span class="source-line-no">777</span><span id="line-777">        if( !found ) {</span>
+<span class="source-line-no">778</span><span id="line-778">            throw new NoSuchPrincipalException( "Could not find profile in database!" );</span>
+<span class="source-line-no">779</span><span id="line-779">        }</span>
+<span class="source-line-no">780</span><span id="line-780">        if( !unique ) {</span>
+<span class="source-line-no">781</span><span id="line-781">            throw new NoSuchPrincipalException( "More than one profile in database!" );</span>
+<span class="source-line-no">782</span><span id="line-782">        }</span>
+<span class="source-line-no">783</span><span id="line-783">        return profile;</span>
+<span class="source-line-no">784</span><span id="line-784">    }</span>
+<span class="source-line-no">785</span><span id="line-785"></span>
+<span class="source-line-no">786</span><span id="line-786">}</span>
 
 
 

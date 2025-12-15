@@ -1036,6 +1036,7 @@ ___
 | Unchanged | `public`                  |          | [`String[]`][2]     | `getMessages`()                                                |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`String[]`][2]     | `getMessages`([`String`])                                      |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`Principal[]`][10] | `getPrincipals`()                                              |                |        | ![No changes]         |
+| Added     | **`public`**              |          | **[`String`]**      | **`getRemoteAddress`**()                                       |                |        | ![Method added to public class] |
 | Unchanged | `public`                  |          | [`Principal[]`][10] | `getRoles`()                                                   |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`String`]          | `getStatus`()                                                  |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | [`Subject`]         | `getSubject`()                                                 |                |        | ![No changes]         |
@@ -1841,25 +1842,26 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                | Generics | Type                | Method                                           | Annotations | Throws | Compatibility Changes |
-|-----------|--------------------------|----------|---------------------|--------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `final` `public`         |          | `void`              | `addWikiEventListener`([`WikiEventListener`])    |             |        | ![No changes]         |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~[`Session`]~~     | ~~`find`~~([`HttpSession`])                      |             |        | ![Method removed]     |
-| Unchanged | `final` `public`         |          | [`Session`]         | `find`([`String`])                               |             |        | ![No changes]         |
-| Added     | **`final`** **`public`** |          | **[`Session`]**     | **`find`**([`HttpSession`][12])                  |             |        | ![Method added to public class] |
-| Unchanged | `final` `protected`      |          | `void`              | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
-| Unchanged | `static` `public`        |          | [`SessionMonitor`]  | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
-| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
-| Added     | **`final`** **`public`** |          | **`void`**          | **`remove`**([`HttpServletRequest`][3])          |             |        | ![Method added to public class] |
-| Added     | **`final`** **`public`** |          | **`void`**          | **`remove`**([`HttpSession`][12])                |             |        | ![Method added to public class] |
-| Unchanged | `final` `public`         |          | `void`              | `removeWikiEventListener`([`WikiEventListener`]) |             |        | ![No changes]         |
-| Removed   | ~~`public`~~             |          | ~~`void`~~          | ~~`sessionCreated`~~([`HttpSessionEvent`])       |             |        | ![Method removed]     |
-| Added     | **`public`**             |          | **`void`**          | **`sessionCreated`**([`HttpSessionEvent`][13])   |             |        | ![Method added to public class] |
-| Removed   | ~~`public`~~             |          | ~~`void`~~          | ~~`sessionDestroyed`~~([`HttpSessionEvent`])     |             |        | ![Method removed]     |
-| Added     | **`public`**             |          | **`void`**          | **`sessionDestroyed`**([`HttpSessionEvent`][13]) |             |        | ![Method added to public class] |
-| Unchanged | `final` `public`         |          | `int`               | `sessions`()                                     |             |        | ![No changes]         |
-| Unchanged | `final` `public`         |          | [`Principal[]`][10] | `userPrincipals`()                               |             |        | ![No changes]         |
+| Status    | Modifiers                | Generics | Type                  | Method                                           | Annotations | Throws | Compatibility Changes |
+|-----------|--------------------------|----------|-----------------------|--------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `final` `public`         |          | `void`                | `addWikiEventListener`([`WikiEventListener`])    |             |        | ![No changes]         |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~[`Session`]~~       | ~~`find`~~([`HttpSession`])                      |             |        | ![Method removed]     |
+| Unchanged | `final` `public`         |          | [`Session`]           | `find`([`String`])                               |             |        | ![No changes]         |
+| Added     | **`final`** **`public`** |          | **[`Session`]**       | **`find`**([`HttpSession`][12])                  |             |        | ![Method added to public class] |
+| Added     | **`public`**             |          | **[`List<Session>`]** | **`findOtherSessionsByUsername`**([`String`])    |             |        | ![Method added to public class] |
+| Unchanged | `final` `protected`      |          | `void`                | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
+| Unchanged | `static` `public`        |          | [`SessionMonitor`]    | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~            | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
+| Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~            | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
+| Added     | **`final`** **`public`** |          | **`void`**            | **`remove`**([`HttpServletRequest`][3])          |             |        | ![Method added to public class] |
+| Added     | **`final`** **`public`** |          | **`void`**            | **`remove`**([`HttpSession`][12])                |             |        | ![Method added to public class] |
+| Unchanged | `final` `public`         |          | `void`                | `removeWikiEventListener`([`WikiEventListener`]) |             |        | ![No changes]         |
+| Removed   | ~~`public`~~             |          | ~~`void`~~            | ~~`sessionCreated`~~([`HttpSessionEvent`])       |             |        | ![Method removed]     |
+| Added     | **`public`**             |          | **`void`**            | **`sessionCreated`**([`HttpSessionEvent`][13])   |             |        | ![Method added to public class] |
+| Removed   | ~~`public`~~             |          | ~~`void`~~            | ~~`sessionDestroyed`~~([`HttpSessionEvent`])     |             |        | ![Method removed]     |
+| Added     | **`public`**             |          | **`void`**            | **`sessionDestroyed`**([`HttpSessionEvent`][13]) |             |        | ![Method added to public class] |
+| Unchanged | `final` `public`         |          | `int`                 | `sessions`()                                     |             |        | ![No changes]         |
+| Unchanged | `final` `public`         |          | [`Principal[]`][10]   | `userPrincipals`()                               |             |        | ![No changes]         |
 
 ___
 
@@ -13663,7 +13665,7 @@ ___
 
 ___
 
-*Generated on: 2025-12-14 17:41:24.510+0000*.
+*Generated on: 2025-12-15 17:10:53.369+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -13866,6 +13868,7 @@ ___
 [`List<PageLock>`]: # "java.util.List<org.apache.wiki.pages.PageLock>"
 [`List<Pattern>`]: # "java.util.List<org.apache.oro.text.regex.Pattern>"
 [`List<Plugin>`]: # "java.util.List<org.apache.wiki.api.plugin.Plugin>"
+[`List<Session>`]: # "java.util.List<org.apache.wiki.api.core.Session>"
 [`List<Step>`]: # "java.util.List<org.apache.wiki.workflow.Step>"
 [`List<String>`]: # "java.util.List<java.lang.String>"
 [`List<T>`]: # "java.util.List<T>"
