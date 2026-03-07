@@ -132,7 +132,7 @@
 | Unchanged    | [org.apache.wiki.auth.user.DummyUserDatabase]                    | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.user.DuplicateUserException]               | ![Not serializable]                 | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.user.JDBCUserDatabase]                     | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable]                 | ![Method added to interface] |
+| Modified     | [org.apache.wiki.auth.user.UserDatabase]                         | ![Not serializable]                 | ![Annotation deprecated added] ![Method added to interface] |
 | Modified     | [org.apache.wiki.auth.user.UserProfile]                          | ![Default serialversionuid changed] | ![Method new default] |
 | Unchanged    | [org.apache.wiki.auth.user.XMLUserDatabase]                      | ![Not serializable]                 | ![No changes]         |
 | Modified     | [org.apache.wiki.content.DefaultPageRenamer]                     | ![Not serializable]                 | ![Method added to public class] |
@@ -218,7 +218,7 @@
 | Modified     | [org.apache.wiki.plugin.WeblogPlugin]                            | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.preferences.Preferences]                        | ![Compatible]                       | ![Method removed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.preferences.Preferences$TimeFormat]             | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.providers.AbstractFileProvider]                 | ![Not serializable]                 | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.providers.AbstractFileProvider$WikiFileFilter]  | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider]              | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.providers.BasicAttachmentProvider$AttachmentFilter] | ![Not serializable]             | ![No changes]         |
@@ -3457,32 +3457,33 @@ ___
 
 #### Methods
 
-| Status    | Modifiers            | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|----------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public`             |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `static` `protected` |          | [`String`]          | `generateUid`([`UserDatabase`])                     |             |                                                            | ![No changes]         |
-| Unchanged | `protected`          |          | [`String`]          | `getHash`([`String`])                               |             |                                                            | ![No changes]         |
-| Unchanged | `public`             |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public`             |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
-| Unchanged | `protected`          |          | `long`              | `parseLong`([`String`])                             |             |                                                            | ![No changes]         |
-| Unchanged | `public` `abstract`  |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public`             |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
-| Added     | **`public`**         |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to public class] |
+| Status    | Modifiers               | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
+|-----------|-------------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public`                |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`     |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`     |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`     |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`     |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `static` `protected`    |          | [`String`]          | `generateUid`([`UserDatabase`])                     |             |                                                            | ![No changes]         |
+| Unchanged | `protected`             |          | [`String`]          | `getHash`([`String`])                               |             |                                                            | ![No changes]         |
+| Unchanged | `public`                |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Modified  | `public` ~~`abstract`~~ |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public`                |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
+| Unchanged | `protected`             |          | `long`              | `parseLong`([`String`])                             |             |                                                            | ![No changes]         |
+| Unchanged | `public` `abstract`     |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public`                |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
+| Added     | **`public`**            |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to public class] |
 
 
 #### Fields
 
-| Status    | Modifiers                    | Type       | Name            | Annotations | Compatibility Changes |
-|-----------|------------------------------|------------|-----------------|-------------|-----------------------|
-| Unchanged | `protected` `static` `final` | [`Logger`] | `LOG`           |             | ![No changes]         |
-| Unchanged | `protected` `static` `final` | [`String`] | `SHA256_PREFIX` |             | ![No changes]         |
-| Unchanged | `protected` `static` `final` | [`String`] | `SHA_PREFIX`    |             | ![No changes]         |
-| Unchanged | `protected` `static` `final` | [`String`] | `SSHA_PREFIX`   |             | ![No changes]         |
+| Status    | Modifiers                    | Type           | Name            | Annotations | Compatibility Changes |
+|-----------|------------------------------|----------------|-----------------|-------------|-----------------------|
+| Unchanged | `protected` `static` `final` | [`Logger`]     | `LOG`           |             | ![No changes]         |
+| Unchanged | `protected` `static` `final` | [`String`]     | `SHA256_PREFIX` |             | ![No changes]         |
+| Unchanged | `protected` `static` `final` | [`String`]     | `SHA_PREFIX`    |             | ![No changes]         |
+| Unchanged | `protected` `static` `final` | [`String`]     | `SSHA_PREFIX`   |             | ![No changes]         |
+| Added     | **`protected`**              | **[`Engine`]** | `m_engine`      |             | ![No changes]         |
 
 ___
 
@@ -3694,23 +3695,23 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                   | Generics | Type                | Method                                              | Annotations | Throws                                                     | Compatibility Changes |
-|-----------|-----------------------------|----------|---------------------|-----------------------------------------------------|-------------|------------------------------------------------------------|-----------------------|
-| Unchanged | `public` `abstract`         |          | `void`              | `deleteByLoginName`([`String`])                     |             | [`NoSuchPrincipalException`], [`WikiSecurityException`]    | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `find`([`String`])                                  |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByEmail`([`String`])                           |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByFullName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByUid`([`String`])                             |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getWikiNames`()                                    |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `void`              | `rename`([`String`], [`String`])                    |             | [`NoSuchPrincipalException`], [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes] |
-| Unchanged | `public` `abstract`         |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
-| Unchanged | `public` `abstract`         |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
-| Added     | **`public`** **`abstract`** |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to interface] |
+| Status    | Modifiers                   | Generics | Type                | Method                                              | Annotations        | Throws                                                     | Compatibility Changes |
+|-----------|-----------------------------|----------|---------------------|-----------------------------------------------------|--------------------|------------------------------------------------------------|-----------------------|
+| Unchanged | `public` `abstract`         |          | `void`              | `deleteByLoginName`([`String`])                     |                    | [`NoSuchPrincipalException`], [`WikiSecurityException`]    | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `find`([`String`])                                  | **[`Deprecated`]** | [`NoSuchPrincipalException`]                               | ![Annotation deprecated added] |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByEmail`([`String`])                           |                    | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByFullName`([`String`])                        |                    | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByLoginName`([`String`])                       |                    | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByUid`([`String`])                             |                    | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `findByWikiName`([`String`])                        |                    | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |                    | [`NoSuchPrincipalException`]                               | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`Principal[]`][10] | `getWikiNames`()                                    |                    | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `void`              | `initialize`([`Engine`], [`Properties`])            |                    | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | [`UserProfile`]     | `newProfile`()                                      |                    |                                                            | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `void`              | `rename`([`String`], [`String`])                    |                    | [`NoSuchPrincipalException`], [`DuplicateUserException`], [`WikiSecurityException`] | ![No changes] |
+| Unchanged | `public` `abstract`         |          | `void`              | `save`([`UserProfile`])                             |                    | [`WikiSecurityException`]                                  | ![No changes]         |
+| Unchanged | `public` `abstract`         |          | `boolean`           | `validatePassword`([`String`], [`String`])          |                    |                                                            | ![No changes]         |
+| Added     | **`public`** **`abstract`** |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |                    |                                                            | ![Method added to interface] |
 
 ___
 
@@ -6970,9 +6971,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Class | `AbstractFileProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|---------------------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Class | `AbstractFileProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -6984,29 +6985,31 @@ ___
 
 #### Methods
 
-| Status    | Modifiers   | Generics | Type                         | Method                                          | Annotations | Throws                | Compatibility Changes |
-|-----------|-------------|----------|------------------------------|-------------------------------------------------|-------------|-----------------------|-----------------------|
-| Unchanged | `protected` |          | [`Properties`]               | `addCustomProperties`([`Page`], [`Properties`]) |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | `void`                       | `deletePage`([`String`])                        |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`    |          | `void`                       | `deleteVersion`([`String`], `int`)              |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `protected` |          | [`File`]                     | `findPage`([`String`])                          |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][24])                |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | [`Collection<Page>`]         | `getAllChangedSince`([`Date`])                  |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | [`Collection<Page>`]         | `getAllPages`()                                 |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `protected` |          | `void`                       | `getCustomProperties`([`Page`], [`Properties`]) |             | [`IOException`]       | ![No changes]         |
-| Unchanged | `public`    |          | `int`                        | `getPageCount`()                                |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | [`Page`]                     | `getPageInfo`([`String`], `int`)                |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`    |          | [`String`]                   | `getPageText`([`String`], `int`)                |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`    |          | [`String`]                   | `getProviderInfo`()                             |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | [`List<Page>`]               | `getVersionHistory`([`String`])                 |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public`    |          | `void`                       | `initialize`([`Engine`], [`Properties`])        |             | [`NoRequiredPropertyException`], [`IOException`], [`FileNotFoundException`] | ![No changes] |
-| Unchanged | `protected` |          | [`String`]                   | `mangleName`([`String`])                        |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | `boolean`                    | `pageExists`([`String`])                        |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | `boolean`                    | `pageExists`([`String`], `int`)                 |             |                       | ![No changes]         |
-| Unchanged | `public`    |          | `void`                       | `putPageText`([`Page`], [`String`])             |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `protected` |          | `void`                       | `setCustomProperties`([`Page`], [`Properties`]) |             |                       | ![No changes]         |
-| Unchanged | `protected` |          | [`String`]                   | `unmangleName`([`String`])                      |             |                       | ![No changes]         |
-| Unchanged | `protected` |          | `void`                       | `validateCustomPageProperties`([`Properties`])  |             | [`IOException`]       | ![No changes]         |
+| Status    | Modifiers    | Generics | Type                         | Method                                          | Annotations | Throws                | Compatibility Changes |
+|-----------|--------------|----------|------------------------------|-------------------------------------------------|-------------|-----------------------|-----------------------|
+| Unchanged | `protected`  |          | [`Properties`]               | `addCustomProperties`([`Page`], [`Properties`]) |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | `void`                       | `deletePage`([`String`])                        |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`     |          | `void`                       | `deleteVersion`([`String`], `int`)              |             | [`ProviderException`] | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]**               | **`deobfuscate`**([`String`])                   |             |                       | ![Method added to public class] |
+| Unchanged | `protected`  |          | [`File`]                     | `findPage`([`String`])                          |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][24])                |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | [`Collection<Page>`]         | `getAllChangedSince`([`Date`])                  |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | [`Collection<Page>`]         | `getAllPages`()                                 |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `protected`  |          | `void`                       | `getCustomProperties`([`Page`], [`Properties`]) |             | [`IOException`]       | ![No changes]         |
+| Unchanged | `public`     |          | `int`                        | `getPageCount`()                                |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | [`Page`]                     | `getPageInfo`([`String`], `int`)                |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                   | `getPageText`([`String`], `int`)                |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                   | `getProviderInfo`()                             |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | [`List<Page>`]               | `getVersionHistory`([`String`])                 |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public`     |          | `void`                       | `initialize`([`Engine`], [`Properties`])        |             | [`NoRequiredPropertyException`], [`IOException`], [`FileNotFoundException`] | ![No changes] |
+| Unchanged | `protected`  |          | [`String`]                   | `mangleName`([`String`])                        |             |                       | ![No changes]         |
+| Added     | **`public`** |          | **[`String`]**               | **`obfuscate`**([`String`])                     |             |                       | ![Method added to public class] |
+| Unchanged | `public`     |          | `boolean`                    | `pageExists`([`String`])                        |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`                    | `pageExists`([`String`], `int`)                 |             |                       | ![No changes]         |
+| Unchanged | `public`     |          | `void`                       | `putPageText`([`Page`], [`String`])             |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `protected`  |          | `void`                       | `setCustomProperties`([`Page`], [`Properties`]) |             |                       | ![No changes]         |
+| Unchanged | `protected`  |          | [`String`]                   | `unmangleName`([`String`])                      |             |                       | ![No changes]         |
+| Unchanged | `protected`  |          | `void`                       | `validateCustomPageProperties`([`Properties`])  |             | [`IOException`]       | ![No changes]         |
 
 
 #### Fields
@@ -13665,7 +13668,7 @@ ___
 
 ___
 
-*Generated on: 2025-12-15 17:37:46.293+0000*.
+*Generated on: 2026-03-07 19:18:51.834+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
