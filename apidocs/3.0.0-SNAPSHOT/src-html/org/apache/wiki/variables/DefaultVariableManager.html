@@ -171,240 +171,248 @@
 <span class="source-line-no">158</span><span id="line-158">            if( name.equals( value ) ) {</span>
 <span class="source-line-no">159</span><span id="line-159">                return ""; // FIXME: Should this be something different?</span>
 <span class="source-line-no">160</span><span id="line-160">            }</span>
-<span class="source-line-no">161</span><span id="line-161">        }</span>
-<span class="source-line-no">162</span><span id="line-162"></span>
-<span class="source-line-no">163</span><span id="line-163">        try {</span>
-<span class="source-line-no">164</span><span id="line-164">            //</span>
-<span class="source-line-no">165</span><span id="line-165">            //  Using reflection to get system variables adding a new system variable</span>
-<span class="source-line-no">166</span><span id="line-166">            //  now only involves creating a new method in the SystemVariables class</span>
-<span class="source-line-no">167</span><span id="line-167">            //  with a name starting with get and the first character of the name of</span>
-<span class="source-line-no">168</span><span id="line-168">            //  the variable capitalized. Example:</span>
-<span class="source-line-no">169</span><span id="line-169">            //    public String getMysysvar(){</span>
-<span class="source-line-no">170</span><span id="line-170">            //      return "Hello World";</span>
-<span class="source-line-no">171</span><span id="line-171">            //    }</span>
+<span class="source-line-no">161</span><span id="line-161">            if ("jspwiki.frontpage".equals(name)) continue;</span>
+<span class="source-line-no">162</span><span id="line-162">            if ("jspwiki.runfilters".equals(name) ) continue;</span>
+<span class="source-line-no">163</span><span id="line-163">            </span>
+<span class="source-line-no">164</span><span id="line-164">            if ( name.startsWith( "jspwiki" ) ) {</span>
+<span class="source-line-no">165</span><span id="line-165">                LOG.warn("variable manager is denying access to '" + name + "'");</span>
+<span class="source-line-no">166</span><span id="line-166">                return "";</span>
+<span class="source-line-no">167</span><span id="line-167">            }</span>
+<span class="source-line-no">168</span><span id="line-168"></span>
+<span class="source-line-no">169</span><span id="line-169">        }</span>
+<span class="source-line-no">170</span><span id="line-170">        </span>
+<span class="source-line-no">171</span><span id="line-171">        try {</span>
 <span class="source-line-no">172</span><span id="line-172">            //</span>
-<span class="source-line-no">173</span><span id="line-173">            final SystemVariables sysvars = new SystemVariables( context );</span>
-<span class="source-line-no">174</span><span id="line-174">            final String methodName = "get" + Character.toUpperCase( name.charAt( 0 ) ) + name.substring( 1 );</span>
-<span class="source-line-no">175</span><span id="line-175">            final Method method = sysvars.getClass().getMethod( methodName );</span>
-<span class="source-line-no">176</span><span id="line-176">            return ( String )method.invoke( sysvars );</span>
-<span class="source-line-no">177</span><span id="line-177">        } catch( final NoSuchMethodException e1 ) {</span>
-<span class="source-line-no">178</span><span id="line-178">            //</span>
-<span class="source-line-no">179</span><span id="line-179">            //  It is not a system var. Time to handle the other cases.</span>
+<span class="source-line-no">173</span><span id="line-173">            //  Using reflection to get system variables adding a new system variable</span>
+<span class="source-line-no">174</span><span id="line-174">            //  now only involves creating a new method in the SystemVariables class</span>
+<span class="source-line-no">175</span><span id="line-175">            //  with a name starting with get and the first character of the name of</span>
+<span class="source-line-no">176</span><span id="line-176">            //  the variable capitalized. Example:</span>
+<span class="source-line-no">177</span><span id="line-177">            //    public String getMysysvar(){</span>
+<span class="source-line-no">178</span><span id="line-178">            //      return "Hello World";</span>
+<span class="source-line-no">179</span><span id="line-179">            //    }</span>
 <span class="source-line-no">180</span><span id="line-180">            //</span>
-<span class="source-line-no">181</span><span id="line-181">            //  Check if such a context variable exists, returning its string representation.</span>
-<span class="source-line-no">182</span><span id="line-182">            //</span>
-<span class="source-line-no">183</span><span id="line-183">            if( ( context.getVariable( varName ) ) != null ) {</span>
-<span class="source-line-no">184</span><span id="line-184">                return context.getVariable( varName ).toString();</span>
-<span class="source-line-no">185</span><span id="line-185">            }</span>
-<span class="source-line-no">186</span><span id="line-186"></span>
-<span class="source-line-no">187</span><span id="line-187">            //</span>
-<span class="source-line-no">188</span><span id="line-188">            //  Well, I guess it wasn't a final straw.  We also allow variables from the session and the request (in this order).</span>
-<span class="source-line-no">189</span><span id="line-189">            //</span>
-<span class="source-line-no">190</span><span id="line-190">            final HttpServletRequest req = context.getHttpRequest();</span>
-<span class="source-line-no">191</span><span id="line-191">            if( req != null &amp;&amp; req.getSession() != null ) {</span>
-<span class="source-line-no">192</span><span id="line-192">                final HttpSession session = req.getSession();</span>
-<span class="source-line-no">193</span><span id="line-193"></span>
-<span class="source-line-no">194</span><span id="line-194">                try {</span>
-<span class="source-line-no">195</span><span id="line-195">                    String s = ( String )session.getAttribute( varName );</span>
-<span class="source-line-no">196</span><span id="line-196"></span>
-<span class="source-line-no">197</span><span id="line-197">                    if( s != null ) {</span>
-<span class="source-line-no">198</span><span id="line-198">                        return s;</span>
-<span class="source-line-no">199</span><span id="line-199">                    }</span>
-<span class="source-line-no">200</span><span id="line-200"></span>
-<span class="source-line-no">201</span><span id="line-201">                    s = context.getHttpParameter( varName );</span>
-<span class="source-line-no">202</span><span id="line-202">                    if( s != null ) {</span>
-<span class="source-line-no">203</span><span id="line-203">                        return s;</span>
-<span class="source-line-no">204</span><span id="line-204">                    }</span>
-<span class="source-line-no">205</span><span id="line-205">                } catch( final ClassCastException e ) {</span>
-<span class="source-line-no">206</span><span id="line-206">                    LOG.debug( "Not a String: " + varName );</span>
-<span class="source-line-no">207</span><span id="line-207">                }</span>
-<span class="source-line-no">208</span><span id="line-208">            }</span>
-<span class="source-line-no">209</span><span id="line-209"></span>
-<span class="source-line-no">210</span><span id="line-210">            //</span>
-<span class="source-line-no">211</span><span id="line-211">            // And the final straw: see if the current page has named metadata.</span>
-<span class="source-line-no">212</span><span id="line-212">            //</span>
-<span class="source-line-no">213</span><span id="line-213">            final Page pg = context.getPage();</span>
-<span class="source-line-no">214</span><span id="line-214">            if( pg != null ) {</span>
-<span class="source-line-no">215</span><span id="line-215">                final Object metadata = pg.getAttribute( varName );</span>
-<span class="source-line-no">216</span><span id="line-216">                if( metadata != null ) {</span>
-<span class="source-line-no">217</span><span id="line-217">                    return metadata.toString();</span>
-<span class="source-line-no">218</span><span id="line-218">                }</span>
-<span class="source-line-no">219</span><span id="line-219">            }</span>
-<span class="source-line-no">220</span><span id="line-220"></span>
-<span class="source-line-no">221</span><span id="line-221">            //</span>
-<span class="source-line-no">222</span><span id="line-222">            // And the final straw part 2: see if the "real" current page has named metadata. This allows</span>
-<span class="source-line-no">223</span><span id="line-223">            // a parent page to control a inserted page through defining variables</span>
-<span class="source-line-no">224</span><span id="line-224">            //</span>
-<span class="source-line-no">225</span><span id="line-225">            final Page rpg = context.getRealPage();</span>
-<span class="source-line-no">226</span><span id="line-226">            if( rpg != null ) {</span>
-<span class="source-line-no">227</span><span id="line-227">                final Object metadata = rpg.getAttribute( varName );</span>
-<span class="source-line-no">228</span><span id="line-228">                if( metadata != null ) {</span>
-<span class="source-line-no">229</span><span id="line-229">                    return metadata.toString();</span>
-<span class="source-line-no">230</span><span id="line-230">                }</span>
-<span class="source-line-no">231</span><span id="line-231">            }</span>
-<span class="source-line-no">232</span><span id="line-232"></span>
-<span class="source-line-no">233</span><span id="line-233">            //</span>
-<span class="source-line-no">234</span><span id="line-234">            // Next-to-final straw: attempt to fetch using property name. We don't allow fetching any other</span>
-<span class="source-line-no">235</span><span id="line-235">            // properties than those starting with "jspwiki.".  I know my own code, but I can't vouch for bugs</span>
-<span class="source-line-no">236</span><span id="line-236">            // in other people's code... :-)</span>
-<span class="source-line-no">237</span><span id="line-237">            //</span>
-<span class="source-line-no">238</span><span id="line-238">            if( varName.startsWith("jspwiki.") ) {</span>
-<span class="source-line-no">239</span><span id="line-239">                final Properties props = context.getEngine().getWikiProperties();</span>
-<span class="source-line-no">240</span><span id="line-240">                final String s = props.getProperty( varName );</span>
-<span class="source-line-no">241</span><span id="line-241">                if( s != null ) {</span>
-<span class="source-line-no">242</span><span id="line-242">                    return s;</span>
-<span class="source-line-no">243</span><span id="line-243">                }</span>
-<span class="source-line-no">244</span><span id="line-244">            }</span>
-<span class="source-line-no">245</span><span id="line-245"></span>
-<span class="source-line-no">246</span><span id="line-246">            //</span>
-<span class="source-line-no">247</span><span id="line-247">            //  Final defaults for some known quantities.</span>
-<span class="source-line-no">248</span><span id="line-248">            //</span>
-<span class="source-line-no">249</span><span id="line-249">            if( varName.equals( VAR_ERROR ) || varName.equals( VAR_MSG ) ) {</span>
-<span class="source-line-no">250</span><span id="line-250">                return "";</span>
-<span class="source-line-no">251</span><span id="line-251">            }</span>
-<span class="source-line-no">252</span><span id="line-252"></span>
-<span class="source-line-no">253</span><span id="line-253">            throw new NoSuchVariableException( "No variable " + varName + " defined." );</span>
-<span class="source-line-no">254</span><span id="line-254">        } catch( final Exception e ) {</span>
-<span class="source-line-no">255</span><span id="line-255">            LOG.info("Interesting exception: cannot fetch variable value", e );</span>
-<span class="source-line-no">256</span><span id="line-256">        }</span>
-<span class="source-line-no">257</span><span id="line-257">        return "";</span>
-<span class="source-line-no">258</span><span id="line-258">    }</span>
-<span class="source-line-no">259</span><span id="line-259"></span>
-<span class="source-line-no">260</span><span id="line-260">    /**</span>
-<span class="source-line-no">261</span><span id="line-261">     *  This class provides the implementation for the different system variables.</span>
-<span class="source-line-no">262</span><span id="line-262">     *  It is called via Reflection - any access to a variable called $xxx is mapped</span>
-<span class="source-line-no">263</span><span id="line-263">     *  to getXxx() on this class.</span>
-<span class="source-line-no">264</span><span id="line-264">     *  &lt;p&gt;</span>
-<span class="source-line-no">265</span><span id="line-265">     *  This is a lot neater than using a huge if-else if branching structure</span>
-<span class="source-line-no">266</span><span id="line-266">     *  that we used to have before.</span>
-<span class="source-line-no">267</span><span id="line-267">     *  &lt;p&gt;</span>
-<span class="source-line-no">268</span><span id="line-268">     *  Note that since we are case insensitive for variables, and VariableManager</span>
-<span class="source-line-no">269</span><span id="line-269">     *  calls var.toLowerCase(), the getters for the variables do not have</span>
-<span class="source-line-no">270</span><span id="line-270">     *  capitalization anywhere.  This may look a bit odd, but then again, this</span>
-<span class="source-line-no">271</span><span id="line-271">     *  is not meant to be a public class.</span>
-<span class="source-line-no">272</span><span id="line-272">     *</span>
-<span class="source-line-no">273</span><span id="line-273">     *  @since 2.7.0</span>
-<span class="source-line-no">274</span><span id="line-274">     */</span>
-<span class="source-line-no">275</span><span id="line-275">    @SuppressWarnings( "unused" )</span>
-<span class="source-line-no">276</span><span id="line-276">    private static class SystemVariables {</span>
-<span class="source-line-no">277</span><span id="line-277"></span>
-<span class="source-line-no">278</span><span id="line-278">        private final Context m_context;</span>
-<span class="source-line-no">279</span><span id="line-279"></span>
-<span class="source-line-no">280</span><span id="line-280">        public SystemVariables( final Context context )</span>
-<span class="source-line-no">281</span><span id="line-281">        {</span>
-<span class="source-line-no">282</span><span id="line-282">            m_context=context;</span>
-<span class="source-line-no">283</span><span id="line-283">        }</span>
-<span class="source-line-no">284</span><span id="line-284"></span>
-<span class="source-line-no">285</span><span id="line-285">        public String getPagename()</span>
-<span class="source-line-no">286</span><span id="line-286">        {</span>
-<span class="source-line-no">287</span><span id="line-287">            return m_context.getPage().getName();</span>
-<span class="source-line-no">288</span><span id="line-288">        }</span>
-<span class="source-line-no">289</span><span id="line-289"></span>
-<span class="source-line-no">290</span><span id="line-290">        public String getApplicationname()</span>
-<span class="source-line-no">291</span><span id="line-291">        {</span>
-<span class="source-line-no">292</span><span id="line-292">            return m_context.getEngine().getApplicationName();</span>
-<span class="source-line-no">293</span><span id="line-293">        }</span>
-<span class="source-line-no">294</span><span id="line-294"></span>
-<span class="source-line-no">295</span><span id="line-295">        public String getJspwikiversion()</span>
-<span class="source-line-no">296</span><span id="line-296">        {</span>
-<span class="source-line-no">297</span><span id="line-297">            return Release.getVersionString();</span>
-<span class="source-line-no">298</span><span id="line-298">        }</span>
-<span class="source-line-no">299</span><span id="line-299"></span>
-<span class="source-line-no">300</span><span id="line-300">        public String getEncoding() {</span>
-<span class="source-line-no">301</span><span id="line-301">            return m_context.getEngine().getContentEncoding().displayName();</span>
-<span class="source-line-no">302</span><span id="line-302">        }</span>
-<span class="source-line-no">303</span><span id="line-303"></span>
-<span class="source-line-no">304</span><span id="line-304">        public String getTotalpages() {</span>
-<span class="source-line-no">305</span><span id="line-305">            return Integer.toString( m_context.getEngine().getManager( PageManager.class ).getTotalPageCount() );</span>
+<span class="source-line-no">181</span><span id="line-181">            final SystemVariables sysvars = new SystemVariables( context );</span>
+<span class="source-line-no">182</span><span id="line-182">            final String methodName = "get" + Character.toUpperCase( name.charAt( 0 ) ) + name.substring( 1 );</span>
+<span class="source-line-no">183</span><span id="line-183">            final Method method = sysvars.getClass().getMethod( methodName );</span>
+<span class="source-line-no">184</span><span id="line-184">            return ( String )method.invoke( sysvars );</span>
+<span class="source-line-no">185</span><span id="line-185">        } catch( final NoSuchMethodException e1 ) {</span>
+<span class="source-line-no">186</span><span id="line-186">            //</span>
+<span class="source-line-no">187</span><span id="line-187">            //  It is not a system var. Time to handle the other cases.</span>
+<span class="source-line-no">188</span><span id="line-188">            //</span>
+<span class="source-line-no">189</span><span id="line-189">            //  Check if such a context variable exists, returning its string representation.</span>
+<span class="source-line-no">190</span><span id="line-190">            //</span>
+<span class="source-line-no">191</span><span id="line-191">            if( ( context.getVariable( varName ) ) != null ) {</span>
+<span class="source-line-no">192</span><span id="line-192">                return context.getVariable( varName ).toString();</span>
+<span class="source-line-no">193</span><span id="line-193">            }</span>
+<span class="source-line-no">194</span><span id="line-194"></span>
+<span class="source-line-no">195</span><span id="line-195">            //</span>
+<span class="source-line-no">196</span><span id="line-196">            //  Well, I guess it wasn't a final straw.  We also allow variables from the session and the request (in this order).</span>
+<span class="source-line-no">197</span><span id="line-197">            //</span>
+<span class="source-line-no">198</span><span id="line-198">            final HttpServletRequest req = context.getHttpRequest();</span>
+<span class="source-line-no">199</span><span id="line-199">            if( req != null &amp;&amp; req.getSession() != null ) {</span>
+<span class="source-line-no">200</span><span id="line-200">                final HttpSession session = req.getSession();</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">                try {</span>
+<span class="source-line-no">203</span><span id="line-203">                    String s = ( String )session.getAttribute( varName );</span>
+<span class="source-line-no">204</span><span id="line-204"></span>
+<span class="source-line-no">205</span><span id="line-205">                    if( s != null ) {</span>
+<span class="source-line-no">206</span><span id="line-206">                        return s;</span>
+<span class="source-line-no">207</span><span id="line-207">                    }</span>
+<span class="source-line-no">208</span><span id="line-208"></span>
+<span class="source-line-no">209</span><span id="line-209">                    s = context.getHttpParameter( varName );</span>
+<span class="source-line-no">210</span><span id="line-210">                    if( s != null ) {</span>
+<span class="source-line-no">211</span><span id="line-211">                        return s;</span>
+<span class="source-line-no">212</span><span id="line-212">                    }</span>
+<span class="source-line-no">213</span><span id="line-213">                } catch( final ClassCastException e ) {</span>
+<span class="source-line-no">214</span><span id="line-214">                    LOG.debug( "Not a String: " + varName );</span>
+<span class="source-line-no">215</span><span id="line-215">                }</span>
+<span class="source-line-no">216</span><span id="line-216">            }</span>
+<span class="source-line-no">217</span><span id="line-217"></span>
+<span class="source-line-no">218</span><span id="line-218">            //</span>
+<span class="source-line-no">219</span><span id="line-219">            // And the final straw: see if the current page has named metadata.</span>
+<span class="source-line-no">220</span><span id="line-220">            //</span>
+<span class="source-line-no">221</span><span id="line-221">            final Page pg = context.getPage();</span>
+<span class="source-line-no">222</span><span id="line-222">            if( pg != null ) {</span>
+<span class="source-line-no">223</span><span id="line-223">                final Object metadata = pg.getAttribute( varName );</span>
+<span class="source-line-no">224</span><span id="line-224">                if( metadata != null ) {</span>
+<span class="source-line-no">225</span><span id="line-225">                    return metadata.toString();</span>
+<span class="source-line-no">226</span><span id="line-226">                }</span>
+<span class="source-line-no">227</span><span id="line-227">            }</span>
+<span class="source-line-no">228</span><span id="line-228"></span>
+<span class="source-line-no">229</span><span id="line-229">            //</span>
+<span class="source-line-no">230</span><span id="line-230">            // And the final straw part 2: see if the "real" current page has named metadata. This allows</span>
+<span class="source-line-no">231</span><span id="line-231">            // a parent page to control a inserted page through defining variables</span>
+<span class="source-line-no">232</span><span id="line-232">            //</span>
+<span class="source-line-no">233</span><span id="line-233">            final Page rpg = context.getRealPage();</span>
+<span class="source-line-no">234</span><span id="line-234">            if( rpg != null ) {</span>
+<span class="source-line-no">235</span><span id="line-235">                final Object metadata = rpg.getAttribute( varName );</span>
+<span class="source-line-no">236</span><span id="line-236">                if( metadata != null ) {</span>
+<span class="source-line-no">237</span><span id="line-237">                    return metadata.toString();</span>
+<span class="source-line-no">238</span><span id="line-238">                }</span>
+<span class="source-line-no">239</span><span id="line-239">            }</span>
+<span class="source-line-no">240</span><span id="line-240"></span>
+<span class="source-line-no">241</span><span id="line-241">            //</span>
+<span class="source-line-no">242</span><span id="line-242">            // Next-to-final straw: attempt to fetch using property name. We don't allow fetching any other</span>
+<span class="source-line-no">243</span><span id="line-243">            // properties than those starting with "jspwiki.".  I know my own code, but I can't vouch for bugs</span>
+<span class="source-line-no">244</span><span id="line-244">            // in other people's code... :-)</span>
+<span class="source-line-no">245</span><span id="line-245">            //</span>
+<span class="source-line-no">246</span><span id="line-246">            if( varName.startsWith("jspwiki.") ) {</span>
+<span class="source-line-no">247</span><span id="line-247">                final Properties props = context.getEngine().getWikiProperties();</span>
+<span class="source-line-no">248</span><span id="line-248">                final String s = props.getProperty( varName );</span>
+<span class="source-line-no">249</span><span id="line-249">                if( s != null ) {</span>
+<span class="source-line-no">250</span><span id="line-250">                    return s;</span>
+<span class="source-line-no">251</span><span id="line-251">                }</span>
+<span class="source-line-no">252</span><span id="line-252">            }</span>
+<span class="source-line-no">253</span><span id="line-253"></span>
+<span class="source-line-no">254</span><span id="line-254">            //</span>
+<span class="source-line-no">255</span><span id="line-255">            //  Final defaults for some known quantities.</span>
+<span class="source-line-no">256</span><span id="line-256">            //</span>
+<span class="source-line-no">257</span><span id="line-257">            if( varName.equals( VAR_ERROR ) || varName.equals( VAR_MSG ) ) {</span>
+<span class="source-line-no">258</span><span id="line-258">                return "";</span>
+<span class="source-line-no">259</span><span id="line-259">            }</span>
+<span class="source-line-no">260</span><span id="line-260"></span>
+<span class="source-line-no">261</span><span id="line-261">            throw new NoSuchVariableException( "No variable " + varName + " defined." );</span>
+<span class="source-line-no">262</span><span id="line-262">        } catch( final Exception e ) {</span>
+<span class="source-line-no">263</span><span id="line-263">            LOG.info("Interesting exception: cannot fetch variable value", e );</span>
+<span class="source-line-no">264</span><span id="line-264">        }</span>
+<span class="source-line-no">265</span><span id="line-265">        return "";</span>
+<span class="source-line-no">266</span><span id="line-266">    }</span>
+<span class="source-line-no">267</span><span id="line-267"></span>
+<span class="source-line-no">268</span><span id="line-268">    /**</span>
+<span class="source-line-no">269</span><span id="line-269">     *  This class provides the implementation for the different system variables.</span>
+<span class="source-line-no">270</span><span id="line-270">     *  It is called via Reflection - any access to a variable called $xxx is mapped</span>
+<span class="source-line-no">271</span><span id="line-271">     *  to getXxx() on this class.</span>
+<span class="source-line-no">272</span><span id="line-272">     *  &lt;p&gt;</span>
+<span class="source-line-no">273</span><span id="line-273">     *  This is a lot neater than using a huge if-else if branching structure</span>
+<span class="source-line-no">274</span><span id="line-274">     *  that we used to have before.</span>
+<span class="source-line-no">275</span><span id="line-275">     *  &lt;p&gt;</span>
+<span class="source-line-no">276</span><span id="line-276">     *  Note that since we are case insensitive for variables, and VariableManager</span>
+<span class="source-line-no">277</span><span id="line-277">     *  calls var.toLowerCase(), the getters for the variables do not have</span>
+<span class="source-line-no">278</span><span id="line-278">     *  capitalization anywhere.  This may look a bit odd, but then again, this</span>
+<span class="source-line-no">279</span><span id="line-279">     *  is not meant to be a public class.</span>
+<span class="source-line-no">280</span><span id="line-280">     *</span>
+<span class="source-line-no">281</span><span id="line-281">     *  @since 2.7.0</span>
+<span class="source-line-no">282</span><span id="line-282">     */</span>
+<span class="source-line-no">283</span><span id="line-283">    @SuppressWarnings( "unused" )</span>
+<span class="source-line-no">284</span><span id="line-284">    private static class SystemVariables {</span>
+<span class="source-line-no">285</span><span id="line-285"></span>
+<span class="source-line-no">286</span><span id="line-286">        private final Context m_context;</span>
+<span class="source-line-no">287</span><span id="line-287"></span>
+<span class="source-line-no">288</span><span id="line-288">        public SystemVariables( final Context context )</span>
+<span class="source-line-no">289</span><span id="line-289">        {</span>
+<span class="source-line-no">290</span><span id="line-290">            m_context=context;</span>
+<span class="source-line-no">291</span><span id="line-291">        }</span>
+<span class="source-line-no">292</span><span id="line-292"></span>
+<span class="source-line-no">293</span><span id="line-293">        public String getPagename()</span>
+<span class="source-line-no">294</span><span id="line-294">        {</span>
+<span class="source-line-no">295</span><span id="line-295">            return m_context.getPage().getName();</span>
+<span class="source-line-no">296</span><span id="line-296">        }</span>
+<span class="source-line-no">297</span><span id="line-297"></span>
+<span class="source-line-no">298</span><span id="line-298">        public String getApplicationname()</span>
+<span class="source-line-no">299</span><span id="line-299">        {</span>
+<span class="source-line-no">300</span><span id="line-300">            return m_context.getEngine().getApplicationName();</span>
+<span class="source-line-no">301</span><span id="line-301">        }</span>
+<span class="source-line-no">302</span><span id="line-302"></span>
+<span class="source-line-no">303</span><span id="line-303">        public String getJspwikiversion()</span>
+<span class="source-line-no">304</span><span id="line-304">        {</span>
+<span class="source-line-no">305</span><span id="line-305">            return Release.getVersionString();</span>
 <span class="source-line-no">306</span><span id="line-306">        }</span>
 <span class="source-line-no">307</span><span id="line-307"></span>
-<span class="source-line-no">308</span><span id="line-308">        public String getPageprovider() {</span>
-<span class="source-line-no">309</span><span id="line-309">            return m_context.getEngine().getManager( PageManager.class ).getCurrentProvider();</span>
+<span class="source-line-no">308</span><span id="line-308">        public String getEncoding() {</span>
+<span class="source-line-no">309</span><span id="line-309">            return m_context.getEngine().getContentEncoding().displayName();</span>
 <span class="source-line-no">310</span><span id="line-310">        }</span>
 <span class="source-line-no">311</span><span id="line-311"></span>
-<span class="source-line-no">312</span><span id="line-312">        public String getPageproviderdescription() {</span>
-<span class="source-line-no">313</span><span id="line-313">            return m_context.getEngine().getManager( PageManager.class ).getProviderDescription();</span>
+<span class="source-line-no">312</span><span id="line-312">        public String getTotalpages() {</span>
+<span class="source-line-no">313</span><span id="line-313">            return Integer.toString( m_context.getEngine().getManager( PageManager.class ).getTotalPageCount() );</span>
 <span class="source-line-no">314</span><span id="line-314">        }</span>
 <span class="source-line-no">315</span><span id="line-315"></span>
-<span class="source-line-no">316</span><span id="line-316">        public String getAttachmentprovider() {</span>
-<span class="source-line-no">317</span><span id="line-317">            final WikiProvider p = m_context.getEngine().getManager( AttachmentManager.class ).getCurrentProvider();</span>
-<span class="source-line-no">318</span><span id="line-318">            return (p != null) ? p.getClass().getName() : "-";</span>
-<span class="source-line-no">319</span><span id="line-319">        }</span>
-<span class="source-line-no">320</span><span id="line-320"></span>
-<span class="source-line-no">321</span><span id="line-321">        public String getAttachmentproviderdescription() {</span>
-<span class="source-line-no">322</span><span id="line-322">            final WikiProvider p = m_context.getEngine().getManager( AttachmentManager.class ).getCurrentProvider();</span>
-<span class="source-line-no">323</span><span id="line-323">            return (p != null) ? p.getProviderInfo() : "-";</span>
-<span class="source-line-no">324</span><span id="line-324">        }</span>
-<span class="source-line-no">325</span><span id="line-325"></span>
-<span class="source-line-no">326</span><span id="line-326">        public String getInterwikilinks() {</span>
-<span class="source-line-no">327</span><span id="line-327"></span>
-<span class="source-line-no">328</span><span id="line-328">            return m_context.getEngine().getAllInterWikiLinks().stream().map(link -&gt; link + " --&gt; " + m_context.getEngine().getInterWikiURL(link)).collect(Collectors.joining(", "));</span>
-<span class="source-line-no">329</span><span id="line-329">        }</span>
-<span class="source-line-no">330</span><span id="line-330"></span>
-<span class="source-line-no">331</span><span id="line-331">        public String getInlinedimages() {</span>
-<span class="source-line-no">332</span><span id="line-332"></span>
-<span class="source-line-no">333</span><span id="line-333">            return m_context.getEngine().getAllInlinedImagePatterns().stream().collect(Collectors.joining(", "));</span>
-<span class="source-line-no">334</span><span id="line-334">        }</span>
+<span class="source-line-no">316</span><span id="line-316">        public String getPageprovider() {</span>
+<span class="source-line-no">317</span><span id="line-317">            return m_context.getEngine().getManager( PageManager.class ).getCurrentProvider();</span>
+<span class="source-line-no">318</span><span id="line-318">        }</span>
+<span class="source-line-no">319</span><span id="line-319"></span>
+<span class="source-line-no">320</span><span id="line-320">        public String getPageproviderdescription() {</span>
+<span class="source-line-no">321</span><span id="line-321">            return m_context.getEngine().getManager( PageManager.class ).getProviderDescription();</span>
+<span class="source-line-no">322</span><span id="line-322">        }</span>
+<span class="source-line-no">323</span><span id="line-323"></span>
+<span class="source-line-no">324</span><span id="line-324">        public String getAttachmentprovider() {</span>
+<span class="source-line-no">325</span><span id="line-325">            final WikiProvider p = m_context.getEngine().getManager( AttachmentManager.class ).getCurrentProvider();</span>
+<span class="source-line-no">326</span><span id="line-326">            return (p != null) ? p.getClass().getName() : "-";</span>
+<span class="source-line-no">327</span><span id="line-327">        }</span>
+<span class="source-line-no">328</span><span id="line-328"></span>
+<span class="source-line-no">329</span><span id="line-329">        public String getAttachmentproviderdescription() {</span>
+<span class="source-line-no">330</span><span id="line-330">            final WikiProvider p = m_context.getEngine().getManager( AttachmentManager.class ).getCurrentProvider();</span>
+<span class="source-line-no">331</span><span id="line-331">            return (p != null) ? p.getProviderInfo() : "-";</span>
+<span class="source-line-no">332</span><span id="line-332">        }</span>
+<span class="source-line-no">333</span><span id="line-333"></span>
+<span class="source-line-no">334</span><span id="line-334">        public String getInterwikilinks() {</span>
 <span class="source-line-no">335</span><span id="line-335"></span>
-<span class="source-line-no">336</span><span id="line-336">        public String getPluginpath() {</span>
-<span class="source-line-no">337</span><span id="line-337">            final String s = m_context.getEngine().getPluginSearchPath();</span>
+<span class="source-line-no">336</span><span id="line-336">            return m_context.getEngine().getAllInterWikiLinks().stream().map(link -&gt; link + " --&gt; " + m_context.getEngine().getInterWikiURL(link)).collect(Collectors.joining(", "));</span>
+<span class="source-line-no">337</span><span id="line-337">        }</span>
 <span class="source-line-no">338</span><span id="line-338"></span>
-<span class="source-line-no">339</span><span id="line-339">            return ( s == null ) ? "-" : s;</span>
-<span class="source-line-no">340</span><span id="line-340">        }</span>
-<span class="source-line-no">341</span><span id="line-341"></span>
-<span class="source-line-no">342</span><span id="line-342">        public String getBaseurl()</span>
-<span class="source-line-no">343</span><span id="line-343">        {</span>
-<span class="source-line-no">344</span><span id="line-344">            return m_context.getEngine().getBaseURL();</span>
-<span class="source-line-no">345</span><span id="line-345">        }</span>
+<span class="source-line-no">339</span><span id="line-339">        public String getInlinedimages() {</span>
+<span class="source-line-no">340</span><span id="line-340"></span>
+<span class="source-line-no">341</span><span id="line-341">            return m_context.getEngine().getAllInlinedImagePatterns().stream().collect(Collectors.joining(", "));</span>
+<span class="source-line-no">342</span><span id="line-342">        }</span>
+<span class="source-line-no">343</span><span id="line-343"></span>
+<span class="source-line-no">344</span><span id="line-344">        public String getPluginpath() {</span>
+<span class="source-line-no">345</span><span id="line-345">            final String s = m_context.getEngine().getPluginSearchPath();</span>
 <span class="source-line-no">346</span><span id="line-346"></span>
-<span class="source-line-no">347</span><span id="line-347">        public String getUptime() {</span>
-<span class="source-line-no">348</span><span id="line-348">            final Date now = new Date();</span>
-<span class="source-line-no">349</span><span id="line-349">            long secondsRunning = ( now.getTime() - m_context.getEngine().getStartTime().getTime() ) / 1_000L;</span>
-<span class="source-line-no">350</span><span id="line-350"></span>
-<span class="source-line-no">351</span><span id="line-351">            final long seconds = secondsRunning % 60;</span>
-<span class="source-line-no">352</span><span id="line-352">            final long minutes = (secondsRunning /= 60) % 60;</span>
-<span class="source-line-no">353</span><span id="line-353">            final long hours = (secondsRunning /= 60) % 24;</span>
-<span class="source-line-no">354</span><span id="line-354">            final long days = secondsRunning /= 24;</span>
-<span class="source-line-no">355</span><span id="line-355"></span>
-<span class="source-line-no">356</span><span id="line-356">            return days + "d, " + hours + "h " + minutes + "m " + seconds + "s";</span>
-<span class="source-line-no">357</span><span id="line-357">        }</span>
+<span class="source-line-no">347</span><span id="line-347">            return ( s == null ) ? "-" : s;</span>
+<span class="source-line-no">348</span><span id="line-348">        }</span>
+<span class="source-line-no">349</span><span id="line-349"></span>
+<span class="source-line-no">350</span><span id="line-350">        public String getBaseurl()</span>
+<span class="source-line-no">351</span><span id="line-351">        {</span>
+<span class="source-line-no">352</span><span id="line-352">            return m_context.getEngine().getBaseURL();</span>
+<span class="source-line-no">353</span><span id="line-353">        }</span>
+<span class="source-line-no">354</span><span id="line-354"></span>
+<span class="source-line-no">355</span><span id="line-355">        public String getUptime() {</span>
+<span class="source-line-no">356</span><span id="line-356">            final Date now = new Date();</span>
+<span class="source-line-no">357</span><span id="line-357">            long secondsRunning = ( now.getTime() - m_context.getEngine().getStartTime().getTime() ) / 1_000L;</span>
 <span class="source-line-no">358</span><span id="line-358"></span>
-<span class="source-line-no">359</span><span id="line-359">        public String getLoginstatus() {</span>
-<span class="source-line-no">360</span><span id="line-360">            final Session session = m_context.getWikiSession();</span>
-<span class="source-line-no">361</span><span id="line-361">            return Preferences.getBundle( m_context, InternationalizationManager.CORE_BUNDLE ).getString( "varmgr." + session.getStatus() );</span>
-<span class="source-line-no">362</span><span id="line-362">        }</span>
+<span class="source-line-no">359</span><span id="line-359">            final long seconds = secondsRunning % 60;</span>
+<span class="source-line-no">360</span><span id="line-360">            final long minutes = (secondsRunning /= 60) % 60;</span>
+<span class="source-line-no">361</span><span id="line-361">            final long hours = (secondsRunning /= 60) % 24;</span>
+<span class="source-line-no">362</span><span id="line-362">            final long days = secondsRunning /= 24;</span>
 <span class="source-line-no">363</span><span id="line-363"></span>
-<span class="source-line-no">364</span><span id="line-364">        public String getUsername() {</span>
-<span class="source-line-no">365</span><span id="line-365">            final Principal wup = m_context.getCurrentUser();</span>
-<span class="source-line-no">366</span><span id="line-366">            final ResourceBundle rb = Preferences.getBundle( m_context, InternationalizationManager.CORE_BUNDLE );</span>
-<span class="source-line-no">367</span><span id="line-367">            return wup != null ? wup.getName() : rb.getString( "varmgr.not.logged.in" );</span>
-<span class="source-line-no">368</span><span id="line-368">        }</span>
-<span class="source-line-no">369</span><span id="line-369"></span>
-<span class="source-line-no">370</span><span id="line-370">        public String getRequestcontext()</span>
-<span class="source-line-no">371</span><span id="line-371">        {</span>
-<span class="source-line-no">372</span><span id="line-372">            return m_context.getRequestContext();</span>
-<span class="source-line-no">373</span><span id="line-373">        }</span>
-<span class="source-line-no">374</span><span id="line-374"></span>
-<span class="source-line-no">375</span><span id="line-375">        public String getPagefilters() {</span>
-<span class="source-line-no">376</span><span id="line-376">            final FilterManager fm = m_context.getEngine().getManager( FilterManager.class );</span>
-<span class="source-line-no">377</span><span id="line-377">            final List&lt; PageFilter &gt; filters = fm.getFilterList();</span>
-<span class="source-line-no">378</span><span id="line-378">            final StringBuilder sb = new StringBuilder();</span>
-<span class="source-line-no">379</span><span id="line-379">            for( final PageFilter pf : filters ) {</span>
-<span class="source-line-no">380</span><span id="line-380">                final String f = pf.getClass().getName();</span>
-<span class="source-line-no">381</span><span id="line-381">                if( pf instanceof InternalModule ) {</span>
-<span class="source-line-no">382</span><span id="line-382">                    continue;</span>
-<span class="source-line-no">383</span><span id="line-383">                }</span>
-<span class="source-line-no">384</span><span id="line-384"></span>
-<span class="source-line-no">385</span><span id="line-385">                if( sb.length() &gt; 0 ) {</span>
-<span class="source-line-no">386</span><span id="line-386">                    sb.append( ", " );</span>
-<span class="source-line-no">387</span><span id="line-387">                }</span>
-<span class="source-line-no">388</span><span id="line-388">                sb.append( f );</span>
-<span class="source-line-no">389</span><span id="line-389">            }</span>
-<span class="source-line-no">390</span><span id="line-390">            return sb.toString();</span>
-<span class="source-line-no">391</span><span id="line-391">        }</span>
-<span class="source-line-no">392</span><span id="line-392">    }</span>
-<span class="source-line-no">393</span><span id="line-393"></span>
-<span class="source-line-no">394</span><span id="line-394">}</span>
+<span class="source-line-no">364</span><span id="line-364">            return days + "d, " + hours + "h " + minutes + "m " + seconds + "s";</span>
+<span class="source-line-no">365</span><span id="line-365">        }</span>
+<span class="source-line-no">366</span><span id="line-366"></span>
+<span class="source-line-no">367</span><span id="line-367">        public String getLoginstatus() {</span>
+<span class="source-line-no">368</span><span id="line-368">            final Session session = m_context.getWikiSession();</span>
+<span class="source-line-no">369</span><span id="line-369">            return Preferences.getBundle( m_context, InternationalizationManager.CORE_BUNDLE ).getString( "varmgr." + session.getStatus() );</span>
+<span class="source-line-no">370</span><span id="line-370">        }</span>
+<span class="source-line-no">371</span><span id="line-371"></span>
+<span class="source-line-no">372</span><span id="line-372">        public String getUsername() {</span>
+<span class="source-line-no">373</span><span id="line-373">            final Principal wup = m_context.getCurrentUser();</span>
+<span class="source-line-no">374</span><span id="line-374">            final ResourceBundle rb = Preferences.getBundle( m_context, InternationalizationManager.CORE_BUNDLE );</span>
+<span class="source-line-no">375</span><span id="line-375">            return wup != null ? wup.getName() : rb.getString( "varmgr.not.logged.in" );</span>
+<span class="source-line-no">376</span><span id="line-376">        }</span>
+<span class="source-line-no">377</span><span id="line-377"></span>
+<span class="source-line-no">378</span><span id="line-378">        public String getRequestcontext()</span>
+<span class="source-line-no">379</span><span id="line-379">        {</span>
+<span class="source-line-no">380</span><span id="line-380">            return m_context.getRequestContext();</span>
+<span class="source-line-no">381</span><span id="line-381">        }</span>
+<span class="source-line-no">382</span><span id="line-382"></span>
+<span class="source-line-no">383</span><span id="line-383">        public String getPagefilters() {</span>
+<span class="source-line-no">384</span><span id="line-384">            final FilterManager fm = m_context.getEngine().getManager( FilterManager.class );</span>
+<span class="source-line-no">385</span><span id="line-385">            final List&lt; PageFilter &gt; filters = fm.getFilterList();</span>
+<span class="source-line-no">386</span><span id="line-386">            final StringBuilder sb = new StringBuilder();</span>
+<span class="source-line-no">387</span><span id="line-387">            for( final PageFilter pf : filters ) {</span>
+<span class="source-line-no">388</span><span id="line-388">                final String f = pf.getClass().getName();</span>
+<span class="source-line-no">389</span><span id="line-389">                if( pf instanceof InternalModule ) {</span>
+<span class="source-line-no">390</span><span id="line-390">                    continue;</span>
+<span class="source-line-no">391</span><span id="line-391">                }</span>
+<span class="source-line-no">392</span><span id="line-392"></span>
+<span class="source-line-no">393</span><span id="line-393">                if( sb.length() &gt; 0 ) {</span>
+<span class="source-line-no">394</span><span id="line-394">                    sb.append( ", " );</span>
+<span class="source-line-no">395</span><span id="line-395">                }</span>
+<span class="source-line-no">396</span><span id="line-396">                sb.append( f );</span>
+<span class="source-line-no">397</span><span id="line-397">            }</span>
+<span class="source-line-no">398</span><span id="line-398">            return sb.toString();</span>
+<span class="source-line-no">399</span><span id="line-399">        }</span>
+<span class="source-line-no">400</span><span id="line-400">    }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">}</span>
 
 
 
