@@ -19,6 +19,10 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 **Release Index**
 
+* **8-Apr-2026**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.4ReleasedOn8042026">2.12.3</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12354835
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.12.4/sources/jspwiki-builder-2.12.4-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.4/sources/jspwiki-builder-2.12.4-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.4/sources/jspwiki-builder-2.12.4-source-release.zip.asc">signature</a></strong>
+
 * **29-Jul-2025**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.3ReleasedOn29072025">2.12.3</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12354835
 <strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.12.3/sources/jspwiki-builder-2.12.3-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.3/sources/jspwiki-builder-2.12.3-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.3/sources/jspwiki-builder-2.12.3-source-release.zip.asc">signature</a></strong>
