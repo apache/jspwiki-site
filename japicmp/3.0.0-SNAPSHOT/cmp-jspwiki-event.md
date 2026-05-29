@@ -417,7 +417,6 @@ ___
 | Unchanged | `public` `static` `final`             | `int`     | `GROUP_CLEAR_GROUPS`       |             | ![No changes]         |
 | Unchanged | `public` `static` `final`             | `int`     | `GROUP_REMOVE`             |             | ![No changes]         |
 | Unchanged | `public` `static` `final`             | `int`     | `LOGIN_ACCOUNT_EXPIRED`    |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **`int`** | `LOGIN_ALERT`              |             | ![No changes]         |
 | Unchanged | `public` `static` `final`             | `int`     | `LOGIN_ANONYMOUS`          |             | ![No changes]         |
 | Unchanged | `public` `static` `final`             | `int`     | `LOGIN_ASSERTED`           |             | ![No changes]         |
 | Unchanged | `public` `static` `final`             | `int`     | `LOGIN_AUTHENTICATED`      |             | ![No changes]         |
@@ -495,7 +494,7 @@ ___
 
 ___
 
-*Generated on: 2026-03-14 16:03:49.961+0000*.
+*Generated on: 2026-05-29 23:04:07.197+0000*.
 
 [1]: # "java.lang.Object[]"
 [2]: # "org.apache.wiki.event.WikiEventEmitter[]"
