@@ -60,7 +60,7 @@
 | Unchanged | [org.apache.wiki.api.core.ContextEnum]                       | ![Compatible]       | ![No changes]         |
 | Modified  | [org.apache.wiki.api.core.Engine]                            | ![Not serializable] | ![Method return type changed] |
 | Unchanged | [org.apache.wiki.api.core.Page]                              | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Method removed]     |
+| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Method new default] |
 | Unchanged | [org.apache.wiki.api.engine.EngineLifecycleExtension]        | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.Initializable]                   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.RenderApi]                       | ![Not serializable] | ![No changes]         |
@@ -512,8 +512,8 @@ ___
 <a id="user-content-org.apache.wiki.api.core.session"></a>
 ### `org.apache.wiki.api.core.Session`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
 | Status   | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
@@ -523,28 +523,29 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type               | Method                                                   | Annotations | Throws                         | Compatibility Changes |
-|-----------|---------------------------|----------|--------------------|----------------------------------------------------------|-------------|--------------------------------|-----------------------|
-| Unchanged | `public` `abstract`       |          | `void`             | `addMessage`([`String`])                                 |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `addMessage`([`String`], [`String`])                     |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String`]         | `antiCsrfToken`()                                        |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `clearMessages`()                                        |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `clearMessages`([`String`])                              |             |                                | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Object`]~~     | ~~`doPrivileged`~~([`Session`], [`PrivilegedAction<?>`]) |             | ~~[`AccessControlException`]~~ | ![Method removed]     |
-| Unchanged | `public` `abstract`       |          | [`Locale`]         | `getLocale`()                                            |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal`]      | `getLoginPrincipal`()                                    |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String[]`][1]    | `getMessages`()                                          |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String[]`][1]    | `getMessages`([`String`])                                |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal[]`][2] | `getPrincipals`()                                        |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal[]`][2] | `getRoles`()                                             |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String`]         | `getStatus`()                                            |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Subject`]        | `getSubject`()                                           |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal`]      | `getUserPrincipal`()                                     |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `hasPrincipal`([`Principal`])                            |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `invalidate`()                                           |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `isAnonymous`()                                          |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `isAsserted`()                                           |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `isAuthenticated`()                                      |             |                                | ![No changes]         |
+| Status    | Modifiers           | Generics | Type               | Method                                               | Annotations | Throws                     | Compatibility Changes |
+|-----------|---------------------|----------|--------------------|------------------------------------------------------|-------------|----------------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | `void`             | `addMessage`([`String`])                             |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `addMessage`([`String`], [`String`])                 |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]         | `antiCsrfToken`()                                    |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `clearMessages`()                                    |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `clearMessages`([`String`])                          |             |                            | ![No changes]         |
+| Unchanged | `static` `public`   |          | [`Object`]         | `doPrivileged`([`Session`], [`PrivilegedAction<?>`]) |             | [`AccessControlException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Locale`]         | `getLocale`()                                        |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal`]      | `getLoginPrincipal`()                                |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String[]`][1]    | `getMessages`()                                      |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String[]`][1]    | `getMessages`([`String`])                            |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][2] | `getPrincipals`()                                    |             |                            | ![No changes]         |
+| Added     | **`public`**        |          | **[`String`]**     | **`getRemoteAddress`**()                             |             |                            | ![Method new default] |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][2] | `getRoles`()                                         |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]         | `getStatus`()                                        |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Subject`]        | `getSubject`()                                       |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal`]      | `getUserPrincipal`()                                 |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `hasPrincipal`([`Principal`])                        |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `invalidate`()                                       |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `isAnonymous`()                                      |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `isAsserted`()                                       |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `isAuthenticated`()                                  |             |                            | ![No changes]         |
 
 
 #### Fields
@@ -1496,7 +1497,7 @@ ___
 
 ___
 
-*Generated on: 2026-06-04 18:48:38.527+0000*.
+*Generated on: 2026-06-08 13:50:22.273+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
