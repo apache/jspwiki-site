@@ -427,26 +427,27 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                                 | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|--------------------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_INLINEPATTERN`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_TEMPLATE_NAME`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PREFS_COOKIE_NAME`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_ACL_MANAGER_IMPL`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_ALLOW_CREATION_OF_EMPTY_PAGES` |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_APPNAME`                       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_ENCODING`                      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_FRONTPAGE`                     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_INLINEIMAGEPTRN`               |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_INTERWIKIREF`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_MATCHPLURALS`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_NO_FILTER_ENCODING`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_REF_MANAGER_IMPL`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_SEARCHPATH`                    |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_STOREUSERNAME`                 |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_TEMPLATEDIR`                   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_URLCONSTRUCTOR`                |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_WORKDIR`                       |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                                 | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|--------------------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_INLINEPATTERN`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_TEMPLATE_NAME`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PREFS_COOKIE_NAME`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ACL_MANAGER_IMPL`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ALLOW_CREATION_OF_EMPTY_PAGES` |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_APPNAME`                       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ENCODING`                      |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_FRONTPAGE`                     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_INLINEIMAGEPTRN`               |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_INTERWIKIREF`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_MATCHPLURALS`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_NO_FILTER_ENCODING`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_REF_MANAGER_IMPL`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_SEARCHPATH`                    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_STOREUSERNAME`                 |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_TEMPLATEDIR`                   |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_URLCONSTRUCTOR`                |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_USE_2_X_ACL_LOGIC`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_WORKDIR`                       |             | ![No changes]         |
 
 ___
 
@@ -1497,7 +1498,7 @@ ___
 
 ___
 
-*Generated on: 2026-06-08 13:50:22.273+0000*.
+*Generated on: 2026-06-08 13:54:17.171+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
