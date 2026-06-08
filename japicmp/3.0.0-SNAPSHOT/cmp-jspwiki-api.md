@@ -60,7 +60,7 @@
 | Unchanged | [org.apache.wiki.api.core.ContextEnum]                       | ![Compatible]       | ![No changes]         |
 | Modified  | [org.apache.wiki.api.core.Engine]                            | ![Not serializable] | ![Method return type changed] |
 | Unchanged | [org.apache.wiki.api.core.Page]                              | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Method removed]     |
+| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Method new default] |
 | Unchanged | [org.apache.wiki.api.engine.EngineLifecycleExtension]        | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.Initializable]                   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.RenderApi]                       | ![Not serializable] | ![No changes]         |
@@ -427,26 +427,27 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                                 | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|--------------------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_INLINEPATTERN`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_TEMPLATE_NAME`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PREFS_COOKIE_NAME`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_ACL_MANAGER_IMPL`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_ALLOW_CREATION_OF_EMPTY_PAGES` |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_APPNAME`                       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_ENCODING`                      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_FRONTPAGE`                     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_INLINEIMAGEPTRN`               |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_INTERWIKIREF`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_MATCHPLURALS`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_NO_FILTER_ENCODING`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_REF_MANAGER_IMPL`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_SEARCHPATH`                    |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_STOREUSERNAME`                 |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_TEMPLATEDIR`                   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_URLCONSTRUCTOR`                |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_WORKDIR`                       |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                                 | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|--------------------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_INLINEPATTERN`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_TEMPLATE_NAME`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PREFS_COOKIE_NAME`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ACL_MANAGER_IMPL`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ALLOW_CREATION_OF_EMPTY_PAGES` |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_APPNAME`                       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ENCODING`                      |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_FRONTPAGE`                     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_INLINEIMAGEPTRN`               |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_INTERWIKIREF`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_MATCHPLURALS`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_NO_FILTER_ENCODING`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_REF_MANAGER_IMPL`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_SEARCHPATH`                    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_STOREUSERNAME`                 |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_TEMPLATEDIR`                   |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_URLCONSTRUCTOR`                |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_USE_2_X_ACL_LOGIC`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_WORKDIR`                       |             | ![No changes]         |
 
 ___
 
@@ -512,8 +513,8 @@ ___
 <a id="user-content-org.apache.wiki.api.core.session"></a>
 ### `org.apache.wiki.api.core.Session`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
 | Status   | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
@@ -523,28 +524,29 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type               | Method                                                   | Annotations | Throws                         | Compatibility Changes |
-|-----------|---------------------------|----------|--------------------|----------------------------------------------------------|-------------|--------------------------------|-----------------------|
-| Unchanged | `public` `abstract`       |          | `void`             | `addMessage`([`String`])                                 |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `addMessage`([`String`], [`String`])                     |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String`]         | `antiCsrfToken`()                                        |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `clearMessages`()                                        |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `clearMessages`([`String`])                              |             |                                | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Object`]~~     | ~~`doPrivileged`~~([`Session`], [`PrivilegedAction<?>`]) |             | ~~[`AccessControlException`]~~ | ![Method removed]     |
-| Unchanged | `public` `abstract`       |          | [`Locale`]         | `getLocale`()                                            |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal`]      | `getLoginPrincipal`()                                    |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String[]`][1]    | `getMessages`()                                          |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String[]`][1]    | `getMessages`([`String`])                                |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal[]`][2] | `getPrincipals`()                                        |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal[]`][2] | `getRoles`()                                             |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`String`]         | `getStatus`()                                            |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Subject`]        | `getSubject`()                                           |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | [`Principal`]      | `getUserPrincipal`()                                     |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `hasPrincipal`([`Principal`])                            |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `void`             | `invalidate`()                                           |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `isAnonymous`()                                          |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `isAsserted`()                                           |             |                                | ![No changes]         |
-| Unchanged | `public` `abstract`       |          | `boolean`          | `isAuthenticated`()                                      |             |                                | ![No changes]         |
+| Status    | Modifiers           | Generics | Type               | Method                                               | Annotations | Throws                     | Compatibility Changes |
+|-----------|---------------------|----------|--------------------|------------------------------------------------------|-------------|----------------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | `void`             | `addMessage`([`String`])                             |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `addMessage`([`String`], [`String`])                 |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]         | `antiCsrfToken`()                                    |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `clearMessages`()                                    |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `clearMessages`([`String`])                          |             |                            | ![No changes]         |
+| Unchanged | `static` `public`   |          | [`Object`]         | `doPrivileged`([`Session`], [`PrivilegedAction<?>`]) |             | [`AccessControlException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Locale`]         | `getLocale`()                                        |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal`]      | `getLoginPrincipal`()                                |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String[]`][1]    | `getMessages`()                                      |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String[]`][1]    | `getMessages`([`String`])                            |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][2] | `getPrincipals`()                                    |             |                            | ![No changes]         |
+| Added     | **`public`**        |          | **[`String`]**     | **`getRemoteAddress`**()                             |             |                            | ![Method new default] |
+| Unchanged | `public` `abstract` |          | [`Principal[]`][2] | `getRoles`()                                         |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`String`]         | `getStatus`()                                        |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Subject`]        | `getSubject`()                                       |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Principal`]      | `getUserPrincipal`()                                 |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `hasPrincipal`([`Principal`])                        |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`             | `invalidate`()                                       |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `isAnonymous`()                                      |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `isAsserted`()                                       |             |                            | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `boolean`          | `isAuthenticated`()                                  |             |                            | ![No changes]         |
 
 
 #### Fields
@@ -1496,7 +1498,7 @@ ___
 
 ___
 
-*Generated on: 2026-06-08 23:15:25.769+0000*.
+*Generated on: 2026-06-08 23:26:21.403+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
