@@ -34,32 +34,36 @@
 <span class="source-line-no">021</span><span id="line-21">import jakarta.servlet.ServletException;</span>
 <span class="source-line-no">022</span><span id="line-22">import jakarta.servlet.ServletRequest;</span>
 <span class="source-line-no">023</span><span id="line-23">import jakarta.servlet.ServletResponse;</span>
-<span class="source-line-no">024</span><span id="line-24">import jakarta.servlet.http.HttpServletResponse;</span>
-<span class="source-line-no">025</span><span id="line-25">import java.io.IOException;</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">/**</span>
-<span class="source-line-no">028</span><span id="line-28"> * Content-Security-Policy (CSP): Mitigates XSS and other injection attacks by</span>
-<span class="source-line-no">029</span><span id="line-29"> * defining approved sources of content that the browser can load.</span>
-<span class="source-line-no">030</span><span id="line-30"> */</span>
-<span class="source-line-no">031</span><span id="line-31">public class CSPFilter implements Filter {</span>
-<span class="source-line-no">032</span><span id="line-32"></span>
-<span class="source-line-no">033</span><span id="line-33">    private String mode = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'; img-src 'self';";</span>
+<span class="source-line-no">024</span><span id="line-24">import org.apache.wiki.util.HttpUtil;</span>
+<span class="source-line-no">025</span><span id="line-25"></span>
+<span class="source-line-no">026</span><span id="line-26">import java.io.IOException;</span>
+<span class="source-line-no">027</span><span id="line-27"></span>
+<span class="source-line-no">028</span><span id="line-28"></span>
+<span class="source-line-no">029</span><span id="line-29">/**</span>
+<span class="source-line-no">030</span><span id="line-30"> * Content-Security-Policy (CSP): Mitigates XSS and other injection attacks by</span>
+<span class="source-line-no">031</span><span id="line-31"> * defining approved sources of content that the browser can load.</span>
+<span class="source-line-no">032</span><span id="line-32"> */</span>
+<span class="source-line-no">033</span><span id="line-33">public class CSPFilter implements Filter {</span>
 <span class="source-line-no">034</span><span id="line-34"></span>
-<span class="source-line-no">035</span><span id="line-35">    public void init(FilterConfig filterConfig) {</span>
-<span class="source-line-no">036</span><span id="line-36">        String configMode = filterConfig.getInitParameter("CSPValue");</span>
-<span class="source-line-no">037</span><span id="line-37">        if (configMode != null) {</span>
-<span class="source-line-no">038</span><span id="line-38">            mode = configMode;</span>
-<span class="source-line-no">039</span><span id="line-39">        }</span>
-<span class="source-line-no">040</span><span id="line-40">    }</span>
-<span class="source-line-no">041</span><span id="line-41"></span>
-<span class="source-line-no">042</span><span id="line-42">    @Override</span>
-<span class="source-line-no">043</span><span id="line-43">    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {</span>
-<span class="source-line-no">044</span><span id="line-44">        HttpServletResponse res = (HttpServletResponse) response;</span>
-<span class="source-line-no">045</span><span id="line-45">        res.addHeader("Content-Security-Policy", mode);</span>
-<span class="source-line-no">046</span><span id="line-46">        chain.doFilter(request, response);</span>
-<span class="source-line-no">047</span><span id="line-47">    }</span>
-<span class="source-line-no">048</span><span id="line-48"></span>
-<span class="source-line-no">049</span><span id="line-49">}</span>
+<span class="source-line-no">035</span><span id="line-35">    private String mode = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'; img-src 'self';";</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">    /** {@inheritDoc} */</span>
+<span class="source-line-no">038</span><span id="line-38">    @Override</span>
+<span class="source-line-no">039</span><span id="line-39">    public void init( final FilterConfig filterConfig ) {</span>
+<span class="source-line-no">040</span><span id="line-40">        final String configMode = FilterOperations.initValue( filterConfig, "CSPValue", "csp.value" );</span>
+<span class="source-line-no">041</span><span id="line-41">        if( configMode != null ) {</span>
+<span class="source-line-no">042</span><span id="line-42">            mode = configMode;</span>
+<span class="source-line-no">043</span><span id="line-43">        }</span>
+<span class="source-line-no">044</span><span id="line-44">    }</span>
+<span class="source-line-no">045</span><span id="line-45"></span>
+<span class="source-line-no">046</span><span id="line-46">    /** {@inheritDoc} */</span>
+<span class="source-line-no">047</span><span id="line-47">    @Override</span>
+<span class="source-line-no">048</span><span id="line-48">    public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain ) throws IOException, ServletException {</span>
+<span class="source-line-no">049</span><span id="line-49">        HttpUtil.addHeader( response,"Content-Security-Policy", mode );</span>
+<span class="source-line-no">050</span><span id="line-50">        chain.doFilter( request, response );</span>
+<span class="source-line-no">051</span><span id="line-51">    }</span>
+<span class="source-line-no">052</span><span id="line-52"></span>
+<span class="source-line-no">053</span><span id="line-53">}</span>
 
 
 
