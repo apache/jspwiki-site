@@ -313,6 +313,7 @@ ___
 
 | Status    | Modifiers                 | Generics | Type           | Method                                                           | Annotations | Throws | Compatibility Changes |
 |-----------|---------------------------|----------|----------------|------------------------------------------------------------------|-------------|--------|-----------------------|
+| Added     | **`static`** **`public`** |          | **`void`**     | **`addHeader`**([`ServletResponse`], [`String`], [`String`])     |             |        | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`boolean`~~  | ~~`checkFor304`~~([`HttpServletRequest`], [`String`], [`Date`])  |             |        | ![Method removed]     |
 | Added     | **`static`** **`public`** |          | **`boolean`**  | **`checkFor304`**([`HttpServletRequest`][2], [`String`], [`Date`]) |           |        | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearCookie`~~([`HttpServletResponse`], [`String`])           |             |        | ![Method removed]     |
@@ -1136,7 +1137,7 @@ ___
 
 ___
 
-*Generated on: 2026-08-08 12:16:40.004+0000*.
+*Generated on: 2026-08-10 21:15:16.454+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
@@ -1207,6 +1208,7 @@ ___
 [`ReflectiveOperationException`]: # "java.lang.ReflectiveOperationException"
 [`Serializable`]: # "java.io.Serializable"
 [`ServletContext`]: # "javax.servlet.ServletContext"
+[`ServletResponse`]: # "jakarta.servlet.ServletResponse"
 [`String`]: # "java.lang.String"
 [`T extends Object`]: # "T extends java.lang.Object"
 [`Throwable`]: # "java.lang.Throwable"
