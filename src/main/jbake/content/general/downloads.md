@@ -19,7 +19,16 @@ If you want to build directly from the sources, please check the [Get and Build 
 
 **Release Index**
 
-* **8-Apr-2026**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.4ReleasedOn8042026">2.12.3</a>. This release fixes the following issues:
+* **22-Aug-2026**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn3.0.0#section-NewIn3.0.0-NewInJSPWiki3.0.0ReleasedOn08222026">3.0.0</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12356293&projectId=12310732
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/3.0.0/sources/jspwiki-builder-3.0.0-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/3.0.0/sources/jspwiki-builder-3.0.0-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/3.0.0/sources/jspwiki-builder-3.0.0-source-release.zip.asc">signature</a></strong>
+
+
+* **22-Aug-2026**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.5ReleasedOn8222026">2.12.5</a>. This release fixes the following issues:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12357388&projectId=12310732
+<strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.12.5/sources/jspwiki-builder-2.12.5-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.5/sources/jspwiki-builder-2.12.5-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.5/sources/jspwiki-builder-2.12.5-source-release.zip.asc">signature</a></strong>
+
+* **8-Apr-2026**: released version <a class="external" href="https://jspwiki-wiki.apache.org/Wiki.jsp?page=NewIn2.12#section-NewIn2.12-NewInJSPWiki2.12.4ReleasedOn8042026">2.12.4</a>. This release fixes the following issues:
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310732&version=12354835
 <strong><a class="external" href="https://www.apache.org/dyn/closer.lua/jspwiki/2.12.4/sources/jspwiki-builder-2.12.4-source-release.zip">source</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.4/sources/jspwiki-builder-2.12.4-source-release.zip.sha512">checksum</a></strong> | <strong><a class="external" href="https://downloads.apache.org/jspwiki/2.12.4/sources/jspwiki-builder-2.12.4-source-release.zip.asc">signature</a></strong>
 
