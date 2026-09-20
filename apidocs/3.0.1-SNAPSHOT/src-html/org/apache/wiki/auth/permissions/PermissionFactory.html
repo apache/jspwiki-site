@@ -51,10 +51,10 @@
 <span class="source-line-no">038</span><span id="line-38">    private PermissionFactory() {}</span>
 <span class="source-line-no">039</span><span id="line-39">    </span>
 <span class="source-line-no">040</span><span id="line-40">    /**</span>
-<span class="source-line-no">041</span><span id="line-41">     *  This is a WeakHashMap&lt;Integer,PagePermission&gt;, which stores the</span>
+<span class="source-line-no">041</span><span id="line-41">     *  This is a WeakHashMap&lt;String,PagePermission&gt;, which stores the</span>
 <span class="source-line-no">042</span><span id="line-42">     *  cached page permissions.</span>
 <span class="source-line-no">043</span><span id="line-43">     */</span>
-<span class="source-line-no">044</span><span id="line-44">    private static final WeakHashMap&lt;Integer, PagePermission&gt; c_cache = new WeakHashMap&lt;&gt;();</span>
+<span class="source-line-no">044</span><span id="line-44">    private static final WeakHashMap&lt;String, PagePermission&gt; c_cache = new WeakHashMap&lt;&gt;();</span>
 <span class="source-line-no">045</span><span id="line-45">    </span>
 <span class="source-line-no">046</span><span id="line-46">    /**</span>
 <span class="source-line-no">047</span><span id="line-47">     *  Get a permission object for a WikiPage and a set of actions.</span>
@@ -92,40 +92,38 @@
 <span class="source-line-no">079</span><span id="line-79">    {</span>
 <span class="source-line-no">080</span><span id="line-80">        PagePermission perm;</span>
 <span class="source-line-no">081</span><span id="line-81">        //</span>
-<span class="source-line-no">082</span><span id="line-82">        //  Since this is pretty speed-critical, we try to avoid the StringBuffer creation</span>
-<span class="source-line-no">083</span><span id="line-83">        //  overhead by XORring the hashcodes.  However, if page name length &gt; 32 characters,</span>
-<span class="source-line-no">084</span><span id="line-84">        //  this might result in two same hashCodes.</span>
-<span class="source-line-no">085</span><span id="line-85">        //  FIXME: Make this work for page-name lengths &gt; 32 characters (use the alt implementation</span>
-<span class="source-line-no">086</span><span id="line-86">        //         if page.length() &gt; 32?)</span>
-<span class="source-line-no">087</span><span id="line-87">        // Alternative implementation below, but it does create an extra StringBuffer.</span>
-<span class="source-line-no">088</span><span id="line-88">        //String         key = wiki+":"+page+":"+actions;</span>
-<span class="source-line-no">089</span><span id="line-89">        </span>
-<span class="source-line-no">090</span><span id="line-90">        final Integer key = wiki.hashCode() ^ page.hashCode() ^ actions.hashCode();</span>
-<span class="source-line-no">091</span><span id="line-91">   </span>
-<span class="source-line-no">092</span><span id="line-92">        //</span>
-<span class="source-line-no">093</span><span id="line-93">        //  It's fine if two threads update the cache, since the objects mean the same</span>
-<span class="source-line-no">094</span><span id="line-94">        //  thing anyway.  And this avoids nasty blocking effects.</span>
-<span class="source-line-no">095</span><span id="line-95">        //</span>
-<span class="source-line-no">096</span><span id="line-96">        synchronized( c_cache )</span>
-<span class="source-line-no">097</span><span id="line-97">        {</span>
-<span class="source-line-no">098</span><span id="line-98">            perm = c_cache.get( key );</span>
-<span class="source-line-no">099</span><span id="line-99">        }</span>
-<span class="source-line-no">100</span><span id="line-100">        </span>
-<span class="source-line-no">101</span><span id="line-101">        if( perm == null )</span>
-<span class="source-line-no">102</span><span id="line-102">        {</span>
-<span class="source-line-no">103</span><span id="line-103">            if( !wiki.isEmpty() ) page = wiki+":"+page;</span>
-<span class="source-line-no">104</span><span id="line-104">            perm = new PagePermission( page, actions );</span>
-<span class="source-line-no">105</span><span id="line-105">            </span>
-<span class="source-line-no">106</span><span id="line-106">            synchronized( c_cache )</span>
-<span class="source-line-no">107</span><span id="line-107">            {</span>
-<span class="source-line-no">108</span><span id="line-108">                c_cache.put( key, perm );</span>
-<span class="source-line-no">109</span><span id="line-109">            }</span>
-<span class="source-line-no">110</span><span id="line-110">        }</span>
-<span class="source-line-no">111</span><span id="line-111">        </span>
-<span class="source-line-no">112</span><span id="line-112">        return perm;</span>
-<span class="source-line-no">113</span><span id="line-113">    }</span>
-<span class="source-line-no">114</span><span id="line-114"></span>
-<span class="source-line-no">115</span><span id="line-115">}</span>
+<span class="source-line-no">082</span><span id="line-82">        //  The cache key must uniquely identify the (wiki, page, actions) triple.  The previous</span>
+<span class="source-line-no">083</span><span id="line-83">        //  XOR-of-hashCodes key allowed two different pages to collide onto the same 32-bit</span>
+<span class="source-line-no">084</span><span id="line-84">        //  value, so an access check for one page could silently be evaluated against another</span>
+<span class="source-line-no">085</span><span id="line-85">        //  page's cached permission (and hence the wrong ACL).  The concatenated string key is</span>
+<span class="source-line-no">086</span><span id="line-86">        //  collision-free for any attacker-choosable page name.</span>
+<span class="source-line-no">087</span><span id="line-87">        //</span>
+<span class="source-line-no">088</span><span id="line-88">        final String key = wiki + ":" + page + ":" + actions;</span>
+<span class="source-line-no">089</span><span id="line-89">   </span>
+<span class="source-line-no">090</span><span id="line-90">        //</span>
+<span class="source-line-no">091</span><span id="line-91">        //  It's fine if two threads update the cache, since the objects mean the same</span>
+<span class="source-line-no">092</span><span id="line-92">        //  thing anyway.  And this avoids nasty blocking effects.</span>
+<span class="source-line-no">093</span><span id="line-93">        //</span>
+<span class="source-line-no">094</span><span id="line-94">        synchronized( c_cache )</span>
+<span class="source-line-no">095</span><span id="line-95">        {</span>
+<span class="source-line-no">096</span><span id="line-96">            perm = c_cache.get( key );</span>
+<span class="source-line-no">097</span><span id="line-97">        }</span>
+<span class="source-line-no">098</span><span id="line-98">        </span>
+<span class="source-line-no">099</span><span id="line-99">        if( perm == null )</span>
+<span class="source-line-no">100</span><span id="line-100">        {</span>
+<span class="source-line-no">101</span><span id="line-101">            if( !wiki.isEmpty() ) page = wiki+":"+page;</span>
+<span class="source-line-no">102</span><span id="line-102">            perm = new PagePermission( page, actions );</span>
+<span class="source-line-no">103</span><span id="line-103">            </span>
+<span class="source-line-no">104</span><span id="line-104">            synchronized( c_cache )</span>
+<span class="source-line-no">105</span><span id="line-105">            {</span>
+<span class="source-line-no">106</span><span id="line-106">                c_cache.put( key, perm );</span>
+<span class="source-line-no">107</span><span id="line-107">            }</span>
+<span class="source-line-no">108</span><span id="line-108">        }</span>
+<span class="source-line-no">109</span><span id="line-109">        </span>
+<span class="source-line-no">110</span><span id="line-110">        return perm;</span>
+<span class="source-line-no">111</span><span id="line-111">    }</span>
+<span class="source-line-no">112</span><span id="line-112"></span>
+<span class="source-line-no">113</span><span id="line-113">}</span>
 
 
 

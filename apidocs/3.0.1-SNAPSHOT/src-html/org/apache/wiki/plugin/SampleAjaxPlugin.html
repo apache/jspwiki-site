@@ -35,60 +35,87 @@
 <span class="source-line-no">022</span><span id="line-22">import org.apache.wiki.api.core.Context;</span>
 <span class="source-line-no">023</span><span id="line-23">import org.apache.wiki.api.exceptions.PluginException;</span>
 <span class="source-line-no">024</span><span id="line-24">import org.apache.wiki.api.plugin.Plugin;</span>
-<span class="source-line-no">025</span><span id="line-25"></span>
-<span class="source-line-no">026</span><span id="line-26">import jakarta.servlet.ServletException;</span>
-<span class="source-line-no">027</span><span id="line-27">import jakarta.servlet.http.HttpServletRequest;</span>
-<span class="source-line-no">028</span><span id="line-28">import jakarta.servlet.http.HttpServletResponse;</span>
-<span class="source-line-no">029</span><span id="line-29">import java.io.IOException;</span>
-<span class="source-line-no">030</span><span id="line-30">import java.util.List;</span>
-<span class="source-line-no">031</span><span id="line-31">import java.util.Map;</span>
-<span class="source-line-no">032</span><span id="line-32"></span>
-<span class="source-line-no">033</span><span id="line-33">/**</span>
-<span class="source-line-no">034</span><span id="line-34"> * @since 2.10.2-svn10</span>
-<span class="source-line-no">035</span><span id="line-35"> *</span>
-<span class="source-line-no">036</span><span id="line-36"> * updated according to https://issues.apache.org/jira/browse/JSPWIKI-1195</span>
-<span class="source-line-no">037</span><span id="line-37"> */</span>
-<span class="source-line-no">038</span><span id="line-38"></span>
-<span class="source-line-no">039</span><span id="line-39">public class SampleAjaxPlugin implements Plugin, WikiAjaxServlet {</span>
-<span class="source-line-no">040</span><span id="line-40">    </span>
-<span class="source-line-no">041</span><span id="line-41">    private static final String SERVLET_MAPPING = "SampleAjaxPlugin";</span>
-<span class="source-line-no">042</span><span id="line-42"></span>
-<span class="source-line-no">043</span><span id="line-43">    @Override</span>
-<span class="source-line-no">044</span><span id="line-44">    public String execute( final Context context, final Map&lt;String, String&gt; params) throws PluginException {</span>
-<span class="source-line-no">045</span><span id="line-45">            var id = Long.toString(System.currentTimeMillis());</span>
-<span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">        var url = "/" + SERVLET_MAPPING + "/ajaxAction";</span>
-<span class="source-line-no">048</span><span id="line-48"></span>
-<span class="source-line-no">049</span><span id="line-49">        var ajaxParams = params.get("params");</span>
-<span class="source-line-no">050</span><span id="line-50"></span>
-<span class="source-line-no">051</span><span id="line-51">        var js = String.format("$('result%s').value='Loading…';"+</span>
-<span class="source-line-no">052</span><span id="line-52">            "var token = Wiki.CsrfProtection;"+</span>
-<span class="source-line-no">053</span><span id="line-53">            "new Request.HTML({"+</span>
-<span class="source-line-no">054</span><span id="line-54">                "url: Wiki.JsonUrl + '%s', "+</span>
-<span class="source-line-no">055</span><span id="line-55">                "update:$('result%s'),"+</span>
-<span class="source-line-no">056</span><span id="line-56">                "onSuccess: function(data){console.log('Success',data);},"+</span>
-<span class="source-line-no">057</span><span id="line-57">                "onError: function(err){console.log('Error',err);}"+</span>
-<span class="source-line-no">058</span><span id="line-58">            "}).post('params=%s&amp;X-XSRF-TOKEN='+token)", id, url, id, ajaxParams);</span>
-<span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">        return String.format("&lt;div onclick='%s' style='color: blue; cursor: pointer'&gt;Press Me&lt;/div&gt;&lt;div id='result%s'&gt;&lt;/div&gt;", js, id);</span>
-<span class="source-line-no">061</span><span id="line-61">    }</span>
-<span class="source-line-no">062</span><span id="line-62"></span>
-<span class="source-line-no">063</span><span id="line-63">    @Override</span>
-<span class="source-line-no">064</span><span id="line-64">    public String getServletMapping() {</span>
-<span class="source-line-no">065</span><span id="line-65">        return SERVLET_MAPPING;</span>
-<span class="source-line-no">066</span><span id="line-66">    }</span>
-<span class="source-line-no">067</span><span id="line-67"></span>
-<span class="source-line-no">068</span><span id="line-68">    @Override</span>
-<span class="source-line-no">069</span><span id="line-69">    public void service( final HttpServletRequest request, final HttpServletResponse response, final String actionName, final List&lt; String &gt; params )</span>
-<span class="source-line-no">070</span><span id="line-70">            throws ServletException, IOException {</span>
-<span class="source-line-no">071</span><span id="line-71">        try {</span>
-<span class="source-line-no">072</span><span id="line-72">            Thread.sleep( 5000 ); // Wait 5 seconds</span>
-<span class="source-line-no">073</span><span id="line-73">        } catch( final Exception e ) {</span>
-<span class="source-line-no">074</span><span id="line-74">        }</span>
-<span class="source-line-no">075</span><span id="line-75">        response.getWriter().print( "You called! actionName=" + actionName + " params=" + params );</span>
-<span class="source-line-no">076</span><span id="line-76">    }</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">}</span>
+<span class="source-line-no">025</span><span id="line-25">import org.apache.wiki.util.TextUtil;</span>
+<span class="source-line-no">026</span><span id="line-26"></span>
+<span class="source-line-no">027</span><span id="line-27">import jakarta.servlet.ServletException;</span>
+<span class="source-line-no">028</span><span id="line-28">import jakarta.servlet.http.HttpServletRequest;</span>
+<span class="source-line-no">029</span><span id="line-29">import jakarta.servlet.http.HttpServletResponse;</span>
+<span class="source-line-no">030</span><span id="line-30">import java.io.IOException;</span>
+<span class="source-line-no">031</span><span id="line-31">import java.util.List;</span>
+<span class="source-line-no">032</span><span id="line-32">import java.util.Map;</span>
+<span class="source-line-no">033</span><span id="line-33"></span>
+<span class="source-line-no">034</span><span id="line-34">/**</span>
+<span class="source-line-no">035</span><span id="line-35"> * @since 2.10.2-svn10</span>
+<span class="source-line-no">036</span><span id="line-36"> *</span>
+<span class="source-line-no">037</span><span id="line-37"> * updated according to https://issues.apache.org/jira/browse/JSPWIKI-1195</span>
+<span class="source-line-no">038</span><span id="line-38"> */</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">public class SampleAjaxPlugin implements Plugin, WikiAjaxServlet {</span>
+<span class="source-line-no">041</span><span id="line-41">    </span>
+<span class="source-line-no">042</span><span id="line-42">    private static final String SERVLET_MAPPING = "SampleAjaxPlugin";</span>
+<span class="source-line-no">043</span><span id="line-43"></span>
+<span class="source-line-no">044</span><span id="line-44">    @Override</span>
+<span class="source-line-no">045</span><span id="line-45">    public String execute( final Context context, final Map&lt;String, String&gt; params) throws PluginException {</span>
+<span class="source-line-no">046</span><span id="line-46">            var id = Long.toString(System.currentTimeMillis());</span>
+<span class="source-line-no">047</span><span id="line-47"></span>
+<span class="source-line-no">048</span><span id="line-48">        var url = "/" + SERVLET_MAPPING + "/ajaxAction";</span>
+<span class="source-line-no">049</span><span id="line-49"></span>
+<span class="source-line-no">050</span><span id="line-50">        var ajaxParams = jsStringEscape( params.get("params") );</span>
+<span class="source-line-no">051</span><span id="line-51"></span>
+<span class="source-line-no">052</span><span id="line-52">        var js = String.format("$('result%s').value='Loading…';"+</span>
+<span class="source-line-no">053</span><span id="line-53">            "var token = Wiki.CsrfProtection;"+</span>
+<span class="source-line-no">054</span><span id="line-54">            "new Request.HTML({"+</span>
+<span class="source-line-no">055</span><span id="line-55">                "url: Wiki.JsonUrl + '%s', "+</span>
+<span class="source-line-no">056</span><span id="line-56">                "update:$('result%s'),"+</span>
+<span class="source-line-no">057</span><span id="line-57">                "onSuccess: function(data){console.log('Success',data);},"+</span>
+<span class="source-line-no">058</span><span id="line-58">                "onError: function(err){console.log('Error',err);}"+</span>
+<span class="source-line-no">059</span><span id="line-59">            "}).post('params=%s&amp;X-XSRF-TOKEN='+token)", id, url, id, ajaxParams);</span>
+<span class="source-line-no">060</span><span id="line-60"></span>
+<span class="source-line-no">061</span><span id="line-61">        return String.format("&lt;div onclick='%s' style='color: blue; cursor: pointer'&gt;Press Me&lt;/div&gt;&lt;div id='result%s'&gt;&lt;/div&gt;", js, id);</span>
+<span class="source-line-no">062</span><span id="line-62">    }</span>
+<span class="source-line-no">063</span><span id="line-63"></span>
+<span class="source-line-no">064</span><span id="line-64">    /**</span>
+<span class="source-line-no">065</span><span id="line-65">     * Escapes a value for safe embedding inside a single-quoted javascript string that itself</span>
+<span class="source-line-no">066</span><span id="line-66">     * lives inside a single-quoted HTML event-handler attribute: every character other than an</span>
+<span class="source-line-no">067</span><span id="line-67">     * ASCII letter or digit is emitted as a javascript unicode escape, so the result can</span>
+<span class="source-line-no">068</span><span id="line-68">     * terminate neither the enclosing javascript string nor the enclosing attribute.</span>
+<span class="source-line-no">069</span><span id="line-69">     *</span>
+<span class="source-line-no">070</span><span id="line-70">     * @param s the raw parameter value, may be {@code null}.</span>
+<span class="source-line-no">071</span><span id="line-71">     * @return the escaped value, or an empty string if {@code s} was {@code null}.</span>
+<span class="source-line-no">072</span><span id="line-72">     */</span>
+<span class="source-line-no">073</span><span id="line-73">    static String jsStringEscape( final String s ) {</span>
+<span class="source-line-no">074</span><span id="line-74">        if( s == null ) {</span>
+<span class="source-line-no">075</span><span id="line-75">            return "";</span>
+<span class="source-line-no">076</span><span id="line-76">        }</span>
+<span class="source-line-no">077</span><span id="line-77">        final StringBuilder sb = new StringBuilder( s.length() );</span>
+<span class="source-line-no">078</span><span id="line-78">        for( int i = 0; i &lt; s.length(); i++ ) {</span>
+<span class="source-line-no">079</span><span id="line-79">            final char c = s.charAt( i );</span>
+<span class="source-line-no">080</span><span id="line-80">            if( ( c &gt;= 'a' &amp;&amp; c &lt;= 'z' ) || ( c &gt;= 'A' &amp;&amp; c &lt;= 'Z' ) || ( c &gt;= '0' &amp;&amp; c &lt;= '9' ) ) {</span>
+<span class="source-line-no">081</span><span id="line-81">                sb.append( c );</span>
+<span class="source-line-no">082</span><span id="line-82">            } else {</span>
+<span class="source-line-no">083</span><span id="line-83">                sb.append( String.format( "\\u%04x", ( int )c ) );</span>
+<span class="source-line-no">084</span><span id="line-84">            }</span>
+<span class="source-line-no">085</span><span id="line-85">        }</span>
+<span class="source-line-no">086</span><span id="line-86">        return sb.toString();</span>
+<span class="source-line-no">087</span><span id="line-87">    }</span>
+<span class="source-line-no">088</span><span id="line-88"></span>
+<span class="source-line-no">089</span><span id="line-89">    @Override</span>
+<span class="source-line-no">090</span><span id="line-90">    public String getServletMapping() {</span>
+<span class="source-line-no">091</span><span id="line-91">        return SERVLET_MAPPING;</span>
+<span class="source-line-no">092</span><span id="line-92">    }</span>
+<span class="source-line-no">093</span><span id="line-93"></span>
+<span class="source-line-no">094</span><span id="line-94">    @Override</span>
+<span class="source-line-no">095</span><span id="line-95">    public void service( final HttpServletRequest request, final HttpServletResponse response, final String actionName, final List&lt; String &gt; params )</span>
+<span class="source-line-no">096</span><span id="line-96">            throws ServletException, IOException {</span>
+<span class="source-line-no">097</span><span id="line-97">        try {</span>
+<span class="source-line-no">098</span><span id="line-98">            Thread.sleep( 5000 ); // Wait 5 seconds</span>
+<span class="source-line-no">099</span><span id="line-99">        } catch( final Exception e ) {</span>
+<span class="source-line-no">100</span><span id="line-100">        }</span>
+<span class="source-line-no">101</span><span id="line-101">        response.getWriter().print( "You called! actionName=" + TextUtil.replaceEntities( actionName )</span>
+<span class="source-line-no">102</span><span id="line-102">                + " params=" + TextUtil.replaceEntities( String.valueOf( params ) ) );</span>
+<span class="source-line-no">103</span><span id="line-103">    }</span>
+<span class="source-line-no">104</span><span id="line-104"></span>
+<span class="source-line-no">105</span><span id="line-105">}</span>
 
 
 
