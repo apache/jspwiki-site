@@ -55,7 +55,7 @@
 | Unchanged | [org.apache.wiki.util.CheckedSupplier]                      | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.ClassUtil]                            | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.CommentedProperties]                  | ![Compatible]       | ![No changes]         |
-| Unchanged | [org.apache.wiki.util.CryptoUtil]                           | ![Not serializable] | ![No changes]         |
+| Modified  | [org.apache.wiki.util.CryptoUtil]                           | ![Not serializable] | ![Method added to public class] |
 | Unchanged | [org.apache.wiki.util.FileUtil]                             | ![Not serializable] | ![No changes]         |
 | Modified  | [org.apache.wiki.util.FormUtil]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Modified  | [org.apache.wiki.util.HttpUtil]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
@@ -232,18 +232,27 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `CryptoUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers        | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|------------------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `final` `public` | Class | `CryptoUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers         | Generics | Type       | Method                                       | Annotations | Throws                       | Compatibility Changes |
-|-----------|-------------------|----------|------------|----------------------------------------------|-------------|------------------------------|-----------------------|
-| Unchanged | `static` `public` |          | [`String`] | `getSaltedPassword`(`byte[]`, [`String`])    |             | [`NoSuchAlgorithmException`] | ![No changes]         |
-| Unchanged | `static` `public` |          | `void`     | `main`([`String[]`][1])                      |             | [`Exception`]                | ![No changes]         |
-| Unchanged | `static` `public` |          | `boolean`  | `verifySaltedPassword`(`byte[]`, [`String`]) |             | [`NoSuchAlgorithmException`] | ![No changes]         |
+| Status    | Modifiers                 | Generics | Type           | Method                                                 | Annotations | Throws                           | Compatibility Changes |
+|-----------|---------------------------|----------|----------------|--------------------------------------------------------|-------------|----------------------------------|-----------------------|
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getPbkdf2SaltedPassword`**(`byte[]`)                |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | [`String`]     | `getSaltedPassword`(`byte[]`, [`String`])              |             | [`NoSuchAlgorithmException`]     | ![No changes]         |
+| Unchanged | `static` `public`         |          | `void`         | `main`([`String[]`][1])                                |             | [`Exception`]                    | ![No changes]         |
+| Added     | **`static`** **`public`** |          | **`boolean`**  | **`verifyPbkdf2SaltedPassword`**(`byte[]`, [`String`]) |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | `boolean`      | `verifySaltedPassword`(`byte[]`, [`String`])           |             | [`NoSuchAlgorithmException`]     | ![No changes]         |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name            | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|-----------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PBKDF2_PREFIX` |             | ![No changes]         |
 
 ___
 
@@ -1137,7 +1146,7 @@ ___
 
 ___
 
-*Generated on: 2026-09-20 00:32:56.528+0000*.
+*Generated on: 2026-09-20 00:53:11.890+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
