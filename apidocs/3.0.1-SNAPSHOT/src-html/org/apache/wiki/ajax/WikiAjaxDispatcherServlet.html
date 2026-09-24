@@ -153,113 +153,118 @@
 <span class="source-line-no">140</span><span id="line-140">                    res.setCharacterEncoding( m_engine.getContentEncoding().displayName() );</span>
 <span class="source-line-no">141</span><span id="line-141">                    final String actionName = AjaxUtil.getNextPathPart( req.getRequestURI(), servlet.getServletMapping() );</span>
 <span class="source-line-no">142</span><span id="line-142">                    if (!(servlet instanceof DefaultSearchManager.PluginSearch)) {</span>
-<span class="source-line-no">143</span><span id="line-143">                        final String xsrfToken = req.getParameter("X-XSRF-TOKEN");</span>
-<span class="source-line-no">144</span><span id="line-144">                        if (!wikiSession.antiCsrfToken().equals(xsrfToken)) {</span>
-<span class="source-line-no">145</span><span id="line-145">                            res.sendError(400, "X-XSRF-TOKEN missing or invalid.");</span>
-<span class="source-line-no">146</span><span id="line-146">                            WikiEventManager.fireEvent(this,</span>
-<span class="source-line-no">147</span><span id="line-147">                                    EventUtil.applyFrom(new WikiSecurityEvent(wikiSession, WikiSecurityEvent.ACCESS_DENIED,</span>
-<span class="source-line-no">148</span><span id="line-148">                                            req.getUserPrincipal(), "X-XSRF-TOKEN missing or invalid."), req));</span>
-<span class="source-line-no">149</span><span id="line-149">                            return;</span>
-<span class="source-line-no">150</span><span id="line-150">                        }</span>
-<span class="source-line-no">151</span><span id="line-151">                    }</span>
-<span class="source-line-no">152</span><span id="line-152">                    LOG.debug( "actionName=" + actionName );</span>
-<span class="source-line-no">153</span><span id="line-153">                    final String params = req.getParameter( "params" );</span>
-<span class="source-line-no">154</span><span id="line-154">                    LOG.debug( "params=" + params );</span>
-<span class="source-line-no">155</span><span id="line-155">                    List&lt; String &gt; paramValues = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">156</span><span id="line-156">                    if( params != null ) {</span>
-<span class="source-line-no">157</span><span id="line-157">                        if( StringUtils.isNotBlank( params ) ) {</span>
-<span class="source-line-no">158</span><span id="line-158">                            paramValues = Arrays.asList( params.trim().split( "," ) );</span>
-<span class="source-line-no">159</span><span id="line-159">                        }</span>
-<span class="source-line-no">160</span><span id="line-160">                    }</span>
-<span class="source-line-no">161</span><span id="line-161">                    servlet.service( req, res, actionName, paramValues );</span>
-<span class="source-line-no">162</span><span id="line-162">                } else {</span>
-<span class="source-line-no">163</span><span id="line-163">                    LOG.warn("Servlet container " + container + " not authorised. Permission required.");</span>
-<span class="source-line-no">164</span><span id="line-164">                    WikiEventManager.fireEvent(this,</span>
-<span class="source-line-no">165</span><span id="line-165">                            EventUtil.applyFrom(new WikiSecurityEvent(wikiSession, WikiSecurityEvent.ACCESS_DENIED,</span>
-<span class="source-line-no">166</span><span id="line-166">                                    req.getUserPrincipal(), container.permission), req));</span>
-<span class="source-line-no">167</span><span id="line-167">                    res.sendError(400, "Denied.");</span>
-<span class="source-line-no">168</span><span id="line-168">                    return;</span>
-<span class="source-line-no">169</span><span id="line-169">                }</span>
-<span class="source-line-no">170</span><span id="line-170">            } else {</span>
-<span class="source-line-no">171</span><span id="line-171">                LOG.warn( "No registered class for servletName=" + servletName + " in path=" + path );</span>
-<span class="source-line-no">172</span><span id="line-172">                res.sendError(400, "Unknown Service.");</span>
-<span class="source-line-no">173</span><span id="line-173">                //should this be an auditable event?</span>
-<span class="source-line-no">174</span><span id="line-174">                //throw new ServletException( "No registered class for servletName=" + servletName );</span>
-<span class="source-line-no">175</span><span id="line-175">            }</span>
-<span class="source-line-no">176</span><span id="line-176">        }</span>
-<span class="source-line-no">177</span><span id="line-177">    }</span>
-<span class="source-line-no">178</span><span id="line-178"></span>
-<span class="source-line-no">179</span><span id="line-179">    /**</span>
-<span class="source-line-no">180</span><span id="line-180">     * Validate the permission of the {@link WikiAjaxServlet} using the {@link AuthorizationManager#checkPermission}</span>
-<span class="source-line-no">181</span><span id="line-181">     *</span>
-<span class="source-line-no">182</span><span id="line-182">     * @param req the servlet request</span>
-<span class="source-line-no">183</span><span id="line-183">     * @param container the container info of the servlet</span>
-<span class="source-line-no">184</span><span id="line-184">     * @return true if permission is valid</span>
-<span class="source-line-no">185</span><span id="line-185">     */</span>
-<span class="source-line-no">186</span><span id="line-186">    private boolean validatePermission( final HttpServletRequest req, final AjaxServletContainer container ) {</span>
-<span class="source-line-no">187</span><span id="line-187">        final Engine e = Wiki.engine().find( req.getSession().getServletContext(), null );</span>
-<span class="source-line-no">188</span><span id="line-188">        boolean valid = false;</span>
-<span class="source-line-no">189</span><span id="line-189">        if( container != null ) {</span>
-<span class="source-line-no">190</span><span id="line-190">            valid = e.getManager( AuthorizationManager.class ).checkPermission( Wiki.session().find( e, req ), container.permission );</span>
-<span class="source-line-no">191</span><span id="line-191">        }</span>
-<span class="source-line-no">192</span><span id="line-192">        return valid;</span>
-<span class="source-line-no">193</span><span id="line-193">    }</span>
-<span class="source-line-no">194</span><span id="line-194"></span>
-<span class="source-line-no">195</span><span id="line-195">    /**</span>
-<span class="source-line-no">196</span><span id="line-196">     * Get the ServletName from the requestURI "/ajax/&lt;ServletName&gt;", using {@link AjaxUtil#getNextPathPart}.</span>
-<span class="source-line-no">197</span><span id="line-197">     *</span>
-<span class="source-line-no">198</span><span id="line-198">     * @param path The requestURI, which must contains "/ajax/&lt;ServletName&gt;" in the path</span>
-<span class="source-line-no">199</span><span id="line-199">     * @return The ServletName for the requestURI, or null</span>
-<span class="source-line-no">200</span><span id="line-200">     * @throws ServletException if the path is invalid</span>
-<span class="source-line-no">201</span><span id="line-201">     */</span>
-<span class="source-line-no">202</span><span id="line-202">    public String getServletName( final String path ) throws ServletException {</span>
-<span class="source-line-no">203</span><span id="line-203">        return AjaxUtil.getNextPathPart( path, PATH_AJAX );</span>
-<span class="source-line-no">204</span><span id="line-204">    }</span>
-<span class="source-line-no">205</span><span id="line-205"></span>
-<span class="source-line-no">206</span><span id="line-206">    /**</span>
-<span class="source-line-no">207</span><span id="line-207">     * Find the {@link AjaxServletContainer} as registered in {@link #registerServlet}.</span>
-<span class="source-line-no">208</span><span id="line-208">     *</span>
-<span class="source-line-no">209</span><span id="line-209">     * @param servletAlias the name of the servlet from {@link #getServletName}</span>
-<span class="source-line-no">210</span><span id="line-210">     * @return The first servlet found, or null.</span>
-<span class="source-line-no">211</span><span id="line-211">     */</span>
-<span class="source-line-no">212</span><span id="line-212">    private AjaxServletContainer findServletContainer( final String servletAlias ) {</span>
-<span class="source-line-no">213</span><span id="line-213">        return ajaxServlets.get( servletAlias );</span>
-<span class="source-line-no">214</span><span id="line-214">    }</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">    /**</span>
-<span class="source-line-no">217</span><span id="line-217">     * Find the {@link WikiAjaxServlet} given the servletAlias that it was registered with.</span>
-<span class="source-line-no">218</span><span id="line-218">     *</span>
-<span class="source-line-no">219</span><span id="line-219">     * @param servletAlias the value provided to {@link #registerServlet}</span>
-<span class="source-line-no">220</span><span id="line-220">     * @return the {@link WikiAjaxServlet} given the servletAlias that it was registered with.</span>
-<span class="source-line-no">221</span><span id="line-221">     */</span>
-<span class="source-line-no">222</span><span id="line-222">    public WikiAjaxServlet findServletByName( final String servletAlias ) {</span>
-<span class="source-line-no">223</span><span id="line-223">        final AjaxServletContainer container = ajaxServlets.get( servletAlias );</span>
-<span class="source-line-no">224</span><span id="line-224">        if( container != null ) {</span>
-<span class="source-line-no">225</span><span id="line-225">            return container.servlet;</span>
-<span class="source-line-no">226</span><span id="line-226">        }</span>
-<span class="source-line-no">227</span><span id="line-227">        return null;</span>
-<span class="source-line-no">228</span><span id="line-228">    }</span>
-<span class="source-line-no">229</span><span id="line-229"></span>
-<span class="source-line-no">230</span><span id="line-230">    private static class AjaxServletContainer {</span>
-<span class="source-line-no">231</span><span id="line-231"></span>
-<span class="source-line-no">232</span><span id="line-232">        final String alias;</span>
-<span class="source-line-no">233</span><span id="line-233">        final WikiAjaxServlet servlet;</span>
-<span class="source-line-no">234</span><span id="line-234">        final Permission permission;</span>
-<span class="source-line-no">235</span><span id="line-235"></span>
-<span class="source-line-no">236</span><span id="line-236">        public AjaxServletContainer( final String alias, final WikiAjaxServlet servlet, final Permission permission ) {</span>
-<span class="source-line-no">237</span><span id="line-237">            this.alias = alias;</span>
-<span class="source-line-no">238</span><span id="line-238">            this.servlet = servlet;</span>
-<span class="source-line-no">239</span><span id="line-239">            this.permission = permission;</span>
-<span class="source-line-no">240</span><span id="line-240">        }</span>
-<span class="source-line-no">241</span><span id="line-241"></span>
-<span class="source-line-no">242</span><span id="line-242">        @Override</span>
-<span class="source-line-no">243</span><span id="line-243">        public String toString() {</span>
-<span class="source-line-no">244</span><span id="line-244">            return getClass().getSimpleName() + " " + alias + "=" + servlet.getClass().getSimpleName() + " permission=" + permission;</span>
+<span class="source-line-no">143</span><span id="line-143">                        // Prefer the request header: a token sent as a GET parameter ends up in access logs and</span>
+<span class="source-line-no">144</span><span id="line-144">                        // browser history. The parameter is still accepted for compatibility with older clients.</span>
+<span class="source-line-no">145</span><span id="line-145">                        String xsrfToken = req.getHeader("X-XSRF-TOKEN");</span>
+<span class="source-line-no">146</span><span id="line-146">                        if (xsrfToken == null) {</span>
+<span class="source-line-no">147</span><span id="line-147">                            xsrfToken = req.getParameter("X-XSRF-TOKEN");</span>
+<span class="source-line-no">148</span><span id="line-148">                        }</span>
+<span class="source-line-no">149</span><span id="line-149">                        if (!wikiSession.antiCsrfToken().equals(xsrfToken)) {</span>
+<span class="source-line-no">150</span><span id="line-150">                            res.sendError(400, "X-XSRF-TOKEN missing or invalid.");</span>
+<span class="source-line-no">151</span><span id="line-151">                            WikiEventManager.fireEvent(this,</span>
+<span class="source-line-no">152</span><span id="line-152">                                    EventUtil.applyFrom(new WikiSecurityEvent(wikiSession, WikiSecurityEvent.ACCESS_DENIED,</span>
+<span class="source-line-no">153</span><span id="line-153">                                            req.getUserPrincipal(), "X-XSRF-TOKEN missing or invalid."), req));</span>
+<span class="source-line-no">154</span><span id="line-154">                            return;</span>
+<span class="source-line-no">155</span><span id="line-155">                        }</span>
+<span class="source-line-no">156</span><span id="line-156">                    }</span>
+<span class="source-line-no">157</span><span id="line-157">                    LOG.debug( "actionName=" + actionName );</span>
+<span class="source-line-no">158</span><span id="line-158">                    final String params = req.getParameter( "params" );</span>
+<span class="source-line-no">159</span><span id="line-159">                    LOG.debug( "params=" + params );</span>
+<span class="source-line-no">160</span><span id="line-160">                    List&lt; String &gt; paramValues = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">161</span><span id="line-161">                    if( params != null ) {</span>
+<span class="source-line-no">162</span><span id="line-162">                        if( StringUtils.isNotBlank( params ) ) {</span>
+<span class="source-line-no">163</span><span id="line-163">                            paramValues = Arrays.asList( params.trim().split( "," ) );</span>
+<span class="source-line-no">164</span><span id="line-164">                        }</span>
+<span class="source-line-no">165</span><span id="line-165">                    }</span>
+<span class="source-line-no">166</span><span id="line-166">                    servlet.service( req, res, actionName, paramValues );</span>
+<span class="source-line-no">167</span><span id="line-167">                } else {</span>
+<span class="source-line-no">168</span><span id="line-168">                    LOG.warn("Servlet container " + container + " not authorised. Permission required.");</span>
+<span class="source-line-no">169</span><span id="line-169">                    WikiEventManager.fireEvent(this,</span>
+<span class="source-line-no">170</span><span id="line-170">                            EventUtil.applyFrom(new WikiSecurityEvent(wikiSession, WikiSecurityEvent.ACCESS_DENIED,</span>
+<span class="source-line-no">171</span><span id="line-171">                                    req.getUserPrincipal(), container.permission), req));</span>
+<span class="source-line-no">172</span><span id="line-172">                    res.sendError(400, "Denied.");</span>
+<span class="source-line-no">173</span><span id="line-173">                    return;</span>
+<span class="source-line-no">174</span><span id="line-174">                }</span>
+<span class="source-line-no">175</span><span id="line-175">            } else {</span>
+<span class="source-line-no">176</span><span id="line-176">                LOG.warn( "No registered class for servletName=" + servletName + " in path=" + path );</span>
+<span class="source-line-no">177</span><span id="line-177">                res.sendError(400, "Unknown Service.");</span>
+<span class="source-line-no">178</span><span id="line-178">                //should this be an auditable event?</span>
+<span class="source-line-no">179</span><span id="line-179">                //throw new ServletException( "No registered class for servletName=" + servletName );</span>
+<span class="source-line-no">180</span><span id="line-180">            }</span>
+<span class="source-line-no">181</span><span id="line-181">        }</span>
+<span class="source-line-no">182</span><span id="line-182">    }</span>
+<span class="source-line-no">183</span><span id="line-183"></span>
+<span class="source-line-no">184</span><span id="line-184">    /**</span>
+<span class="source-line-no">185</span><span id="line-185">     * Validate the permission of the {@link WikiAjaxServlet} using the {@link AuthorizationManager#checkPermission}</span>
+<span class="source-line-no">186</span><span id="line-186">     *</span>
+<span class="source-line-no">187</span><span id="line-187">     * @param req the servlet request</span>
+<span class="source-line-no">188</span><span id="line-188">     * @param container the container info of the servlet</span>
+<span class="source-line-no">189</span><span id="line-189">     * @return true if permission is valid</span>
+<span class="source-line-no">190</span><span id="line-190">     */</span>
+<span class="source-line-no">191</span><span id="line-191">    private boolean validatePermission( final HttpServletRequest req, final AjaxServletContainer container ) {</span>
+<span class="source-line-no">192</span><span id="line-192">        final Engine e = Wiki.engine().find( req.getSession().getServletContext(), null );</span>
+<span class="source-line-no">193</span><span id="line-193">        boolean valid = false;</span>
+<span class="source-line-no">194</span><span id="line-194">        if( container != null ) {</span>
+<span class="source-line-no">195</span><span id="line-195">            valid = e.getManager( AuthorizationManager.class ).checkPermission( Wiki.session().find( e, req ), container.permission );</span>
+<span class="source-line-no">196</span><span id="line-196">        }</span>
+<span class="source-line-no">197</span><span id="line-197">        return valid;</span>
+<span class="source-line-no">198</span><span id="line-198">    }</span>
+<span class="source-line-no">199</span><span id="line-199"></span>
+<span class="source-line-no">200</span><span id="line-200">    /**</span>
+<span class="source-line-no">201</span><span id="line-201">     * Get the ServletName from the requestURI "/ajax/&lt;ServletName&gt;", using {@link AjaxUtil#getNextPathPart}.</span>
+<span class="source-line-no">202</span><span id="line-202">     *</span>
+<span class="source-line-no">203</span><span id="line-203">     * @param path The requestURI, which must contains "/ajax/&lt;ServletName&gt;" in the path</span>
+<span class="source-line-no">204</span><span id="line-204">     * @return The ServletName for the requestURI, or null</span>
+<span class="source-line-no">205</span><span id="line-205">     * @throws ServletException if the path is invalid</span>
+<span class="source-line-no">206</span><span id="line-206">     */</span>
+<span class="source-line-no">207</span><span id="line-207">    public String getServletName( final String path ) throws ServletException {</span>
+<span class="source-line-no">208</span><span id="line-208">        return AjaxUtil.getNextPathPart( path, PATH_AJAX );</span>
+<span class="source-line-no">209</span><span id="line-209">    }</span>
+<span class="source-line-no">210</span><span id="line-210"></span>
+<span class="source-line-no">211</span><span id="line-211">    /**</span>
+<span class="source-line-no">212</span><span id="line-212">     * Find the {@link AjaxServletContainer} as registered in {@link #registerServlet}.</span>
+<span class="source-line-no">213</span><span id="line-213">     *</span>
+<span class="source-line-no">214</span><span id="line-214">     * @param servletAlias the name of the servlet from {@link #getServletName}</span>
+<span class="source-line-no">215</span><span id="line-215">     * @return The first servlet found, or null.</span>
+<span class="source-line-no">216</span><span id="line-216">     */</span>
+<span class="source-line-no">217</span><span id="line-217">    private AjaxServletContainer findServletContainer( final String servletAlias ) {</span>
+<span class="source-line-no">218</span><span id="line-218">        return ajaxServlets.get( servletAlias );</span>
+<span class="source-line-no">219</span><span id="line-219">    }</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">    /**</span>
+<span class="source-line-no">222</span><span id="line-222">     * Find the {@link WikiAjaxServlet} given the servletAlias that it was registered with.</span>
+<span class="source-line-no">223</span><span id="line-223">     *</span>
+<span class="source-line-no">224</span><span id="line-224">     * @param servletAlias the value provided to {@link #registerServlet}</span>
+<span class="source-line-no">225</span><span id="line-225">     * @return the {@link WikiAjaxServlet} given the servletAlias that it was registered with.</span>
+<span class="source-line-no">226</span><span id="line-226">     */</span>
+<span class="source-line-no">227</span><span id="line-227">    public WikiAjaxServlet findServletByName( final String servletAlias ) {</span>
+<span class="source-line-no">228</span><span id="line-228">        final AjaxServletContainer container = ajaxServlets.get( servletAlias );</span>
+<span class="source-line-no">229</span><span id="line-229">        if( container != null ) {</span>
+<span class="source-line-no">230</span><span id="line-230">            return container.servlet;</span>
+<span class="source-line-no">231</span><span id="line-231">        }</span>
+<span class="source-line-no">232</span><span id="line-232">        return null;</span>
+<span class="source-line-no">233</span><span id="line-233">    }</span>
+<span class="source-line-no">234</span><span id="line-234"></span>
+<span class="source-line-no">235</span><span id="line-235">    private static class AjaxServletContainer {</span>
+<span class="source-line-no">236</span><span id="line-236"></span>
+<span class="source-line-no">237</span><span id="line-237">        final String alias;</span>
+<span class="source-line-no">238</span><span id="line-238">        final WikiAjaxServlet servlet;</span>
+<span class="source-line-no">239</span><span id="line-239">        final Permission permission;</span>
+<span class="source-line-no">240</span><span id="line-240"></span>
+<span class="source-line-no">241</span><span id="line-241">        public AjaxServletContainer( final String alias, final WikiAjaxServlet servlet, final Permission permission ) {</span>
+<span class="source-line-no">242</span><span id="line-242">            this.alias = alias;</span>
+<span class="source-line-no">243</span><span id="line-243">            this.servlet = servlet;</span>
+<span class="source-line-no">244</span><span id="line-244">            this.permission = permission;</span>
 <span class="source-line-no">245</span><span id="line-245">        }</span>
 <span class="source-line-no">246</span><span id="line-246"></span>
-<span class="source-line-no">247</span><span id="line-247">    }</span>
-<span class="source-line-no">248</span><span id="line-248"></span>
-<span class="source-line-no">249</span><span id="line-249">}</span>
+<span class="source-line-no">247</span><span id="line-247">        @Override</span>
+<span class="source-line-no">248</span><span id="line-248">        public String toString() {</span>
+<span class="source-line-no">249</span><span id="line-249">            return getClass().getSimpleName() + " " + alias + "=" + servlet.getClass().getSimpleName() + " permission=" + permission;</span>
+<span class="source-line-no">250</span><span id="line-250">        }</span>
+<span class="source-line-no">251</span><span id="line-251"></span>
+<span class="source-line-no">252</span><span id="line-252">    }</span>
+<span class="source-line-no">253</span><span id="line-253"></span>
+<span class="source-line-no">254</span><span id="line-254">}</span>
 
 
 
