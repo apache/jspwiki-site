@@ -486,234 +486,236 @@
 <span class="source-line-no">473</span><span id="line-473">     */</span>
 <span class="source-line-no">474</span><span id="line-474">    @Override</span>
 <span class="source-line-no">475</span><span id="line-475">    public boolean pageExists( final String pageName, final int version ) {</span>
-<span class="source-line-no">476</span><span id="line-476">        if (version == PageProvider.LATEST_VERSION || version == findLatestVersion( pageName ) ) {</span>
-<span class="source-line-no">477</span><span id="line-477">            return pageExists(pageName);</span>
-<span class="source-line-no">478</span><span id="line-478">        }</span>
-<span class="source-line-no">479</span><span id="line-479"></span>
-<span class="source-line-no">480</span><span id="line-480">        final File dir = findOldPageDir( pageName );</span>
-<span class="source-line-no">481</span><span id="line-481">        if( !dir.exists() || !dir.isDirectory() ) {</span>
-<span class="source-line-no">482</span><span id="line-482">            return false;</span>
-<span class="source-line-no">483</span><span id="line-483">        }</span>
-<span class="source-line-no">484</span><span id="line-484"></span>
-<span class="source-line-no">485</span><span id="line-485">        return new File( dir, version + FILE_EXT ).exists();</span>
-<span class="source-line-no">486</span><span id="line-486">    }</span>
-<span class="source-line-no">487</span><span id="line-487"></span>
-<span class="source-line-no">488</span><span id="line-488">    /**</span>
-<span class="source-line-no">489</span><span id="line-489">     *  {@inheritDoc}</span>
-<span class="source-line-no">490</span><span id="line-490">     */</span>
-<span class="source-line-no">491</span><span id="line-491">     // FIXME: Does not get user information.</span>
-<span class="source-line-no">492</span><span id="line-492">    @Override</span>
-<span class="source-line-no">493</span><span id="line-493">    public List&lt; Page &gt; getVersionHistory( final String page ) throws ProviderException {</span>
-<span class="source-line-no">494</span><span id="line-494">        final ArrayList&lt; Page &gt; list = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">495</span><span id="line-495">        final int latest = findLatestVersion( page );</span>
-<span class="source-line-no">496</span><span id="line-496">        for( int i = latest; i &gt; 0; i-- ) {</span>
-<span class="source-line-no">497</span><span id="line-497">            final Page info = getPageInfo( page, i );</span>
-<span class="source-line-no">498</span><span id="line-498">            if( info != null ) {</span>
-<span class="source-line-no">499</span><span id="line-499">                list.add( info );</span>
-<span class="source-line-no">500</span><span id="line-500">            }</span>
-<span class="source-line-no">501</span><span id="line-501">        }</span>
-<span class="source-line-no">502</span><span id="line-502"></span>
-<span class="source-line-no">503</span><span id="line-503">        return list;</span>
-<span class="source-line-no">504</span><span id="line-504">    }</span>
-<span class="source-line-no">505</span><span id="line-505"></span>
-<span class="source-line-no">506</span><span id="line-506">    /*</span>
-<span class="source-line-no">507</span><span id="line-507">     * Support for migration of simple properties created by the FileSystemProvider when coming under Versioning management.</span>
-<span class="source-line-no">508</span><span id="line-508">     * Simulate an initial version.</span>
-<span class="source-line-no">509</span><span id="line-509">     */</span>
-<span class="source-line-no">510</span><span id="line-510">    private Properties getHeritagePageProperties( final String page ) throws IOException {</span>
-<span class="source-line-no">511</span><span id="line-511">        final File propertyFile = new File( getPageDirectory(), mangleName( page ) + FileSystemProvider.PROP_EXT );</span>
-<span class="source-line-no">512</span><span id="line-512">        if ( propertyFile.exists() ) {</span>
-<span class="source-line-no">513</span><span id="line-513">            final long lastModified = propertyFile.lastModified();</span>
-<span class="source-line-no">514</span><span id="line-514"></span>
-<span class="source-line-no">515</span><span id="line-515">            CachedProperties cp = m_cachedProperties;</span>
-<span class="source-line-no">516</span><span id="line-516">            if ( cp != null &amp;&amp; cp.m_page.equals(page) &amp;&amp; cp.m_lastModified == lastModified ) {</span>
-<span class="source-line-no">517</span><span id="line-517">                return cp.m_props;</span>
-<span class="source-line-no">518</span><span id="line-518">            }</span>
-<span class="source-line-no">519</span><span id="line-519"></span>
-<span class="source-line-no">520</span><span id="line-520">            try( final InputStream in = new BufferedInputStream( Files.newInputStream( propertyFile.toPath() ) ) ) {</span>
-<span class="source-line-no">521</span><span id="line-521">                final Properties props = new Properties();</span>
-<span class="source-line-no">522</span><span id="line-522">                props.load( in );</span>
-<span class="source-line-no">523</span><span id="line-523"></span>
-<span class="source-line-no">524</span><span id="line-524">                final String originalAuthor = props.getProperty( Page.AUTHOR );</span>
-<span class="source-line-no">525</span><span id="line-525">                if ( !originalAuthor.isEmpty() ) {</span>
-<span class="source-line-no">526</span><span id="line-526">                    // simulate original author as if already versioned but put non-versioned property in special cache too</span>
-<span class="source-line-no">527</span><span id="line-527">                    props.setProperty( "1.author", originalAuthor );</span>
-<span class="source-line-no">528</span><span id="line-528"></span>
-<span class="source-line-no">529</span><span id="line-529">                    // The profiler showed the probability was very high that when calling for the history of a page the</span>
-<span class="source-line-no">530</span><span id="line-530">                    // propertyfile would be read as much times as there were versions of that file. It is statistically</span>
-<span class="source-line-no">531</span><span id="line-531">                    // likely the propertyfile will be examined many times before it is updated.</span>
-<span class="source-line-no">532</span><span id="line-532">                    cp = new CachedProperties( page, props, propertyFile.lastModified() );</span>
-<span class="source-line-no">533</span><span id="line-533">                    m_cachedProperties = cp; // Atomic</span>
-<span class="source-line-no">534</span><span id="line-534">                }</span>
-<span class="source-line-no">535</span><span id="line-535"></span>
-<span class="source-line-no">536</span><span id="line-536">                return props;</span>
-<span class="source-line-no">537</span><span id="line-537">            }</span>
-<span class="source-line-no">538</span><span id="line-538">        }</span>
-<span class="source-line-no">539</span><span id="line-539"></span>
-<span class="source-line-no">540</span><span id="line-540">        return new Properties(); // Returns an empty object</span>
-<span class="source-line-no">541</span><span id="line-541">    }</span>
-<span class="source-line-no">542</span><span id="line-542"></span>
-<span class="source-line-no">543</span><span id="line-543">    /**</span>
-<span class="source-line-no">544</span><span id="line-544">     *  Removes the relevant page directory under "OLD" -directory as well, but does not remove any extra subdirectories from it.</span>
-<span class="source-line-no">545</span><span id="line-545">     *  It will only touch those files that it thinks to be WikiPages.</span>
-<span class="source-line-no">546</span><span id="line-546">     *</span>
-<span class="source-line-no">547</span><span id="line-547">     *  @param page {@inheritDoc}</span>
-<span class="source-line-no">548</span><span id="line-548">     *  @throws {@inheritDoc}</span>
-<span class="source-line-no">549</span><span id="line-549">     */</span>
-<span class="source-line-no">550</span><span id="line-550">    @Override</span>
-<span class="source-line-no">551</span><span id="line-551">    public void deletePage( final String page ) throws ProviderException {</span>
-<span class="source-line-no">552</span><span id="line-552">        super.deletePage( page );</span>
-<span class="source-line-no">553</span><span id="line-553">        final File dir = findOldPageDir( page );</span>
-<span class="source-line-no">554</span><span id="line-554">        if( dir.exists() &amp;&amp; dir.isDirectory() ) {</span>
-<span class="source-line-no">555</span><span id="line-555">            final File[] files = dir.listFiles( new WikiFileFilter() );</span>
-<span class="source-line-no">556</span><span id="line-556">            for( final File file : files ) {</span>
-<span class="source-line-no">557</span><span id="line-557">                if (!file.delete()) {</span>
-<span class="source-line-no">558</span><span id="line-558">                    LOG.warn("Failed to delete " + file.getAbsolutePath());</span>
-<span class="source-line-no">559</span><span id="line-559">                }</span>
-<span class="source-line-no">560</span><span id="line-560">            }</span>
-<span class="source-line-no">561</span><span id="line-561"></span>
-<span class="source-line-no">562</span><span id="line-562">            final File propfile = new File( dir, PROPERTYFILE );</span>
-<span class="source-line-no">563</span><span id="line-563">            if( propfile.exists() ) {</span>
-<span class="source-line-no">564</span><span id="line-564">                if (!propfile.delete()) {</span>
-<span class="source-line-no">565</span><span id="line-565">                    LOG.warn("Failed to delete " + propfile.getAbsolutePath());</span>
-<span class="source-line-no">566</span><span id="line-566">                }</span>
-<span class="source-line-no">567</span><span id="line-567">            }</span>
-<span class="source-line-no">568</span><span id="line-568"></span>
-<span class="source-line-no">569</span><span id="line-569">            dir.delete();</span>
-<span class="source-line-no">570</span><span id="line-570">        }</span>
-<span class="source-line-no">571</span><span id="line-571">    }</span>
-<span class="source-line-no">572</span><span id="line-572"></span>
-<span class="source-line-no">573</span><span id="line-573">    /**</span>
-<span class="source-line-no">574</span><span id="line-574">     *  {@inheritDoc}</span>
-<span class="source-line-no">575</span><span id="line-575">     *</span>
-<span class="source-line-no">576</span><span id="line-576">     *  Deleting versions has never really worked, JSPWiki assumes that version histories are "not gappy". Using deleteVersion() is</span>
-<span class="source-line-no">577</span><span id="line-577">     *  definitely not recommended.</span>
-<span class="source-line-no">578</span><span id="line-578">     */</span>
-<span class="source-line-no">579</span><span id="line-579">    @Override</span>
-<span class="source-line-no">580</span><span id="line-580">    public void deleteVersion( final String page, final int version ) throws ProviderException {</span>
-<span class="source-line-no">581</span><span id="line-581">        final File dir = findOldPageDir( page );</span>
-<span class="source-line-no">582</span><span id="line-582">        int latest = findLatestVersion( page );</span>
-<span class="source-line-no">583</span><span id="line-583">        if( version == PageProvider.LATEST_VERSION ||</span>
-<span class="source-line-no">584</span><span id="line-584">            version == latest ||</span>
-<span class="source-line-no">585</span><span id="line-585">            (version == 1 &amp;&amp; latest == -1) ) {</span>
-<span class="source-line-no">586</span><span id="line-586">            //  Delete the properties</span>
-<span class="source-line-no">587</span><span id="line-587">            try {</span>
-<span class="source-line-no">588</span><span id="line-588">                final Properties props = getPageProperties( page );</span>
-<span class="source-line-no">589</span><span id="line-589">                props.remove( ((latest &gt; 0) ? latest : 1)+".author" );</span>
-<span class="source-line-no">590</span><span id="line-590">                putPageProperties( page, props );</span>
-<span class="source-line-no">591</span><span id="line-591">            } catch( final IOException e ) {</span>
-<span class="source-line-no">592</span><span id="line-592">                LOG.error("Unable to modify page properties",e);</span>
-<span class="source-line-no">593</span><span id="line-593">                throw new ProviderException("Could not modify page properties: " + e.getMessage());</span>
-<span class="source-line-no">594</span><span id="line-594">            }</span>
-<span class="source-line-no">595</span><span id="line-595"></span>
-<span class="source-line-no">596</span><span id="line-596">            // We can let the FileSystemProvider take care of the actual deletion</span>
-<span class="source-line-no">597</span><span id="line-597">            super.deleteVersion( page, PageProvider.LATEST_VERSION );</span>
-<span class="source-line-no">598</span><span id="line-598"></span>
-<span class="source-line-no">599</span><span id="line-599">            //  Copy the old file to the new location</span>
-<span class="source-line-no">600</span><span id="line-600">            latest = findLatestVersion( page );</span>
-<span class="source-line-no">601</span><span id="line-601"></span>
-<span class="source-line-no">602</span><span id="line-602">            final File pageDir = findOldPageDir( page );</span>
-<span class="source-line-no">603</span><span id="line-603">            final File previousFile = new File( pageDir, latest + FILE_EXT );</span>
-<span class="source-line-no">604</span><span id="line-604">            final File pageFile = findPage(page);</span>
-<span class="source-line-no">605</span><span id="line-605">            try( final InputStream in = new BufferedInputStream( Files.newInputStream( previousFile.toPath() ) );</span>
-<span class="source-line-no">606</span><span id="line-606">                 final OutputStream out = new BufferedOutputStream( Files.newOutputStream( pageFile.toPath() ) ) ) {</span>
-<span class="source-line-no">607</span><span id="line-607">                if( previousFile.exists() ) {</span>
-<span class="source-line-no">608</span><span id="line-608">                    FileUtil.copyContents( in, out );</span>
-<span class="source-line-no">609</span><span id="line-609">                    // We need also to set the date, since we rely on this.</span>
-<span class="source-line-no">610</span><span id="line-610">                    pageFile.setLastModified( previousFile.lastModified() );</span>
-<span class="source-line-no">611</span><span id="line-611">                }</span>
-<span class="source-line-no">612</span><span id="line-612">            } catch( final IOException e ) {</span>
-<span class="source-line-no">613</span><span id="line-613">                LOG.fatal("Something wrong with the page directory - you may have just lost data!",e);</span>
-<span class="source-line-no">614</span><span id="line-614">            }</span>
-<span class="source-line-no">615</span><span id="line-615"></span>
-<span class="source-line-no">616</span><span id="line-616">            return;</span>
-<span class="source-line-no">617</span><span id="line-617">        }</span>
-<span class="source-line-no">618</span><span id="line-618"></span>
-<span class="source-line-no">619</span><span id="line-619">        final File pageFile = new File( dir, ""+version+FILE_EXT );</span>
-<span class="source-line-no">620</span><span id="line-620">        if( pageFile.exists() ) {</span>
-<span class="source-line-no">621</span><span id="line-621">            if( !pageFile.delete() ) {</span>
-<span class="source-line-no">622</span><span id="line-622">                LOG.error("Unable to delete page." + pageFile.getPath() );</span>
-<span class="source-line-no">623</span><span id="line-623">            }</span>
-<span class="source-line-no">624</span><span id="line-624">        } else {</span>
-<span class="source-line-no">625</span><span id="line-625">            throw new NoSuchVersionException("Page "+page+", version="+version);</span>
-<span class="source-line-no">626</span><span id="line-626">        }</span>
-<span class="source-line-no">627</span><span id="line-627">    }</span>
-<span class="source-line-no">628</span><span id="line-628"></span>
-<span class="source-line-no">629</span><span id="line-629">    /**</span>
-<span class="source-line-no">630</span><span id="line-630">     *  {@inheritDoc}</span>
-<span class="source-line-no">631</span><span id="line-631">     */</span>
-<span class="source-line-no">632</span><span id="line-632">    // FIXME: This is kinda slow, we should need to do this only once.</span>
-<span class="source-line-no">633</span><span id="line-633">    @Override</span>
-<span class="source-line-no">634</span><span id="line-634">    public Collection&lt; Page &gt; getAllPages() throws ProviderException {</span>
-<span class="source-line-no">635</span><span id="line-635">        final Collection&lt; Page &gt; pages = super.getAllPages();</span>
-<span class="source-line-no">636</span><span id="line-636">        final Collection&lt; Page &gt; returnedPages = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">637</span><span id="line-637">        for( final Page page : pages ) {</span>
-<span class="source-line-no">638</span><span id="line-638">            final Page info = getPageInfo( page.getName(), WikiProvider.LATEST_VERSION );</span>
-<span class="source-line-no">639</span><span id="line-639">            returnedPages.add( info );</span>
-<span class="source-line-no">640</span><span id="line-640">        }</span>
-<span class="source-line-no">641</span><span id="line-641"></span>
-<span class="source-line-no">642</span><span id="line-642">        return returnedPages;</span>
-<span class="source-line-no">643</span><span id="line-643">    }</span>
-<span class="source-line-no">644</span><span id="line-644"></span>
-<span class="source-line-no">645</span><span id="line-645">    /**</span>
-<span class="source-line-no">646</span><span id="line-646">     *  {@inheritDoc}</span>
-<span class="source-line-no">647</span><span id="line-647">     */</span>
-<span class="source-line-no">648</span><span id="line-648">    @Override</span>
-<span class="source-line-no">649</span><span id="line-649">    public String getProviderInfo()</span>
-<span class="source-line-no">650</span><span id="line-650">    {</span>
-<span class="source-line-no">651</span><span id="line-651">        return "";</span>
-<span class="source-line-no">652</span><span id="line-652">    }</span>
-<span class="source-line-no">653</span><span id="line-653"></span>
-<span class="source-line-no">654</span><span id="line-654">    /**</span>
-<span class="source-line-no">655</span><span id="line-655">     *  {@inheritDoc}</span>
-<span class="source-line-no">656</span><span id="line-656">     */</span>
-<span class="source-line-no">657</span><span id="line-657">    @Override</span>
-<span class="source-line-no">658</span><span id="line-658">    public void movePage( final String from, final String to ) {</span>
-<span class="source-line-no">659</span><span id="line-659">        // Move the file itself</span>
-<span class="source-line-no">660</span><span id="line-660">        final File fromFile = findPage( from );</span>
-<span class="source-line-no">661</span><span id="line-661">        final File toFile = findPage( to );</span>
-<span class="source-line-no">662</span><span id="line-662">        fromFile.renameTo( toFile );</span>
-<span class="source-line-no">663</span><span id="line-663"></span>
-<span class="source-line-no">664</span><span id="line-664">        // Move any old versions</span>
-<span class="source-line-no">665</span><span id="line-665">        final File fromOldDir = findOldPageDir( from );</span>
-<span class="source-line-no">666</span><span id="line-666">        final File toOldDir = findOldPageDir( to );</span>
-<span class="source-line-no">667</span><span id="line-667">        fromOldDir.renameTo( toOldDir );</span>
-<span class="source-line-no">668</span><span id="line-668">    }</span>
-<span class="source-line-no">669</span><span id="line-669"></span>
-<span class="source-line-no">670</span><span id="line-670">    /*</span>
-<span class="source-line-no">671</span><span id="line-671">     * The profiler showed that when calling the history of a page, the propertyfile was read just as many</span>
-<span class="source-line-no">672</span><span id="line-672">     * times as there were versions of that file. The loading of a propertyfile is a cpu-intensive job.</span>
-<span class="source-line-no">673</span><span id="line-673">     * This Class holds onto the last propertyfile read, because the probability is high that the next call</span>
-<span class="source-line-no">674</span><span id="line-674">     * will with ask for the same propertyfile. The time it took to show a historypage with 267 versions dropped</span>
-<span class="source-line-no">675</span><span id="line-675">     * by 300%. Although each propertyfile in a history could be cached, there is likely to be little performance</span>
-<span class="source-line-no">676</span><span id="line-676">     * gain over simply keeping the last one requested.</span>
-<span class="source-line-no">677</span><span id="line-677">     */</span>
-<span class="source-line-no">678</span><span id="line-678">    private static class CachedProperties {</span>
-<span class="source-line-no">679</span><span id="line-679">        String m_page;</span>
-<span class="source-line-no">680</span><span id="line-680">        Properties m_props;</span>
-<span class="source-line-no">681</span><span id="line-681">        long m_lastModified;</span>
-<span class="source-line-no">682</span><span id="line-682"></span>
-<span class="source-line-no">683</span><span id="line-683">        /**</span>
-<span class="source-line-no">684</span><span id="line-684">         * Because a Constructor is inherently synchronised, there is no need to synchronise the arguments.</span>
-<span class="source-line-no">685</span><span id="line-685">         *</span>
-<span class="source-line-no">686</span><span id="line-686">         * @param pageName page name</span>
-<span class="source-line-no">687</span><span id="line-687">         * @param props  Properties to use for initialization</span>
-<span class="source-line-no">688</span><span id="line-688">         * @param lastModified last modified date</span>
-<span class="source-line-no">689</span><span id="line-689">         */</span>
-<span class="source-line-no">690</span><span id="line-690">        public CachedProperties( final String pageName, final Properties props, final long lastModified ) {</span>
-<span class="source-line-no">691</span><span id="line-691">            if ( pageName == null ) {</span>
-<span class="source-line-no">692</span><span id="line-692">                throw new NullPointerException ( "pageName must not be null!" );</span>
-<span class="source-line-no">693</span><span id="line-693">            }</span>
-<span class="source-line-no">694</span><span id="line-694">            this.m_page = pageName;</span>
-<span class="source-line-no">695</span><span id="line-695">            if ( props == null ) {</span>
-<span class="source-line-no">696</span><span id="line-696">                throw new NullPointerException ( "properties must not be null!" );</span>
-<span class="source-line-no">697</span><span id="line-697">            }</span>
-<span class="source-line-no">698</span><span id="line-698">            m_props = props;</span>
-<span class="source-line-no">699</span><span id="line-699">            this.m_lastModified = lastModified;</span>
-<span class="source-line-no">700</span><span id="line-700">        }</span>
-<span class="source-line-no">701</span><span id="line-701">    }</span>
-<span class="source-line-no">702</span><span id="line-702"></span>
-<span class="source-line-no">703</span><span id="line-703">}</span>
+<span class="source-line-no">476</span><span id="line-476">        final int latest = findLatestVersion( pageName );</span>
+<span class="source-line-no">477</span><span id="line-477">        // a page without history in OLD/ is version 1, see getPageInfo()</span>
+<span class="source-line-no">478</span><span id="line-478">        if( version == PageProvider.LATEST_VERSION || version == latest || ( version == 1 &amp;&amp; latest == -1 ) ) {</span>
+<span class="source-line-no">479</span><span id="line-479">            return pageExists( pageName );</span>
+<span class="source-line-no">480</span><span id="line-480">        }</span>
+<span class="source-line-no">481</span><span id="line-481"></span>
+<span class="source-line-no">482</span><span id="line-482">        final File dir = findOldPageDir( pageName );</span>
+<span class="source-line-no">483</span><span id="line-483">        if( !dir.exists() || !dir.isDirectory() ) {</span>
+<span class="source-line-no">484</span><span id="line-484">            return false;</span>
+<span class="source-line-no">485</span><span id="line-485">        }</span>
+<span class="source-line-no">486</span><span id="line-486"></span>
+<span class="source-line-no">487</span><span id="line-487">        return new File( dir, version + FILE_EXT ).exists();</span>
+<span class="source-line-no">488</span><span id="line-488">    }</span>
+<span class="source-line-no">489</span><span id="line-489"></span>
+<span class="source-line-no">490</span><span id="line-490">    /**</span>
+<span class="source-line-no">491</span><span id="line-491">     *  {@inheritDoc}</span>
+<span class="source-line-no">492</span><span id="line-492">     */</span>
+<span class="source-line-no">493</span><span id="line-493">     // FIXME: Does not get user information.</span>
+<span class="source-line-no">494</span><span id="line-494">    @Override</span>
+<span class="source-line-no">495</span><span id="line-495">    public List&lt; Page &gt; getVersionHistory( final String page ) throws ProviderException {</span>
+<span class="source-line-no">496</span><span id="line-496">        final ArrayList&lt; Page &gt; list = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">497</span><span id="line-497">        final int latest = findLatestVersion( page );</span>
+<span class="source-line-no">498</span><span id="line-498">        for( int i = latest; i &gt; 0; i-- ) {</span>
+<span class="source-line-no">499</span><span id="line-499">            final Page info = getPageInfo( page, i );</span>
+<span class="source-line-no">500</span><span id="line-500">            if( info != null ) {</span>
+<span class="source-line-no">501</span><span id="line-501">                list.add( info );</span>
+<span class="source-line-no">502</span><span id="line-502">            }</span>
+<span class="source-line-no">503</span><span id="line-503">        }</span>
+<span class="source-line-no">504</span><span id="line-504"></span>
+<span class="source-line-no">505</span><span id="line-505">        return list;</span>
+<span class="source-line-no">506</span><span id="line-506">    }</span>
+<span class="source-line-no">507</span><span id="line-507"></span>
+<span class="source-line-no">508</span><span id="line-508">    /*</span>
+<span class="source-line-no">509</span><span id="line-509">     * Support for migration of simple properties created by the FileSystemProvider when coming under Versioning management.</span>
+<span class="source-line-no">510</span><span id="line-510">     * Simulate an initial version.</span>
+<span class="source-line-no">511</span><span id="line-511">     */</span>
+<span class="source-line-no">512</span><span id="line-512">    private Properties getHeritagePageProperties( final String page ) throws IOException {</span>
+<span class="source-line-no">513</span><span id="line-513">        final File propertyFile = new File( getPageDirectory(), mangleName( page ) + FileSystemProvider.PROP_EXT );</span>
+<span class="source-line-no">514</span><span id="line-514">        if ( propertyFile.exists() ) {</span>
+<span class="source-line-no">515</span><span id="line-515">            final long lastModified = propertyFile.lastModified();</span>
+<span class="source-line-no">516</span><span id="line-516"></span>
+<span class="source-line-no">517</span><span id="line-517">            CachedProperties cp = m_cachedProperties;</span>
+<span class="source-line-no">518</span><span id="line-518">            if ( cp != null &amp;&amp; cp.m_page.equals(page) &amp;&amp; cp.m_lastModified == lastModified ) {</span>
+<span class="source-line-no">519</span><span id="line-519">                return cp.m_props;</span>
+<span class="source-line-no">520</span><span id="line-520">            }</span>
+<span class="source-line-no">521</span><span id="line-521"></span>
+<span class="source-line-no">522</span><span id="line-522">            try( final InputStream in = new BufferedInputStream( Files.newInputStream( propertyFile.toPath() ) ) ) {</span>
+<span class="source-line-no">523</span><span id="line-523">                final Properties props = new Properties();</span>
+<span class="source-line-no">524</span><span id="line-524">                props.load( in );</span>
+<span class="source-line-no">525</span><span id="line-525"></span>
+<span class="source-line-no">526</span><span id="line-526">                final String originalAuthor = props.getProperty( Page.AUTHOR );</span>
+<span class="source-line-no">527</span><span id="line-527">                if ( !originalAuthor.isEmpty() ) {</span>
+<span class="source-line-no">528</span><span id="line-528">                    // simulate original author as if already versioned but put non-versioned property in special cache too</span>
+<span class="source-line-no">529</span><span id="line-529">                    props.setProperty( "1.author", originalAuthor );</span>
+<span class="source-line-no">530</span><span id="line-530"></span>
+<span class="source-line-no">531</span><span id="line-531">                    // The profiler showed the probability was very high that when calling for the history of a page the</span>
+<span class="source-line-no">532</span><span id="line-532">                    // propertyfile would be read as much times as there were versions of that file. It is statistically</span>
+<span class="source-line-no">533</span><span id="line-533">                    // likely the propertyfile will be examined many times before it is updated.</span>
+<span class="source-line-no">534</span><span id="line-534">                    cp = new CachedProperties( page, props, propertyFile.lastModified() );</span>
+<span class="source-line-no">535</span><span id="line-535">                    m_cachedProperties = cp; // Atomic</span>
+<span class="source-line-no">536</span><span id="line-536">                }</span>
+<span class="source-line-no">537</span><span id="line-537"></span>
+<span class="source-line-no">538</span><span id="line-538">                return props;</span>
+<span class="source-line-no">539</span><span id="line-539">            }</span>
+<span class="source-line-no">540</span><span id="line-540">        }</span>
+<span class="source-line-no">541</span><span id="line-541"></span>
+<span class="source-line-no">542</span><span id="line-542">        return new Properties(); // Returns an empty object</span>
+<span class="source-line-no">543</span><span id="line-543">    }</span>
+<span class="source-line-no">544</span><span id="line-544"></span>
+<span class="source-line-no">545</span><span id="line-545">    /**</span>
+<span class="source-line-no">546</span><span id="line-546">     *  Removes the relevant page directory under "OLD" -directory as well, but does not remove any extra subdirectories from it.</span>
+<span class="source-line-no">547</span><span id="line-547">     *  It will only touch those files that it thinks to be WikiPages.</span>
+<span class="source-line-no">548</span><span id="line-548">     *</span>
+<span class="source-line-no">549</span><span id="line-549">     *  @param page {@inheritDoc}</span>
+<span class="source-line-no">550</span><span id="line-550">     *  @throws {@inheritDoc}</span>
+<span class="source-line-no">551</span><span id="line-551">     */</span>
+<span class="source-line-no">552</span><span id="line-552">    @Override</span>
+<span class="source-line-no">553</span><span id="line-553">    public void deletePage( final String page ) throws ProviderException {</span>
+<span class="source-line-no">554</span><span id="line-554">        super.deletePage( page );</span>
+<span class="source-line-no">555</span><span id="line-555">        final File dir = findOldPageDir( page );</span>
+<span class="source-line-no">556</span><span id="line-556">        if( dir.exists() &amp;&amp; dir.isDirectory() ) {</span>
+<span class="source-line-no">557</span><span id="line-557">            final File[] files = dir.listFiles( new WikiFileFilter() );</span>
+<span class="source-line-no">558</span><span id="line-558">            for( final File file : files ) {</span>
+<span class="source-line-no">559</span><span id="line-559">                if (!file.delete()) {</span>
+<span class="source-line-no">560</span><span id="line-560">                    LOG.warn("Failed to delete " + file.getAbsolutePath());</span>
+<span class="source-line-no">561</span><span id="line-561">                }</span>
+<span class="source-line-no">562</span><span id="line-562">            }</span>
+<span class="source-line-no">563</span><span id="line-563"></span>
+<span class="source-line-no">564</span><span id="line-564">            final File propfile = new File( dir, PROPERTYFILE );</span>
+<span class="source-line-no">565</span><span id="line-565">            if( propfile.exists() ) {</span>
+<span class="source-line-no">566</span><span id="line-566">                if (!propfile.delete()) {</span>
+<span class="source-line-no">567</span><span id="line-567">                    LOG.warn("Failed to delete " + propfile.getAbsolutePath());</span>
+<span class="source-line-no">568</span><span id="line-568">                }</span>
+<span class="source-line-no">569</span><span id="line-569">            }</span>
+<span class="source-line-no">570</span><span id="line-570"></span>
+<span class="source-line-no">571</span><span id="line-571">            dir.delete();</span>
+<span class="source-line-no">572</span><span id="line-572">        }</span>
+<span class="source-line-no">573</span><span id="line-573">    }</span>
+<span class="source-line-no">574</span><span id="line-574"></span>
+<span class="source-line-no">575</span><span id="line-575">    /**</span>
+<span class="source-line-no">576</span><span id="line-576">     *  {@inheritDoc}</span>
+<span class="source-line-no">577</span><span id="line-577">     *</span>
+<span class="source-line-no">578</span><span id="line-578">     *  Deleting versions has never really worked, JSPWiki assumes that version histories are "not gappy". Using deleteVersion() is</span>
+<span class="source-line-no">579</span><span id="line-579">     *  definitely not recommended.</span>
+<span class="source-line-no">580</span><span id="line-580">     */</span>
+<span class="source-line-no">581</span><span id="line-581">    @Override</span>
+<span class="source-line-no">582</span><span id="line-582">    public void deleteVersion( final String page, final int version ) throws ProviderException {</span>
+<span class="source-line-no">583</span><span id="line-583">        final File dir = findOldPageDir( page );</span>
+<span class="source-line-no">584</span><span id="line-584">        int latest = findLatestVersion( page );</span>
+<span class="source-line-no">585</span><span id="line-585">        if( version == PageProvider.LATEST_VERSION ||</span>
+<span class="source-line-no">586</span><span id="line-586">            version == latest ||</span>
+<span class="source-line-no">587</span><span id="line-587">            (version == 1 &amp;&amp; latest == -1) ) {</span>
+<span class="source-line-no">588</span><span id="line-588">            //  Delete the properties</span>
+<span class="source-line-no">589</span><span id="line-589">            try {</span>
+<span class="source-line-no">590</span><span id="line-590">                final Properties props = getPageProperties( page );</span>
+<span class="source-line-no">591</span><span id="line-591">                props.remove( ((latest &gt; 0) ? latest : 1)+".author" );</span>
+<span class="source-line-no">592</span><span id="line-592">                putPageProperties( page, props );</span>
+<span class="source-line-no">593</span><span id="line-593">            } catch( final IOException e ) {</span>
+<span class="source-line-no">594</span><span id="line-594">                LOG.error("Unable to modify page properties",e);</span>
+<span class="source-line-no">595</span><span id="line-595">                throw new ProviderException("Could not modify page properties: " + e.getMessage());</span>
+<span class="source-line-no">596</span><span id="line-596">            }</span>
+<span class="source-line-no">597</span><span id="line-597"></span>
+<span class="source-line-no">598</span><span id="line-598">            // We can let the FileSystemProvider take care of the actual deletion</span>
+<span class="source-line-no">599</span><span id="line-599">            super.deleteVersion( page, PageProvider.LATEST_VERSION );</span>
+<span class="source-line-no">600</span><span id="line-600"></span>
+<span class="source-line-no">601</span><span id="line-601">            //  Copy the old file to the new location</span>
+<span class="source-line-no">602</span><span id="line-602">            latest = findLatestVersion( page );</span>
+<span class="source-line-no">603</span><span id="line-603"></span>
+<span class="source-line-no">604</span><span id="line-604">            final File pageDir = findOldPageDir( page );</span>
+<span class="source-line-no">605</span><span id="line-605">            final File previousFile = new File( pageDir, latest + FILE_EXT );</span>
+<span class="source-line-no">606</span><span id="line-606">            final File pageFile = findPage(page);</span>
+<span class="source-line-no">607</span><span id="line-607">            try( final InputStream in = new BufferedInputStream( Files.newInputStream( previousFile.toPath() ) );</span>
+<span class="source-line-no">608</span><span id="line-608">                 final OutputStream out = new BufferedOutputStream( Files.newOutputStream( pageFile.toPath() ) ) ) {</span>
+<span class="source-line-no">609</span><span id="line-609">                if( previousFile.exists() ) {</span>
+<span class="source-line-no">610</span><span id="line-610">                    FileUtil.copyContents( in, out );</span>
+<span class="source-line-no">611</span><span id="line-611">                    // We need also to set the date, since we rely on this.</span>
+<span class="source-line-no">612</span><span id="line-612">                    pageFile.setLastModified( previousFile.lastModified() );</span>
+<span class="source-line-no">613</span><span id="line-613">                }</span>
+<span class="source-line-no">614</span><span id="line-614">            } catch( final IOException e ) {</span>
+<span class="source-line-no">615</span><span id="line-615">                LOG.fatal("Something wrong with the page directory - you may have just lost data!",e);</span>
+<span class="source-line-no">616</span><span id="line-616">            }</span>
+<span class="source-line-no">617</span><span id="line-617"></span>
+<span class="source-line-no">618</span><span id="line-618">            return;</span>
+<span class="source-line-no">619</span><span id="line-619">        }</span>
+<span class="source-line-no">620</span><span id="line-620"></span>
+<span class="source-line-no">621</span><span id="line-621">        final File pageFile = new File( dir, ""+version+FILE_EXT );</span>
+<span class="source-line-no">622</span><span id="line-622">        if( pageFile.exists() ) {</span>
+<span class="source-line-no">623</span><span id="line-623">            if( !pageFile.delete() ) {</span>
+<span class="source-line-no">624</span><span id="line-624">                LOG.error("Unable to delete page." + pageFile.getPath() );</span>
+<span class="source-line-no">625</span><span id="line-625">            }</span>
+<span class="source-line-no">626</span><span id="line-626">        } else {</span>
+<span class="source-line-no">627</span><span id="line-627">            throw new NoSuchVersionException("Page "+page+", version="+version);</span>
+<span class="source-line-no">628</span><span id="line-628">        }</span>
+<span class="source-line-no">629</span><span id="line-629">    }</span>
+<span class="source-line-no">630</span><span id="line-630"></span>
+<span class="source-line-no">631</span><span id="line-631">    /**</span>
+<span class="source-line-no">632</span><span id="line-632">     *  {@inheritDoc}</span>
+<span class="source-line-no">633</span><span id="line-633">     */</span>
+<span class="source-line-no">634</span><span id="line-634">    // FIXME: This is kinda slow, we should need to do this only once.</span>
+<span class="source-line-no">635</span><span id="line-635">    @Override</span>
+<span class="source-line-no">636</span><span id="line-636">    public Collection&lt; Page &gt; getAllPages() throws ProviderException {</span>
+<span class="source-line-no">637</span><span id="line-637">        final Collection&lt; Page &gt; pages = super.getAllPages();</span>
+<span class="source-line-no">638</span><span id="line-638">        final Collection&lt; Page &gt; returnedPages = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">639</span><span id="line-639">        for( final Page page : pages ) {</span>
+<span class="source-line-no">640</span><span id="line-640">            final Page info = getPageInfo( page.getName(), WikiProvider.LATEST_VERSION );</span>
+<span class="source-line-no">641</span><span id="line-641">            returnedPages.add( info );</span>
+<span class="source-line-no">642</span><span id="line-642">        }</span>
+<span class="source-line-no">643</span><span id="line-643"></span>
+<span class="source-line-no">644</span><span id="line-644">        return returnedPages;</span>
+<span class="source-line-no">645</span><span id="line-645">    }</span>
+<span class="source-line-no">646</span><span id="line-646"></span>
+<span class="source-line-no">647</span><span id="line-647">    /**</span>
+<span class="source-line-no">648</span><span id="line-648">     *  {@inheritDoc}</span>
+<span class="source-line-no">649</span><span id="line-649">     */</span>
+<span class="source-line-no">650</span><span id="line-650">    @Override</span>
+<span class="source-line-no">651</span><span id="line-651">    public String getProviderInfo()</span>
+<span class="source-line-no">652</span><span id="line-652">    {</span>
+<span class="source-line-no">653</span><span id="line-653">        return "";</span>
+<span class="source-line-no">654</span><span id="line-654">    }</span>
+<span class="source-line-no">655</span><span id="line-655"></span>
+<span class="source-line-no">656</span><span id="line-656">    /**</span>
+<span class="source-line-no">657</span><span id="line-657">     *  {@inheritDoc}</span>
+<span class="source-line-no">658</span><span id="line-658">     */</span>
+<span class="source-line-no">659</span><span id="line-659">    @Override</span>
+<span class="source-line-no">660</span><span id="line-660">    public void movePage( final String from, final String to ) {</span>
+<span class="source-line-no">661</span><span id="line-661">        // Move the file itself</span>
+<span class="source-line-no">662</span><span id="line-662">        final File fromFile = findPage( from );</span>
+<span class="source-line-no">663</span><span id="line-663">        final File toFile = findPage( to );</span>
+<span class="source-line-no">664</span><span id="line-664">        fromFile.renameTo( toFile );</span>
+<span class="source-line-no">665</span><span id="line-665"></span>
+<span class="source-line-no">666</span><span id="line-666">        // Move any old versions</span>
+<span class="source-line-no">667</span><span id="line-667">        final File fromOldDir = findOldPageDir( from );</span>
+<span class="source-line-no">668</span><span id="line-668">        final File toOldDir = findOldPageDir( to );</span>
+<span class="source-line-no">669</span><span id="line-669">        fromOldDir.renameTo( toOldDir );</span>
+<span class="source-line-no">670</span><span id="line-670">    }</span>
+<span class="source-line-no">671</span><span id="line-671"></span>
+<span class="source-line-no">672</span><span id="line-672">    /*</span>
+<span class="source-line-no">673</span><span id="line-673">     * The profiler showed that when calling the history of a page, the propertyfile was read just as many</span>
+<span class="source-line-no">674</span><span id="line-674">     * times as there were versions of that file. The loading of a propertyfile is a cpu-intensive job.</span>
+<span class="source-line-no">675</span><span id="line-675">     * This Class holds onto the last propertyfile read, because the probability is high that the next call</span>
+<span class="source-line-no">676</span><span id="line-676">     * will with ask for the same propertyfile. The time it took to show a historypage with 267 versions dropped</span>
+<span class="source-line-no">677</span><span id="line-677">     * by 300%. Although each propertyfile in a history could be cached, there is likely to be little performance</span>
+<span class="source-line-no">678</span><span id="line-678">     * gain over simply keeping the last one requested.</span>
+<span class="source-line-no">679</span><span id="line-679">     */</span>
+<span class="source-line-no">680</span><span id="line-680">    private static class CachedProperties {</span>
+<span class="source-line-no">681</span><span id="line-681">        String m_page;</span>
+<span class="source-line-no">682</span><span id="line-682">        Properties m_props;</span>
+<span class="source-line-no">683</span><span id="line-683">        long m_lastModified;</span>
+<span class="source-line-no">684</span><span id="line-684"></span>
+<span class="source-line-no">685</span><span id="line-685">        /**</span>
+<span class="source-line-no">686</span><span id="line-686">         * Because a Constructor is inherently synchronised, there is no need to synchronise the arguments.</span>
+<span class="source-line-no">687</span><span id="line-687">         *</span>
+<span class="source-line-no">688</span><span id="line-688">         * @param pageName page name</span>
+<span class="source-line-no">689</span><span id="line-689">         * @param props  Properties to use for initialization</span>
+<span class="source-line-no">690</span><span id="line-690">         * @param lastModified last modified date</span>
+<span class="source-line-no">691</span><span id="line-691">         */</span>
+<span class="source-line-no">692</span><span id="line-692">        public CachedProperties( final String pageName, final Properties props, final long lastModified ) {</span>
+<span class="source-line-no">693</span><span id="line-693">            if ( pageName == null ) {</span>
+<span class="source-line-no">694</span><span id="line-694">                throw new NullPointerException ( "pageName must not be null!" );</span>
+<span class="source-line-no">695</span><span id="line-695">            }</span>
+<span class="source-line-no">696</span><span id="line-696">            this.m_page = pageName;</span>
+<span class="source-line-no">697</span><span id="line-697">            if ( props == null ) {</span>
+<span class="source-line-no">698</span><span id="line-698">                throw new NullPointerException ( "properties must not be null!" );</span>
+<span class="source-line-no">699</span><span id="line-699">            }</span>
+<span class="source-line-no">700</span><span id="line-700">            m_props = props;</span>
+<span class="source-line-no">701</span><span id="line-701">            this.m_lastModified = lastModified;</span>
+<span class="source-line-no">702</span><span id="line-702">        }</span>
+<span class="source-line-no">703</span><span id="line-703">    }</span>
+<span class="source-line-no">704</span><span id="line-704"></span>
+<span class="source-line-no">705</span><span id="line-705">}</span>
 
 
 

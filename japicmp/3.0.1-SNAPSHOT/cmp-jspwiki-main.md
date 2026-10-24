@@ -387,6 +387,7 @@
 | Modified     | [org.apache.wiki.url.ShortURLConstructor]                        | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
 | Modified     | [org.apache.wiki.url.ShortViewURLConstructor]                    | ![Not serializable]                 | ![Method removed in superclass] ![Method added to public class] ![Method default added in implemented interface] |
 | Modified     | [org.apache.wiki.url.URLConstructor]                             | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new static added to interface] |
+| Added        | [org.apache.wiki.util.TimeLimitedRegex]                          | ![Not serializable]                 | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.variables.DefaultVariableManager]               | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.variables.VariableManager]                      | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.workflow.AbstractStep]                          | ![Compatible]                       | ![No changes]         |
@@ -1052,6 +1053,7 @@ ___
 | Unchanged | `public`                  |          | `boolean`           | `isAsserted`()                                                 |                |        | ![No changes]         |
 | Unchanged | `public`                  |          | `boolean`           | `isAuthenticated`()                                            |                |        | ![No changes]         |
 | Unchanged | `protected`               |          | `boolean`           | `isInGroup`([`Group`])                                         |                |        | ![No changes]         |
+| Added     | **`public`**              |          | **`void`**          | **`regenerateAntiCsrfToken`**()                                |                |        | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~          | ~~`removeWikiSession`~~([`Engine`], [`HttpServletRequest`])    |                |        | ![Method removed]     |
 | Added     | **`static`** **`public`** |          | **`void`**          | **`removeWikiSession`**([`Engine`], [`HttpServletRequest`][3]) |                |        | ![Method added to public class] |
 | Unchanged | `static` `public`         |          | `int`               | `sessions`([`Engine`])                                         | [`Deprecated`] |        | ![No changes]         |
@@ -1851,6 +1853,7 @@ ___
 | Added     | **`public`**             |          | **[`List<Session>`]** | **`findOtherSessionsByUsername`**([`String`])    |             |        | ![Method added to public class] |
 | Unchanged | `final` `protected`      |          | `void`                | `fireEvent`(`int`, [`Principal`], [`Session`])   |             |        | ![No changes]         |
 | Unchanged | `static` `public`        |          | [`SessionMonitor`]    | `getInstance`([`Engine`])                        |             |        | ![No changes]         |
+| Added     | **`final`** **`public`** |          | **`void`**            | **`register`**([`HttpSession`][12], [`Session`]) |             |        | ![Method added to public class] |
 | Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~            | ~~`remove`~~([`HttpServletRequest`])             |             |        | ![Method removed]     |
 | Removed   | ~~`final`~~ ~~`public`~~ |          | ~~`void`~~            | ~~`remove`~~([`HttpSession`])                    |             |        | ![Method removed]     |
 | Added     | **`final`** **`public`** |          | **`void`**            | **`remove`**([`HttpServletRequest`][3])          |             |        | ![Method added to public class] |
@@ -12719,6 +12722,34 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.util.timelimitedregex"></a>
+### `org.apache.wiki.util.TimeLimitedRegex`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                   | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`TimeLimitedRegex`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type          | Method                                               | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|---------------|------------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **`boolean`** | **`matches`**([`CharSequence`], [`Pattern`])         |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** |          | **`boolean`** | **`matches`**([`CharSequence`], [`Pattern`], `long`) |             |        | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type       | Name                     | Annotations | Compatibility Changes |
+|--------|---------------------------------------|------------|--------------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **`long`** | `DEFAULT_TIMEOUT_MILLIS` |             | ![No changes]         |
+
+___
+
 <a id="user-content-org.apache.wiki.variables.defaultvariablemanager"></a>
 ### `org.apache.wiki.variables.DefaultVariableManager`
 
@@ -13668,7 +13699,7 @@ ___
 
 ___
 
-*Generated on: 2026-09-24 22:39:23.242+0000*.
+*Generated on: 2026-10-24 20:32:03.550+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -13761,6 +13792,7 @@ ___
 [`BodyContent`]: # "javax.servlet.jsp.tagext.BodyContent"
 [`CallbackHandler`]: # "javax.security.auth.callback.CallbackHandler"
 [`Callback`]: # "javax.security.auth.callback.Callback"
+[`CharSequence`]: # "java.lang.CharSequence"
 [`Charset`]: # "java.nio.charset.Charset"
 [`Class<? extends LoginModule>`]: # "java.lang.Class<? extends javax.security.auth.spi.LoginModule>"
 [`Class<T>`]: # "java.lang.Class<T>"
@@ -14362,6 +14394,7 @@ ___
 [org.apache.wiki.url.ShortURLConstructor]: #user-content-org.apache.wiki.url.shorturlconstructor
 [org.apache.wiki.url.ShortViewURLConstructor]: #user-content-org.apache.wiki.url.shortviewurlconstructor
 [org.apache.wiki.url.URLConstructor]: #user-content-org.apache.wiki.url.urlconstructor
+[org.apache.wiki.util.TimeLimitedRegex]: #user-content-org.apache.wiki.util.timelimitedregex
 [org.apache.wiki.variables.DefaultVariableManager]: #user-content-org.apache.wiki.variables.defaultvariablemanager
 [org.apache.wiki.variables.VariableManager]: #user-content-org.apache.wiki.variables.variablemanager
 [org.apache.wiki.workflow.AbstractStep]: #user-content-org.apache.wiki.workflow.abstractstep
