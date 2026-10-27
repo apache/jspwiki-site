@@ -82,7 +82,7 @@
 <span class="source-line-no">069</span><span id="line-69">        m_workflows = ConcurrentHashMap.newKeySet();</span>
 <span class="source-line-no">070</span><span id="line-70">        m_approvers = new ConcurrentHashMap&lt;&gt;();</span>
 <span class="source-line-no">071</span><span id="line-71">        m_queue = new DecisionQueue();</span>
-<span class="source-line-no">072</span><span id="line-72">        WikiEventEmitter.attach( this );</span>
+<span class="source-line-no">072</span><span id="line-72">        WikiEventEmitter.register( this );</span>
 <span class="source-line-no">073</span><span id="line-73">    }</span>
 <span class="source-line-no">074</span><span id="line-74"></span>
 <span class="source-line-no">075</span><span id="line-75">    /**</span>
@@ -282,7 +282,7 @@
 <span class="source-line-no">269</span><span id="line-269">     */</span>
 <span class="source-line-no">270</span><span id="line-270">    @Override</span>
 <span class="source-line-no">271</span><span id="line-271">    public void actionPerformed( final WikiEvent event ) {</span>
-<span class="source-line-no">272</span><span id="line-272">        if( event instanceof WorkflowEvent ) {</span>
+<span class="source-line-no">272</span><span id="line-272">        if( event instanceof WorkflowEvent &amp;&amp; isOwnEvent( event ) ) {</span>
 <span class="source-line-no">273</span><span id="line-273">            if( event.getSrc() instanceof Workflow ) {</span>
 <span class="source-line-no">274</span><span id="line-274">                final Workflow workflow = event.getSrc();</span>
 <span class="source-line-no">275</span><span id="line-275">                switch( event.getType() ) {</span>
@@ -308,51 +308,74 @@
 <span class="source-line-no">295</span><span id="line-295">    }</span>
 <span class="source-line-no">296</span><span id="line-296"></span>
 <span class="source-line-no">297</span><span id="line-297">    /**</span>
-<span class="source-line-no">298</span><span id="line-298">     * Protected helper method that adds a newly created Workflow to the cache, and sets its {@code workflowManager} and</span>
-<span class="source-line-no">299</span><span id="line-299">     * {@code Id} properties if not set.</span>
-<span class="source-line-no">300</span><span id="line-300">     *</span>
-<span class="source-line-no">301</span><span id="line-301">     * @param workflow the workflow to add</span>
-<span class="source-line-no">302</span><span id="line-302">     */</span>
-<span class="source-line-no">303</span><span id="line-303">    protected void add( final Workflow workflow ) {</span>
-<span class="source-line-no">304</span><span id="line-304">        m_workflows.add( workflow );</span>
-<span class="source-line-no">305</span><span id="line-305">    }</span>
-<span class="source-line-no">306</span><span id="line-306"></span>
-<span class="source-line-no">307</span><span id="line-307">    /**</span>
-<span class="source-line-no">308</span><span id="line-308">     * Protected helper method that removes a specified Workflow from the cache, and moves it to the workflow history list. This method</span>
-<span class="source-line-no">309</span><span id="line-309">     * defensively checks to see if the workflow has not yet been removed.</span>
-<span class="source-line-no">310</span><span id="line-310">     *</span>
-<span class="source-line-no">311</span><span id="line-311">     * @param workflow the workflow to remove</span>
-<span class="source-line-no">312</span><span id="line-312">     */</span>
-<span class="source-line-no">313</span><span id="line-313">    protected void remove( final Workflow workflow ) {</span>
-<span class="source-line-no">314</span><span id="line-314">        if( m_workflows.contains( workflow ) ) {</span>
-<span class="source-line-no">315</span><span id="line-315">            m_workflows.remove( workflow );</span>
-<span class="source-line-no">316</span><span id="line-316">            m_completed.add( workflow );</span>
-<span class="source-line-no">317</span><span id="line-317">        }</span>
+<span class="source-line-no">298</span><span id="line-298">     * Workflow events are broadcast to every manager in the JVM, so each one has to tell if the event is about a workflow it tracks. A</span>
+<span class="source-line-no">299</span><span id="line-299">     * newly created Workflow is not tracked yet, so it belongs to the manager of the engine it was bound to, or to every manager if it</span>
+<span class="source-line-no">300</span><span id="line-300">     * was not bound to any.</span>
+<span class="source-line-no">301</span><span id="line-301">     *</span>
+<span class="source-line-no">302</span><span id="line-302">     * @param event a workflow event</span>
+<span class="source-line-no">303</span><span id="line-303">     * @return {@code true} if the event concerns a workflow of this manager</span>
+<span class="source-line-no">304</span><span id="line-304">     */</span>
+<span class="source-line-no">305</span><span id="line-305">    boolean isOwnEvent( final WikiEvent event ) {</span>
+<span class="source-line-no">306</span><span id="line-306">        if( event.getSrc() instanceof Workflow ) {</span>
+<span class="source-line-no">307</span><span id="line-307">            if( event.getType() == WorkflowEvent.CREATED ) {</span>
+<span class="source-line-no">308</span><span id="line-308">                final Engine engine = event.getArg( 0, Engine.class );</span>
+<span class="source-line-no">309</span><span id="line-309">                return engine == null || engine == m_engine;</span>
+<span class="source-line-no">310</span><span id="line-310">            }</span>
+<span class="source-line-no">311</span><span id="line-311">            return m_workflows.contains( event.&lt; Workflow &gt;getSrc() );</span>
+<span class="source-line-no">312</span><span id="line-312">        }</span>
+<span class="source-line-no">313</span><span id="line-313">        if( event.getSrc() instanceof Decision ) {</span>
+<span class="source-line-no">314</span><span id="line-314">            final int workflowId = event.&lt; Decision &gt;getSrc().getWorkflowId();</span>
+<span class="source-line-no">315</span><span id="line-315">            return m_workflows.stream().anyMatch( w -&gt; w.getId() == workflowId );</span>
+<span class="source-line-no">316</span><span id="line-316">        }</span>
+<span class="source-line-no">317</span><span id="line-317">        return false;</span>
 <span class="source-line-no">318</span><span id="line-318">    }</span>
 <span class="source-line-no">319</span><span id="line-319"></span>
-<span class="source-line-no">320</span><span id="line-320">    protected void removeFromDecisionQueue( final Decision decision, final Context context ) {</span>
-<span class="source-line-no">321</span><span id="line-321">        // If current workflow is waiting for input, restart it and remove Decision from DecisionQueue</span>
-<span class="source-line-no">322</span><span id="line-322">        final int workflowId = decision.getWorkflowId();</span>
-<span class="source-line-no">323</span><span id="line-323">        final Optional&lt; Workflow &gt; optw = m_workflows.stream().filter( w -&gt; w.getId() == workflowId ).findAny();</span>
-<span class="source-line-no">324</span><span id="line-324">        if( optw.isPresent() ) {</span>
-<span class="source-line-no">325</span><span id="line-325">            final Workflow w = optw.get();</span>
-<span class="source-line-no">326</span><span id="line-326">            if( w.getCurrentState() == Workflow.WAITING &amp;&amp; decision.equals( w.getCurrentStep() ) ) {</span>
-<span class="source-line-no">327</span><span id="line-327">                getDecisionQueue().remove( decision );</span>
-<span class="source-line-no">328</span><span id="line-328">                // Restart workflow</span>
-<span class="source-line-no">329</span><span id="line-329">                try {</span>
-<span class="source-line-no">330</span><span id="line-330">                    w.restart( context );</span>
-<span class="source-line-no">331</span><span id="line-331">                } catch( final WikiException e ) {</span>
-<span class="source-line-no">332</span><span id="line-332">                    LOG.error( "restarting workflow #" + w.getId() + " caused " + e.getMessage(), e );</span>
-<span class="source-line-no">333</span><span id="line-333">                }</span>
-<span class="source-line-no">334</span><span id="line-334">            }</span>
-<span class="source-line-no">335</span><span id="line-335">        }</span>
-<span class="source-line-no">336</span><span id="line-336">    }</span>
-<span class="source-line-no">337</span><span id="line-337"></span>
-<span class="source-line-no">338</span><span id="line-338">    protected void addToDecisionQueue( final Decision decision ) {</span>
-<span class="source-line-no">339</span><span id="line-339">        getDecisionQueue().add( decision );</span>
-<span class="source-line-no">340</span><span id="line-340">    }</span>
-<span class="source-line-no">341</span><span id="line-341"></span>
-<span class="source-line-no">342</span><span id="line-342">}</span>
+<span class="source-line-no">320</span><span id="line-320">    /**</span>
+<span class="source-line-no">321</span><span id="line-321">     * Protected helper method that adds a newly created Workflow to the cache, and sets its {@code workflowManager} and</span>
+<span class="source-line-no">322</span><span id="line-322">     * {@code Id} properties if not set.</span>
+<span class="source-line-no">323</span><span id="line-323">     *</span>
+<span class="source-line-no">324</span><span id="line-324">     * @param workflow the workflow to add</span>
+<span class="source-line-no">325</span><span id="line-325">     */</span>
+<span class="source-line-no">326</span><span id="line-326">    protected void add( final Workflow workflow ) {</span>
+<span class="source-line-no">327</span><span id="line-327">        m_workflows.add( workflow );</span>
+<span class="source-line-no">328</span><span id="line-328">    }</span>
+<span class="source-line-no">329</span><span id="line-329"></span>
+<span class="source-line-no">330</span><span id="line-330">    /**</span>
+<span class="source-line-no">331</span><span id="line-331">     * Protected helper method that removes a specified Workflow from the cache, and moves it to the workflow history list. This method</span>
+<span class="source-line-no">332</span><span id="line-332">     * defensively checks to see if the workflow has not yet been removed.</span>
+<span class="source-line-no">333</span><span id="line-333">     *</span>
+<span class="source-line-no">334</span><span id="line-334">     * @param workflow the workflow to remove</span>
+<span class="source-line-no">335</span><span id="line-335">     */</span>
+<span class="source-line-no">336</span><span id="line-336">    protected void remove( final Workflow workflow ) {</span>
+<span class="source-line-no">337</span><span id="line-337">        if( m_workflows.contains( workflow ) ) {</span>
+<span class="source-line-no">338</span><span id="line-338">            m_workflows.remove( workflow );</span>
+<span class="source-line-no">339</span><span id="line-339">            m_completed.add( workflow );</span>
+<span class="source-line-no">340</span><span id="line-340">        }</span>
+<span class="source-line-no">341</span><span id="line-341">    }</span>
+<span class="source-line-no">342</span><span id="line-342"></span>
+<span class="source-line-no">343</span><span id="line-343">    protected void removeFromDecisionQueue( final Decision decision, final Context context ) {</span>
+<span class="source-line-no">344</span><span id="line-344">        // If current workflow is waiting for input, restart it and remove Decision from DecisionQueue</span>
+<span class="source-line-no">345</span><span id="line-345">        final int workflowId = decision.getWorkflowId();</span>
+<span class="source-line-no">346</span><span id="line-346">        final Optional&lt; Workflow &gt; optw = m_workflows.stream().filter( w -&gt; w.getId() == workflowId ).findAny();</span>
+<span class="source-line-no">347</span><span id="line-347">        if( optw.isPresent() ) {</span>
+<span class="source-line-no">348</span><span id="line-348">            final Workflow w = optw.get();</span>
+<span class="source-line-no">349</span><span id="line-349">            if( w.getCurrentState() == Workflow.WAITING &amp;&amp; decision.equals( w.getCurrentStep() ) ) {</span>
+<span class="source-line-no">350</span><span id="line-350">                getDecisionQueue().remove( decision );</span>
+<span class="source-line-no">351</span><span id="line-351">                // Restart workflow</span>
+<span class="source-line-no">352</span><span id="line-352">                try {</span>
+<span class="source-line-no">353</span><span id="line-353">                    w.restart( context );</span>
+<span class="source-line-no">354</span><span id="line-354">                } catch( final WikiException e ) {</span>
+<span class="source-line-no">355</span><span id="line-355">                    LOG.error( "restarting workflow #" + w.getId() + " caused " + e.getMessage(), e );</span>
+<span class="source-line-no">356</span><span id="line-356">                }</span>
+<span class="source-line-no">357</span><span id="line-357">            }</span>
+<span class="source-line-no">358</span><span id="line-358">        }</span>
+<span class="source-line-no">359</span><span id="line-359">    }</span>
+<span class="source-line-no">360</span><span id="line-360"></span>
+<span class="source-line-no">361</span><span id="line-361">    protected void addToDecisionQueue( final Decision decision ) {</span>
+<span class="source-line-no">362</span><span id="line-362">        getDecisionQueue().add( decision );</span>
+<span class="source-line-no">363</span><span id="line-363">    }</span>
+<span class="source-line-no">364</span><span id="line-364"></span>
+<span class="source-line-no">365</span><span id="line-365">}</span>
 
 
 

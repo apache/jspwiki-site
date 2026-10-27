@@ -403,7 +403,7 @@
 | Unchanged    | [org.apache.wiki.workflow.Step]                                  | ![Compatible]                       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.workflow.SystemPrincipal]                       | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.workflow.Task]                                  | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.workflow.Workflow]                              | ![Compatible]                       | ![No changes]         |
+| Modified     | [org.apache.wiki.workflow.Workflow]                              | ![Compatible]                       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.workflow.WorkflowBuilder]                       | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.workflow.WorkflowManager]                       | ![Not serializable]                 | ![No changes]         |
 | Removed      | [org.apache.wiki.xmlrpc.AbstractRPCHandler]                      | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Interface removed] ![Method removed] ![Field removed] ![Constructor removed] |
@@ -13319,9 +13319,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name       | Extends    | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|------------|------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `Workflow` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status   | Modifiers | Type  | Name       | Extends    | JDK                          | Serialization | Compatibility Changes |
+|----------|-----------|-------|------------|------------|------------------------------|---------------|-----------------------|
+| Modified | `public`  | Class | `Workflow` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -13333,9 +13333,10 @@ ___
 
 #### Constructors
 
-| Status    | Modifiers | Generics | Constructor                           | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|---------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `Workflow`([`String`], [`Principal`]) |             |        | ![No changes]         |
+| Status    | Modifiers    | Generics | Constructor                                           | Annotations | Throws | Compatibility Changes |
+|-----------|--------------|----------|-------------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`     |          | `Workflow`([`String`], [`Principal`])                 |             |        | ![No changes]         |
+| Added     | **`public`** |          | **`Workflow`**([`Engine`], [`String`], [`Principal`]) |             |        | ![No changes]         |
 
 
 #### Methods
@@ -13699,7 +13700,7 @@ ___
 
 ___
 
-*Generated on: 2026-10-24 20:49:24.197+0000*.
+*Generated on: 2026-10-27 15:11:10.958+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
