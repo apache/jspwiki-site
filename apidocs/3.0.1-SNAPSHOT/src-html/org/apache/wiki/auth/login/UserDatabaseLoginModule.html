@@ -42,83 +42,89 @@
 <span class="source-line-no">029</span><span id="line-29">import javax.security.auth.callback.NameCallback;</span>
 <span class="source-line-no">030</span><span id="line-30">import javax.security.auth.callback.PasswordCallback;</span>
 <span class="source-line-no">031</span><span id="line-31">import javax.security.auth.callback.UnsupportedCallbackException;</span>
-<span class="source-line-no">032</span><span id="line-32">import javax.security.auth.login.FailedLoginException;</span>
-<span class="source-line-no">033</span><span id="line-33">import javax.security.auth.login.LoginException;</span>
-<span class="source-line-no">034</span><span id="line-34">import java.io.IOException;</span>
-<span class="source-line-no">035</span><span id="line-35"></span>
-<span class="source-line-no">036</span><span id="line-36">/**</span>
-<span class="source-line-no">037</span><span id="line-37"> * &lt;p&gt;</span>
-<span class="source-line-no">038</span><span id="line-38"> * Logs in a user based on a username, password, and static password file</span>
-<span class="source-line-no">039</span><span id="line-39"> * location. This module must be used with a CallbackHandler (such as</span>
-<span class="source-line-no">040</span><span id="line-40"> * {@link WikiCallbackHandler}) that supports the following Callback types:</span>
-<span class="source-line-no">041</span><span id="line-41"> * &lt;/p&gt;</span>
-<span class="source-line-no">042</span><span id="line-42"> * &lt;ol&gt;</span>
-<span class="source-line-no">043</span><span id="line-43"> * &lt;li&gt;{@link javax.security.auth.callback.NameCallback}- supplies the</span>
-<span class="source-line-no">044</span><span id="line-44"> * username&lt;/li&gt;</span>
-<span class="source-line-no">045</span><span id="line-45"> * &lt;li&gt;{@link javax.security.auth.callback.PasswordCallback}- supplies the</span>
-<span class="source-line-no">046</span><span id="line-46"> * password&lt;/li&gt;</span>
-<span class="source-line-no">047</span><span id="line-47"> * &lt;li&gt;{@link org.apache.wiki.auth.login.UserDatabaseCallback}- supplies the</span>
-<span class="source-line-no">048</span><span id="line-48"> * {@link org.apache.wiki.auth.user.UserDatabase}&lt;/li&gt;</span>
-<span class="source-line-no">049</span><span id="line-49"> * &lt;/ol&gt;</span>
-<span class="source-line-no">050</span><span id="line-50"> * &lt;p&gt;</span>
-<span class="source-line-no">051</span><span id="line-51"> * After authentication, a Principals based on the login name will be created</span>
-<span class="source-line-no">052</span><span id="line-52"> * and associated with the Subject.</span>
-<span class="source-line-no">053</span><span id="line-53"> * &lt;/p&gt;</span>
-<span class="source-line-no">054</span><span id="line-54"> * @since 2.3</span>
-<span class="source-line-no">055</span><span id="line-55"> */</span>
-<span class="source-line-no">056</span><span id="line-56">public class UserDatabaseLoginModule extends AbstractLoginModule {</span>
-<span class="source-line-no">057</span><span id="line-57"></span>
-<span class="source-line-no">058</span><span id="line-58">    private static final Logger LOG = LogManager.getLogger( UserDatabaseLoginModule.class );</span>
-<span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">    /**</span>
-<span class="source-line-no">061</span><span id="line-61">     * @see javax.security.auth.spi.LoginModule#login()</span>
-<span class="source-line-no">062</span><span id="line-62">     * </span>
-<span class="source-line-no">063</span><span id="line-63">     * {@inheritDoc}</span>
-<span class="source-line-no">064</span><span id="line-64">     */</span>
-<span class="source-line-no">065</span><span id="line-65">    @Override</span>
-<span class="source-line-no">066</span><span id="line-66">    public boolean login() throws LoginException</span>
-<span class="source-line-no">067</span><span id="line-67">    {</span>
-<span class="source-line-no">068</span><span id="line-68">        final UserDatabaseCallback ucb = new UserDatabaseCallback();</span>
-<span class="source-line-no">069</span><span id="line-69">        final NameCallback ncb = new NameCallback( "User name" );</span>
-<span class="source-line-no">070</span><span id="line-70">        final PasswordCallback pcb = new PasswordCallback( "Password", false );</span>
-<span class="source-line-no">071</span><span id="line-71">        final Callback[] callbacks = new Callback[]</span>
-<span class="source-line-no">072</span><span id="line-72">        { ucb, ncb, pcb };</span>
-<span class="source-line-no">073</span><span id="line-73">        try</span>
-<span class="source-line-no">074</span><span id="line-74">        {</span>
-<span class="source-line-no">075</span><span id="line-75">            m_handler.handle( callbacks );</span>
-<span class="source-line-no">076</span><span id="line-76">            final UserDatabase db = ucb.getUserDatabase();</span>
-<span class="source-line-no">077</span><span id="line-77">            final String username = ncb.getName();</span>
-<span class="source-line-no">078</span><span id="line-78">            final String password = new String( pcb.getPassword() );</span>
-<span class="source-line-no">079</span><span id="line-79"></span>
-<span class="source-line-no">080</span><span id="line-80">            // Look up the user and compare the password hash</span>
-<span class="source-line-no">081</span><span id="line-81">            if ( db == null ) {</span>
-<span class="source-line-no">082</span><span id="line-82">                throw new FailedLoginException( "No user database: check the callback handler code!" );</span>
-<span class="source-line-no">083</span><span id="line-83">            }</span>
-<span class="source-line-no">084</span><span id="line-84">            final UserProfile profile = db.findByLoginName( username );</span>
-<span class="source-line-no">085</span><span id="line-85">            final String storedPassword = profile.getPassword();</span>
-<span class="source-line-no">086</span><span id="line-86">            if ( storedPassword != null &amp;&amp; db.validatePassword( username, password ) ) {</span>
-<span class="source-line-no">087</span><span id="line-87">                LOG.debug( "Logged in user database user {}", username );</span>
-<span class="source-line-no">088</span><span id="line-88"></span>
-<span class="source-line-no">089</span><span id="line-89">                // If login succeeds, commit these principals/roles</span>
-<span class="source-line-no">090</span><span id="line-90">                m_principals.add( new WikiPrincipal( username,  WikiPrincipal.LOGIN_NAME ) );</span>
-<span class="source-line-no">091</span><span id="line-91"></span>
-<span class="source-line-no">092</span><span id="line-92">                return true;</span>
-<span class="source-line-no">093</span><span id="line-93">            }</span>
-<span class="source-line-no">094</span><span id="line-94">            throw new FailedLoginException( "The username or password is incorrect." );</span>
-<span class="source-line-no">095</span><span id="line-95">        } catch( final IOException e ) {</span>
-<span class="source-line-no">096</span><span id="line-96">            final String message = "IO exception; disallowing login.";</span>
-<span class="source-line-no">097</span><span id="line-97">            LOG.error( message, e );</span>
-<span class="source-line-no">098</span><span id="line-98">            throw new LoginException( message );</span>
-<span class="source-line-no">099</span><span id="line-99">        } catch( final UnsupportedCallbackException e ) {</span>
-<span class="source-line-no">100</span><span id="line-100">            final String message = "Unable to handle callback; disallowing login.";</span>
-<span class="source-line-no">101</span><span id="line-101">            LOG.error( message, e );</span>
-<span class="source-line-no">102</span><span id="line-102">            throw new LoginException( message );</span>
-<span class="source-line-no">103</span><span id="line-103">        } catch( final NoSuchPrincipalException e ) {</span>
-<span class="source-line-no">104</span><span id="line-104">            throw new FailedLoginException( "The username or password is incorrect." );</span>
-<span class="source-line-no">105</span><span id="line-105">        }</span>
-<span class="source-line-no">106</span><span id="line-106">    }</span>
-<span class="source-line-no">107</span><span id="line-107"></span>
-<span class="source-line-no">108</span><span id="line-108">}</span>
+<span class="source-line-no">032</span><span id="line-32">import javax.security.auth.login.AccountLockedException;</span>
+<span class="source-line-no">033</span><span id="line-33">import javax.security.auth.login.FailedLoginException;</span>
+<span class="source-line-no">034</span><span id="line-34">import javax.security.auth.login.LoginException;</span>
+<span class="source-line-no">035</span><span id="line-35">import java.io.IOException;</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">/**</span>
+<span class="source-line-no">038</span><span id="line-38"> * &lt;p&gt;</span>
+<span class="source-line-no">039</span><span id="line-39"> * Logs in a user based on a username, password, and static password file</span>
+<span class="source-line-no">040</span><span id="line-40"> * location. This module must be used with a CallbackHandler (such as</span>
+<span class="source-line-no">041</span><span id="line-41"> * {@link WikiCallbackHandler}) that supports the following Callback types:</span>
+<span class="source-line-no">042</span><span id="line-42"> * &lt;/p&gt;</span>
+<span class="source-line-no">043</span><span id="line-43"> * &lt;ol&gt;</span>
+<span class="source-line-no">044</span><span id="line-44"> * &lt;li&gt;{@link javax.security.auth.callback.NameCallback}- supplies the</span>
+<span class="source-line-no">045</span><span id="line-45"> * username&lt;/li&gt;</span>
+<span class="source-line-no">046</span><span id="line-46"> * &lt;li&gt;{@link javax.security.auth.callback.PasswordCallback}- supplies the</span>
+<span class="source-line-no">047</span><span id="line-47"> * password&lt;/li&gt;</span>
+<span class="source-line-no">048</span><span id="line-48"> * &lt;li&gt;{@link org.apache.wiki.auth.login.UserDatabaseCallback}- supplies the</span>
+<span class="source-line-no">049</span><span id="line-49"> * {@link org.apache.wiki.auth.user.UserDatabase}&lt;/li&gt;</span>
+<span class="source-line-no">050</span><span id="line-50"> * &lt;/ol&gt;</span>
+<span class="source-line-no">051</span><span id="line-51"> * &lt;p&gt;</span>
+<span class="source-line-no">052</span><span id="line-52"> * After authentication, a Principals based on the login name will be created</span>
+<span class="source-line-no">053</span><span id="line-53"> * and associated with the Subject.</span>
+<span class="source-line-no">054</span><span id="line-54"> * &lt;/p&gt;</span>
+<span class="source-line-no">055</span><span id="line-55"> * @since 2.3</span>
+<span class="source-line-no">056</span><span id="line-56"> */</span>
+<span class="source-line-no">057</span><span id="line-57">public class UserDatabaseLoginModule extends AbstractLoginModule {</span>
+<span class="source-line-no">058</span><span id="line-58"></span>
+<span class="source-line-no">059</span><span id="line-59">    private static final Logger LOG = LogManager.getLogger( UserDatabaseLoginModule.class );</span>
+<span class="source-line-no">060</span><span id="line-60"></span>
+<span class="source-line-no">061</span><span id="line-61">    /**</span>
+<span class="source-line-no">062</span><span id="line-62">     * @see javax.security.auth.spi.LoginModule#login()</span>
+<span class="source-line-no">063</span><span id="line-63">     * </span>
+<span class="source-line-no">064</span><span id="line-64">     * {@inheritDoc}</span>
+<span class="source-line-no">065</span><span id="line-65">     */</span>
+<span class="source-line-no">066</span><span id="line-66">    @Override</span>
+<span class="source-line-no">067</span><span id="line-67">    public boolean login() throws LoginException</span>
+<span class="source-line-no">068</span><span id="line-68">    {</span>
+<span class="source-line-no">069</span><span id="line-69">        final UserDatabaseCallback ucb = new UserDatabaseCallback();</span>
+<span class="source-line-no">070</span><span id="line-70">        final NameCallback ncb = new NameCallback( "User name" );</span>
+<span class="source-line-no">071</span><span id="line-71">        final PasswordCallback pcb = new PasswordCallback( "Password", false );</span>
+<span class="source-line-no">072</span><span id="line-72">        final Callback[] callbacks = new Callback[]</span>
+<span class="source-line-no">073</span><span id="line-73">        { ucb, ncb, pcb };</span>
+<span class="source-line-no">074</span><span id="line-74">        try</span>
+<span class="source-line-no">075</span><span id="line-75">        {</span>
+<span class="source-line-no">076</span><span id="line-76">            m_handler.handle( callbacks );</span>
+<span class="source-line-no">077</span><span id="line-77">            final UserDatabase db = ucb.getUserDatabase();</span>
+<span class="source-line-no">078</span><span id="line-78">            final String username = ncb.getName();</span>
+<span class="source-line-no">079</span><span id="line-79">            final String password = new String( pcb.getPassword() );</span>
+<span class="source-line-no">080</span><span id="line-80"></span>
+<span class="source-line-no">081</span><span id="line-81">            // Look up the user and compare the password hash</span>
+<span class="source-line-no">082</span><span id="line-82">            if ( db == null ) {</span>
+<span class="source-line-no">083</span><span id="line-83">                throw new FailedLoginException( "No user database: check the callback handler code!" );</span>
+<span class="source-line-no">084</span><span id="line-84">            }</span>
+<span class="source-line-no">085</span><span id="line-85">            final UserProfile profile = db.findByLoginName( username );</span>
+<span class="source-line-no">086</span><span id="line-86">            final String storedPassword = profile.getPassword();</span>
+<span class="source-line-no">087</span><span id="line-87">            if ( storedPassword != null &amp;&amp; db.validatePassword( username, password ) ) {</span>
+<span class="source-line-no">088</span><span id="line-88">                // Only someone who knows the password is told that the profile is locked</span>
+<span class="source-line-no">089</span><span id="line-89">                if( profile.isLocked() ) {</span>
+<span class="source-line-no">090</span><span id="line-90">                    LOG.info( "Login denied for locked user database user {}", username );</span>
+<span class="source-line-no">091</span><span id="line-91">                    throw new AccountLockedException( "The profile is locked." );</span>
+<span class="source-line-no">092</span><span id="line-92">                }</span>
+<span class="source-line-no">093</span><span id="line-93">                LOG.debug( "Logged in user database user {}", username );</span>
+<span class="source-line-no">094</span><span id="line-94"></span>
+<span class="source-line-no">095</span><span id="line-95">                // If login succeeds, commit these principals/roles</span>
+<span class="source-line-no">096</span><span id="line-96">                m_principals.add( new WikiPrincipal( username,  WikiPrincipal.LOGIN_NAME ) );</span>
+<span class="source-line-no">097</span><span id="line-97"></span>
+<span class="source-line-no">098</span><span id="line-98">                return true;</span>
+<span class="source-line-no">099</span><span id="line-99">            }</span>
+<span class="source-line-no">100</span><span id="line-100">            throw new FailedLoginException( "The username or password is incorrect." );</span>
+<span class="source-line-no">101</span><span id="line-101">        } catch( final IOException e ) {</span>
+<span class="source-line-no">102</span><span id="line-102">            final String message = "IO exception; disallowing login.";</span>
+<span class="source-line-no">103</span><span id="line-103">            LOG.error( message, e );</span>
+<span class="source-line-no">104</span><span id="line-104">            throw new LoginException( message );</span>
+<span class="source-line-no">105</span><span id="line-105">        } catch( final UnsupportedCallbackException e ) {</span>
+<span class="source-line-no">106</span><span id="line-106">            final String message = "Unable to handle callback; disallowing login.";</span>
+<span class="source-line-no">107</span><span id="line-107">            LOG.error( message, e );</span>
+<span class="source-line-no">108</span><span id="line-108">            throw new LoginException( message );</span>
+<span class="source-line-no">109</span><span id="line-109">        } catch( final NoSuchPrincipalException e ) {</span>
+<span class="source-line-no">110</span><span id="line-110">            throw new FailedLoginException( "The username or password is incorrect." );</span>
+<span class="source-line-no">111</span><span id="line-111">        }</span>
+<span class="source-line-no">112</span><span id="line-112">    }</span>
+<span class="source-line-no">113</span><span id="line-113"></span>
+<span class="source-line-no">114</span><span id="line-114">}</span>
 
 
 

@@ -58,290 +58,425 @@
 <span class="source-line-no">045</span><span id="line-45"></span>
 <span class="source-line-no">046</span><span id="line-46">    private static final int DEFAULT_SALT_SIZE = 8;</span>
 <span class="source-line-no">047</span><span id="line-47"></span>
-<span class="source-line-no">048</span><span id="line-48">    /** Prefix of PBKDF2-HMAC-SHA256 password entries, the current password-storage format. */</span>
-<span class="source-line-no">049</span><span id="line-49">    public static final String PBKDF2_PREFIX = "{PBKDF2-SHA256}";</span>
+<span class="source-line-no">048</span><span id="line-48">    /** Name of the PBKDF2-HMAC-SHA256 algorithm, as used in {@code jspwiki.credentials.hash.algorithm}. */</span>
+<span class="source-line-no">049</span><span id="line-49">    public static final String PBKDF2_SHA256 = "PBKDF2-SHA256";</span>
 <span class="source-line-no">050</span><span id="line-50"></span>
-<span class="source-line-no">051</span><span id="line-51">    /** Iteration count for new PBKDF2-HMAC-SHA256 hashes, per current OWASP password-storage guidance. */</span>
-<span class="source-line-no">052</span><span id="line-52">    private static final int PBKDF2_ITERATIONS = 600_000;</span>
+<span class="source-line-no">051</span><span id="line-51">    /** Name of the PBKDF2-HMAC-SHA512 algorithm, as used in {@code jspwiki.credentials.hash.algorithm}. */</span>
+<span class="source-line-no">052</span><span id="line-52">    public static final String PBKDF2_SHA512 = "PBKDF2-SHA512";</span>
 <span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">    private static final int PBKDF2_KEY_LENGTH_BYTES = 32;</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">    private static final int PBKDF2_SALT_SIZE = 16;</span>
-<span class="source-line-no">057</span><span id="line-57"></span>
-<span class="source-line-no">058</span><span id="line-58">    private static final Object HELP = "--help";</span>
+<span class="source-line-no">054</span><span id="line-54">    /** Prefix of PBKDF2-HMAC-SHA256 password entries, the format used by default. */</span>
+<span class="source-line-no">055</span><span id="line-55">    public static final String PBKDF2_PREFIX = "{" + PBKDF2_SHA256 + "}";</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">    /** Prefix of PBKDF2-HMAC-SHA512 password entries. */</span>
+<span class="source-line-no">058</span><span id="line-58">    public static final String PBKDF2_SHA512_PREFIX = "{" + PBKDF2_SHA512 + "}";</span>
 <span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">    private static final Object HASH = "--hash";</span>
-<span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">    private static final Object VERIFY = "--verify";</span>
-<span class="source-line-no">063</span><span id="line-63"></span>
-<span class="source-line-no">064</span><span id="line-64">    /**</span>
-<span class="source-line-no">065</span><span id="line-65">     * Private constructor to prevent direct instantiation.</span>
-<span class="source-line-no">066</span><span id="line-66">     */</span>
-<span class="source-line-no">067</span><span id="line-67">    private CryptoUtil() {}</span>
-<span class="source-line-no">068</span><span id="line-68"></span>
-<span class="source-line-no">069</span><span id="line-69">    /**</span>
-<span class="source-line-no">070</span><span id="line-70">     * &lt;p&gt;</span>
-<span class="source-line-no">071</span><span id="line-71">     * Convenience method for hashing and verifying salted SHA-1 or SHA-256 passwords from</span>
-<span class="source-line-no">072</span><span id="line-72">     * the command line. This method requires &lt;code&gt;commons-codec-1.3.jar&lt;/code&gt;</span>
-<span class="source-line-no">073</span><span id="line-73">     * (or a newer version) to be on the classpath. Command line arguments are</span>
-<span class="source-line-no">074</span><span id="line-74">     * as follows:</span>
-<span class="source-line-no">075</span><span id="line-75">     * &lt;/p&gt;</span>
-<span class="source-line-no">076</span><span id="line-76">     * &lt;ul&gt;</span>
-<span class="source-line-no">077</span><span id="line-77">     * &lt;li&gt;&lt;code&gt;--hash &lt;var&gt;password&lt;/var&gt; SSHA&lt;/code&gt; - hashes &lt;var&gt;password&lt;/var&gt;&lt;/code&gt;</span>
-<span class="source-line-no">078</span><span id="line-78">     * and prints a password digest that looks like this: &lt;blockquote&gt;&lt;code&gt;{SSHA}yfT8SRT/WoOuNuA6KbJeF10OznZmb28=&lt;/code&gt;&lt;/blockquote&gt;&lt;/li&gt;</span>
-<span class="source-line-no">079</span><span id="line-79">     * &lt;li&gt;&lt;code&gt;--verify &lt;var&gt;password&lt;/var&gt; &lt;var&gt;digest&lt;/var&gt;&lt;/code&gt; -</span>
-<span class="source-line-no">080</span><span id="line-80">     * verifies &lt;var&gt;password&lt;/var&gt; by extracting the salt from &lt;var&gt;digest&lt;/var&gt;</span>
-<span class="source-line-no">081</span><span id="line-81">     * (which is identical to what is printed by &lt;code&gt;--hash&lt;/code&gt;) and</span>
-<span class="source-line-no">082</span><span id="line-82">     * re-computing the digest again using the password and salt. If the</span>
-<span class="source-line-no">083</span><span id="line-83">     * password supplied is the same as the one used to create the original</span>
-<span class="source-line-no">084</span><span id="line-84">     * digest, &lt;code&gt;true&lt;/code&gt; will be printed; otherwise &lt;code&gt;false&lt;/code&gt;&lt;/li&gt;</span>
-<span class="source-line-no">085</span><span id="line-85">     * &lt;/ul&gt;</span>
-<span class="source-line-no">086</span><span id="line-86">     * &lt;p&gt;For example, one way to use this utility is to change to JSPWiki's &lt;code&gt;build&lt;/code&gt; directory</span>
-<span class="source-line-no">087</span><span id="line-87">     * and type the following command:&lt;/p&gt;</span>
-<span class="source-line-no">088</span><span id="line-88">     * &lt;blockquote&gt;&lt;code&gt;java -cp JSPWiki.jar:../lib/commons-codec-1.3.jar org.apache.wiki.util.CryptoUtil --hash mynewpassword&lt;/code&gt;&lt;/blockquote&gt;</span>
-<span class="source-line-no">089</span><span id="line-89">     * </span>
-<span class="source-line-no">090</span><span id="line-90">     * @param args arguments for this method as described above</span>
-<span class="source-line-no">091</span><span id="line-91">     * @throws Exception Catches nothing; throws everything up.</span>
-<span class="source-line-no">092</span><span id="line-92">     */</span>
-<span class="source-line-no">093</span><span id="line-93">    public static void main( final String[] args ) throws Exception {</span>
-<span class="source-line-no">094</span><span id="line-94">        // Print help if the user requested it, or if no arguments</span>
-<span class="source-line-no">095</span><span id="line-95">        if( args.length == 0 || ( args.length == 1 &amp;&amp; HELP.equals( args[0] ) ) ) {</span>
-<span class="source-line-no">096</span><span id="line-96">            System.out.println( "Usage: CryptoUtil [options] " );</span>
-<span class="source-line-no">097</span><span id="line-97">            System.out.println( "   --hash   password algorithm             create hash for password" );</span>
-<span class="source-line-no">098</span><span id="line-98">            System.out.println( "   --verify password digest algorithm      verify password for digest" );</span>
-<span class="source-line-no">099</span><span id="line-99">            System.out.println( "Valid algorithm options are {SSHA} and {SHA-256}. If no algorithm is specified or an unsupported algorithm is specified, SHA-256 is used." );</span>
-<span class="source-line-no">100</span><span id="line-100">        }</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">        if( HASH.equals( args[0] ) ) {</span>
-<span class="source-line-no">103</span><span id="line-103">        // User wants to hash the password</span>
-<span class="source-line-no">104</span><span id="line-104">            if( args.length &lt; 2 ) {</span>
-<span class="source-line-no">105</span><span id="line-105">                throw new IllegalArgumentException( "Error: --hash requires a 'password' argument." );</span>
+<span class="source-line-no">060</span><span id="line-60">    /** Algorithm used for new password entries unless configured otherwise. */</span>
+<span class="source-line-no">061</span><span id="line-61">    public static final String DEFAULT_PBKDF2_ALGORITHM = PBKDF2_SHA256;</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">    private static final int PBKDF2_SALT_SIZE = 16;</span>
+<span class="source-line-no">064</span><span id="line-64"></span>
+<span class="source-line-no">065</span><span id="line-65">    /**</span>
+<span class="source-line-no">066</span><span id="line-66">     * The PBKDF2 flavours that can be used to store passwords. The default iteration counts follow the current OWASP password-storage</span>
+<span class="source-line-no">067</span><span id="line-67">     * guidance for each of them.</span>
+<span class="source-line-no">068</span><span id="line-68">     */</span>
+<span class="source-line-no">069</span><span id="line-69">    private enum Pbkdf2 {</span>
+<span class="source-line-no">070</span><span id="line-70"></span>
+<span class="source-line-no">071</span><span id="line-71">        SHA256( PBKDF2_SHA256, "PBKDF2WithHmacSHA256", 32, 600_000 ),</span>
+<span class="source-line-no">072</span><span id="line-72">        SHA512( PBKDF2_SHA512, "PBKDF2WithHmacSHA512", 64, 210_000 );</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">        private final String algorithm;</span>
+<span class="source-line-no">075</span><span id="line-75">        private final String jcaName;</span>
+<span class="source-line-no">076</span><span id="line-76">        private final int keyLengthBytes;</span>
+<span class="source-line-no">077</span><span id="line-77">        private final int defaultIterations;</span>
+<span class="source-line-no">078</span><span id="line-78"></span>
+<span class="source-line-no">079</span><span id="line-79">        Pbkdf2( final String algorithm, final String jcaName, final int keyLengthBytes, final int defaultIterations ) {</span>
+<span class="source-line-no">080</span><span id="line-80">            this.algorithm = algorithm;</span>
+<span class="source-line-no">081</span><span id="line-81">            this.jcaName = jcaName;</span>
+<span class="source-line-no">082</span><span id="line-82">            this.keyLengthBytes = keyLengthBytes;</span>
+<span class="source-line-no">083</span><span id="line-83">            this.defaultIterations = defaultIterations;</span>
+<span class="source-line-no">084</span><span id="line-84">        }</span>
+<span class="source-line-no">085</span><span id="line-85"></span>
+<span class="source-line-no">086</span><span id="line-86">        String prefix() {</span>
+<span class="source-line-no">087</span><span id="line-87">            return "{" + algorithm + "}";</span>
+<span class="source-line-no">088</span><span id="line-88">        }</span>
+<span class="source-line-no">089</span><span id="line-89"></span>
+<span class="source-line-no">090</span><span id="line-90">        static Pbkdf2 forAlgorithm( final String algorithm ) {</span>
+<span class="source-line-no">091</span><span id="line-91">            for( final Pbkdf2 pbkdf2 : values() ) {</span>
+<span class="source-line-no">092</span><span id="line-92">                if( pbkdf2.algorithm.equals( algorithm ) ) {</span>
+<span class="source-line-no">093</span><span id="line-93">                    return pbkdf2;</span>
+<span class="source-line-no">094</span><span id="line-94">                }</span>
+<span class="source-line-no">095</span><span id="line-95">            }</span>
+<span class="source-line-no">096</span><span id="line-96">            throw new IllegalArgumentException( "Unsupported password hash algorithm: " + algorithm );</span>
+<span class="source-line-no">097</span><span id="line-97">        }</span>
+<span class="source-line-no">098</span><span id="line-98"></span>
+<span class="source-line-no">099</span><span id="line-99">        static Pbkdf2 forEntry( final String entry ) {</span>
+<span class="source-line-no">100</span><span id="line-100">            if( entry != null ) {</span>
+<span class="source-line-no">101</span><span id="line-101">                for( final Pbkdf2 pbkdf2 : values() ) {</span>
+<span class="source-line-no">102</span><span id="line-102">                    if( entry.startsWith( pbkdf2.prefix() ) ) {</span>
+<span class="source-line-no">103</span><span id="line-103">                        return pbkdf2;</span>
+<span class="source-line-no">104</span><span id="line-104">                    }</span>
+<span class="source-line-no">105</span><span id="line-105">                }</span>
 <span class="source-line-no">106</span><span id="line-106">            }</span>
-<span class="source-line-no">107</span><span id="line-107">            final String password = args[1].trim();</span>
-<span class="source-line-no">108</span><span id="line-108">            final String algorithm = args.length &gt; 2 ? args[2].trim() : SHA256;</span>
-<span class="source-line-no">109</span><span id="line-109"></span>
-<span class="source-line-no">110</span><span id="line-110">            System.out.println( CryptoUtil.getSaltedPassword( password.getBytes( StandardCharsets.UTF_8 ), algorithm ) );</span>
-<span class="source-line-no">111</span><span id="line-111">        } else if( VERIFY.equals( args[0] ) ) {</span>
-<span class="source-line-no">112</span><span id="line-112">        // User wants to verify an existing password</span>
-<span class="source-line-no">113</span><span id="line-113">            if( args.length &lt; 3 ) {</span>
-<span class="source-line-no">114</span><span id="line-114">                throw new IllegalArgumentException( "Error: --hash requires 'password' and 'digest' arguments." );</span>
-<span class="source-line-no">115</span><span id="line-115">            }</span>
-<span class="source-line-no">116</span><span id="line-116">            final String password = args[1].trim();</span>
-<span class="source-line-no">117</span><span id="line-117">            final String digest = args[2].trim();</span>
-<span class="source-line-no">118</span><span id="line-118"></span>
-<span class="source-line-no">119</span><span id="line-119">            System.out.println( CryptoUtil.verifySaltedPassword( password.getBytes( StandardCharsets.UTF_8 ), digest ) );</span>
-<span class="source-line-no">120</span><span id="line-120">        } else {</span>
-<span class="source-line-no">121</span><span id="line-121">            System.out.println( "Wrong usage. Try --help." );</span>
-<span class="source-line-no">122</span><span id="line-122">        }</span>
-<span class="source-line-no">123</span><span id="line-123">    }</span>
-<span class="source-line-no">124</span><span id="line-124"></span>
-<span class="source-line-no">125</span><span id="line-125">    /**</span>
-<span class="source-line-no">126</span><span id="line-126">     * &lt;p&gt;</span>
-<span class="source-line-no">127</span><span id="line-127">     * Creates an RFC 2307-compliant salted, hashed password with the SHA1 or SHA-256</span>
-<span class="source-line-no">128</span><span id="line-128">     * MessageDigest algorithm. After the password is digested, the first 20 or 32</span>
-<span class="source-line-no">129</span><span id="line-129">     * bytes of the digest will be the actual password hash; the remaining bytes</span>
-<span class="source-line-no">130</span><span id="line-130">     * will be a randomly generated salt of length {@link #DEFAULT_SALT_SIZE},</span>
-<span class="source-line-no">131</span><span id="line-131">     * for example: &lt;blockquote&gt;&lt;code&gt;{SSHA}3cGWem65NCEkF5Ew5AEk45ak8LHUWAwPVXAyyw==&lt;/code&gt;&lt;/blockquote&gt;</span>
-<span class="source-line-no">132</span><span id="line-132">     * &lt;/p&gt;</span>
-<span class="source-line-no">133</span><span id="line-133">     * &lt;p&gt;</span>
-<span class="source-line-no">134</span><span id="line-134">     * In layman's terms, the formula is</span>
-<span class="source-line-no">135</span><span id="line-135">     * &lt;code&gt;digest( secret + salt ) + salt&lt;/code&gt;. The resulting digest is Base64-encoded.</span>
-<span class="source-line-no">136</span><span id="line-136">     * &lt;/p&gt;</span>
-<span class="source-line-no">137</span><span id="line-137">     * &lt;p&gt;</span>
-<span class="source-line-no">138</span><span id="line-138">     * Note that successive invocations of this method with the same password</span>
-<span class="source-line-no">139</span><span id="line-139">     * will result in different hashes! (This, of course, is exactly the point.)</span>
-<span class="source-line-no">140</span><span id="line-140">     * &lt;/p&gt;</span>
-<span class="source-line-no">141</span><span id="line-141">     * </span>
-<span class="source-line-no">142</span><span id="line-142">     * @param password the password to be digested</span>
-<span class="source-line-no">143</span><span id="line-143">     * @return the Base64-encoded password hash, prepended by</span>
-<span class="source-line-no">144</span><span id="line-144">     *         &lt;code&gt;{SSHA}&lt;/code&gt; or &lt;code&gt;{SHA256}&lt;/code&gt;.</span>
-<span class="source-line-no">145</span><span id="line-145">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
-<span class="source-line-no">146</span><span id="line-146">     */</span>
-<span class="source-line-no">147</span><span id="line-147">    public static String getSaltedPassword( final byte[] password, final String algorithm ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">148</span><span id="line-148">        final byte[] salt = new byte[ DEFAULT_SALT_SIZE ];</span>
-<span class="source-line-no">149</span><span id="line-149">        RANDOM.nextBytes( salt );</span>
-<span class="source-line-no">150</span><span id="line-150"></span>
-<span class="source-line-no">151</span><span id="line-151">        return getSaltedPassword( password, salt, algorithm );</span>
-<span class="source-line-no">152</span><span id="line-152">    }</span>
-<span class="source-line-no">153</span><span id="line-153"></span>
-<span class="source-line-no">154</span><span id="line-154">    /**</span>
-<span class="source-line-no">155</span><span id="line-155">     * &lt;p&gt;</span>
-<span class="source-line-no">156</span><span id="line-156">     * Helper method that creates an RFC 2307-compliant salted, hashed password with the SHA1 or SHA256</span>
-<span class="source-line-no">157</span><span id="line-157">     * MessageDigest algorithm. After the password is digested, the first 20 or 32</span>
-<span class="source-line-no">158</span><span id="line-158">     * bytes of the digest will be the actual password hash; the remaining bytes</span>
-<span class="source-line-no">159</span><span id="line-159">     * will be the salt. Thus, supplying a password &lt;code&gt;testing123&lt;/code&gt;</span>
-<span class="source-line-no">160</span><span id="line-160">     * and a random salt &lt;code&gt;foo&lt;/code&gt; produces the hash when using SHA1:</span>
-<span class="source-line-no">161</span><span id="line-161">     * &lt;/p&gt;</span>
-<span class="source-line-no">162</span><span id="line-162">     * &lt;blockquote&gt;&lt;code&gt;{SSHA}yfT8SRT/WoOuNuA6KbJeF10OznZmb28=&lt;/code&gt;&lt;/blockquote&gt;</span>
-<span class="source-line-no">163</span><span id="line-163">     * &lt;p&gt;</span>
-<span class="source-line-no">164</span><span id="line-164">     * In layman's terms, the formula is</span>
-<span class="source-line-no">165</span><span id="line-165">     * &lt;code&gt;digest( secret + salt ) + salt&lt;/code&gt;. The resulting digest is Base64-encoded.&lt;/p&gt;</span>
-<span class="source-line-no">166</span><span id="line-166">     * </span>
-<span class="source-line-no">167</span><span id="line-167">     * @param password the password to be digested</span>
-<span class="source-line-no">168</span><span id="line-168">     * @param salt the random salt</span>
-<span class="source-line-no">169</span><span id="line-169">     * @return the Base64-encoded password hash, prepended by &lt;code&gt;{SSHA}&lt;/code&gt; or &lt;code&gt;{SHA256}&lt;/code&gt;.</span>
-<span class="source-line-no">170</span><span id="line-170">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
-<span class="source-line-no">171</span><span id="line-171">     */</span>
-<span class="source-line-no">172</span><span id="line-172">    static String getSaltedPassword( final byte[] password, final byte[] salt, final String algorithm ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">173</span><span id="line-173">        //The term SSHA is used as a password prefix for backwards compatibility, but we use SHA-1 when fetching an instance</span>
-<span class="source-line-no">174</span><span id="line-174">        //of MessageDigest, as it is the guaranteed option. We also need to remove curly braces surrounding the string for</span>
-<span class="source-line-no">175</span><span id="line-175">        //backwards compatibility.</span>
-<span class="source-line-no">176</span><span id="line-176">        final String algorithmToUse = algorithm.equals(SSHA) ? SHA1 : algorithm;</span>
-<span class="source-line-no">177</span><span id="line-177">        final MessageDigest digest = MessageDigest.getInstance( algorithmToUse.substring( 1, algorithmToUse.length() -1 ) );</span>
-<span class="source-line-no">178</span><span id="line-178">        digest.update( password );</span>
-<span class="source-line-no">179</span><span id="line-179">        final byte[] hash = digest.digest( salt );</span>
-<span class="source-line-no">180</span><span id="line-180"></span>
-<span class="source-line-no">181</span><span id="line-181">        // Create an array with the hash plus the salt</span>
-<span class="source-line-no">182</span><span id="line-182">        final byte[] all = new byte[hash.length + salt.length];</span>
-<span class="source-line-no">183</span><span id="line-183">        System.arraycopy(hash, 0, all, 0, hash.length);</span>
-<span class="source-line-no">184</span><span id="line-184">        System.arraycopy(salt, 0, all, hash.length, salt.length);</span>
-<span class="source-line-no">185</span><span id="line-185">        final byte[] base64 = Base64.getEncoder().encode( all );</span>
-<span class="source-line-no">186</span><span id="line-186">        </span>
-<span class="source-line-no">187</span><span id="line-187">        return algorithm + new String( base64, StandardCharsets.UTF_8 );</span>
-<span class="source-line-no">188</span><span id="line-188">    }</span>
-<span class="source-line-no">189</span><span id="line-189"></span>
-<span class="source-line-no">190</span><span id="line-190">    /**</span>
-<span class="source-line-no">191</span><span id="line-191">     * &lt;p&gt;Creates an iterated, salted PBKDF2-HMAC-SHA256 hash of the given password, suitable for storage. Unlike the</span>
-<span class="source-line-no">192</span><span id="line-192">     * single-iteration digests above, the work factor makes offline cracking of a disclosed user database</span>
-<span class="source-line-no">193</span><span id="line-193">     * expensive. The format is &lt;code&gt;{PBKDF2-SHA256}&lt;var&gt;iterations&lt;/var&gt;$base64(salt)$base64(hash)&lt;/code&gt;, so the</span>
-<span class="source-line-no">194</span><span id="line-194">     * iteration count of stored entries can be raised in the future without breaking old entries.&lt;/p&gt;</span>
-<span class="source-line-no">195</span><span id="line-195">     *</span>
-<span class="source-line-no">196</span><span id="line-196">     * @param password the password to be hashed</span>
-<span class="source-line-no">197</span><span id="line-197">     * @return the password entry, prepended by &lt;code&gt;{PBKDF2-SHA256}&lt;/code&gt;</span>
+<span class="source-line-no">107</span><span id="line-107">            return null;</span>
+<span class="source-line-no">108</span><span id="line-108">        }</span>
+<span class="source-line-no">109</span><span id="line-109">    }</span>
+<span class="source-line-no">110</span><span id="line-110"></span>
+<span class="source-line-no">111</span><span id="line-111">    private static final Object HELP = "--help";</span>
+<span class="source-line-no">112</span><span id="line-112"></span>
+<span class="source-line-no">113</span><span id="line-113">    private static final Object HASH = "--hash";</span>
+<span class="source-line-no">114</span><span id="line-114"></span>
+<span class="source-line-no">115</span><span id="line-115">    private static final Object VERIFY = "--verify";</span>
+<span class="source-line-no">116</span><span id="line-116"></span>
+<span class="source-line-no">117</span><span id="line-117">    /**</span>
+<span class="source-line-no">118</span><span id="line-118">     * Private constructor to prevent direct instantiation.</span>
+<span class="source-line-no">119</span><span id="line-119">     */</span>
+<span class="source-line-no">120</span><span id="line-120">    private CryptoUtil() {}</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">    /**</span>
+<span class="source-line-no">123</span><span id="line-123">     * &lt;p&gt;</span>
+<span class="source-line-no">124</span><span id="line-124">     * Convenience method for hashing and verifying salted SHA-1 or SHA-256 passwords from</span>
+<span class="source-line-no">125</span><span id="line-125">     * the command line. This method requires &lt;code&gt;commons-codec-1.3.jar&lt;/code&gt;</span>
+<span class="source-line-no">126</span><span id="line-126">     * (or a newer version) to be on the classpath. Command line arguments are</span>
+<span class="source-line-no">127</span><span id="line-127">     * as follows:</span>
+<span class="source-line-no">128</span><span id="line-128">     * &lt;/p&gt;</span>
+<span class="source-line-no">129</span><span id="line-129">     * &lt;ul&gt;</span>
+<span class="source-line-no">130</span><span id="line-130">     * &lt;li&gt;&lt;code&gt;--hash &lt;var&gt;password&lt;/var&gt; SSHA&lt;/code&gt; - hashes &lt;var&gt;password&lt;/var&gt;&lt;/code&gt;</span>
+<span class="source-line-no">131</span><span id="line-131">     * and prints a password digest that looks like this: &lt;blockquote&gt;&lt;code&gt;{SSHA}yfT8SRT/WoOuNuA6KbJeF10OznZmb28=&lt;/code&gt;&lt;/blockquote&gt;&lt;/li&gt;</span>
+<span class="source-line-no">132</span><span id="line-132">     * &lt;li&gt;&lt;code&gt;--verify &lt;var&gt;password&lt;/var&gt; &lt;var&gt;digest&lt;/var&gt;&lt;/code&gt; -</span>
+<span class="source-line-no">133</span><span id="line-133">     * verifies &lt;var&gt;password&lt;/var&gt; by extracting the salt from &lt;var&gt;digest&lt;/var&gt;</span>
+<span class="source-line-no">134</span><span id="line-134">     * (which is identical to what is printed by &lt;code&gt;--hash&lt;/code&gt;) and</span>
+<span class="source-line-no">135</span><span id="line-135">     * re-computing the digest again using the password and salt. If the</span>
+<span class="source-line-no">136</span><span id="line-136">     * password supplied is the same as the one used to create the original</span>
+<span class="source-line-no">137</span><span id="line-137">     * digest, &lt;code&gt;true&lt;/code&gt; will be printed; otherwise &lt;code&gt;false&lt;/code&gt;&lt;/li&gt;</span>
+<span class="source-line-no">138</span><span id="line-138">     * &lt;/ul&gt;</span>
+<span class="source-line-no">139</span><span id="line-139">     * &lt;p&gt;For example, one way to use this utility is to change to JSPWiki's &lt;code&gt;build&lt;/code&gt; directory</span>
+<span class="source-line-no">140</span><span id="line-140">     * and type the following command:&lt;/p&gt;</span>
+<span class="source-line-no">141</span><span id="line-141">     * &lt;blockquote&gt;&lt;code&gt;java -cp JSPWiki.jar:../lib/commons-codec-1.3.jar org.apache.wiki.util.CryptoUtil --hash mynewpassword&lt;/code&gt;&lt;/blockquote&gt;</span>
+<span class="source-line-no">142</span><span id="line-142">     * </span>
+<span class="source-line-no">143</span><span id="line-143">     * @param args arguments for this method as described above</span>
+<span class="source-line-no">144</span><span id="line-144">     * @throws Exception Catches nothing; throws everything up.</span>
+<span class="source-line-no">145</span><span id="line-145">     */</span>
+<span class="source-line-no">146</span><span id="line-146">    public static void main( final String[] args ) throws Exception {</span>
+<span class="source-line-no">147</span><span id="line-147">        // Print help if the user requested it, or if no arguments</span>
+<span class="source-line-no">148</span><span id="line-148">        if( args.length == 0 || ( args.length == 1 &amp;&amp; HELP.equals( args[0] ) ) ) {</span>
+<span class="source-line-no">149</span><span id="line-149">            System.out.println( "Usage: CryptoUtil [options] " );</span>
+<span class="source-line-no">150</span><span id="line-150">            System.out.println( "   --hash   password algorithm             create hash for password" );</span>
+<span class="source-line-no">151</span><span id="line-151">            System.out.println( "   --verify password digest algorithm      verify password for digest" );</span>
+<span class="source-line-no">152</span><span id="line-152">            System.out.println( "Valid algorithm options are {SSHA} and {SHA-256}. If no algorithm is specified or an unsupported algorithm is specified, SHA-256 is used." );</span>
+<span class="source-line-no">153</span><span id="line-153">        }</span>
+<span class="source-line-no">154</span><span id="line-154"></span>
+<span class="source-line-no">155</span><span id="line-155">        if( HASH.equals( args[0] ) ) {</span>
+<span class="source-line-no">156</span><span id="line-156">        // User wants to hash the password</span>
+<span class="source-line-no">157</span><span id="line-157">            if( args.length &lt; 2 ) {</span>
+<span class="source-line-no">158</span><span id="line-158">                throw new IllegalArgumentException( "Error: --hash requires a 'password' argument." );</span>
+<span class="source-line-no">159</span><span id="line-159">            }</span>
+<span class="source-line-no">160</span><span id="line-160">            final String password = args[1].trim();</span>
+<span class="source-line-no">161</span><span id="line-161">            final String algorithm = args.length &gt; 2 ? args[2].trim() : SHA256;</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">            System.out.println( CryptoUtil.getSaltedPassword( password.getBytes( StandardCharsets.UTF_8 ), algorithm ) );</span>
+<span class="source-line-no">164</span><span id="line-164">        } else if( VERIFY.equals( args[0] ) ) {</span>
+<span class="source-line-no">165</span><span id="line-165">        // User wants to verify an existing password</span>
+<span class="source-line-no">166</span><span id="line-166">            if( args.length &lt; 3 ) {</span>
+<span class="source-line-no">167</span><span id="line-167">                throw new IllegalArgumentException( "Error: --hash requires 'password' and 'digest' arguments." );</span>
+<span class="source-line-no">168</span><span id="line-168">            }</span>
+<span class="source-line-no">169</span><span id="line-169">            final String password = args[1].trim();</span>
+<span class="source-line-no">170</span><span id="line-170">            final String digest = args[2].trim();</span>
+<span class="source-line-no">171</span><span id="line-171"></span>
+<span class="source-line-no">172</span><span id="line-172">            System.out.println( CryptoUtil.verifySaltedPassword( password.getBytes( StandardCharsets.UTF_8 ), digest ) );</span>
+<span class="source-line-no">173</span><span id="line-173">        } else {</span>
+<span class="source-line-no">174</span><span id="line-174">            System.out.println( "Wrong usage. Try --help." );</span>
+<span class="source-line-no">175</span><span id="line-175">        }</span>
+<span class="source-line-no">176</span><span id="line-176">    }</span>
+<span class="source-line-no">177</span><span id="line-177"></span>
+<span class="source-line-no">178</span><span id="line-178">    /**</span>
+<span class="source-line-no">179</span><span id="line-179">     * &lt;p&gt;</span>
+<span class="source-line-no">180</span><span id="line-180">     * Creates an RFC 2307-compliant salted, hashed password with the SHA1 or SHA-256</span>
+<span class="source-line-no">181</span><span id="line-181">     * MessageDigest algorithm. After the password is digested, the first 20 or 32</span>
+<span class="source-line-no">182</span><span id="line-182">     * bytes of the digest will be the actual password hash; the remaining bytes</span>
+<span class="source-line-no">183</span><span id="line-183">     * will be a randomly generated salt of length {@link #DEFAULT_SALT_SIZE},</span>
+<span class="source-line-no">184</span><span id="line-184">     * for example: &lt;blockquote&gt;&lt;code&gt;{SSHA}3cGWem65NCEkF5Ew5AEk45ak8LHUWAwPVXAyyw==&lt;/code&gt;&lt;/blockquote&gt;</span>
+<span class="source-line-no">185</span><span id="line-185">     * &lt;/p&gt;</span>
+<span class="source-line-no">186</span><span id="line-186">     * &lt;p&gt;</span>
+<span class="source-line-no">187</span><span id="line-187">     * In layman's terms, the formula is</span>
+<span class="source-line-no">188</span><span id="line-188">     * &lt;code&gt;digest( secret + salt ) + salt&lt;/code&gt;. The resulting digest is Base64-encoded.</span>
+<span class="source-line-no">189</span><span id="line-189">     * &lt;/p&gt;</span>
+<span class="source-line-no">190</span><span id="line-190">     * &lt;p&gt;</span>
+<span class="source-line-no">191</span><span id="line-191">     * Note that successive invocations of this method with the same password</span>
+<span class="source-line-no">192</span><span id="line-192">     * will result in different hashes! (This, of course, is exactly the point.)</span>
+<span class="source-line-no">193</span><span id="line-193">     * &lt;/p&gt;</span>
+<span class="source-line-no">194</span><span id="line-194">     * </span>
+<span class="source-line-no">195</span><span id="line-195">     * @param password the password to be digested</span>
+<span class="source-line-no">196</span><span id="line-196">     * @return the Base64-encoded password hash, prepended by</span>
+<span class="source-line-no">197</span><span id="line-197">     *         &lt;code&gt;{SSHA}&lt;/code&gt; or &lt;code&gt;{SHA256}&lt;/code&gt;.</span>
 <span class="source-line-no">198</span><span id="line-198">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
 <span class="source-line-no">199</span><span id="line-199">     */</span>
-<span class="source-line-no">200</span><span id="line-200">    public static String getPbkdf2SaltedPassword( final byte[] password ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">201</span><span id="line-201">        final byte[] salt = new byte[ PBKDF2_SALT_SIZE ];</span>
+<span class="source-line-no">200</span><span id="line-200">    public static String getSaltedPassword( final byte[] password, final String algorithm ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">201</span><span id="line-201">        final byte[] salt = new byte[ DEFAULT_SALT_SIZE ];</span>
 <span class="source-line-no">202</span><span id="line-202">        RANDOM.nextBytes( salt );</span>
-<span class="source-line-no">203</span><span id="line-203">        return getPbkdf2SaltedPassword( password, salt, PBKDF2_ITERATIONS );</span>
-<span class="source-line-no">204</span><span id="line-204">    }</span>
-<span class="source-line-no">205</span><span id="line-205"></span>
-<span class="source-line-no">206</span><span id="line-206">    static String getPbkdf2SaltedPassword( final byte[] password, final byte[] salt, final int iterations ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">207</span><span id="line-207">        final byte[] hash = pbkdf2( password, salt, iterations );</span>
-<span class="source-line-no">208</span><span id="line-208">        final Base64.Encoder encoder = Base64.getEncoder();</span>
-<span class="source-line-no">209</span><span id="line-209">        return PBKDF2_PREFIX + iterations + "$" + encoder.encodeToString( salt ) + "$" + encoder.encodeToString( hash );</span>
-<span class="source-line-no">210</span><span id="line-210">    }</span>
-<span class="source-line-no">211</span><span id="line-211"></span>
-<span class="source-line-no">212</span><span id="line-212">    /**</span>
-<span class="source-line-no">213</span><span id="line-213">     * Verifies a password against a &lt;code&gt;{PBKDF2-SHA256}&lt;/code&gt; entry created by</span>
-<span class="source-line-no">214</span><span id="line-214">     * {@link #getPbkdf2SaltedPassword(byte[])}. The comparison is constant-time.</span>
-<span class="source-line-no">215</span><span id="line-215">     *</span>
-<span class="source-line-no">216</span><span id="line-216">     * @param password the password to verify</span>
-<span class="source-line-no">217</span><span id="line-217">     * @param entry the stored password entry</span>
-<span class="source-line-no">218</span><span id="line-218">     * @return true if the password matches the entry</span>
-<span class="source-line-no">219</span><span id="line-219">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
-<span class="source-line-no">220</span><span id="line-220">     */</span>
-<span class="source-line-no">221</span><span id="line-221">    public static boolean verifyPbkdf2SaltedPassword( final byte[] password, final String entry ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">222</span><span id="line-222">        if( !entry.startsWith( PBKDF2_PREFIX ) ) {</span>
-<span class="source-line-no">223</span><span id="line-223">            throw new IllegalArgumentException( "Hash not prefixed by expected algorithm; is it really a PBKDF2 hash?" );</span>
-<span class="source-line-no">224</span><span id="line-224">        }</span>
-<span class="source-line-no">225</span><span id="line-225">        final String[] fields = entry.substring( PBKDF2_PREFIX.length() ).split( "\\$" );</span>
-<span class="source-line-no">226</span><span id="line-226">        if( fields.length != 3 ) {</span>
-<span class="source-line-no">227</span><span id="line-227">            throw new IllegalArgumentException( "Malformed PBKDF2 password entry" );</span>
-<span class="source-line-no">228</span><span id="line-228">        }</span>
-<span class="source-line-no">229</span><span id="line-229">        final int iterations = Integer.parseInt( fields[ 0 ] );</span>
-<span class="source-line-no">230</span><span id="line-230">        final byte[] salt = Base64.getDecoder().decode( fields[ 1 ] );</span>
-<span class="source-line-no">231</span><span id="line-231">        final byte[] expected = Base64.getDecoder().decode( fields[ 2 ] );</span>
-<span class="source-line-no">232</span><span id="line-232">        final byte[] hash = pbkdf2( password, salt, iterations );</span>
-<span class="source-line-no">233</span><span id="line-233">        return MessageDigest.isEqual( expected, hash );</span>
-<span class="source-line-no">234</span><span id="line-234">    }</span>
-<span class="source-line-no">235</span><span id="line-235"></span>
-<span class="source-line-no">236</span><span id="line-236">    private static byte[] pbkdf2( final byte[] password, final byte[] salt, final int iterations ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">237</span><span id="line-237">        final char[] chars = new String( password, StandardCharsets.UTF_8 ).toCharArray();</span>
-<span class="source-line-no">238</span><span id="line-238">        final PBEKeySpec spec = new PBEKeySpec( chars, salt, iterations, PBKDF2_KEY_LENGTH_BYTES * 8 );</span>
-<span class="source-line-no">239</span><span id="line-239">        try {</span>
-<span class="source-line-no">240</span><span id="line-240">            return SecretKeyFactory.getInstance( "PBKDF2WithHmacSHA256" ).generateSecret( spec ).getEncoded();</span>
-<span class="source-line-no">241</span><span id="line-241">        } catch( final InvalidKeySpecException e ) {</span>
-<span class="source-line-no">242</span><span id="line-242">            throw new NoSuchAlgorithmException( "Unable to compute PBKDF2 hash", e );</span>
-<span class="source-line-no">243</span><span id="line-243">        } finally {</span>
-<span class="source-line-no">244</span><span id="line-244">            spec.clearPassword();</span>
-<span class="source-line-no">245</span><span id="line-245">        }</span>
-<span class="source-line-no">246</span><span id="line-246">    }</span>
-<span class="source-line-no">247</span><span id="line-247"></span>
-<span class="source-line-no">248</span><span id="line-248">    /**</span>
-<span class="source-line-no">249</span><span id="line-249">     *  Compares a password to a given entry and returns true, if it matches.</span>
-<span class="source-line-no">250</span><span id="line-250">     *</span>
-<span class="source-line-no">251</span><span id="line-251">     *  @param password The password in bytes.</span>
-<span class="source-line-no">252</span><span id="line-252">     *  @param entry The password entry, typically starting with {SSHA}.</span>
-<span class="source-line-no">253</span><span id="line-253">     *  @return True, if the password matches.</span>
-<span class="source-line-no">254</span><span id="line-254">     *  @throws NoSuchAlgorithmException If there is no SHA available.</span>
-<span class="source-line-no">255</span><span id="line-255">     */</span>
-<span class="source-line-no">256</span><span id="line-256">    public static boolean verifySaltedPassword( final byte[] password, final String entry ) throws NoSuchAlgorithmException {</span>
-<span class="source-line-no">257</span><span id="line-257">        if( !entry.startsWith( SSHA ) &amp;&amp; !entry.startsWith( SHA256 ) &amp;&amp; !entry.startsWith( CryptoUtil.PBKDF2_PREFIX )  ) {</span>
-<span class="source-line-no">258</span><span id="line-258">            throw new IllegalArgumentException( "Hash not prefixed by expected algorithm; is it really a salted hash?" );</span>
-<span class="source-line-no">259</span><span id="line-259">        }</span>
-<span class="source-line-no">260</span><span id="line-260">        final String algorithm;</span>
-<span class="source-line-no">261</span><span id="line-261">        if (entry.startsWith(PBKDF2_PREFIX)) {</span>
-<span class="source-line-no">262</span><span id="line-262">            return verifyPbkdf2SaltedPassword(password, entry);</span>
-<span class="source-line-no">263</span><span id="line-263">        } else if (entry.startsWith(SSHA)) {</span>
-<span class="source-line-no">264</span><span id="line-264">            algorithm = SSHA;</span>
-<span class="source-line-no">265</span><span id="line-265">        } else if (entry.startsWith(SHA256)) {</span>
-<span class="source-line-no">266</span><span id="line-266">            algorithm = SHA256;</span>
-<span class="source-line-no">267</span><span id="line-267">        } else {</span>
-<span class="source-line-no">268</span><span id="line-268">            throw new NoSuchAlgorithmException("unknown hash algorithm prefix");</span>
-<span class="source-line-no">269</span><span id="line-269">        }</span>
-<span class="source-line-no">270</span><span id="line-270"></span>
-<span class="source-line-no">271</span><span id="line-271">        String hash2 = entry.substring( algorithm.length() );</span>
-<span class="source-line-no">272</span><span id="line-272">        byte[] bits = hash2.getBytes( StandardCharsets.UTF_8 );</span>
-<span class="source-line-no">273</span><span id="line-273">        final byte[] challenge = Base64.getDecoder().decode(bits);</span>
+<span class="source-line-no">203</span><span id="line-203"></span>
+<span class="source-line-no">204</span><span id="line-204">        return getSaltedPassword( password, salt, algorithm );</span>
+<span class="source-line-no">205</span><span id="line-205">    }</span>
+<span class="source-line-no">206</span><span id="line-206"></span>
+<span class="source-line-no">207</span><span id="line-207">    /**</span>
+<span class="source-line-no">208</span><span id="line-208">     * &lt;p&gt;</span>
+<span class="source-line-no">209</span><span id="line-209">     * Helper method that creates an RFC 2307-compliant salted, hashed password with the SHA1 or SHA256</span>
+<span class="source-line-no">210</span><span id="line-210">     * MessageDigest algorithm. After the password is digested, the first 20 or 32</span>
+<span class="source-line-no">211</span><span id="line-211">     * bytes of the digest will be the actual password hash; the remaining bytes</span>
+<span class="source-line-no">212</span><span id="line-212">     * will be the salt. Thus, supplying a password &lt;code&gt;testing123&lt;/code&gt;</span>
+<span class="source-line-no">213</span><span id="line-213">     * and a random salt &lt;code&gt;foo&lt;/code&gt; produces the hash when using SHA1:</span>
+<span class="source-line-no">214</span><span id="line-214">     * &lt;/p&gt;</span>
+<span class="source-line-no">215</span><span id="line-215">     * &lt;blockquote&gt;&lt;code&gt;{SSHA}yfT8SRT/WoOuNuA6KbJeF10OznZmb28=&lt;/code&gt;&lt;/blockquote&gt;</span>
+<span class="source-line-no">216</span><span id="line-216">     * &lt;p&gt;</span>
+<span class="source-line-no">217</span><span id="line-217">     * In layman's terms, the formula is</span>
+<span class="source-line-no">218</span><span id="line-218">     * &lt;code&gt;digest( secret + salt ) + salt&lt;/code&gt;. The resulting digest is Base64-encoded.&lt;/p&gt;</span>
+<span class="source-line-no">219</span><span id="line-219">     * </span>
+<span class="source-line-no">220</span><span id="line-220">     * @param password the password to be digested</span>
+<span class="source-line-no">221</span><span id="line-221">     * @param salt the random salt</span>
+<span class="source-line-no">222</span><span id="line-222">     * @return the Base64-encoded password hash, prepended by &lt;code&gt;{SSHA}&lt;/code&gt; or &lt;code&gt;{SHA256}&lt;/code&gt;.</span>
+<span class="source-line-no">223</span><span id="line-223">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
+<span class="source-line-no">224</span><span id="line-224">     */</span>
+<span class="source-line-no">225</span><span id="line-225">    static String getSaltedPassword( final byte[] password, final byte[] salt, final String algorithm ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">226</span><span id="line-226">        //The term SSHA is used as a password prefix for backwards compatibility, but we use SHA-1 when fetching an instance</span>
+<span class="source-line-no">227</span><span id="line-227">        //of MessageDigest, as it is the guaranteed option. We also need to remove curly braces surrounding the string for</span>
+<span class="source-line-no">228</span><span id="line-228">        //backwards compatibility.</span>
+<span class="source-line-no">229</span><span id="line-229">        final String algorithmToUse = algorithm.equals(SSHA) ? SHA1 : algorithm;</span>
+<span class="source-line-no">230</span><span id="line-230">        final MessageDigest digest = MessageDigest.getInstance( algorithmToUse.substring( 1, algorithmToUse.length() -1 ) );</span>
+<span class="source-line-no">231</span><span id="line-231">        digest.update( password );</span>
+<span class="source-line-no">232</span><span id="line-232">        final byte[] hash = digest.digest( salt );</span>
+<span class="source-line-no">233</span><span id="line-233"></span>
+<span class="source-line-no">234</span><span id="line-234">        // Create an array with the hash plus the salt</span>
+<span class="source-line-no">235</span><span id="line-235">        final byte[] all = new byte[hash.length + salt.length];</span>
+<span class="source-line-no">236</span><span id="line-236">        System.arraycopy(hash, 0, all, 0, hash.length);</span>
+<span class="source-line-no">237</span><span id="line-237">        System.arraycopy(salt, 0, all, hash.length, salt.length);</span>
+<span class="source-line-no">238</span><span id="line-238">        final byte[] base64 = Base64.getEncoder().encode( all );</span>
+<span class="source-line-no">239</span><span id="line-239">        </span>
+<span class="source-line-no">240</span><span id="line-240">        return algorithm + new String( base64, StandardCharsets.UTF_8 );</span>
+<span class="source-line-no">241</span><span id="line-241">    }</span>
+<span class="source-line-no">242</span><span id="line-242"></span>
+<span class="source-line-no">243</span><span id="line-243">    /**</span>
+<span class="source-line-no">244</span><span id="line-244">     * &lt;p&gt;Creates an iterated, salted PBKDF2-HMAC-SHA256 hash of the given password, suitable for storage. Unlike the</span>
+<span class="source-line-no">245</span><span id="line-245">     * single-iteration digests above, the work factor makes offline cracking of a disclosed user database</span>
+<span class="source-line-no">246</span><span id="line-246">     * expensive. The format is &lt;code&gt;{PBKDF2-SHA256}&lt;var&gt;iterations&lt;/var&gt;$base64(salt)$base64(hash)&lt;/code&gt;, so the</span>
+<span class="source-line-no">247</span><span id="line-247">     * iteration count of stored entries can be raised in the future without breaking old entries.&lt;/p&gt;</span>
+<span class="source-line-no">248</span><span id="line-248">     *</span>
+<span class="source-line-no">249</span><span id="line-249">     * @param password the password to be hashed</span>
+<span class="source-line-no">250</span><span id="line-250">     * @return the password entry, prepended by &lt;code&gt;{PBKDF2-SHA256}&lt;/code&gt;</span>
+<span class="source-line-no">251</span><span id="line-251">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
+<span class="source-line-no">252</span><span id="line-252">     */</span>
+<span class="source-line-no">253</span><span id="line-253">    public static String getPbkdf2SaltedPassword( final byte[] password ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">254</span><span id="line-254">        return getPbkdf2SaltedPassword( password, DEFAULT_PBKDF2_ALGORITHM, defaultPbkdf2Iterations( DEFAULT_PBKDF2_ALGORITHM ) );</span>
+<span class="source-line-no">255</span><span id="line-255">    }</span>
+<span class="source-line-no">256</span><span id="line-256"></span>
+<span class="source-line-no">257</span><span id="line-257">    /**</span>
+<span class="source-line-no">258</span><span id="line-258">     * Creates an iterated, salted PBKDF2 hash of the given password with the given algorithm and iteration count, in the format</span>
+<span class="source-line-no">259</span><span id="line-259">     * &lt;code&gt;{&lt;var&gt;algorithm&lt;/var&gt;}&lt;var&gt;iterations&lt;/var&gt;$base64(salt)$base64(hash)&lt;/code&gt;.</span>
+<span class="source-line-no">260</span><span id="line-260">     *</span>
+<span class="source-line-no">261</span><span id="line-261">     * @param password the password to be hashed</span>
+<span class="source-line-no">262</span><span id="line-262">     * @param algorithm one of {@link #PBKDF2_SHA256} and {@link #PBKDF2_SHA512}</span>
+<span class="source-line-no">263</span><span id="line-263">     * @param iterations the iteration count, which must be positive</span>
+<span class="source-line-no">264</span><span id="line-264">     * @return the password entry, prepended by the algorithm</span>
+<span class="source-line-no">265</span><span id="line-265">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
+<span class="source-line-no">266</span><span id="line-266">     * @throws IllegalArgumentException if the algorithm is not supported or the iteration count is not positive</span>
+<span class="source-line-no">267</span><span id="line-267">     * @since 3.0.1</span>
+<span class="source-line-no">268</span><span id="line-268">     */</span>
+<span class="source-line-no">269</span><span id="line-269">    public static String getPbkdf2SaltedPassword( final byte[] password, final String algorithm, final int iterations ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">270</span><span id="line-270">        final byte[] salt = new byte[ PBKDF2_SALT_SIZE ];</span>
+<span class="source-line-no">271</span><span id="line-271">        RANDOM.nextBytes( salt );</span>
+<span class="source-line-no">272</span><span id="line-272">        return getPbkdf2SaltedPassword( password, salt, algorithm, iterations );</span>
+<span class="source-line-no">273</span><span id="line-273">    }</span>
 <span class="source-line-no">274</span><span id="line-274"></span>
-<span class="source-line-no">275</span><span id="line-275">        // Extract the password hash and salt</span>
-<span class="source-line-no">276</span><span id="line-276">        final byte[] passwordHash = extractPasswordHash( challenge, algorithm.equals( SSHA ) ? 20 : 32 );</span>
-<span class="source-line-no">277</span><span id="line-277">        final byte[] salt = extractSalt( challenge, algorithm.equals( SSHA ) ? 20 : 32  );</span>
-<span class="source-line-no">278</span><span id="line-278"></span>
-<span class="source-line-no">279</span><span id="line-279">        // Re-create the hash using the password and the extracted salt</span>
-<span class="source-line-no">280</span><span id="line-280">        // The term SSHA is used as a password prefix for backwards compatibility, but we use SHA-1 when fetching an instance</span>
-<span class="source-line-no">281</span><span id="line-281">        // of MessageDigest, as it is the guaranteed option. We also need to remove curly braces surrounding the string for</span>
-<span class="source-line-no">282</span><span id="line-282">        // backwards compatibility.</span>
-<span class="source-line-no">283</span><span id="line-283">        final String algorithmToUse = algorithm.equals( SSHA ) ? SHA1 : algorithm;</span>
-<span class="source-line-no">284</span><span id="line-284">        final MessageDigest digest = MessageDigest.getInstance( algorithmToUse.substring( 1, algorithmToUse.length() -1 ) );</span>
-<span class="source-line-no">285</span><span id="line-285">        digest.update( password );</span>
-<span class="source-line-no">286</span><span id="line-286">        final byte[] hash = digest.digest( salt );</span>
-<span class="source-line-no">287</span><span id="line-287"></span>
-<span class="source-line-no">288</span><span id="line-288">        // See if our extracted hash matches what we just re-created</span>
-<span class="source-line-no">289</span><span id="line-289">        return MessageDigest.isEqual( passwordHash, hash );</span>
-<span class="source-line-no">290</span><span id="line-290">    }</span>
-<span class="source-line-no">291</span><span id="line-291"></span>
-<span class="source-line-no">292</span><span id="line-292">    /**</span>
-<span class="source-line-no">293</span><span id="line-293">     * Helper method that extracts the hashed password fragment from a supplied salted SHA-1 or SHA-256 digest</span>
-<span class="source-line-no">294</span><span id="line-294">     * by taking all the characters before position 20 or 32 depending on algorithm.</span>
-<span class="source-line-no">295</span><span id="line-295">     * </span>
-<span class="source-line-no">296</span><span id="line-296">     * @param digest the salted digest, which is assumed to have been previously decoded from Base64.</span>
-<span class="source-line-no">297</span><span id="line-297">     * @return the password hash</span>
-<span class="source-line-no">298</span><span id="line-298">     * @throws IllegalArgumentException if the length of the supplied digest is less than or equal to 20 bytes</span>
-<span class="source-line-no">299</span><span id="line-299">     */</span>
-<span class="source-line-no">300</span><span id="line-300">    static byte[] extractPasswordHash( final byte[] digest, final int hashLength ) throws IllegalArgumentException {</span>
-<span class="source-line-no">301</span><span id="line-301">        if( digest.length &lt; hashLength ) {</span>
-<span class="source-line-no">302</span><span id="line-302">            throw new IllegalArgumentException( "Hash was shorter than expected; could not extract password hash!" );</span>
+<span class="source-line-no">275</span><span id="line-275">    static String getPbkdf2SaltedPassword( final byte[] password, final byte[] salt, final String algorithm, final int iterations ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">276</span><span id="line-276">        final Pbkdf2 pbkdf2 = Pbkdf2.forAlgorithm( algorithm );</span>
+<span class="source-line-no">277</span><span id="line-277">        if( iterations &lt; 1 ) {</span>
+<span class="source-line-no">278</span><span id="line-278">            throw new IllegalArgumentException( "The iteration count must be positive: " + iterations );</span>
+<span class="source-line-no">279</span><span id="line-279">        }</span>
+<span class="source-line-no">280</span><span id="line-280">        final byte[] hash = pbkdf2( password, salt, pbkdf2, iterations );</span>
+<span class="source-line-no">281</span><span id="line-281">        final Base64.Encoder encoder = Base64.getEncoder();</span>
+<span class="source-line-no">282</span><span id="line-282">        return pbkdf2.prefix() + iterations + "$" + encoder.encodeToString( salt ) + "$" + encoder.encodeToString( hash );</span>
+<span class="source-line-no">283</span><span id="line-283">    }</span>
+<span class="source-line-no">284</span><span id="line-284"></span>
+<span class="source-line-no">285</span><span id="line-285">    /**</span>
+<span class="source-line-no">286</span><span id="line-286">     * Verifies a password against a PBKDF2 entry created by {@link #getPbkdf2SaltedPassword(byte[])} or</span>
+<span class="source-line-no">287</span><span id="line-287">     * {@link #getPbkdf2SaltedPassword(byte[], String, int)}, with whatever algorithm and iteration count it was created with.</span>
+<span class="source-line-no">288</span><span id="line-288">     * The comparison is constant-time.</span>
+<span class="source-line-no">289</span><span id="line-289">     *</span>
+<span class="source-line-no">290</span><span id="line-290">     * @param password the password to verify</span>
+<span class="source-line-no">291</span><span id="line-291">     * @param entry the stored password entry</span>
+<span class="source-line-no">292</span><span id="line-292">     * @return true if the password matches the entry</span>
+<span class="source-line-no">293</span><span id="line-293">     * @throws NoSuchAlgorithmException If your JVM does not supply the necessary algorithm. Should not happen.</span>
+<span class="source-line-no">294</span><span id="line-294">     */</span>
+<span class="source-line-no">295</span><span id="line-295">    public static boolean verifyPbkdf2SaltedPassword( final byte[] password, final String entry ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">296</span><span id="line-296">        final Pbkdf2 pbkdf2 = Pbkdf2.forEntry( entry );</span>
+<span class="source-line-no">297</span><span id="line-297">        if( pbkdf2 == null ) {</span>
+<span class="source-line-no">298</span><span id="line-298">            throw new IllegalArgumentException( "Hash not prefixed by expected algorithm; is it really a PBKDF2 hash?" );</span>
+<span class="source-line-no">299</span><span id="line-299">        }</span>
+<span class="source-line-no">300</span><span id="line-300">        final String[] fields = entry.substring( pbkdf2.prefix().length() ).split( "\\$" );</span>
+<span class="source-line-no">301</span><span id="line-301">        if( fields.length != 3 ) {</span>
+<span class="source-line-no">302</span><span id="line-302">            throw new IllegalArgumentException( "Malformed PBKDF2 password entry" );</span>
 <span class="source-line-no">303</span><span id="line-303">        }</span>
-<span class="source-line-no">304</span><span id="line-304"></span>
-<span class="source-line-no">305</span><span id="line-305">        // Extract the password hash</span>
-<span class="source-line-no">306</span><span id="line-306">        final byte[] hash = new byte[ hashLength ];</span>
-<span class="source-line-no">307</span><span id="line-307">        System.arraycopy( digest, 0, hash, 0, hashLength );</span>
-<span class="source-line-no">308</span><span id="line-308"></span>
-<span class="source-line-no">309</span><span id="line-309">        return hash;</span>
-<span class="source-line-no">310</span><span id="line-310">    }</span>
-<span class="source-line-no">311</span><span id="line-311"></span>
-<span class="source-line-no">312</span><span id="line-312">    /**</span>
-<span class="source-line-no">313</span><span id="line-313">     * Helper method that extracts the salt from supplied salted digest by taking all the characters after a given index.</span>
-<span class="source-line-no">314</span><span id="line-314">     * </span>
-<span class="source-line-no">315</span><span id="line-315">     * @param digest the salted digest, which is assumed to have been previously decoded from Base64.</span>
-<span class="source-line-no">316</span><span id="line-316">     * @return the salt</span>
-<span class="source-line-no">317</span><span id="line-317">     * @throws IllegalArgumentException if the length of the supplied digest is less than given length.</span>
-<span class="source-line-no">318</span><span id="line-318">     */</span>
-<span class="source-line-no">319</span><span id="line-319">    static byte[] extractSalt( final byte[] digest, final int hashLength ) throws IllegalArgumentException {</span>
-<span class="source-line-no">320</span><span id="line-320">        if( digest.length &lt;= hashLength ) {</span>
-<span class="source-line-no">321</span><span id="line-321">            throw new IllegalArgumentException( "Hash was shorter than expected; we found no salt!" );</span>
-<span class="source-line-no">322</span><span id="line-322">        }</span>
-<span class="source-line-no">323</span><span id="line-323"></span>
-<span class="source-line-no">324</span><span id="line-324">        // Extract the salt</span>
-<span class="source-line-no">325</span><span id="line-325">        final byte[] salt = new byte[digest.length - hashLength];</span>
-<span class="source-line-no">326</span><span id="line-326">        System.arraycopy(digest, hashLength, salt, 0, digest.length - hashLength);</span>
-<span class="source-line-no">327</span><span id="line-327"></span>
-<span class="source-line-no">328</span><span id="line-328">        return salt;</span>
-<span class="source-line-no">329</span><span id="line-329">    }</span>
-<span class="source-line-no">330</span><span id="line-330"></span>
-<span class="source-line-no">331</span><span id="line-331">}</span>
+<span class="source-line-no">304</span><span id="line-304">        final int iterations = Integer.parseInt( fields[ 0 ] );</span>
+<span class="source-line-no">305</span><span id="line-305">        final byte[] salt = Base64.getDecoder().decode( fields[ 1 ] );</span>
+<span class="source-line-no">306</span><span id="line-306">        final byte[] expected = Base64.getDecoder().decode( fields[ 2 ] );</span>
+<span class="source-line-no">307</span><span id="line-307">        final byte[] hash = pbkdf2( password, salt, pbkdf2, iterations );</span>
+<span class="source-line-no">308</span><span id="line-308">        return MessageDigest.isEqual( expected, hash );</span>
+<span class="source-line-no">309</span><span id="line-309">    }</span>
+<span class="source-line-no">310</span><span id="line-310"></span>
+<span class="source-line-no">311</span><span id="line-311">    /**</span>
+<span class="source-line-no">312</span><span id="line-312">     * Tells if the entry is a PBKDF2 password entry of any of the supported algorithms.</span>
+<span class="source-line-no">313</span><span id="line-313">     *</span>
+<span class="source-line-no">314</span><span id="line-314">     * @param entry a stored password entry, which may be {@code null}</span>
+<span class="source-line-no">315</span><span id="line-315">     * @return {@code true} if the entry starts with the prefix of a supported PBKDF2 algorithm</span>
+<span class="source-line-no">316</span><span id="line-316">     * @since 3.0.1</span>
+<span class="source-line-no">317</span><span id="line-317">     */</span>
+<span class="source-line-no">318</span><span id="line-318">    public static boolean isPbkdf2Entry( final String entry ) {</span>
+<span class="source-line-no">319</span><span id="line-319">        return Pbkdf2.forEntry( entry ) != null;</span>
+<span class="source-line-no">320</span><span id="line-320">    }</span>
+<span class="source-line-no">321</span><span id="line-321"></span>
+<span class="source-line-no">322</span><span id="line-322">    /**</span>
+<span class="source-line-no">323</span><span id="line-323">     * Tells if a stored entry was created with exactly the given algorithm and iteration count, which is how to find out that an</span>
+<span class="source-line-no">324</span><span id="line-324">     * entry has to be hashed again after the settings changed.</span>
+<span class="source-line-no">325</span><span id="line-325">     *</span>
+<span class="source-line-no">326</span><span id="line-326">     * @param entry a stored password entry</span>
+<span class="source-line-no">327</span><span id="line-327">     * @param algorithm one of {@link #PBKDF2_SHA256} and {@link #PBKDF2_SHA512}</span>
+<span class="source-line-no">328</span><span id="line-328">     * @param iterations the iteration count</span>
+<span class="source-line-no">329</span><span id="line-329">     * @return {@code true} if the entry is a well formed PBKDF2 entry of that algorithm and iteration count</span>
+<span class="source-line-no">330</span><span id="line-330">     * @since 3.0.1</span>
+<span class="source-line-no">331</span><span id="line-331">     */</span>
+<span class="source-line-no">332</span><span id="line-332">    public static boolean hasPbkdf2Parameters( final String entry, final String algorithm, final int iterations ) {</span>
+<span class="source-line-no">333</span><span id="line-333">        final Pbkdf2 pbkdf2 = Pbkdf2.forEntry( entry );</span>
+<span class="source-line-no">334</span><span id="line-334">        if( pbkdf2 == null || !pbkdf2.algorithm.equals( algorithm ) ) {</span>
+<span class="source-line-no">335</span><span id="line-335">            return false;</span>
+<span class="source-line-no">336</span><span id="line-336">        }</span>
+<span class="source-line-no">337</span><span id="line-337">        final String[] fields = entry.substring( pbkdf2.prefix().length() ).split( "\\$" );</span>
+<span class="source-line-no">338</span><span id="line-338">        if( fields.length != 3 ) {</span>
+<span class="source-line-no">339</span><span id="line-339">            return false;</span>
+<span class="source-line-no">340</span><span id="line-340">        }</span>
+<span class="source-line-no">341</span><span id="line-341">        try {</span>
+<span class="source-line-no">342</span><span id="line-342">            return Integer.parseInt( fields[ 0 ] ) == iterations;</span>
+<span class="source-line-no">343</span><span id="line-343">        } catch( final NumberFormatException e ) {</span>
+<span class="source-line-no">344</span><span id="line-344">            return false;</span>
+<span class="source-line-no">345</span><span id="line-345">        }</span>
+<span class="source-line-no">346</span><span id="line-346">    }</span>
+<span class="source-line-no">347</span><span id="line-347"></span>
+<span class="source-line-no">348</span><span id="line-348">    /**</span>
+<span class="source-line-no">349</span><span id="line-349">     * Tells if the algorithm is one of those that can be used to hash new passwords.</span>
+<span class="source-line-no">350</span><span id="line-350">     *</span>
+<span class="source-line-no">351</span><span id="line-351">     * @param algorithm the name of an algorithm, which may be {@code null}</span>
+<span class="source-line-no">352</span><span id="line-352">     * @return {@code true} for {@link #PBKDF2_SHA256} and {@link #PBKDF2_SHA512}</span>
+<span class="source-line-no">353</span><span id="line-353">     * @since 3.0.1</span>
+<span class="source-line-no">354</span><span id="line-354">     */</span>
+<span class="source-line-no">355</span><span id="line-355">    public static boolean isSupportedPbkdf2Algorithm( final String algorithm ) {</span>
+<span class="source-line-no">356</span><span id="line-356">        return PBKDF2_SHA256.equals( algorithm ) || PBKDF2_SHA512.equals( algorithm );</span>
+<span class="source-line-no">357</span><span id="line-357">    }</span>
+<span class="source-line-no">358</span><span id="line-358"></span>
+<span class="source-line-no">359</span><span id="line-359">    /**</span>
+<span class="source-line-no">360</span><span id="line-360">     * Returns the iteration count used for an algorithm unless configured otherwise.</span>
+<span class="source-line-no">361</span><span id="line-361">     *</span>
+<span class="source-line-no">362</span><span id="line-362">     * @param algorithm one of {@link #PBKDF2_SHA256} and {@link #PBKDF2_SHA512}</span>
+<span class="source-line-no">363</span><span id="line-363">     * @return the default iteration count</span>
+<span class="source-line-no">364</span><span id="line-364">     * @throws IllegalArgumentException if the algorithm is not supported</span>
+<span class="source-line-no">365</span><span id="line-365">     * @since 3.0.1</span>
+<span class="source-line-no">366</span><span id="line-366">     */</span>
+<span class="source-line-no">367</span><span id="line-367">    public static int defaultPbkdf2Iterations( final String algorithm ) {</span>
+<span class="source-line-no">368</span><span id="line-368">        return Pbkdf2.forAlgorithm( algorithm ).defaultIterations;</span>
+<span class="source-line-no">369</span><span id="line-369">    }</span>
+<span class="source-line-no">370</span><span id="line-370"></span>
+<span class="source-line-no">371</span><span id="line-371">    private static byte[] pbkdf2( final byte[] password, final byte[] salt, final Pbkdf2 pbkdf2, final int iterations ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">372</span><span id="line-372">        final char[] chars = new String( password, StandardCharsets.UTF_8 ).toCharArray();</span>
+<span class="source-line-no">373</span><span id="line-373">        final PBEKeySpec spec = new PBEKeySpec( chars, salt, iterations, pbkdf2.keyLengthBytes * 8 );</span>
+<span class="source-line-no">374</span><span id="line-374">        try {</span>
+<span class="source-line-no">375</span><span id="line-375">            return SecretKeyFactory.getInstance( pbkdf2.jcaName ).generateSecret( spec ).getEncoded();</span>
+<span class="source-line-no">376</span><span id="line-376">        } catch( final InvalidKeySpecException e ) {</span>
+<span class="source-line-no">377</span><span id="line-377">            throw new NoSuchAlgorithmException( "Unable to compute PBKDF2 hash", e );</span>
+<span class="source-line-no">378</span><span id="line-378">        } finally {</span>
+<span class="source-line-no">379</span><span id="line-379">            spec.clearPassword();</span>
+<span class="source-line-no">380</span><span id="line-380">        }</span>
+<span class="source-line-no">381</span><span id="line-381">    }</span>
+<span class="source-line-no">382</span><span id="line-382"></span>
+<span class="source-line-no">383</span><span id="line-383">    /**</span>
+<span class="source-line-no">384</span><span id="line-384">     *  Compares a password to a given entry and returns true, if it matches.</span>
+<span class="source-line-no">385</span><span id="line-385">     *</span>
+<span class="source-line-no">386</span><span id="line-386">     *  @param password The password in bytes.</span>
+<span class="source-line-no">387</span><span id="line-387">     *  @param entry The password entry, typically starting with {SSHA}.</span>
+<span class="source-line-no">388</span><span id="line-388">     *  @return True, if the password matches.</span>
+<span class="source-line-no">389</span><span id="line-389">     *  @throws NoSuchAlgorithmException If there is no SHA available.</span>
+<span class="source-line-no">390</span><span id="line-390">     */</span>
+<span class="source-line-no">391</span><span id="line-391">    public static boolean verifySaltedPassword( final byte[] password, final String entry ) throws NoSuchAlgorithmException {</span>
+<span class="source-line-no">392</span><span id="line-392">        if( !entry.startsWith( SSHA ) &amp;&amp; !entry.startsWith( SHA256 ) &amp;&amp; !isPbkdf2Entry( entry ) ) {</span>
+<span class="source-line-no">393</span><span id="line-393">            throw new IllegalArgumentException( "Hash not prefixed by expected algorithm; is it really a salted hash?" );</span>
+<span class="source-line-no">394</span><span id="line-394">        }</span>
+<span class="source-line-no">395</span><span id="line-395">        final String algorithm;</span>
+<span class="source-line-no">396</span><span id="line-396">        if( isPbkdf2Entry( entry ) ) {</span>
+<span class="source-line-no">397</span><span id="line-397">            return verifyPbkdf2SaltedPassword( password, entry );</span>
+<span class="source-line-no">398</span><span id="line-398">        } else if (entry.startsWith(SSHA)) {</span>
+<span class="source-line-no">399</span><span id="line-399">            algorithm = SSHA;</span>
+<span class="source-line-no">400</span><span id="line-400">        } else if (entry.startsWith(SHA256)) {</span>
+<span class="source-line-no">401</span><span id="line-401">            algorithm = SHA256;</span>
+<span class="source-line-no">402</span><span id="line-402">        } else {</span>
+<span class="source-line-no">403</span><span id="line-403">            throw new NoSuchAlgorithmException("unknown hash algorithm prefix");</span>
+<span class="source-line-no">404</span><span id="line-404">        }</span>
+<span class="source-line-no">405</span><span id="line-405"></span>
+<span class="source-line-no">406</span><span id="line-406">        String hash2 = entry.substring( algorithm.length() );</span>
+<span class="source-line-no">407</span><span id="line-407">        byte[] bits = hash2.getBytes( StandardCharsets.UTF_8 );</span>
+<span class="source-line-no">408</span><span id="line-408">        final byte[] challenge = Base64.getDecoder().decode(bits);</span>
+<span class="source-line-no">409</span><span id="line-409"></span>
+<span class="source-line-no">410</span><span id="line-410">        // Extract the password hash and salt</span>
+<span class="source-line-no">411</span><span id="line-411">        final byte[] passwordHash = extractPasswordHash( challenge, algorithm.equals( SSHA ) ? 20 : 32 );</span>
+<span class="source-line-no">412</span><span id="line-412">        final byte[] salt = extractSalt( challenge, algorithm.equals( SSHA ) ? 20 : 32  );</span>
+<span class="source-line-no">413</span><span id="line-413"></span>
+<span class="source-line-no">414</span><span id="line-414">        // Re-create the hash using the password and the extracted salt</span>
+<span class="source-line-no">415</span><span id="line-415">        // The term SSHA is used as a password prefix for backwards compatibility, but we use SHA-1 when fetching an instance</span>
+<span class="source-line-no">416</span><span id="line-416">        // of MessageDigest, as it is the guaranteed option. We also need to remove curly braces surrounding the string for</span>
+<span class="source-line-no">417</span><span id="line-417">        // backwards compatibility.</span>
+<span class="source-line-no">418</span><span id="line-418">        final String algorithmToUse = algorithm.equals( SSHA ) ? SHA1 : algorithm;</span>
+<span class="source-line-no">419</span><span id="line-419">        final MessageDigest digest = MessageDigest.getInstance( algorithmToUse.substring( 1, algorithmToUse.length() -1 ) );</span>
+<span class="source-line-no">420</span><span id="line-420">        digest.update( password );</span>
+<span class="source-line-no">421</span><span id="line-421">        final byte[] hash = digest.digest( salt );</span>
+<span class="source-line-no">422</span><span id="line-422"></span>
+<span class="source-line-no">423</span><span id="line-423">        // See if our extracted hash matches what we just re-created</span>
+<span class="source-line-no">424</span><span id="line-424">        return MessageDigest.isEqual( passwordHash, hash );</span>
+<span class="source-line-no">425</span><span id="line-425">    }</span>
+<span class="source-line-no">426</span><span id="line-426"></span>
+<span class="source-line-no">427</span><span id="line-427">    /**</span>
+<span class="source-line-no">428</span><span id="line-428">     * Helper method that extracts the hashed password fragment from a supplied salted SHA-1 or SHA-256 digest</span>
+<span class="source-line-no">429</span><span id="line-429">     * by taking all the characters before position 20 or 32 depending on algorithm.</span>
+<span class="source-line-no">430</span><span id="line-430">     * </span>
+<span class="source-line-no">431</span><span id="line-431">     * @param digest the salted digest, which is assumed to have been previously decoded from Base64.</span>
+<span class="source-line-no">432</span><span id="line-432">     * @return the password hash</span>
+<span class="source-line-no">433</span><span id="line-433">     * @throws IllegalArgumentException if the length of the supplied digest is less than or equal to 20 bytes</span>
+<span class="source-line-no">434</span><span id="line-434">     */</span>
+<span class="source-line-no">435</span><span id="line-435">    static byte[] extractPasswordHash( final byte[] digest, final int hashLength ) throws IllegalArgumentException {</span>
+<span class="source-line-no">436</span><span id="line-436">        if( digest.length &lt; hashLength ) {</span>
+<span class="source-line-no">437</span><span id="line-437">            throw new IllegalArgumentException( "Hash was shorter than expected; could not extract password hash!" );</span>
+<span class="source-line-no">438</span><span id="line-438">        }</span>
+<span class="source-line-no">439</span><span id="line-439"></span>
+<span class="source-line-no">440</span><span id="line-440">        // Extract the password hash</span>
+<span class="source-line-no">441</span><span id="line-441">        final byte[] hash = new byte[ hashLength ];</span>
+<span class="source-line-no">442</span><span id="line-442">        System.arraycopy( digest, 0, hash, 0, hashLength );</span>
+<span class="source-line-no">443</span><span id="line-443"></span>
+<span class="source-line-no">444</span><span id="line-444">        return hash;</span>
+<span class="source-line-no">445</span><span id="line-445">    }</span>
+<span class="source-line-no">446</span><span id="line-446"></span>
+<span class="source-line-no">447</span><span id="line-447">    /**</span>
+<span class="source-line-no">448</span><span id="line-448">     * Helper method that extracts the salt from supplied salted digest by taking all the characters after a given index.</span>
+<span class="source-line-no">449</span><span id="line-449">     * </span>
+<span class="source-line-no">450</span><span id="line-450">     * @param digest the salted digest, which is assumed to have been previously decoded from Base64.</span>
+<span class="source-line-no">451</span><span id="line-451">     * @return the salt</span>
+<span class="source-line-no">452</span><span id="line-452">     * @throws IllegalArgumentException if the length of the supplied digest is less than given length.</span>
+<span class="source-line-no">453</span><span id="line-453">     */</span>
+<span class="source-line-no">454</span><span id="line-454">    static byte[] extractSalt( final byte[] digest, final int hashLength ) throws IllegalArgumentException {</span>
+<span class="source-line-no">455</span><span id="line-455">        if( digest.length &lt;= hashLength ) {</span>
+<span class="source-line-no">456</span><span id="line-456">            throw new IllegalArgumentException( "Hash was shorter than expected; we found no salt!" );</span>
+<span class="source-line-no">457</span><span id="line-457">        }</span>
+<span class="source-line-no">458</span><span id="line-458"></span>
+<span class="source-line-no">459</span><span id="line-459">        // Extract the salt</span>
+<span class="source-line-no">460</span><span id="line-460">        final byte[] salt = new byte[digest.length - hashLength];</span>
+<span class="source-line-no">461</span><span id="line-461">        System.arraycopy(digest, hashLength, salt, 0, digest.length - hashLength);</span>
+<span class="source-line-no">462</span><span id="line-462"></span>
+<span class="source-line-no">463</span><span id="line-463">        return salt;</span>
+<span class="source-line-no">464</span><span id="line-464">    }</span>
+<span class="source-line-no">465</span><span id="line-465"></span>
+<span class="source-line-no">466</span><span id="line-466">}</span>
 
 
 

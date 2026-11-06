@@ -295,9 +295,9 @@
 <span class="source-line-no">282</span><span id="line-282">            final String attr = matcher.group(6);</span>
 <span class="source-line-no">283</span><span id="line-283">             </span>
 <span class="source-line-no">284</span><span id="line-284">            if( link.isEmpty() ) {</span>
-<span class="source-line-no">285</span><span id="line-285">                text = replaceSingleLink(text, from, to );</span>
+<span class="source-line-no">285</span><span id="line-285">                text = replaceSingleLink(text, from, to, true );</span>
 <span class="source-line-no">286</span><span id="line-286">            } else {</span>
-<span class="source-line-no">287</span><span id="line-287">                link = replaceSingleLink(link, from, to );</span>
+<span class="source-line-no">287</span><span id="line-287">                link = replaceSingleLink(link, from, to, false );</span>
 <span class="source-line-no">288</span><span id="line-288">                </span>
 <span class="source-line-no">289</span><span id="line-289">                //  A very simple substitution, but should work for quite a few cases.</span>
 <span class="source-line-no">290</span><span id="line-290">                text = TextUtil.replaceString( text, from, to );</span>
@@ -325,48 +325,49 @@
 <span class="source-line-no">312</span><span id="line-312">    }</span>
 <span class="source-line-no">313</span><span id="line-313"></span>
 <span class="source-line-no">314</span><span id="line-314">    /**</span>
-<span class="source-line-no">315</span><span id="line-315">     *  This method does a correct replacement of a single link, taking into account anchors and attachments.</span>
-<span class="source-line-no">316</span><span id="line-316">     */</span>
-<span class="source-line-no">317</span><span id="line-317">    private String replaceSingleLink(final String original, final String from, final String newlink ) {</span>
-<span class="source-line-no">318</span><span id="line-318">        final int hash = original.indexOf( '#' );</span>
-<span class="source-line-no">319</span><span id="line-319">        final int slash = original.indexOf( '/' );</span>
-<span class="source-line-no">320</span><span id="line-320">        String realLink = original;</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">        if( hash != -1 ) {</span>
-<span class="source-line-no">323</span><span id="line-323">            realLink = original.substring( 0, hash );</span>
-<span class="source-line-no">324</span><span id="line-324">        }</span>
-<span class="source-line-no">325</span><span id="line-325">        if( slash != -1 ) {</span>
-<span class="source-line-no">326</span><span id="line-326">            realLink = original.substring( 0,slash );</span>
-<span class="source-line-no">327</span><span id="line-327">        }</span>
-<span class="source-line-no">328</span><span id="line-328"></span>
-<span class="source-line-no">329</span><span id="line-329">        realLink = MarkupParser.cleanLink( realLink );</span>
-<span class="source-line-no">330</span><span id="line-330">        final String oldStyleRealLink = MarkupParser.wikifyLink( realLink );</span>
-<span class="source-line-no">331</span><span id="line-331">        </span>
-<span class="source-line-no">332</span><span id="line-332">        //WikiPage realPage  = context.getEngine().getPage( reallink );</span>
-<span class="source-line-no">333</span><span id="line-333">        // WikiPage p2 = context.getEngine().getPage( from );</span>
-<span class="source-line-no">334</span><span id="line-334">        </span>
-<span class="source-line-no">335</span><span id="line-335">        // System.out.println("   "+reallink+" :: "+ from);</span>
-<span class="source-line-no">336</span><span id="line-336">        // System.out.println("   "+p+" :: "+p2);</span>
-<span class="source-line-no">337</span><span id="line-337">        </span>
-<span class="source-line-no">338</span><span id="line-338">        //</span>
-<span class="source-line-no">339</span><span id="line-339">        //  Yes, these point to the same page.</span>
-<span class="source-line-no">340</span><span id="line-340">        //</span>
-<span class="source-line-no">341</span><span id="line-341">        if( realLink.equals( from ) || original.equals( from ) || oldStyleRealLink.equals( from ) ) {</span>
-<span class="source-line-no">342</span><span id="line-342">            //</span>
-<span class="source-line-no">343</span><span id="line-343">            //  if the original contains blanks, then we should introduce a link, for example:  [My Page]  =&gt;  [My Page|My Renamed Page]</span>
-<span class="source-line-no">344</span><span id="line-344">            final int blank = realLink.indexOf( " ");</span>
-<span class="source-line-no">345</span><span id="line-345">            </span>
-<span class="source-line-no">346</span><span id="line-346">            if( blank != -1 ) {</span>
-<span class="source-line-no">347</span><span id="line-347">                return original + "|" + newlink;</span>
-<span class="source-line-no">348</span><span id="line-348">            }</span>
-<span class="source-line-no">349</span><span id="line-349">            </span>
-<span class="source-line-no">350</span><span id="line-350">            return newlink + ( ( hash &gt; 0 ) ? original.substring( hash ) : "" ) + ( ( slash &gt; 0 ) ? original.substring( slash ) : "" ) ;</span>
-<span class="source-line-no">351</span><span id="line-351">        }</span>
-<span class="source-line-no">352</span><span id="line-352">        </span>
-<span class="source-line-no">353</span><span id="line-353">        return original;</span>
-<span class="source-line-no">354</span><span id="line-354">    }</span>
-<span class="source-line-no">355</span><span id="line-355"></span>
-<span class="source-line-no">356</span><span id="line-356">}</span>
+<span class="source-line-no">315</span><span id="line-315">     *  This method does a correct replacement of a single link, taking into account anchors and attachments. When {@code introduceLink}</span>
+<span class="source-line-no">316</span><span id="line-316">     *  is {@code true}, the original is also the visible text, so a name with blanks is kept as the text of a new link.</span>
+<span class="source-line-no">317</span><span id="line-317">     */</span>
+<span class="source-line-no">318</span><span id="line-318">    private String replaceSingleLink(final String original, final String from, final String newlink, final boolean introduceLink ) {</span>
+<span class="source-line-no">319</span><span id="line-319">        final int hash = original.indexOf( '#' );</span>
+<span class="source-line-no">320</span><span id="line-320">        final int slash = original.indexOf( '/' );</span>
+<span class="source-line-no">321</span><span id="line-321">        String realLink = original;</span>
+<span class="source-line-no">322</span><span id="line-322"></span>
+<span class="source-line-no">323</span><span id="line-323">        if( hash != -1 ) {</span>
+<span class="source-line-no">324</span><span id="line-324">            realLink = original.substring( 0, hash );</span>
+<span class="source-line-no">325</span><span id="line-325">        }</span>
+<span class="source-line-no">326</span><span id="line-326">        if( slash != -1 ) {</span>
+<span class="source-line-no">327</span><span id="line-327">            realLink = original.substring( 0,slash );</span>
+<span class="source-line-no">328</span><span id="line-328">        }</span>
+<span class="source-line-no">329</span><span id="line-329"></span>
+<span class="source-line-no">330</span><span id="line-330">        realLink = MarkupParser.cleanLink( realLink );</span>
+<span class="source-line-no">331</span><span id="line-331">        final String oldStyleRealLink = MarkupParser.wikifyLink( realLink );</span>
+<span class="source-line-no">332</span><span id="line-332">        </span>
+<span class="source-line-no">333</span><span id="line-333">        //WikiPage realPage  = context.getEngine().getPage( reallink );</span>
+<span class="source-line-no">334</span><span id="line-334">        // WikiPage p2 = context.getEngine().getPage( from );</span>
+<span class="source-line-no">335</span><span id="line-335">        </span>
+<span class="source-line-no">336</span><span id="line-336">        // System.out.println("   "+reallink+" :: "+ from);</span>
+<span class="source-line-no">337</span><span id="line-337">        // System.out.println("   "+p+" :: "+p2);</span>
+<span class="source-line-no">338</span><span id="line-338">        </span>
+<span class="source-line-no">339</span><span id="line-339">        //</span>
+<span class="source-line-no">340</span><span id="line-340">        //  Yes, these point to the same page.</span>
+<span class="source-line-no">341</span><span id="line-341">        //</span>
+<span class="source-line-no">342</span><span id="line-342">        if( realLink.equals( from ) || original.equals( from ) || oldStyleRealLink.equals( from ) ) {</span>
+<span class="source-line-no">343</span><span id="line-343">            //</span>
+<span class="source-line-no">344</span><span id="line-344">            //  if the original contains blanks, then we should introduce a link, for example:  [My Page]  =&gt;  [My Page|My Renamed Page]</span>
+<span class="source-line-no">345</span><span id="line-345">            final int blank = realLink.indexOf( " ");</span>
+<span class="source-line-no">346</span><span id="line-346">            </span>
+<span class="source-line-no">347</span><span id="line-347">            if( introduceLink &amp;&amp; blank != -1 ) {</span>
+<span class="source-line-no">348</span><span id="line-348">                return original + "|" + newlink;</span>
+<span class="source-line-no">349</span><span id="line-349">            }</span>
+<span class="source-line-no">350</span><span id="line-350">            </span>
+<span class="source-line-no">351</span><span id="line-351">            return newlink + ( ( hash &gt; 0 ) ? original.substring( hash ) : "" ) + ( ( slash &gt; 0 ) ? original.substring( slash ) : "" ) ;</span>
+<span class="source-line-no">352</span><span id="line-352">        }</span>
+<span class="source-line-no">353</span><span id="line-353">        </span>
+<span class="source-line-no">354</span><span id="line-354">        return original;</span>
+<span class="source-line-no">355</span><span id="line-355">    }</span>
+<span class="source-line-no">356</span><span id="line-356"></span>
+<span class="source-line-no">357</span><span id="line-357">}</span>
 
 
 

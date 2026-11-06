@@ -243,167 +243,176 @@
 <span class="source-line-no">230</span><span id="line-230">        feed.setChannelDescription( m_channelDescription );</span>
 <span class="source-line-no">231</span><span id="line-231"></span>
 <span class="source-line-no">232</span><span id="line-232">        final Set&lt; Page &gt; changed = m_engine.getManager( PageManager.class ).getRecentChanges();</span>
-<span class="source-line-no">233</span><span id="line-233"></span>
-<span class="source-line-no">234</span><span id="line-234">        final Session session = Wiki.session().guest( m_engine );</span>
-<span class="source-line-no">235</span><span id="line-235">        int items = 0;</span>
-<span class="source-line-no">236</span><span id="line-236">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; 15; items++ ) {</span>
-<span class="source-line-no">237</span><span id="line-237">            final Page page = i.next();</span>
-<span class="source-line-no">238</span><span id="line-238"></span>
-<span class="source-line-no">239</span><span id="line-239">            //  Check if the anonymous user has view access to this page.</span>
-<span class="source-line-no">240</span><span id="line-240">            if( !m_engine.getManager( AuthorizationManager.class ).checkPermission(session, new PagePermission(page,PagePermission.VIEW_ACTION) ) ) {</span>
-<span class="source-line-no">241</span><span id="line-241">                // No permission, skip to the next one.</span>
-<span class="source-line-no">242</span><span id="line-242">                continue;</span>
-<span class="source-line-no">243</span><span id="line-243">            }</span>
-<span class="source-line-no">244</span><span id="line-244"></span>
-<span class="source-line-no">245</span><span id="line-245">            final String url;</span>
-<span class="source-line-no">246</span><span id="line-246">            if( page instanceof Attachment ) {</span>
-<span class="source-line-no">247</span><span id="line-247">                url = m_engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), page.getName(),null );</span>
-<span class="source-line-no">248</span><span id="line-248">            } else {</span>
-<span class="source-line-no">249</span><span id="line-249">                url = m_engine.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page.getName(), null );</span>
-<span class="source-line-no">250</span><span id="line-250">            }</span>
-<span class="source-line-no">251</span><span id="line-251"></span>
-<span class="source-line-no">252</span><span id="line-252">            final Entry e = new Entry();</span>
-<span class="source-line-no">253</span><span id="line-253">            e.setPage( page );</span>
-<span class="source-line-no">254</span><span id="line-254">            e.setURL( url );</span>
-<span class="source-line-no">255</span><span id="line-255">            e.setTitle( page.getName() );</span>
-<span class="source-line-no">256</span><span id="line-256">            e.setContent( getEntryDescription(page) );</span>
-<span class="source-line-no">257</span><span id="line-257">            e.setAuthor( getAuthor(page) );</span>
-<span class="source-line-no">258</span><span id="line-258"></span>
-<span class="source-line-no">259</span><span id="line-259">            feed.addEntry( e );</span>
-<span class="source-line-no">260</span><span id="line-260">        }</span>
-<span class="source-line-no">261</span><span id="line-261"></span>
-<span class="source-line-no">262</span><span id="line-262">        return feed.getString();</span>
-<span class="source-line-no">263</span><span id="line-263">    }</span>
-<span class="source-line-no">264</span><span id="line-264"></span>
-<span class="source-line-no">265</span><span id="line-265">    /** {@inheritDoc} */</span>
-<span class="source-line-no">266</span><span id="line-266">    @Override</span>
-<span class="source-line-no">267</span><span id="line-267">    public String generateWikiPageRSS( final Context wikiContext, final List&lt; Page &gt; changed, final Feed feed ) {</span>
-<span class="source-line-no">268</span><span id="line-268">        feed.setChannelTitle( m_engine.getApplicationName()+": "+wikiContext.getPage().getName() );</span>
-<span class="source-line-no">269</span><span id="line-269">        feed.setFeedURL( wikiContext.getViewURL( wikiContext.getPage().getName() ) );</span>
-<span class="source-line-no">270</span><span id="line-270">        final String language = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_LANGUAGE );</span>
-<span class="source-line-no">271</span><span id="line-271"></span>
-<span class="source-line-no">272</span><span id="line-272">        if( language != null ) {</span>
-<span class="source-line-no">273</span><span id="line-273">            feed.setChannelLanguage( language );</span>
-<span class="source-line-no">274</span><span id="line-274">        } else {</span>
-<span class="source-line-no">275</span><span id="line-275">            feed.setChannelLanguage( m_channelLanguage );</span>
-<span class="source-line-no">276</span><span id="line-276">        }</span>
-<span class="source-line-no">277</span><span id="line-277">        final String channelDescription = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_DESCRIPTION );</span>
-<span class="source-line-no">278</span><span id="line-278"></span>
-<span class="source-line-no">279</span><span id="line-279">        if( channelDescription != null ) {</span>
-<span class="source-line-no">280</span><span id="line-280">            feed.setChannelDescription( channelDescription );</span>
-<span class="source-line-no">281</span><span id="line-281">        }</span>
-<span class="source-line-no">282</span><span id="line-282"></span>
-<span class="source-line-no">283</span><span id="line-283">        changed.sort( new PageTimeComparator() );</span>
-<span class="source-line-no">284</span><span id="line-284"></span>
-<span class="source-line-no">285</span><span id="line-285">        int items = 0;</span>
-<span class="source-line-no">286</span><span id="line-286">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; 15; items++ ) {</span>
-<span class="source-line-no">287</span><span id="line-287">            final Page page = i.next();</span>
-<span class="source-line-no">288</span><span id="line-288">            final Entry e = new Entry();</span>
-<span class="source-line-no">289</span><span id="line-289">            e.setPage( page );</span>
-<span class="source-line-no">290</span><span id="line-290">            String url;</span>
-<span class="source-line-no">291</span><span id="line-291"></span>
-<span class="source-line-no">292</span><span id="line-292">            if( page instanceof Attachment ) {</span>
-<span class="source-line-no">293</span><span id="line-293">                url = m_engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), page.getName(), "version=" + page.getVersion() );</span>
-<span class="source-line-no">294</span><span id="line-294">            } else {</span>
-<span class="source-line-no">295</span><span id="line-295">                url = m_engine.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page.getName(), "version=" + page.getVersion() );</span>
-<span class="source-line-no">296</span><span id="line-296">            }</span>
-<span class="source-line-no">297</span><span id="line-297"></span>
-<span class="source-line-no">298</span><span id="line-298">            // Unfortunately, this is needed because the code will again go through replacement conversion</span>
-<span class="source-line-no">299</span><span id="line-299">            url = TextUtil.replaceString( url, "&amp;amp;", "&amp;" );</span>
-<span class="source-line-no">300</span><span id="line-300">            e.setURL( url );</span>
-<span class="source-line-no">301</span><span id="line-301">            e.setTitle( getEntryTitle(page) );</span>
-<span class="source-line-no">302</span><span id="line-302">            e.setContent( getEntryDescription(page) );</span>
-<span class="source-line-no">303</span><span id="line-303">            e.setAuthor( getAuthor(page) );</span>
-<span class="source-line-no">304</span><span id="line-304"></span>
-<span class="source-line-no">305</span><span id="line-305">            feed.addEntry( e );</span>
-<span class="source-line-no">306</span><span id="line-306">        }</span>
-<span class="source-line-no">307</span><span id="line-307"></span>
-<span class="source-line-no">308</span><span id="line-308">        return feed.getString();</span>
-<span class="source-line-no">309</span><span id="line-309">    }</span>
-<span class="source-line-no">310</span><span id="line-310"></span>
-<span class="source-line-no">311</span><span id="line-311"></span>
-<span class="source-line-no">312</span><span id="line-312">    /** {@inheritDoc} */</span>
-<span class="source-line-no">313</span><span id="line-313">    @Override</span>
-<span class="source-line-no">314</span><span id="line-314">    public String generateBlogRSS( final Context wikiContext, final List&lt; Page &gt; changed, final Feed feed ) {</span>
-<span class="source-line-no">315</span><span id="line-315">        LOG.debug( "Generating RSS for blog, size={}", changed.size() );</span>
+<span class="source-line-no">233</span><span id="line-233">        final AuthorizationManager mgr = wikiContext.getEngine().getManager(AuthorizationManager.class);</span>
+<span class="source-line-no">234</span><span id="line-234"></span>
+<span class="source-line-no">235</span><span id="line-235">        final Session session = Wiki.session().guest( m_engine );</span>
+<span class="source-line-no">236</span><span id="line-236">        int items = 0;</span>
+<span class="source-line-no">237</span><span id="line-237">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; 15; items++ ) {</span>
+<span class="source-line-no">238</span><span id="line-238">            final Page page = i.next();</span>
+<span class="source-line-no">239</span><span id="line-239"></span>
+<span class="source-line-no">240</span><span id="line-240">            //  Check if the anonymous user has view access to this page.</span>
+<span class="source-line-no">241</span><span id="line-241">            if( !mgr.checkPermission(session, new PagePermission(page,PagePermission.VIEW_ACTION) ) ) {</span>
+<span class="source-line-no">242</span><span id="line-242">                // No permission, skip to the next one.</span>
+<span class="source-line-no">243</span><span id="line-243">                continue;</span>
+<span class="source-line-no">244</span><span id="line-244">            }</span>
+<span class="source-line-no">245</span><span id="line-245"></span>
+<span class="source-line-no">246</span><span id="line-246">            final String url;</span>
+<span class="source-line-no">247</span><span id="line-247">            if( page instanceof Attachment ) {</span>
+<span class="source-line-no">248</span><span id="line-248">                url = m_engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), page.getName(),null );</span>
+<span class="source-line-no">249</span><span id="line-249">            } else {</span>
+<span class="source-line-no">250</span><span id="line-250">                url = m_engine.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page.getName(), null );</span>
+<span class="source-line-no">251</span><span id="line-251">            }</span>
+<span class="source-line-no">252</span><span id="line-252"></span>
+<span class="source-line-no">253</span><span id="line-253">            final Entry e = new Entry();</span>
+<span class="source-line-no">254</span><span id="line-254">            e.setPage( page );</span>
+<span class="source-line-no">255</span><span id="line-255">            e.setURL( url );</span>
+<span class="source-line-no">256</span><span id="line-256">            e.setTitle( page.getName() );</span>
+<span class="source-line-no">257</span><span id="line-257">            e.setContent( getEntryDescription(page) );</span>
+<span class="source-line-no">258</span><span id="line-258">            e.setAuthor( getAuthor(page) );</span>
+<span class="source-line-no">259</span><span id="line-259"></span>
+<span class="source-line-no">260</span><span id="line-260">            feed.addEntry( e );</span>
+<span class="source-line-no">261</span><span id="line-261">        }</span>
+<span class="source-line-no">262</span><span id="line-262"></span>
+<span class="source-line-no">263</span><span id="line-263">        return feed.getString();</span>
+<span class="source-line-no">264</span><span id="line-264">    }</span>
+<span class="source-line-no">265</span><span id="line-265"></span>
+<span class="source-line-no">266</span><span id="line-266">    /** {@inheritDoc} */</span>
+<span class="source-line-no">267</span><span id="line-267">    @Override</span>
+<span class="source-line-no">268</span><span id="line-268">    public String generateWikiPageRSS( final Context wikiContext, final List&lt; Page &gt; changed, final Feed feed ) {</span>
+<span class="source-line-no">269</span><span id="line-269">        feed.setChannelTitle( m_engine.getApplicationName()+": "+wikiContext.getPage().getName() );</span>
+<span class="source-line-no">270</span><span id="line-270">        feed.setFeedURL( wikiContext.getViewURL( wikiContext.getPage().getName() ) );</span>
+<span class="source-line-no">271</span><span id="line-271">        final String language = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_LANGUAGE );</span>
+<span class="source-line-no">272</span><span id="line-272"></span>
+<span class="source-line-no">273</span><span id="line-273">        if( language != null ) {</span>
+<span class="source-line-no">274</span><span id="line-274">            feed.setChannelLanguage( language );</span>
+<span class="source-line-no">275</span><span id="line-275">        } else {</span>
+<span class="source-line-no">276</span><span id="line-276">            feed.setChannelLanguage( m_channelLanguage );</span>
+<span class="source-line-no">277</span><span id="line-277">        }</span>
+<span class="source-line-no">278</span><span id="line-278">        final String channelDescription = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_DESCRIPTION );</span>
+<span class="source-line-no">279</span><span id="line-279"></span>
+<span class="source-line-no">280</span><span id="line-280">        if( channelDescription != null ) {</span>
+<span class="source-line-no">281</span><span id="line-281">            feed.setChannelDescription( channelDescription );</span>
+<span class="source-line-no">282</span><span id="line-282">        }</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">        changed.sort( new PageTimeComparator() );</span>
+<span class="source-line-no">285</span><span id="line-285">        final AuthorizationManager mgr = wikiContext.getEngine().getManager(AuthorizationManager.class);</span>
+<span class="source-line-no">286</span><span id="line-286"></span>
+<span class="source-line-no">287</span><span id="line-287">        int items = 0;</span>
+<span class="source-line-no">288</span><span id="line-288">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; 15; items++ ) {</span>
+<span class="source-line-no">289</span><span id="line-289">            final Page page = i.next();</span>
+<span class="source-line-no">290</span><span id="line-290">            if( !mgr.checkPermission( wikiContext.getWikiSession(), new PagePermission(page, PagePermission.VIEW_ACTION) ) ) {</span>
+<span class="source-line-no">291</span><span id="line-291">                continue;</span>
+<span class="source-line-no">292</span><span id="line-292">            }</span>
+<span class="source-line-no">293</span><span id="line-293">            final Entry e = new Entry();</span>
+<span class="source-line-no">294</span><span id="line-294">            e.setPage( page );</span>
+<span class="source-line-no">295</span><span id="line-295">            String url;</span>
+<span class="source-line-no">296</span><span id="line-296"></span>
+<span class="source-line-no">297</span><span id="line-297">            if( page instanceof Attachment ) {</span>
+<span class="source-line-no">298</span><span id="line-298">                url = m_engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), page.getName(), "version=" + page.getVersion() );</span>
+<span class="source-line-no">299</span><span id="line-299">            } else {</span>
+<span class="source-line-no">300</span><span id="line-300">                url = m_engine.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page.getName(), "version=" + page.getVersion() );</span>
+<span class="source-line-no">301</span><span id="line-301">            }</span>
+<span class="source-line-no">302</span><span id="line-302"></span>
+<span class="source-line-no">303</span><span id="line-303">            // Unfortunately, this is needed because the code will again go through replacement conversion</span>
+<span class="source-line-no">304</span><span id="line-304">            url = TextUtil.replaceString( url, "&amp;amp;", "&amp;" );</span>
+<span class="source-line-no">305</span><span id="line-305">            e.setURL( url );</span>
+<span class="source-line-no">306</span><span id="line-306">            e.setTitle( getEntryTitle(page) );</span>
+<span class="source-line-no">307</span><span id="line-307">            e.setContent( getEntryDescription(page) );</span>
+<span class="source-line-no">308</span><span id="line-308">            e.setAuthor( getAuthor(page) );</span>
+<span class="source-line-no">309</span><span id="line-309"></span>
+<span class="source-line-no">310</span><span id="line-310">            feed.addEntry( e );</span>
+<span class="source-line-no">311</span><span id="line-311">        }</span>
+<span class="source-line-no">312</span><span id="line-312"></span>
+<span class="source-line-no">313</span><span id="line-313">        return feed.getString();</span>
+<span class="source-line-no">314</span><span id="line-314">    }</span>
+<span class="source-line-no">315</span><span id="line-315"></span>
 <span class="source-line-no">316</span><span id="line-316"></span>
-<span class="source-line-no">317</span><span id="line-317">        final String ctitle = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_TITLE );</span>
-<span class="source-line-no">318</span><span id="line-318">        feed.setChannelTitle(Objects.requireNonNullElseGet(ctitle, () -&gt; m_engine.getApplicationName() + ":" + wikiContext.getPage().getName()));</span>
-<span class="source-line-no">319</span><span id="line-319"></span>
-<span class="source-line-no">320</span><span id="line-320">        feed.setFeedURL( wikiContext.getViewURL( wikiContext.getPage().getName() ) );</span>
+<span class="source-line-no">317</span><span id="line-317">    /** {@inheritDoc} */</span>
+<span class="source-line-no">318</span><span id="line-318">    @Override</span>
+<span class="source-line-no">319</span><span id="line-319">    public String generateBlogRSS( final Context wikiContext, final List&lt; Page &gt; changed, final Feed feed ) {</span>
+<span class="source-line-no">320</span><span id="line-320">        LOG.debug( "Generating RSS for blog, size={}", changed.size() );</span>
 <span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">        final String language = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_LANGUAGE );</span>
-<span class="source-line-no">323</span><span id="line-323">        if( language != null ) {</span>
-<span class="source-line-no">324</span><span id="line-324">            feed.setChannelLanguage( language );</span>
-<span class="source-line-no">325</span><span id="line-325">        } else {</span>
-<span class="source-line-no">326</span><span id="line-326">            feed.setChannelLanguage( m_channelLanguage );</span>
-<span class="source-line-no">327</span><span id="line-327">        }</span>
-<span class="source-line-no">328</span><span id="line-328"></span>
-<span class="source-line-no">329</span><span id="line-329">        final String channelDescription = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_DESCRIPTION );</span>
-<span class="source-line-no">330</span><span id="line-330">        if( channelDescription != null ) {</span>
-<span class="source-line-no">331</span><span id="line-331">            feed.setChannelDescription( channelDescription );</span>
+<span class="source-line-no">322</span><span id="line-322">        final String ctitle = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_TITLE );</span>
+<span class="source-line-no">323</span><span id="line-323">        feed.setChannelTitle(Objects.requireNonNullElseGet(ctitle, () -&gt; m_engine.getApplicationName() + ":" + wikiContext.getPage().getName()));</span>
+<span class="source-line-no">324</span><span id="line-324"></span>
+<span class="source-line-no">325</span><span id="line-325">        feed.setFeedURL( wikiContext.getViewURL( wikiContext.getPage().getName() ) );</span>
+<span class="source-line-no">326</span><span id="line-326"></span>
+<span class="source-line-no">327</span><span id="line-327">        final String language = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_LANGUAGE );</span>
+<span class="source-line-no">328</span><span id="line-328">        if( language != null ) {</span>
+<span class="source-line-no">329</span><span id="line-329">            feed.setChannelLanguage( language );</span>
+<span class="source-line-no">330</span><span id="line-330">        } else {</span>
+<span class="source-line-no">331</span><span id="line-331">            feed.setChannelLanguage( m_channelLanguage );</span>
 <span class="source-line-no">332</span><span id="line-332">        }</span>
 <span class="source-line-no">333</span><span id="line-333"></span>
-<span class="source-line-no">334</span><span id="line-334">        changed.sort( new PageTimeComparator() );</span>
-<span class="source-line-no">335</span><span id="line-335"></span>
-<span class="source-line-no">336</span><span id="line-336">        int items = 0;</span>
-<span class="source-line-no">337</span><span id="line-337">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; 15; items++ ) {</span>
-<span class="source-line-no">338</span><span id="line-338">            final Page page = i.next();</span>
-<span class="source-line-no">339</span><span id="line-339">            final Entry e = new Entry();</span>
-<span class="source-line-no">340</span><span id="line-340">            e.setPage( page );</span>
-<span class="source-line-no">341</span><span id="line-341">            final String url;</span>
-<span class="source-line-no">342</span><span id="line-342"></span>
-<span class="source-line-no">343</span><span id="line-343">            if( page instanceof Attachment ) {</span>
-<span class="source-line-no">344</span><span id="line-344">                url = m_engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), page.getName(),null );</span>
-<span class="source-line-no">345</span><span id="line-345">            } else {</span>
-<span class="source-line-no">346</span><span id="line-346">                url = m_engine.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page.getName(),null );</span>
-<span class="source-line-no">347</span><span id="line-347">            }</span>
-<span class="source-line-no">348</span><span id="line-348"></span>
-<span class="source-line-no">349</span><span id="line-349">            e.setURL( url );</span>
-<span class="source-line-no">350</span><span id="line-350"></span>
-<span class="source-line-no">351</span><span id="line-351">            //  Title</span>
-<span class="source-line-no">352</span><span id="line-352">            String pageText = m_engine.getManager( PageManager.class ).getPureText( page.getName(), WikiProvider.LATEST_VERSION );</span>
-<span class="source-line-no">353</span><span id="line-353"></span>
-<span class="source-line-no">354</span><span id="line-354">            String title = "";</span>
-<span class="source-line-no">355</span><span id="line-355">            final int firstLine = pageText.indexOf('\n');</span>
-<span class="source-line-no">356</span><span id="line-356"></span>
-<span class="source-line-no">357</span><span id="line-357">            if( firstLine &gt; 0 ) {</span>
-<span class="source-line-no">358</span><span id="line-358">                title = pageText.substring( 0, firstLine ).trim();</span>
-<span class="source-line-no">359</span><span id="line-359">            }</span>
-<span class="source-line-no">360</span><span id="line-360"></span>
-<span class="source-line-no">361</span><span id="line-361">            if( title.isEmpty() ) {</span>
-<span class="source-line-no">362</span><span id="line-362">                title = page.getName();</span>
-<span class="source-line-no">363</span><span id="line-363">            }</span>
-<span class="source-line-no">364</span><span id="line-364"></span>
-<span class="source-line-no">365</span><span id="line-365">            // Remove wiki formatting</span>
-<span class="source-line-no">366</span><span id="line-366">            while( title.startsWith("!") ) {</span>
-<span class="source-line-no">367</span><span id="line-367">                title = title.substring(1);</span>
+<span class="source-line-no">334</span><span id="line-334">        final String channelDescription = m_engine.getManager( VariableManager.class ).getVariable( wikiContext, PROP_CHANNEL_DESCRIPTION );</span>
+<span class="source-line-no">335</span><span id="line-335">        if( channelDescription != null ) {</span>
+<span class="source-line-no">336</span><span id="line-336">            feed.setChannelDescription( channelDescription );</span>
+<span class="source-line-no">337</span><span id="line-337">        }</span>
+<span class="source-line-no">338</span><span id="line-338"></span>
+<span class="source-line-no">339</span><span id="line-339">        changed.sort( new PageTimeComparator() );</span>
+<span class="source-line-no">340</span><span id="line-340">        final AuthorizationManager mgr = wikiContext.getEngine().getManager(AuthorizationManager.class);</span>
+<span class="source-line-no">341</span><span id="line-341">        int items = 0;</span>
+<span class="source-line-no">342</span><span id="line-342">        for( final Iterator&lt; Page &gt; i = changed.iterator(); i.hasNext() &amp;&amp; items &lt; 15; items++ ) {</span>
+<span class="source-line-no">343</span><span id="line-343">            final Page page = i.next();</span>
+<span class="source-line-no">344</span><span id="line-344">            if( !mgr.checkPermission( wikiContext.getWikiSession(), new PagePermission(page, PagePermission.VIEW_ACTION) ) ) {</span>
+<span class="source-line-no">345</span><span id="line-345">                continue;</span>
+<span class="source-line-no">346</span><span id="line-346">            }</span>
+<span class="source-line-no">347</span><span id="line-347"></span>
+<span class="source-line-no">348</span><span id="line-348">            final Entry e = new Entry();</span>
+<span class="source-line-no">349</span><span id="line-349">            e.setPage( page );</span>
+<span class="source-line-no">350</span><span id="line-350">            final String url;</span>
+<span class="source-line-no">351</span><span id="line-351"></span>
+<span class="source-line-no">352</span><span id="line-352">            if( page instanceof Attachment ) {</span>
+<span class="source-line-no">353</span><span id="line-353">                url = m_engine.getURL( ContextEnum.PAGE_ATTACH.getRequestContext(), page.getName(),null );</span>
+<span class="source-line-no">354</span><span id="line-354">            } else {</span>
+<span class="source-line-no">355</span><span id="line-355">                url = m_engine.getURL( ContextEnum.PAGE_VIEW.getRequestContext(), page.getName(),null );</span>
+<span class="source-line-no">356</span><span id="line-356">            }</span>
+<span class="source-line-no">357</span><span id="line-357"></span>
+<span class="source-line-no">358</span><span id="line-358">            e.setURL( url );</span>
+<span class="source-line-no">359</span><span id="line-359"></span>
+<span class="source-line-no">360</span><span id="line-360">            //  Title</span>
+<span class="source-line-no">361</span><span id="line-361">            String pageText = m_engine.getManager( PageManager.class ).getPureText( page.getName(), WikiProvider.LATEST_VERSION );</span>
+<span class="source-line-no">362</span><span id="line-362"></span>
+<span class="source-line-no">363</span><span id="line-363">            String title = "";</span>
+<span class="source-line-no">364</span><span id="line-364">            final int firstLine = pageText.indexOf('\n');</span>
+<span class="source-line-no">365</span><span id="line-365"></span>
+<span class="source-line-no">366</span><span id="line-366">            if( firstLine &gt; 0 ) {</span>
+<span class="source-line-no">367</span><span id="line-367">                title = pageText.substring( 0, firstLine ).trim();</span>
 <span class="source-line-no">368</span><span id="line-368">            }</span>
 <span class="source-line-no">369</span><span id="line-369"></span>
-<span class="source-line-no">370</span><span id="line-370">            e.setTitle( title );</span>
-<span class="source-line-no">371</span><span id="line-371"></span>
-<span class="source-line-no">372</span><span id="line-372">            //  Description</span>
-<span class="source-line-no">373</span><span id="line-373">            if( firstLine &gt; 0 ) {</span>
-<span class="source-line-no">374</span><span id="line-374">                int maxlen = pageText.length();</span>
-<span class="source-line-no">375</span><span id="line-375">                if( maxlen &gt; MAX_CHARACTERS ) {</span>
-<span class="source-line-no">376</span><span id="line-376">                    maxlen = MAX_CHARACTERS;</span>
-<span class="source-line-no">377</span><span id="line-377">                }</span>
-<span class="source-line-no">378</span><span id="line-378">                pageText = m_engine.getManager( RenderingManager.class ).textToHTML( wikiContext, pageText.substring( firstLine + 1, maxlen ).trim() );</span>
-<span class="source-line-no">379</span><span id="line-379">                if( maxlen == MAX_CHARACTERS ) {</span>
-<span class="source-line-no">380</span><span id="line-380">                    pageText += "...";</span>
-<span class="source-line-no">381</span><span id="line-381">                }</span>
-<span class="source-line-no">382</span><span id="line-382">                e.setContent( pageText );</span>
-<span class="source-line-no">383</span><span id="line-383">            } else {</span>
-<span class="source-line-no">384</span><span id="line-384">                e.setContent( title );</span>
-<span class="source-line-no">385</span><span id="line-385">            }</span>
-<span class="source-line-no">386</span><span id="line-386">            e.setAuthor( getAuthor(page) );</span>
-<span class="source-line-no">387</span><span id="line-387">            feed.addEntry( e );</span>
-<span class="source-line-no">388</span><span id="line-388">        }</span>
-<span class="source-line-no">389</span><span id="line-389"></span>
-<span class="source-line-no">390</span><span id="line-390">        return feed.getString();</span>
-<span class="source-line-no">391</span><span id="line-391">    }</span>
-<span class="source-line-no">392</span><span id="line-392"></span>
-<span class="source-line-no">393</span><span id="line-393">}</span>
+<span class="source-line-no">370</span><span id="line-370">            if( title.isEmpty() ) {</span>
+<span class="source-line-no">371</span><span id="line-371">                title = page.getName();</span>
+<span class="source-line-no">372</span><span id="line-372">            }</span>
+<span class="source-line-no">373</span><span id="line-373"></span>
+<span class="source-line-no">374</span><span id="line-374">            // Remove wiki formatting</span>
+<span class="source-line-no">375</span><span id="line-375">            while( title.startsWith("!") ) {</span>
+<span class="source-line-no">376</span><span id="line-376">                title = title.substring(1);</span>
+<span class="source-line-no">377</span><span id="line-377">            }</span>
+<span class="source-line-no">378</span><span id="line-378"></span>
+<span class="source-line-no">379</span><span id="line-379">            e.setTitle( title );</span>
+<span class="source-line-no">380</span><span id="line-380"></span>
+<span class="source-line-no">381</span><span id="line-381">            //  Description</span>
+<span class="source-line-no">382</span><span id="line-382">            if( firstLine &gt; 0 ) {</span>
+<span class="source-line-no">383</span><span id="line-383">                int maxlen = pageText.length();</span>
+<span class="source-line-no">384</span><span id="line-384">                if( maxlen &gt; MAX_CHARACTERS ) {</span>
+<span class="source-line-no">385</span><span id="line-385">                    maxlen = MAX_CHARACTERS;</span>
+<span class="source-line-no">386</span><span id="line-386">                }</span>
+<span class="source-line-no">387</span><span id="line-387">                pageText = m_engine.getManager( RenderingManager.class ).textToHTML( wikiContext, pageText.substring( firstLine + 1, maxlen ).trim() );</span>
+<span class="source-line-no">388</span><span id="line-388">                if( maxlen == MAX_CHARACTERS ) {</span>
+<span class="source-line-no">389</span><span id="line-389">                    pageText += "...";</span>
+<span class="source-line-no">390</span><span id="line-390">                }</span>
+<span class="source-line-no">391</span><span id="line-391">                e.setContent( pageText );</span>
+<span class="source-line-no">392</span><span id="line-392">            } else {</span>
+<span class="source-line-no">393</span><span id="line-393">                e.setContent( title );</span>
+<span class="source-line-no">394</span><span id="line-394">            }</span>
+<span class="source-line-no">395</span><span id="line-395">            e.setAuthor( getAuthor(page) );</span>
+<span class="source-line-no">396</span><span id="line-396">            feed.addEntry( e );</span>
+<span class="source-line-no">397</span><span id="line-397">        }</span>
+<span class="source-line-no">398</span><span id="line-398"></span>
+<span class="source-line-no">399</span><span id="line-399">        return feed.getString();</span>
+<span class="source-line-no">400</span><span id="line-400">    }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">}</span>
 
 
 
