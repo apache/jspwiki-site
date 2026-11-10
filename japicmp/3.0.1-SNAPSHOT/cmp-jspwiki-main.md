@@ -85,6 +85,7 @@
 | Unchanged    | [org.apache.wiki.auth.GroupPrincipal]                            | ![Compatible]                       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.NoSuchPrincipalException]                  | ![Not serializable]                 | ![No changes]         |
 | Added        | [org.apache.wiki.auth.PasswordComplexityVerifier]                | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.auth.PasswordExpiry]                            | ![Not serializable]                 | ![Method added to public class] |
 | Added        | [org.apache.wiki.auth.SecurityVerificationUtility]               | ![Not serializable]                 | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.SecurityVerifier]                          | ![Not serializable]                 | ![No changes]         |
 | Modified     | [org.apache.wiki.auth.SessionMonitor]                            | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
@@ -123,7 +124,7 @@
 | Unchanged    | [org.apache.wiki.auth.login.WikiEngineCallback]                  | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.permissions.AllPermission]                 | ![Compatible]                       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.permissions.AllPermissionCollection]       | ![Compatible]                       | ![No changes]         |
-| Unchanged    | [org.apache.wiki.auth.permissions.GroupPermission]               | ![Compatible]                       | ![No changes]         |
+| Modified     | [org.apache.wiki.auth.permissions.GroupPermission]               | ![Compatible]                       | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.auth.permissions.PagePermission]                | ![Compatible]                       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.permissions.PermissionFactory]             | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.auth.permissions.WikiPermission]                | ![Compatible]                       | ![No changes]         |
@@ -149,7 +150,7 @@
 | Unchanged    | [org.apache.wiki.filters.DefaultFilterManager]                   | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.filters.FilterManager]                          | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.filters.PageEventFilter]                        | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.filters.PingWeblogsComFilter]                   | ![Not serializable]                 | ![No changes]         |
+| Removed      | [org.apache.wiki.filters.PingWeblogsComFilter]                   | ![Not serializable]                 | ![Class removed] ![Method removed] ![Field removed] ![Constructor removed] |
 | Unchanged    | [org.apache.wiki.filters.ProfanityFilter]                        | ![Not serializable]                 | ![No changes]         |
 | Modified     | [org.apache.wiki.filters.SpamFilter]                             | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.forms.FormClose]                                | ![Not serializable]                 | ![No changes]         |
@@ -180,7 +181,7 @@
 | Unchanged    | [org.apache.wiki.parser.JSPWikiMarkupParser]                     | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.parser.LinkParser]                              | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.parser.LinkParser$Link]                         | ![Not serializable]                 | ![No changes]         |
-| Unchanged    | [org.apache.wiki.parser.LinkParsingOperations]                   | ![Not serializable]                 | ![No changes]         |
+| Modified     | [org.apache.wiki.parser.LinkParsingOperations]                   | ![Not serializable]                 | ![Method added to public class] |
 | Unchanged    | [org.apache.wiki.parser.MarkupParser]                            | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.parser.ParseException]                          | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.parser.PluginContent]                           | ![Not serializable]                 | ![No changes]         |
@@ -1742,6 +1743,41 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.auth.passwordexpiry"></a>
+### `org.apache.wiki.auth.PasswordExpiry`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                 | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|----------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`PasswordExpiry`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                          | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|--------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`PasswordExpiry`**([`Properties`]) |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type          | Method                                     | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|---------------|--------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`boolean`** | **`isEnabled`**()                          |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`boolean`** | **`isExpired`**([`UserProfile`], [`Date`]) |             |        | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name               | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|--------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_EXPIRY_DAYS` |             | ![No changes]         |
+
+___
+
 <a id="user-content-org.apache.wiki.auth.securityverificationutility"></a>
 ### `org.apache.wiki.auth.SecurityVerificationUtility`
 
@@ -3243,9 +3279,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name              | Extends        | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|-------|-------------------|----------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Class | `GroupPermission` | [`Permission`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status   | Modifiers        | Type  | Name              | Extends        | JDK                          | Serialization | Compatibility Changes |
+|----------|------------------|-------|-------------------|----------------|------------------------------|---------------|-----------------------|
+| Modified | `final` `public` | Class | `GroupPermission` | [`Permission`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -3265,15 +3301,16 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                    | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|------------|---------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `boolean`  | `equals`([`Object`])      |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `getActions`()            |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `getGroup`()              |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `getWiki`()               |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `int`      | `hashCode`()              |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `implies`([`Permission`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `toString`()              |             |        | ![No changes]         |
+| Status    | Modifiers    | Generics | Type                    | Method                     | Annotations | Throws | Compatibility Changes |
+|-----------|--------------|----------|-------------------------|----------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`     |          | `boolean`               | `equals`([`Object`])       |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]              | `getActions`()             |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]              | `getGroup`()               |             |        | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]              | `getWiki`()                |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `int`                   | `hashCode`()               |             |        | ![No changes]         |
+| Unchanged | `public`     |          | `boolean`               | `implies`([`Permission`])  |             |        | ![No changes]         |
+| Added     | **`public`** |          | **[`GroupPermission`]** | **`toMemberPermission`**() |             |        | ![Method added to public class] |
+| Unchanged | `public`     |          | [`String`]              | `toString`()               |             |        | ![No changes]         |
 
 
 #### Fields
@@ -3471,8 +3508,10 @@ ___
 | Unchanged | `protected`             |          | [`String`]          | `getHash`([`String`])                               |             |                                                            | ![No changes]         |
 | Unchanged | `public`                |          | [`Principal[]`][10] | `getPrincipals`([`String`])                         |             | [`NoSuchPrincipalException`]                               | ![No changes]         |
 | Modified  | `public` ~~`abstract`~~ |          | `void`              | `initialize`([`Engine`], [`Properties`])            |             | [`NoRequiredPropertyException`], [`WikiSecurityException`] | ![No changes]         |
+| Added     | **`protected`**         |          | **`void`**          | **`initializePasswordHashing`**([`Properties`])     |             |                                                            | ![No changes]         |
 | Unchanged | `public`                |          | [`UserProfile`]     | `newProfile`()                                      |             |                                                            | ![No changes]         |
 | Unchanged | `protected`             |          | `long`              | `parseLong`([`String`])                             |             |                                                            | ![No changes]         |
+| Added     | **`protected`**         |          | **`boolean`**       | **`passwordMatches`**([`String`], [`String`])       |             |                                                            | ![No changes]         |
 | Unchanged | `public` `abstract`     |          | `void`              | `save`([`UserProfile`])                             |             | [`WikiSecurityException`]                                  | ![No changes]         |
 | Unchanged | `public`                |          | `boolean`           | `validatePassword`([`String`], [`String`])          |             |                                                            | ![No changes]         |
 | Added     | **`public`**            |          | **`boolean`**       | **`validatePasswordReuse`**([`String`], [`String`]) |             |                                                            | ![Method added to public class] |
@@ -3480,13 +3519,15 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                    | Type           | Name            | Annotations | Compatibility Changes |
-|-----------|------------------------------|----------------|-----------------|-------------|-----------------------|
-| Unchanged | `protected` `static` `final` | [`Logger`]     | `LOG`           |             | ![No changes]         |
-| Unchanged | `protected` `static` `final` | [`String`]     | `SHA256_PREFIX` |             | ![No changes]         |
-| Unchanged | `protected` `static` `final` | [`String`]     | `SHA_PREFIX`    |             | ![No changes]         |
-| Unchanged | `protected` `static` `final` | [`String`]     | `SSHA_PREFIX`   |             | ![No changes]         |
-| Added     | **`protected`**              | **[`Engine`]** | `m_engine`      |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                   | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|------------------------|-------------|-----------------------|
+| Unchanged | `protected` `static` `final`          | [`Logger`]     | `LOG`                  |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_HASH_ALGORITHM`  |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_HASH_ITERATIONS` |             | ![No changes]         |
+| Unchanged | `protected` `static` `final`          | [`String`]     | `SHA256_PREFIX`        |             | ![No changes]         |
+| Unchanged | `protected` `static` `final`          | [`String`]     | `SHA_PREFIX`           |             | ![No changes]         |
+| Unchanged | `protected` `static` `final`          | [`String`]     | `SSHA_PREFIX`          |             | ![No changes]         |
+| Added     | **`protected`**                       | **[`Engine`]** | `m_engine`             |             | ![No changes]         |
 
 ___
 
@@ -3523,6 +3564,7 @@ ___
 | Unchanged | `public`     |          | [`Date`]                      | `getLockExpiry`()                    |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`String`]                    | `getLoginName`()                     |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`String`]                    | `getPassword`()                      |             |        | ![No changes]         |
+| Added     | **`public`** |          | **[`Date`]**                  | **`getPasswordChanged`**()           |             |        | ![Method added to public class] |
 | Added     | **`public`** |          | **[`List<String>`]**          | **`getPreviousHashedCredentials`**() |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | [`String`]                    | `getUid`()                           |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`String`]                    | `getWikiName`()                      |             |        | ![No changes]         |
@@ -3536,6 +3578,7 @@ ___
 | Unchanged | `public`     |          | `void`                        | `setLockExpiry`([`Date`])            |             |        | ![No changes]         |
 | Unchanged | `public`     |          | `void`                        | `setLoginName`([`String`])           |             |        | ![No changes]         |
 | Unchanged | `public`     |          | `void`                        | `setPassword`([`String`])            |             |        | ![No changes]         |
+| Added     | **`public`** |          | **`void`**                    | **`setPasswordChanged`**([`Date`])   |             |        | ![Method added to public class] |
 | Unchanged | `public`     |          | `void`                        | `setUid`([`String`])                 |             |        | ![No changes]         |
 | Unchanged | `public`     |          | [`String`]                    | `toString`()                         |             |        | ![No changes]         |
 
@@ -3649,38 +3692,39 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                             | Type           | Name                     | Annotations | Compatibility Changes |
-|-----------|---------------------------------------|----------------|--------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ATTRIBUTES`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_CREATED`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_EMAIL`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_FULL_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_JNDI_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOCK_EXPIRY` |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOGIN_NAME`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_MODIFIED`    |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `DEFAULT_DB_OLD_HASHES`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_PASSWORD`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE_TABLE`  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_TABLE`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_UID`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_WIKI_NAME`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ATTRIBUTES`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_CREATED`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_DATASOURCE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_EMAIL`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_FULL_NAME`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOCK_EXPIRY`    |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOGIN_NAME`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_MODIFIED`       |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_DB_OLD_HASHES`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_PASSWORD`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE`           |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE_TABLE`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_TABLE`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_UID`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_WIKI_NAME`      |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                       | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|----------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ATTRIBUTES`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_CREATED`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_EMAIL`         |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_FULL_NAME`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_JNDI_NAME`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOCK_EXPIRY`   |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_LOGIN_NAME`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_MODIFIED`      |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `DEFAULT_DB_OLD_HASHES`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_PASSWORD`      |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_ROLE_TABLE`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_TABLE`         |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_UID`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_DB_WIKI_NAME`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ATTRIBUTES`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_CREATED`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_DATASOURCE`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_EMAIL`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_FULL_NAME`        |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOCK_EXPIRY`      |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_LOGIN_NAME`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_MODIFIED`         |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_DB_OLD_HASHES`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_PASSWORD`         |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_DB_PASSWORD_CHANGED` |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_ROLE_TABLE`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_TABLE`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_UID`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_DB_WIKI_NAME`        |             | ![No changes]         |
 
 ___
 
@@ -3749,6 +3793,7 @@ ___
 | Unchanged | `public` `abstract` |          | [`Date`]                      | `getLockExpiry`()                    |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]                    | `getLoginName`()                     |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]                    | `getPassword`()                      |             |        | ![No changes]         |
+| Added     | **`public`**        |          | **[`Date`]**                  | **`getPasswordChanged`**()           |             |        | ![Method new default] |
 | Added     | **`public`**        |          | **[`List<String>`]**          | **`getPreviousHashedCredentials`**() |             |        | ![Method new default] |
 | Unchanged | `public` `abstract` |          | [`String`]                    | `getUid`()                           |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]                    | `getWikiName`()                      |             |        | ![No changes]         |
@@ -3761,6 +3806,7 @@ ___
 | Unchanged | `public` `abstract` |          | `void`                        | `setLockExpiry`([`Date`])            |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `void`                        | `setLoginName`([`String`])           |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `void`                        | `setPassword`([`String`])            |             |        | ![No changes]         |
+| Added     | **`public`**        |          | **`void`**                    | **`setPasswordChanged`**([`Date`])   |             |        | ![Method new default] |
 | Unchanged | `public` `abstract` |          | `void`                        | `setUid`([`String`])                 |             |        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`String`]                    | `toString`()                         |             |        | ![No changes]         |
 
@@ -4340,35 +4386,35 @@ ___
 <a id="user-content-org.apache.wiki.filters.pingweblogscomfilter"></a>
 ### `org.apache.wiki.filters.PingWeblogsComFilter`
 
-- [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Binary-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                   | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `PingWeblogsComFilter` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status  | Modifiers    | Type      | Name                       | Extends | JDK        | Serialization       | Compatibility Changes |
+|---------|--------------|-----------|----------------------------|---------|------------|---------------------|-----------------------|
+| Removed | ~~`public`~~ | ~~Class~~ | ~~`PingWeblogsComFilter`~~ | null    | ~~JDK 11~~ | ![Not serializable] | ![Class removed]      |
 
 
 #### Constructors
 
-| Status    | Modifiers | Generics | Constructor              | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|--------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `PingWeblogsComFilter`() |             |        | ![No changes]         |
+| Status  | Modifiers    | Generics | Constructor                  | Annotations | Throws | Compatibility Changes |
+|---------|--------------|----------|------------------------------|-------------|--------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~`PingWeblogsComFilter`~~() |             |        | ![Constructor removed] |
 
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type   | Method                                   | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|--------|------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `void` | `initialize`([`Engine`], [`Properties`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `void` | `postSave`([`Context`], [`String`])      |             |        | ![No changes]         |
+| Status  | Modifiers    | Generics | Type       | Method                                       | Annotations | Throws | Compatibility Changes |
+|---------|--------------|----------|------------|----------------------------------------------|-------------|--------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`initialize`~~([`Engine`], [`Properties`]) |             |        | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~`void`~~ | ~~`postSave`~~([`Context`], [`String`])      |             |        | ![Method removed]     |
 
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name           | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|----------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `PROP_PINGURL` |             | ![No changes]         |
+| Status  | Modifiers                             | Type           | Name           | Annotations | Compatibility Changes |
+|---------|---------------------------------------|----------------|----------------|-------------|-----------------------|
+| Removed | ~~`public`~~ ~~`static`~~ ~~`final`~~ | ~~[`String`]~~ | `PROP_PINGURL` |             | ![Field removed]      |
 
 ___
 
@@ -5520,9 +5566,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                    | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LinkParsingOperations` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers | Type  | Name                    | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|----------|-----------|-------|-------------------------|------------|------------------------------|---------------------|-----------------------|
+| Modified | `public`  | Class | `LinkParsingOperations` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -5534,18 +5580,19 @@ ___
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                                  | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|------------|---------------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `int`      | `interWikiLinkAt`([`String`])                           |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isAccessRule`([`String`])                              |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isExternalLink`([`String`])                            |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isImageLink`([`String`], `boolean`, [`List<Pattern>`]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isInterWikiLink`([`String`])                           |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isMetadata`([`String`])                                |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isPluginLink`([`String`])                              |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `isVariableLink`([`String`])                            |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `boolean`  | `linkExists`([`String`])                                |             |        | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `linkIfExists`([`String`])                              |             |        | ![No changes]         |
+| Status    | Modifiers                 | Generics | Type          | Method                                                  | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------------|----------|---------------|---------------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`                  |          | `int`         | `interWikiLinkAt`([`String`])                           |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `isAccessRule`([`String`])                              |             |        | ![No changes]         |
+| Added     | **`static`** **`public`** |          | **`boolean`** | **`isDataImage`**([`String`])                           |             |        | ![Method added to public class] |
+| Unchanged | `public`                  |          | `boolean`     | `isExternalLink`([`String`])                            |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `isImageLink`([`String`], `boolean`, [`List<Pattern>`]) |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `isInterWikiLink`([`String`])                           |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `isMetadata`([`String`])                                |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `isPluginLink`([`String`])                              |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `isVariableLink`([`String`])                            |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | `boolean`     | `linkExists`([`String`])                                |             |        | ![No changes]         |
+| Unchanged | `public`                  |          | [`String`]    | `linkIfExists`([`String`])                              |             |        | ![No changes]         |
 
 ___
 
@@ -6912,6 +6959,7 @@ ___
 | Unchanged | `static` `public`         |          | [`String`]           | `getPreference`([`Context`], [`String`])            |             |                              | ![No changes]         |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~       | ~~`getPreference`~~([`PageContext`], [`String`])    |             |                              | ![Method removed]     |
 | Added     | **`static`** **`public`** |          | **[`String`]**       | **`getPreference`**([`PageContext`][4], [`String`]) |             |                              | ![Method added to public class] |
+| Added     | **`public`**              |          | **`boolean`**        | **`isSetByUser`**([`String`])                       |             |                              | ![Method added to public class] |
 | Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~           | ~~`reloadPreferences`~~([`PageContext`])            |             |                              | ![Method removed]     |
 | Added     | **`static`** **`public`** |          | **`void`**           | **`reloadPreferences`**([`PageContext`][4])         |             |                              | ![Method added to public class] |
 | Unchanged | `static` `public`         |          | [`String`]           | `renderDate`([`Context`], [`Date`], [`TimeFormat`]) |             |                              | ![No changes]         |
@@ -13700,7 +13748,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-08 07:54:26.228+0000*.
+*Generated on: 2026-11-10 15:41:11.167+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -14093,6 +14141,7 @@ ___
 [org.apache.wiki.auth.GroupPrincipal]: #user-content-org.apache.wiki.auth.groupprincipal
 [org.apache.wiki.auth.NoSuchPrincipalException]: #user-content-org.apache.wiki.auth.nosuchprincipalexception
 [org.apache.wiki.auth.PasswordComplexityVerifier]: #user-content-org.apache.wiki.auth.passwordcomplexityverifier
+[org.apache.wiki.auth.PasswordExpiry]: #user-content-org.apache.wiki.auth.passwordexpiry
 [org.apache.wiki.auth.SecurityVerificationUtility]: #user-content-org.apache.wiki.auth.securityverificationutility
 [org.apache.wiki.auth.SecurityVerifier]: #user-content-org.apache.wiki.auth.securityverifier
 [org.apache.wiki.auth.SessionMonitor]: #user-content-org.apache.wiki.auth.sessionmonitor

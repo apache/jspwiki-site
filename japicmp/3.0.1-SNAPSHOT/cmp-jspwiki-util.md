@@ -239,20 +239,29 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type           | Method                                                 | Annotations | Throws                           | Compatibility Changes |
-|-----------|---------------------------|----------|----------------|--------------------------------------------------------|-------------|----------------------------------|-----------------------|
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getPbkdf2SaltedPassword`**(`byte[]`)                |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | [`String`]     | `getSaltedPassword`(`byte[]`, [`String`])              |             | [`NoSuchAlgorithmException`]     | ![No changes]         |
-| Unchanged | `static` `public`         |          | `void`         | `main`([`String[]`][1])                                |             | [`Exception`]                    | ![No changes]         |
-| Added     | **`static`** **`public`** |          | **`boolean`**  | **`verifyPbkdf2SaltedPassword`**(`byte[]`, [`String`]) |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | `boolean`      | `verifySaltedPassword`(`byte[]`, [`String`])           |             | [`NoSuchAlgorithmException`]     | ![No changes]         |
+| Status    | Modifiers                 | Generics | Type           | Method                                                     | Annotations | Throws                           | Compatibility Changes |
+|-----------|---------------------------|----------|----------------|------------------------------------------------------------|-------------|----------------------------------|-----------------------|
+| Added     | **`static`** **`public`** |          | **`int`**      | **`defaultPbkdf2Iterations`**([`String`])                  |             |                                  | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getPbkdf2SaltedPassword`**(`byte[]`)                    |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **[`String`]** | **`getPbkdf2SaltedPassword`**(`byte[]`, [`String`], `int`) |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | [`String`]     | `getSaltedPassword`(`byte[]`, [`String`])                  |             | [`NoSuchAlgorithmException`]     | ![No changes]         |
+| Added     | **`static`** **`public`** |          | **`boolean`**  | **`hasPbkdf2Parameters`**([`String`], [`String`], `int`)   |             |                                  | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`boolean`**  | **`isPbkdf2Entry`**([`String`])                            |             |                                  | ![Method added to public class] |
+| Added     | **`static`** **`public`** |          | **`boolean`**  | **`isSupportedPbkdf2Algorithm`**([`String`])               |             |                                  | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | `void`         | `main`([`String[]`][1])                                    |             | [`Exception`]                    | ![No changes]         |
+| Added     | **`static`** **`public`** |          | **`boolean`**  | **`verifyPbkdf2SaltedPassword`**(`byte[]`, [`String`])     |             | **[`NoSuchAlgorithmException`]** | ![Method added to public class] |
+| Unchanged | `static` `public`         |          | `boolean`      | `verifySaltedPassword`(`byte[]`, [`String`])               |             | [`NoSuchAlgorithmException`]     | ![No changes]         |
 
 
 #### Fields
 
-| Status | Modifiers                             | Type           | Name            | Annotations | Compatibility Changes |
-|--------|---------------------------------------|----------------|-----------------|-------------|-----------------------|
-| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PBKDF2_PREFIX` |             | ![No changes]         |
+| Status | Modifiers                             | Type           | Name                       | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|----------------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `DEFAULT_PBKDF2_ALGORITHM` |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PBKDF2_PREFIX`            |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PBKDF2_SHA256`            |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PBKDF2_SHA512`            |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PBKDF2_SHA512_PREFIX`     |             | ![No changes]         |
 
 ___
 
@@ -1146,7 +1155,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-08 07:54:26.534+0000*.
+*Generated on: 2026-11-10 15:41:11.393+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"

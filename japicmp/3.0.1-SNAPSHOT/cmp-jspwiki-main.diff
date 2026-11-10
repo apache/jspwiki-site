@@ -720,6 +720,13 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	+++  CLASS FILE FORMAT VERSION: 61.0 <- n.a.
 	+++  NEW SUPERCLASS: java.lang.Object
 	+++  NEW METHOD: PUBLIC(+) STATIC(+) java.util.List<java.lang.String> validate(java.lang.String, java.lang.String, org.apache.wiki.api.core.Context)
++++  NEW CLASS: PUBLIC(+) FINAL(+) org.apache.wiki.auth.PasswordExpiry  (not serializable)
+	+++  CLASS FILE FORMAT VERSION: 61.0 <- n.a.
+	+++  NEW SUPERCLASS: java.lang.Object
+	+++  NEW FIELD: PUBLIC(+) STATIC(+) FINAL(+) java.lang.String PROP_EXPIRY_DAYS
+	+++  NEW CONSTRUCTOR: PUBLIC(+) PasswordExpiry(java.util.Properties)
+	+++  NEW METHOD: PUBLIC(+) boolean isEnabled()
+	+++  NEW METHOD: PUBLIC(+) boolean isExpired(org.apache.wiki.auth.user.UserProfile, java.util.Date)
 ===  UNCHANGED CLASS: PUBLIC FINAL org.apache.wiki.auth.permissions.AllPermission  (compatible)
 	***! CLASS FILE FORMAT VERSION: 61.0 <- 55.0
 	===  UNCHANGED INTERFACE: java.security.Guard
@@ -744,7 +751,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC boolean implies(java.security.Permission)
 	===  UNCHANGED METHOD: PUBLIC boolean isReadOnly()
 	===  UNCHANGED METHOD: PUBLIC void setReadOnly()
-===  UNCHANGED CLASS: PUBLIC FINAL org.apache.wiki.auth.permissions.GroupPermission  (compatible)
+***  MODIFIED CLASS: PUBLIC FINAL org.apache.wiki.auth.permissions.GroupPermission  (compatible)
 	***! CLASS FILE FORMAT VERSION: 61.0 <- 55.0
 	===  UNCHANGED INTERFACE: java.security.Guard
 	===  UNCHANGED INTERFACE: java.io.Serializable
@@ -763,6 +770,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC java.lang.String getWiki()
 	===  UNCHANGED METHOD: PUBLIC int hashCode()
 	===  UNCHANGED METHOD: PUBLIC boolean implies(java.security.Permission)
+	+++  NEW METHOD: PUBLIC(+) org.apache.wiki.auth.permissions.GroupPermission toMemberPermission()
 	===  UNCHANGED METHOD: PUBLIC java.lang.String toString()
 ===  UNCHANGED CLASS: PUBLIC FINAL org.apache.wiki.auth.permissions.PagePermission  (compatible)
 	***! CLASS FILE FORMAT VERSION: 61.0 <- 55.0
@@ -886,6 +894,8 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED FIELD: PROTECTED STATIC FINAL org.apache.logging.log4j.Logger LOG
 	===  UNCHANGED FIELD: PROTECTED STATIC FINAL java.lang.String SHA_PREFIX
 	===  UNCHANGED FIELD: PROTECTED STATIC FINAL java.lang.String SHA256_PREFIX
+	+++  NEW FIELD: PUBLIC(+) STATIC(+) FINAL(+) java.lang.String PROP_HASH_ITERATIONS
+	+++  NEW FIELD: PUBLIC(+) STATIC(+) FINAL(+) java.lang.String PROP_HASH_ALGORITHM
 	+++  NEW FIELD: PROTECTED(+) org.apache.wiki.api.core.Engine m_engine
 	===  UNCHANGED CONSTRUCTOR: PUBLIC AbstractUserDatabase()
 	===  UNCHANGED METHOD: PUBLIC org.apache.wiki.auth.user.UserProfile find(java.lang.String)
@@ -905,8 +915,10 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	***  MODIFIED METHOD: PUBLIC NON_ABSTRACT (<- ABSTRACT) void initialize(org.apache.wiki.api.core.Engine, java.util.Properties)
 		===  UNCHANGED EXCEPTION: org.apache.wiki.api.exceptions.NoRequiredPropertyException
 		===  UNCHANGED EXCEPTION: org.apache.wiki.auth.WikiSecurityException
+	+++  NEW METHOD: PROTECTED(+) void initializePasswordHashing(java.util.Properties)
 	===  UNCHANGED METHOD: PUBLIC org.apache.wiki.auth.user.UserProfile newProfile()
 	===  UNCHANGED METHOD: PROTECTED long parseLong(java.lang.String)
+	+++  NEW METHOD: PROTECTED(+) boolean passwordMatches(java.lang.String, java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT void save(org.apache.wiki.auth.user.UserProfile)
 		===  UNCHANGED EXCEPTION: org.apache.wiki.auth.WikiSecurityException
 	===  UNCHANGED METHOD: PUBLIC boolean validatePassword(java.lang.String, java.lang.String)
@@ -925,6 +937,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC java.util.Date getLockExpiry()
 	===  UNCHANGED METHOD: PUBLIC java.lang.String getLoginName()
 	===  UNCHANGED METHOD: PUBLIC java.lang.String getPassword()
+	+++  NEW METHOD: PUBLIC(+) java.util.Date getPasswordChanged()
 	+++  NEW METHOD: PUBLIC(+) java.util.List<java.lang.String> getPreviousHashedCredentials()
 	===  UNCHANGED METHOD: PUBLIC java.lang.String getUid()
 	===  UNCHANGED METHOD: PUBLIC java.lang.String getWikiName()
@@ -938,6 +951,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC void setLockExpiry(java.util.Date)
 	===  UNCHANGED METHOD: PUBLIC void setLoginName(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC void setPassword(java.lang.String)
+	+++  NEW METHOD: PUBLIC(+) void setPasswordChanged(java.util.Date)
 	===  UNCHANGED METHOD: PUBLIC void setUid(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC java.lang.String toString()
 ===  UNCHANGED CLASS: PUBLIC org.apache.wiki.auth.user.DummyUserDatabase  (not serializable)
@@ -998,6 +1012,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED FIELD: PUBLIC STATIC FINAL java.lang.String PROP_DB_DATASOURCE
 	===  UNCHANGED FIELD: PUBLIC STATIC FINAL java.lang.String DEFAULT_DB_MODIFIED
 	===  UNCHANGED FIELD: PUBLIC STATIC FINAL java.lang.String PROP_DB_LOCK_EXPIRY
+	+++  NEW FIELD: PUBLIC(+) STATIC(+) FINAL(+) java.lang.String PROP_DB_PASSWORD_CHANGED
 	+++  NEW FIELD: PUBLIC(+) STATIC(+) FINAL(+) java.lang.String DEFAULT_DB_OLD_HASHES
 	+++  NEW FIELD: PUBLIC(+) STATIC(+) FINAL(+) java.lang.String PROP_DB_OLD_HASHES
 	===  UNCHANGED CONSTRUCTOR: PUBLIC JDBCUserDatabase()
@@ -1074,6 +1089,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT java.util.Date getLockExpiry()
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT java.lang.String getLoginName()
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT java.lang.String getPassword()
+	+++  NEW METHOD: PUBLIC(+) java.util.Date getPasswordChanged()
 	+++  NEW METHOD: PUBLIC(+) java.util.List<java.lang.String> getPreviousHashedCredentials()
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT java.lang.String getUid()
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT java.lang.String getWikiName()
@@ -1086,6 +1102,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT void setLockExpiry(java.util.Date)
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT void setLoginName(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT void setPassword(java.lang.String)
+	+++  NEW METHOD: PUBLIC(+) void setPasswordChanged(java.util.Date)
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT void setUid(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC ABSTRACT java.lang.String toString()
 ===  UNCHANGED CLASS: PUBLIC org.apache.wiki.auth.user.XMLUserDatabase  (not serializable)
@@ -1329,13 +1346,13 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC java.lang.String preSave(org.apache.wiki.api.core.Context, java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC java.lang.String preTranslate(org.apache.wiki.api.core.Context, java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC FINAL void removeWikiEventListener(org.apache.wiki.event.WikiEventListener)
-===  UNCHANGED CLASS: PUBLIC org.apache.wiki.filters.PingWeblogsComFilter  (not serializable)
-	***! CLASS FILE FORMAT VERSION: 61.0 <- 55.0
+---! REMOVED CLASS: PUBLIC(-) org.apache.wiki.filters.PingWeblogsComFilter  (not serializable)
+	---  CLASS FILE FORMAT VERSION: n.a. <- 55.0
 	===  UNCHANGED SUPERCLASS: n.a.
-	===  UNCHANGED FIELD: PUBLIC STATIC FINAL java.lang.String PROP_PINGURL
-	===  UNCHANGED CONSTRUCTOR: PUBLIC PingWeblogsComFilter()
-	===  UNCHANGED METHOD: PUBLIC void initialize(org.apache.wiki.api.core.Engine, java.util.Properties)
-	===  UNCHANGED METHOD: PUBLIC void postSave(org.apache.wiki.api.core.Context, java.lang.String)
+	---! REMOVED FIELD: PUBLIC(-) STATIC(-) FINAL(-) java.lang.String PROP_PINGURL
+	---! REMOVED CONSTRUCTOR: PUBLIC(-) PingWeblogsComFilter()
+	---! REMOVED METHOD: PUBLIC(-) void initialize(org.apache.wiki.api.core.Engine, java.util.Properties)
+	---! REMOVED METHOD: PUBLIC(-) void postSave(org.apache.wiki.api.core.Context, java.lang.String)
 ===  UNCHANGED CLASS: PUBLIC org.apache.wiki.filters.ProfanityFilter  (not serializable)
 	***! CLASS FILE FORMAT VERSION: 61.0 <- 55.0
 	===  UNCHANGED SUPERCLASS: n.a.
@@ -1796,12 +1813,13 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PROTECTED void setText(java.lang.String)
 		===  UNCHANGED EXCEPTION: org.apache.wiki.parser.ParseException
 	===  UNCHANGED METHOD: PUBLIC java.lang.String toString()
-===  UNCHANGED CLASS: PUBLIC org.apache.wiki.parser.LinkParsingOperations  (not serializable)
+***  MODIFIED CLASS: PUBLIC org.apache.wiki.parser.LinkParsingOperations  (not serializable)
 	***! CLASS FILE FORMAT VERSION: 61.0 <- 55.0
 	===  UNCHANGED SUPERCLASS: java.lang.Object (<- java.lang.Object)
 	===  UNCHANGED CONSTRUCTOR: PUBLIC LinkParsingOperations(org.apache.wiki.api.core.Context)
 	===  UNCHANGED METHOD: PUBLIC int interWikiLinkAt(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC boolean isAccessRule(java.lang.String)
+	+++  NEW METHOD: PUBLIC(+) STATIC(+) boolean isDataImage(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC boolean isExternalLink(java.lang.String)
 	===  UNCHANGED METHOD: PUBLIC boolean isImageLink(java.lang.String, boolean, java.util.List<org.apache.oro.text.regex.Pattern><org.apache.oro.text.regex.Pattern>)
 	===  UNCHANGED METHOD: PUBLIC boolean isInterWikiLink(java.lang.String)
@@ -2303,6 +2321,7 @@ WARNING: You are using the option '--ignore-missing-classes', i.e. superclasses 
 	===  UNCHANGED METHOD: PUBLIC STATIC java.lang.String getPreference(org.apache.wiki.api.core.Context, java.lang.String)
 	---! REMOVED METHOD: PUBLIC(-) STATIC(-) java.lang.String getPreference(javax.servlet.jsp.PageContext, java.lang.String)
 	+++  NEW METHOD: PUBLIC(+) STATIC(+) java.lang.String getPreference(jakarta.servlet.jsp.PageContext, java.lang.String)
+	+++  NEW METHOD: PUBLIC(+) boolean isSetByUser(java.lang.String)
 	---! REMOVED METHOD: PUBLIC(-) STATIC(-) void reloadPreferences(javax.servlet.jsp.PageContext)
 	+++  NEW METHOD: PUBLIC(+) STATIC(+) void reloadPreferences(jakarta.servlet.jsp.PageContext)
 	===  UNCHANGED METHOD: PUBLIC STATIC java.lang.String renderDate(org.apache.wiki.api.core.Context, java.util.Date, org.apache.wiki.preferences.Preferences$TimeFormat)
