@@ -75,6 +75,9 @@
 | Unchanged    | [org.apache.wiki.attachment.DefaultAttachmentManager]            | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.attachment.DynamicAttachment]                   | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.attachment.DynamicAttachmentProvider]           | ![Not serializable]                 | ![No changes]         |
+| Added        | [org.apache.wiki.auth.AccountLifecycle]                          | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.auth.AccountLifecycle$Notifier]                 | ![Not serializable]                 | ![No changes]         |
+| Added        | [org.apache.wiki.auth.AccountLifecycleMailer]                    | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
 | Modified     | [org.apache.wiki.auth.AuthenticationManager]                     | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
 | Modified     | [org.apache.wiki.auth.AuthorizationManager]                      | ![Not serializable]                 | ![Method removed] ![Method added to interface] ![Method new default] |
 | Unchanged    | [org.apache.wiki.auth.Authorizer]                                | ![Not serializable]                 | ![No changes]         |
@@ -170,6 +173,8 @@
 | Unchanged    | [org.apache.wiki.modules.InternalModule]                         | ![Not serializable]                 | ![No changes]         |
 | Modified     | [org.apache.wiki.modules.ModuleManager]                          | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.modules.WikiModuleInfo]                         | ![Not serializable]                 | ![No changes]         |
+| Added        | [org.apache.wiki.notification.DefaultSubscriptionManager]        | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.notification.SubscriptionManager]               | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.DefaultPageManager]                       | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.PageLock]                                 | ![Compatible]                       | ![No changes]         |
 | Unchanged    | [org.apache.wiki.pages.PageManager]                              | ![Not serializable]                 | ![No changes]         |
@@ -199,6 +204,7 @@
 | Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable]                 | ![Method added to public class] |
+| Added        | [org.apache.wiki.plugin.LanguagePlugin]                          | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable]                 | ![Method added to public class] |
@@ -795,36 +801,37 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type                                                            | Name           | Annotations | Compatibility Changes |
-|-----------|---------------------------|-----------------------------------------------------------------|----------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `ADMIN`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `ATTACH`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `COMMENT`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `CONFLICT`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `CREATE_GROUP` |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `DELETE`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `DELETE_GROUP` |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `DIFF`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `EDIT`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `EDIT_GROUP`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `ERROR`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `FIND`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `INFO`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `INSTALL`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `LOGIN`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `LOGOUT`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `MESSAGE`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `NONE`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `OTHER`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `PREFS`        |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `PREVIEW`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `RENAME`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `RSS`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `UPLOAD`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `VIEW`         |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `VIEW_GROUP`   |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`]                                                      | `WORKFLOW`     |             | ![No changes]         |
-| Modified  | `protected`               | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][3]** | `m_request`    |             | ![Field type changed] |
+| Status    | Modifiers                                          | Type                                                            | Name               | Annotations | Compatibility Changes |
+|-----------|----------------------------------------------------|-----------------------------------------------------------------|--------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `ADMIN`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `ATTACH`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `COMMENT`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `CONFLICT`         |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `CREATE_GROUP`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `DELETE`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `DELETE_GROUP`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `DIFF`             |             | ![No changes]         |
+| Modified  | ~~`private`~~ &rarr; **`public`** `static` `final` | [`Permission`]                                                  | `DUMMY_PERMISSION` |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `EDIT`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `EDIT_GROUP`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `ERROR`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `FIND`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `INFO`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `INSTALL`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `LOGIN`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `LOGOUT`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `MESSAGE`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `NONE`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `OTHER`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `PREFS`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `PREVIEW`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `RENAME`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `RSS`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `UPLOAD`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `VIEW`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `VIEW_GROUP`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`                          | [`String`]                                                      | `WORKFLOW`         |             | ![No changes]         |
+| Modified  | `protected`                                        | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][3]** | `m_request`        |             | ![Field type changed] |
 
 ___
 
@@ -1365,6 +1372,104 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.auth.accountlifecycle"></a>
+### `org.apache.wiki.auth.AccountLifecycle`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                   | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`AccountLifecycle`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|-------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`AccountLifecycle`**([`Properties`], [`Supplier<UserDatabase>`], [`Notifier`]) |  |  | ![No changes] |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type          | Method                | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|---------------|-----------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`void`**    | **`apply`**([`Date`]) |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`int`**     | **`getDeleteDays`**() |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`int`**     | **`getLockDays`**()   |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`int`**     | **`getWarnDays`**()   |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`boolean`** | **`isEnabled`**()     |             |        | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name               | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|--------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_DELETE_DAYS` |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_LOCK_DAYS`   |             | ![No changes]         |
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_WARN_DAYS`   |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.auth.accountlifecycle$notifier"></a>
+### `org.apache.wiki.auth.AccountLifecycle$Notifier`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                                | Type          | Name           | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|------------------------------------------|---------------|----------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`static`** **`public`** **`abstract`** | **Interface** | **`Notifier`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                   | Generics | Type       | Method                                              | Annotations | Throws | Compatibility Changes |
+|--------|-----------------------------|----------|------------|-----------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** **`abstract`** |          | **`void`** | **`accountDeleted`**([`UserProfile`])               |             |        | ![No changes]         |
+| Added  | **`public`** **`abstract`** |          | **`void`** | **`accountLocked`**([`UserProfile`], [`Date`])      |             |        | ![No changes]         |
+| Added  | **`public`** **`abstract`** |          | **`void`** | **`passwordWillExpire`**([`UserProfile`], [`Date`]) |             |        | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.auth.accountlifecyclemailer"></a>
+### `org.apache.wiki.auth.AccountLifecycleMailer`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                | Type      | Name                         | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------------------|-----------|------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`final`** **`public`** | **Class** | **`AccountLifecycleMailer`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![Interface added]    |
+
+
+#### Implemented Interfaces
+
+| Status | Interface        | Compatibility Changes |
+|--------|------------------|-----------------------|
+| Added  | **[`Notifier`]** | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                              | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`AccountLifecycleMailer`**([`Engine`]) |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type       | Method                                              | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------|-----------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`void`** | **`accountDeleted`**([`UserProfile`])               |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`** | **`accountLocked`**([`UserProfile`], [`Date`])      |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`** | **`passwordWillExpire`**([`UserProfile`], [`Date`]) |             |        | ![Method added to public class] |
+
+___
+
 <a id="user-content-org.apache.wiki.auth.authenticationmanager"></a>
 ### `org.apache.wiki.auth.AuthenticationManager`
 
@@ -1766,6 +1871,7 @@ ___
 
 | Status | Modifiers    | Generics | Type          | Method                                     | Annotations | Throws | Compatibility Changes |
 |--------|--------------|----------|---------------|--------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`int`**     | **`getDays`**()                            |             |        | ![Method added to public class] |
 | Added  | **`public`** |          | **`boolean`** | **`isEnabled`**()                          |             |        | ![Method added to public class] |
 | Added  | **`public`** |          | **`boolean`** | **`isExpired`**([`UserProfile`], [`Date`]) |             |        | ![Method added to public class] |
 
@@ -5099,6 +5205,75 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.notification.defaultsubscriptionmanager"></a>
+### `org.apache.wiki.notification.DefaultSubscriptionManager`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                             | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`DefaultSubscriptionManager`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                        | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`DefaultSubscriptionManager`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type                | Method                                       | Annotations | Throws                | Compatibility Changes |
+|--------|--------------|----------|---------------------|----------------------------------------------|-------------|-----------------------|-----------------------|
+| Added  | **`public`** |          | **`void`**          | **`actionPerformed`**([`WikiEvent`])         |             |                       | ![Method added to public class] |
+| Added  | **`public`** |          | **[`Set<String>`]** | **`getSubscriptions`**([`String`])           |             |                       | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`**          | **`initialize`**([`Engine`], [`Properties`]) |             | **[`WikiException`]** | ![Method added to public class] |
+| Added  | **`public`** |          | **`boolean`**       | **`isSubscribed`**([`String`], [`String`])   |             |                       | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`**          | **`subscribe`**([`String`], [`String`])      |             | **[`WikiException`]** | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`**          | **`unsubscribe`**([`String`], [`String`])    |             | **[`WikiException`]** | ![Method added to public class] |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name           | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|----------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_BASEURL` |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.notification.subscriptionmanager"></a>
+### `org.apache.wiki.notification.SubscriptionManager`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                   | Type          | Name                      | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|-----------------------------|---------------|---------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** **`abstract`** | **Interface** | **`SubscriptionManager`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                   | Generics | Type                | Method                                     | Annotations | Throws                | Compatibility Changes |
+|--------|-----------------------------|----------|---------------------|--------------------------------------------|-------------|-----------------------|-----------------------|
+| Added  | **`public`** **`abstract`** |          | **[`Set<String>`]** | **`getSubscriptions`**([`String`])         |             |                       | ![No changes]         |
+| Added  | **`public`** **`abstract`** |          | **`boolean`**       | **`isSubscribed`**([`String`], [`String`]) |             |                       | ![No changes]         |
+| Added  | **`public`** **`abstract`** |          | **`void`**          | **`subscribe`**([`String`], [`String`])    |             | **[`WikiException`]** | ![No changes]         |
+| Added  | **`public`** **`abstract`** |          | **`void`**          | **`unsubscribe`**([`String`], [`String`])  |             | **[`WikiException`]** | ![No changes]         |
+
+
+#### Fields
+
+| Status | Modifiers                             | Type           | Name                         | Annotations | Compatibility Changes |
+|--------|---------------------------------------|----------------|------------------------------|-------------|-----------------------|
+| Added  | **`public`** **`static`** **`final`** | **[`String`]** | `PROFILE_ATTR_SUBSCRIPTIONS` |             | ![No changes]         |
+
+___
+
 <a id="user-content-org.apache.wiki.pages.defaultpagemanager"></a>
 ### `org.apache.wiki.pages.DefaultPageManager`
 
@@ -6265,6 +6440,35 @@ ___
 | Unchanged | `public` `static` `final` | [`String`] | `PARAM_SECTION`   |             | ![No changes]         |
 | Unchanged | `public` `static` `final` | [`String`] | `PARAM_SHOW`      |             | ![No changes]         |
 | Unchanged | `public` `static` `final` | [`String`] | `PARAM_STYLE`     |             | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.plugin.languageplugin"></a>
+### `org.apache.wiki.plugin.LanguagePlugin`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                 | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|----------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`LanguagePlugin`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor            | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`LanguagePlugin`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type           | Method                                              | Annotations | Throws                  | Compatibility Changes |
+|--------|--------------|----------|----------------|-----------------------------------------------------|-------------|-------------------------|-----------------------|
+| Added  | **`public`** |          | **[`String`]** | **`execute`**([`Context`], [`Map<String, String>`]) |             | **[`PluginException`]** | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                    |             |                         | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]** | **`getSnipExample`**()                              |             |                         | ![Method added to public class] |
 
 ___
 
@@ -13748,7 +13952,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-10 15:41:11.167+0000*.
+*Generated on: 2026-11-11 21:35:13.804+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -13985,6 +14189,7 @@ ___
 [`NoSuchPrincipalException`]: # "org.apache.wiki.auth.NoSuchPrincipalException"
 [`NoSuchVariableException`]: # "org.apache.wiki.api.exceptions.NoSuchVariableException"
 [`NotCompliantMBeanException`]: # "javax.management.NotCompliantMBeanException"
+[`Notifier`]: # "org.apache.wiki.auth.AccountLifecycle$Notifier"
 [`NullPointerException`]: # "java.lang.NullPointerException"
 [`Object...`]: # "java.lang.Object..."
 [`Object`]: # "java.lang.Object"
@@ -14054,6 +14259,7 @@ ___
 [`StringTransmutator`]: # "org.apache.wiki.StringTransmutator"
 [`String`]: # "java.lang.String"
 [`Subject`]: # "javax.security.auth.Subject"
+[`Supplier<UserDatabase>`]: # "java.util.function.Supplier<org.apache.wiki.auth.user.UserDatabase>"
 [`T extends Object`]: # "T extends java.lang.Object"
 [`T extends Page`]: # "T extends org.apache.wiki.api.core.Page"
 [`T extends WikiModuleInfo`]: # "T extends org.apache.wiki.modules.WikiModuleInfo"
@@ -14131,6 +14337,9 @@ ___
 [org.apache.wiki.attachment.DefaultAttachmentManager]: #user-content-org.apache.wiki.attachment.defaultattachmentmanager
 [org.apache.wiki.attachment.DynamicAttachment]: #user-content-org.apache.wiki.attachment.dynamicattachment
 [org.apache.wiki.attachment.DynamicAttachmentProvider]: #user-content-org.apache.wiki.attachment.dynamicattachmentprovider
+[org.apache.wiki.auth.AccountLifecycle]: #user-content-org.apache.wiki.auth.accountlifecycle
+[org.apache.wiki.auth.AccountLifecycle$Notifier]: #user-content-org.apache.wiki.auth.accountlifecycle$notifier
+[org.apache.wiki.auth.AccountLifecycleMailer]: #user-content-org.apache.wiki.auth.accountlifecyclemailer
 [org.apache.wiki.auth.AuthenticationManager]: #user-content-org.apache.wiki.auth.authenticationmanager
 [org.apache.wiki.auth.AuthorizationManager]: #user-content-org.apache.wiki.auth.authorizationmanager
 [org.apache.wiki.auth.Authorizer]: #user-content-org.apache.wiki.auth.authorizer
@@ -14226,6 +14435,8 @@ ___
 [org.apache.wiki.modules.InternalModule]: #user-content-org.apache.wiki.modules.internalmodule
 [org.apache.wiki.modules.ModuleManager]: #user-content-org.apache.wiki.modules.modulemanager
 [org.apache.wiki.modules.WikiModuleInfo]: #user-content-org.apache.wiki.modules.wikimoduleinfo
+[org.apache.wiki.notification.DefaultSubscriptionManager]: #user-content-org.apache.wiki.notification.defaultsubscriptionmanager
+[org.apache.wiki.notification.SubscriptionManager]: #user-content-org.apache.wiki.notification.subscriptionmanager
 [org.apache.wiki.pages.DefaultPageManager]: #user-content-org.apache.wiki.pages.defaultpagemanager
 [org.apache.wiki.pages.PageLock]: #user-content-org.apache.wiki.pages.pagelock
 [org.apache.wiki.pages.PageManager]: #user-content-org.apache.wiki.pages.pagemanager
@@ -14255,6 +14466,7 @@ ___
 [org.apache.wiki.plugin.Image]: #user-content-org.apache.wiki.plugin.image
 [org.apache.wiki.plugin.IndexPlugin]: #user-content-org.apache.wiki.plugin.indexplugin
 [org.apache.wiki.plugin.InsertPage]: #user-content-org.apache.wiki.plugin.insertpage
+[org.apache.wiki.plugin.LanguagePlugin]: #user-content-org.apache.wiki.plugin.languageplugin
 [org.apache.wiki.plugin.ListLocksPlugin]: #user-content-org.apache.wiki.plugin.listlocksplugin
 [org.apache.wiki.plugin.Note]: #user-content-org.apache.wiki.plugin.note
 [org.apache.wiki.plugin.PageViewPlugin]: #user-content-org.apache.wiki.plugin.pageviewplugin

@@ -82,7 +82,7 @@
 <span class="source-line-no">069</span><span id="line-69">import java.util.Properties;</span>
 <span class="source-line-no">070</span><span id="line-70">import java.util.Random;</span>
 <span class="source-line-no">071</span><span id="line-71">import java.util.StringTokenizer;</span>
-<span class="source-line-no">072</span><span id="line-72">import java.util.Vector;</span>
+<span class="source-line-no">072</span><span id="line-72">import java.util.concurrent.CopyOnWriteArrayList;</span>
 <span class="source-line-no">073</span><span id="line-73">import java.util.concurrent.ThreadLocalRandom;</span>
 <span class="source-line-no">074</span><span id="line-74">import net.thauvin.erik.akismet.Akismet;</span>
 <span class="source-line-no">075</span><span id="line-75">import net.thauvin.erik.akismet.AkismetComment;</span>
@@ -208,445 +208,445 @@
 <span class="source-line-no">195</span><span id="line-195">    private static final Logger C_SPAMLOG = LogManager.getLogger( "SpamLog" );</span>
 <span class="source-line-no">196</span><span id="line-196">    private static final Logger LOG = LogManager.getLogger( SpamFilter.class );</span>
 <span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">    private final Vector&lt;Host&gt;    m_temporaryBanList = new Vector&lt;&gt;();</span>
+<span class="source-line-no">198</span><span id="line-198">    private final List&lt; Host &gt; m_temporaryBanList = new CopyOnWriteArrayList&lt;&gt;();</span>
 <span class="source-line-no">199</span><span id="line-199"></span>
 <span class="source-line-no">200</span><span id="line-200">    private int             m_banTime = 60; // minutes</span>
 <span class="source-line-no">201</span><span id="line-201"></span>
-<span class="source-line-no">202</span><span id="line-202">    private final Vector&lt;Host&gt;    m_lastModifications = new Vector&lt;&gt;();</span>
-<span class="source-line-no">203</span><span id="line-203"></span>
-<span class="source-line-no">204</span><span id="line-204">    /** How many times a single IP address can change a page per minute? */</span>
-<span class="source-line-no">205</span><span id="line-205">    private int             m_limitSinglePageChanges = 5;</span>
-<span class="source-line-no">206</span><span id="line-206"></span>
-<span class="source-line-no">207</span><span id="line-207">    /** How many times can you add the exact same string to a page? */</span>
-<span class="source-line-no">208</span><span id="line-208">    private int             m_limitSimilarChanges = 2;</span>
-<span class="source-line-no">209</span><span id="line-209"></span>
-<span class="source-line-no">210</span><span id="line-210">    /** How many URLs can be added at maximum. */</span>
-<span class="source-line-no">211</span><span id="line-211">    private int             m_maxUrls = 10;</span>
-<span class="source-line-no">212</span><span id="line-212"></span>
-<span class="source-line-no">213</span><span id="line-213">    private Pattern         m_urlPattern;</span>
-<span class="source-line-no">214</span><span id="line-214">    private Akismet         m_akismet;</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">    private String          m_akismetAPIKey;</span>
-<span class="source-line-no">217</span><span id="line-217"></span>
-<span class="source-line-no">218</span><span id="line-218">    /** The limit at which we consider something to be spam. */</span>
-<span class="source-line-no">219</span><span id="line-219">    private final int             m_scoreLimit = 1;</span>
-<span class="source-line-no">220</span><span id="line-220"></span>
-<span class="source-line-no">221</span><span id="line-221">    /** If set to true, will ignore anyone who is in Authenticated role. */</span>
-<span class="source-line-no">222</span><span id="line-222">    private boolean         m_ignoreAuthenticated;</span>
-<span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">    /** Groups allowed to bypass the filter */</span>
-<span class="source-line-no">225</span><span id="line-225">    private String[]         m_allowedGroups;</span>
-<span class="source-line-no">226</span><span id="line-226"></span>
-<span class="source-line-no">227</span><span id="line-227">    private boolean         m_stopAtFirstMatch = true;</span>
-<span class="source-line-no">228</span><span id="line-228"></span>
-<span class="source-line-no">229</span><span id="line-229">    private static String   c_hashName;</span>
-<span class="source-line-no">230</span><span id="line-230">    private static long     c_lastUpdate;</span>
-<span class="source-line-no">231</span><span id="line-231"></span>
-<span class="source-line-no">232</span><span id="line-232">    /** The HASH_DELAY value is a maximum amount of time that an user can keep</span>
-<span class="source-line-no">233</span><span id="line-233">     *  a session open, because after the value has expired, we will invent a new</span>
-<span class="source-line-no">234</span><span id="line-234">     *  hash field name.  By default this is {@value} hours, which should be ample</span>
-<span class="source-line-no">235</span><span id="line-235">     *  time for someone.</span>
-<span class="source-line-no">236</span><span id="line-236">     */</span>
-<span class="source-line-no">237</span><span id="line-237">    private static final long HASH_DELAY = 24;</span>
-<span class="source-line-no">238</span><span id="line-238"></span>
+<span class="source-line-no">202</span><span id="line-202">    /** Guarded by this. */</span>
+<span class="source-line-no">203</span><span id="line-203">    private final List&lt; Host &gt; m_lastModifications = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">204</span><span id="line-204"></span>
+<span class="source-line-no">205</span><span id="line-205">    /** How many times a single IP address can change a page per minute? */</span>
+<span class="source-line-no">206</span><span id="line-206">    private int             m_limitSinglePageChanges = 5;</span>
+<span class="source-line-no">207</span><span id="line-207"></span>
+<span class="source-line-no">208</span><span id="line-208">    /** How many times can you add the exact same string to a page? */</span>
+<span class="source-line-no">209</span><span id="line-209">    private int             m_limitSimilarChanges = 2;</span>
+<span class="source-line-no">210</span><span id="line-210"></span>
+<span class="source-line-no">211</span><span id="line-211">    /** How many URLs can be added at maximum. */</span>
+<span class="source-line-no">212</span><span id="line-212">    private int             m_maxUrls = 10;</span>
+<span class="source-line-no">213</span><span id="line-213"></span>
+<span class="source-line-no">214</span><span id="line-214">    private Pattern         m_urlPattern;</span>
+<span class="source-line-no">215</span><span id="line-215">    private Akismet         m_akismet;</span>
+<span class="source-line-no">216</span><span id="line-216"></span>
+<span class="source-line-no">217</span><span id="line-217">    private String          m_akismetAPIKey;</span>
+<span class="source-line-no">218</span><span id="line-218"></span>
+<span class="source-line-no">219</span><span id="line-219">    /** The limit at which we consider something to be spam. */</span>
+<span class="source-line-no">220</span><span id="line-220">    private final int             m_scoreLimit = 1;</span>
+<span class="source-line-no">221</span><span id="line-221"></span>
+<span class="source-line-no">222</span><span id="line-222">    /** If set to true, will ignore anyone who is in Authenticated role. */</span>
+<span class="source-line-no">223</span><span id="line-223">    private boolean         m_ignoreAuthenticated;</span>
+<span class="source-line-no">224</span><span id="line-224"></span>
+<span class="source-line-no">225</span><span id="line-225">    /** Groups allowed to bypass the filter */</span>
+<span class="source-line-no">226</span><span id="line-226">    private String[]         m_allowedGroups;</span>
+<span class="source-line-no">227</span><span id="line-227"></span>
+<span class="source-line-no">228</span><span id="line-228">    private boolean         m_stopAtFirstMatch = true;</span>
+<span class="source-line-no">229</span><span id="line-229"></span>
+<span class="source-line-no">230</span><span id="line-230">    private static String   c_hashName;</span>
+<span class="source-line-no">231</span><span id="line-231">    private static long     c_lastUpdate;</span>
+<span class="source-line-no">232</span><span id="line-232"></span>
+<span class="source-line-no">233</span><span id="line-233">    /** The HASH_DELAY value is a maximum amount of time that an user can keep</span>
+<span class="source-line-no">234</span><span id="line-234">     *  a session open, because after the value has expired, we will invent a new</span>
+<span class="source-line-no">235</span><span id="line-235">     *  hash field name.  By default this is {@value} hours, which should be ample</span>
+<span class="source-line-no">236</span><span id="line-236">     *  time for someone.</span>
+<span class="source-line-no">237</span><span id="line-237">     */</span>
+<span class="source-line-no">238</span><span id="line-238">    private static final long HASH_DELAY = 24;</span>
 <span class="source-line-no">239</span><span id="line-239"></span>
-<span class="source-line-no">240</span><span id="line-240">    /**</span>
-<span class="source-line-no">241</span><span id="line-241">     *  {@inheritDoc}</span>
-<span class="source-line-no">242</span><span id="line-242">     */</span>
-<span class="source-line-no">243</span><span id="line-243">    @Override</span>
-<span class="source-line-no">244</span><span id="line-244">    public void initialize( final Engine engine, final Properties properties ) {</span>
-<span class="source-line-no">245</span><span id="line-245">        m_forbiddenWordsPage = properties.getProperty( PROP_WORDLIST, m_forbiddenWordsPage );</span>
-<span class="source-line-no">246</span><span id="line-246">        m_forbiddenIPsPage = properties.getProperty( PROP_IPLIST, m_forbiddenIPsPage);</span>
-<span class="source-line-no">247</span><span id="line-247">        m_pageNameMaxLength = properties.getProperty( PROP_MAX_PAGENAME_LENGTH, m_pageNameMaxLength);</span>
-<span class="source-line-no">248</span><span id="line-248">        m_errorPage = properties.getProperty( PROP_ERRORPAGE, m_errorPage );</span>
-<span class="source-line-no">249</span><span id="line-249">        m_limitSinglePageChanges = TextUtil.getIntegerProperty( properties, PROP_PAGECHANGES, m_limitSinglePageChanges );</span>
-<span class="source-line-no">250</span><span id="line-250">        </span>
-<span class="source-line-no">251</span><span id="line-251">        m_limitSimilarChanges = TextUtil.getIntegerProperty( properties, PROP_SIMILARCHANGES, m_limitSimilarChanges );</span>
-<span class="source-line-no">252</span><span id="line-252"></span>
-<span class="source-line-no">253</span><span id="line-253">        m_maxUrls = TextUtil.getIntegerProperty( properties, PROP_MAXURLS, m_maxUrls );</span>
-<span class="source-line-no">254</span><span id="line-254">        m_banTime = TextUtil.getIntegerProperty( properties, PROP_BANTIME, m_banTime );</span>
-<span class="source-line-no">255</span><span id="line-255">        m_blacklist = properties.getProperty( PROP_BLACKLIST, m_blacklist );</span>
-<span class="source-line-no">256</span><span id="line-256"></span>
-<span class="source-line-no">257</span><span id="line-257">        m_ignoreAuthenticated = TextUtil.getBooleanProperty( properties, PROP_IGNORE_AUTHENTICATED, m_ignoreAuthenticated );</span>
-<span class="source-line-no">258</span><span id="line-258">        m_allowedGroups = StringUtils.split( StringUtils.defaultString( properties.getProperty( PROP_ALLOWED_GROUPS, m_blacklist ) ), ',' );</span>
-<span class="source-line-no">259</span><span id="line-259"></span>
-<span class="source-line-no">260</span><span id="line-260">        try {</span>
-<span class="source-line-no">261</span><span id="line-261">            m_urlPattern = m_compiler.compile( URL_REGEXP );</span>
-<span class="source-line-no">262</span><span id="line-262">        } catch( final MalformedPatternException e ) {</span>
-<span class="source-line-no">263</span><span id="line-263">            LOG.fatal( "Internal error: Someone put in a faulty pattern.", e );</span>
-<span class="source-line-no">264</span><span id="line-264">            throw new InternalWikiException( "Faulty pattern." , e);</span>
-<span class="source-line-no">265</span><span id="line-265">        }</span>
-<span class="source-line-no">266</span><span id="line-266"></span>
-<span class="source-line-no">267</span><span id="line-267">        m_akismetAPIKey = TextUtil.getStringProperty( properties, PROP_AKISMET_API_KEY, m_akismetAPIKey );</span>
-<span class="source-line-no">268</span><span id="line-268">        m_stopAtFirstMatch = TextUtil.getStringProperty( properties, PROP_FILTERSTRATEGY, STRATEGY_EAGER ).equals( STRATEGY_EAGER );</span>
-<span class="source-line-no">269</span><span id="line-269"></span>
-<span class="source-line-no">270</span><span id="line-270">        LOG.info( "# Spam filter initialized.  Temporary ban time " + m_banTime +</span>
-<span class="source-line-no">271</span><span id="line-271">                  " mins, max page changes/minute: " + m_limitSinglePageChanges );</span>
-<span class="source-line-no">272</span><span id="line-272">    }</span>
-<span class="source-line-no">273</span><span id="line-273"></span>
-<span class="source-line-no">274</span><span id="line-274">    private static final int REJECT = 0;</span>
-<span class="source-line-no">275</span><span id="line-275">    private static final int ACCEPT = 1;</span>
-<span class="source-line-no">276</span><span id="line-276">    private static final int NOTE   = 2;</span>
-<span class="source-line-no">277</span><span id="line-277"></span>
-<span class="source-line-no">278</span><span id="line-278">    private static String log( final Context ctx, final int type, final String source, String message ) {</span>
-<span class="source-line-no">279</span><span id="line-279">        message = TextUtil.replaceString( message, "\r\n", "\\r\\n" );</span>
-<span class="source-line-no">280</span><span id="line-280">        message = TextUtil.replaceString( message, "\"", "\\\"" );</span>
-<span class="source-line-no">281</span><span id="line-281"></span>
-<span class="source-line-no">282</span><span id="line-282">        final String uid = getUniqueID();</span>
-<span class="source-line-no">283</span><span id="line-283">        final String page   = ctx.getPage().getName();</span>
-<span class="source-line-no">284</span><span id="line-284">        final String addr   = ctx.getHttpRequest() != null ? HttpUtil.getRemoteAddress( ctx.getHttpRequest() ) : "-";</span>
-<span class="source-line-no">285</span><span id="line-285">        final String reason;</span>
-<span class="source-line-no">286</span><span id="line-286">        switch( type ) {</span>
-<span class="source-line-no">287</span><span id="line-287">            case REJECT: reason = "REJECTED";</span>
-<span class="source-line-no">288</span><span id="line-288">                break;</span>
-<span class="source-line-no">289</span><span id="line-289">            case ACCEPT: reason = "ACCEPTED";</span>
-<span class="source-line-no">290</span><span id="line-290">                break;</span>
-<span class="source-line-no">291</span><span id="line-291">            case NOTE: reason = "NOTE";</span>
-<span class="source-line-no">292</span><span id="line-292">                break;</span>
-<span class="source-line-no">293</span><span id="line-293">            default: throw new InternalWikiException( "Illegal type " + type );</span>
-<span class="source-line-no">294</span><span id="line-294">        }</span>
-<span class="source-line-no">295</span><span id="line-295">        C_SPAMLOG.info( reason + " " + source + " " + uid + " " + addr + " \"" + page + "\" " + message );</span>
-<span class="source-line-no">296</span><span id="line-296"></span>
-<span class="source-line-no">297</span><span id="line-297">        return uid;</span>
-<span class="source-line-no">298</span><span id="line-298">    }</span>
-<span class="source-line-no">299</span><span id="line-299"></span>
-<span class="source-line-no">300</span><span id="line-300">    /** {@inheritDoc} */</span>
-<span class="source-line-no">301</span><span id="line-301">    @Override</span>
-<span class="source-line-no">302</span><span id="line-302">    public String preSave( final Context context, final String content ) throws RedirectException {</span>
-<span class="source-line-no">303</span><span id="line-303">        cleanBanList();</span>
-<span class="source-line-no">304</span><span id="line-304">        refreshBlacklists( context );</span>
-<span class="source-line-no">305</span><span id="line-305">        final Change change = getChange( context, content );</span>
-<span class="source-line-no">306</span><span id="line-306"></span>
-<span class="source-line-no">307</span><span id="line-307">        if( !ignoreThisUser( context ) ) {</span>
-<span class="source-line-no">308</span><span id="line-308">            checkBanList( context, change );</span>
-<span class="source-line-no">309</span><span id="line-309">            checkSinglePageChange( context, change );</span>
-<span class="source-line-no">310</span><span id="line-310">            checkIPList( context );</span>
-<span class="source-line-no">311</span><span id="line-311">            checkPatternList( context, change );</span>
-<span class="source-line-no">312</span><span id="line-312">            checkPageName( context);</span>
-<span class="source-line-no">313</span><span id="line-313">        }</span>
-<span class="source-line-no">314</span><span id="line-314"></span>
-<span class="source-line-no">315</span><span id="line-315">        if( !m_stopAtFirstMatch ) {</span>
-<span class="source-line-no">316</span><span id="line-316">            final Integer score = context.getVariable( ATTR_SPAMFILTER_SCORE );</span>
-<span class="source-line-no">317</span><span id="line-317"></span>
-<span class="source-line-no">318</span><span id="line-318">            if( score != null &amp;&amp; score &gt;= m_scoreLimit ) {</span>
-<span class="source-line-no">319</span><span id="line-319">                throw new RedirectException( "Herb says you got too many points", getRedirectPage( context ) );</span>
-<span class="source-line-no">320</span><span id="line-320">            }</span>
-<span class="source-line-no">321</span><span id="line-321">        }</span>
-<span class="source-line-no">322</span><span id="line-322"></span>
-<span class="source-line-no">323</span><span id="line-323">        log( context, ACCEPT, "-", change.toString() );</span>
-<span class="source-line-no">324</span><span id="line-324">        return content;</span>
-<span class="source-line-no">325</span><span id="line-325">    }</span>
-<span class="source-line-no">326</span><span id="line-326"></span>
-<span class="source-line-no">327</span><span id="line-327">    private void checkPageName(final Context context ) throws RedirectException {</span>
-<span class="source-line-no">328</span><span id="line-328">        final Page page = context.getPage();</span>
-<span class="source-line-no">329</span><span id="line-329">        final String pageName = page.getName();</span>
-<span class="source-line-no">330</span><span id="line-330">        final int maxlength = Integer.parseInt(m_pageNameMaxLength);</span>
-<span class="source-line-no">331</span><span id="line-331">        if ( pageName.length() &gt; maxlength) {</span>
-<span class="source-line-no">332</span><span id="line-332">            //</span>
-<span class="source-line-no">333</span><span id="line-333">            //  Spam filter has a match.</span>
-<span class="source-line-no">334</span><span id="line-334">            //</span>
-<span class="source-line-no">335</span><span id="line-335"></span>
-<span class="source-line-no">336</span><span id="line-336">            final String uid = log( context, REJECT, REASON_PAGENAME_TOO_LONG + "(" + m_pageNameMaxLength + ")" , pageName);</span>
-<span class="source-line-no">337</span><span id="line-337"></span>
-<span class="source-line-no">338</span><span id="line-338">            LOG.info("SPAM:PageNameTooLong (" + uid + "). The length of the page name is too large (" + pageName.length() + " , limit is " + m_pageNameMaxLength + ")");</span>
-<span class="source-line-no">339</span><span id="line-339">            checkStrategy( context, "Herb says '" + pageName + "' is a bad pageName and I trust Herb! (Incident code " + uid + ")" );</span>
-<span class="source-line-no">340</span><span id="line-340"></span>
-<span class="source-line-no">341</span><span id="line-341">        }</span>
-<span class="source-line-no">342</span><span id="line-342">    }</span>
-<span class="source-line-no">343</span><span id="line-343"></span>
-<span class="source-line-no">344</span><span id="line-344">    private void checkStrategy(final Context context, final String message ) throws RedirectException {</span>
-<span class="source-line-no">345</span><span id="line-345">        if( m_stopAtFirstMatch ) {</span>
-<span class="source-line-no">346</span><span id="line-346">            throw new RedirectException( message, getRedirectPage( context ) );</span>
-<span class="source-line-no">347</span><span id="line-347">        }</span>
-<span class="source-line-no">348</span><span id="line-348"></span>
-<span class="source-line-no">349</span><span id="line-349">        Integer score = context.getVariable( ATTR_SPAMFILTER_SCORE );</span>
-<span class="source-line-no">350</span><span id="line-350">        if( score != null ) {</span>
-<span class="source-line-no">351</span><span id="line-351">            score = score + 1;</span>
-<span class="source-line-no">352</span><span id="line-352">        } else {</span>
-<span class="source-line-no">353</span><span id="line-353">            score = 1;</span>
-<span class="source-line-no">354</span><span id="line-354">        }</span>
-<span class="source-line-no">355</span><span id="line-355"></span>
-<span class="source-line-no">356</span><span id="line-356">        context.setVariable( ATTR_SPAMFILTER_SCORE, score );</span>
-<span class="source-line-no">357</span><span id="line-357">    }</span>
-<span class="source-line-no">358</span><span id="line-358">    </span>
-<span class="source-line-no">359</span><span id="line-359">    /**</span>
-<span class="source-line-no">360</span><span id="line-360">     *  Parses a list of patterns and returns a Collection of compiled Pattern objects.</span>
-<span class="source-line-no">361</span><span id="line-361">     *</span>
-<span class="source-line-no">362</span><span id="line-362">     * @param source page containing the list of patterns.</span>
-<span class="source-line-no">363</span><span id="line-363">     * @param list list of patterns.</span>
-<span class="source-line-no">364</span><span id="line-364">     * @return A Collection of the Patterns that were found from the lists.</span>
-<span class="source-line-no">365</span><span id="line-365">     */</span>
-<span class="source-line-no">366</span><span id="line-366">    private Collection&lt; Pattern &gt; parseWordList( final Page source, final String list ) {</span>
-<span class="source-line-no">367</span><span id="line-367">        final ArrayList&lt; Pattern &gt; compiledpatterns = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">368</span><span id="line-368"></span>
-<span class="source-line-no">369</span><span id="line-369">        if( list != null ) {</span>
-<span class="source-line-no">370</span><span id="line-370">            final StringTokenizer tok = new StringTokenizer( list, " \t\n" );</span>
-<span class="source-line-no">371</span><span id="line-371"></span>
-<span class="source-line-no">372</span><span id="line-372">            while( tok.hasMoreTokens() ) {</span>
-<span class="source-line-no">373</span><span id="line-373">                final String pattern = tok.nextToken();</span>
-<span class="source-line-no">374</span><span id="line-374"></span>
-<span class="source-line-no">375</span><span id="line-375">                try {</span>
-<span class="source-line-no">376</span><span id="line-376">                    compiledpatterns.add( m_compiler.compile( pattern ) );</span>
-<span class="source-line-no">377</span><span id="line-377">                } catch( final MalformedPatternException e ) {</span>
-<span class="source-line-no">378</span><span id="line-378">                    LOG.debug( "Malformed spam filter pattern " + pattern );</span>
-<span class="source-line-no">379</span><span id="line-379">                    source.setAttribute("error", "Malformed spam filter pattern " + pattern);</span>
-<span class="source-line-no">380</span><span id="line-380">                }</span>
-<span class="source-line-no">381</span><span id="line-381">            }</span>
-<span class="source-line-no">382</span><span id="line-382">        }</span>
-<span class="source-line-no">383</span><span id="line-383"></span>
-<span class="source-line-no">384</span><span id="line-384">        return compiledpatterns;</span>
-<span class="source-line-no">385</span><span id="line-385">    }</span>
-<span class="source-line-no">386</span><span id="line-386"></span>
-<span class="source-line-no">387</span><span id="line-387">    /**</span>
-<span class="source-line-no">388</span><span id="line-388">     *  Takes a MT-Blacklist -formatted blacklist and returns a list of compiled Pattern objects.</span>
-<span class="source-line-no">389</span><span id="line-389">     *</span>
-<span class="source-line-no">390</span><span id="line-390">     *  @param list list of patterns.</span>
-<span class="source-line-no">391</span><span id="line-391">     *  @return The parsed blacklist patterns.</span>
-<span class="source-line-no">392</span><span id="line-392">     */</span>
-<span class="source-line-no">393</span><span id="line-393">    private Collection&lt; Pattern &gt; parseBlacklist( final String list ) {</span>
-<span class="source-line-no">394</span><span id="line-394">        final ArrayList&lt; Pattern &gt; compiledpatterns = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">395</span><span id="line-395"></span>
-<span class="source-line-no">396</span><span id="line-396">        if( list != null ) {</span>
-<span class="source-line-no">397</span><span id="line-397">            try {</span>
-<span class="source-line-no">398</span><span id="line-398">                final BufferedReader in = new BufferedReader( new StringReader(list) );</span>
-<span class="source-line-no">399</span><span id="line-399">                String line;</span>
-<span class="source-line-no">400</span><span id="line-400">                while( (line = in.readLine() ) != null ) {</span>
-<span class="source-line-no">401</span><span id="line-401">                    line = line.trim();</span>
-<span class="source-line-no">402</span><span id="line-402">                    if( line.isEmpty() ) continue; // Empty line</span>
-<span class="source-line-no">403</span><span id="line-403">                    if( line.startsWith("#") ) continue; // It's a comment</span>
-<span class="source-line-no">404</span><span id="line-404"></span>
-<span class="source-line-no">405</span><span id="line-405">                    int ws = line.indexOf( ' ' );</span>
-<span class="source-line-no">406</span><span id="line-406">                    if( ws == -1 ) ws = line.indexOf( '\t' );</span>
-<span class="source-line-no">407</span><span id="line-407">                    if( ws != -1 ) line = line.substring( 0, ws );</span>
-<span class="source-line-no">408</span><span id="line-408"></span>
-<span class="source-line-no">409</span><span id="line-409">                    try {</span>
-<span class="source-line-no">410</span><span id="line-410">                        compiledpatterns.add( m_compiler.compile( line ) );</span>
-<span class="source-line-no">411</span><span id="line-411">                    } catch( final MalformedPatternException e ) {</span>
-<span class="source-line-no">412</span><span id="line-412">                        LOG.debug( "Malformed spam filter pattern " + line );</span>
-<span class="source-line-no">413</span><span id="line-413">                    }</span>
-<span class="source-line-no">414</span><span id="line-414">                }</span>
-<span class="source-line-no">415</span><span id="line-415">            } catch( final IOException e ) {</span>
-<span class="source-line-no">416</span><span id="line-416">                LOG.info( "Could not read patterns; returning what I got" , e );</span>
-<span class="source-line-no">417</span><span id="line-417">            }</span>
-<span class="source-line-no">418</span><span id="line-418">        }</span>
-<span class="source-line-no">419</span><span id="line-419"></span>
-<span class="source-line-no">420</span><span id="line-420">        return compiledpatterns;</span>
-<span class="source-line-no">421</span><span id="line-421">    }</span>
-<span class="source-line-no">422</span><span id="line-422"></span>
-<span class="source-line-no">423</span><span id="line-423">    /**</span>
-<span class="source-line-no">424</span><span id="line-424">     * Takes a single page change and performs a load of tests on the content change. An admin can modify anything.</span>
-<span class="source-line-no">425</span><span id="line-425">     *</span>
-<span class="source-line-no">426</span><span id="line-426">     * @param context page Context</span>
-<span class="source-line-no">427</span><span id="line-427">     * @param change page change</span>
-<span class="source-line-no">428</span><span id="line-428">     * @throws RedirectException spam filter rejects the page change.</span>
-<span class="source-line-no">429</span><span id="line-429">     */</span>
-<span class="source-line-no">430</span><span id="line-430">    private synchronized void checkSinglePageChange(final Context context, final Change change )</span>
-<span class="source-line-no">431</span><span id="line-431">            throws RedirectException {</span>
-<span class="source-line-no">432</span><span id="line-432">        final HttpServletRequest req = context.getHttpRequest();</span>
-<span class="source-line-no">433</span><span id="line-433"></span>
-<span class="source-line-no">434</span><span id="line-434">        if( req != null ) {</span>
-<span class="source-line-no">435</span><span id="line-435">            final String addr = HttpUtil.getRemoteAddress( req );</span>
-<span class="source-line-no">436</span><span id="line-436">            int hostCounter = 0;</span>
-<span class="source-line-no">437</span><span id="line-437">            int changeCounter = 0;</span>
-<span class="source-line-no">438</span><span id="line-438"></span>
-<span class="source-line-no">439</span><span id="line-439">            LOG.debug( "Change is " + change.m_change );</span>
-<span class="source-line-no">440</span><span id="line-440"></span>
-<span class="source-line-no">441</span><span id="line-441">            final long time = System.currentTimeMillis() - 60*1000L; // 1 minute</span>
-<span class="source-line-no">442</span><span id="line-442"></span>
-<span class="source-line-no">443</span><span id="line-443">            for( final Iterator&lt; Host &gt; i = m_lastModifications.iterator(); i.hasNext(); ) {</span>
-<span class="source-line-no">444</span><span id="line-444">                final Host host = i.next();</span>
-<span class="source-line-no">445</span><span id="line-445"></span>
-<span class="source-line-no">446</span><span id="line-446">                //  Check if this item is invalid</span>
-<span class="source-line-no">447</span><span id="line-447">                if( host.getAddedTime() &lt; time ) {</span>
-<span class="source-line-no">448</span><span id="line-448">                    LOG.debug( "Removed host " + host.getAddress() + " from modification queue (expired)" );</span>
-<span class="source-line-no">449</span><span id="line-449">                    i.remove();</span>
-<span class="source-line-no">450</span><span id="line-450">                    continue;</span>
-<span class="source-line-no">451</span><span id="line-451">                }</span>
-<span class="source-line-no">452</span><span id="line-452"></span>
-<span class="source-line-no">453</span><span id="line-453">                // Check if this IP address has been seen before</span>
-<span class="source-line-no">454</span><span id="line-454">                if( host.getAddress().equals( addr ) ) {</span>
-<span class="source-line-no">455</span><span id="line-455">                    hostCounter++;</span>
-<span class="source-line-no">456</span><span id="line-456">                }</span>
-<span class="source-line-no">457</span><span id="line-457"></span>
-<span class="source-line-no">458</span><span id="line-458">                //  Check, if this change has been seen before</span>
-<span class="source-line-no">459</span><span id="line-459">                if( host.getChange() != null &amp;&amp; host.getChange().equals( change ) ) {</span>
-<span class="source-line-no">460</span><span id="line-460">                    changeCounter++;</span>
-<span class="source-line-no">461</span><span id="line-461">                }</span>
-<span class="source-line-no">462</span><span id="line-462">            }</span>
-<span class="source-line-no">463</span><span id="line-463"></span>
-<span class="source-line-no">464</span><span id="line-464">            //  Now, let's check against the limits.</span>
-<span class="source-line-no">465</span><span id="line-465">            if( hostCounter &gt;= m_limitSinglePageChanges ) {</span>
-<span class="source-line-no">466</span><span id="line-466">                final Host host = new Host( addr, null );</span>
-<span class="source-line-no">467</span><span id="line-467">                m_temporaryBanList.add( host );</span>
-<span class="source-line-no">468</span><span id="line-468"></span>
-<span class="source-line-no">469</span><span id="line-469">                final String uid = log( context, REJECT, REASON_TOO_MANY_MODIFICATIONS, change.m_change );</span>
-<span class="source-line-no">470</span><span id="line-470">                LOG.info( "SPAM:TooManyModifications (" + uid + "). Added host " + addr + " to temporary ban list for doing too many modifications/minute" );</span>
-<span class="source-line-no">471</span><span id="line-471">                checkStrategy( context, "Herb says you look like a spammer, and I trust Herb! (Incident code " + uid + ")" );</span>
-<span class="source-line-no">472</span><span id="line-472">            }</span>
-<span class="source-line-no">473</span><span id="line-473"></span>
-<span class="source-line-no">474</span><span id="line-474">            if( changeCounter &gt;= m_limitSimilarChanges ) {</span>
-<span class="source-line-no">475</span><span id="line-475">                final Host host = new Host( addr, null );</span>
-<span class="source-line-no">476</span><span id="line-476">                m_temporaryBanList.add( host );</span>
-<span class="source-line-no">477</span><span id="line-477"></span>
-<span class="source-line-no">478</span><span id="line-478">                final String uid = log( context, REJECT, REASON_SIMILAR_MODIFICATIONS, change.m_change );</span>
-<span class="source-line-no">479</span><span id="line-479">                LOG.info( "SPAM:SimilarModifications (" + uid + "). Added host " + addr + " to temporary ban list for doing too many similar modifications" );</span>
-<span class="source-line-no">480</span><span id="line-480">                checkStrategy( context, "Herb says you look like a spammer, and I trust Herb! (Incident code "+uid+")");</span>
-<span class="source-line-no">481</span><span id="line-481">            }</span>
-<span class="source-line-no">482</span><span id="line-482"></span>
-<span class="source-line-no">483</span><span id="line-483">            //  Calculate the number of links in the addition.</span>
-<span class="source-line-no">484</span><span id="line-484">            String tstChange  = change.toString();</span>
-<span class="source-line-no">485</span><span id="line-485">            int urlCounter = 0;</span>
-<span class="source-line-no">486</span><span id="line-486">            while( m_matcher.contains( tstChange,m_urlPattern ) ) {</span>
-<span class="source-line-no">487</span><span id="line-487">                final MatchResult m = m_matcher.getMatch();</span>
-<span class="source-line-no">488</span><span id="line-488">                tstChange = tstChange.substring( m.endOffset(0) );</span>
-<span class="source-line-no">489</span><span id="line-489">                urlCounter++;</span>
-<span class="source-line-no">490</span><span id="line-490">            }</span>
-<span class="source-line-no">491</span><span id="line-491"></span>
-<span class="source-line-no">492</span><span id="line-492">            if( urlCounter &gt; m_maxUrls ) {</span>
-<span class="source-line-no">493</span><span id="line-493">                final Host host = new Host( addr, null );</span>
-<span class="source-line-no">494</span><span id="line-494">                m_temporaryBanList.add( host );</span>
-<span class="source-line-no">495</span><span id="line-495"></span>
-<span class="source-line-no">496</span><span id="line-496">                final String uid = log( context, REJECT, REASON_TOO_MANY_URLS, change.toString() );</span>
-<span class="source-line-no">497</span><span id="line-497">                LOG.info( "SPAM:TooManyUrls (" + uid + "). Added host " + addr + " to temporary ban list for adding too many URLs" );</span>
-<span class="source-line-no">498</span><span id="line-498">                checkStrategy( context, "Herb says you look like a spammer, and I trust Herb! (Incident code " + uid + ")" );</span>
-<span class="source-line-no">499</span><span id="line-499">            }</span>
-<span class="source-line-no">500</span><span id="line-500"></span>
-<span class="source-line-no">501</span><span id="line-501">            //  Check bot trap</span>
-<span class="source-line-no">502</span><span id="line-502">            checkBotTrap( context, change );</span>
-<span class="source-line-no">503</span><span id="line-503"></span>
-<span class="source-line-no">504</span><span id="line-504">            //  Check UTF-8 mangling</span>
-<span class="source-line-no">505</span><span id="line-505">            checkUTF8( context, change );</span>
-<span class="source-line-no">506</span><span id="line-506"></span>
-<span class="source-line-no">507</span><span id="line-507">            //  Do Akismet check.  This is good to be the last, because this is the most expensive operation.</span>
-<span class="source-line-no">508</span><span id="line-508">            checkAkismet( context, change );</span>
-<span class="source-line-no">509</span><span id="line-509"></span>
-<span class="source-line-no">510</span><span id="line-510">            m_lastModifications.add( new Host( addr, change ) );</span>
-<span class="source-line-no">511</span><span id="line-511">        }</span>
-<span class="source-line-no">512</span><span id="line-512">    }</span>
-<span class="source-line-no">513</span><span id="line-513"></span>
+<span class="source-line-no">240</span><span id="line-240"></span>
+<span class="source-line-no">241</span><span id="line-241">    /**</span>
+<span class="source-line-no">242</span><span id="line-242">     *  {@inheritDoc}</span>
+<span class="source-line-no">243</span><span id="line-243">     */</span>
+<span class="source-line-no">244</span><span id="line-244">    @Override</span>
+<span class="source-line-no">245</span><span id="line-245">    public void initialize( final Engine engine, final Properties properties ) {</span>
+<span class="source-line-no">246</span><span id="line-246">        m_forbiddenWordsPage = properties.getProperty( PROP_WORDLIST, m_forbiddenWordsPage );</span>
+<span class="source-line-no">247</span><span id="line-247">        m_forbiddenIPsPage = properties.getProperty( PROP_IPLIST, m_forbiddenIPsPage);</span>
+<span class="source-line-no">248</span><span id="line-248">        m_pageNameMaxLength = properties.getProperty( PROP_MAX_PAGENAME_LENGTH, m_pageNameMaxLength);</span>
+<span class="source-line-no">249</span><span id="line-249">        m_errorPage = properties.getProperty( PROP_ERRORPAGE, m_errorPage );</span>
+<span class="source-line-no">250</span><span id="line-250">        m_limitSinglePageChanges = TextUtil.getIntegerProperty( properties, PROP_PAGECHANGES, m_limitSinglePageChanges );</span>
+<span class="source-line-no">251</span><span id="line-251">        </span>
+<span class="source-line-no">252</span><span id="line-252">        m_limitSimilarChanges = TextUtil.getIntegerProperty( properties, PROP_SIMILARCHANGES, m_limitSimilarChanges );</span>
+<span class="source-line-no">253</span><span id="line-253"></span>
+<span class="source-line-no">254</span><span id="line-254">        m_maxUrls = TextUtil.getIntegerProperty( properties, PROP_MAXURLS, m_maxUrls );</span>
+<span class="source-line-no">255</span><span id="line-255">        m_banTime = TextUtil.getIntegerProperty( properties, PROP_BANTIME, m_banTime );</span>
+<span class="source-line-no">256</span><span id="line-256">        m_blacklist = properties.getProperty( PROP_BLACKLIST, m_blacklist );</span>
+<span class="source-line-no">257</span><span id="line-257"></span>
+<span class="source-line-no">258</span><span id="line-258">        m_ignoreAuthenticated = TextUtil.getBooleanProperty( properties, PROP_IGNORE_AUTHENTICATED, m_ignoreAuthenticated );</span>
+<span class="source-line-no">259</span><span id="line-259">        m_allowedGroups = StringUtils.split( StringUtils.defaultString( properties.getProperty( PROP_ALLOWED_GROUPS, m_blacklist ) ), ',' );</span>
+<span class="source-line-no">260</span><span id="line-260"></span>
+<span class="source-line-no">261</span><span id="line-261">        try {</span>
+<span class="source-line-no">262</span><span id="line-262">            m_urlPattern = m_compiler.compile( URL_REGEXP );</span>
+<span class="source-line-no">263</span><span id="line-263">        } catch( final MalformedPatternException e ) {</span>
+<span class="source-line-no">264</span><span id="line-264">            LOG.fatal( "Internal error: Someone put in a faulty pattern.", e );</span>
+<span class="source-line-no">265</span><span id="line-265">            throw new InternalWikiException( "Faulty pattern." , e);</span>
+<span class="source-line-no">266</span><span id="line-266">        }</span>
+<span class="source-line-no">267</span><span id="line-267"></span>
+<span class="source-line-no">268</span><span id="line-268">        m_akismetAPIKey = TextUtil.getStringProperty( properties, PROP_AKISMET_API_KEY, m_akismetAPIKey );</span>
+<span class="source-line-no">269</span><span id="line-269">        m_stopAtFirstMatch = TextUtil.getStringProperty( properties, PROP_FILTERSTRATEGY, STRATEGY_EAGER ).equals( STRATEGY_EAGER );</span>
+<span class="source-line-no">270</span><span id="line-270"></span>
+<span class="source-line-no">271</span><span id="line-271">        LOG.info( "# Spam filter initialized.  Temporary ban time " + m_banTime +</span>
+<span class="source-line-no">272</span><span id="line-272">                  " mins, max page changes/minute: " + m_limitSinglePageChanges );</span>
+<span class="source-line-no">273</span><span id="line-273">    }</span>
+<span class="source-line-no">274</span><span id="line-274"></span>
+<span class="source-line-no">275</span><span id="line-275">    private static final int REJECT = 0;</span>
+<span class="source-line-no">276</span><span id="line-276">    private static final int ACCEPT = 1;</span>
+<span class="source-line-no">277</span><span id="line-277">    private static final int NOTE   = 2;</span>
+<span class="source-line-no">278</span><span id="line-278"></span>
+<span class="source-line-no">279</span><span id="line-279">    private static String log( final Context ctx, final int type, final String source, String message ) {</span>
+<span class="source-line-no">280</span><span id="line-280">        message = TextUtil.replaceString( message, "\r\n", "\\r\\n" );</span>
+<span class="source-line-no">281</span><span id="line-281">        message = TextUtil.replaceString( message, "\"", "\\\"" );</span>
+<span class="source-line-no">282</span><span id="line-282"></span>
+<span class="source-line-no">283</span><span id="line-283">        final String uid = getUniqueID();</span>
+<span class="source-line-no">284</span><span id="line-284">        final String page   = ctx.getPage().getName();</span>
+<span class="source-line-no">285</span><span id="line-285">        final String addr   = ctx.getHttpRequest() != null ? HttpUtil.getRemoteAddress( ctx.getHttpRequest() ) : "-";</span>
+<span class="source-line-no">286</span><span id="line-286">        final String reason;</span>
+<span class="source-line-no">287</span><span id="line-287">        switch( type ) {</span>
+<span class="source-line-no">288</span><span id="line-288">            case REJECT: reason = "REJECTED";</span>
+<span class="source-line-no">289</span><span id="line-289">                break;</span>
+<span class="source-line-no">290</span><span id="line-290">            case ACCEPT: reason = "ACCEPTED";</span>
+<span class="source-line-no">291</span><span id="line-291">                break;</span>
+<span class="source-line-no">292</span><span id="line-292">            case NOTE: reason = "NOTE";</span>
+<span class="source-line-no">293</span><span id="line-293">                break;</span>
+<span class="source-line-no">294</span><span id="line-294">            default: throw new InternalWikiException( "Illegal type " + type );</span>
+<span class="source-line-no">295</span><span id="line-295">        }</span>
+<span class="source-line-no">296</span><span id="line-296">        C_SPAMLOG.info( reason + " " + source + " " + uid + " " + addr + " \"" + page + "\" " + message );</span>
+<span class="source-line-no">297</span><span id="line-297"></span>
+<span class="source-line-no">298</span><span id="line-298">        return uid;</span>
+<span class="source-line-no">299</span><span id="line-299">    }</span>
+<span class="source-line-no">300</span><span id="line-300"></span>
+<span class="source-line-no">301</span><span id="line-301">    /** {@inheritDoc} */</span>
+<span class="source-line-no">302</span><span id="line-302">    @Override</span>
+<span class="source-line-no">303</span><span id="line-303">    public String preSave( final Context context, final String content ) throws RedirectException {</span>
+<span class="source-line-no">304</span><span id="line-304">        cleanBanList();</span>
+<span class="source-line-no">305</span><span id="line-305">        refreshBlacklists( context );</span>
+<span class="source-line-no">306</span><span id="line-306">        final Change change = getChange( context, content );</span>
+<span class="source-line-no">307</span><span id="line-307"></span>
+<span class="source-line-no">308</span><span id="line-308">        if( !ignoreThisUser( context ) ) {</span>
+<span class="source-line-no">309</span><span id="line-309">            checkBanList( context, change );</span>
+<span class="source-line-no">310</span><span id="line-310">            checkSinglePageChange( context, change );</span>
+<span class="source-line-no">311</span><span id="line-311">            checkIPList( context );</span>
+<span class="source-line-no">312</span><span id="line-312">            checkPatternList( context, change );</span>
+<span class="source-line-no">313</span><span id="line-313">            checkPageName( context);</span>
+<span class="source-line-no">314</span><span id="line-314">        }</span>
+<span class="source-line-no">315</span><span id="line-315"></span>
+<span class="source-line-no">316</span><span id="line-316">        if( !m_stopAtFirstMatch ) {</span>
+<span class="source-line-no">317</span><span id="line-317">            final Integer score = context.getVariable( ATTR_SPAMFILTER_SCORE );</span>
+<span class="source-line-no">318</span><span id="line-318"></span>
+<span class="source-line-no">319</span><span id="line-319">            if( score != null &amp;&amp; score &gt;= m_scoreLimit ) {</span>
+<span class="source-line-no">320</span><span id="line-320">                throw new RedirectException( "Herb says you got too many points", getRedirectPage( context ) );</span>
+<span class="source-line-no">321</span><span id="line-321">            }</span>
+<span class="source-line-no">322</span><span id="line-322">        }</span>
+<span class="source-line-no">323</span><span id="line-323"></span>
+<span class="source-line-no">324</span><span id="line-324">        log( context, ACCEPT, "-", change.toString() );</span>
+<span class="source-line-no">325</span><span id="line-325">        return content;</span>
+<span class="source-line-no">326</span><span id="line-326">    }</span>
+<span class="source-line-no">327</span><span id="line-327"></span>
+<span class="source-line-no">328</span><span id="line-328">    private void checkPageName(final Context context ) throws RedirectException {</span>
+<span class="source-line-no">329</span><span id="line-329">        final Page page = context.getPage();</span>
+<span class="source-line-no">330</span><span id="line-330">        final String pageName = page.getName();</span>
+<span class="source-line-no">331</span><span id="line-331">        final int maxlength = Integer.parseInt(m_pageNameMaxLength);</span>
+<span class="source-line-no">332</span><span id="line-332">        if ( pageName.length() &gt; maxlength) {</span>
+<span class="source-line-no">333</span><span id="line-333">            //</span>
+<span class="source-line-no">334</span><span id="line-334">            //  Spam filter has a match.</span>
+<span class="source-line-no">335</span><span id="line-335">            //</span>
+<span class="source-line-no">336</span><span id="line-336"></span>
+<span class="source-line-no">337</span><span id="line-337">            final String uid = log( context, REJECT, REASON_PAGENAME_TOO_LONG + "(" + m_pageNameMaxLength + ")" , pageName);</span>
+<span class="source-line-no">338</span><span id="line-338"></span>
+<span class="source-line-no">339</span><span id="line-339">            LOG.info("SPAM:PageNameTooLong (" + uid + "). The length of the page name is too large (" + pageName.length() + " , limit is " + m_pageNameMaxLength + ")");</span>
+<span class="source-line-no">340</span><span id="line-340">            checkStrategy( context, "Herb says '" + pageName + "' is a bad pageName and I trust Herb! (Incident code " + uid + ")" );</span>
+<span class="source-line-no">341</span><span id="line-341"></span>
+<span class="source-line-no">342</span><span id="line-342">        }</span>
+<span class="source-line-no">343</span><span id="line-343">    }</span>
+<span class="source-line-no">344</span><span id="line-344"></span>
+<span class="source-line-no">345</span><span id="line-345">    private void checkStrategy(final Context context, final String message ) throws RedirectException {</span>
+<span class="source-line-no">346</span><span id="line-346">        if( m_stopAtFirstMatch ) {</span>
+<span class="source-line-no">347</span><span id="line-347">            throw new RedirectException( message, getRedirectPage( context ) );</span>
+<span class="source-line-no">348</span><span id="line-348">        }</span>
+<span class="source-line-no">349</span><span id="line-349"></span>
+<span class="source-line-no">350</span><span id="line-350">        Integer score = context.getVariable( ATTR_SPAMFILTER_SCORE );</span>
+<span class="source-line-no">351</span><span id="line-351">        if( score != null ) {</span>
+<span class="source-line-no">352</span><span id="line-352">            score = score + 1;</span>
+<span class="source-line-no">353</span><span id="line-353">        } else {</span>
+<span class="source-line-no">354</span><span id="line-354">            score = 1;</span>
+<span class="source-line-no">355</span><span id="line-355">        }</span>
+<span class="source-line-no">356</span><span id="line-356"></span>
+<span class="source-line-no">357</span><span id="line-357">        context.setVariable( ATTR_SPAMFILTER_SCORE, score );</span>
+<span class="source-line-no">358</span><span id="line-358">    }</span>
+<span class="source-line-no">359</span><span id="line-359">    </span>
+<span class="source-line-no">360</span><span id="line-360">    /**</span>
+<span class="source-line-no">361</span><span id="line-361">     *  Parses a list of patterns and returns a Collection of compiled Pattern objects.</span>
+<span class="source-line-no">362</span><span id="line-362">     *</span>
+<span class="source-line-no">363</span><span id="line-363">     * @param source page containing the list of patterns.</span>
+<span class="source-line-no">364</span><span id="line-364">     * @param list list of patterns.</span>
+<span class="source-line-no">365</span><span id="line-365">     * @return A Collection of the Patterns that were found from the lists.</span>
+<span class="source-line-no">366</span><span id="line-366">     */</span>
+<span class="source-line-no">367</span><span id="line-367">    private Collection&lt; Pattern &gt; parseWordList( final Page source, final String list ) {</span>
+<span class="source-line-no">368</span><span id="line-368">        final ArrayList&lt; Pattern &gt; compiledpatterns = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">369</span><span id="line-369"></span>
+<span class="source-line-no">370</span><span id="line-370">        if( list != null ) {</span>
+<span class="source-line-no">371</span><span id="line-371">            final StringTokenizer tok = new StringTokenizer( list, " \t\n" );</span>
+<span class="source-line-no">372</span><span id="line-372"></span>
+<span class="source-line-no">373</span><span id="line-373">            while( tok.hasMoreTokens() ) {</span>
+<span class="source-line-no">374</span><span id="line-374">                final String pattern = tok.nextToken();</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">                try {</span>
+<span class="source-line-no">377</span><span id="line-377">                    compiledpatterns.add( m_compiler.compile( pattern ) );</span>
+<span class="source-line-no">378</span><span id="line-378">                } catch( final MalformedPatternException e ) {</span>
+<span class="source-line-no">379</span><span id="line-379">                    LOG.debug( "Malformed spam filter pattern " + pattern );</span>
+<span class="source-line-no">380</span><span id="line-380">                    source.setAttribute("error", "Malformed spam filter pattern " + pattern);</span>
+<span class="source-line-no">381</span><span id="line-381">                }</span>
+<span class="source-line-no">382</span><span id="line-382">            }</span>
+<span class="source-line-no">383</span><span id="line-383">        }</span>
+<span class="source-line-no">384</span><span id="line-384"></span>
+<span class="source-line-no">385</span><span id="line-385">        return compiledpatterns;</span>
+<span class="source-line-no">386</span><span id="line-386">    }</span>
+<span class="source-line-no">387</span><span id="line-387"></span>
+<span class="source-line-no">388</span><span id="line-388">    /**</span>
+<span class="source-line-no">389</span><span id="line-389">     *  Takes a MT-Blacklist -formatted blacklist and returns a list of compiled Pattern objects.</span>
+<span class="source-line-no">390</span><span id="line-390">     *</span>
+<span class="source-line-no">391</span><span id="line-391">     *  @param list list of patterns.</span>
+<span class="source-line-no">392</span><span id="line-392">     *  @return The parsed blacklist patterns.</span>
+<span class="source-line-no">393</span><span id="line-393">     */</span>
+<span class="source-line-no">394</span><span id="line-394">    private Collection&lt; Pattern &gt; parseBlacklist( final String list ) {</span>
+<span class="source-line-no">395</span><span id="line-395">        final ArrayList&lt; Pattern &gt; compiledpatterns = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">396</span><span id="line-396"></span>
+<span class="source-line-no">397</span><span id="line-397">        if( list != null ) {</span>
+<span class="source-line-no">398</span><span id="line-398">            try {</span>
+<span class="source-line-no">399</span><span id="line-399">                final BufferedReader in = new BufferedReader( new StringReader(list) );</span>
+<span class="source-line-no">400</span><span id="line-400">                String line;</span>
+<span class="source-line-no">401</span><span id="line-401">                while( (line = in.readLine() ) != null ) {</span>
+<span class="source-line-no">402</span><span id="line-402">                    line = line.trim();</span>
+<span class="source-line-no">403</span><span id="line-403">                    if( line.isEmpty() ) continue; // Empty line</span>
+<span class="source-line-no">404</span><span id="line-404">                    if( line.startsWith("#") ) continue; // It's a comment</span>
+<span class="source-line-no">405</span><span id="line-405"></span>
+<span class="source-line-no">406</span><span id="line-406">                    int ws = line.indexOf( ' ' );</span>
+<span class="source-line-no">407</span><span id="line-407">                    if( ws == -1 ) ws = line.indexOf( '\t' );</span>
+<span class="source-line-no">408</span><span id="line-408">                    if( ws != -1 ) line = line.substring( 0, ws );</span>
+<span class="source-line-no">409</span><span id="line-409"></span>
+<span class="source-line-no">410</span><span id="line-410">                    try {</span>
+<span class="source-line-no">411</span><span id="line-411">                        compiledpatterns.add( m_compiler.compile( line ) );</span>
+<span class="source-line-no">412</span><span id="line-412">                    } catch( final MalformedPatternException e ) {</span>
+<span class="source-line-no">413</span><span id="line-413">                        LOG.debug( "Malformed spam filter pattern " + line );</span>
+<span class="source-line-no">414</span><span id="line-414">                    }</span>
+<span class="source-line-no">415</span><span id="line-415">                }</span>
+<span class="source-line-no">416</span><span id="line-416">            } catch( final IOException e ) {</span>
+<span class="source-line-no">417</span><span id="line-417">                LOG.info( "Could not read patterns; returning what I got" , e );</span>
+<span class="source-line-no">418</span><span id="line-418">            }</span>
+<span class="source-line-no">419</span><span id="line-419">        }</span>
+<span class="source-line-no">420</span><span id="line-420"></span>
+<span class="source-line-no">421</span><span id="line-421">        return compiledpatterns;</span>
+<span class="source-line-no">422</span><span id="line-422">    }</span>
+<span class="source-line-no">423</span><span id="line-423"></span>
+<span class="source-line-no">424</span><span id="line-424">    /**</span>
+<span class="source-line-no">425</span><span id="line-425">     * Takes a single page change and performs a load of tests on the content change. An admin can modify anything.</span>
+<span class="source-line-no">426</span><span id="line-426">     *</span>
+<span class="source-line-no">427</span><span id="line-427">     * @param context page Context</span>
+<span class="source-line-no">428</span><span id="line-428">     * @param change page change</span>
+<span class="source-line-no">429</span><span id="line-429">     * @throws RedirectException spam filter rejects the page change.</span>
+<span class="source-line-no">430</span><span id="line-430">     */</span>
+<span class="source-line-no">431</span><span id="line-431">    private synchronized void checkSinglePageChange(final Context context, final Change change )</span>
+<span class="source-line-no">432</span><span id="line-432">            throws RedirectException {</span>
+<span class="source-line-no">433</span><span id="line-433">        final HttpServletRequest req = context.getHttpRequest();</span>
+<span class="source-line-no">434</span><span id="line-434"></span>
+<span class="source-line-no">435</span><span id="line-435">        if( req != null ) {</span>
+<span class="source-line-no">436</span><span id="line-436">            final String addr = HttpUtil.getRemoteAddress( req );</span>
+<span class="source-line-no">437</span><span id="line-437">            int hostCounter = 0;</span>
+<span class="source-line-no">438</span><span id="line-438">            int changeCounter = 0;</span>
+<span class="source-line-no">439</span><span id="line-439"></span>
+<span class="source-line-no">440</span><span id="line-440">            LOG.debug( "Change is " + change.m_change );</span>
+<span class="source-line-no">441</span><span id="line-441"></span>
+<span class="source-line-no">442</span><span id="line-442">            final long time = System.currentTimeMillis() - 60*1000L; // 1 minute</span>
+<span class="source-line-no">443</span><span id="line-443"></span>
+<span class="source-line-no">444</span><span id="line-444">            for( final Iterator&lt; Host &gt; i = m_lastModifications.iterator(); i.hasNext(); ) {</span>
+<span class="source-line-no">445</span><span id="line-445">                final Host host = i.next();</span>
+<span class="source-line-no">446</span><span id="line-446"></span>
+<span class="source-line-no">447</span><span id="line-447">                //  Check if this item is invalid</span>
+<span class="source-line-no">448</span><span id="line-448">                if( host.getAddedTime() &lt; time ) {</span>
+<span class="source-line-no">449</span><span id="line-449">                    LOG.debug( "Removed host " + host.getAddress() + " from modification queue (expired)" );</span>
+<span class="source-line-no">450</span><span id="line-450">                    i.remove();</span>
+<span class="source-line-no">451</span><span id="line-451">                    continue;</span>
+<span class="source-line-no">452</span><span id="line-452">                }</span>
+<span class="source-line-no">453</span><span id="line-453"></span>
+<span class="source-line-no">454</span><span id="line-454">                // Check if this IP address has been seen before</span>
+<span class="source-line-no">455</span><span id="line-455">                if( host.getAddress().equals( addr ) ) {</span>
+<span class="source-line-no">456</span><span id="line-456">                    hostCounter++;</span>
+<span class="source-line-no">457</span><span id="line-457">                }</span>
+<span class="source-line-no">458</span><span id="line-458"></span>
+<span class="source-line-no">459</span><span id="line-459">                //  Check, if this change has been seen before</span>
+<span class="source-line-no">460</span><span id="line-460">                if( host.getChange() != null &amp;&amp; host.getChange().equals( change ) ) {</span>
+<span class="source-line-no">461</span><span id="line-461">                    changeCounter++;</span>
+<span class="source-line-no">462</span><span id="line-462">                }</span>
+<span class="source-line-no">463</span><span id="line-463">            }</span>
+<span class="source-line-no">464</span><span id="line-464"></span>
+<span class="source-line-no">465</span><span id="line-465">            //  Now, let's check against the limits.</span>
+<span class="source-line-no">466</span><span id="line-466">            if( hostCounter &gt;= m_limitSinglePageChanges ) {</span>
+<span class="source-line-no">467</span><span id="line-467">                final Host host = new Host( addr, null );</span>
+<span class="source-line-no">468</span><span id="line-468">                m_temporaryBanList.add( host );</span>
+<span class="source-line-no">469</span><span id="line-469"></span>
+<span class="source-line-no">470</span><span id="line-470">                final String uid = log( context, REJECT, REASON_TOO_MANY_MODIFICATIONS, change.m_change );</span>
+<span class="source-line-no">471</span><span id="line-471">                LOG.info( "SPAM:TooManyModifications (" + uid + "). Added host " + addr + " to temporary ban list for doing too many modifications/minute" );</span>
+<span class="source-line-no">472</span><span id="line-472">                checkStrategy( context, "Herb says you look like a spammer, and I trust Herb! (Incident code " + uid + ")" );</span>
+<span class="source-line-no">473</span><span id="line-473">            }</span>
+<span class="source-line-no">474</span><span id="line-474"></span>
+<span class="source-line-no">475</span><span id="line-475">            if( changeCounter &gt;= m_limitSimilarChanges ) {</span>
+<span class="source-line-no">476</span><span id="line-476">                final Host host = new Host( addr, null );</span>
+<span class="source-line-no">477</span><span id="line-477">                m_temporaryBanList.add( host );</span>
+<span class="source-line-no">478</span><span id="line-478"></span>
+<span class="source-line-no">479</span><span id="line-479">                final String uid = log( context, REJECT, REASON_SIMILAR_MODIFICATIONS, change.m_change );</span>
+<span class="source-line-no">480</span><span id="line-480">                LOG.info( "SPAM:SimilarModifications (" + uid + "). Added host " + addr + " to temporary ban list for doing too many similar modifications" );</span>
+<span class="source-line-no">481</span><span id="line-481">                checkStrategy( context, "Herb says you look like a spammer, and I trust Herb! (Incident code "+uid+")");</span>
+<span class="source-line-no">482</span><span id="line-482">            }</span>
+<span class="source-line-no">483</span><span id="line-483"></span>
+<span class="source-line-no">484</span><span id="line-484">            //  Calculate the number of links in the addition.</span>
+<span class="source-line-no">485</span><span id="line-485">            String tstChange  = change.toString();</span>
+<span class="source-line-no">486</span><span id="line-486">            int urlCounter = 0;</span>
+<span class="source-line-no">487</span><span id="line-487">            while( m_matcher.contains( tstChange,m_urlPattern ) ) {</span>
+<span class="source-line-no">488</span><span id="line-488">                final MatchResult m = m_matcher.getMatch();</span>
+<span class="source-line-no">489</span><span id="line-489">                tstChange = tstChange.substring( m.endOffset(0) );</span>
+<span class="source-line-no">490</span><span id="line-490">                urlCounter++;</span>
+<span class="source-line-no">491</span><span id="line-491">            }</span>
+<span class="source-line-no">492</span><span id="line-492"></span>
+<span class="source-line-no">493</span><span id="line-493">            if( urlCounter &gt; m_maxUrls ) {</span>
+<span class="source-line-no">494</span><span id="line-494">                final Host host = new Host( addr, null );</span>
+<span class="source-line-no">495</span><span id="line-495">                m_temporaryBanList.add( host );</span>
+<span class="source-line-no">496</span><span id="line-496"></span>
+<span class="source-line-no">497</span><span id="line-497">                final String uid = log( context, REJECT, REASON_TOO_MANY_URLS, change.toString() );</span>
+<span class="source-line-no">498</span><span id="line-498">                LOG.info( "SPAM:TooManyUrls (" + uid + "). Added host " + addr + " to temporary ban list for adding too many URLs" );</span>
+<span class="source-line-no">499</span><span id="line-499">                checkStrategy( context, "Herb says you look like a spammer, and I trust Herb! (Incident code " + uid + ")" );</span>
+<span class="source-line-no">500</span><span id="line-500">            }</span>
+<span class="source-line-no">501</span><span id="line-501"></span>
+<span class="source-line-no">502</span><span id="line-502">            //  Check bot trap</span>
+<span class="source-line-no">503</span><span id="line-503">            checkBotTrap( context, change );</span>
+<span class="source-line-no">504</span><span id="line-504"></span>
+<span class="source-line-no">505</span><span id="line-505">            //  Check UTF-8 mangling</span>
+<span class="source-line-no">506</span><span id="line-506">            checkUTF8( context, change );</span>
+<span class="source-line-no">507</span><span id="line-507"></span>
+<span class="source-line-no">508</span><span id="line-508">            //  Do Akismet check.  This is good to be the last, because this is the most expensive operation.</span>
+<span class="source-line-no">509</span><span id="line-509">            checkAkismet( context, change );</span>
+<span class="source-line-no">510</span><span id="line-510"></span>
+<span class="source-line-no">511</span><span id="line-511">            m_lastModifications.add( new Host( addr, change ) );</span>
+<span class="source-line-no">512</span><span id="line-512">        }</span>
+<span class="source-line-no">513</span><span id="line-513">    }</span>
 <span class="source-line-no">514</span><span id="line-514"></span>
-<span class="source-line-no">515</span><span id="line-515">    /**</span>
-<span class="source-line-no">516</span><span id="line-516">     *  Checks against the akismet system.</span>
-<span class="source-line-no">517</span><span id="line-517">     *</span>
-<span class="source-line-no">518</span><span id="line-518">     * @param context page Context</span>
-<span class="source-line-no">519</span><span id="line-519">     * @throws RedirectException spam filter rejects the page change.</span>
-<span class="source-line-no">520</span><span id="line-520">     */</span>
-<span class="source-line-no">521</span><span id="line-521">    private void checkAkismet( final Context context, final Change change ) throws RedirectException {</span>
-<span class="source-line-no">522</span><span id="line-522">        if( m_akismetAPIKey != null ) {</span>
-<span class="source-line-no">523</span><span id="line-523">            if( m_akismet == null ) {</span>
-<span class="source-line-no">524</span><span id="line-524">                LOG.info( "Initializing Akismet spam protection." );</span>
-<span class="source-line-no">525</span><span id="line-525">                String fullPageUrl = context.getHttpRequest().getRequestURL().toString();</span>
-<span class="source-line-no">526</span><span id="line-526">                String fragment = context.getEngine().getBaseURL();</span>
-<span class="source-line-no">527</span><span id="line-527">                fullPageUrl = fullPageUrl.substring(0, fullPageUrl.indexOf(fragment) + fragment.length());</span>
-<span class="source-line-no">528</span><span id="line-528">                m_akismet = new Akismet( m_akismetAPIKey, fullPageUrl );</span>
-<span class="source-line-no">529</span><span id="line-529"></span>
-<span class="source-line-no">530</span><span id="line-530">                if( !m_akismet.verifyKey() ) {</span>
-<span class="source-line-no">531</span><span id="line-531">                    LOG.error( "Akismet API key cannot be verified.  Please check your config." );</span>
-<span class="source-line-no">532</span><span id="line-532">                    m_akismetAPIKey = null;</span>
-<span class="source-line-no">533</span><span id="line-533">                    m_akismet = null;</span>
-<span class="source-line-no">534</span><span id="line-534">                }</span>
-<span class="source-line-no">535</span><span id="line-535">            }</span>
-<span class="source-line-no">536</span><span id="line-536"></span>
-<span class="source-line-no">537</span><span id="line-537">            final HttpServletRequest req = context.getHttpRequest();</span>
-<span class="source-line-no">538</span><span id="line-538"></span>
-<span class="source-line-no">539</span><span id="line-539">            //  Akismet will mark all empty statements as spam, so we'll just ignore them.</span>
-<span class="source-line-no">540</span><span id="line-540">            if( change.m_adds == 0 &amp;&amp; change.m_removals &gt; 0 ) {</span>
-<span class="source-line-no">541</span><span id="line-541">                return;</span>
-<span class="source-line-no">542</span><span id="line-542">            }</span>
-<span class="source-line-no">543</span><span id="line-543">            </span>
-<span class="source-line-no">544</span><span id="line-544">            if( req != null &amp;&amp; m_akismet != null ) {</span>
-<span class="source-line-no">545</span><span id="line-545">                LOG.debug( "Calling Akismet to check for spam..." );</span>
-<span class="source-line-no">546</span><span id="line-546"></span>
-<span class="source-line-no">547</span><span id="line-547">                final StopWatch sw = new StopWatch();</span>
-<span class="source-line-no">548</span><span id="line-548">                sw.start();</span>
-<span class="source-line-no">549</span><span id="line-549"></span>
-<span class="source-line-no">550</span><span id="line-550">                final String ipAddress     = HttpUtil.getRemoteAddress( req );</span>
-<span class="source-line-no">551</span><span id="line-551">                final String userAgent     = req.getHeader( "User-Agent" );</span>
-<span class="source-line-no">552</span><span id="line-552">                final String referrer      = req.getHeader( "Referer");</span>
-<span class="source-line-no">553</span><span id="line-553">                final String permalink     = context.getViewURL( context.getPage().getName() );</span>
-<span class="source-line-no">554</span><span id="line-554">                final String commentType   = context.getRequestContext().equals( ContextEnum.PAGE_COMMENT.getRequestContext() ) ? "comment" : "edit";</span>
-<span class="source-line-no">555</span><span id="line-555">                final String commentAuthor = context.getCurrentUser().getName();</span>
-<span class="source-line-no">556</span><span id="line-556">                final String commentAuthorEmail = null;</span>
-<span class="source-line-no">557</span><span id="line-557">                final String commentAuthorURL   = null;</span>
-<span class="source-line-no">558</span><span id="line-558">                AkismetComment comment = new AkismetComment(ipAddress, userAgent);</span>
-<span class="source-line-no">559</span><span id="line-559">                comment.setAuthor(commentAuthor);</span>
-<span class="source-line-no">560</span><span id="line-560">                comment.setAuthorEmail(commentAuthorEmail);</span>
-<span class="source-line-no">561</span><span id="line-561">                comment.setAuthorUrl(commentAuthorURL);</span>
-<span class="source-line-no">562</span><span id="line-562">                comment.setContent(change.toString());</span>
-<span class="source-line-no">563</span><span id="line-563">                comment.setPermalink(permalink);</span>
-<span class="source-line-no">564</span><span id="line-564">                comment.setReferrer(referrer);</span>
-<span class="source-line-no">565</span><span id="line-565">                comment.setType(commentType);</span>
-<span class="source-line-no">566</span><span id="line-566">                </span>
-<span class="source-line-no">567</span><span id="line-567">                final boolean isSpam = m_akismet.checkComment(comment);</span>
-<span class="source-line-no">568</span><span id="line-568"></span>
-<span class="source-line-no">569</span><span id="line-569">                sw.stop();</span>
-<span class="source-line-no">570</span><span id="line-570">                LOG.debug( "Akismet request done in: " + sw );</span>
-<span class="source-line-no">571</span><span id="line-571"></span>
-<span class="source-line-no">572</span><span id="line-572">                if( isSpam ) {</span>
-<span class="source-line-no">573</span><span id="line-573">                    // Host host = new Host( ipAddress, null );</span>
-<span class="source-line-no">574</span><span id="line-574">                    // m_temporaryBanList.add( host );</span>
-<span class="source-line-no">575</span><span id="line-575"></span>
-<span class="source-line-no">576</span><span id="line-576">                    final String uid = log( context, REJECT, REASON_AKISMET, change.toString() );</span>
-<span class="source-line-no">577</span><span id="line-577">                    LOG.info( "SPAM:Akismet (" + uid + "). Akismet thinks this change is spam; added host to temporary ban list." );</span>
-<span class="source-line-no">578</span><span id="line-578">                    checkStrategy( context, "Akismet tells Herb you're a spammer, Herb trusts Akismet, and I trust Herb! (Incident code " + uid + ")" );</span>
-<span class="source-line-no">579</span><span id="line-579">                }</span>
-<span class="source-line-no">580</span><span id="line-580">            }</span>
-<span class="source-line-no">581</span><span id="line-581">        }</span>
-<span class="source-line-no">582</span><span id="line-582">    }</span>
-<span class="source-line-no">583</span><span id="line-583"></span>
-<span class="source-line-no">584</span><span id="line-584">    /**</span>
-<span class="source-line-no">585</span><span id="line-585">     * Returns a static string which can be used to detect spambots which just wildly fill in all the fields.</span>
-<span class="source-line-no">586</span><span id="line-586">     *</span>
-<span class="source-line-no">587</span><span id="line-587">     * @return A string</span>
-<span class="source-line-no">588</span><span id="line-588">     */</span>
-<span class="source-line-no">589</span><span id="line-589">    public static String getBotFieldName() {</span>
-<span class="source-line-no">590</span><span id="line-590">        return "submit_auth";</span>
-<span class="source-line-no">591</span><span id="line-591">    }</span>
-<span class="source-line-no">592</span><span id="line-592"></span>
-<span class="source-line-no">593</span><span id="line-593">    /**</span>
-<span class="source-line-no">594</span><span id="line-594">     * This checks whether an invisible field is available in the request, and whether it's contents are suspected spam.</span>
-<span class="source-line-no">595</span><span id="line-595">     *</span>
-<span class="source-line-no">596</span><span id="line-596">     * @param context page Context</span>
-<span class="source-line-no">597</span><span id="line-597">     * @param change page change</span>
-<span class="source-line-no">598</span><span id="line-598">     * @throws RedirectException spam filter rejects the page change.</span>
-<span class="source-line-no">599</span><span id="line-599">     */</span>
-<span class="source-line-no">600</span><span id="line-600">    private void checkBotTrap( final Context context, final Change change ) throws RedirectException {</span>
-<span class="source-line-no">601</span><span id="line-601">        final HttpServletRequest request = context.getHttpRequest();</span>
-<span class="source-line-no">602</span><span id="line-602">        if( request != null ) {</span>
-<span class="source-line-no">603</span><span id="line-603">            final String unspam = request.getParameter( getBotFieldName() );</span>
-<span class="source-line-no">604</span><span id="line-604">            if( unspam != null &amp;&amp; !unspam.isEmpty() ) {</span>
-<span class="source-line-no">605</span><span id="line-605">                final String uid = log( context, REJECT, REASON_BOT_TRAP, change.toString() );</span>
-<span class="source-line-no">606</span><span id="line-606"></span>
-<span class="source-line-no">607</span><span id="line-607">                LOG.info( "SPAM:BotTrap (" + uid + ").  Wildly behaving bot detected." );</span>
-<span class="source-line-no">608</span><span id="line-608">                checkStrategy( context, "Spamming attempt detected. (Incident code " + uid + ")" );</span>
-<span class="source-line-no">609</span><span id="line-609">            }</span>
-<span class="source-line-no">610</span><span id="line-610">        }</span>
-<span class="source-line-no">611</span><span id="line-611">    }</span>
-<span class="source-line-no">612</span><span id="line-612"></span>
-<span class="source-line-no">613</span><span id="line-613">    private void checkUTF8( final Context context, final Change change ) throws RedirectException {</span>
-<span class="source-line-no">614</span><span id="line-614">        final HttpServletRequest request = context.getHttpRequest();</span>
-<span class="source-line-no">615</span><span id="line-615">        if( request != null ) {</span>
-<span class="source-line-no">616</span><span id="line-616">            final String utf8field = request.getParameter( "encodingcheck" );</span>
-<span class="source-line-no">617</span><span id="line-617">            if( utf8field != null &amp;&amp; !utf8field.equals( "\u3041" ) ) {</span>
-<span class="source-line-no">618</span><span id="line-618">                final String uid = log( context, REJECT, REASON_UTF8_TRAP, change.toString() );</span>
-<span class="source-line-no">619</span><span id="line-619"></span>
-<span class="source-line-no">620</span><span id="line-620">                LOG.info( "SPAM:UTF8Trap (" + uid + ").  Wildly posting dumb bot detected." );</span>
-<span class="source-line-no">621</span><span id="line-621">                checkStrategy( context, "Spamming attempt detected. (Incident code " + uid + ")" );</span>
-<span class="source-line-no">622</span><span id="line-622">            }</span>
-<span class="source-line-no">623</span><span id="line-623">        }</span>
-<span class="source-line-no">624</span><span id="line-624">    }</span>
-<span class="source-line-no">625</span><span id="line-625"></span>
-<span class="source-line-no">626</span><span id="line-626">    /** Goes through the ban list and cleans away any host which has expired from it. */</span>
-<span class="source-line-no">627</span><span id="line-627">    private synchronized void cleanBanList() {</span>
-<span class="source-line-no">628</span><span id="line-628">        final long now = System.currentTimeMillis();</span>
-<span class="source-line-no">629</span><span id="line-629">        for( final Iterator&lt; Host &gt; i = m_temporaryBanList.iterator(); i.hasNext(); ) {</span>
-<span class="source-line-no">630</span><span id="line-630">            final Host host = i.next();</span>
-<span class="source-line-no">631</span><span id="line-631"></span>
-<span class="source-line-no">632</span><span id="line-632">            if( host.getReleaseTime() &lt; now ) {</span>
+<span class="source-line-no">515</span><span id="line-515"></span>
+<span class="source-line-no">516</span><span id="line-516">    /**</span>
+<span class="source-line-no">517</span><span id="line-517">     *  Checks against the akismet system.</span>
+<span class="source-line-no">518</span><span id="line-518">     *</span>
+<span class="source-line-no">519</span><span id="line-519">     * @param context page Context</span>
+<span class="source-line-no">520</span><span id="line-520">     * @throws RedirectException spam filter rejects the page change.</span>
+<span class="source-line-no">521</span><span id="line-521">     */</span>
+<span class="source-line-no">522</span><span id="line-522">    private void checkAkismet( final Context context, final Change change ) throws RedirectException {</span>
+<span class="source-line-no">523</span><span id="line-523">        if( m_akismetAPIKey != null ) {</span>
+<span class="source-line-no">524</span><span id="line-524">            if( m_akismet == null ) {</span>
+<span class="source-line-no">525</span><span id="line-525">                LOG.info( "Initializing Akismet spam protection." );</span>
+<span class="source-line-no">526</span><span id="line-526">                String fullPageUrl = context.getHttpRequest().getRequestURL().toString();</span>
+<span class="source-line-no">527</span><span id="line-527">                String fragment = context.getEngine().getBaseURL();</span>
+<span class="source-line-no">528</span><span id="line-528">                fullPageUrl = fullPageUrl.substring(0, fullPageUrl.indexOf(fragment) + fragment.length());</span>
+<span class="source-line-no">529</span><span id="line-529">                m_akismet = new Akismet( m_akismetAPIKey, fullPageUrl );</span>
+<span class="source-line-no">530</span><span id="line-530"></span>
+<span class="source-line-no">531</span><span id="line-531">                if( !m_akismet.verifyKey() ) {</span>
+<span class="source-line-no">532</span><span id="line-532">                    LOG.error( "Akismet API key cannot be verified.  Please check your config." );</span>
+<span class="source-line-no">533</span><span id="line-533">                    m_akismetAPIKey = null;</span>
+<span class="source-line-no">534</span><span id="line-534">                    m_akismet = null;</span>
+<span class="source-line-no">535</span><span id="line-535">                }</span>
+<span class="source-line-no">536</span><span id="line-536">            }</span>
+<span class="source-line-no">537</span><span id="line-537"></span>
+<span class="source-line-no">538</span><span id="line-538">            final HttpServletRequest req = context.getHttpRequest();</span>
+<span class="source-line-no">539</span><span id="line-539"></span>
+<span class="source-line-no">540</span><span id="line-540">            //  Akismet will mark all empty statements as spam, so we'll just ignore them.</span>
+<span class="source-line-no">541</span><span id="line-541">            if( change.m_adds == 0 &amp;&amp; change.m_removals &gt; 0 ) {</span>
+<span class="source-line-no">542</span><span id="line-542">                return;</span>
+<span class="source-line-no">543</span><span id="line-543">            }</span>
+<span class="source-line-no">544</span><span id="line-544">            </span>
+<span class="source-line-no">545</span><span id="line-545">            if( req != null &amp;&amp; m_akismet != null ) {</span>
+<span class="source-line-no">546</span><span id="line-546">                LOG.debug( "Calling Akismet to check for spam..." );</span>
+<span class="source-line-no">547</span><span id="line-547"></span>
+<span class="source-line-no">548</span><span id="line-548">                final StopWatch sw = new StopWatch();</span>
+<span class="source-line-no">549</span><span id="line-549">                sw.start();</span>
+<span class="source-line-no">550</span><span id="line-550"></span>
+<span class="source-line-no">551</span><span id="line-551">                final String ipAddress     = HttpUtil.getRemoteAddress( req );</span>
+<span class="source-line-no">552</span><span id="line-552">                final String userAgent     = req.getHeader( "User-Agent" );</span>
+<span class="source-line-no">553</span><span id="line-553">                final String referrer      = req.getHeader( "Referer");</span>
+<span class="source-line-no">554</span><span id="line-554">                final String permalink     = context.getViewURL( context.getPage().getName() );</span>
+<span class="source-line-no">555</span><span id="line-555">                final String commentType   = context.getRequestContext().equals( ContextEnum.PAGE_COMMENT.getRequestContext() ) ? "comment" : "edit";</span>
+<span class="source-line-no">556</span><span id="line-556">                final String commentAuthor = context.getCurrentUser().getName();</span>
+<span class="source-line-no">557</span><span id="line-557">                final String commentAuthorEmail = null;</span>
+<span class="source-line-no">558</span><span id="line-558">                final String commentAuthorURL   = null;</span>
+<span class="source-line-no">559</span><span id="line-559">                AkismetComment comment = new AkismetComment(ipAddress, userAgent);</span>
+<span class="source-line-no">560</span><span id="line-560">                comment.setAuthor(commentAuthor);</span>
+<span class="source-line-no">561</span><span id="line-561">                comment.setAuthorEmail(commentAuthorEmail);</span>
+<span class="source-line-no">562</span><span id="line-562">                comment.setAuthorUrl(commentAuthorURL);</span>
+<span class="source-line-no">563</span><span id="line-563">                comment.setContent(change.toString());</span>
+<span class="source-line-no">564</span><span id="line-564">                comment.setPermalink(permalink);</span>
+<span class="source-line-no">565</span><span id="line-565">                comment.setReferrer(referrer);</span>
+<span class="source-line-no">566</span><span id="line-566">                comment.setType(commentType);</span>
+<span class="source-line-no">567</span><span id="line-567">                </span>
+<span class="source-line-no">568</span><span id="line-568">                final boolean isSpam = m_akismet.checkComment(comment);</span>
+<span class="source-line-no">569</span><span id="line-569"></span>
+<span class="source-line-no">570</span><span id="line-570">                sw.stop();</span>
+<span class="source-line-no">571</span><span id="line-571">                LOG.debug( "Akismet request done in: " + sw );</span>
+<span class="source-line-no">572</span><span id="line-572"></span>
+<span class="source-line-no">573</span><span id="line-573">                if( isSpam ) {</span>
+<span class="source-line-no">574</span><span id="line-574">                    // Host host = new Host( ipAddress, null );</span>
+<span class="source-line-no">575</span><span id="line-575">                    // m_temporaryBanList.add( host );</span>
+<span class="source-line-no">576</span><span id="line-576"></span>
+<span class="source-line-no">577</span><span id="line-577">                    final String uid = log( context, REJECT, REASON_AKISMET, change.toString() );</span>
+<span class="source-line-no">578</span><span id="line-578">                    LOG.info( "SPAM:Akismet (" + uid + "). Akismet thinks this change is spam; added host to temporary ban list." );</span>
+<span class="source-line-no">579</span><span id="line-579">                    checkStrategy( context, "Akismet tells Herb you're a spammer, Herb trusts Akismet, and I trust Herb! (Incident code " + uid + ")" );</span>
+<span class="source-line-no">580</span><span id="line-580">                }</span>
+<span class="source-line-no">581</span><span id="line-581">            }</span>
+<span class="source-line-no">582</span><span id="line-582">        }</span>
+<span class="source-line-no">583</span><span id="line-583">    }</span>
+<span class="source-line-no">584</span><span id="line-584"></span>
+<span class="source-line-no">585</span><span id="line-585">    /**</span>
+<span class="source-line-no">586</span><span id="line-586">     * Returns a static string which can be used to detect spambots which just wildly fill in all the fields.</span>
+<span class="source-line-no">587</span><span id="line-587">     *</span>
+<span class="source-line-no">588</span><span id="line-588">     * @return A string</span>
+<span class="source-line-no">589</span><span id="line-589">     */</span>
+<span class="source-line-no">590</span><span id="line-590">    public static String getBotFieldName() {</span>
+<span class="source-line-no">591</span><span id="line-591">        return "submit_auth";</span>
+<span class="source-line-no">592</span><span id="line-592">    }</span>
+<span class="source-line-no">593</span><span id="line-593"></span>
+<span class="source-line-no">594</span><span id="line-594">    /**</span>
+<span class="source-line-no">595</span><span id="line-595">     * This checks whether an invisible field is available in the request, and whether it's contents are suspected spam.</span>
+<span class="source-line-no">596</span><span id="line-596">     *</span>
+<span class="source-line-no">597</span><span id="line-597">     * @param context page Context</span>
+<span class="source-line-no">598</span><span id="line-598">     * @param change page change</span>
+<span class="source-line-no">599</span><span id="line-599">     * @throws RedirectException spam filter rejects the page change.</span>
+<span class="source-line-no">600</span><span id="line-600">     */</span>
+<span class="source-line-no">601</span><span id="line-601">    private void checkBotTrap( final Context context, final Change change ) throws RedirectException {</span>
+<span class="source-line-no">602</span><span id="line-602">        final HttpServletRequest request = context.getHttpRequest();</span>
+<span class="source-line-no">603</span><span id="line-603">        if( request != null ) {</span>
+<span class="source-line-no">604</span><span id="line-604">            final String unspam = request.getParameter( getBotFieldName() );</span>
+<span class="source-line-no">605</span><span id="line-605">            if( unspam != null &amp;&amp; !unspam.isEmpty() ) {</span>
+<span class="source-line-no">606</span><span id="line-606">                final String uid = log( context, REJECT, REASON_BOT_TRAP, change.toString() );</span>
+<span class="source-line-no">607</span><span id="line-607"></span>
+<span class="source-line-no">608</span><span id="line-608">                LOG.info( "SPAM:BotTrap (" + uid + ").  Wildly behaving bot detected." );</span>
+<span class="source-line-no">609</span><span id="line-609">                checkStrategy( context, "Spamming attempt detected. (Incident code " + uid + ")" );</span>
+<span class="source-line-no">610</span><span id="line-610">            }</span>
+<span class="source-line-no">611</span><span id="line-611">        }</span>
+<span class="source-line-no">612</span><span id="line-612">    }</span>
+<span class="source-line-no">613</span><span id="line-613"></span>
+<span class="source-line-no">614</span><span id="line-614">    private void checkUTF8( final Context context, final Change change ) throws RedirectException {</span>
+<span class="source-line-no">615</span><span id="line-615">        final HttpServletRequest request = context.getHttpRequest();</span>
+<span class="source-line-no">616</span><span id="line-616">        if( request != null ) {</span>
+<span class="source-line-no">617</span><span id="line-617">            final String utf8field = request.getParameter( "encodingcheck" );</span>
+<span class="source-line-no">618</span><span id="line-618">            if( utf8field != null &amp;&amp; !utf8field.equals( "\u3041" ) ) {</span>
+<span class="source-line-no">619</span><span id="line-619">                final String uid = log( context, REJECT, REASON_UTF8_TRAP, change.toString() );</span>
+<span class="source-line-no">620</span><span id="line-620"></span>
+<span class="source-line-no">621</span><span id="line-621">                LOG.info( "SPAM:UTF8Trap (" + uid + ").  Wildly posting dumb bot detected." );</span>
+<span class="source-line-no">622</span><span id="line-622">                checkStrategy( context, "Spamming attempt detected. (Incident code " + uid + ")" );</span>
+<span class="source-line-no">623</span><span id="line-623">            }</span>
+<span class="source-line-no">624</span><span id="line-624">        }</span>
+<span class="source-line-no">625</span><span id="line-625">    }</span>
+<span class="source-line-no">626</span><span id="line-626"></span>
+<span class="source-line-no">627</span><span id="line-627">    /** Goes through the ban list and cleans away any host which has expired from it. */</span>
+<span class="source-line-no">628</span><span id="line-628">    private synchronized void cleanBanList() {</span>
+<span class="source-line-no">629</span><span id="line-629">        final long now = System.currentTimeMillis();</span>
+<span class="source-line-no">630</span><span id="line-630">        m_temporaryBanList.removeIf( host -&gt; {</span>
+<span class="source-line-no">631</span><span id="line-631">            final boolean expired = host.getReleaseTime() &lt; now;</span>
+<span class="source-line-no">632</span><span id="line-632">            if( expired ) {</span>
 <span class="source-line-no">633</span><span id="line-633">                LOG.debug( "Removed host " + host.getAddress() + " from temporary ban list (expired)" );</span>
-<span class="source-line-no">634</span><span id="line-634">                i.remove();</span>
-<span class="source-line-no">635</span><span id="line-635">            }</span>
-<span class="source-line-no">636</span><span id="line-636">        }</span>
+<span class="source-line-no">634</span><span id="line-634">            }</span>
+<span class="source-line-no">635</span><span id="line-635">            return expired;</span>
+<span class="source-line-no">636</span><span id="line-636">        } );</span>
 <span class="source-line-no">637</span><span id="line-637">    }</span>
 <span class="source-line-no">638</span><span id="line-638"></span>
 <span class="source-line-no">639</span><span id="line-639">    /**</span>

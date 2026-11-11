@@ -516,7 +516,7 @@
 <span class="source-line-no">503</span><span id="line-503">                if( page != null ) {</span>
 <span class="source-line-no">504</span><span id="line-504">                    final PagePermission pp = new PagePermission( page, PagePermission.VIEW_ACTION );</span>
 <span class="source-line-no">505</span><span id="line-505">                    if( mgr.checkPermission( wikiContext.getWikiSession(), pp ) ) {</span>
-<span class="source-line-no">506</span><span id="line-506">                        final int score = ( int ) ( hit.score * 100 );</span>
+<span class="source-line-no">506</span><span id="line-506">                        final int score = hits.scoreDocs[ 0 ].score &gt; 0 ? Math.round( hit.score / hits.scoreDocs[ 0 ].score * 100 ) : 0;</span>
 <span class="source-line-no">507</span><span id="line-507"></span>
 <span class="source-line-no">508</span><span id="line-508">                        // Get highlighted search contexts</span>
 <span class="source-line-no">509</span><span id="line-509">                        final String text = doc.get( LUCENE_PAGE_CONTENTS );</span>
@@ -635,115 +635,120 @@
 <span class="source-line-no">622</span><span id="line-622">            }</span>
 <span class="source-line-no">623</span><span id="line-623">        }</span>
 <span class="source-line-no">624</span><span id="line-624"></span>
-<span class="source-line-no">625</span><span id="line-625">        @Override</span>
-<span class="source-line-no">626</span><span id="line-626">        protected Query getWildcardQuery( final String field, final String termStr ) throws ParseException {</span>
-<span class="source-line-no">627</span><span id="line-627">            final Query separated = field != null ? separated( field, termStr, false ) : null;</span>
-<span class="source-line-no">628</span><span id="line-628">            if( separated == null ) {</span>
-<span class="source-line-no">629</span><span id="line-629">                return super.getWildcardQuery( field, termStr );</span>
-<span class="source-line-no">630</span><span id="line-630">            }</span>
-<span class="source-line-no">631</span><span id="line-631">            try {</span>
-<span class="source-line-no">632</span><span id="line-632">                return either( super.getWildcardQuery( field, termStr ), separated );</span>
-<span class="source-line-no">633</span><span id="line-633">            } catch( final ParseException e ) {</span>
-<span class="source-line-no">634</span><span id="line-634">                return separated; // the default handling does not accept the term, the separated one does</span>
+<span class="source-line-no">625</span><span id="line-625">        /**</span>
+<span class="source-line-no">626</span><span id="line-626">         * A page name term with a {@code *} between other characters does not need a {@code *} at its end: {@code blog*26} is read as</span>
+<span class="source-line-no">627</span><span id="line-627">         * {@code blog*26*}, as a token of a name, such as {@code blogentry_021126_1}, goes on after the digits that are asked for.</span>
+<span class="source-line-no">628</span><span id="line-628">         */</span>
+<span class="source-line-no">629</span><span id="line-629">        @Override</span>
+<span class="source-line-no">630</span><span id="line-630">        protected Query getWildcardQuery( final String field, final String termStr ) throws ParseException {</span>
+<span class="source-line-no">631</span><span id="line-631">            final String term = LUCENE_PAGE_NAME.equals( field ) &amp;&amp; termStr.matches( "[^*].*\\*.*[^*]" ) ? termStr + "*" : termStr;</span>
+<span class="source-line-no">632</span><span id="line-632">            final Query separated = field != null ? separated( field, term, false ) : null;</span>
+<span class="source-line-no">633</span><span id="line-633">            if( separated == null ) {</span>
+<span class="source-line-no">634</span><span id="line-634">                return super.getWildcardQuery( field, term );</span>
 <span class="source-line-no">635</span><span id="line-635">            }</span>
-<span class="source-line-no">636</span><span id="line-636">        }</span>
-<span class="source-line-no">637</span><span id="line-637"></span>
-<span class="source-line-no">638</span><span id="line-638">        /**</span>
-<span class="source-line-no">639</span><span id="line-639">         * Matches what either query matches. The default query is kept because the analyzer does not always split on a separator, so</span>
-<span class="source-line-no">640</span><span id="line-640">         * a token like {@code blogentry_021126_1} can hold it and only the default query finds it.</span>
-<span class="source-line-no">641</span><span id="line-641">         */</span>
-<span class="source-line-no">642</span><span id="line-642">        private static Query either( final Query defaultQuery, final Query separated ) {</span>
-<span class="source-line-no">643</span><span id="line-643">            return new BooleanQuery.Builder()</span>
-<span class="source-line-no">644</span><span id="line-644">                    .add( defaultQuery, BooleanClause.Occur.SHOULD )</span>
-<span class="source-line-no">645</span><span id="line-645">                    .add( separated, BooleanClause.Occur.SHOULD )</span>
-<span class="source-line-no">646</span><span id="line-646">                    .build();</span>
-<span class="source-line-no">647</span><span id="line-647">        }</span>
-<span class="source-line-no">648</span><span id="line-648"></span>
-<span class="source-line-no">649</span><span id="line-649">        /**</span>
-<span class="source-line-no">650</span><span id="line-650">         * Builds the query for a term that holds separators, or returns {@code null} if the default handling applies.</span>
-<span class="source-line-no">651</span><span id="line-651">         *</span>
-<span class="source-line-no">652</span><span id="line-652">         * @param prefix {@code true} if the term is a prefix whose trailing {@code *} has already been removed</span>
-<span class="source-line-no">653</span><span id="line-653">         */</span>
-<span class="source-line-no">654</span><span id="line-654">        private Query separated( final String field, final String termStr, final boolean prefix ) throws ParseException {</span>
-<span class="source-line-no">655</span><span id="line-655">            if( termStr.matches( NON_SEPARATORS ) ) {</span>
-<span class="source-line-no">656</span><span id="line-656">                return null;</span>
-<span class="source-line-no">657</span><span id="line-657">            }</span>
-<span class="source-line-no">658</span><span id="line-658"></span>
-<span class="source-line-no">659</span><span id="line-659">            final boolean endsWithSeparator = termStr.matches( ".*" + SEPARATORS );</span>
-<span class="source-line-no">660</span><span id="line-660">            final List&lt; SpanQuery &gt; clauses = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">661</span><span id="line-661">            final String[] segments = Arrays.stream( termStr.split( SEPARATORS ) ).filter( segment -&gt; !segment.isEmpty() ).toArray( String[]::new );</span>
-<span class="source-line-no">662</span><span id="line-662">            for( int i = 0; i &lt; segments.length; i++ ) {</span>
-<span class="source-line-no">663</span><span id="line-663">                final String segment = segments[ i ];</span>
-<span class="source-line-no">664</span><span id="line-664">                if( segment.indexOf( '*' ) != -1 || segment.indexOf( '?' ) != -1 ) {</span>
-<span class="source-line-no">665</span><span id="line-665">                    final Term term = new Term( field, getAnalyzer().normalize( field, segment ) );</span>
-<span class="source-line-no">666</span><span id="line-666">                    clauses.add( new SpanMultiTermQueryWrapper&lt;&gt;( new WildcardQuery( term ) ) );</span>
-<span class="source-line-no">667</span><span id="line-667">                } else if( prefix &amp;&amp; i == segments.length - 1 &amp;&amp; !endsWithSeparator ) {</span>
-<span class="source-line-no">668</span><span id="line-668">                    final Term term = new Term( field, getAnalyzer().normalize( field, segment ) );</span>
-<span class="source-line-no">669</span><span id="line-669">                    clauses.add( new SpanMultiTermQueryWrapper&lt;&gt;( new PrefixQuery( term ) ) );</span>
-<span class="source-line-no">670</span><span id="line-670">                } else {</span>
-<span class="source-line-no">671</span><span id="line-671">                    for( final String token : tokens( field, segment ) ) {</span>
-<span class="source-line-no">672</span><span id="line-672">                        clauses.add( new SpanTermQuery( new Term( field, token ) ) );</span>
-<span class="source-line-no">673</span><span id="line-673">                    }</span>
-<span class="source-line-no">674</span><span id="line-674">                }</span>
-<span class="source-line-no">675</span><span id="line-675">            }</span>
-<span class="source-line-no">676</span><span id="line-676"></span>
-<span class="source-line-no">677</span><span id="line-677">            if( clauses.isEmpty() ) {</span>
-<span class="source-line-no">678</span><span id="line-678">                return null;</span>
-<span class="source-line-no">679</span><span id="line-679">            }</span>
-<span class="source-line-no">680</span><span id="line-680">            return clauses.size() == 1 ? clauses.get( 0 ) : new SpanNearQuery( clauses.toArray( new SpanQuery[ 0 ] ), 0, true );</span>
-<span class="source-line-no">681</span><span id="line-681">        }</span>
-<span class="source-line-no">682</span><span id="line-682"></span>
-<span class="source-line-no">683</span><span id="line-683">        private List&lt; String &gt; tokens( final String field, final String text ) throws ParseException {</span>
-<span class="source-line-no">684</span><span id="line-684">            final List&lt; String &gt; tokens = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">685</span><span id="line-685">            try( final TokenStream stream = getAnalyzer().tokenStream( field, text ) ) {</span>
-<span class="source-line-no">686</span><span id="line-686">                final CharTermAttribute term = stream.addAttribute( CharTermAttribute.class );</span>
-<span class="source-line-no">687</span><span id="line-687">                stream.reset();</span>
-<span class="source-line-no">688</span><span id="line-688">                while( stream.incrementToken() ) {</span>
-<span class="source-line-no">689</span><span id="line-689">                    tokens.add( term.toString() );</span>
-<span class="source-line-no">690</span><span id="line-690">                }</span>
-<span class="source-line-no">691</span><span id="line-691">                stream.end();</span>
-<span class="source-line-no">692</span><span id="line-692">            } catch( final IOException e ) {</span>
-<span class="source-line-no">693</span><span id="line-693">                throw new ParseException( "Cannot analyze '" + text + "': " + e.getMessage() );</span>
-<span class="source-line-no">694</span><span id="line-694">            }</span>
-<span class="source-line-no">695</span><span id="line-695">            return tokens;</span>
-<span class="source-line-no">696</span><span id="line-696">        }</span>
-<span class="source-line-no">697</span><span id="line-697"></span>
-<span class="source-line-no">698</span><span id="line-698">    }</span>
-<span class="source-line-no">699</span><span id="line-699"></span>
-<span class="source-line-no">700</span><span id="line-700">    // FIXME: This class is dumb; needs to have a better implementation</span>
-<span class="source-line-no">701</span><span id="line-701">    private static class SearchResultImpl implements SearchResult {</span>
+<span class="source-line-no">636</span><span id="line-636">            try {</span>
+<span class="source-line-no">637</span><span id="line-637">                return either( super.getWildcardQuery( field, term ), separated );</span>
+<span class="source-line-no">638</span><span id="line-638">            } catch( final ParseException e ) {</span>
+<span class="source-line-no">639</span><span id="line-639">                return separated; // the default handling does not accept the term, the separated one does</span>
+<span class="source-line-no">640</span><span id="line-640">            }</span>
+<span class="source-line-no">641</span><span id="line-641">        }</span>
+<span class="source-line-no">642</span><span id="line-642"></span>
+<span class="source-line-no">643</span><span id="line-643">        /**</span>
+<span class="source-line-no">644</span><span id="line-644">         * Matches what either query matches. The default query is kept because the analyzer does not always split on a separator, so</span>
+<span class="source-line-no">645</span><span id="line-645">         * a token like {@code blogentry_021126_1} can hold it and only the default query finds it.</span>
+<span class="source-line-no">646</span><span id="line-646">         */</span>
+<span class="source-line-no">647</span><span id="line-647">        private static Query either( final Query defaultQuery, final Query separated ) {</span>
+<span class="source-line-no">648</span><span id="line-648">            return new BooleanQuery.Builder()</span>
+<span class="source-line-no">649</span><span id="line-649">                    .add( defaultQuery, BooleanClause.Occur.SHOULD )</span>
+<span class="source-line-no">650</span><span id="line-650">                    .add( separated, BooleanClause.Occur.SHOULD )</span>
+<span class="source-line-no">651</span><span id="line-651">                    .build();</span>
+<span class="source-line-no">652</span><span id="line-652">        }</span>
+<span class="source-line-no">653</span><span id="line-653"></span>
+<span class="source-line-no">654</span><span id="line-654">        /**</span>
+<span class="source-line-no">655</span><span id="line-655">         * Builds the query for a term that holds separators, or returns {@code null} if the default handling applies.</span>
+<span class="source-line-no">656</span><span id="line-656">         *</span>
+<span class="source-line-no">657</span><span id="line-657">         * @param prefix {@code true} if the term is a prefix whose trailing {@code *} has already been removed</span>
+<span class="source-line-no">658</span><span id="line-658">         */</span>
+<span class="source-line-no">659</span><span id="line-659">        private Query separated( final String field, final String termStr, final boolean prefix ) throws ParseException {</span>
+<span class="source-line-no">660</span><span id="line-660">            if( termStr.matches( NON_SEPARATORS ) ) {</span>
+<span class="source-line-no">661</span><span id="line-661">                return null;</span>
+<span class="source-line-no">662</span><span id="line-662">            }</span>
+<span class="source-line-no">663</span><span id="line-663"></span>
+<span class="source-line-no">664</span><span id="line-664">            final boolean endsWithSeparator = termStr.matches( ".*" + SEPARATORS );</span>
+<span class="source-line-no">665</span><span id="line-665">            final List&lt; SpanQuery &gt; clauses = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">666</span><span id="line-666">            final String[] segments = Arrays.stream( termStr.split( SEPARATORS ) ).filter( segment -&gt; !segment.isEmpty() ).toArray( String[]::new );</span>
+<span class="source-line-no">667</span><span id="line-667">            for( int i = 0; i &lt; segments.length; i++ ) {</span>
+<span class="source-line-no">668</span><span id="line-668">                final String segment = segments[ i ];</span>
+<span class="source-line-no">669</span><span id="line-669">                if( segment.indexOf( '*' ) != -1 || segment.indexOf( '?' ) != -1 ) {</span>
+<span class="source-line-no">670</span><span id="line-670">                    final Term term = new Term( field, getAnalyzer().normalize( field, segment ) );</span>
+<span class="source-line-no">671</span><span id="line-671">                    clauses.add( new SpanMultiTermQueryWrapper&lt;&gt;( new WildcardQuery( term ) ) );</span>
+<span class="source-line-no">672</span><span id="line-672">                } else if( prefix &amp;&amp; i == segments.length - 1 &amp;&amp; !endsWithSeparator ) {</span>
+<span class="source-line-no">673</span><span id="line-673">                    final Term term = new Term( field, getAnalyzer().normalize( field, segment ) );</span>
+<span class="source-line-no">674</span><span id="line-674">                    clauses.add( new SpanMultiTermQueryWrapper&lt;&gt;( new PrefixQuery( term ) ) );</span>
+<span class="source-line-no">675</span><span id="line-675">                } else {</span>
+<span class="source-line-no">676</span><span id="line-676">                    for( final String token : tokens( field, segment ) ) {</span>
+<span class="source-line-no">677</span><span id="line-677">                        clauses.add( new SpanTermQuery( new Term( field, token ) ) );</span>
+<span class="source-line-no">678</span><span id="line-678">                    }</span>
+<span class="source-line-no">679</span><span id="line-679">                }</span>
+<span class="source-line-no">680</span><span id="line-680">            }</span>
+<span class="source-line-no">681</span><span id="line-681"></span>
+<span class="source-line-no">682</span><span id="line-682">            if( clauses.isEmpty() ) {</span>
+<span class="source-line-no">683</span><span id="line-683">                return null;</span>
+<span class="source-line-no">684</span><span id="line-684">            }</span>
+<span class="source-line-no">685</span><span id="line-685">            return clauses.size() == 1 ? clauses.get( 0 ) : new SpanNearQuery( clauses.toArray( new SpanQuery[ 0 ] ), 0, true );</span>
+<span class="source-line-no">686</span><span id="line-686">        }</span>
+<span class="source-line-no">687</span><span id="line-687"></span>
+<span class="source-line-no">688</span><span id="line-688">        private List&lt; String &gt; tokens( final String field, final String text ) throws ParseException {</span>
+<span class="source-line-no">689</span><span id="line-689">            final List&lt; String &gt; tokens = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">690</span><span id="line-690">            try( final TokenStream stream = getAnalyzer().tokenStream( field, text ) ) {</span>
+<span class="source-line-no">691</span><span id="line-691">                final CharTermAttribute term = stream.addAttribute( CharTermAttribute.class );</span>
+<span class="source-line-no">692</span><span id="line-692">                stream.reset();</span>
+<span class="source-line-no">693</span><span id="line-693">                while( stream.incrementToken() ) {</span>
+<span class="source-line-no">694</span><span id="line-694">                    tokens.add( term.toString() );</span>
+<span class="source-line-no">695</span><span id="line-695">                }</span>
+<span class="source-line-no">696</span><span id="line-696">                stream.end();</span>
+<span class="source-line-no">697</span><span id="line-697">            } catch( final IOException e ) {</span>
+<span class="source-line-no">698</span><span id="line-698">                throw new ParseException( "Cannot analyze '" + text + "': " + e.getMessage() );</span>
+<span class="source-line-no">699</span><span id="line-699">            }</span>
+<span class="source-line-no">700</span><span id="line-700">            return tokens;</span>
+<span class="source-line-no">701</span><span id="line-701">        }</span>
 <span class="source-line-no">702</span><span id="line-702"></span>
-<span class="source-line-no">703</span><span id="line-703">        private final Page m_page;</span>
-<span class="source-line-no">704</span><span id="line-704">        private final int m_score;</span>
-<span class="source-line-no">705</span><span id="line-705">        private final String[] m_contexts;</span>
-<span class="source-line-no">706</span><span id="line-706"></span>
-<span class="source-line-no">707</span><span id="line-707">        public SearchResultImpl( final Page page, final int score, final String[] contexts ) {</span>
-<span class="source-line-no">708</span><span id="line-708">            m_page = page;</span>
-<span class="source-line-no">709</span><span id="line-709">            m_score = score;</span>
-<span class="source-line-no">710</span><span id="line-710">            m_contexts = contexts != null ? contexts.clone() : null;</span>
-<span class="source-line-no">711</span><span id="line-711">        }</span>
-<span class="source-line-no">712</span><span id="line-712"></span>
-<span class="source-line-no">713</span><span id="line-713">        @Override</span>
-<span class="source-line-no">714</span><span id="line-714">        public Page getPage() {</span>
-<span class="source-line-no">715</span><span id="line-715">            return m_page;</span>
+<span class="source-line-no">703</span><span id="line-703">    }</span>
+<span class="source-line-no">704</span><span id="line-704"></span>
+<span class="source-line-no">705</span><span id="line-705">    // FIXME: This class is dumb; needs to have a better implementation</span>
+<span class="source-line-no">706</span><span id="line-706">    private static class SearchResultImpl implements SearchResult {</span>
+<span class="source-line-no">707</span><span id="line-707"></span>
+<span class="source-line-no">708</span><span id="line-708">        private final Page m_page;</span>
+<span class="source-line-no">709</span><span id="line-709">        private final int m_score;</span>
+<span class="source-line-no">710</span><span id="line-710">        private final String[] m_contexts;</span>
+<span class="source-line-no">711</span><span id="line-711"></span>
+<span class="source-line-no">712</span><span id="line-712">        public SearchResultImpl( final Page page, final int score, final String[] contexts ) {</span>
+<span class="source-line-no">713</span><span id="line-713">            m_page = page;</span>
+<span class="source-line-no">714</span><span id="line-714">            m_score = score;</span>
+<span class="source-line-no">715</span><span id="line-715">            m_contexts = contexts != null ? contexts.clone() : null;</span>
 <span class="source-line-no">716</span><span id="line-716">        }</span>
 <span class="source-line-no">717</span><span id="line-717"></span>
-<span class="source-line-no">718</span><span id="line-718">        /* (non-Javadoc)</span>
-<span class="source-line-no">719</span><span id="line-719">         * @see org.apache.wiki.SearchResult#getScore()</span>
-<span class="source-line-no">720</span><span id="line-720">         */</span>
-<span class="source-line-no">721</span><span id="line-721">        @Override</span>
-<span class="source-line-no">722</span><span id="line-722">        public int getScore() {</span>
-<span class="source-line-no">723</span><span id="line-723">            return m_score;</span>
-<span class="source-line-no">724</span><span id="line-724">        }</span>
-<span class="source-line-no">725</span><span id="line-725"></span>
-<span class="source-line-no">726</span><span id="line-726"></span>
-<span class="source-line-no">727</span><span id="line-727">        @Override</span>
-<span class="source-line-no">728</span><span id="line-728">        public String[] getContexts() {</span>
-<span class="source-line-no">729</span><span id="line-729">            return m_contexts;</span>
-<span class="source-line-no">730</span><span id="line-730">        }</span>
-<span class="source-line-no">731</span><span id="line-731">    }</span>
-<span class="source-line-no">732</span><span id="line-732"></span>
-<span class="source-line-no">733</span><span id="line-733">}</span>
+<span class="source-line-no">718</span><span id="line-718">        @Override</span>
+<span class="source-line-no">719</span><span id="line-719">        public Page getPage() {</span>
+<span class="source-line-no">720</span><span id="line-720">            return m_page;</span>
+<span class="source-line-no">721</span><span id="line-721">        }</span>
+<span class="source-line-no">722</span><span id="line-722"></span>
+<span class="source-line-no">723</span><span id="line-723">        /* (non-Javadoc)</span>
+<span class="source-line-no">724</span><span id="line-724">         * @see org.apache.wiki.SearchResult#getScore()</span>
+<span class="source-line-no">725</span><span id="line-725">         */</span>
+<span class="source-line-no">726</span><span id="line-726">        @Override</span>
+<span class="source-line-no">727</span><span id="line-727">        public int getScore() {</span>
+<span class="source-line-no">728</span><span id="line-728">            return m_score;</span>
+<span class="source-line-no">729</span><span id="line-729">        }</span>
+<span class="source-line-no">730</span><span id="line-730"></span>
+<span class="source-line-no">731</span><span id="line-731"></span>
+<span class="source-line-no">732</span><span id="line-732">        @Override</span>
+<span class="source-line-no">733</span><span id="line-733">        public String[] getContexts() {</span>
+<span class="source-line-no">734</span><span id="line-734">            return m_contexts;</span>
+<span class="source-line-no">735</span><span id="line-735">        }</span>
+<span class="source-line-no">736</span><span id="line-736">    }</span>
+<span class="source-line-no">737</span><span id="line-737"></span>
+<span class="source-line-no">738</span><span id="line-738">}</span>
 
 
 

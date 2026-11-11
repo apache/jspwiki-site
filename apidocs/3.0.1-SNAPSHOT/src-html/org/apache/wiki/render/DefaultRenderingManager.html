@@ -294,149 +294,154 @@
 <span class="source-line-no">281</span><span id="line-281"></span>
 <span class="source-line-no">282</span><span id="line-282">        final StopWatch sw = new StopWatch();</span>
 <span class="source-line-no">283</span><span id="line-283">        sw.start();</span>
-<span class="source-line-no">284</span><span id="line-284">        try {</span>
-<span class="source-line-no">285</span><span id="line-285">            if( runFilters ) {</span>
-<span class="source-line-no">286</span><span id="line-286">                pagedata = m_engine.getManager( FilterManager.class ).doPreTranslateFiltering( context, pagedata );</span>
-<span class="source-line-no">287</span><span id="line-287">            }</span>
-<span class="source-line-no">288</span><span id="line-288"></span>
-<span class="source-line-no">289</span><span id="line-289">            result = getHTML( context, pagedata );</span>
-<span class="source-line-no">290</span><span id="line-290"></span>
-<span class="source-line-no">291</span><span id="line-291">            if( runFilters ) {</span>
-<span class="source-line-no">292</span><span id="line-292">                result = m_engine.getManager( FilterManager.class ).doPostTranslateFiltering( context, result );</span>
-<span class="source-line-no">293</span><span id="line-293">            }</span>
-<span class="source-line-no">294</span><span id="line-294">        } catch( final FilterException e ) {</span>
-<span class="source-line-no">295</span><span id="line-295">            LOG.error( "page filter threw exception: ", e );</span>
-<span class="source-line-no">296</span><span id="line-296">            // FIXME: Don't yet know what to do</span>
-<span class="source-line-no">297</span><span id="line-297">        }</span>
-<span class="source-line-no">298</span><span id="line-298">        sw.stop();</span>
-<span class="source-line-no">299</span><span id="line-299">        LOG.debug( "Page {} rendered, took {}", context.getRealPage().getName(), sw );</span>
-<span class="source-line-no">300</span><span id="line-300"></span>
-<span class="source-line-no">301</span><span id="line-301">        return result;</span>
-<span class="source-line-no">302</span><span id="line-302">    }</span>
-<span class="source-line-no">303</span><span id="line-303"></span>
-<span class="source-line-no">304</span><span id="line-304">    /**</span>
-<span class="source-line-no">305</span><span id="line-305">     *  {@inheritDoc}</span>
-<span class="source-line-no">306</span><span id="line-306">     */</span>
-<span class="source-line-no">307</span><span id="line-307">    @Override</span>
-<span class="source-line-no">308</span><span id="line-308">    public String textToHTML( final Context context,</span>
-<span class="source-line-no">309</span><span id="line-309">                              String pagedata,</span>
-<span class="source-line-no">310</span><span id="line-310">                              final StringTransmutator localLinkHook,</span>
-<span class="source-line-no">311</span><span id="line-311">                              final StringTransmutator extLinkHook,</span>
-<span class="source-line-no">312</span><span id="line-312">                              final StringTransmutator attLinkHook,</span>
-<span class="source-line-no">313</span><span id="line-313">                              final boolean parseAccessRules,</span>
-<span class="source-line-no">314</span><span id="line-314">                              final boolean justParse ) {</span>
-<span class="source-line-no">315</span><span id="line-315">        String result = "";</span>
-<span class="source-line-no">316</span><span id="line-316"></span>
-<span class="source-line-no">317</span><span id="line-317">        if( pagedata == null ) {</span>
-<span class="source-line-no">318</span><span id="line-318">            LOG.error( "NULL pagedata to textToHTML()" );</span>
-<span class="source-line-no">319</span><span id="line-319">            return null;</span>
-<span class="source-line-no">320</span><span id="line-320">        }</span>
+<span class="source-line-no">284</span><span id="line-284">        // A text can be rendered while another one is, for instance by InsertPage, so the previous one is put back afterwards</span>
+<span class="source-line-no">285</span><span id="line-285">        final Object enclosingText = context.getVariable( Context.VAR_RENDERED_TEXT );</span>
+<span class="source-line-no">286</span><span id="line-286">        context.setVariable( Context.VAR_RENDERED_TEXT, pagedata );</span>
+<span class="source-line-no">287</span><span id="line-287">        try {</span>
+<span class="source-line-no">288</span><span id="line-288">            if( runFilters ) {</span>
+<span class="source-line-no">289</span><span id="line-289">                pagedata = m_engine.getManager( FilterManager.class ).doPreTranslateFiltering( context, pagedata );</span>
+<span class="source-line-no">290</span><span id="line-290">            }</span>
+<span class="source-line-no">291</span><span id="line-291"></span>
+<span class="source-line-no">292</span><span id="line-292">            result = getHTML( context, pagedata );</span>
+<span class="source-line-no">293</span><span id="line-293"></span>
+<span class="source-line-no">294</span><span id="line-294">            if( runFilters ) {</span>
+<span class="source-line-no">295</span><span id="line-295">                result = m_engine.getManager( FilterManager.class ).doPostTranslateFiltering( context, result );</span>
+<span class="source-line-no">296</span><span id="line-296">            }</span>
+<span class="source-line-no">297</span><span id="line-297">        } catch( final FilterException e ) {</span>
+<span class="source-line-no">298</span><span id="line-298">            LOG.error( "page filter threw exception: ", e );</span>
+<span class="source-line-no">299</span><span id="line-299">            // FIXME: Don't yet know what to do</span>
+<span class="source-line-no">300</span><span id="line-300">        } finally {</span>
+<span class="source-line-no">301</span><span id="line-301">            context.setVariable( Context.VAR_RENDERED_TEXT, enclosingText );</span>
+<span class="source-line-no">302</span><span id="line-302">        }</span>
+<span class="source-line-no">303</span><span id="line-303">        sw.stop();</span>
+<span class="source-line-no">304</span><span id="line-304">        LOG.debug( "Page {} rendered, took {}", context.getRealPage().getName(), sw );</span>
+<span class="source-line-no">305</span><span id="line-305"></span>
+<span class="source-line-no">306</span><span id="line-306">        return result;</span>
+<span class="source-line-no">307</span><span id="line-307">    }</span>
+<span class="source-line-no">308</span><span id="line-308"></span>
+<span class="source-line-no">309</span><span id="line-309">    /**</span>
+<span class="source-line-no">310</span><span id="line-310">     *  {@inheritDoc}</span>
+<span class="source-line-no">311</span><span id="line-311">     */</span>
+<span class="source-line-no">312</span><span id="line-312">    @Override</span>
+<span class="source-line-no">313</span><span id="line-313">    public String textToHTML( final Context context,</span>
+<span class="source-line-no">314</span><span id="line-314">                              String pagedata,</span>
+<span class="source-line-no">315</span><span id="line-315">                              final StringTransmutator localLinkHook,</span>
+<span class="source-line-no">316</span><span id="line-316">                              final StringTransmutator extLinkHook,</span>
+<span class="source-line-no">317</span><span id="line-317">                              final StringTransmutator attLinkHook,</span>
+<span class="source-line-no">318</span><span id="line-318">                              final boolean parseAccessRules,</span>
+<span class="source-line-no">319</span><span id="line-319">                              final boolean justParse ) {</span>
+<span class="source-line-no">320</span><span id="line-320">        String result = "";</span>
 <span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">        final boolean runFilters = "true".equals( m_engine.getManager( VariableManager.class ).getValue( context, VariableManager.VAR_RUNFILTERS,"true" ) );</span>
-<span class="source-line-no">323</span><span id="line-323"></span>
-<span class="source-line-no">324</span><span id="line-324">        try {</span>
-<span class="source-line-no">325</span><span id="line-325">            final StopWatch sw = new StopWatch();</span>
-<span class="source-line-no">326</span><span id="line-326">            sw.start();</span>
-<span class="source-line-no">327</span><span id="line-327"></span>
-<span class="source-line-no">328</span><span id="line-328">            if( runFilters &amp;&amp; m_engine.getManager( FilterManager.class ) != null ) {</span>
-<span class="source-line-no">329</span><span id="line-329">                pagedata = m_engine.getManager( FilterManager.class ).doPreTranslateFiltering( context, pagedata );</span>
-<span class="source-line-no">330</span><span id="line-330">            }</span>
-<span class="source-line-no">331</span><span id="line-331"></span>
-<span class="source-line-no">332</span><span id="line-332">            final MarkupParser mp = getParser( context, pagedata );</span>
-<span class="source-line-no">333</span><span id="line-333">            mp.addLocalLinkHook( localLinkHook );</span>
-<span class="source-line-no">334</span><span id="line-334">            mp.addExternalLinkHook( extLinkHook );</span>
-<span class="source-line-no">335</span><span id="line-335">            mp.addAttachmentLinkHook( attLinkHook );</span>
+<span class="source-line-no">322</span><span id="line-322">        if( pagedata == null ) {</span>
+<span class="source-line-no">323</span><span id="line-323">            LOG.error( "NULL pagedata to textToHTML()" );</span>
+<span class="source-line-no">324</span><span id="line-324">            return null;</span>
+<span class="source-line-no">325</span><span id="line-325">        }</span>
+<span class="source-line-no">326</span><span id="line-326"></span>
+<span class="source-line-no">327</span><span id="line-327">        final boolean runFilters = "true".equals( m_engine.getManager( VariableManager.class ).getValue( context, VariableManager.VAR_RUNFILTERS,"true" ) );</span>
+<span class="source-line-no">328</span><span id="line-328"></span>
+<span class="source-line-no">329</span><span id="line-329">        try {</span>
+<span class="source-line-no">330</span><span id="line-330">            final StopWatch sw = new StopWatch();</span>
+<span class="source-line-no">331</span><span id="line-331">            sw.start();</span>
+<span class="source-line-no">332</span><span id="line-332"></span>
+<span class="source-line-no">333</span><span id="line-333">            if( runFilters &amp;&amp; m_engine.getManager( FilterManager.class ) != null ) {</span>
+<span class="source-line-no">334</span><span id="line-334">                pagedata = m_engine.getManager( FilterManager.class ).doPreTranslateFiltering( context, pagedata );</span>
+<span class="source-line-no">335</span><span id="line-335">            }</span>
 <span class="source-line-no">336</span><span id="line-336"></span>
-<span class="source-line-no">337</span><span id="line-337">            if( !parseAccessRules ) {</span>
-<span class="source-line-no">338</span><span id="line-338">                mp.disableAccessRules();</span>
-<span class="source-line-no">339</span><span id="line-339">            }</span>
-<span class="source-line-no">340</span><span id="line-340"></span>
-<span class="source-line-no">341</span><span id="line-341">            final WikiDocument doc = mp.parse();</span>
-<span class="source-line-no">342</span><span id="line-342">            //  In some cases it's better just to parse, not to render</span>
-<span class="source-line-no">343</span><span id="line-343">            if( !justParse ) {</span>
-<span class="source-line-no">344</span><span id="line-344">                result = getHTML( context, doc );</span>
-<span class="source-line-no">345</span><span id="line-345">                if( runFilters &amp;&amp; m_engine.getManager( FilterManager.class ) != null ) {</span>
-<span class="source-line-no">346</span><span id="line-346">                    result = m_engine.getManager( FilterManager.class ).doPostTranslateFiltering( context, result );</span>
-<span class="source-line-no">347</span><span id="line-347">                }</span>
-<span class="source-line-no">348</span><span id="line-348">            }</span>
-<span class="source-line-no">349</span><span id="line-349"></span>
-<span class="source-line-no">350</span><span id="line-350">            sw.stop();</span>
-<span class="source-line-no">351</span><span id="line-351"></span>
-<span class="source-line-no">352</span><span id="line-352">            LOG.debug( "Page {} rendered, took {}", context.getRealPage().getName(), sw );</span>
-<span class="source-line-no">353</span><span id="line-353">        } catch( final IOException e ) {</span>
-<span class="source-line-no">354</span><span id="line-354">            LOG.error( "Failed to scan page data: ", e );</span>
-<span class="source-line-no">355</span><span id="line-355">        } catch( final FilterException e ) {</span>
-<span class="source-line-no">356</span><span id="line-356">            LOG.error( "page filter threw exception: ", e );</span>
-<span class="source-line-no">357</span><span id="line-357">            // FIXME: Don't yet know what to do</span>
-<span class="source-line-no">358</span><span id="line-358">        }</span>
-<span class="source-line-no">359</span><span id="line-359"></span>
-<span class="source-line-no">360</span><span id="line-360">        return result;</span>
-<span class="source-line-no">361</span><span id="line-361">    }</span>
-<span class="source-line-no">362</span><span id="line-362"></span>
-<span class="source-line-no">363</span><span id="line-363">    /**</span>
-<span class="source-line-no">364</span><span id="line-364">     *  {@inheritDoc}</span>
-<span class="source-line-no">365</span><span id="line-365">     */</span>
-<span class="source-line-no">366</span><span id="line-366">    @Override</span>
-<span class="source-line-no">367</span><span id="line-367">    public WikiRenderer getRenderer( final Context context, final WikiDocument doc ) {</span>
-<span class="source-line-no">368</span><span id="line-368">        final Object[] params = { context, doc };</span>
-<span class="source-line-no">369</span><span id="line-369">        return getRenderer( params, m_rendererConstructor );</span>
-<span class="source-line-no">370</span><span id="line-370">    }</span>
-<span class="source-line-no">371</span><span id="line-371"></span>
-<span class="source-line-no">372</span><span id="line-372">    /**</span>
-<span class="source-line-no">373</span><span id="line-373">     *  {@inheritDoc}</span>
-<span class="source-line-no">374</span><span id="line-374">     */</span>
-<span class="source-line-no">375</span><span id="line-375">    @Override</span>
-<span class="source-line-no">376</span><span id="line-376">    public WikiRenderer getWysiwygRenderer( final Context context, final WikiDocument doc ) {</span>
-<span class="source-line-no">377</span><span id="line-377">        final Object[] params = { context, doc };</span>
-<span class="source-line-no">378</span><span id="line-378">        return getRenderer( params, m_rendererWysiwygConstructor );</span>
-<span class="source-line-no">379</span><span id="line-379">    }</span>
-<span class="source-line-no">380</span><span id="line-380"></span>
-<span class="source-line-no">381</span><span id="line-381">    @SuppressWarnings("unchecked")</span>
-<span class="source-line-no">382</span><span id="line-382">    private &lt; T extends WikiRenderer &gt; T getRenderer( final Object[] params, final Constructor&lt;?&gt; rendererConstructor ) {</span>
-<span class="source-line-no">383</span><span id="line-383">        try {</span>
-<span class="source-line-no">384</span><span id="line-384">            return ( T )rendererConstructor.newInstance( params );</span>
-<span class="source-line-no">385</span><span id="line-385">        } catch( final Exception e ) {</span>
-<span class="source-line-no">386</span><span id="line-386">            LOG.error( "Unable to create WikiRenderer", e );</span>
-<span class="source-line-no">387</span><span id="line-387">        }</span>
-<span class="source-line-no">388</span><span id="line-388">        return null;</span>
-<span class="source-line-no">389</span><span id="line-389">    }</span>
-<span class="source-line-no">390</span><span id="line-390"></span>
-<span class="source-line-no">391</span><span id="line-391">    /**</span>
-<span class="source-line-no">392</span><span id="line-392">     * {@inheritDoc}</span>
-<span class="source-line-no">393</span><span id="line-393">     *</span>
-<span class="source-line-no">394</span><span id="line-394">     * &lt;p&gt;Flushes the document cache in response to a POST_SAVE_BEGIN event.</span>
-<span class="source-line-no">395</span><span id="line-395">     *</span>
-<span class="source-line-no">396</span><span id="line-396">     * @see WikiEventListener#actionPerformed(WikiEvent)</span>
-<span class="source-line-no">397</span><span id="line-397">     */</span>
-<span class="source-line-no">398</span><span id="line-398">    @Override</span>
-<span class="source-line-no">399</span><span id="line-399">    public void actionPerformed( final WikiEvent event ) {</span>
-<span class="source-line-no">400</span><span id="line-400">        LOG.debug( "event received: {}", event.toString() );</span>
-<span class="source-line-no">401</span><span id="line-401">        if( isBeginningAWikiPagePostSaveEventAndDocumentCacheIsEnabled( event ) ) {</span>
-<span class="source-line-no">402</span><span id="line-402">            final String pageName = ( ( WikiPageEvent ) event ).getPageName();</span>
-<span class="source-line-no">403</span><span id="line-403">            cachingManager.remove( CachingManager.CACHE_DOCUMENTS, pageName );</span>
-<span class="source-line-no">404</span><span id="line-404">            final Collection&lt; String &gt; referringPages = m_engine.getManager( ReferenceManager.class ).findReferrers( pageName );</span>
-<span class="source-line-no">405</span><span id="line-405"></span>
-<span class="source-line-no">406</span><span id="line-406">            // Flush also those pages that refer to this page (if a nonexistent page</span>
-<span class="source-line-no">407</span><span id="line-407">            // appears, we need to flush the HTML that refers to the now-existent page)</span>
-<span class="source-line-no">408</span><span id="line-408">            if( referringPages != null ) {</span>
-<span class="source-line-no">409</span><span id="line-409">                for( final String page : referringPages ) {</span>
-<span class="source-line-no">410</span><span id="line-410">                    LOG.debug( "Flushing latest version of {}", page );</span>
-<span class="source-line-no">411</span><span id="line-411">                    // as there is a new version of the page expire both plugin and pluginless versions of the old page</span>
-<span class="source-line-no">412</span><span id="line-412">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + Boolean.FALSE );</span>
-<span class="source-line-no">413</span><span id="line-413">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + Boolean.TRUE );</span>
-<span class="source-line-no">414</span><span id="line-414">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + null );</span>
-<span class="source-line-no">415</span><span id="line-415">                }</span>
-<span class="source-line-no">416</span><span id="line-416">            }</span>
-<span class="source-line-no">417</span><span id="line-417">        }</span>
-<span class="source-line-no">418</span><span id="line-418">    }</span>
-<span class="source-line-no">419</span><span id="line-419"></span>
-<span class="source-line-no">420</span><span id="line-420">    boolean isBeginningAWikiPagePostSaveEventAndDocumentCacheIsEnabled( final WikiEvent event ) {</span>
-<span class="source-line-no">421</span><span id="line-421">        return event instanceof WikiPageEvent</span>
-<span class="source-line-no">422</span><span id="line-422">               &amp;&amp; event.getType() == WikiPageEvent.POST_SAVE_BEGIN</span>
-<span class="source-line-no">423</span><span id="line-423">               &amp;&amp; cachingManager.enabled( CachingManager.CACHE_DOCUMENTS );</span>
-<span class="source-line-no">424</span><span id="line-424">    }</span>
-<span class="source-line-no">425</span><span id="line-425"></span>
-<span class="source-line-no">426</span><span id="line-426">}</span>
+<span class="source-line-no">337</span><span id="line-337">            final MarkupParser mp = getParser( context, pagedata );</span>
+<span class="source-line-no">338</span><span id="line-338">            mp.addLocalLinkHook( localLinkHook );</span>
+<span class="source-line-no">339</span><span id="line-339">            mp.addExternalLinkHook( extLinkHook );</span>
+<span class="source-line-no">340</span><span id="line-340">            mp.addAttachmentLinkHook( attLinkHook );</span>
+<span class="source-line-no">341</span><span id="line-341"></span>
+<span class="source-line-no">342</span><span id="line-342">            if( !parseAccessRules ) {</span>
+<span class="source-line-no">343</span><span id="line-343">                mp.disableAccessRules();</span>
+<span class="source-line-no">344</span><span id="line-344">            }</span>
+<span class="source-line-no">345</span><span id="line-345"></span>
+<span class="source-line-no">346</span><span id="line-346">            final WikiDocument doc = mp.parse();</span>
+<span class="source-line-no">347</span><span id="line-347">            //  In some cases it's better just to parse, not to render</span>
+<span class="source-line-no">348</span><span id="line-348">            if( !justParse ) {</span>
+<span class="source-line-no">349</span><span id="line-349">                result = getHTML( context, doc );</span>
+<span class="source-line-no">350</span><span id="line-350">                if( runFilters &amp;&amp; m_engine.getManager( FilterManager.class ) != null ) {</span>
+<span class="source-line-no">351</span><span id="line-351">                    result = m_engine.getManager( FilterManager.class ).doPostTranslateFiltering( context, result );</span>
+<span class="source-line-no">352</span><span id="line-352">                }</span>
+<span class="source-line-no">353</span><span id="line-353">            }</span>
+<span class="source-line-no">354</span><span id="line-354"></span>
+<span class="source-line-no">355</span><span id="line-355">            sw.stop();</span>
+<span class="source-line-no">356</span><span id="line-356"></span>
+<span class="source-line-no">357</span><span id="line-357">            LOG.debug( "Page {} rendered, took {}", context.getRealPage().getName(), sw );</span>
+<span class="source-line-no">358</span><span id="line-358">        } catch( final IOException e ) {</span>
+<span class="source-line-no">359</span><span id="line-359">            LOG.error( "Failed to scan page data: ", e );</span>
+<span class="source-line-no">360</span><span id="line-360">        } catch( final FilterException e ) {</span>
+<span class="source-line-no">361</span><span id="line-361">            LOG.error( "page filter threw exception: ", e );</span>
+<span class="source-line-no">362</span><span id="line-362">            // FIXME: Don't yet know what to do</span>
+<span class="source-line-no">363</span><span id="line-363">        }</span>
+<span class="source-line-no">364</span><span id="line-364"></span>
+<span class="source-line-no">365</span><span id="line-365">        return result;</span>
+<span class="source-line-no">366</span><span id="line-366">    }</span>
+<span class="source-line-no">367</span><span id="line-367"></span>
+<span class="source-line-no">368</span><span id="line-368">    /**</span>
+<span class="source-line-no">369</span><span id="line-369">     *  {@inheritDoc}</span>
+<span class="source-line-no">370</span><span id="line-370">     */</span>
+<span class="source-line-no">371</span><span id="line-371">    @Override</span>
+<span class="source-line-no">372</span><span id="line-372">    public WikiRenderer getRenderer( final Context context, final WikiDocument doc ) {</span>
+<span class="source-line-no">373</span><span id="line-373">        final Object[] params = { context, doc };</span>
+<span class="source-line-no">374</span><span id="line-374">        return getRenderer( params, m_rendererConstructor );</span>
+<span class="source-line-no">375</span><span id="line-375">    }</span>
+<span class="source-line-no">376</span><span id="line-376"></span>
+<span class="source-line-no">377</span><span id="line-377">    /**</span>
+<span class="source-line-no">378</span><span id="line-378">     *  {@inheritDoc}</span>
+<span class="source-line-no">379</span><span id="line-379">     */</span>
+<span class="source-line-no">380</span><span id="line-380">    @Override</span>
+<span class="source-line-no">381</span><span id="line-381">    public WikiRenderer getWysiwygRenderer( final Context context, final WikiDocument doc ) {</span>
+<span class="source-line-no">382</span><span id="line-382">        final Object[] params = { context, doc };</span>
+<span class="source-line-no">383</span><span id="line-383">        return getRenderer( params, m_rendererWysiwygConstructor );</span>
+<span class="source-line-no">384</span><span id="line-384">    }</span>
+<span class="source-line-no">385</span><span id="line-385"></span>
+<span class="source-line-no">386</span><span id="line-386">    @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">387</span><span id="line-387">    private &lt; T extends WikiRenderer &gt; T getRenderer( final Object[] params, final Constructor&lt;?&gt; rendererConstructor ) {</span>
+<span class="source-line-no">388</span><span id="line-388">        try {</span>
+<span class="source-line-no">389</span><span id="line-389">            return ( T )rendererConstructor.newInstance( params );</span>
+<span class="source-line-no">390</span><span id="line-390">        } catch( final Exception e ) {</span>
+<span class="source-line-no">391</span><span id="line-391">            LOG.error( "Unable to create WikiRenderer", e );</span>
+<span class="source-line-no">392</span><span id="line-392">        }</span>
+<span class="source-line-no">393</span><span id="line-393">        return null;</span>
+<span class="source-line-no">394</span><span id="line-394">    }</span>
+<span class="source-line-no">395</span><span id="line-395"></span>
+<span class="source-line-no">396</span><span id="line-396">    /**</span>
+<span class="source-line-no">397</span><span id="line-397">     * {@inheritDoc}</span>
+<span class="source-line-no">398</span><span id="line-398">     *</span>
+<span class="source-line-no">399</span><span id="line-399">     * &lt;p&gt;Flushes the document cache in response to a POST_SAVE_BEGIN event.</span>
+<span class="source-line-no">400</span><span id="line-400">     *</span>
+<span class="source-line-no">401</span><span id="line-401">     * @see WikiEventListener#actionPerformed(WikiEvent)</span>
+<span class="source-line-no">402</span><span id="line-402">     */</span>
+<span class="source-line-no">403</span><span id="line-403">    @Override</span>
+<span class="source-line-no">404</span><span id="line-404">    public void actionPerformed( final WikiEvent event ) {</span>
+<span class="source-line-no">405</span><span id="line-405">        LOG.debug( "event received: {}", event.toString() );</span>
+<span class="source-line-no">406</span><span id="line-406">        if( isBeginningAWikiPagePostSaveEventAndDocumentCacheIsEnabled( event ) ) {</span>
+<span class="source-line-no">407</span><span id="line-407">            final String pageName = ( ( WikiPageEvent ) event ).getPageName();</span>
+<span class="source-line-no">408</span><span id="line-408">            cachingManager.remove( CachingManager.CACHE_DOCUMENTS, pageName );</span>
+<span class="source-line-no">409</span><span id="line-409">            final Collection&lt; String &gt; referringPages = m_engine.getManager( ReferenceManager.class ).findReferrers( pageName );</span>
+<span class="source-line-no">410</span><span id="line-410"></span>
+<span class="source-line-no">411</span><span id="line-411">            // Flush also those pages that refer to this page (if a nonexistent page</span>
+<span class="source-line-no">412</span><span id="line-412">            // appears, we need to flush the HTML that refers to the now-existent page)</span>
+<span class="source-line-no">413</span><span id="line-413">            if( referringPages != null ) {</span>
+<span class="source-line-no">414</span><span id="line-414">                for( final String page : referringPages ) {</span>
+<span class="source-line-no">415</span><span id="line-415">                    LOG.debug( "Flushing latest version of {}", page );</span>
+<span class="source-line-no">416</span><span id="line-416">                    // as there is a new version of the page expire both plugin and pluginless versions of the old page</span>
+<span class="source-line-no">417</span><span id="line-417">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + Boolean.FALSE );</span>
+<span class="source-line-no">418</span><span id="line-418">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + Boolean.TRUE );</span>
+<span class="source-line-no">419</span><span id="line-419">                    cachingManager.remove( CachingManager.CACHE_DOCUMENTS, page + VERSION_DELIMITER + PageProvider.LATEST_VERSION  + VERSION_DELIMITER + null );</span>
+<span class="source-line-no">420</span><span id="line-420">                }</span>
+<span class="source-line-no">421</span><span id="line-421">            }</span>
+<span class="source-line-no">422</span><span id="line-422">        }</span>
+<span class="source-line-no">423</span><span id="line-423">    }</span>
+<span class="source-line-no">424</span><span id="line-424"></span>
+<span class="source-line-no">425</span><span id="line-425">    boolean isBeginningAWikiPagePostSaveEventAndDocumentCacheIsEnabled( final WikiEvent event ) {</span>
+<span class="source-line-no">426</span><span id="line-426">        return event instanceof WikiPageEvent</span>
+<span class="source-line-no">427</span><span id="line-427">               &amp;&amp; event.getType() == WikiPageEvent.POST_SAVE_BEGIN</span>
+<span class="source-line-no">428</span><span id="line-428">               &amp;&amp; cachingManager.enabled( CachingManager.CACHE_DOCUMENTS );</span>
+<span class="source-line-no">429</span><span id="line-429">    }</span>
+<span class="source-line-no">430</span><span id="line-430"></span>
+<span class="source-line-no">431</span><span id="line-431">}</span>
 
 
 
