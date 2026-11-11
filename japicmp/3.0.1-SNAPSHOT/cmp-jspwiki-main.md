@@ -204,7 +204,6 @@
 | Modified     | [org.apache.wiki.plugin.Image]                                   | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.IndexPlugin]                             | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.InsertPage]                              | ![Not serializable]                 | ![Method added to public class] |
-| Added        | [org.apache.wiki.plugin.LanguagePlugin]                          | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.ListLocksPlugin]                         | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.Note]                                    | ![Not serializable]                 | ![Method added to public class] |
 | Modified     | [org.apache.wiki.plugin.PageViewPlugin]                          | ![Not serializable]                 | ![Method added to public class] |
@@ -6440,35 +6439,6 @@ ___
 | Unchanged | `public` `static` `final` | [`String`] | `PARAM_SECTION`   |             | ![No changes]         |
 | Unchanged | `public` `static` `final` | [`String`] | `PARAM_SHOW`      |             | ![No changes]         |
 | Unchanged | `public` `static` `final` | [`String`] | `PARAM_STYLE`     |             | ![No changes]         |
-
-___
-
-<a id="user-content-org.apache.wiki.plugin.languageplugin"></a>
-### `org.apache.wiki.plugin.LanguagePlugin`
-
-- [X] Binary-compatible
-- [X] Source-compatible
-- [X] Serialization-compatible
-
-| Status | Modifiers    | Type      | Name                 | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|----------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`LanguagePlugin`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
-
-
-#### Constructors
-
-| Status | Modifiers    | Generics | Constructor            | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`LanguagePlugin`**() |             |        | ![No changes]         |
-
-
-#### Methods
-
-| Status | Modifiers    | Generics | Type           | Method                                              | Annotations | Throws                  | Compatibility Changes |
-|--------|--------------|----------|----------------|-----------------------------------------------------|-------------|-------------------------|-----------------------|
-| Added  | **`public`** |          | **[`String`]** | **`execute`**([`Context`], [`Map<String, String>`]) |             | **[`PluginException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **[`String`]** | **`getDisplayName`**([`Locale`])                    |             |                         | ![Method added to public class] |
-| Added  | **`public`** |          | **[`String`]** | **`getSnipExample`**()                              |             |                         | ![Method added to public class] |
 
 ___
 
@@ -13952,7 +13922,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-11 21:35:13.804+0000*.
+*Generated on: 2026-11-11 21:37:29.986+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -14466,7 +14436,6 @@ ___
 [org.apache.wiki.plugin.Image]: #user-content-org.apache.wiki.plugin.image
 [org.apache.wiki.plugin.IndexPlugin]: #user-content-org.apache.wiki.plugin.indexplugin
 [org.apache.wiki.plugin.InsertPage]: #user-content-org.apache.wiki.plugin.insertpage
-[org.apache.wiki.plugin.LanguagePlugin]: #user-content-org.apache.wiki.plugin.languageplugin
 [org.apache.wiki.plugin.ListLocksPlugin]: #user-content-org.apache.wiki.plugin.listlocksplugin
 [org.apache.wiki.plugin.Note]: #user-content-org.apache.wiki.plugin.note
 [org.apache.wiki.plugin.PageViewPlugin]: #user-content-org.apache.wiki.plugin.pageviewplugin

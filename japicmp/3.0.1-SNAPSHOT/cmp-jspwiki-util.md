@@ -56,7 +56,7 @@
 | Unchanged | [org.apache.wiki.util.ClassUtil]                            | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.CommentedProperties]                  | ![Compatible]       | ![No changes]         |
 | Modified  | [org.apache.wiki.util.CryptoUtil]                           | ![Not serializable] | ![Method added to public class] |
-| Modified  | [org.apache.wiki.util.FileUtil]                             | ![Not serializable] | ![Method added to public class] |
+| Unchanged | [org.apache.wiki.util.FileUtil]                             | ![Not serializable] | ![No changes]         |
 | Modified  | [org.apache.wiki.util.FormUtil]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Modified  | [org.apache.wiki.util.HttpUtil]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Modified  | [org.apache.wiki.util.MailUtil]                             | ![Not serializable] | ![No changes]         |
@@ -272,24 +272,23 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `FileUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `FileUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type           | Method                                                      | Annotations | Throws                                            | Compatibility Changes |
-|-----------|---------------------------|----------|----------------|-------------------------------------------------------------|-------------|---------------------------------------------------|-----------------------|
-| Unchanged | `static` `public`         |          | `void`         | `copyContents`([`Reader`], [`Writer`])                      |             | [`IOException`]                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | `void`         | `copyContents`([`InputStream`], [`OutputStream`])           |             | [`IOException`]                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`String`]     | `getThrowingMethod`([`Throwable`])                          |             |                                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`File`]       | `newTmpFile`([`String`], [`Charset`])                       |             | [`IOException`]                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`File`]       | `newTmpFile`([`String`])                                    |             | [`IOException`]                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`String`]     | `readContents`([`InputStream`], [`String`])                 |             | [`IOException`]                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`String`]     | `readContents`([`Reader`])                                  |             | [`IOException`]                                   | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`String`]     | `runSimpleCommand`([`String`], [`String`])                  |             | [`IOException`], [`InterruptedException`]         | ![No changes]         |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`runSimpleCommand`**([`String`], [`String`], [`Charset`]) |             | **[`IOException`]**, **[`InterruptedException`]** | ![Method added to public class] |
+| Status    | Modifiers         | Generics | Type       | Method                                            | Annotations | Throws                                    | Compatibility Changes |
+|-----------|-------------------|----------|------------|---------------------------------------------------|-------------|-------------------------------------------|-----------------------|
+| Unchanged | `static` `public` |          | `void`     | `copyContents`([`Reader`], [`Writer`])            |             | [`IOException`]                           | ![No changes]         |
+| Unchanged | `static` `public` |          | `void`     | `copyContents`([`InputStream`], [`OutputStream`]) |             | [`IOException`]                           | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `getThrowingMethod`([`Throwable`])                |             |                                           | ![No changes]         |
+| Unchanged | `static` `public` |          | [`File`]   | `newTmpFile`([`String`], [`Charset`])             |             | [`IOException`]                           | ![No changes]         |
+| Unchanged | `static` `public` |          | [`File`]   | `newTmpFile`([`String`])                          |             | [`IOException`]                           | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `readContents`([`InputStream`], [`String`])       |             | [`IOException`]                           | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `readContents`([`Reader`])                        |             | [`IOException`]                           | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `runSimpleCommand`([`String`], [`String`])        |             | [`IOException`], [`InterruptedException`] | ![No changes]         |
 
 ___
 
@@ -1156,7 +1155,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-11 21:35:14.089+0000*.
+*Generated on: 2026-11-11 21:37:30.534+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
