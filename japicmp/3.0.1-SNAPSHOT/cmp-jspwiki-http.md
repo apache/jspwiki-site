@@ -58,6 +58,8 @@
 | Added    | [org.apache.wiki.http.filter.ContentTypeOptionsFilter] | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.CrossDomainFilter]        | ![Not serializable] | ![Method added to public class] |
 | Modified | [org.apache.wiki.http.filter.CsrfProtectionFilter]     | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Added    | [org.apache.wiki.http.filter.ForwardedHeaderFilter]    | ![Not serializable] | ![Method added to public class] |
+| Added    | [org.apache.wiki.http.filter.ForwardedRequest]         | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.ReferrerPolicyFilter]     | ![Not serializable] | ![Method added to public class] |
 | Added    | [org.apache.wiki.http.filter.STSFilter]                | ![Not serializable] | ![Method added to public class] |
 
@@ -274,6 +276,62 @@ ___
 
 ___
 
+<a id="user-content-org.apache.wiki.http.filter.forwardedheaderfilter"></a>
+### `org.apache.wiki.http.filter.ForwardedHeaderFilter`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                        | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|-----------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`ForwardedHeaderFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                   | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|-------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`ForwardedHeaderFilter`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
+|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
+| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
+| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.http.filter.forwardedrequest"></a>
+### `org.apache.wiki.http.filter.ForwardedRequest`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                   | Extends | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|------------------------|---------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`ForwardedRequest`** | null    | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers    | Generics | Type                        | Method                       | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|-----------------------------|------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **[`String`]**              | **`getHeader`**([`String`])  |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **[`Enumeration<String>`]** | **`getHeaderNames`**()       |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **[`Enumeration<String>`]** | **`getHeaders`**([`String`]) |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]**              | **`getRemoteAddr`**()        |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`int`**                   | **`getRemotePort`**()        |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]**              | **`getScheme`**()            |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **[`String`]**              | **`getServerName`**()        |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`int`**                   | **`getServerPort`**()        |             |        | ![Method added to public class] |
+| Added  | **`public`** |          | **`boolean`**               | **`isSecure`**()             |             |        | ![Method added to public class] |
+
+___
+
 <a id="user-content-org.apache.wiki.http.filter.referrerpolicyfilter"></a>
 ### `org.apache.wiki.http.filter.ReferrerPolicyFilter`
 
@@ -340,7 +398,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-14 07:32:40.919+0000*.
+*Generated on: 2026-11-14 15:52:16.242+0000*.
 
 [1]: # "javax.servlet.ServletRequest"
 [2]: # "javax.servlet.ServletResponse"
@@ -352,6 +410,7 @@ ___
 [Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
+[`Enumeration<String>`]: # "java.util.Enumeration<java.lang.String>"
 [`FilterChain`]: # "jakarta.servlet.FilterChain"
 [`FilterConfig`]: # "jakarta.servlet.FilterConfig"
 [`HttpServletRequest`]: # "javax.servlet.http.HttpServletRequest"
@@ -368,5 +427,7 @@ ___
 [org.apache.wiki.http.filter.ContentTypeOptionsFilter]: #user-content-org.apache.wiki.http.filter.contenttypeoptionsfilter
 [org.apache.wiki.http.filter.CrossDomainFilter]: #user-content-org.apache.wiki.http.filter.crossdomainfilter
 [org.apache.wiki.http.filter.CsrfProtectionFilter]: #user-content-org.apache.wiki.http.filter.csrfprotectionfilter
+[org.apache.wiki.http.filter.ForwardedHeaderFilter]: #user-content-org.apache.wiki.http.filter.forwardedheaderfilter
+[org.apache.wiki.http.filter.ForwardedRequest]: #user-content-org.apache.wiki.http.filter.forwardedrequest
 [org.apache.wiki.http.filter.ReferrerPolicyFilter]: #user-content-org.apache.wiki.http.filter.referrerpolicyfilter
 [org.apache.wiki.http.filter.STSFilter]: #user-content-org.apache.wiki.http.filter.stsfilter

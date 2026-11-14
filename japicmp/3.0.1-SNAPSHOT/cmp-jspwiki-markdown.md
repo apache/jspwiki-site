@@ -54,6 +54,7 @@
 | Unchanged | [org.apache.wiki.htmltowiki.syntax.markdown.MarkdownSyntaxDecorator] | ![Not serializable] | ![No changes]     |
 | Unchanged | [org.apache.wiki.markdown.MarkdownForJSPWikiExtension]           | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.markdown.MarkdownSetupEngineLifecycleExtension] | ![Not serializable] | ![No changes]         |
+| Added     | [org.apache.wiki.markdown.extensions.attributesanitizer.AttributeSanitizerExtension] | ![Not serializable] | ![Method added to public class] |
 | Unchanged | [org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.ExternalLinkAttributeProviderState] | ![Not serializable] | ![No changes] |
 | Unchanged | [org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.ImageLinkAttributeProviderState] | ![Not serializable] | ![No changes] |
 | Unchanged | [org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.InterWikiLinkAttributeProviderState] | ![Not serializable] | ![No changes] |
@@ -173,6 +174,35 @@ ___
 | Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|--------|--------------------------|-------------|--------|-----------------------|
 | Unchanged | `public`  |          | `void` | `onInit`([`Properties`]) |             |        | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.markdown.extensions.attributesanitizer.attributesanitizerextension"></a>
+### `org.apache.wiki.markdown.extensions.attributesanitizer.AttributeSanitizerExtension`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name                              | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|-----------------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`AttributeSanitizerExtension`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor                         | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|-------------------------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`AttributeSanitizerExtension`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics | Type                                | Method                                       | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|----------|-------------------------------------|----------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** |          | **[`AttributeSanitizerExtension`]** | **`create`**()                               |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **`void`**                          | **`extend`**([`Builder`], [`String`])        |             |        | ![Method added to public class] |
+| Added  | **`public`**              |          | **`void`**                          | **`rendererOptions`**([`MutableDataHolder`]) |             |        | ![Method added to public class] |
 
 ___
 
@@ -1199,13 +1229,15 @@ ___
 
 ___
 
-*Generated on: 2026-11-14 07:32:42.760+0000*.
+*Generated on: 2026-11-14 15:52:17.839+0000*.
 
 [1]: # "com.vladsch.flexmark.parser.Parser$Builder"
+[Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
 [`AttributablePart`]: # "com.vladsch.flexmark.html.renderer.AttributablePart"
 [`AttributeProvider`]: # "com.vladsch.flexmark.html.AttributeProvider"
+[`AttributeSanitizerExtension`]: # "org.apache.wiki.markdown.extensions.attributesanitizer.AttributeSanitizerExtension"
 [`Builder`]: # "com.vladsch.flexmark.html.HtmlRenderer$Builder"
 [`Context`]: # "org.apache.wiki.api.core.Context"
 [`DataHolder`]: # "com.vladsch.flexmark.util.data.DataHolder"
@@ -1242,6 +1274,7 @@ ___
 [org.apache.wiki.htmltowiki.syntax.markdown.MarkdownSyntaxDecorator]: #user-content-org.apache.wiki.htmltowiki.syntax.markdown.markdownsyntaxdecorator
 [org.apache.wiki.markdown.MarkdownForJSPWikiExtension]: #user-content-org.apache.wiki.markdown.markdownforjspwikiextension
 [org.apache.wiki.markdown.MarkdownSetupEngineLifecycleExtension]: #user-content-org.apache.wiki.markdown.markdownsetupenginelifecycleextension
+[org.apache.wiki.markdown.extensions.attributesanitizer.AttributeSanitizerExtension]: #user-content-org.apache.wiki.markdown.extensions.attributesanitizer.attributesanitizerextension
 [org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.ExternalLinkAttributeProviderState]: #user-content-org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.externallinkattributeproviderstate
 [org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.ImageLinkAttributeProviderState]: #user-content-org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.imagelinkattributeproviderstate
 [org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.InterWikiLinkAttributeProviderState]: #user-content-org.apache.wiki.markdown.extensions.jspwikilinks.attributeprovider.interwikilinkattributeproviderstate

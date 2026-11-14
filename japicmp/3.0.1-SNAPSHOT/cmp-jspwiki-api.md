@@ -299,11 +299,12 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                 | Type       | Name                      | Annotations | Compatibility Changes |
-|-----------|---------------------------|------------|---------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final` | [`String`] | `ATTR_CONTEXT`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `VAR_EXECUTE_PLUGINS`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final` | [`String`] | `VAR_WYSIWYG_EDITOR_MODE` |             | ![No changes]         |
+| Status    | Modifiers                             | Type           | Name                      | Annotations | Compatibility Changes |
+|-----------|---------------------------------------|----------------|---------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final`             | [`String`]     | `ATTR_CONTEXT`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `VAR_EXECUTE_PLUGINS`     |             | ![No changes]         |
+| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `VAR_RENDERED_TEXT`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final`             | [`String`]     | `VAR_WYSIWYG_EDITOR_MODE` |             | ![No changes]         |
 
 ___
 
@@ -1499,7 +1500,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-14 07:32:40.684+0000*.
+*Generated on: 2026-11-14 15:52:15.995+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
