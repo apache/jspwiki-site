@@ -40,8 +40,8 @@
 <span class="source-line-no">027</span><span id="line-27">import org.apache.wiki.auth.user.UserProfile;</span>
 <span class="source-line-no">028</span><span id="line-28">import org.apache.wiki.i18n.InternationalizationManager;</span>
 <span class="source-line-no">029</span><span id="line-29">import org.apache.wiki.tasks.TasksManager;</span>
-<span class="source-line-no">030</span><span id="line-30">import org.apache.wiki.util.HttpUtil;</span>
-<span class="source-line-no">031</span><span id="line-31">import org.apache.wiki.util.MailUtil;</span>
+<span class="source-line-no">030</span><span id="line-30">import org.apache.wiki.util.MailUtil;</span>
+<span class="source-line-no">031</span><span id="line-31">import org.apache.wiki.util.TextUtil;</span>
 <span class="source-line-no">032</span><span id="line-32">import org.apache.wiki.workflow.Outcome;</span>
 <span class="source-line-no">033</span><span id="line-33">import org.apache.wiki.workflow.Task;</span>
 <span class="source-line-no">034</span><span id="line-34">import org.apache.wiki.workflow.WorkflowManager;</span>
@@ -91,28 +91,38 @@
 <span class="source-line-no">078</span><span id="line-78">                final String subject = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</span>
 <span class="source-line-no">079</span><span id="line-79">                                                 "notification.createUserProfile.accept.subject", app );</span>
 <span class="source-line-no">080</span><span id="line-80"></span>
-<span class="source-line-no">081</span><span id="line-81">                final String loginUrl = context.getEngine().getURL( ContextEnum.WIKI_LOGIN.getRequestContext(), null, null );</span>
+<span class="source-line-no">081</span><span id="line-81">                String loginUrl = context.getEngine().getURL( ContextEnum.WIKI_LOGIN.getRequestContext(), null, null );</span>
 <span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">                final String absoluteLoginUrl = HttpUtil.getAbsoluteUrl(context.getHttpRequest(), loginUrl);</span>
-<span class="source-line-no">084</span><span id="line-84"></span>
-<span class="source-line-no">085</span><span id="line-85">                final String content = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</span>
-<span class="source-line-no">086</span><span id="line-86">                                                 "notification.createUserProfile.accept.content", app,</span>
-<span class="source-line-no">087</span><span id="line-87">                                                 profile.getLoginName(),</span>
-<span class="source-line-no">088</span><span id="line-88">                                                 profile.getFullname(),</span>
-<span class="source-line-no">089</span><span id="line-89">                                                 profile.getEmail(),</span>
-<span class="source-line-no">090</span><span id="line-90">                                                 absoluteLoginUrl );</span>
-<span class="source-line-no">091</span><span id="line-91">                MailUtil.sendMessage( context.getEngine().getWikiProperties(), to, subject, content );</span>
-<span class="source-line-no">092</span><span id="line-92">            } catch ( final AddressException e) {</span>
-<span class="source-line-no">093</span><span id="line-93">                LOG.debug( e.getMessage(), e );</span>
-<span class="source-line-no">094</span><span id="line-94">            } catch ( final MessagingException me ) {</span>
-<span class="source-line-no">095</span><span id="line-95">                LOG.error( "Could not send registration confirmation e-mail. Is the e-mail server running?", me );</span>
-<span class="source-line-no">096</span><span id="line-96">            }</span>
-<span class="source-line-no">097</span><span id="line-97">        }</span>
-<span class="source-line-no">098</span><span id="line-98"></span>
-<span class="source-line-no">099</span><span id="line-99">        return Outcome.STEP_COMPLETE;</span>
-<span class="source-line-no">100</span><span id="line-100">    }</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">}</span>
+<span class="source-line-no">083</span><span id="line-83">                // Build the emailed link from configuration (jspwiki.baseURL), never from request</span>
+<span class="source-line-no">084</span><span id="line-84">                // headers (Host / X-Forwarded-*), which are attacker-controlled.</span>
+<span class="source-line-no">085</span><span id="line-85">                String base = TextUtil.getStringProperty( context.getEngine().getWikiProperties(), "jspwiki.baseURL", "" ).trim();</span>
+<span class="source-line-no">086</span><span id="line-86">                while( base.endsWith( "/" ) ) {</span>
+<span class="source-line-no">087</span><span id="line-87">                    base = base.substring( 0, base.length() - 1 );</span>
+<span class="source-line-no">088</span><span id="line-88">                }</span>
+<span class="source-line-no">089</span><span id="line-89">                final String contextPath = context.getEngine().getBaseURL();</span>
+<span class="source-line-no">090</span><span id="line-90">                if( !base.isEmpty() &amp;&amp; !contextPath.isEmpty() &amp;&amp; loginUrl.startsWith( contextPath ) ) {</span>
+<span class="source-line-no">091</span><span id="line-91">                    loginUrl = loginUrl.substring( contextPath.length() );</span>
+<span class="source-line-no">092</span><span id="line-92">                }</span>
+<span class="source-line-no">093</span><span id="line-93">                final String absoluteLoginUrl = base + loginUrl;</span>
+<span class="source-line-no">094</span><span id="line-94"></span>
+<span class="source-line-no">095</span><span id="line-95">                final String content = i18n.get( InternationalizationManager.DEF_TEMPLATE, m_loc,</span>
+<span class="source-line-no">096</span><span id="line-96">                                                 "notification.createUserProfile.accept.content", app,</span>
+<span class="source-line-no">097</span><span id="line-97">                                                 profile.getLoginName(),</span>
+<span class="source-line-no">098</span><span id="line-98">                                                 profile.getFullname(),</span>
+<span class="source-line-no">099</span><span id="line-99">                                                 profile.getEmail(),</span>
+<span class="source-line-no">100</span><span id="line-100">                                                 absoluteLoginUrl );</span>
+<span class="source-line-no">101</span><span id="line-101">                MailUtil.sendMessage( context.getEngine().getWikiProperties(), to, subject, content );</span>
+<span class="source-line-no">102</span><span id="line-102">            } catch ( final AddressException e) {</span>
+<span class="source-line-no">103</span><span id="line-103">                LOG.debug( e.getMessage(), e );</span>
+<span class="source-line-no">104</span><span id="line-104">            } catch ( final MessagingException me ) {</span>
+<span class="source-line-no">105</span><span id="line-105">                LOG.error( "Could not send registration confirmation e-mail. Is the e-mail server running?", me );</span>
+<span class="source-line-no">106</span><span id="line-106">            }</span>
+<span class="source-line-no">107</span><span id="line-107">        }</span>
+<span class="source-line-no">108</span><span id="line-108"></span>
+<span class="source-line-no">109</span><span id="line-109">        return Outcome.STEP_COMPLETE;</span>
+<span class="source-line-no">110</span><span id="line-110">    }</span>
+<span class="source-line-no">111</span><span id="line-111"></span>
+<span class="source-line-no">112</span><span id="line-112">}</span>
 
 
 

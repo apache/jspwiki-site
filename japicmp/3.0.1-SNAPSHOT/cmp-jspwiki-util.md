@@ -65,6 +65,8 @@
 | Unchanged | [org.apache.wiki.util.PropertiesUtils]                      | ![Not serializable] | ![No changes]         |
 | Modified  | [org.apache.wiki.util.PropertyReader]                       | ![Not serializable] | ![Method removed] ![Method added to public class] |
 | Unchanged | [org.apache.wiki.util.Serializer]                           | ![Not serializable] | ![No changes]         |
+| Added     | [org.apache.wiki.util.Synchronizer]                         | ![Not serializable] | ![Method added to public class] |
+| Added     | [org.apache.wiki.util.Synchronizer$ThrowingRunnable]        | ![Not serializable] | ![Annotation added]   |
 | Unchanged | [org.apache.wiki.util.TextUtil]                             | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.TimedCounterList]                     | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.URIScheme]                            | ![Compatible]       | ![No changes]         |
@@ -531,6 +533,68 @@ ___
 |-----------|-------------------|----------|-----------------------------------------|----------------------------------------------------|-------------|-----------------|-----------------------|
 | Unchanged | `static` `public` |          | [`Map<String, ? extends Serializable>`] | `deserializeFromBase64`([`String`])                |             | [`IOException`] | ![No changes]         |
 | Unchanged | `static` `public` |          | [`String`]                              | `serializeToBase64`([`Map<String, Serializable>`]) |             | [`IOException`] | ![No changes]         |
+
+___
+
+<a id="user-content-org.apache.wiki.util.synchronizer"></a>
+### `org.apache.wiki.util.Synchronizer`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers    | Type      | Name               | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|--------------|-----------|--------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`public`** | **Class** | **`Synchronizer`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+
+
+#### Constructors
+
+| Status | Modifiers    | Generics | Constructor          | Annotations | Throws | Compatibility Changes |
+|--------|--------------|----------|----------------------|-------------|--------|-----------------------|
+| Added  | **`public`** |          | **`Synchronizer`**() |             |        | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                 | Generics                        | Type           | Method                                                        | Annotations | Throws | Compatibility Changes |
+|--------|---------------------------|---------------------------------|----------------|---------------------------------------------------------------|-------------|--------|-----------------------|
+| Added  | **`static`** **`public`** | \<**[`T extends Object`]**\>    | **[`Object`]** | **`synchronize`**([`ReentrantLock`], [`Supplier<T>`])         |             |        | ![Method added to public class] |
+| Added  | **`static`** **`public`** | \<**[`E extends Exception`]**\> | **`void`**     | **`synchronize`**([`ReentrantLock`], [`ThrowingRunnable<E>`]) |             |        | ![Method added to public class] |
+
+___
+
+<a id="user-content-org.apache.wiki.util.synchronizer$throwingrunnable"></a>
+### `org.apache.wiki.util.Synchronizer$ThrowingRunnable`
+
+- [X] Binary-compatible
+- [X] Source-compatible
+- [X] Serialization-compatible
+
+| Status | Modifiers                                | Type          | Name                   | Extends        | JDK        | Serialization       | Compatibility Changes |
+|--------|------------------------------------------|---------------|------------------------|----------------|------------|---------------------|-----------------------|
+| Added  | **`static`** **`public`** **`abstract`** | **Interface** | **`ThrowingRunnable`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![Annotation added]   |
+
+
+#### Generics
+
+| Status | Name    | Extends           | Compatibility Changes |
+|--------|---------|-------------------|-----------------------|
+| Added  | **`E`** | **[`Exception`]** | ![No changes]         |
+
+
+#### Annotations
+
+| Status | Annotation                  | Compatibility Changes |
+|--------|-----------------------------|-----------------------|
+| Added  | **[`FunctionalInterface`]** | ![No changes]         |
+
+
+#### Methods
+
+| Status | Modifiers                   | Generics | Type       | Method      | Annotations | Throws            | Compatibility Changes |
+|--------|-----------------------------|----------|------------|-------------|-------------|-------------------|-----------------------|
+| Added  | **`public`** **`abstract`** |          | **`void`** | **`run`**() |             | **[`Exception`]** | ![No changes]         |
 
 ___
 
@@ -1156,7 +1220,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 14:21:01.923+0000*.
+*Generated on: 2026-11-15 18:44:58.025+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "jakarta.servlet.http.HttpServletRequest"
@@ -1168,6 +1232,7 @@ ___
 [8]: # "org.apache.wiki.util.URIScheme[]"
 [9]: # "org.apache.wiki.util.XHTML[]"
 [10]: # "org.apache.wiki.util.comparators.HumanComparator$CharType[]"
+[Annotation added]: https://img.shields.io/badge/Annotation_added-yellow "Annotation added"
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
 [Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
@@ -1191,6 +1256,7 @@ ___
 [`Constable`]: # "java.lang.constant.Constable"
 [`Date`]: # "java.util.Date"
 [`Document`]: # "org.jdom2.Document"
+[`E extends Exception`]: # "E extends java.lang.Exception"
 [`Element`]: # "org.jdom2.Element"
 [`Enum<E>`]: # "java.lang.Enum<E extends java.lang.Enum<E>>"
 [`Exception`]: # "java.lang.Exception"
@@ -1224,13 +1290,16 @@ ___
 [`Principal`]: # "java.security.Principal"
 [`Properties`]: # "java.util.Properties"
 [`Reader`]: # "java.io.Reader"
+[`ReentrantLock`]: # "java.util.concurrent.locks.ReentrantLock"
 [`ReflectiveOperationException`]: # "java.lang.ReflectiveOperationException"
 [`Serializable`]: # "java.io.Serializable"
 [`ServletContext`]: # "javax.servlet.ServletContext"
 [`ServletResponse`]: # "jakarta.servlet.ServletResponse"
 [`String`]: # "java.lang.String"
+[`Supplier<T>`]: # "java.util.function.Supplier<T>"
 [`T extends Object`]: # "T extends java.lang.Object"
 [`Throwable`]: # "java.lang.Throwable"
+[`ThrowingRunnable<E>`]: # "org.apache.wiki.util.Synchronizer$ThrowingRunnable<E>"
 [`URIScheme`]: # "org.apache.wiki.util.URIScheme"
 [`Writer`]: # "java.io.Writer"
 [`XHTML`]: # "org.apache.wiki.util.XHTML"
@@ -1248,6 +1317,8 @@ ___
 [org.apache.wiki.util.PropertiesUtils]: #user-content-org.apache.wiki.util.propertiesutils
 [org.apache.wiki.util.PropertyReader]: #user-content-org.apache.wiki.util.propertyreader
 [org.apache.wiki.util.Serializer]: #user-content-org.apache.wiki.util.serializer
+[org.apache.wiki.util.Synchronizer]: #user-content-org.apache.wiki.util.synchronizer
+[org.apache.wiki.util.Synchronizer$ThrowingRunnable]: #user-content-org.apache.wiki.util.synchronizer$throwingrunnable
 [org.apache.wiki.util.TextUtil]: #user-content-org.apache.wiki.util.textutil
 [org.apache.wiki.util.TimedCounterList]: #user-content-org.apache.wiki.util.timedcounterlist
 [org.apache.wiki.util.URIScheme]: #user-content-org.apache.wiki.util.urischeme
