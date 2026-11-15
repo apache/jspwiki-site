@@ -259,7 +259,7 @@
 | Unchanged    | [org.apache.wiki.rss.RSSThread]                                  | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.BasicSearchProvider]                     | ![Not serializable]                 | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.DefaultSearchManager]                    | ![Not serializable]                 | ![No changes]         |
-| Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable]                 | ![Method added to public class] |
+| Modified     | [org.apache.wiki.search.DefaultSearchManager$JSONSearch]         | ![Not serializable]                 | ![Method removed] ![Method added to public class] |
 | Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch]       | ![Not serializable]                 | ![Interface added] ![Method added to public class] |
 | Added        | [org.apache.wiki.search.DefaultSearchManager$PluginSearch$SimpleSnipData] | ![Not serializable]        | ![No changes]         |
 | Unchanged    | [org.apache.wiki.search.LuceneSearchProvider]                    | ![Not serializable]                 | ![No changes]         |
@@ -8443,8 +8443,8 @@ ___
 <a id="user-content-org.apache.wiki.search.defaultsearchmanager$jsonsearch"></a>
 ### `org.apache.wiki.search.DefaultSearchManager$JSONSearch`
 
-- [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Binary-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
 | Status   | Modifiers | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
@@ -8468,11 +8468,12 @@ ___
 
 #### Methods
 
-| Status    | Modifiers    | Generics | Type                          | Method                                      | Annotations | Throws              | Compatibility Changes |
-|-----------|--------------|----------|-------------------------------|---------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public`     |          | [`List<Map<String, Object>>`] | `findPages`([`String`], `int`, [`Context`]) |             |                     | ![No changes]         |
-| Unchanged | `public`     |          | [`String`]                    | `getServletMapping`()                       |             |                     | ![No changes]         |
-| Unchanged | `public`     |          | [`List<String>`]              | `getSuggestions`([`String`], `int`)         |             |                     | ![No changes]         |
+| Status    | Modifiers    | Generics | Type                          | Method                                               | Annotations | Throws              | Compatibility Changes |
+|-----------|--------------|----------|-------------------------------|------------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public`     |          | [`List<Map<String, Object>>`] | `findPages`([`String`], `int`, [`Context`])          |             |                     | ![No changes]         |
+| Unchanged | `public`     |          | [`String`]                    | `getServletMapping`()                                |             |                     | ![No changes]         |
+| Removed   | ~~`public`~~ |          | ~~[`List<String>`]~~          | ~~`getSuggestions`~~([`String`], `int`)              |             |                     | ![Method removed]     |
+| Added     | **`public`** |          | **[`List<String>`]**          | **`getSuggestions`**([`String`], `int`, [`Context`]) |             |                     | ![Method added to public class] |
 | Removed   | ~~`public`~~ |          | ~~`void`~~                    | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`IOException`]~~ | ![No changes] |
 | Added     | **`public`** |          | **`void`**                    | **`service`**([`HttpServletRequest`][3], [`HttpServletResponse`][8], [`String`], [`List<String>`]) |  | **[`IOException`]** | ![Method added to public class] |
 
@@ -13952,7 +13953,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 18:44:57.631+0000*.
+*Generated on: 2026-11-15 19:07:49.389+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
