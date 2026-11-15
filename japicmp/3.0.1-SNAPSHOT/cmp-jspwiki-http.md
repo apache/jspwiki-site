@@ -1,13 +1,13 @@
 
 # Compatibility Report
 
-![semver MAJOR](https://img.shields.io/badge/semver-MAJOR-red?logo=semver "semver MAJOR")
+![semver PATCH](https://img.shields.io/badge/semver-PATCH-yellow?logo=semver "semver PATCH")
 
 ## Summary
 
-> [!CAUTION]
+> [!IMPORTANT]
 >
-> Incompatible changes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-http 2.12.3](https://img.shields.io/badge/jspwiki_http-2.12.3-blue "jspwiki-http 2.12.3")
+  - ![jspwiki-http 3.0.0](https://img.shields.io/badge/jspwiki_http-3.0.0-blue "jspwiki-http 3.0.0")
 - **New archives**:
   - ![jspwiki-http 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_http-3.0.1_SNAPSHOT-blue "jspwiki-http 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -49,19 +49,19 @@
 
 ## Results
 
-| Status   | Type                                                   | Serialization       | Compatibility Changes |
-|----------|--------------------------------------------------------|---------------------|-----------------------|
-| Added    | [org.apache.wiki.http.filter.COEPFilter]               | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.CORPFilter]               | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.CSPFilter]                | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.ClickJackFilter]          | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.ContentTypeOptionsFilter] | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.CrossDomainFilter]        | ![Not serializable] | ![Method added to public class] |
-| Modified | [org.apache.wiki.http.filter.CsrfProtectionFilter]     | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.ForwardedHeaderFilter]    | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.ForwardedRequest]         | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.ReferrerPolicyFilter]     | ![Not serializable] | ![Method added to public class] |
-| Added    | [org.apache.wiki.http.filter.STSFilter]                | ![Not serializable] | ![Method added to public class] |
+| Status    | Type                                                   | Serialization       | Compatibility Changes |
+|-----------|--------------------------------------------------------|---------------------|-----------------------|
+| Unchanged | [org.apache.wiki.http.filter.COEPFilter]               | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.CORPFilter]               | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.CSPFilter]                | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.ClickJackFilter]          | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.ContentTypeOptionsFilter] | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.CrossDomainFilter]        | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.CsrfProtectionFilter]     | ![Not serializable] | ![No changes]         |
+| Added     | [org.apache.wiki.http.filter.ForwardedHeaderFilter]    | ![Not serializable] | ![Method added to public class] |
+| Added     | [org.apache.wiki.http.filter.ForwardedRequest]         | ![Not serializable] | ![Method added to public class] |
+| Unchanged | [org.apache.wiki.http.filter.ReferrerPolicyFilter]     | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.http.filter.STSFilter]                | ![Not serializable] | ![No changes]         |
 
 <details markdown="1">
 <summary>Expand for details.</summary>
@@ -75,24 +75,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name             | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`COEPFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `COEPFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor        | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|--------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`COEPFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor    | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|----------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `COEPFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
@@ -103,24 +103,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name             | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`CORPFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `CORPFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor        | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|--------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`CORPFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor    | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|----------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `CORPFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
@@ -131,24 +131,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name            | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|-----------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`CSPFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `CSPFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor       | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|-------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`CSPFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor   | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|---------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `CSPFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
@@ -159,24 +159,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name                  | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|-----------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`ClickJackFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ClickJackFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor             | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|-------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`ClickJackFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor         | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|---------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `ClickJackFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
@@ -187,24 +187,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name                           | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|--------------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`ContentTypeOptionsFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|----------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ContentTypeOptionsFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor                      | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|----------------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`ContentTypeOptionsFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor                  | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `ContentTypeOptionsFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
@@ -215,37 +215,37 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name                    | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|-------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`CrossDomainFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `CrossDomainFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor               | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|---------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`CrossDomainFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor           | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|-----------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `CrossDomainFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.http.filter.csrfprotectionfilter"></a>
 ### `org.apache.wiki.http.filter.CsrfProtectionFilter`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name                   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|------------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `CsrfProtectionFilter` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                   | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `CsrfProtectionFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -257,15 +257,12 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type          | Method                                               | Annotations | Throws                                           | Compatibility Changes |
-|-----------|---------------------------|----------|---------------|------------------------------------------------------|-------------|--------------------------------------------------|-----------------------|
-| Unchanged | `public`                  |          | `void`        | `destroy`()                                          |             |                                                  | ![No changes]         |
-| Removed   | ~~`public`~~              |          | ~~`void`~~    | ~~`doFilter`~~([`ServletRequest`][1], [`ServletResponse`][2], [`FilterChain`][3]) |  | ~~[`IOException`]~~, ~~[`ServletException`][4]~~ | ![Method removed] |
-| Added     | **`public`**              |          | **`void`**    | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Removed   | ~~`public`~~              |          | ~~`void`~~    | ~~`init`~~([`FilterConfig`][5])                      |             |                                                  | ![Method removed]     |
-| Added     | **`public`**              |          | **`void`**    | **`init`**([`FilterConfig`])                         |             |                                                  | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`boolean`~~ | ~~`isCsrfProtectedPost`~~([`HttpServletRequest`])    |             |                                                  | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`boolean`** | **`isCsrfProtectedPost`**([`HttpServletRequest`][6]) |             |                                                  | ![Method added to public class] |
+| Status    | Modifiers         | Generics | Type      | Method                                        | Annotations | Throws                                | Compatibility Changes |
+|-----------|-------------------|----------|-----------|-----------------------------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`          |          | `void`    | `destroy`()                                   |             |                                       | ![No changes]         |
+| Unchanged | `public`          |          | `void`    | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`          |          | `void`    | `init`([`FilterConfig`])                      |             |                                       | ![No changes]         |
+| Unchanged | `static` `public` |          | `boolean` | `isCsrfProtectedPost`([`HttpServletRequest`]) |             |                                       | ![No changes]         |
 
 
 #### Fields
@@ -339,24 +336,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name                       | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|----------------------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`ReferrerPolicyFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                   | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ReferrerPolicyFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor                  | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|------------------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`ReferrerPolicyFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor              | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|--------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `ReferrerPolicyFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 ___
 
@@ -367,24 +364,24 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status | Modifiers    | Type      | Name            | Extends        | JDK        | Serialization       | Compatibility Changes |
-|--------|--------------|-----------|-----------------|----------------|------------|---------------------|-----------------------|
-| Added  | **`public`** | **Class** | **`STSFilter`** | **[`Object`]** | **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `STSFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
 
-| Status | Modifiers    | Generics | Constructor       | Annotations | Throws | Compatibility Changes |
-|--------|--------------|----------|-------------------|-------------|--------|-----------------------|
-| Added  | **`public`** |          | **`STSFilter`**() |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor   | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|---------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `STSFilter`() |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status | Modifiers    | Generics | Type       | Method                       | Annotations | Throws                                        | Compatibility Changes |
-|--------|--------------|----------|------------|------------------------------|-------------|-----------------------------------------------|-----------------------|
-| Added  | **`public`** |          | **`void`** | **`doFilter`**([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | **[`IOException`]**, **[`ServletException`]** | ![Method added to public class] |
-| Added  | **`public`** |          | **`void`** | **`init`**([`FilterConfig`]) |             |                                               | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type   | Method                   | Annotations | Throws                                | Compatibility Changes |
+|-----------|-----------|----------|--------|--------------------------|-------------|---------------------------------------|-----------------------|
+| Unchanged | `public`  |          | `void` | `doFilter`([`ServletRequest`], [`ServletResponse`], [`FilterChain`]) |  | [`IOException`], [`ServletException`] | ![No changes] |
+| Unchanged | `public`  |          | `void` | `init`([`FilterConfig`]) |             |                                       | ![No changes]         |
 
 
 </details>
@@ -398,22 +395,15 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:24.553+0000*.
+*Generated on: 2026-11-15 21:24:56.179+0000*.
 
-[1]: # "javax.servlet.ServletRequest"
-[2]: # "javax.servlet.ServletResponse"
-[3]: # "javax.servlet.FilterChain"
-[4]: # "javax.servlet.ServletException"
-[5]: # "javax.servlet.FilterConfig"
-[6]: # "jakarta.servlet.http.HttpServletRequest"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
-[Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
 [`Enumeration<String>`]: # "java.util.Enumeration<java.lang.String>"
 [`FilterChain`]: # "jakarta.servlet.FilterChain"
 [`FilterConfig`]: # "jakarta.servlet.FilterConfig"
-[`HttpServletRequest`]: # "javax.servlet.http.HttpServletRequest"
+[`HttpServletRequest`]: # "jakarta.servlet.http.HttpServletRequest"
 [`IOException`]: # "java.io.IOException"
 [`Object`]: # "java.lang.Object"
 [`ServletException`]: # "jakarta.servlet.ServletException"

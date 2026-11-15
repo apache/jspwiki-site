@@ -7,7 +7,7 @@
 
 > [!IMPORTANT]
 >
-> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-cache 2.12.3](https://img.shields.io/badge/jspwiki_cache-2.12.3-blue "jspwiki-cache 2.12.3")
+  - ![jspwiki-cache 3.0.0](https://img.shields.io/badge/jspwiki_cache-3.0.0-blue "jspwiki-cache 3.0.0")
 - **New archives**:
   - ![jspwiki-cache 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_cache-3.0.1_SNAPSHOT-blue "jspwiki-cache 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -67,9 +67,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `CacheInfo` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `CacheInfo` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -99,9 +99,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name             | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `CachingManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name             | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `CachingManager` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -142,9 +142,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                    | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `EhcacheCachingManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                    | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `EhcacheCachingManager` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -180,7 +180,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:24.458+0000*.
+*Generated on: 2026-11-15 21:24:55.773+0000*.
 
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"

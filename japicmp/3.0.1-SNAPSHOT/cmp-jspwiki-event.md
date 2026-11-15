@@ -7,7 +7,7 @@
 
 > [!IMPORTANT]
 >
-> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-event 2.12.3](https://img.shields.io/badge/jspwiki_event-2.12.3-blue "jspwiki-event 2.12.3")
+  - ![jspwiki-event 3.0.0](https://img.shields.io/badge/jspwiki_event-3.0.0-blue "jspwiki-event 3.0.0")
 - **New archives**:
   - ![jspwiki-event 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_event-3.0.1_SNAPSHOT-blue "jspwiki-event 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -52,13 +52,13 @@
 | Status    | Type                                        | Serialization       | Compatibility Changes |
 |-----------|---------------------------------------------|---------------------|-----------------------|
 | Unchanged | [org.apache.wiki.event.WikiEngineEvent]     | ![Compatible]       | ![No changes]         |
-| Modified  | [org.apache.wiki.event.WikiEvent]           | ![Compatible]       | ![Method added to public class] |
+| Unchanged | [org.apache.wiki.event.WikiEvent]           | ![Compatible]       | ![No changes]         |
 | Unchanged | [org.apache.wiki.event.WikiEventEmitter]    | ![Compatible]       | ![No changes]         |
 | Unchanged | [org.apache.wiki.event.WikiEventListener]   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.event.WikiEventManager]    | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.event.WikiPageEvent]       | ![Compatible]       | ![No changes]         |
 | Unchanged | [org.apache.wiki.event.WikiPageRenameEvent] | ![Compatible]       | ![No changes]         |
-| Modified  | [org.apache.wiki.event.WikiSecurityEvent]   | ![Compatible]       | ![No changes]         |
+| Unchanged | [org.apache.wiki.event.WikiSecurityEvent]   | ![Compatible]       | ![No changes]         |
 | Unchanged | [org.apache.wiki.event.WorkflowEvent]       | ![Compatible]       | ![No changes]         |
 
 <details markdown="1">
@@ -73,9 +73,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends       | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-------------------|---------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiEngineEvent` | [`WikiEvent`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name              | Extends       | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-------------------|---------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiEngineEvent` | [`WikiEvent`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -120,9 +120,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type  | Name        | Extends         | JDK                          | Serialization | Compatibility Changes |
-|----------|---------------------|-------|-------------|-----------------|------------------------------|---------------|-----------------------|
-| Modified | `public` `abstract` | Class | `WikiEvent` | [`EventObject`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers           | Type  | Name        | Extends         | JDK    | Serialization | Compatibility Changes |
+|-----------|---------------------|-------|-------------|-----------------|--------|---------------|-----------------------|
+| Unchanged | `public` `abstract` | Class | `WikiEvent` | [`EventObject`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -142,19 +142,19 @@ ___
 
 #### Methods
 
-| Status    | Modifiers         | Generics                 | Type                        | Method                        | Annotations | Throws | Compatibility Changes |
-|-----------|-------------------|--------------------------|-----------------------------|-------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`          |                          | [`String`]                  | `eventName`()                 |             |        | ![No changes]         |
-| Unchanged | `public`          | \<[`T extends Object`]\> | [`Object`]                  | `getArg`(`int`, [`Class<T>`]) |             |        | ![No changes]         |
-| Unchanged | `public`          |                          | [`Object[]`][1]             | `getArgs`()                   |             |        | ![No changes]         |
-| Added     | **`public`**      |                          | **[`Map<Object, Object>`]** | **`getAttributes`**()         |             |        | ![Method added to public class] |
-| Unchanged | `public`          | \<[`T extends Object`]\> | [`Object`]                  | `getSrc`()                    |             |        | ![No changes]         |
-| Unchanged | `public`          |                          | `int`                       | `getType`()                   |             |        | ![No changes]         |
-| Unchanged | `public`          |                          | [`String`]                  | `getTypeDescription`()        |             |        | ![No changes]         |
-| Unchanged | `public`          |                          | `long`                      | `getWhen`()                   |             |        | ![No changes]         |
-| Unchanged | `static` `public` |                          | `boolean`                   | `isValidType`(`int`)          |             |        | ![No changes]         |
-| Unchanged | `protected`       |                          | `void`                      | `setType`(`int`)              |             |        | ![No changes]         |
-| Unchanged | `public`          |                          | [`String`]                  | `toString`()                  |             |        | ![No changes]         |
+| Status    | Modifiers         | Generics                 | Type                    | Method                        | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|--------------------------|-------------------------|-------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`          |                          | [`String`]              | `eventName`()                 |             |        | ![No changes]         |
+| Unchanged | `public`          | \<[`T extends Object`]\> | [`Object`]              | `getArg`(`int`, [`Class<T>`]) |             |        | ![No changes]         |
+| Unchanged | `public`          |                          | [`Object[]`][1]         | `getArgs`()                   |             |        | ![No changes]         |
+| Unchanged | `public`          |                          | [`Map<Object, Object>`] | `getAttributes`()             |             |        | ![No changes]         |
+| Unchanged | `public`          | \<[`T extends Object`]\> | [`Object`]              | `getSrc`()                    |             |        | ![No changes]         |
+| Unchanged | `public`          |                          | `int`                   | `getType`()                   |             |        | ![No changes]         |
+| Unchanged | `public`          |                          | [`String`]              | `getTypeDescription`()        |             |        | ![No changes]         |
+| Unchanged | `public`          |                          | `long`                  | `getWhen`()                   |             |        | ![No changes]         |
+| Unchanged | `static` `public` |                          | `boolean`               | `isValidType`(`int`)          |             |        | ![No changes]         |
+| Unchanged | `protected`       |                          | `void`                  | `setType`(`int`)              |             |        | ![No changes]         |
+| Unchanged | `public`          |                          | [`String`]              | `toString`()                  |             |        | ![No changes]         |
 
 
 #### Fields
@@ -173,9 +173,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type | Name               | Extends     | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|------|--------------------|-------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Enum | `WikiEventEmitter` | [`Enum<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type | Name               | Extends     | JDK    | Serialization | Compatibility Changes |
+|-----------|------------------|------|--------------------|-------------|--------|---------------|-----------------------|
+| Unchanged | `final` `public` | Enum | `WikiEventEmitter` | [`Enum<E>`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -215,9 +215,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|---------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `WikiEventListener` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|---------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `WikiEventListener` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -242,9 +242,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|--------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `WikiEventManager` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|--------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `WikiEventManager` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -269,9 +269,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name            | Extends       | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-----------------|---------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiPageEvent` | [`WikiEvent`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name            | Extends       | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-----------------|---------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiPageEvent` | [`WikiEvent`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -331,9 +331,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiPageRenameEvent` | [`WikiPageEvent`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                  | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-----------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiPageRenameEvent` | [`WikiPageEvent`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -376,9 +376,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name                | Extends       | JDK                          | Serialization | Compatibility Changes |
-|----------|------------------|-------|---------------------|---------------|------------------------------|---------------|-----------------------|
-| Modified | `final` `public` | Class | `WikiSecurityEvent` | [`WikiEvent`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name                | Extends       | JDK    | Serialization | Compatibility Changes |
+|-----------|------------------|-------|---------------------|---------------|--------|---------------|-----------------------|
+| Unchanged | `final` `public` | Class | `WikiSecurityEvent` | [`WikiEvent`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -409,27 +409,27 @@ ___
 
 #### Fields
 
-| Status    | Modifiers                             | Type      | Name                       | Annotations | Compatibility Changes |
-|-----------|---------------------------------------|-----------|----------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final`             | `int`     | `ACCESS_ALLOWED`           |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `ACCESS_DENIED`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `GROUP_ADD`                |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `GROUP_CLEAR_GROUPS`       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `GROUP_REMOVE`             |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_ACCOUNT_EXPIRED`    |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **`int`** | `LOGIN_ALERT`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_ANONYMOUS`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_ASSERTED`           |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_AUTHENTICATED`      |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_CREDENTIAL_EXPIRED` |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_FAILED`             |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGIN_INITIATED`          |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `LOGOUT`                   |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **`int`** | `LOW_STORAGE`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `PRINCIPAL_ADD`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `PROFILE_NAME_CHANGED`     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `PROFILE_SAVE`             |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | `int`     | `SESSION_EXPIRED`          |             | ![No changes]         |
+| Status    | Modifiers                 | Type  | Name                       | Annotations | Compatibility Changes |
+|-----------|---------------------------|-------|----------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final` | `int` | `ACCESS_ALLOWED`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `ACCESS_DENIED`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `GROUP_ADD`                |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `GROUP_CLEAR_GROUPS`       |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `GROUP_REMOVE`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_ACCOUNT_EXPIRED`    |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_ALERT`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_ANONYMOUS`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_ASSERTED`           |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_AUTHENTICATED`      |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_CREDENTIAL_EXPIRED` |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_FAILED`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGIN_INITIATED`          |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOGOUT`                   |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `LOW_STORAGE`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `PRINCIPAL_ADD`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `PROFILE_NAME_CHANGED`     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `PROFILE_SAVE`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | `int` | `SESSION_EXPIRED`          |             | ![No changes]         |
 
 ___
 
@@ -440,9 +440,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name            | Extends       | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|-------|-----------------|---------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Class | `WorkflowEvent` | [`WikiEvent`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name            | Extends       | JDK    | Serialization | Compatibility Changes |
+|-----------|------------------|-------|-----------------|---------------|--------|---------------|-----------------------|
+| Unchanged | `final` `public` | Class | `WorkflowEvent` | [`WikiEvent`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -495,12 +495,11 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:24.517+0000*.
+*Generated on: 2026-11-15 21:24:55.957+0000*.
 
 [1]: # "java.lang.Object[]"
 [2]: # "org.apache.wiki.event.WikiEventEmitter[]"
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
-[Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
 [`Class<T>`]: # "java.lang.Class<T>"

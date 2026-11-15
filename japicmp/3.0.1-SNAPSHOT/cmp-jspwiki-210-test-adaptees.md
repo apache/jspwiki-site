@@ -7,7 +7,7 @@
 
 > [!NOTE]
 >
-> No incompatible changes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> No incompatible changes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-210-test-adaptees 2.12.3](https://img.shields.io/badge/jspwiki_210_test_adaptees-2.12.3-blue "jspwiki-210-test-adaptees 2.12.3")
+  - ![jspwiki-210-test-adaptees 3.0.0](https://img.shields.io/badge/jspwiki_210_test_adaptees-3.0.0-blue "jspwiki-210-test-adaptees 3.0.0")
 - **New archives**:
   - ![jspwiki-210-test-adaptees 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_210_test_adaptees-3.0.1_SNAPSHOT-blue "jspwiki-210-test-adaptees 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -55,6 +55,6 @@
 
 ___
 
-*Generated on: 2026-11-15 19:16:24.163+0000*.
+*Generated on: 2026-11-15 21:24:55.140+0000*.
 
 

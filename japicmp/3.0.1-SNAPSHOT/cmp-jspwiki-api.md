@@ -1,13 +1,13 @@
 
 # Compatibility Report
 
-![semver MAJOR](https://img.shields.io/badge/semver-MAJOR-red?logo=semver "semver MAJOR")
+![semver MINOR](https://img.shields.io/badge/semver-MINOR-orange?logo=semver "semver MINOR")
 
 ## Summary
 
-> [!CAUTION]
+> [!WARNING]
 >
-> Incompatible changes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible changes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-api 2.12.3](https://img.shields.io/badge/jspwiki_api-2.12.3-blue "jspwiki-api 2.12.3")
+  - ![jspwiki-api 3.0.0](https://img.shields.io/badge/jspwiki_api-3.0.0-blue "jspwiki-api 3.0.0")
 - **New archives**:
   - ![jspwiki-api 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_api-3.0.1_SNAPSHOT-blue "jspwiki-api 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -56,11 +56,11 @@
 | Unchanged | [org.apache.wiki.api.core.AclEntry]                          | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.core.Attachment]                        | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.core.Command]                           | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.core.Context]                           | ![Not serializable] | ![Method removed] ![Method return type changed] ![Method new static added to interface] |
+| Modified  | [org.apache.wiki.api.core.Context]                           | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.core.ContextEnum]                       | ![Compatible]       | ![No changes]         |
-| Modified  | [org.apache.wiki.api.core.Engine]                            | ![Not serializable] | ![Method return type changed] |
+| Unchanged | [org.apache.wiki.api.core.Engine]                            | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.core.Page]                              | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Annotation deprecated added] ![Method added to interface] ![Method new default] |
+| Modified  | [org.apache.wiki.api.core.Session]                           | ![Not serializable] | ![Annotation deprecated added] ![Method added to interface] |
 | Unchanged | [org.apache.wiki.api.engine.EngineLifecycleExtension]        | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.Initializable]                   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.engine.RenderApi]                       | ![Not serializable] | ![No changes]         |
@@ -77,7 +77,7 @@
 | Unchanged | [org.apache.wiki.api.filters.PageFilter]                     | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.plugin.InitializablePlugin]             | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.plugin.ParserStagePlugin]               | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.plugin.Plugin]                          | ![Not serializable] | ![Method new default] |
+| Unchanged | [org.apache.wiki.api.plugin.Plugin]                          | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.plugin.PluginElement]                   | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.providers.AttachmentProvider]           | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.providers.PageProvider]                 | ![Not serializable] | ![No changes]         |
@@ -88,13 +88,13 @@
 | Unchanged | [org.apache.wiki.api.spi.AclsSPI]                            | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.spi.ContentsDSL]                        | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.api.spi.ContentsSPI]                        | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.api.spi.ContextDSL]                         | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified  | [org.apache.wiki.api.spi.ContextSPI]                         | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Modified  | [org.apache.wiki.api.spi.EngineDSL]                          | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified  | [org.apache.wiki.api.spi.EngineSPI]                          | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Modified  | [org.apache.wiki.api.spi.SessionDSL]                         | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified  | [org.apache.wiki.api.spi.SessionSPI]                         | ![Not serializable] | ![Method removed] ![Method added to interface] |
-| Modified  | [org.apache.wiki.api.spi.Wiki]                               | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged | [org.apache.wiki.api.spi.ContextDSL]                         | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.api.spi.ContextSPI]                         | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.api.spi.EngineDSL]                          | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.api.spi.EngineSPI]                          | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.api.spi.SessionDSL]                         | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.api.spi.SessionSPI]                         | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.api.spi.Wiki]                               | ![Not serializable] | ![No changes]         |
 
 <details markdown="1">
 <summary>Expand for details.</summary>
@@ -108,9 +108,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `Release` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|-----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `Release` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -143,9 +143,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name  | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `Acl` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name  | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Acl` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -168,9 +168,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `AclEntry` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `AclEntry` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -193,9 +193,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `Attachment` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Attachment` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -226,9 +226,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `Command` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Command` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -249,13 +249,13 @@ ___
 <a id="user-content-org.apache.wiki.api.core.context"></a>
 ### `org.apache.wiki.api.core.Context`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `Context` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|-----------|------------|--------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `Context` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -268,33 +268,32 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics                 | Type                                                            | Method                                          | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------------|--------------------------|-----------------------------------------------------------------|-------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public` `abstract`       |                          | [`Context`]                                                     | `clone`()                                       |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Context`]                                                     | `deepClone`()                                   |             |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |                          | ~~[`Context`]~~                                                 | ~~`findContext`~~([`PageContext`])              |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |                          | **[`Context`]**                                                 | **`findContext`**([`PageContext`][3])           |             |        | ![Method new static added to interface] |
-| Unchanged | `public` `abstract`       |                          | `boolean`                                                       | `getBooleanWikiProperty`([`String`], `boolean`) |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Command`]                                                     | `getCommand`()                                  |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Principal`]                                                   | `getCurrentUser`()                              |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Engine`]                                                      | `getEngine`()                                   |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`String`]                                                      | `getHttpParameter`([`String`])                  |             |        | ![No changes]         |
-| Modified  | `public` `abstract`       |                          | ~~[`HttpServletRequest`]~~ &rarr; **[`HttpServletRequest`][4]** | `getHttpRequest`()                              |             |        | ![Method return type changed] |
-| Unchanged | `public` `abstract`       |                          | [`Page`]                                                        | `getPage`()                                     |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Page`]                                                        | `getRealPage`()                                 |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`String`]                                                      | `getRedirectURL`()                              |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`String`]                                                      | `getTemplate`()                                 |             |        | ![No changes]         |
-| Unchanged | `public`                  |                          | [`String`]                                                      | `getURL`([`String`], [`String`])                |             |        | ![No changes]         |
-| Unchanged | `public`                  |                          | [`String`]                                                      | `getURL`([`String`], [`String`], [`String`])    |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       | \<[`T extends Object`]\> | [`Object`]                                                      | `getVariable`([`String`])                       |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`String`]                                                      | `getViewURL`([`String`])                        |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Session`]                                                     | `getWikiSession`()                              |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | `boolean`                                                       | `hasAdminPermissions`()                         |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | `void`                                                          | `setPage`([`Page`])                             |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | [`Page`]                                                        | `setRealPage`([`Page`])                         |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | `void`                                                          | `setRequestContext`([`String`])                 |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | `void`                                                          | `setTemplate`([`String`])                       |             |        | ![No changes]         |
-| Unchanged | `public` `abstract`       |                          | `void`                                                          | `setVariable`([`String`], [`Object`])           |             |        | ![No changes]         |
+| Status    | Modifiers           | Generics                 | Type                   | Method                                          | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------|--------------------------|------------------------|-------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public` `abstract` |                          | [`Context`]            | `clone`()                                       |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Context`]            | `deepClone`()                                   |             |        | ![No changes]         |
+| Unchanged | `static` `public`   |                          | [`Context`]            | `findContext`([`PageContext`])                  |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `boolean`              | `getBooleanWikiProperty`([`String`], `boolean`) |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Command`]            | `getCommand`()                                  |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Principal`]          | `getCurrentUser`()                              |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Engine`]             | `getEngine`()                                   |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getHttpParameter`([`String`])                  |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`HttpServletRequest`] | `getHttpRequest`()                              |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Page`]               | `getPage`()                                     |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Page`]               | `getRealPage`()                                 |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getRedirectURL`()                              |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getTemplate`()                                 |             |        | ![No changes]         |
+| Unchanged | `public`            |                          | [`String`]             | `getURL`([`String`], [`String`])                |             |        | ![No changes]         |
+| Unchanged | `public`            |                          | [`String`]             | `getURL`([`String`], [`String`], [`String`])    |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]             | `getVariable`([`String`])                       |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getViewURL`([`String`])                        |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Session`]            | `getWikiSession`()                              |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `boolean`              | `hasAdminPermissions`()                         |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `setPage`([`Page`])                             |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Page`]               | `setRealPage`([`Page`])                         |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `setRequestContext`([`String`])                 |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `setTemplate`([`String`])                       |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `setVariable`([`String`], [`Object`])           |             |        | ![No changes]         |
 
 
 #### Fields
@@ -315,9 +314,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type | Name          | Extends     | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|------|---------------|-------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Enum | `ContextEnum` | [`Enum<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type | Name          | Extends     | JDK    | Serialization | Compatibility Changes |
+|-----------|------------------|------|---------------|-------------|--------|---------------|-----------------------|
+| Unchanged | `final` `public` | Enum | `ContextEnum` | [`Enum<E>`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -337,7 +336,7 @@ ___
 | Unchanged | `public`          |          | [`String`]           | `getRequestContext`()  |             |        | ![No changes]         |
 | Unchanged | `public`          |          | [`String`]           | `getUrlPattern`()      |             |        | ![No changes]         |
 | Unchanged | `static` `public` |          | [`ContextEnum`]      | `valueOf`([`String`])  |             |        | ![No changes]         |
-| Unchanged | `static` `public` |          | [`ContextEnum[]`][5] | `values`()             |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`ContextEnum[]`][3] | `values`()             |             |        | ![No changes]         |
 
 
 #### Fields
@@ -377,78 +376,78 @@ ___
 <a id="user-content-org.apache.wiki.api.core.engine"></a>
 ### `org.apache.wiki.api.core.Engine`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|----------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `Engine` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name     | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Engine` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers           | Generics                 | Type                                                    | Method                                           | Annotations | Throws                | Compatibility Changes |
-|-----------|---------------------|--------------------------|---------------------------------------------------------|--------------------------------------------------|-------------|-----------------------|-----------------------|
-| Unchanged | `public`            | \<[`E extends Engine`]\> | [`Engine`]                                              | `adapt`([`Class<E>`])                            |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | `void`                                                  | `addWikiEventListener`([`WikiEventListener`])    |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `decodeName`([`String`])                         |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `encodeName`([`String`])                         |             |                       | ![No changes]         |
-| Unchanged | `public`            |                          | [`URL`]                                                 | `findConfigFile`([`String`])                     |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`Collection<String>`]                                  | `getAllInlinedImagePatterns`()                   |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`Collection<String>`]                                  | `getAllInterWikiLinks`()                         |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getApplicationName`()                           |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]                                              | `getAttribute`([`String`])                       |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getBaseURL`()                                   |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`Charset`]                                             | `getContentEncoding`()                           |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getFinalPageName`([`String`])                   |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getFrontPage`()                                 |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getGlobalRSSURL`()                              |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getInterWikiURL`([`String`])                    |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]                                              | `getManager`([`Class<T>`])                       |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`List<T>`]                                             | `getManagers`([`Class<T>`])                      |             |                       | ![No changes]         |
-| Unchanged | `public`            |                          | [`String`]                                              | `getPluginSearchPath`()                          |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getRootPath`()                                  |             |                       | ![No changes]         |
-| Modified  | `public` `abstract` |                          | ~~[`ServletContext`]~~ &rarr; **[`ServletContext`][6]** | `getServletContext`()                            |             |                       | ![Method return type changed] |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getSpecialPageReference`([`String`])            |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`Date`]                                                | `getStartTime`()                                 |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getTemplateDir`()                               |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getURL`([`String`], [`String`], [`String`])     |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`Properties`]                                          | `getWikiProperties`()                            |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | [`String`]                                              | `getWorkDir`()                                   |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | `void`                                                  | `initialize`([`Properties`])                     |             | [`WikiException`]     | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | `boolean`                                               | `isConfigured`()                                 |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]                                              | `removeAttribute`([`String`])                    |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | `void`                                                  | `removeWikiEventListener`([`WikiEventListener`]) |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | `void`                                                  | `setAttribute`([`String`], [`Object`])           |             |                       | ![No changes]         |
-| Unchanged | `public` `abstract` |                          | `void`                                                  | `shutdown`()                                     |             |                       | ![No changes]         |
-| Unchanged | `public`            |                          | `void`                                                  | `start`([`Properties`])                          |             | [`WikiException`]     | ![No changes]         |
-| Unchanged | `public`            |                          | `void`                                                  | `stop`()                                         |             |                       | ![No changes]         |
+| Status    | Modifiers           | Generics                 | Type                   | Method                                           | Annotations | Throws                | Compatibility Changes |
+|-----------|---------------------|--------------------------|------------------------|--------------------------------------------------|-------------|-----------------------|-----------------------|
+| Unchanged | `public`            | \<[`E extends Engine`]\> | [`Engine`]             | `adapt`([`Class<E>`])                            |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `addWikiEventListener`([`WikiEventListener`])    |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `decodeName`([`String`])                         |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `encodeName`([`String`])                         |             |                       | ![No changes]         |
+| Unchanged | `public`            |                          | [`URL`]                | `findConfigFile`([`String`])                     |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Collection<String>`] | `getAllInlinedImagePatterns`()                   |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Collection<String>`] | `getAllInterWikiLinks`()                         |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getApplicationName`()                           |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]             | `getAttribute`([`String`])                       |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getBaseURL`()                                   |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Charset`]            | `getContentEncoding`()                           |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getFinalPageName`([`String`])                   |             | [`ProviderException`] | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getFrontPage`()                                 |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getGlobalRSSURL`()                              |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getInterWikiURL`([`String`])                    |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]             | `getManager`([`Class<T>`])                       |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`List<T>`]            | `getManagers`([`Class<T>`])                      |             |                       | ![No changes]         |
+| Unchanged | `public`            |                          | [`String`]             | `getPluginSearchPath`()                          |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getRootPath`()                                  |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`ServletContext`]     | `getServletContext`()                            |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getSpecialPageReference`([`String`])            |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Date`]               | `getStartTime`()                                 |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getTemplateDir`()                               |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getURL`([`String`], [`String`], [`String`])     |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`Properties`]         | `getWikiProperties`()                            |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | [`String`]             | `getWorkDir`()                                   |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `initialize`([`Properties`])                     |             | [`WikiException`]     | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `boolean`              | `isConfigured`()                                 |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` | \<[`T extends Object`]\> | [`Object`]             | `removeAttribute`([`String`])                    |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `removeWikiEventListener`([`WikiEventListener`]) |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `setAttribute`([`String`], [`Object`])           |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |                          | `void`                 | `shutdown`()                                     |             |                       | ![No changes]         |
+| Unchanged | `public`            |                          | `void`                 | `start`([`Properties`])                          |             | [`WikiException`]     | ![No changes]         |
+| Unchanged | `public`            |                          | `void`                 | `stop`()                                         |             |                       | ![No changes]         |
 
 
 #### Fields
 
-| Status    | Modifiers                             | Type           | Name                                 | Annotations | Compatibility Changes |
-|-----------|---------------------------------------|----------------|--------------------------------------|-------------|-----------------------|
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_INLINEPATTERN`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `DEFAULT_TEMPLATE_NAME`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PREFS_COOKIE_NAME`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ACL_MANAGER_IMPL`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ALLOW_CREATION_OF_EMPTY_PAGES` |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_APPNAME`                       |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_ENCODING`                      |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_FRONTPAGE`                     |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_INLINEIMAGEPTRN`               |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_INTERWIKIREF`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_MATCHPLURALS`                  |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_NO_FILTER_ENCODING`            |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_REF_MANAGER_IMPL`              |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_SEARCHPATH`                    |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_STOREUSERNAME`                 |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_TEMPLATEDIR`                   |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_URLCONSTRUCTOR`                |             | ![No changes]         |
-| Added     | **`public`** **`static`** **`final`** | **[`String`]** | `PROP_USE_2_X_ACL_LOGIC`             |             | ![No changes]         |
-| Unchanged | `public` `static` `final`             | [`String`]     | `PROP_WORKDIR`                       |             | ![No changes]         |
+| Status    | Modifiers                 | Type       | Name                                 | Annotations | Compatibility Changes |
+|-----------|---------------------------|------------|--------------------------------------|-------------|-----------------------|
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_INLINEPATTERN`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `DEFAULT_TEMPLATE_NAME`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PREFS_COOKIE_NAME`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_ACL_MANAGER_IMPL`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_ALLOW_CREATION_OF_EMPTY_PAGES` |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_APPNAME`                       |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_ENCODING`                      |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_FRONTPAGE`                     |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_INLINEIMAGEPTRN`               |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_INTERWIKIREF`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_MATCHPLURALS`                  |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_NO_FILTER_ENCODING`            |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_REF_MANAGER_IMPL`              |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_SEARCHPATH`                    |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_STOREUSERNAME`                 |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_TEMPLATEDIR`                   |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_URLCONSTRUCTOR`                |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_USE_2_X_ACL_LOGIC`             |             | ![No changes]         |
+| Unchanged | `public` `static` `final` | [`String`] | `PROP_WORKDIR`                       |             | ![No changes]         |
 
 ___
 
@@ -459,9 +458,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `Page` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name   | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Page` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -518,9 +517,9 @@ ___
 - [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `Session` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers           | Type      | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|----------|---------------------|-----------|-----------|------------|--------|---------------------|-----------------------|
+| Modified | `public` `abstract` | Interface | `Session` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -538,7 +537,7 @@ ___
 | Unchanged | `public` `abstract`         |          | [`String[]`][1]    | `getMessages`()                                      |                                               |                            | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`String[]`][1]    | `getMessages`([`String`])                            |                                               |                            | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Principal[]`][2] | `getPrincipals`()                                    |                                               |                            | ![No changes]         |
-| Added     | **`public`**                |          | **[`String`]**     | **`getRemoteAddress`**()                             |                                               |                            | ![Method new default] |
+| Unchanged | `public`                    |          | [`String`]         | `getRemoteAddress`()                                 |                                               |                            | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Principal[]`][2] | `getRoles`()                                         |                                               |                            | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`String`]         | `getStatus`()                                        |                                               |                            | ![No changes]         |
 | Unchanged | `public` `abstract`         |          | [`Subject`]        | `getSubject`()                                       |                                               |                            | ![No changes]         |
@@ -568,9 +567,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `EngineLifecycleExtension` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `EngineLifecycleExtension` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -590,9 +589,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `Initializable` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name            | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Initializable` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -610,9 +609,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `RenderApi` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `RenderApi` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -630,9 +629,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|---------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `CustomWikiEventListener` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|---------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `CustomWikiEventListener` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Generics
@@ -664,9 +663,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `FilterException` | [`WikiException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name              | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `FilterException` | [`WikiException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -691,9 +690,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                          | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-------------------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `NoRequiredPropertyException` | [`WikiException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                          | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-------------------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `NoRequiredPropertyException` | [`WikiException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -718,9 +717,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                      | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|---------------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `NoSuchVariableException` | [`WikiException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                      | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|---------------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `NoSuchVariableException` | [`WikiException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -745,9 +744,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `PluginException` | [`WikiException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name              | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `PluginException` | [`WikiException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -780,9 +779,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|---------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `ProviderException` | [`WikiException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|---------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `ProviderException` | [`WikiException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -807,9 +806,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                | Extends             | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|---------------------|---------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `RedirectException` | [`FilterException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                | Extends             | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|---------------------|---------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `RedirectException` | [`FilterException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -841,9 +840,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name            | Extends       | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-----------------|---------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiException` | [`Exception`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name            | Extends       | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-----------------|---------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiException` | [`Exception`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -869,9 +868,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                | Extends           | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|---------------------|-------------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiI18nException` | [`WikiException`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                | Extends           | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|---------------------|-------------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiI18nException` | [`WikiException`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -892,14 +891,14 @@ ___
 
 | Status    | Modifiers | Generics | Type            | Method      | Annotations | Throws | Compatibility Changes |
 |-----------|-----------|----------|-----------------|-------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | [`Object[]`][7] | `getArgs`() |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Object[]`][4] | `getArgs`() |             |        | ![No changes]         |
 
 
 #### Fields
 
 | Status    | Modifiers           | Type            | Name   | Annotations | Compatibility Changes |
 |-----------|---------------------|-----------------|--------|-------------|-----------------------|
-| Unchanged | `protected` `final` | [`Object[]`][7] | `args` |             | ![No changes]         |
+| Unchanged | `protected` `final` | [`Object[]`][4] | `args` |             | ![No changes]         |
 
 ___
 
@@ -910,9 +909,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name             | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `BasePageFilter` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name             | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `BasePageFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -951,9 +950,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `PageFilter` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `PageFilter` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -976,9 +975,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                  | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `InitializablePlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                  | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `InitializablePlugin` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -996,9 +995,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|---------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `ParserStagePlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|---------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `ParserStagePlugin` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1016,18 +1015,18 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|----------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `Plugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name     | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `Plugin` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers           | Generics | Type           | Method                                          | Annotations | Throws              | Compatibility Changes |
-|-----------|---------------------|----------|----------------|-------------------------------------------------|-------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` |          | [`String`]     | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
-| Added     | **`public`**        |          | **[`String`]** | **`getDisplayName`**([`Locale`])                |             |                     | ![Method new default] |
-| Added     | **`public`**        |          | **[`String`]** | **`getSnipExample`**()                          |             |                     | ![Method new default] |
+| Status    | Modifiers           | Generics | Type       | Method                                          | Annotations | Throws              | Compatibility Changes |
+|-----------|---------------------|----------|------------|-------------------------------------------------|-------------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`] | ![No changes]         |
+| Unchanged | `public`            |          | [`String`] | `getDisplayName`([`Locale`])                    |             |                     | ![No changes]         |
+| Unchanged | `public`            |          | [`String`] | `getSnipExample`()                              |             |                     | ![No changes]         |
 
 
 #### Fields
@@ -1045,9 +1044,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `PluginElement` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name            | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `PluginElement` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1071,9 +1070,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `AttachmentProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                 | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `AttachmentProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1089,7 +1088,7 @@ ___
 |-----------|---------------------|----------|----------------------------|------------------------------------------------------|-------------|----------------------------------------|-----------------------|
 | Unchanged | `public` `abstract` |          | `void`                     | `deleteAttachment`([`Attachment`])                   |             | [`ProviderException`]                  | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `void`                     | `deleteVersion`([`Attachment`])                      |             | [`ProviderException`]                  | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Collection<Attachment>`] | `findAttachments`([`QueryItem[]`][8])                |             |                                        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Collection<Attachment>`] | `findAttachments`([`QueryItem[]`][5])                |             |                                        | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`InputStream`]            | `getAttachmentData`([`Attachment`])                  |             | [`ProviderException`], [`IOException`] | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`Attachment`]             | `getAttachmentInfo`([`Page`], [`String`], `int`)     |             | [`ProviderException`]                  | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`List<Attachment>`]       | `getVersionHistory`([`Attachment`])                  |             |                                        | ![No changes]         |
@@ -1114,9 +1113,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `PageProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name           | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `PageProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1132,7 +1131,7 @@ ___
 |-----------|---------------------|----------|------------------------------|-------------------------------------|-------------|-----------------------|-----------------------|
 | Unchanged | `public` `abstract` |          | `void`                       | `deletePage`([`String`])            |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `void`                       | `deleteVersion`([`String`], `int`)  |             | [`ProviderException`] | ![No changes]         |
-| Unchanged | `public` `abstract` |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][8])     |             |                       | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Collection<SearchResult>`] | `findPages`([`QueryItem[]`][5])     |             |                       | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`Collection<Page>`]         | `getAllChangedSince`([`Date`])      |             |                       | ![No changes]         |
 | Unchanged | `public` `abstract` |          | [`Collection<Page>`]         | `getAllPages`()                     |             | [`ProviderException`] | ![No changes]         |
 | Unchanged | `public` `abstract` |          | `int`                        | `getPageCount`()                    |             | [`ProviderException`] | ![No changes]         |
@@ -1153,9 +1152,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `WikiProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name           | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `WikiProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1181,9 +1180,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `QueryItem` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `QueryItem` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1212,9 +1211,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `SearchResult` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name           | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `SearchResult` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1234,9 +1233,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `AclsDSL` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `AclsDSL` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1255,9 +1254,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `AclsSPI` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `AclsSPI` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1276,9 +1275,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ContentsDSL` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name          | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ContentsDSL` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1297,9 +1296,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name          | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|---------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `ContentsSPI` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name          | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|---------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `ContentsSPI` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1314,159 +1313,145 @@ ___
 <a id="user-content-org.apache.wiki.api.spi.contextdsl"></a>
 ### `org.apache.wiki.api.spi.ContextDSL`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `ContextDSL` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ContextDSL` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers    | Generics | Type            | Method                                                           | Annotations | Throws | Compatibility Changes |
-|-----------|--------------|----------|-----------------|------------------------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`     |          | [`Context`]     | `create`([`Engine`], [`Page`])                                   |             |        | ![No changes]         |
-| Removed   | ~~`public`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`Command`])    |             |        | ![Method removed]     |
-| Removed   | ~~`public`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`Page`])       |             |        | ![Method removed]     |
-| Removed   | ~~`public`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`String`])     |             |        | ![Method removed]     |
-| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][4], [`Command`]) |             |        | ![Method added to public class] |
-| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][4], [`Page`])    |             |        | ![Method added to public class] |
-| Added     | **`public`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][4], [`String`])  |             |        | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type        | Method                                                    | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|-------------|-----------------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | [`Context`] | `create`([`Engine`], [`Page`])                            |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Context`] | `create`([`Engine`], [`HttpServletRequest`], [`Command`]) |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Context`] | `create`([`Engine`], [`HttpServletRequest`], [`Page`])    |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Context`] | `create`([`Engine`], [`HttpServletRequest`], [`String`])  |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.api.spi.contextspi"></a>
 ### `org.apache.wiki.api.spi.ContextSPI`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `ContextSPI` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `ContextSPI` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                   | Generics | Type            | Method                                                           | Annotations | Throws | Compatibility Changes |
-|-----------|-----------------------------|----------|-----------------|------------------------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public` `abstract`         |          | [`Context`]     | `create`([`Engine`], [`Page`])                                   |             |        | ![No changes]         |
-| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`Command`])    |             |        | ![Method removed]     |
-| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`Page`])       |             |        | ![Method removed]     |
-| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Context`]~~ | ~~`create`~~([`Engine`], [`HttpServletRequest`], [`String`])     |             |        | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][4], [`Command`]) |             |        | ![Method added to interface] |
-| Added     | **`public`** **`abstract`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][4], [`Page`])    |             |        | ![Method added to interface] |
-| Added     | **`public`** **`abstract`** |          | **[`Context`]** | **`create`**([`Engine`], [`HttpServletRequest`][4], [`String`])  |             |        | ![Method added to interface] |
+| Status    | Modifiers           | Generics | Type        | Method                                                    | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------|----------|-------------|-----------------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`Context`] | `create`([`Engine`], [`Page`])                            |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Context`] | `create`([`Engine`], [`HttpServletRequest`], [`Command`]) |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Context`] | `create`([`Engine`], [`HttpServletRequest`], [`Page`])    |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Context`] | `create`([`Engine`], [`HttpServletRequest`], [`String`])  |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.api.spi.enginedsl"></a>
 ### `org.apache.wiki.api.spi.EngineDSL`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `EngineDSL` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `EngineDSL` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status  | Modifiers    | Generics | Type           | Method                                            | Annotations | Throws | Compatibility Changes |
-|---------|--------------|----------|----------------|---------------------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ |          | ~~[`Engine`]~~ | ~~`find`~~([`ServletConfig`])                     |             |        | ![Method removed]     |
-| Removed | ~~`public`~~ |          | ~~[`Engine`]~~ | ~~`find`~~([`ServletConfig`], [`Properties`])     |             |        | ![Method removed]     |
-| Removed | ~~`public`~~ |          | ~~[`Engine`]~~ | ~~`find`~~([`ServletContext`], [`Properties`])    |             |        | ![Method removed]     |
-| Added   | **`public`** |          | **[`Engine`]** | **`find`**([`ServletConfig`][9])                  |             |        | ![Method added to public class] |
-| Added   | **`public`** |          | **[`Engine`]** | **`find`**([`ServletConfig`][9], [`Properties`])  |             |        | ![Method added to public class] |
-| Added   | **`public`** |          | **[`Engine`]** | **`find`**([`ServletContext`][6], [`Properties`]) |             |        | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type       | Method                                     | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|------------|--------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | [`Engine`] | `find`([`ServletConfig`])                  |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Engine`] | `find`([`ServletConfig`], [`Properties`])  |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Engine`] | `find`([`ServletContext`], [`Properties`]) |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.api.spi.enginespi"></a>
 ### `org.apache.wiki.api.spi.EngineSPI`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `EngineSPI` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `EngineSPI` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status  | Modifiers                   | Generics | Type           | Method                                            | Annotations | Throws | Compatibility Changes |
-|---------|-----------------------------|----------|----------------|---------------------------------------------------|-------------|--------|-----------------------|
-| Removed | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Engine`]~~ | ~~`find`~~([`ServletContext`], [`Properties`])    |             |        | ![Method removed]     |
-| Added   | **`public`** **`abstract`** |          | **[`Engine`]** | **`find`**([`ServletContext`][6], [`Properties`]) |             |        | ![Method added to interface] |
+| Status    | Modifiers           | Generics | Type       | Method                                     | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------|----------|------------|--------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`Engine`] | `find`([`ServletContext`], [`Properties`]) |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.api.spi.sessiondsl"></a>
 ### `org.apache.wiki.api.spi.SessionDSL`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `SessionDSL` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `SessionDSL` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers    | Generics | Type            | Method                                              | Annotations | Throws | Compatibility Changes |
-|-----------|--------------|----------|-----------------|-----------------------------------------------------|-------------|--------|-----------------------|
-| Removed   | ~~`public`~~ |          | ~~[`Session`]~~ | ~~`find`~~([`Engine`], [`HttpServletRequest`])      |             |        | ![Method removed]     |
-| Added     | **`public`** |          | **[`Session`]** | **`find`**([`Engine`], [`HttpServletRequest`][4])   |             |        | ![Method added to public class] |
-| Unchanged | `public`     |          | [`Session`]     | `guest`([`Engine`])                                 |             |        | ![No changes]         |
-| Removed   | ~~`public`~~ |          | ~~`void`~~      | ~~`remove`~~([`Engine`], [`HttpServletRequest`])    |             |        | ![Method removed]     |
-| Added     | **`public`** |          | **`void`**      | **`remove`**([`Engine`], [`HttpServletRequest`][4]) |             |        | ![Method added to public class] |
+| Status    | Modifiers | Generics | Type        | Method                                       | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|-------------|----------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | [`Session`] | `find`([`Engine`], [`HttpServletRequest`])   |             |        | ![No changes]         |
+| Unchanged | `public`  |          | [`Session`] | `guest`([`Engine`])                          |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `void`      | `remove`([`Engine`], [`HttpServletRequest`]) |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.api.spi.sessionspi"></a>
 ### `org.apache.wiki.api.spi.SessionSPI`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers           | Type      | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|---------------------|-----------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public` `abstract` | Interface | `SessionSPI` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `SessionSPI` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                   | Generics | Type            | Method                                              | Annotations | Throws | Compatibility Changes |
-|-----------|-----------------------------|----------|-----------------|-----------------------------------------------------|-------------|--------|-----------------------|
-| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~[`Session`]~~ | ~~`find`~~([`Engine`], [`HttpServletRequest`])      |             |        | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **[`Session`]** | **`find`**([`Engine`], [`HttpServletRequest`][4])   |             |        | ![Method added to interface] |
-| Unchanged | `public` `abstract`         |          | [`Session`]     | `guest`([`Engine`])                                 |             |        | ![No changes]         |
-| Removed   | ~~`public`~~ ~~`abstract`~~ |          | ~~`void`~~      | ~~`remove`~~([`Engine`], [`HttpServletRequest`])    |             |        | ![Method removed]     |
-| Added     | **`public`** **`abstract`** |          | **`void`**      | **`remove`**([`Engine`], [`HttpServletRequest`][4]) |             |        | ![Method added to interface] |
+| Status    | Modifiers           | Generics | Type        | Method                                       | Annotations | Throws | Compatibility Changes |
+|-----------|---------------------|----------|-------------|----------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public` `abstract` |          | [`Session`] | `find`([`Engine`], [`HttpServletRequest`])   |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | [`Session`] | `guest`([`Engine`])                          |             |        | ![No changes]         |
+| Unchanged | `public` `abstract` |          | `void`      | `remove`([`Engine`], [`HttpServletRequest`]) |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.api.spi.wiki"></a>
 ### `org.apache.wiki.api.spi.Wiki`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers | Type  | Name   | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|-----------|-------|--------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `public`  | Class | `Wiki` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name   | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `Wiki` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1478,15 +1463,14 @@ ___
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type               | Method                            | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------------|----------|--------------------|-----------------------------------|-------------|--------|-----------------------|
-| Unchanged | `static` `public`         |          | [`AclsDSL`]        | `acls`()                          |             |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`ContentsDSL`]    | `contents`()                      |             |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`ContextDSL`]     | `context`()                       |             |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`EngineDSL`]      | `engine`()                        |             |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Properties`]~~ | ~~`init`~~([`ServletContext`])    |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`Properties`]** | **`init`**([`ServletContext`][6]) |             |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | [`SessionDSL`]     | `session`()                       |             |        | ![No changes]         |
+| Status    | Modifiers         | Generics | Type            | Method                     | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|----------|-----------------|----------------------------|-------------|--------|-----------------------|
+| Unchanged | `static` `public` |          | [`AclsDSL`]     | `acls`()                   |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`ContentsDSL`] | `contents`()               |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`ContextDSL`]  | `context`()                |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`EngineDSL`]   | `engine`()                 |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Properties`]  | `init`([`ServletContext`]) |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`SessionDSL`]  | `session`()                |             |        | ![No changes]         |
 
 
 </details>
@@ -1500,25 +1484,16 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:24.361+0000*.
+*Generated on: 2026-11-15 21:24:55.416+0000*.
 
 [1]: # "java.lang.String[]"
 [2]: # "java.security.Principal[]"
-[3]: # "jakarta.servlet.jsp.PageContext"
-[4]: # "jakarta.servlet.http.HttpServletRequest"
-[5]: # "org.apache.wiki.api.core.ContextEnum[]"
-[6]: # "jakarta.servlet.ServletContext"
-[7]: # "java.lang.Object[]"
-[8]: # "org.apache.wiki.api.search.QueryItem[]"
-[9]: # "jakarta.servlet.ServletConfig"
+[3]: # "org.apache.wiki.api.core.ContextEnum[]"
+[4]: # "java.lang.Object[]"
+[5]: # "org.apache.wiki.api.search.QueryItem[]"
 [Annotation deprecated added]: https://img.shields.io/badge/Annotation_deprecated_added-orange "Annotation deprecated added"
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
 [Method added to interface]: https://img.shields.io/badge/Method_added_to_interface-orange "Method added to interface"
-[Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
-[Method new default]: https://img.shields.io/badge/Method_new_default-orange "Method new default"
-[Method new static added to interface]: https://img.shields.io/badge/Method_new_static_added_to_interface-orange "Method new static added to interface"
-[Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
-[Method return type changed]: https://img.shields.io/badge/Method_return_type_changed-red "Method return type changed"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
 [`AccessControlException`]: # "java.security.AccessControlException"
@@ -1551,7 +1526,7 @@ ___
 [`Enumeration<Permission>`]: # "java.util.Enumeration<java.security.Permission>"
 [`Exception`]: # "java.lang.Exception"
 [`FilterException`]: # "org.apache.wiki.api.exceptions.FilterException"
-[`HttpServletRequest`]: # "javax.servlet.http.HttpServletRequest"
+[`HttpServletRequest`]: # "jakarta.servlet.http.HttpServletRequest"
 [`IOException`]: # "java.io.IOException"
 [`IllegalArgumentException`]: # "java.lang.IllegalArgumentException"
 [`InputStream`]: # "java.io.InputStream"
@@ -1565,7 +1540,7 @@ ___
 [`NoRequiredPropertyException`]: # "org.apache.wiki.api.exceptions.NoRequiredPropertyException"
 [`Object...`]: # "java.lang.Object..."
 [`Object`]: # "java.lang.Object"
-[`PageContext`]: # "javax.servlet.jsp.PageContext"
+[`PageContext`]: # "jakarta.servlet.jsp.PageContext"
 [`PageFilter`]: # "org.apache.wiki.api.filters.PageFilter"
 [`Page`]: # "org.apache.wiki.api.core.Page"
 [`Permission`]: # "java.security.Permission"
@@ -1576,8 +1551,8 @@ ___
 [`Properties`]: # "java.util.Properties"
 [`ProviderException`]: # "org.apache.wiki.api.exceptions.ProviderException"
 [`Serializable`]: # "java.io.Serializable"
-[`ServletConfig`]: # "javax.servlet.ServletConfig"
-[`ServletContext`]: # "javax.servlet.ServletContext"
+[`ServletConfig`]: # "jakarta.servlet.ServletConfig"
+[`ServletContext`]: # "jakarta.servlet.ServletContext"
 [`SessionDSL`]: # "org.apache.wiki.api.spi.SessionDSL"
 [`Session`]: # "org.apache.wiki.api.core.Session"
 [`String`]: # "java.lang.String"

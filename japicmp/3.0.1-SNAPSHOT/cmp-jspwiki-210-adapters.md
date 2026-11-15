@@ -7,7 +7,7 @@
 
 > [!IMPORTANT]
 >
-> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-210-adapters 2.12.3](https://img.shields.io/badge/jspwiki_210_adapters-2.12.3-blue "jspwiki-210-adapters 2.12.3")
+  - ![jspwiki-210-adapters 3.0.0](https://img.shields.io/badge/jspwiki_210_adapters-3.0.0-blue "jspwiki-210-adapters 3.0.0")
 - **New archives**:
   - ![jspwiki-210-adapters 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_210_adapters-3.0.1_SNAPSHOT-blue "jspwiki-210-adapters 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -71,9 +71,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|----------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `WikiProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name           | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|----------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `WikiProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Annotations
@@ -99,9 +99,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `BasicPageFilter` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name              | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `BasicPageFilter` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Annotations
@@ -143,9 +143,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `WikiPlugin` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `WikiPlugin` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Annotations
@@ -171,9 +171,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                            | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiAttachmentAdapterProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                            | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiAttachmentAdapterProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Annotations
@@ -216,9 +216,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `WikiAttachmentProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                     | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `WikiAttachmentProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -259,9 +259,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiPageAdapterProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiPageAdapterProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Annotations
@@ -307,9 +307,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `WikiPageProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `WikiPageProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -356,7 +356,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:24.123+0000*.
+*Generated on: 2026-11-15 21:24:54.882+0000*.
 
 [1]: # "org.apache.wiki.api.search.QueryItem[]"
 [2]: # "org.apache.wiki.attachment.Attachment"

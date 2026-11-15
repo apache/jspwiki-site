@@ -7,7 +7,7 @@
 
 > [!IMPORTANT]
 >
-> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-markdown 2.12.3](https://img.shields.io/badge/jspwiki_markdown-2.12.3-blue "jspwiki-markdown 2.12.3")
+  - ![jspwiki-markdown 3.0.0](https://img.shields.io/badge/jspwiki_markdown-3.0.0-blue "jspwiki-markdown 3.0.0")
 - **New archives**:
   - ![jspwiki-markdown 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_markdown-3.0.1_SNAPSHOT-blue "jspwiki-markdown 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -100,9 +100,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                      | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MarkdownSyntaxDecorator` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                      | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MarkdownSyntaxDecorator` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -127,9 +127,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                          | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MarkdownForJSPWikiExtension` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                          | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MarkdownForJSPWikiExtension` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -157,9 +157,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MarkdownSetupEn…fecycleExtension` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MarkdownSetupEn…fecycleExtension` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -213,9 +213,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ExternalLinkAtt…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ExternalLinkAtt…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -247,9 +247,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ImageLinkAttributeProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ImageLinkAttributeProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -281,9 +281,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `InterWikiLinkAt…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `InterWikiLinkAt…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -315,9 +315,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                           | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiLinkAttributeProvider` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                           | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiLinkAttributeProvider` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -350,9 +350,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiLinkAttr…eProviderFactory` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiLinkAttr…eProviderFactory` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -377,9 +377,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalEditLinkAt…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalEditLinkAt…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -411,9 +411,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalFootnoteLi…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalFootnoteLi…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -445,9 +445,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalFootnoteRe…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalFootnoteRe…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -479,9 +479,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalLinkAttributeProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalLinkAttributeProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -513,9 +513,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalReadLinkAt…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalReadLinkAt…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -547,9 +547,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `NodeAttributeProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `NodeAttributeProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Generics
@@ -574,9 +574,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WysiwygEditingA…uteProviderState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `WysiwygEditingA…uteProviderState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -608,9 +608,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `AccessRuleLinkN…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `AccessRuleLinkN…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -642,9 +642,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ExternalLinkNod…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ExternalLinkNod…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -676,9 +676,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ImageLinkNodePostProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ImageLinkNodePostProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -710,9 +710,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `InterWikiLinkNo…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `InterWikiLinkNo…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -744,9 +744,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                           | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiLinkNodePostProcessor` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                           | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiLinkNodePostProcessor` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -781,9 +781,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                              | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiNodePostProcessorFactory` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                              | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------------------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiNodePostProcessorFactory` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -808,9 +808,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalFootnoteLi…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalFootnoteLi…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -842,9 +842,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalFootnoteRe…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalFootnoteRe…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -876,9 +876,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocalLinkNodePostProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocalLinkNodePostProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -910,9 +910,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MetadataLinkNod…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MetadataLinkNod…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -944,9 +944,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name                     | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|--------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `NodePostProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name                     | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|--------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `NodePostProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Generics
@@ -971,9 +971,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `PluginLinkNodePostProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `PluginLinkNodePostProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1005,9 +1005,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                               | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `VariableLinkNod…stProcessorState` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                               | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `VariableLinkNod…stProcessorState` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1039,9 +1039,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name             | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `WikiHtmlInline` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name             | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `WikiHtmlInline` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -1060,9 +1060,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name          | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|---------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiLink` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name          | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|---------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiLink` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1089,9 +1089,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiLinkRenderer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                  | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-----------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiLinkRenderer` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1116,9 +1116,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JSPWikiNodeRendererFactory` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JSPWikiNodeRendererFactory` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1144,9 +1144,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name               | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MarkdownDocument` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name               | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MarkdownDocument` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1172,9 +1172,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name             | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MarkdownParser` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name             | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MarkdownParser` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1199,9 +1199,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name               | Extends | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------|---------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `MarkdownRenderer` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name               | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `MarkdownRenderer` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -1229,7 +1229,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:25.921+0000*.
+*Generated on: 2026-11-15 21:24:58.216+0000*.
 
 [1]: # "com.vladsch.flexmark.parser.Parser$Builder"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"

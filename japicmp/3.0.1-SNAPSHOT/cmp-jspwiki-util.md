@@ -1,13 +1,13 @@
 
 # Compatibility Report
 
-![semver MAJOR](https://img.shields.io/badge/semver-MAJOR-red?logo=semver "semver MAJOR")
+![semver PATCH](https://img.shields.io/badge/semver-PATCH-yellow?logo=semver "semver PATCH")
 
 ## Summary
 
-> [!CAUTION]
+> [!IMPORTANT]
 >
-> Incompatible changes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `2.12.3`.
+> Compatible bug fixes found while checking backward compatibility of version `3.0.1-SNAPSHOT` with the previous version `3.0.0`.
 
 <details markdown="1">
 <summary>Expand to see options used.</summary>
@@ -17,7 +17,7 @@
 - **Report only binary-incompatible changes**: No
 - **Access modifier filter**: `PROTECTED`
 - **Old archives**:
-  - ![jspwiki-util 2.12.3](https://img.shields.io/badge/jspwiki_util-2.12.3-blue "jspwiki-util 2.12.3")
+  - ![jspwiki-util 3.0.0](https://img.shields.io/badge/jspwiki_util-3.0.0-blue "jspwiki-util 3.0.0")
 - **New archives**:
   - ![jspwiki-util 3.0.1-SNAPSHOT](https://img.shields.io/badge/jspwiki_util-3.0.1_SNAPSHOT-blue "jspwiki-util 3.0.1-SNAPSHOT")
 - **Evaluate annotations**: Yes
@@ -57,13 +57,13 @@
 | Unchanged | [org.apache.wiki.util.CommentedProperties]                  | ![Compatible]       | ![No changes]         |
 | Modified  | [org.apache.wiki.util.CryptoUtil]                           | ![Not serializable] | ![Method added to public class] |
 | Modified  | [org.apache.wiki.util.FileUtil]                             | ![Not serializable] | ![Method added to public class] |
-| Modified  | [org.apache.wiki.util.FormUtil]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified  | [org.apache.wiki.util.HttpUtil]                             | ![Not serializable] | ![Method removed] ![Method added to public class] |
-| Modified  | [org.apache.wiki.util.MailUtil]                             | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.util.MailUtil$SmtpAuthenticator]           | ![Not serializable] | ![Method return type changed] |
+| Unchanged | [org.apache.wiki.util.FormUtil]                             | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.util.HttpUtil]                             | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.util.MailUtil]                             | ![Not serializable] | ![No changes]         |
+| Unchanged | [org.apache.wiki.util.MailUtil$SmtpAuthenticator]           | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.PriorityList]                         | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.PropertiesUtils]                      | ![Not serializable] | ![No changes]         |
-| Modified  | [org.apache.wiki.util.PropertyReader]                       | ![Not serializable] | ![Method removed] ![Method added to public class] |
+| Unchanged | [org.apache.wiki.util.PropertyReader]                       | ![Not serializable] | ![No changes]         |
 | Unchanged | [org.apache.wiki.util.Serializer]                           | ![Not serializable] | ![No changes]         |
 | Added     | [org.apache.wiki.util.Synchronizer]                         | ![Not serializable] | ![Method added to public class] |
 | Added     | [org.apache.wiki.util.Synchronizer$ThrowingRunnable]        | ![Not serializable] | ![Annotation added]   |
@@ -92,9 +92,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `ByteUtils` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `ByteUtils` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -115,9 +115,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers           | Type      | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|---------------------|-----------|-------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public` `abstract` | Interface | `CheckedSupplier` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers           | Type      | Name              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|---------------------|-----------|-------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public` `abstract` | Interface | `CheckedSupplier` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Generics
@@ -150,9 +150,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `ClassUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `ClassUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -190,9 +190,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends        | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|----------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `CommentedProperties` | [`Properties`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                  | Extends        | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-----------------------|----------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `CommentedProperties` | [`Properties`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -234,9 +234,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `CryptoUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers        | Type  | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|----------|------------------|-------|--------------|------------|--------|---------------------|-----------------------|
+| Modified | `final` `public` | Class | `CryptoUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -274,9 +274,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `FileUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status   | Modifiers        | Type  | Name       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|----------|------------------|-------|------------|------------|--------|---------------------|-----------------------|
+| Modified | `final` `public` | Class | `FileUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -298,61 +298,53 @@ ___
 <a id="user-content-org.apache.wiki.util.formutil"></a>
 ### `org.apache.wiki.util.FormUtil`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `FormUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `FormUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type                        | Method                                                    | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------------|----------|-----------------------------|-----------------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `static` `public`         |          | [`List<?>`]                 | `getNumberedValues`([`Map<?, ?>`], [`String`])            |             |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`List<?>`]                 | `getValues`([`Map<?, ?>`], [`String`])                    |             |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Map<String, String>`]~~ | ~~`requestToMap`~~([`HttpServletRequest`], [`String`])    |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`Map<String, String>`]** | **`requestToMap`**([`HttpServletRequest`][2], [`String`]) |             |        | ![Method added to public class] |
+| Status    | Modifiers         | Generics | Type                    | Method                                             | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|----------|-------------------------|----------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `static` `public` |          | [`List<?>`]             | `getNumberedValues`([`Map<?, ?>`], [`String`])     |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`List<?>`]             | `getValues`([`Map<?, ?>`], [`String`])             |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Map<String, String>`] | `requestToMap`([`HttpServletRequest`], [`String`]) |             |        | ![No changes]         |
 
 ___
 
 <a id="user-content-org.apache.wiki.util.httputil"></a>
 ### `org.apache.wiki.util.HttpUtil`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `HttpUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `HttpUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type           | Method                                                           | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------------|----------|----------------|------------------------------------------------------------------|-------------|--------|-----------------------|
-| Added     | **`static`** **`public`** |          | **`void`**     | **`addHeader`**([`ServletResponse`], [`String`], [`String`])     |             |        | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`boolean`~~  | ~~`checkFor304`~~([`HttpServletRequest`], [`String`], [`Date`])  |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`boolean`**  | **`checkFor304`**([`HttpServletRequest`][2], [`String`], [`Date`]) |           |        | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~`void`~~     | ~~`clearCookie`~~([`HttpServletResponse`], [`String`])           |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **`void`**     | **`clearCookie`**([`HttpServletResponse`][3], [`String`])        |             |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | [`String`]     | `createETag`([`String`], [`Date`])                               |             |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getAbsoluteUrl`~~([`HttpServletRequest`], [`String`])         |             |        | ![Method removed]     |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getAbsoluteUrl`~~([`HttpServletRequest`])                     |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getAbsoluteUrl`**([`HttpServletRequest`][2], [`String`])      |             |        | ![Method added to public class] |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getAbsoluteUrl`**([`HttpServletRequest`][2])                  |             |        | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`getRemoteAddress`~~([`HttpServletRequest`])                   |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`getRemoteAddress`**([`HttpServletRequest`][2])                |             |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | [`String`]     | `guessValidURI`([`String`])                                      |             |        | ![No changes]         |
-| Added     | **`static`** **`public`** |          | **`boolean`**  | **`ipIsInRange`**([`HttpServletRequest`][2], [`String`])         |             |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | `boolean`      | `isIPV4Address`([`String`])                                      |             |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`retrieveCookieValue`~~([`HttpServletRequest`], [`String`])    |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`retrieveCookieValue`**([`HttpServletRequest`][2], [`String`]) |             |        | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`String`]~~ | ~~`safeGetQueryString`~~([`HttpServletRequest`], [`Charset`])    |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`String`]** | **`safeGetQueryString`**([`HttpServletRequest`][2], [`Charset`]) |             |        | ![Method added to public class] |
+| Status    | Modifiers         | Generics | Type       | Method                                                      | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|----------|------------|-------------------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `static` `public` |          | `void`     | `addHeader`([`ServletResponse`], [`String`], [`String`])    |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | `boolean`  | `checkFor304`([`HttpServletRequest`], [`String`], [`Date`]) |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | `void`     | `clearCookie`([`HttpServletResponse`], [`String`])          |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `createETag`([`String`], [`Date`])                          |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `getAbsoluteUrl`([`HttpServletRequest`], [`String`])        |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `getAbsoluteUrl`([`HttpServletRequest`])                    |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `getRemoteAddress`([`HttpServletRequest`])                  |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `guessValidURI`([`String`])                                 |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | `boolean`  | `ipIsInRange`([`HttpServletRequest`], [`String`])           |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | `boolean`  | `isIPV4Address`([`String`])                                 |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `retrieveCookieValue`([`HttpServletRequest`], [`String`])   |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`String`] | `safeGetQueryString`([`HttpServletRequest`], [`Charset`])   |             |        | ![No changes]         |
 
 ___
 
@@ -363,29 +355,29 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `MailUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `MailUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status   | Modifiers         | Generics | Type   | Method | Annotations | Throws | Compatibility Changes |
-|----------|-------------------|----------|--------|--------|-------------|--------|-----------------------|
-| Modified | `static` `public` |          | `void` | `sendMessage`([`Properties`], [`String`], [`String`], [`String`]) |  | ~~[`AddressException`]~~, ~~[`MessagingException`]~~, **[`AddressException`][4]**, **[`MessagingException`][5]** | ![No changes] |
+| Status    | Modifiers         | Generics | Type   | Method | Annotations | Throws                                       | Compatibility Changes |
+|-----------|-------------------|----------|--------|--------|-------------|----------------------------------------------|-----------------------|
+| Unchanged | `static` `public` |          | `void` | `sendMessage`([`Properties`], [`String`], [`String`], [`String`]) |  | [`AddressException`], [`MessagingException`] | ![No changes] |
 
 ___
 
 <a id="user-content-org.apache.wiki.util.mailutil$smtpauthenticator"></a>
 ### `org.apache.wiki.util.MailUtil$SmtpAuthenticator`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers            | Type  | Name                | Extends | JDK                          | Serialization       | Compatibility Changes |
-|----------|----------------------|-------|---------------------|---------|------------------------------|---------------------|-----------------------|
-| Modified | `static` `protected` | Class | `SmtpAuthenticator` | null    | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers            | Type  | Name                | Extends | JDK    | Serialization       | Compatibility Changes |
+|-----------|----------------------|-------|---------------------|---------|--------|---------------------|-----------------------|
+| Unchanged | `static` `protected` | Class | `SmtpAuthenticator` | null    | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Constructors
@@ -397,9 +389,9 @@ ___
 
 #### Methods
 
-| Status   | Modifiers | Generics | Type | Method                        | Annotations | Throws | Compatibility Changes |
-|----------|-----------|----------|------|-------------------------------|-------------|--------|-----------------------|
-| Modified | `public`  |          | ~~[`PasswordAuthentication`]~~ &rarr; **[`PasswordAuthentication`][6]** | `getPasswordAuthentication`() |  |  | ![Method return type changed] |
+| Status    | Modifiers | Generics | Type                       | Method                        | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|----------------------------|-------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | [`PasswordAuthentication`] | `getPasswordAuthentication`() |             |        | ![No changes]         |
 
 ___
 
@@ -410,9 +402,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name           | Extends             | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------------|---------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `PriorityList` | [`AbstractList<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name           | Extends             | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|----------------|---------------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `PriorityList` | [`AbstractList<E>`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Generics
@@ -463,9 +455,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|-------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `PropertiesUtils` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|-------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `PropertiesUtils` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -481,27 +473,25 @@ ___
 <a id="user-content-org.apache.wiki.util.propertyreader"></a>
 ### `org.apache.wiki.util.PropertyReader`
 
-- [ ] Binary-compatible
-- [ ] Source-compatible
+- [X] Binary-compatible
+- [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status   | Modifiers        | Type  | Name             | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|----------|------------------|-------|------------------|------------|------------------------------|---------------------|-----------------------|
-| Modified | `final` `public` | Class | `PropertyReader` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name             | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `PropertyReader` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers                 | Generics | Type                | Method                                                           | Annotations | Throws | Compatibility Changes |
-|-----------|---------------------------|----------|---------------------|------------------------------------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `static` `public`         |          | `void`              | `expandVars`([`Properties`])                                     |             |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`Properties`]      | `getCombinedProperties`([`String`])                              |             |        | ![No changes]         |
-| Unchanged | `static` `public`         |          | [`Properties`]      | `getDefaultProperties`()                                         |             |        | ![No changes]         |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`Properties`]~~  | ~~`loadWebAppProps`~~([`ServletContext`])                        |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`Properties`]**  | **`loadWebAppProps`**([`ServletContext`][7])                     |             |        | ![Method added to public class] |
-| Removed   | ~~`static`~~ ~~`public`~~ |          | ~~[`InputStream`]~~ | ~~`locateClassPathResource`~~([`ServletContext`], [`String`])    |             |        | ![Method removed]     |
-| Added     | **`static`** **`public`** |          | **[`InputStream`]** | **`locateClassPathResource`**([`ServletContext`][7], [`String`]) |             |        | ![Method added to public class] |
-| Unchanged | `static` `public`         |          | `void`              | `propertyExpansion`([`Properties`])                              |             |        | ![No changes]         |
+| Status    | Modifiers         | Generics | Type            | Method                                                    | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|----------|-----------------|-----------------------------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `static` `public` |          | `void`          | `expandVars`([`Properties`])                              |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Properties`]  | `getCombinedProperties`([`String`])                       |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Properties`]  | `getDefaultProperties`()                                  |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Properties`]  | `loadWebAppProps`([`ServletContext`])                     |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`InputStream`] | `locateClassPathResource`([`ServletContext`], [`String`]) |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | `void`          | `propertyExpansion`([`Properties`])                       |             |        | ![No changes]         |
 
 
 #### Fields
@@ -522,9 +512,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name         | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|--------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `Serializer` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name         | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|--------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `Serializer` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -605,9 +595,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name       | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `TextUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name       | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `TextUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -663,9 +653,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name               | Extends             | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------|---------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `TimedCounterList` | [`AbstractList<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name               | Extends             | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------|---------------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `TimedCounterList` | [`AbstractList<E>`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Generics
@@ -713,9 +703,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type | Name        | Extends     | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|------|-------------|-------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Enum | `URIScheme` | [`Enum<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type | Name        | Extends     | JDK    | Serialization | Compatibility Changes |
+|-----------|------------------|------|-------------|-------------|--------|---------------|-----------------------|
+| Unchanged | `final` `public` | Enum | `URIScheme` | [`Enum<E>`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -735,7 +725,7 @@ ___
 | Unchanged | `public`          |          | `boolean`          | `same`([`String`])    |             |        | ![No changes]         |
 | Unchanged | `public`          |          | [`String`]         | `toString`()          |             |        | ![No changes]         |
 | Unchanged | `static` `public` |          | [`URIScheme`]      | `valueOf`([`String`]) |             |        | ![No changes]         |
-| Unchanged | `static` `public` |          | [`URIScheme[]`][8] | `values`()            |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`URIScheme[]`][2] | `values`()            |             |        | ![No changes]         |
 
 
 #### Fields
@@ -755,9 +745,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type | Name    | Extends     | JDK                          | Serialization | Compatibility Changes |
-|-----------|------------------|------|---------|-------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `public` | Enum | `XHTML` | [`Enum<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers        | Type | Name    | Extends     | JDK    | Serialization | Compatibility Changes |
+|-----------|------------------|------|---------|-------------|--------|---------------|-----------------------|
+| Unchanged | `final` `public` | Enum | `XHTML` | [`Enum<E>`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -776,7 +766,7 @@ ___
 | Unchanged | `public`          |          | [`String`]     | `getName`()                      |             |        | ![No changes]         |
 | Unchanged | `static` `public` |          | [`String`]     | `getNamedCharacterEntity`(`int`) |             |        | ![No changes]         |
 | Unchanged | `static` `public` |          | [`XHTML`]      | `valueOf`([`String`])            |             |        | ![No changes]         |
-| Unchanged | `static` `public` |          | [`XHTML[]`][9] | `values`()                       |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`XHTML[]`][3] | `values`()                       |             |        | ![No changes]         |
 
 
 #### Fields
@@ -919,9 +909,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name        | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|-------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `XhtmlUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name        | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|-------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `XhtmlUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -955,9 +945,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers        | Type  | Name      | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|------------------|-------|-----------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `final` `public` | Class | `XmlUtil` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers        | Type  | Name      | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|------------------|-------|-----------|------------|--------|---------------------|-----------------------|
+| Unchanged | `final` `public` | Class | `XmlUtil` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Methods
@@ -978,9 +968,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                 | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|----------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `CollatorComparator` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                 | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|----------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `CollatorComparator` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1022,9 +1012,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name              | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `HumanComparator` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name              | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `HumanComparator` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1036,20 +1026,20 @@ ___
 
 #### Constructors
 
-| Status    | Modifiers | Generics | Constructor                           | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|---------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `HumanComparator`([`CharType[]`][10]) |             |        | ![No changes]         |
-| Unchanged | `public`  |          | `HumanComparator`()                   |             |        | ![No changes]         |
+| Status    | Modifiers | Generics | Constructor                          | Annotations | Throws | Compatibility Changes |
+|-----------|-----------|----------|--------------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`  |          | `HumanComparator`([`CharType[]`][4]) |             |        | ![No changes]         |
+| Unchanged | `public`  |          | `HumanComparator`()                  |             |        | ![No changes]         |
 
 
 #### Methods
 
-| Status    | Modifiers         | Generics | Type                   | Method                             | Annotations | Throws | Compatibility Changes |
-|-----------|-------------------|----------|------------------------|------------------------------------|-------------|--------|-----------------------|
-| Unchanged | `public`          |          | `int`                  | `compare`([`String`], [`String`])  |             |        | ![No changes]         |
-| Unchanged | `static` `public` |          | [`Comparator<String>`] | `getInstance`()                    |             |        | ![No changes]         |
-| Unchanged | `public`          |          | [`CharType[]`][10]     | `getSortOrder`()                   |             |        | ![No changes]         |
-| Unchanged | `public`          |          | `void`                 | `setSortOrder`([`CharType[]`][10]) |             |        | ![No changes]         |
+| Status    | Modifiers         | Generics | Type                   | Method                            | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|----------|------------------------|-----------------------------------|-------------|--------|-----------------------|
+| Unchanged | `public`          |          | `int`                  | `compare`([`String`], [`String`]) |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`Comparator<String>`] | `getInstance`()                   |             |        | ![No changes]         |
+| Unchanged | `public`          |          | [`CharType[]`][4]      | `getSortOrder`()                  |             |        | ![No changes]         |
+| Unchanged | `public`          |          | `void`                 | `setSortOrder`([`CharType[]`][4]) |             |        | ![No changes]         |
 
 
 #### Fields
@@ -1067,9 +1057,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers                 | Type | Name       | Extends     | JDK                          | Serialization | Compatibility Changes |
-|-----------|---------------------------|------|------------|-------------|------------------------------|---------------|-----------------------|
-| Unchanged | `final` `static` `public` | Enum | `CharType` | [`Enum<E>`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers                 | Type | Name       | Extends     | JDK    | Serialization | Compatibility Changes |
+|-----------|---------------------------|------|------------|-------------|--------|---------------|-----------------------|
+| Unchanged | `final` `static` `public` | Enum | `CharType` | [`Enum<E>`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1083,10 +1073,10 @@ ___
 
 #### Methods
 
-| Status    | Modifiers         | Generics | Type               | Method                | Annotations | Throws | Compatibility Changes |
-|-----------|-------------------|----------|--------------------|-----------------------|-------------|--------|-----------------------|
-| Unchanged | `static` `public` |          | [`CharType`]       | `valueOf`([`String`]) |             |        | ![No changes]         |
-| Unchanged | `static` `public` |          | [`CharType[]`][10] | `values`()            |             |        | ![No changes]         |
+| Status    | Modifiers         | Generics | Type              | Method                | Annotations | Throws | Compatibility Changes |
+|-----------|-------------------|----------|-------------------|-----------------------|-------------|--------|-----------------------|
+| Unchanged | `static` `public` |          | [`CharType`]      | `valueOf`([`String`]) |             |        | ![No changes]         |
+| Unchanged | `static` `public` |          | [`CharType[]`][4] | `values`()            |             |        | ![No changes]         |
 
 
 #### Fields
@@ -1106,9 +1096,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                    | Extends    | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|-------------------------|------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `JavaNaturalComparator` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                    | Extends    | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|-------------------------|------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `JavaNaturalComparator` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1147,9 +1137,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name               | Extends                | JDK                          | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------|------------------------|------------------------------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `LocaleComparator` | [`CollatorComparator`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Not serializable] | ![No changes]         |
+| Status    | Modifiers | Type  | Name               | Extends                | JDK    | Serialization       | Compatibility Changes |
+|-----------|-----------|-------|--------------------|------------------------|--------|---------------------|-----------------------|
+| Unchanged | `public`  | Class | `LocaleComparator` | [`CollatorComparator`] | JDK 17 | ![Not serializable] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1182,9 +1172,9 @@ ___
 - [X] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name                  | Extends    | JDK                          | Serialization | Compatibility Changes |
-|-----------|-----------|-------|-----------------------|------------|------------------------------|---------------|-----------------------|
-| Unchanged | `public`  | Class | `PrincipalComparator` | [`Object`] | ~~JDK 11~~ &rarr; **JDK 17** | ![Compatible] | ![No changes]         |
+| Status    | Modifiers | Type  | Name                  | Extends    | JDK    | Serialization | Compatibility Changes |
+|-----------|-----------|-------|-----------------------|------------|--------|---------------|-----------------------|
+| Unchanged | `public`  | Class | `PrincipalComparator` | [`Object`] | JDK 17 | ![Compatible] | ![No changes]         |
 
 
 #### Implemented Interfaces
@@ -1220,27 +1210,19 @@ ___
 
 ___
 
-*Generated on: 2026-11-15 19:16:26.060+0000*.
+*Generated on: 2026-11-15 21:24:58.621+0000*.
 
 [1]: # "java.lang.String[]"
-[2]: # "jakarta.servlet.http.HttpServletRequest"
-[3]: # "jakarta.servlet.http.HttpServletResponse"
-[4]: # "jakarta.mail.internet.AddressException"
-[5]: # "jakarta.mail.MessagingException"
-[6]: # "jakarta.mail.PasswordAuthentication"
-[7]: # "jakarta.servlet.ServletContext"
-[8]: # "org.apache.wiki.util.URIScheme[]"
-[9]: # "org.apache.wiki.util.XHTML[]"
-[10]: # "org.apache.wiki.util.comparators.HumanComparator$CharType[]"
+[2]: # "org.apache.wiki.util.URIScheme[]"
+[3]: # "org.apache.wiki.util.XHTML[]"
+[4]: # "org.apache.wiki.util.comparators.HumanComparator$CharType[]"
 [Annotation added]: https://img.shields.io/badge/Annotation_added-yellow "Annotation added"
 [Compatible]: https://img.shields.io/badge/Compatible-green "Compatible"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"
-[Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
-[Method return type changed]: https://img.shields.io/badge/Method_return_type_changed-red "Method return type changed"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
 [`AbstractList<E>`]: # "java.util.AbstractList<E extends java.lang.Object>"
-[`AddressException`]: # "javax.mail.internet.AddressException"
+[`AddressException`]: # "jakarta.mail.internet.AddressException"
 [`CharType`]: # "org.apache.wiki.util.comparators.HumanComparator$CharType"
 [`Charset`]: # "java.nio.charset.Charset"
 [`Class<?>`]: # "java.lang.Class<?>"
@@ -1263,8 +1245,8 @@ ___
 [`File`]: # "java.io.File"
 [`Format`]: # "org.jdom2.output.Format"
 [`FunctionalInterface`]: # "java.lang.FunctionalInterface"
-[`HttpServletRequest`]: # "javax.servlet.http.HttpServletRequest"
-[`HttpServletResponse`]: # "javax.servlet.http.HttpServletResponse"
+[`HttpServletRequest`]: # "jakarta.servlet.http.HttpServletRequest"
+[`HttpServletResponse`]: # "jakarta.servlet.http.HttpServletResponse"
 [`IOException`]: # "java.io.IOException"
 [`IllegalArgumentException`]: # "java.lang.IllegalArgumentException"
 [`InputStream`]: # "java.io.InputStream"
@@ -1280,20 +1262,20 @@ ___
 [`Map<String, ? extends Serializable>`]: # "java.util.Map<java.lang.String, ? extends java.io.Serializable>"
 [`Map<String, Serializable>`]: # "java.util.Map<java.lang.String, java.io.Serializable>"
 [`Map<String, String>`]: # "java.util.Map<java.lang.String, java.lang.String>"
-[`MessagingException`]: # "javax.mail.MessagingException"
+[`MessagingException`]: # "jakarta.mail.MessagingException"
 [`NoSuchAlgorithmException`]: # "java.security.NoSuchAlgorithmException"
 [`NoSuchElementException`]: # "java.util.NoSuchElementException"
 [`Object...`]: # "java.lang.Object..."
 [`Object`]: # "java.lang.Object"
 [`OutputStream`]: # "java.io.OutputStream"
-[`PasswordAuthentication`]: # "javax.mail.PasswordAuthentication"
+[`PasswordAuthentication`]: # "jakarta.mail.PasswordAuthentication"
 [`Principal`]: # "java.security.Principal"
 [`Properties`]: # "java.util.Properties"
 [`Reader`]: # "java.io.Reader"
 [`ReentrantLock`]: # "java.util.concurrent.locks.ReentrantLock"
 [`ReflectiveOperationException`]: # "java.lang.ReflectiveOperationException"
 [`Serializable`]: # "java.io.Serializable"
-[`ServletContext`]: # "javax.servlet.ServletContext"
+[`ServletContext`]: # "jakarta.servlet.ServletContext"
 [`ServletResponse`]: # "jakarta.servlet.ServletResponse"
 [`String`]: # "java.lang.String"
 [`Supplier<T>`]: # "java.util.function.Supplier<T>"
