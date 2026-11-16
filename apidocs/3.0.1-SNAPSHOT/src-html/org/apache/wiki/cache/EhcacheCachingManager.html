@@ -82,120 +82,126 @@
 <span class="source-line-no">069</span><span id="line-69">    public void initialize( final Engine engine, final Properties props ) throws WikiException {</span>
 <span class="source-line-no">070</span><span id="line-70">        final String cacheEnabled = TextUtil.getStringProperty( props, PROP_CACHE_ENABLE, PROP_USECACHE_DEPRECATED, "true" );</span>
 <span class="source-line-no">071</span><span id="line-71">        final boolean useCache = "true".equalsIgnoreCase( cacheEnabled );</span>
-<span class="source-line-no">072</span><span id="line-72">        final String confLocation = "/" + TextUtil.getStringProperty( props, PROP_CACHE_CONF_FILE, "ehcache-jspwiki.xml" );</span>
-<span class="source-line-no">073</span><span id="line-73">        if( useCache ) {</span>
-<span class="source-line-no">074</span><span id="line-74">            final URL location = this.getClass().getResource( confLocation );</span>
-<span class="source-line-no">075</span><span id="line-75">            LOG.info( "Reading ehcache configuration file from classpath on /{}", location );</span>
-<span class="source-line-no">076</span><span id="line-76">            cacheManager = CacheManager.create( location );</span>
-<span class="source-line-no">077</span><span id="line-77">            registerCache( CACHE_ATTACHMENTS );</span>
-<span class="source-line-no">078</span><span id="line-78">            registerCache( CACHE_ATTACHMENTS_COLLECTION );</span>
-<span class="source-line-no">079</span><span id="line-79">            registerCache( CACHE_ATTACHMENTS_DYNAMIC );</span>
-<span class="source-line-no">080</span><span id="line-80">            registerCache( CACHE_DOCUMENTS );</span>
-<span class="source-line-no">081</span><span id="line-81">            registerCache( CACHE_PAGES );</span>
-<span class="source-line-no">082</span><span id="line-82">            registerCache( CACHE_PAGES_HISTORY );</span>
-<span class="source-line-no">083</span><span id="line-83">            registerCache( CACHE_PAGES_TEXT );</span>
-<span class="source-line-no">084</span><span id="line-84">        }</span>
-<span class="source-line-no">085</span><span id="line-85">    }</span>
-<span class="source-line-no">086</span><span id="line-86"></span>
-<span class="source-line-no">087</span><span id="line-87">    void registerCache( final String cacheName ) {</span>
-<span class="source-line-no">088</span><span id="line-88">        final Cache cache;</span>
-<span class="source-line-no">089</span><span id="line-89">        if( cacheManager.cacheExists( cacheName ) ) {</span>
-<span class="source-line-no">090</span><span id="line-90">            cache = cacheManager.getCache( cacheName );</span>
-<span class="source-line-no">091</span><span id="line-91">        } else {</span>
-<span class="source-line-no">092</span><span id="line-92">            LOG.info( "cache with name {} not found in ehcache configuration file, creating it with defaults.", cacheName );</span>
-<span class="source-line-no">093</span><span id="line-93">            cache = new Cache( cacheName, DEFAULT_CACHE_SIZE, false, false, DEFAULT_CACHE_EXPIRY_PERIOD, DEFAULT_CACHE_EXPIRY_PERIOD );</span>
-<span class="source-line-no">094</span><span id="line-94">            cacheManager.addCache( cache );</span>
-<span class="source-line-no">095</span><span id="line-95">        }</span>
-<span class="source-line-no">096</span><span id="line-96">        cacheMap.put( cacheName, cache );</span>
-<span class="source-line-no">097</span><span id="line-97">        cacheStats.put( cacheName, new CacheInfo( cacheName, cache.getCacheConfiguration().getMaxEntriesLocalHeap() ) );</span>
-<span class="source-line-no">098</span><span id="line-98">    }</span>
-<span class="source-line-no">099</span><span id="line-99"></span>
-<span class="source-line-no">100</span><span id="line-100">    /** {@inheritDoc} */</span>
-<span class="source-line-no">101</span><span id="line-101">    @Override</span>
-<span class="source-line-no">102</span><span id="line-102">    public boolean enabled( final String cacheName ) {</span>
-<span class="source-line-no">103</span><span id="line-103">        return cacheMap.get( cacheName ) != null;</span>
+<span class="source-line-no">072</span><span id="line-72">        if( useCache ) {</span>
+<span class="source-line-no">073</span><span id="line-73">            String val = TextUtil.getStringProperty( props, PROP_CACHE_CONF_FILE, "ehcache-jspwiki.xml" );</span>
+<span class="source-line-no">074</span><span id="line-74">            URL location = this.getClass().getResource( "/" + val );</span>
+<span class="source-line-no">075</span><span id="line-75">            if (location == null) {</span>
+<span class="source-line-no">076</span><span id="line-76">                location = this.getClass().getResource( val );</span>
+<span class="source-line-no">077</span><span id="line-77">            }</span>
+<span class="source-line-no">078</span><span id="line-78">            LOG.info( "Reading ehcache configuration file from classpath on /{}", location );</span>
+<span class="source-line-no">079</span><span id="line-79">            if (location == null ) {</span>
+<span class="source-line-no">080</span><span id="line-80">                LOG.error( "The ehcache configuration file from classpath on {} could not be loaded. Check setting {}", val , PROP_CACHE_CONF_FILE);</span>
+<span class="source-line-no">081</span><span id="line-81">            }</span>
+<span class="source-line-no">082</span><span id="line-82">            cacheManager = CacheManager.create( location );</span>
+<span class="source-line-no">083</span><span id="line-83">            registerCache( CACHE_ATTACHMENTS );</span>
+<span class="source-line-no">084</span><span id="line-84">            registerCache( CACHE_ATTACHMENTS_COLLECTION );</span>
+<span class="source-line-no">085</span><span id="line-85">            registerCache( CACHE_ATTACHMENTS_DYNAMIC );</span>
+<span class="source-line-no">086</span><span id="line-86">            registerCache( CACHE_DOCUMENTS );</span>
+<span class="source-line-no">087</span><span id="line-87">            registerCache( CACHE_PAGES );</span>
+<span class="source-line-no">088</span><span id="line-88">            registerCache( CACHE_PAGES_HISTORY );</span>
+<span class="source-line-no">089</span><span id="line-89">            registerCache( CACHE_PAGES_TEXT );</span>
+<span class="source-line-no">090</span><span id="line-90">        }</span>
+<span class="source-line-no">091</span><span id="line-91">    }</span>
+<span class="source-line-no">092</span><span id="line-92"></span>
+<span class="source-line-no">093</span><span id="line-93">    void registerCache( final String cacheName ) {</span>
+<span class="source-line-no">094</span><span id="line-94">        final Cache cache;</span>
+<span class="source-line-no">095</span><span id="line-95">        if( cacheManager.cacheExists( cacheName ) ) {</span>
+<span class="source-line-no">096</span><span id="line-96">            cache = cacheManager.getCache( cacheName );</span>
+<span class="source-line-no">097</span><span id="line-97">        } else {</span>
+<span class="source-line-no">098</span><span id="line-98">            LOG.info( "cache with name {} not found in ehcache configuration file, creating it with defaults.", cacheName );</span>
+<span class="source-line-no">099</span><span id="line-99">            cache = new Cache( cacheName, DEFAULT_CACHE_SIZE, false, false, DEFAULT_CACHE_EXPIRY_PERIOD, DEFAULT_CACHE_EXPIRY_PERIOD );</span>
+<span class="source-line-no">100</span><span id="line-100">            cacheManager.addCache( cache );</span>
+<span class="source-line-no">101</span><span id="line-101">        }</span>
+<span class="source-line-no">102</span><span id="line-102">        cacheMap.put( cacheName, cache );</span>
+<span class="source-line-no">103</span><span id="line-103">        cacheStats.put( cacheName, new CacheInfo( cacheName, cache.getCacheConfiguration().getMaxEntriesLocalHeap() ) );</span>
 <span class="source-line-no">104</span><span id="line-104">    }</span>
 <span class="source-line-no">105</span><span id="line-105"></span>
 <span class="source-line-no">106</span><span id="line-106">    /** {@inheritDoc} */</span>
 <span class="source-line-no">107</span><span id="line-107">    @Override</span>
-<span class="source-line-no">108</span><span id="line-108">    public CacheInfo info( final String cacheName ) {</span>
-<span class="source-line-no">109</span><span id="line-109">        if( enabled( cacheName ) ) {</span>
-<span class="source-line-no">110</span><span id="line-110">            return cacheStats.get( cacheName );</span>
-<span class="source-line-no">111</span><span id="line-111">        }</span>
-<span class="source-line-no">112</span><span id="line-112">        return null;</span>
-<span class="source-line-no">113</span><span id="line-113">    }</span>
-<span class="source-line-no">114</span><span id="line-114"></span>
-<span class="source-line-no">115</span><span id="line-115">    /**</span>
-<span class="source-line-no">116</span><span id="line-116">     * {@inheritDoc}</span>
-<span class="source-line-no">117</span><span id="line-117">     */</span>
-<span class="source-line-no">118</span><span id="line-118">    @Override</span>
-<span class="source-line-no">119</span><span id="line-119">    @SuppressWarnings( "unchecked" )</span>
-<span class="source-line-no">120</span><span id="line-120">    public List&lt; String &gt; keys( final String cacheName ) {</span>
-<span class="source-line-no">121</span><span id="line-121">        if( enabled( cacheName ) ) {</span>
-<span class="source-line-no">122</span><span id="line-122">            return cacheMap.get( cacheName ).getKeysWithExpiryCheck();</span>
-<span class="source-line-no">123</span><span id="line-123">        }</span>
-<span class="source-line-no">124</span><span id="line-124">        return Collections.emptyList();</span>
-<span class="source-line-no">125</span><span id="line-125">    }</span>
-<span class="source-line-no">126</span><span id="line-126"></span>
-<span class="source-line-no">127</span><span id="line-127">    /** {@inheritDoc} */</span>
-<span class="source-line-no">128</span><span id="line-128">    @Override</span>
-<span class="source-line-no">129</span><span id="line-129">    @SuppressWarnings( "unchecked" )</span>
-<span class="source-line-no">130</span><span id="line-130">    public &lt; T, E extends Exception &gt; T get( final String cacheName, final Serializable key, final CheckedSupplier&lt; T, E &gt; supplier ) throws E {</span>
-<span class="source-line-no">131</span><span id="line-131">        if( keyAndCacheAreNotNull( cacheName, key ) ) {</span>
-<span class="source-line-no">132</span><span id="line-132">            final Element element = cacheMap.get( cacheName ).get( key );</span>
-<span class="source-line-no">133</span><span id="line-133">            if( element != null ) {</span>
-<span class="source-line-no">134</span><span id="line-134">                cacheStats.get( cacheName ).hit();</span>
-<span class="source-line-no">135</span><span id="line-135">                return ( T )element.getObjectValue();</span>
-<span class="source-line-no">136</span><span id="line-136">            } else {</span>
-<span class="source-line-no">137</span><span id="line-137">                // element doesn't exist in cache, try to retrieve from the cached service instead.</span>
-<span class="source-line-no">138</span><span id="line-138">                final T value = supplier.get();</span>
-<span class="source-line-no">139</span><span id="line-139">                if( value != null ) {</span>
-<span class="source-line-no">140</span><span id="line-140">                    cacheStats.get( cacheName ).miss();</span>
-<span class="source-line-no">141</span><span id="line-141">                    cacheMap.get( cacheName ).put( new Element( key, value ) );</span>
-<span class="source-line-no">142</span><span id="line-142">                }</span>
-<span class="source-line-no">143</span><span id="line-143">                return value;</span>
-<span class="source-line-no">144</span><span id="line-144">            }</span>
-<span class="source-line-no">145</span><span id="line-145">        }</span>
-<span class="source-line-no">146</span><span id="line-146">        return null;</span>
-<span class="source-line-no">147</span><span id="line-147">    }</span>
-<span class="source-line-no">148</span><span id="line-148"></span>
-<span class="source-line-no">149</span><span id="line-149">    /** {@inheritDoc} */</span>
-<span class="source-line-no">150</span><span id="line-150">    @Override</span>
-<span class="source-line-no">151</span><span id="line-151">    public void put( final String cacheName, final Serializable key, final Object val ) {</span>
-<span class="source-line-no">152</span><span id="line-152">        if( keyAndCacheAreNotNull( cacheName, key ) ) {</span>
-<span class="source-line-no">153</span><span id="line-153">            cacheMap.get( cacheName ).put( new Element( key, val ) );</span>
-<span class="source-line-no">154</span><span id="line-154">        }</span>
-<span class="source-line-no">155</span><span id="line-155">    }</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">    /** {@inheritDoc} */</span>
-<span class="source-line-no">158</span><span id="line-158">    @Override</span>
-<span class="source-line-no">159</span><span id="line-159">    public void remove( final String cacheName, final Serializable key ) {</span>
-<span class="source-line-no">160</span><span id="line-160">        if( keyAndCacheAreNotNull( cacheName, key ) ) {</span>
-<span class="source-line-no">161</span><span id="line-161">            cacheMap.get( cacheName ).remove( key );</span>
-<span class="source-line-no">162</span><span id="line-162">        }</span>
-<span class="source-line-no">163</span><span id="line-163">    }</span>
-<span class="source-line-no">164</span><span id="line-164"></span>
-<span class="source-line-no">165</span><span id="line-165">    /** {@inheritDoc} */</span>
-<span class="source-line-no">166</span><span id="line-166">    @Override</span>
-<span class="source-line-no">167</span><span id="line-167">    public boolean registerListener( final String cacheName, final String listener, final Object... args ) {</span>
-<span class="source-line-no">168</span><span id="line-168">        if( enabled( cacheName ) &amp;&amp; "expired".equals( listener ) ) {</span>
-<span class="source-line-no">169</span><span id="line-169">            final AtomicBoolean allRequested = ( AtomicBoolean )args[0];</span>
-<span class="source-line-no">170</span><span id="line-170">            final CacheEventListenerAdapter expiredCacheListenerAdapter = new CacheEventListenerAdapter() {</span>
-<span class="source-line-no">171</span><span id="line-171">                @Override</span>
-<span class="source-line-no">172</span><span id="line-172">                public void notifyElementExpired( final Ehcache cache, final Element element ) {</span>
-<span class="source-line-no">173</span><span id="line-173">                    allRequested.set( false ); // signal that the cache no longer contains all elements...</span>
-<span class="source-line-no">174</span><span id="line-174">                }</span>
-<span class="source-line-no">175</span><span id="line-175">            };</span>
-<span class="source-line-no">176</span><span id="line-176">            return cacheMap.get( cacheName ).getCacheEventNotificationService().registerListener( expiredCacheListenerAdapter );</span>
-<span class="source-line-no">177</span><span id="line-177">        }</span>
-<span class="source-line-no">178</span><span id="line-178">        return false;</span>
-<span class="source-line-no">179</span><span id="line-179">    }</span>
-<span class="source-line-no">180</span><span id="line-180"></span>
-<span class="source-line-no">181</span><span id="line-181">    boolean keyAndCacheAreNotNull( final String cacheName, final Serializable key ) {</span>
-<span class="source-line-no">182</span><span id="line-182">        return enabled( cacheName ) &amp;&amp; key != null;</span>
-<span class="source-line-no">183</span><span id="line-183">    }</span>
-<span class="source-line-no">184</span><span id="line-184"></span>
-<span class="source-line-no">185</span><span id="line-185">}</span>
+<span class="source-line-no">108</span><span id="line-108">    public boolean enabled( final String cacheName ) {</span>
+<span class="source-line-no">109</span><span id="line-109">        return cacheMap.get( cacheName ) != null;</span>
+<span class="source-line-no">110</span><span id="line-110">    }</span>
+<span class="source-line-no">111</span><span id="line-111"></span>
+<span class="source-line-no">112</span><span id="line-112">    /** {@inheritDoc} */</span>
+<span class="source-line-no">113</span><span id="line-113">    @Override</span>
+<span class="source-line-no">114</span><span id="line-114">    public CacheInfo info( final String cacheName ) {</span>
+<span class="source-line-no">115</span><span id="line-115">        if( enabled( cacheName ) ) {</span>
+<span class="source-line-no">116</span><span id="line-116">            return cacheStats.get( cacheName );</span>
+<span class="source-line-no">117</span><span id="line-117">        }</span>
+<span class="source-line-no">118</span><span id="line-118">        return null;</span>
+<span class="source-line-no">119</span><span id="line-119">    }</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">    /**</span>
+<span class="source-line-no">122</span><span id="line-122">     * {@inheritDoc}</span>
+<span class="source-line-no">123</span><span id="line-123">     */</span>
+<span class="source-line-no">124</span><span id="line-124">    @Override</span>
+<span class="source-line-no">125</span><span id="line-125">    @SuppressWarnings( "unchecked" )</span>
+<span class="source-line-no">126</span><span id="line-126">    public List&lt; String &gt; keys( final String cacheName ) {</span>
+<span class="source-line-no">127</span><span id="line-127">        if( enabled( cacheName ) ) {</span>
+<span class="source-line-no">128</span><span id="line-128">            return cacheMap.get( cacheName ).getKeysWithExpiryCheck();</span>
+<span class="source-line-no">129</span><span id="line-129">        }</span>
+<span class="source-line-no">130</span><span id="line-130">        return Collections.emptyList();</span>
+<span class="source-line-no">131</span><span id="line-131">    }</span>
+<span class="source-line-no">132</span><span id="line-132"></span>
+<span class="source-line-no">133</span><span id="line-133">    /** {@inheritDoc} */</span>
+<span class="source-line-no">134</span><span id="line-134">    @Override</span>
+<span class="source-line-no">135</span><span id="line-135">    @SuppressWarnings( "unchecked" )</span>
+<span class="source-line-no">136</span><span id="line-136">    public &lt; T, E extends Exception &gt; T get( final String cacheName, final Serializable key, final CheckedSupplier&lt; T, E &gt; supplier ) throws E {</span>
+<span class="source-line-no">137</span><span id="line-137">        if( keyAndCacheAreNotNull( cacheName, key ) ) {</span>
+<span class="source-line-no">138</span><span id="line-138">            final Element element = cacheMap.get( cacheName ).get( key );</span>
+<span class="source-line-no">139</span><span id="line-139">            if( element != null ) {</span>
+<span class="source-line-no">140</span><span id="line-140">                cacheStats.get( cacheName ).hit();</span>
+<span class="source-line-no">141</span><span id="line-141">                return ( T )element.getObjectValue();</span>
+<span class="source-line-no">142</span><span id="line-142">            } else {</span>
+<span class="source-line-no">143</span><span id="line-143">                // element doesn't exist in cache, try to retrieve from the cached service instead.</span>
+<span class="source-line-no">144</span><span id="line-144">                final T value = supplier.get();</span>
+<span class="source-line-no">145</span><span id="line-145">                if( value != null ) {</span>
+<span class="source-line-no">146</span><span id="line-146">                    cacheStats.get( cacheName ).miss();</span>
+<span class="source-line-no">147</span><span id="line-147">                    cacheMap.get( cacheName ).put( new Element( key, value ) );</span>
+<span class="source-line-no">148</span><span id="line-148">                }</span>
+<span class="source-line-no">149</span><span id="line-149">                return value;</span>
+<span class="source-line-no">150</span><span id="line-150">            }</span>
+<span class="source-line-no">151</span><span id="line-151">        }</span>
+<span class="source-line-no">152</span><span id="line-152">        return null;</span>
+<span class="source-line-no">153</span><span id="line-153">    }</span>
+<span class="source-line-no">154</span><span id="line-154"></span>
+<span class="source-line-no">155</span><span id="line-155">    /** {@inheritDoc} */</span>
+<span class="source-line-no">156</span><span id="line-156">    @Override</span>
+<span class="source-line-no">157</span><span id="line-157">    public void put( final String cacheName, final Serializable key, final Object val ) {</span>
+<span class="source-line-no">158</span><span id="line-158">        if( keyAndCacheAreNotNull( cacheName, key ) ) {</span>
+<span class="source-line-no">159</span><span id="line-159">            cacheMap.get( cacheName ).put( new Element( key, val ) );</span>
+<span class="source-line-no">160</span><span id="line-160">        }</span>
+<span class="source-line-no">161</span><span id="line-161">    }</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">    /** {@inheritDoc} */</span>
+<span class="source-line-no">164</span><span id="line-164">    @Override</span>
+<span class="source-line-no">165</span><span id="line-165">    public void remove( final String cacheName, final Serializable key ) {</span>
+<span class="source-line-no">166</span><span id="line-166">        if( keyAndCacheAreNotNull( cacheName, key ) ) {</span>
+<span class="source-line-no">167</span><span id="line-167">            cacheMap.get( cacheName ).remove( key );</span>
+<span class="source-line-no">168</span><span id="line-168">        }</span>
+<span class="source-line-no">169</span><span id="line-169">    }</span>
+<span class="source-line-no">170</span><span id="line-170"></span>
+<span class="source-line-no">171</span><span id="line-171">    /** {@inheritDoc} */</span>
+<span class="source-line-no">172</span><span id="line-172">    @Override</span>
+<span class="source-line-no">173</span><span id="line-173">    public boolean registerListener( final String cacheName, final String listener, final Object... args ) {</span>
+<span class="source-line-no">174</span><span id="line-174">        if( enabled( cacheName ) &amp;&amp; "expired".equals( listener ) ) {</span>
+<span class="source-line-no">175</span><span id="line-175">            final AtomicBoolean allRequested = ( AtomicBoolean )args[0];</span>
+<span class="source-line-no">176</span><span id="line-176">            final CacheEventListenerAdapter expiredCacheListenerAdapter = new CacheEventListenerAdapter() {</span>
+<span class="source-line-no">177</span><span id="line-177">                @Override</span>
+<span class="source-line-no">178</span><span id="line-178">                public void notifyElementExpired( final Ehcache cache, final Element element ) {</span>
+<span class="source-line-no">179</span><span id="line-179">                    allRequested.set( false ); // signal that the cache no longer contains all elements...</span>
+<span class="source-line-no">180</span><span id="line-180">                }</span>
+<span class="source-line-no">181</span><span id="line-181">            };</span>
+<span class="source-line-no">182</span><span id="line-182">            return cacheMap.get( cacheName ).getCacheEventNotificationService().registerListener( expiredCacheListenerAdapter );</span>
+<span class="source-line-no">183</span><span id="line-183">        }</span>
+<span class="source-line-no">184</span><span id="line-184">        return false;</span>
+<span class="source-line-no">185</span><span id="line-185">    }</span>
+<span class="source-line-no">186</span><span id="line-186"></span>
+<span class="source-line-no">187</span><span id="line-187">    boolean keyAndCacheAreNotNull( final String cacheName, final Serializable key ) {</span>
+<span class="source-line-no">188</span><span id="line-188">        return enabled( cacheName ) &amp;&amp; key != null;</span>
+<span class="source-line-no">189</span><span id="line-189">    }</span>
+<span class="source-line-no">190</span><span id="line-190"></span>
+<span class="source-line-no">191</span><span id="line-191">}</span>
 
 
 

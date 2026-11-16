@@ -41,143 +41,151 @@
 <span class="source-line-no">028</span><span id="line-28">import jakarta.servlet.http.HttpServletRequest;</span>
 <span class="source-line-no">029</span><span id="line-29">import java.nio.charset.Charset;</span>
 <span class="source-line-no">030</span><span id="line-30">import java.util.Properties;</span>
-<span class="source-line-no">031</span><span id="line-31"></span>
+<span class="source-line-no">031</span><span id="line-31">import org.apache.wiki.security.AuditLogger;</span>
 <span class="source-line-no">032</span><span id="line-32"></span>
-<span class="source-line-no">033</span><span id="line-33">/**</span>
-<span class="source-line-no">034</span><span id="line-34"> *  Provides a way to do short URLs of the form /wiki/PageName.</span>
-<span class="source-line-no">035</span><span id="line-35"> *</span>
-<span class="source-line-no">036</span><span id="line-36"> *  @since 2.2</span>
-<span class="source-line-no">037</span><span id="line-37"> */</span>
-<span class="source-line-no">038</span><span id="line-38">public class ShortURLConstructor extends DefaultURLConstructor {</span>
-<span class="source-line-no">039</span><span id="line-39">    </span>
-<span class="source-line-no">040</span><span id="line-40">    private static final String DEFAULT_PREFIX = "wiki/";</span>
-<span class="source-line-no">041</span><span id="line-41">    private static final Logger LOG = LogManager.getLogger( ShortURLConstructor.class );</span>
-<span class="source-line-no">042</span><span id="line-42">    </span>
-<span class="source-line-no">043</span><span id="line-43">    /** Contains the path part after the JSPWiki base URL */</span>
-<span class="source-line-no">044</span><span id="line-44">    protected String m_urlPrefix = "";</span>
-<span class="source-line-no">045</span><span id="line-45">    </span>
-<span class="source-line-no">046</span><span id="line-46">    /**</span>
-<span class="source-line-no">047</span><span id="line-47">     *  This corresponds to your WikiServlet path.  By default, it is assumed to be "wiki/", but you can set it to whatever you</span>
-<span class="source-line-no">048</span><span id="line-48">     *  like - including an empty name.</span>
-<span class="source-line-no">049</span><span id="line-49">     */</span>
-<span class="source-line-no">050</span><span id="line-50">    public static final String PROP_PREFIX = "jspwiki.shortURLConstructor.prefix";</span>
-<span class="source-line-no">051</span><span id="line-51">    </span>
-<span class="source-line-no">052</span><span id="line-52">    /** {@inheritDoc} */</span>
-<span class="source-line-no">053</span><span id="line-53">    @Override</span>
-<span class="source-line-no">054</span><span id="line-54">    public void initialize( final Engine engine, final Properties properties ) {</span>
-<span class="source-line-no">055</span><span id="line-55">        super.initialize( engine, properties );</span>
-<span class="source-line-no">056</span><span id="line-56">        </span>
-<span class="source-line-no">057</span><span id="line-57">        m_urlPrefix = TextUtil.getStringProperty( properties, PROP_PREFIX, null );</span>
-<span class="source-line-no">058</span><span id="line-58">        </span>
-<span class="source-line-no">059</span><span id="line-59">        if( m_urlPrefix == null ) {</span>
-<span class="source-line-no">060</span><span id="line-60">            m_urlPrefix = DEFAULT_PREFIX;</span>
-<span class="source-line-no">061</span><span id="line-61">        }</span>
-<span class="source-line-no">062</span><span id="line-62"></span>
-<span class="source-line-no">063</span><span id="line-63">        LOG.info("Short URL prefix path="+m_urlPrefix+" (You can use "+PROP_PREFIX+" to override this)");</span>
-<span class="source-line-no">064</span><span id="line-64">    }</span>
-<span class="source-line-no">065</span><span id="line-65"></span>
-<span class="source-line-no">066</span><span id="line-66">    /**</span>
-<span class="source-line-no">067</span><span id="line-67">     *  Constructs the actual URL based on the context.</span>
-<span class="source-line-no">068</span><span id="line-68">     */</span>
-<span class="source-line-no">069</span><span id="line-69">    private String makeURL( final String context, final String name ) {</span>
-<span class="source-line-no">070</span><span id="line-70">        final String viewurl = "%p" + m_urlPrefix + "%n";</span>
-<span class="source-line-no">071</span><span id="line-71"></span>
-<span class="source-line-no">072</span><span id="line-72">        if( context.equals( ContextEnum.PAGE_VIEW.getRequestContext() ) ) {</span>
-<span class="source-line-no">073</span><span id="line-73">            if( name == null ) {</span>
-<span class="source-line-no">074</span><span id="line-74">                return doReplacement("%u","" );</span>
-<span class="source-line-no">075</span><span id="line-75">            }</span>
-<span class="source-line-no">076</span><span id="line-76">            return doReplacement( viewurl, name );</span>
-<span class="source-line-no">077</span><span id="line-77">        } else if( context.equals( ContextEnum.PAGE_PREVIEW.getRequestContext() ) ) {</span>
-<span class="source-line-no">078</span><span id="line-78">            if( name == null ) {</span>
-<span class="source-line-no">079</span><span id="line-79">                return doReplacement("%u","" );</span>
-<span class="source-line-no">080</span><span id="line-80">            }</span>
-<span class="source-line-no">081</span><span id="line-81">            return doReplacement( viewurl + "?do=Preview", name );</span>
-<span class="source-line-no">082</span><span id="line-82">        } else if( context.equals( ContextEnum.PAGE_EDIT.getRequestContext() ) ) {</span>
-<span class="source-line-no">083</span><span id="line-83">            return doReplacement( viewurl + "?do=Edit", name );</span>
-<span class="source-line-no">084</span><span id="line-84">        } else if( context.equals( ContextEnum.PAGE_ATTACH.getRequestContext() ) ) {</span>
-<span class="source-line-no">085</span><span id="line-85">            return doReplacement( "%uattach/%n", name );</span>
-<span class="source-line-no">086</span><span id="line-86">        } else if( context.equals( ContextEnum.PAGE_INFO.getRequestContext() ) ) {</span>
-<span class="source-line-no">087</span><span id="line-87">            return doReplacement( viewurl + "?do=PageInfo", name );</span>
-<span class="source-line-no">088</span><span id="line-88">        } else if( context.equals( ContextEnum.PAGE_DIFF.getRequestContext() ) ) {</span>
-<span class="source-line-no">089</span><span id="line-89">            return doReplacement( viewurl + "?do=Diff", name );</span>
-<span class="source-line-no">090</span><span id="line-90">        } else if( context.equals( ContextEnum.PAGE_NONE.getRequestContext() ) ) {</span>
-<span class="source-line-no">091</span><span id="line-91">            return doReplacement( "%u%n", name );</span>
-<span class="source-line-no">092</span><span id="line-92">        } else if( context.equals( ContextEnum.PAGE_UPLOAD.getRequestContext() ) ) {</span>
-<span class="source-line-no">093</span><span id="line-93">            return doReplacement( viewurl + "?do=Upload", name ); </span>
-<span class="source-line-no">094</span><span id="line-94">        } else if( context.equals( ContextEnum.PAGE_COMMENT.getRequestContext() ) ) {</span>
-<span class="source-line-no">095</span><span id="line-95">            return doReplacement( viewurl + "?do=Comment", name ); </span>
-<span class="source-line-no">096</span><span id="line-96">        } else if( context.equals( ContextEnum.WIKI_LOGIN.getRequestContext() ) ) {</span>
-<span class="source-line-no">097</span><span id="line-97">            final String loginUrl = "%pLogin.jsp?redirect=%n";</span>
-<span class="source-line-no">098</span><span id="line-98">            return doReplacement( loginUrl, name ); </span>
-<span class="source-line-no">099</span><span id="line-99">        } else if( context.equals( ContextEnum.PAGE_DELETE.getRequestContext() ) ) {</span>
-<span class="source-line-no">100</span><span id="line-100">            return doReplacement( viewurl + "?do=Delete", name ); </span>
-<span class="source-line-no">101</span><span id="line-101">        } else if( context.equals( ContextEnum.PAGE_CONFLICT.getRequestContext() ) ) {</span>
-<span class="source-line-no">102</span><span id="line-102">            return doReplacement( viewurl + "?do=PageModified", name ); </span>
-<span class="source-line-no">103</span><span id="line-103">        } else if( context.equals( ContextEnum.WIKI_PREFS.getRequestContext() ) ) {</span>
-<span class="source-line-no">104</span><span id="line-104">            return doReplacement( viewurl + "?do=UserPreferences", name ); </span>
-<span class="source-line-no">105</span><span id="line-105">        } else if( context.equals( ContextEnum.WIKI_FIND.getRequestContext() ) ) {</span>
-<span class="source-line-no">106</span><span id="line-106">            return doReplacement( viewurl + "?do=Search", name ); </span>
-<span class="source-line-no">107</span><span id="line-107">        } else if( context.equals( ContextEnum.WIKI_ERROR.getRequestContext() ) ) {</span>
-<span class="source-line-no">108</span><span id="line-108">            return doReplacement( "%uError.jsp", name );</span>
-<span class="source-line-no">109</span><span id="line-109">        } else if( context.equals( ContextEnum.WIKI_CREATE_GROUP.getRequestContext() ) ) {</span>
-<span class="source-line-no">110</span><span id="line-110">            return doReplacement( viewurl + "?do=NewGroup", name );</span>
-<span class="source-line-no">111</span><span id="line-111">        } else if( context.equals( ContextEnum.GROUP_DELETE.getRequestContext() ) ) {</span>
-<span class="source-line-no">112</span><span id="line-112">            return doReplacement( viewurl + "?do=DeleteGroup", name );</span>
-<span class="source-line-no">113</span><span id="line-113">        } else if( context.equals( ContextEnum.GROUP_EDIT.getRequestContext() ) ) {</span>
-<span class="source-line-no">114</span><span id="line-114">            return doReplacement( viewurl + "?do=EditGroup", name );</span>
-<span class="source-line-no">115</span><span id="line-115">        } else if( context.equals( ContextEnum.GROUP_VIEW.getRequestContext() ) ) {</span>
-<span class="source-line-no">116</span><span id="line-116">            return doReplacement( viewurl + "?do=Group&amp;group=%n", name );</span>
-<span class="source-line-no">117</span><span id="line-117">        }</span>
-<span class="source-line-no">118</span><span id="line-118">        </span>
-<span class="source-line-no">119</span><span id="line-119">        throw new InternalWikiException( "Requested unsupported context " + context );</span>
-<span class="source-line-no">120</span><span id="line-120">    }</span>
-<span class="source-line-no">121</span><span id="line-121"></span>
-<span class="source-line-no">122</span><span id="line-122">    /**</span>
-<span class="source-line-no">123</span><span id="line-123">     *  {@inheritDoc}</span>
-<span class="source-line-no">124</span><span id="line-124">     */</span>
-<span class="source-line-no">125</span><span id="line-125">    @Override</span>
-<span class="source-line-no">126</span><span id="line-126">    public String makeURL( final String context, final String name, String parameters ) {</span>
-<span class="source-line-no">127</span><span id="line-127">        if( parameters != null &amp;&amp; !parameters.isEmpty() ) {</span>
-<span class="source-line-no">128</span><span id="line-128">            if( context.equals( ContextEnum.PAGE_ATTACH.getRequestContext() ) || context.equals( ContextEnum.PAGE_VIEW.getRequestContext() ) ) {</span>
-<span class="source-line-no">129</span><span id="line-129">                parameters = "?" + parameters;</span>
-<span class="source-line-no">130</span><span id="line-130">            } else if( context.equals(ContextEnum.PAGE_NONE.getRequestContext()) ) {</span>
-<span class="source-line-no">131</span><span id="line-131">                parameters = (name.indexOf('?') != -1 ) ? "&amp;amp;" : "?" + parameters;</span>
-<span class="source-line-no">132</span><span id="line-132">            } else {</span>
-<span class="source-line-no">133</span><span id="line-133">                parameters = "&amp;amp;"+parameters;</span>
-<span class="source-line-no">134</span><span id="line-134">            }</span>
-<span class="source-line-no">135</span><span id="line-135">        } else {</span>
-<span class="source-line-no">136</span><span id="line-136">            parameters = "";</span>
-<span class="source-line-no">137</span><span id="line-137">        }</span>
-<span class="source-line-no">138</span><span id="line-138">        return makeURL( context, name )+parameters;</span>
-<span class="source-line-no">139</span><span id="line-139">    }</span>
-<span class="source-line-no">140</span><span id="line-140"></span>
-<span class="source-line-no">141</span><span id="line-141">    /**</span>
-<span class="source-line-no">142</span><span id="line-142">     * {@inheritDoc}</span>
-<span class="source-line-no">143</span><span id="line-143">     */</span>
-<span class="source-line-no">144</span><span id="line-144">    @Override</span>
-<span class="source-line-no">145</span><span id="line-145">    public String parsePage( final String context, final HttpServletRequest request, final Charset encoding ) {</span>
-<span class="source-line-no">146</span><span id="line-146">        final String pagereq = request.getParameter( "page" );</span>
-<span class="source-line-no">147</span><span id="line-147">        if( pagereq == null ) {</span>
-<span class="source-line-no">148</span><span id="line-148">            return URLConstructor.parsePageFromURL( request, encoding );</span>
-<span class="source-line-no">149</span><span id="line-149">        }</span>
-<span class="source-line-no">150</span><span id="line-150"></span>
-<span class="source-line-no">151</span><span id="line-151">        return pagereq;</span>
-<span class="source-line-no">152</span><span id="line-152">    }</span>
-<span class="source-line-no">153</span><span id="line-153"></span>
-<span class="source-line-no">154</span><span id="line-154">    /**</span>
-<span class="source-line-no">155</span><span id="line-155">     *  {@inheritDoc}</span>
-<span class="source-line-no">156</span><span id="line-156">     */</span>
-<span class="source-line-no">157</span><span id="line-157">    @Override</span>
-<span class="source-line-no">158</span><span id="line-158">    public String getForwardPage( final HttpServletRequest req ) {</span>
-<span class="source-line-no">159</span><span id="line-159">        String jspPage = req.getParameter( "do" );</span>
-<span class="source-line-no">160</span><span id="line-160">        if( jspPage == null ) {</span>
-<span class="source-line-no">161</span><span id="line-161">            jspPage = "Wiki";</span>
-<span class="source-line-no">162</span><span id="line-162">        }</span>
-<span class="source-line-no">163</span><span id="line-163">    </span>
-<span class="source-line-no">164</span><span id="line-164">        return jspPage + ".jsp";</span>
-<span class="source-line-no">165</span><span id="line-165">    }</span>
-<span class="source-line-no">166</span><span id="line-166"></span>
-<span class="source-line-no">167</span><span id="line-167">}</span>
+<span class="source-line-no">033</span><span id="line-33"></span>
+<span class="source-line-no">034</span><span id="line-34">/**</span>
+<span class="source-line-no">035</span><span id="line-35"> *  Provides a way to do short URLs of the form /wiki/PageName.</span>
+<span class="source-line-no">036</span><span id="line-36"> *</span>
+<span class="source-line-no">037</span><span id="line-37"> *  @since 2.2</span>
+<span class="source-line-no">038</span><span id="line-38"> */</span>
+<span class="source-line-no">039</span><span id="line-39">public class ShortURLConstructor extends DefaultURLConstructor {</span>
+<span class="source-line-no">040</span><span id="line-40">    </span>
+<span class="source-line-no">041</span><span id="line-41">    private static final String DEFAULT_PREFIX = "wiki/";</span>
+<span class="source-line-no">042</span><span id="line-42">    private static final Logger LOG = LogManager.getLogger( ShortURLConstructor.class );</span>
+<span class="source-line-no">043</span><span id="line-43">    </span>
+<span class="source-line-no">044</span><span id="line-44">    /** Contains the path part after the JSPWiki base URL */</span>
+<span class="source-line-no">045</span><span id="line-45">    protected String m_urlPrefix = "";</span>
+<span class="source-line-no">046</span><span id="line-46">    </span>
+<span class="source-line-no">047</span><span id="line-47">    /**</span>
+<span class="source-line-no">048</span><span id="line-48">     *  This corresponds to your WikiServlet path.  By default, it is assumed to be "wiki/", but you can set it to whatever you</span>
+<span class="source-line-no">049</span><span id="line-49">     *  like - including an empty name.</span>
+<span class="source-line-no">050</span><span id="line-50">     */</span>
+<span class="source-line-no">051</span><span id="line-51">    public static final String PROP_PREFIX = "jspwiki.shortURLConstructor.prefix";</span>
+<span class="source-line-no">052</span><span id="line-52">    </span>
+<span class="source-line-no">053</span><span id="line-53">    /** {@inheritDoc} */</span>
+<span class="source-line-no">054</span><span id="line-54">    @Override</span>
+<span class="source-line-no">055</span><span id="line-55">    public void initialize( final Engine engine, final Properties properties ) {</span>
+<span class="source-line-no">056</span><span id="line-56">        super.initialize( engine, properties );</span>
+<span class="source-line-no">057</span><span id="line-57">        </span>
+<span class="source-line-no">058</span><span id="line-58">        m_urlPrefix = TextUtil.getStringProperty( properties, PROP_PREFIX, null );</span>
+<span class="source-line-no">059</span><span id="line-59">        </span>
+<span class="source-line-no">060</span><span id="line-60">        if( m_urlPrefix == null ) {</span>
+<span class="source-line-no">061</span><span id="line-61">            m_urlPrefix = DEFAULT_PREFIX;</span>
+<span class="source-line-no">062</span><span id="line-62">        }</span>
+<span class="source-line-no">063</span><span id="line-63"></span>
+<span class="source-line-no">064</span><span id="line-64">        LOG.info("Short URL prefix path="+m_urlPrefix+" (You can use "+PROP_PREFIX+" to override this)");</span>
+<span class="source-line-no">065</span><span id="line-65">    }</span>
+<span class="source-line-no">066</span><span id="line-66"></span>
+<span class="source-line-no">067</span><span id="line-67">    /**</span>
+<span class="source-line-no">068</span><span id="line-68">     *  Constructs the actual URL based on the context.</span>
+<span class="source-line-no">069</span><span id="line-69">     */</span>
+<span class="source-line-no">070</span><span id="line-70">    private String makeURL( final String context, final String name ) {</span>
+<span class="source-line-no">071</span><span id="line-71">        final String viewurl = "%p" + m_urlPrefix + "%n";</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">        if( context.equals( ContextEnum.PAGE_VIEW.getRequestContext() ) ) {</span>
+<span class="source-line-no">074</span><span id="line-74">            if( name == null ) {</span>
+<span class="source-line-no">075</span><span id="line-75">                return doReplacement("%u","" );</span>
+<span class="source-line-no">076</span><span id="line-76">            }</span>
+<span class="source-line-no">077</span><span id="line-77">            return doReplacement( viewurl, name );</span>
+<span class="source-line-no">078</span><span id="line-78">        } else if( context.equals( ContextEnum.PAGE_PREVIEW.getRequestContext() ) ) {</span>
+<span class="source-line-no">079</span><span id="line-79">            if( name == null ) {</span>
+<span class="source-line-no">080</span><span id="line-80">                return doReplacement("%u","" );</span>
+<span class="source-line-no">081</span><span id="line-81">            }</span>
+<span class="source-line-no">082</span><span id="line-82">            return doReplacement( viewurl + "?do=Preview", name );</span>
+<span class="source-line-no">083</span><span id="line-83">        } else if( context.equals( ContextEnum.PAGE_EDIT.getRequestContext() ) ) {</span>
+<span class="source-line-no">084</span><span id="line-84">            return doReplacement( viewurl + "?do=Edit", name );</span>
+<span class="source-line-no">085</span><span id="line-85">        } else if( context.equals( ContextEnum.PAGE_ATTACH.getRequestContext() ) ) {</span>
+<span class="source-line-no">086</span><span id="line-86">            return doReplacement( "%uattach/%n", name );</span>
+<span class="source-line-no">087</span><span id="line-87">        } else if( context.equals( ContextEnum.PAGE_INFO.getRequestContext() ) ) {</span>
+<span class="source-line-no">088</span><span id="line-88">            return doReplacement( viewurl + "?do=PageInfo", name );</span>
+<span class="source-line-no">089</span><span id="line-89">        } else if( context.equals( ContextEnum.PAGE_DIFF.getRequestContext() ) ) {</span>
+<span class="source-line-no">090</span><span id="line-90">            return doReplacement( viewurl + "?do=Diff", name );</span>
+<span class="source-line-no">091</span><span id="line-91">        } else if( context.equals( ContextEnum.PAGE_NONE.getRequestContext() ) ) {</span>
+<span class="source-line-no">092</span><span id="line-92">            return doReplacement( "%u%n", name );</span>
+<span class="source-line-no">093</span><span id="line-93">        } else if( context.equals( ContextEnum.PAGE_UPLOAD.getRequestContext() ) ) {</span>
+<span class="source-line-no">094</span><span id="line-94">            return doReplacement( viewurl + "?do=Upload", name ); </span>
+<span class="source-line-no">095</span><span id="line-95">        } else if( context.equals( ContextEnum.PAGE_COMMENT.getRequestContext() ) ) {</span>
+<span class="source-line-no">096</span><span id="line-96">            return doReplacement( viewurl + "?do=Comment", name ); </span>
+<span class="source-line-no">097</span><span id="line-97">        } else if( context.equals( ContextEnum.WIKI_LOGIN.getRequestContext() ) ) {</span>
+<span class="source-line-no">098</span><span id="line-98">            final String loginUrl = "%pLogin.jsp?redirect=%n";</span>
+<span class="source-line-no">099</span><span id="line-99">            return doReplacement( loginUrl, name ); </span>
+<span class="source-line-no">100</span><span id="line-100">        } else if( context.equals( ContextEnum.PAGE_DELETE.getRequestContext() ) ) {</span>
+<span class="source-line-no">101</span><span id="line-101">            return doReplacement( viewurl + "?do=Delete", name ); </span>
+<span class="source-line-no">102</span><span id="line-102">        } else if( context.equals( ContextEnum.PAGE_CONFLICT.getRequestContext() ) ) {</span>
+<span class="source-line-no">103</span><span id="line-103">            return doReplacement( viewurl + "?do=PageModified", name ); </span>
+<span class="source-line-no">104</span><span id="line-104">        } else if( context.equals( ContextEnum.WIKI_PREFS.getRequestContext() ) ) {</span>
+<span class="source-line-no">105</span><span id="line-105">            return doReplacement( viewurl + "?do=UserPreferences", name ); </span>
+<span class="source-line-no">106</span><span id="line-106">        } else if( context.equals( ContextEnum.WIKI_FIND.getRequestContext() ) ) {</span>
+<span class="source-line-no">107</span><span id="line-107">            return doReplacement( viewurl + "?do=Search", name ); </span>
+<span class="source-line-no">108</span><span id="line-108">        } else if( context.equals( ContextEnum.WIKI_ERROR.getRequestContext() ) ) {</span>
+<span class="source-line-no">109</span><span id="line-109">            return doReplacement( "%uError.jsp", name );</span>
+<span class="source-line-no">110</span><span id="line-110">        } else if( context.equals( ContextEnum.WIKI_CREATE_GROUP.getRequestContext() ) ) {</span>
+<span class="source-line-no">111</span><span id="line-111">            return doReplacement( viewurl + "?do=NewGroup", name );</span>
+<span class="source-line-no">112</span><span id="line-112">        } else if( context.equals( ContextEnum.GROUP_DELETE.getRequestContext() ) ) {</span>
+<span class="source-line-no">113</span><span id="line-113">            return doReplacement( viewurl + "?do=DeleteGroup", name );</span>
+<span class="source-line-no">114</span><span id="line-114">        } else if( context.equals( ContextEnum.GROUP_EDIT.getRequestContext() ) ) {</span>
+<span class="source-line-no">115</span><span id="line-115">            return doReplacement( viewurl + "?do=EditGroup", name );</span>
+<span class="source-line-no">116</span><span id="line-116">        } else if( context.equals( ContextEnum.GROUP_VIEW.getRequestContext() ) ) {</span>
+<span class="source-line-no">117</span><span id="line-117">            return doReplacement( viewurl + "?do=Group&amp;group=%n", name );</span>
+<span class="source-line-no">118</span><span id="line-118">        }</span>
+<span class="source-line-no">119</span><span id="line-119">        </span>
+<span class="source-line-no">120</span><span id="line-120">        throw new InternalWikiException( "Requested unsupported context " + context );</span>
+<span class="source-line-no">121</span><span id="line-121">    }</span>
+<span class="source-line-no">122</span><span id="line-122"></span>
+<span class="source-line-no">123</span><span id="line-123">    /**</span>
+<span class="source-line-no">124</span><span id="line-124">     *  {@inheritDoc}</span>
+<span class="source-line-no">125</span><span id="line-125">     */</span>
+<span class="source-line-no">126</span><span id="line-126">    @Override</span>
+<span class="source-line-no">127</span><span id="line-127">    public String makeURL( final String context, final String name, String parameters ) {</span>
+<span class="source-line-no">128</span><span id="line-128">        if( parameters != null &amp;&amp; !parameters.isEmpty() ) {</span>
+<span class="source-line-no">129</span><span id="line-129">            if( context.equals( ContextEnum.PAGE_ATTACH.getRequestContext() ) || context.equals( ContextEnum.PAGE_VIEW.getRequestContext() ) ) {</span>
+<span class="source-line-no">130</span><span id="line-130">                parameters = "?" + parameters;</span>
+<span class="source-line-no">131</span><span id="line-131">            } else if( context.equals(ContextEnum.PAGE_NONE.getRequestContext()) ) {</span>
+<span class="source-line-no">132</span><span id="line-132">                parameters = (name.indexOf('?') != -1 ) ? "&amp;amp;" : "?" + parameters;</span>
+<span class="source-line-no">133</span><span id="line-133">            } else {</span>
+<span class="source-line-no">134</span><span id="line-134">                parameters = "&amp;amp;"+parameters;</span>
+<span class="source-line-no">135</span><span id="line-135">            }</span>
+<span class="source-line-no">136</span><span id="line-136">        } else {</span>
+<span class="source-line-no">137</span><span id="line-137">            parameters = "";</span>
+<span class="source-line-no">138</span><span id="line-138">        }</span>
+<span class="source-line-no">139</span><span id="line-139">        return makeURL( context, name )+parameters;</span>
+<span class="source-line-no">140</span><span id="line-140">    }</span>
+<span class="source-line-no">141</span><span id="line-141"></span>
+<span class="source-line-no">142</span><span id="line-142">    /**</span>
+<span class="source-line-no">143</span><span id="line-143">     * {@inheritDoc}</span>
+<span class="source-line-no">144</span><span id="line-144">     */</span>
+<span class="source-line-no">145</span><span id="line-145">    @Override</span>
+<span class="source-line-no">146</span><span id="line-146">    public String parsePage( final String context, final HttpServletRequest request, final Charset encoding ) {</span>
+<span class="source-line-no">147</span><span id="line-147">        final String pagereq = request.getParameter( "page" );</span>
+<span class="source-line-no">148</span><span id="line-148">        if( pagereq == null ) {</span>
+<span class="source-line-no">149</span><span id="line-149">            return URLConstructor.parsePageFromURL( request, encoding );</span>
+<span class="source-line-no">150</span><span id="line-150">        }</span>
+<span class="source-line-no">151</span><span id="line-151"></span>
+<span class="source-line-no">152</span><span id="line-152">        return pagereq;</span>
+<span class="source-line-no">153</span><span id="line-153">    }</span>
+<span class="source-line-no">154</span><span id="line-154"></span>
+<span class="source-line-no">155</span><span id="line-155">    /**</span>
+<span class="source-line-no">156</span><span id="line-156">     *  {@inheritDoc}</span>
+<span class="source-line-no">157</span><span id="line-157">     */</span>
+<span class="source-line-no">158</span><span id="line-158">    @Override</span>
+<span class="source-line-no">159</span><span id="line-159">    public String getForwardPage( final HttpServletRequest req ) {</span>
+<span class="source-line-no">160</span><span id="line-160">        String jspPage = req.getParameter( "do" );</span>
+<span class="source-line-no">161</span><span id="line-161">        if( jspPage == null ) {</span>
+<span class="source-line-no">162</span><span id="line-162">            jspPage = "Wiki";</span>
+<span class="source-line-no">163</span><span id="line-163">        } else {</span>
+<span class="source-line-no">164</span><span id="line-164">            // Block path traversal, slashes, backslashes, query delimiters, percent encoding, </span>
+<span class="source-line-no">165</span><span id="line-165">            // and control characters to prevent JSPWIKI-1304 while supporting international characters.</span>
+<span class="source-line-no">166</span><span id="line-166">            if( jspPage.contains( ".." ) || jspPage.contains( "/" ) || jspPage.contains( "\\" ) || </span>
+<span class="source-line-no">167</span><span id="line-167">                jspPage.contains( "?" ) || jspPage.contains( "%" ) || jspPage.matches( ".*[\\p{Cntrl}].*" ) ) {</span>
+<span class="source-line-no">168</span><span id="line-168">                LOG.warn( "Invalid characters or path traversal detected in 'do' parameter: {}. Falling back to default Wiki page.", TextUtil.replaceEntities( jspPage ) );</span>
+<span class="source-line-no">169</span><span id="line-169">                jspPage = "Wiki";</span>
+<span class="source-line-no">170</span><span id="line-170">            }</span>
+<span class="source-line-no">171</span><span id="line-171">        }</span>
+<span class="source-line-no">172</span><span id="line-172">    </span>
+<span class="source-line-no">173</span><span id="line-173">        return jspPage + ".jsp";</span>
+<span class="source-line-no">174</span><span id="line-174">    }</span>
+<span class="source-line-no">175</span><span id="line-175">}</span>
 
 
 
