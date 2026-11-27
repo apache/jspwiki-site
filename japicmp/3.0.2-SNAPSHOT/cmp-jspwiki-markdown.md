@@ -1229,7 +1229,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-24 22:13:35.119+0000*.
+*Generated on: 2026-11-27 23:34:58.078+0000*.
 
 [1]: # "com.vladsch.flexmark.parser.Parser$Builder"
 [Method added to public class]: https://img.shields.io/badge/Method_added_to_public_class-yellow "Method added to public class"

@@ -38,7 +38,7 @@
 <span class="source-line-no">025</span><span id="line-25">import org.apache.wiki.auth.acl.AclEntry;</span>
 <span class="source-line-no">026</span><span id="line-26">import org.apache.wiki.auth.acl.AclImpl;</span>
 <span class="source-line-no">027</span><span id="line-27">import org.apache.wiki.pages.PageManager;</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
+<span class="source-line-no">028</span><span id="line-28">import org.apache.wiki.auth.acl.AclEntryImpl;</span>
 <span class="source-line-no">029</span><span id="line-29">import java.util.Date;</span>
 <span class="source-line-no">030</span><span id="line-30">import java.util.Enumeration;</span>
 <span class="source-line-no">031</span><span id="line-31">import java.util.HashMap;</span>
@@ -335,60 +335,65 @@
 <span class="source-line-no">322</span><span id="line-322"></span>
 <span class="source-line-no">323</span><span id="line-323">        if( m_accessList != null ) {</span>
 <span class="source-line-no">324</span><span id="line-324">            p.m_accessList = new AclImpl();</span>
-<span class="source-line-no">325</span><span id="line-325">            for( final Enumeration&lt; AclEntry &gt; entries = m_accessList.entries(); entries.hasMoreElements(); ) {</span>
-<span class="source-line-no">326</span><span id="line-326">                final AclEntry e = entries.nextElement();</span>
-<span class="source-line-no">327</span><span id="line-327">                p.m_accessList.addEntry( e );</span>
-<span class="source-line-no">328</span><span id="line-328">            }</span>
-<span class="source-line-no">329</span><span id="line-329">        }</span>
-<span class="source-line-no">330</span><span id="line-330">            </span>
-<span class="source-line-no">331</span><span id="line-331">        return p;</span>
-<span class="source-line-no">332</span><span id="line-332">    }</span>
-<span class="source-line-no">333</span><span id="line-333">    </span>
-<span class="source-line-no">334</span><span id="line-334">    /**</span>
-<span class="source-line-no">335</span><span id="line-335">     *  Compares a page with another by name using the defined PageNameComparator.  If the same name, compares their versions.</span>
-<span class="source-line-no">336</span><span id="line-336">     *  </span>
-<span class="source-line-no">337</span><span id="line-337">     *  @param page The page to compare against</span>
-<span class="source-line-no">338</span><span id="line-338">     *  @return -1, 0 or 1</span>
-<span class="source-line-no">339</span><span id="line-339">     */</span>
-<span class="source-line-no">340</span><span id="line-340">    @Override</span>
-<span class="source-line-no">341</span><span id="line-341">    public int compareTo( final Page page ) {</span>
-<span class="source-line-no">342</span><span id="line-342">        if( this == page ) {</span>
-<span class="source-line-no">343</span><span id="line-343">            return 0; // the same object</span>
-<span class="source-line-no">344</span><span id="line-344">        }</span>
-<span class="source-line-no">345</span><span id="line-345"></span>
-<span class="source-line-no">346</span><span id="line-346">        int res = m_engine.getManager( PageManager.class ).getPageSorter().compare( this.getName(), page.getName() );</span>
-<span class="source-line-no">347</span><span id="line-347">        if( res == 0 ) {</span>
-<span class="source-line-no">348</span><span id="line-348">            res = this.getVersion() - page.getVersion();</span>
+<span class="source-line-no">325</span><span id="line-325">            for( final Enumeration&lt;org.apache.wiki.api.core.AclEntry&gt; entries = m_accessList.aclEntries(); entries.hasMoreElements(); ) {</span>
+<span class="source-line-no">326</span><span id="line-326">                final org.apache.wiki.api.core.AclEntry e = entries.nextElement();</span>
+<span class="source-line-no">327</span><span id="line-327">                final org.apache.wiki.api.core.AclEntry copy = new AclEntryImpl();</span>
+<span class="source-line-no">328</span><span id="line-328">                copy.setPrincipal( e.getPrincipal() );</span>
+<span class="source-line-no">329</span><span id="line-329">                for( final java.util.Enumeration&lt;java.security.Permission&gt; perms = e.permissions(); perms.hasMoreElements(); ) {</span>
+<span class="source-line-no">330</span><span id="line-330">                    copy.addPermission( perms.nextElement() );</span>
+<span class="source-line-no">331</span><span id="line-331">                }</span>
+<span class="source-line-no">332</span><span id="line-332">                p.m_accessList.addEntry( copy );</span>
+<span class="source-line-no">333</span><span id="line-333">            }</span>
+<span class="source-line-no">334</span><span id="line-334">        }</span>
+<span class="source-line-no">335</span><span id="line-335">            </span>
+<span class="source-line-no">336</span><span id="line-336">        return p;</span>
+<span class="source-line-no">337</span><span id="line-337">    }</span>
+<span class="source-line-no">338</span><span id="line-338">    </span>
+<span class="source-line-no">339</span><span id="line-339">    /**</span>
+<span class="source-line-no">340</span><span id="line-340">     *  Compares a page with another by name using the defined PageNameComparator.  If the same name, compares their versions.</span>
+<span class="source-line-no">341</span><span id="line-341">     *  </span>
+<span class="source-line-no">342</span><span id="line-342">     *  @param page The page to compare against</span>
+<span class="source-line-no">343</span><span id="line-343">     *  @return -1, 0 or 1</span>
+<span class="source-line-no">344</span><span id="line-344">     */</span>
+<span class="source-line-no">345</span><span id="line-345">    @Override</span>
+<span class="source-line-no">346</span><span id="line-346">    public int compareTo( final Page page ) {</span>
+<span class="source-line-no">347</span><span id="line-347">        if( this == page ) {</span>
+<span class="source-line-no">348</span><span id="line-348">            return 0; // the same object</span>
 <span class="source-line-no">349</span><span id="line-349">        }</span>
-<span class="source-line-no">350</span><span id="line-350">        return res;</span>
-<span class="source-line-no">351</span><span id="line-351">    }</span>
-<span class="source-line-no">352</span><span id="line-352">    </span>
-<span class="source-line-no">353</span><span id="line-353">    /**</span>
-<span class="source-line-no">354</span><span id="line-354">     *  A page is equal to another page if its name and version are equal.</span>
-<span class="source-line-no">355</span><span id="line-355">     *  </span>
-<span class="source-line-no">356</span><span id="line-356">     *  {@inheritDoc}</span>
-<span class="source-line-no">357</span><span id="line-357">     */</span>
-<span class="source-line-no">358</span><span id="line-358">    @Override</span>
-<span class="source-line-no">359</span><span id="line-359">    public boolean equals( final Object o ) {</span>
-<span class="source-line-no">360</span><span id="line-360">        if( o instanceof WikiPage ) {</span>
-<span class="source-line-no">361</span><span id="line-361">            final WikiPage wp = ( WikiPage )o;</span>
-<span class="source-line-no">362</span><span id="line-362">            if( wp.getName().equals( getName() ) ) {</span>
-<span class="source-line-no">363</span><span id="line-363">                return wp.getVersion() == getVersion();</span>
-<span class="source-line-no">364</span><span id="line-364">            }</span>
-<span class="source-line-no">365</span><span id="line-365">        }</span>
-<span class="source-line-no">366</span><span id="line-366"></span>
-<span class="source-line-no">367</span><span id="line-367">        return false;</span>
-<span class="source-line-no">368</span><span id="line-368">    }</span>
-<span class="source-line-no">369</span><span id="line-369"></span>
-<span class="source-line-no">370</span><span id="line-370">    /**</span>
-<span class="source-line-no">371</span><span id="line-371">     * {@inheritDoc}</span>
-<span class="source-line-no">372</span><span id="line-372">     */</span>
-<span class="source-line-no">373</span><span id="line-373">    @Override</span>
-<span class="source-line-no">374</span><span id="line-374">    public int hashCode() {</span>
-<span class="source-line-no">375</span><span id="line-375">        return m_name.hashCode() * m_version;</span>
-<span class="source-line-no">376</span><span id="line-376">    }</span>
-<span class="source-line-no">377</span><span id="line-377"></span>
-<span class="source-line-no">378</span><span id="line-378">}</span>
+<span class="source-line-no">350</span><span id="line-350"></span>
+<span class="source-line-no">351</span><span id="line-351">        int res = m_engine.getManager( PageManager.class ).getPageSorter().compare( this.getName(), page.getName() );</span>
+<span class="source-line-no">352</span><span id="line-352">        if( res == 0 ) {</span>
+<span class="source-line-no">353</span><span id="line-353">            res = this.getVersion() - page.getVersion();</span>
+<span class="source-line-no">354</span><span id="line-354">        }</span>
+<span class="source-line-no">355</span><span id="line-355">        return res;</span>
+<span class="source-line-no">356</span><span id="line-356">    }</span>
+<span class="source-line-no">357</span><span id="line-357">    </span>
+<span class="source-line-no">358</span><span id="line-358">    /**</span>
+<span class="source-line-no">359</span><span id="line-359">     *  A page is equal to another page if its name and version are equal.</span>
+<span class="source-line-no">360</span><span id="line-360">     *  </span>
+<span class="source-line-no">361</span><span id="line-361">     *  {@inheritDoc}</span>
+<span class="source-line-no">362</span><span id="line-362">     */</span>
+<span class="source-line-no">363</span><span id="line-363">    @Override</span>
+<span class="source-line-no">364</span><span id="line-364">    public boolean equals( final Object o ) {</span>
+<span class="source-line-no">365</span><span id="line-365">        if( o instanceof WikiPage ) {</span>
+<span class="source-line-no">366</span><span id="line-366">            final WikiPage wp = ( WikiPage )o;</span>
+<span class="source-line-no">367</span><span id="line-367">            if( wp.getName().equals( getName() ) ) {</span>
+<span class="source-line-no">368</span><span id="line-368">                return wp.getVersion() == getVersion();</span>
+<span class="source-line-no">369</span><span id="line-369">            }</span>
+<span class="source-line-no">370</span><span id="line-370">        }</span>
+<span class="source-line-no">371</span><span id="line-371"></span>
+<span class="source-line-no">372</span><span id="line-372">        return false;</span>
+<span class="source-line-no">373</span><span id="line-373">    }</span>
+<span class="source-line-no">374</span><span id="line-374"></span>
+<span class="source-line-no">375</span><span id="line-375">    /**</span>
+<span class="source-line-no">376</span><span id="line-376">     * {@inheritDoc}</span>
+<span class="source-line-no">377</span><span id="line-377">     */</span>
+<span class="source-line-no">378</span><span id="line-378">    @Override</span>
+<span class="source-line-no">379</span><span id="line-379">    public int hashCode() {</span>
+<span class="source-line-no">380</span><span id="line-380">        return m_name.hashCode() * m_version;</span>
+<span class="source-line-no">381</span><span id="line-381">    }</span>
+<span class="source-line-no">382</span><span id="line-382"></span>
+<span class="source-line-no">383</span><span id="line-383">}</span>
 
 
 

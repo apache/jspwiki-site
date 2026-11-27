@@ -213,7 +213,7 @@
 | Unchanged                  | [org.apache.wiki.plugin.ReferredPagesPlugin]                     | ![Not serializable]                 | ![No changes]         |
 | Unchanged                  | [org.apache.wiki.plugin.ReferringPagesPlugin]                    | ![Not serializable]                 | ![No changes]         |
 | Unchanged                  | [org.apache.wiki.plugin.ReferringUndefinedPagesPlugin]           | ![Not serializable]                 | ![No changes]         |
-| Unchanged                  | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable]                 | ![No changes]         |
+| Removed                    | [org.apache.wiki.plugin.SampleAjaxPlugin]                        | ![Not serializable]                 | ![Class removed] ![Superclass removed] ![Method removed] ![Constructor removed] |
 | Unchanged                  | [org.apache.wiki.plugin.Search]                                  | ![Not serializable]                 | ![No changes]         |
 | Unchanged                  | [org.apache.wiki.plugin.SessionsPlugin]                          | ![Not serializable]                 | ![No changes]         |
 | Unchanged                  | [org.apache.wiki.plugin.TableOfContents]                         | ![Not serializable]                 | ![No changes]         |
@@ -6676,29 +6676,29 @@ ___
 <a id="user-content-org.apache.wiki.plugin.sampleajaxplugin"></a>
 ### `org.apache.wiki.plugin.SampleAjaxPlugin`
 
-- [X] Binary-compatible
-- [X] Source-compatible
+- [ ] Binary-compatible
+- [ ] Source-compatible
 - [X] Serialization-compatible
 
-| Status    | Modifiers | Type  | Name               | Extends    | JDK    | Serialization       | Compatibility Changes |
-|-----------|-----------|-------|--------------------|------------|--------|---------------------|-----------------------|
-| Unchanged | `public`  | Class | `SampleAjaxPlugin` | [`Object`] | JDK 17 | ![Not serializable] | ![No changes]         |
+| Status  | Modifiers    | Type      | Name                   | Extends        | JDK        | Serialization       | Compatibility Changes |
+|---------|--------------|-----------|------------------------|----------------|------------|---------------------|-----------------------|
+| Removed | ~~`public`~~ | ~~Class~~ | ~~`SampleAjaxPlugin`~~ | ~~[`Object`]~~ | ~~JDK 17~~ | ![Not serializable] | ![Class removed] ![Superclass removed] |
 
 
 #### Constructors
 
-| Status    | Modifiers | Generics | Constructor          | Annotations | Throws | Compatibility Changes |
-|-----------|-----------|----------|----------------------|-------------|--------|-----------------------|
-| Unchanged | `public`  |          | `SampleAjaxPlugin`() |             |        | ![No changes]         |
+| Status  | Modifiers    | Generics | Constructor              | Annotations | Throws | Compatibility Changes |
+|---------|--------------|----------|--------------------------|-------------|--------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~`SampleAjaxPlugin`~~() |             |        | ![Constructor removed] |
 
 
 #### Methods
 
-| Status    | Modifiers | Generics | Type       | Method                                          | Annotations | Throws                                | Compatibility Changes |
-|-----------|-----------|----------|------------|-------------------------------------------------|-------------|---------------------------------------|-----------------------|
-| Unchanged | `public`  |          | [`String`] | `execute`([`Context`], [`Map<String, String>`]) |             | [`PluginException`]                   | ![No changes]         |
-| Unchanged | `public`  |          | [`String`] | `getServletMapping`()                           |             |                                       | ![No changes]         |
-| Unchanged | `public`  |          | `void`     | `service`([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | [`ServletException`], [`IOException`] | ![No changes] |
+| Status  | Modifiers    | Generics | Type           | Method                                              | Annotations | Throws                                        | Compatibility Changes |
+|---------|--------------|----------|----------------|-----------------------------------------------------|-------------|-----------------------------------------------|-----------------------|
+| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`execute`~~([`Context`], [`Map<String, String>`]) |             | ~~[`PluginException`]~~                       | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~[`String`]~~ | ~~`getServletMapping`~~()                           |             |                                               | ![Method removed]     |
+| Removed | ~~`public`~~ |          | ~~`void`~~     | ~~`service`~~([`HttpServletRequest`], [`HttpServletResponse`], [`String`], [`List<String>`]) |  | ~~[`ServletException`]~~, ~~[`IOException`]~~ | ![Method removed] |
 
 ___
 
@@ -13533,7 +13533,7 @@ ___
 
 ___
 
-*Generated on: 2026-11-24 22:13:34.867+0000*.
+*Generated on: 2026-11-27 23:34:57.822+0000*.
 
 [1]: # "org.apache.wiki.ProductUpdateChecker$Status[]"
 [2]: # "java.lang.String[]"
@@ -13571,6 +13571,7 @@ ___
 [Method removed]: https://img.shields.io/badge/Method_removed-red "Method removed"
 [No changes]: https://img.shields.io/badge/No_changes-green "No changes"
 [Not serializable]: https://img.shields.io/badge/Not_serializable-green "Not serializable"
+[Superclass removed]: https://img.shields.io/badge/Superclass_removed-red "Superclass removed"
 [Type of field has changed]: https://img.shields.io/badge/Incompatible-red "Type of field has changed"
 [`AbstractCommand`]: # "org.apache.wiki.ui.AbstractCommand"
 [`AbstractFileProvider`]: # "org.apache.wiki.providers.AbstractFileProvider"
